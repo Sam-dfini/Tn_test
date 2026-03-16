@@ -6,13 +6,13 @@ import { IntelEvent } from '../types/intel';
 
 export const Timeline: React.FC = () => {
   const [filter, setFilter] = useState('all');
-  const events = eventsData.events as IntelEvent[];
+  const events = (eventsData?.events || []) as IntelEvent[];
 
   const filteredEvents = filter === 'all' ? events : events.filter(e => e.type === filter);
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-center text-center space-y-4">
         <div>
           <h2 className="text-2xl tracking-tight">Intelligence Timeline</h2>
           <p className="text-slate-500 text-sm mt-1">Chronological event database with type and severity classification</p>
@@ -40,7 +40,7 @@ export const Timeline: React.FC = () => {
       </div>
 
       <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-intel-cyan/50 before:via-intel-border before:to-transparent">
-        {filteredEvents.map((event, i) => (
+        {(filteredEvents || []).map((event, i) => (
           <motion.div 
             key={event.id}
             initial={{ opacity: 0, y: 20 }}

@@ -12,18 +12,18 @@ export const Predict: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Probabilistic Forecasts</h2>
-          <p className="text-slate-500 text-sm mt-1">7, 30, and 90-day predictive modeling for key stability metrics</p>
-        </div>
-        <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg">
-          <TrendingUp className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">Predictive Engine Active</span>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Probabilistic Forecasts</h2>
+        <p className="text-slate-500 text-sm">7, 30, and 90-day predictive modeling for key stability metrics</p>
+        <div className="pt-4">
+          <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg">
+            <TrendingUp className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">Predictive Engine Active</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {forecasts.map((f, i) => (
           <motion.div 
             key={f.label}

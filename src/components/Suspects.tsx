@@ -12,19 +12,19 @@ const suspects = [
 export const Suspects: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Surveillance & Suspects</h2>
-          <p className="text-slate-500 text-sm mt-1">Monitoring of individuals under judicial or political surveillance</p>
-        </div>
-        <div className="flex items-center space-x-2 bg-intel-red/10 text-intel-red border border-intel-red/20 px-4 py-2 rounded-lg">
-          <UserX className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">23 Tracked Individuals</span>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Surveillance & Suspects</h2>
+        <p className="text-slate-500 text-sm">Monitoring of individuals under judicial or political surveillance</p>
+        <div className="pt-4">
+          <div className="flex items-center space-x-2 bg-intel-red/10 text-intel-red border border-intel-red/20 px-4 py-2 rounded-lg">
+            <UserX className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">23 Tracked Individuals</span>
+          </div>
         </div>
       </div>
 
-      <div className="glass overflow-hidden rounded-2xl border border-intel-border">
-        <table className="w-full text-left border-collapse">
+      <div className="glass overflow-x-auto rounded-2xl border border-intel-border">
+        <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-white/5 border-b border-intel-border">
               <th className="px-6 py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Individual</th>

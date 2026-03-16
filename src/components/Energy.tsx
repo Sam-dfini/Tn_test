@@ -13,12 +13,10 @@ export const Energy: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Energy & Infrastructure</h2>
-          <p className="text-slate-500 text-sm mt-1">Real-time monitoring of critical energy assets and grid stability</p>
-        </div>
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Energy & Infrastructure</h2>
+        <p className="text-slate-500 text-sm">Real-time monitoring of critical energy assets and grid stability</p>
+        <div className="pt-4">
            <div className="flex items-center space-x-2 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 px-4 py-2 rounded-lg">
               <Battery className="w-4 h-4" />
               <span className="text-xs font-mono uppercase font-bold">Grid Stress: HIGH</span>
@@ -26,7 +24,7 @@ export const Energy: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {facilities.map((f, i) => (
           <motion.div 
             key={f.name}

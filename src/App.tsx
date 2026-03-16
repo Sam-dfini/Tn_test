@@ -8,6 +8,7 @@ import {
   Activity, 
   Globe, 
   Zap, 
+  Video,
   Search, 
   Bell,
   Menu,
@@ -36,10 +37,12 @@ import { Actors } from './components/Actors';
 import { Narratives } from './components/Narratives';
 import { Energy } from './components/Energy';
 import { Elections } from './components/Elections';
+import { Media } from './components/Media';
 import { Cases } from './components/Cases';
 import { Suspects } from './components/Suspects';
 import { Predict } from './components/Predict';
 import { Timeline } from './components/Timeline';
+import { TacticalLoading } from './components/TacticalLoading';
 import { generateAnalystResponse } from './services/geminiService';
 
 // Components
@@ -73,7 +76,7 @@ const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () 
           initial={{ opacity: 0, x: 400 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 400 }}
-          className="fixed top-0 right-0 bottom-16 w-[400px] bg-intel-card border-l border-intel-border z-[60] flex flex-col shadow-2xl"
+          className="fixed top-0 right-0 bottom-16 w-full sm:w-[400px] bg-intel-card border-l border-intel-border z-[60] flex flex-col shadow-2xl"
         >
           <div className="p-6 border-b border-intel-border flex items-center justify-between bg-intel-bg/50">
             <div className="flex items-center space-x-3">
@@ -213,33 +216,33 @@ const GovernorateCard: React.FC<GovernorateCardProps> = ({ gov }) => {
 };
 const WatchmanStrip = ({ rri, pRev, eventsCount, waterCrisisGovs }: { rri: number, pRev: number, eventsCount: number, waterCrisisGovs: number }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-16 bg-intel-card border-t border-intel-border flex items-center px-6 z-50 overflow-x-auto whitespace-nowrap scrollbar-hide">
-      <div className="flex items-center space-x-8">
+    <div className="fixed bottom-14 md:bottom-0 left-0 md:left-20 right-0 h-16 bg-intel-card border-t border-intel-border flex items-center px-6 z-50 overflow-x-auto whitespace-nowrap scrollbar-hide">
+      <div className="flex items-center space-x-4 md:space-x-8">
         <div className="flex flex-col">
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">RRI Score</span>
+          <span className="text-[8px] md:text-[10px] text-slate-500 uppercase tracking-widest font-mono">RRI Score</span>
           <div className="flex items-center space-x-2">
-            <span className={`text-lg font-bold font-mono ${getRiskTier(rri).color}`}>{rri.toFixed(2)}</span>
-            <span className="text-[10px] bg-intel-red/10 text-intel-red px-1 rounded border border-intel-red/20">ALERT</span>
+            <span className={`text-sm md:text-lg font-bold font-mono ${getRiskTier(rri).color}`}>{rri.toFixed(2)}</span>
+            <span className="text-[8px] bg-intel-red/10 text-intel-red px-1 rounded border border-intel-red/20">ALERT</span>
           </div>
         </div>
         
         <div className="h-8 w-[1px] bg-intel-border"></div>
         
         <div className="flex flex-col">
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">P(Revolution)</span>
-          <span className="text-lg font-bold font-mono text-white">{(pRev * 100).toFixed(1)}%</span>
+          <span className="text-[8px] md:text-[10px] text-slate-500 uppercase tracking-widest font-mono">P(Revolution)</span>
+          <span className="text-sm md:text-lg font-bold font-mono text-white">{(pRev * 100).toFixed(1)}%</span>
         </div>
 
-        <div className="h-8 w-[1px] bg-intel-border"></div>
+        <div className="h-8 w-[1px] bg-intel-border hidden md:block"></div>
 
-        <div className="flex flex-col">
+        <div className="hidden md:flex flex-col">
           <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Live Events</span>
           <span className="text-lg font-bold font-mono text-intel-cyan">{eventsCount}</span>
         </div>
 
-        <div className="h-8 w-[1px] bg-intel-border"></div>
+        <div className="h-8 w-[1px] bg-intel-border hidden md:block"></div>
 
-        <div className="flex flex-col">
+        <div className="hidden md:flex flex-col">
           <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Water Crisis</span>
           <span className="text-lg font-bold font-mono text-intel-orange">{waterCrisisGovs} Govs</span>
         </div>
@@ -274,6 +277,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
     { id: 'risk', icon: ShieldAlert, label: 'Risk Model' },
     { id: 'actors', icon: Users, label: 'Actors' },
     { id: 'narratives', icon: MessageSquare, label: 'Narratives' },
+    { id: 'media', icon: Video, label: 'Media' },
     { id: 'energy', icon: Zap, label: 'Energy' },
     { id: 'elections', icon: Vote, label: 'Elections' },
     { id: 'cases', icon: Briefcase, label: 'Cases' },
@@ -283,8 +287,8 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   ];
 
   return (
-    <nav className="fixed top-0 left-0 bottom-16 w-20 bg-intel-card border-r border-intel-border flex flex-col items-center py-8 space-y-8 z-40">
-      <div className="w-12 h-12 bg-intel-cyan/10 rounded-lg flex items-center justify-center border border-intel-cyan/20 mb-4 cursor-pointer hover:glow-cyan transition-all" onClick={onOpenAI}>
+    <nav className="fixed bottom-0 md:top-0 left-0 right-0 md:right-auto md:bottom-16 w-full md:w-20 bg-intel-card border-t md:border-t-0 md:border-r border-intel-border flex md:flex-col items-center justify-around md:justify-start py-2 md:py-8 md:space-y-8 z-[60] md:z-40">
+      <div className="hidden md:flex w-12 h-12 bg-intel-cyan/10 rounded-lg items-center justify-center border border-intel-cyan/20 mb-4 cursor-pointer hover:glow-cyan transition-all" onClick={onOpenAI}>
         <Zap className="text-intel-cyan w-6 h-6" />
       </div>
       
@@ -292,20 +296,20 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
-          className={`group relative p-3 rounded-xl transition-all duration-300 ${
+          className={`group relative p-2 md:p-3 rounded-xl transition-all duration-300 ${
             activeTab === tab.id 
               ? 'bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20' 
               : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
           }`}
         >
-          <tab.icon className="w-6 h-6" />
-          <span className="absolute left-full ml-4 px-2 py-1 bg-intel-card border border-intel-border text-white text-[10px] uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+          <tab.icon className="w-5 h-5 md:w-6 md:h-6" />
+          <span className="hidden md:block absolute left-full ml-4 px-2 py-1 bg-intel-card border border-intel-border text-white text-[10px] uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
             {tab.label}
           </span>
         </button>
       ))}
 
-      <div className="mt-auto space-y-6">
+      <div className="hidden md:flex mt-auto space-y-6 flex-col items-center">
         <button className="text-slate-500 hover:text-intel-cyan transition-colors">
           <Search className="w-5 h-5" />
         </button>
@@ -320,30 +324,36 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
 
 const Header = () => {
   return (
-    <header className="fixed top-0 left-20 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border flex items-center justify-between px-8 z-30">
-      <div className="flex items-center space-x-4">
-        <h1 className="text-xl tracking-[0.2em] font-bold">
-          TUNISIA<span className="text-intel-cyan">INTEL</span>
-        </h1>
-        <div className="h-4 w-[1px] bg-intel-border"></div>
+    <header className="fixed top-0 left-0 md:left-20 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-30">
+      {/* Left side secondary info */}
+      <div className="hidden md:flex items-center space-x-4">
         <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
           Political Risk Intelligence Platform
         </span>
       </div>
+      <div className="md:hidden"></div> {/* Mobile spacer */}
 
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-2 bg-intel-card px-3 py-1.5 rounded-full border border-intel-border">
+      {/* Centered Title */}
+      <div className="flex justify-center items-center space-x-4">
+        <h1 className="text-sm md:text-xl tracking-[0.2em] font-bold whitespace-nowrap">
+          TUNISIA<span className="text-intel-cyan">INTEL</span>
+        </h1>
+      </div>
+
+      {/* Right side profile */}
+      <div className="flex items-center justify-end space-x-3 md:space-x-6">
+        <div className="hidden sm:flex items-center space-x-2 bg-intel-card px-3 py-1.5 rounded-full border border-intel-border">
           <div className="w-1.5 h-1.5 rounded-full bg-intel-green"></div>
           <span className="text-[10px] font-mono text-intel-green uppercase tracking-tighter">System Nominal</span>
         </div>
-        <div className="flex items-center space-x-3">
-          <div className="text-right">
-            <div className="text-[10px] font-mono text-white leading-none">SAMIR DNI</div>
-            <div className="text-[8px] font-mono text-slate-500 leading-none mt-1 uppercase">Senior Analyst</div>
+        <div className="flex items-center space-x-2 md:space-x-3">
+          <div className="text-right hidden xs:block">
+            <div className="text-[9px] md:text-[10px] font-mono text-white leading-none">SAMIR DNI</div>
+            <div className="text-[7px] md:text-[8px] font-mono text-slate-500 leading-none mt-1 uppercase">Senior Analyst</div>
           </div>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-intel-cyan to-intel-purple p-[1px]">
+          <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-intel-cyan to-intel-purple p-[1px]">
             <div className="w-full h-full rounded-full bg-intel-bg flex items-center justify-center overflow-hidden">
-              <Users className="w-4 h-4 text-slate-400" />
+              <Users className="w-3 h-3 md:w-4 md:h-4 text-slate-400" />
             </div>
           </div>
         </div>
@@ -353,11 +363,12 @@ const Header = () => {
 };
 
 export default function App() {
+  const [isInitializing, setIsInitializing] = useState(true);
   const [activeTab, setActiveTab] = useState('map');
   const [rri, setRri] = useState(2.31);
   const [pRev, setPRev] = useState(0.643);
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
-  const [rriVariables, setRRIVariables] = useState<RRIVariable[]>(rriData.variables as RRIVariable[]);
+  const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables || []) as RRIVariable[]);
 
   useEffect(() => {
     const calculatedRri = calculateRRI(rriVariables);
@@ -365,21 +376,19 @@ export default function App() {
     setPRev(calculatePRev(calculatedRri));
   }, [rriVariables]);
 
-  const governorates = governoratesData.governorates as Governorate[];
-  const events = eventsData.events as IntelEvent[];
+  const governorates = (governoratesData?.governorates || []) as Governorate[];
+  const events = (eventsData?.events || []) as IntelEvent[];
   const waterCrisisGovs = governorates.filter(g => g.water_cut_hours > 10).length;
 
   const renderContent = () => {
     switch (activeTab) {
       case 'map':
         return (
-          <div className="h-[calc(100vh-12rem)] flex flex-col space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl tracking-tight">Intelligence Map</h2>
-                <p className="text-slate-500 text-sm mt-1">Real-time geospatial visualization of political and security incidents</p>
-              </div>
-              <div className="flex items-center space-x-4">
+          <div className="h-[calc(100vh-8rem)] flex flex-col space-y-6">
+            <div className="flex flex-col items-center text-center space-y-2">
+              <h2 className="text-2xl tracking-tight">Intelligence Map</h2>
+              <p className="text-slate-500 text-sm">Real-time geospatial visualization of political and security incidents</p>
+              <div className="pt-2">
                 <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 px-4 py-2 rounded-lg">
                   <div className="w-2 h-2 rounded-full bg-intel-cyan animate-pulse"></div>
                   <span className="text-xs font-mono uppercase font-bold">Live Feed Active</span>
@@ -394,23 +403,21 @@ export default function App() {
       case 'govs':
         return (
           <div className="space-y-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col items-center text-center space-y-4">
               <div>
                 <h2 className="text-2xl tracking-tight">Governorate Risk Matrix</h2>
                 <p className="text-slate-500 text-sm mt-1">Sub-national stability indicators and tension monitoring</p>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search governorate..." 
-                    className="bg-intel-card border border-intel-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-colors"
-                  />
-                </div>
+              <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input 
+                  type="text" 
+                  placeholder="Search governorate..." 
+                  className="w-full bg-intel-card border border-intel-border rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-colors"
+                />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {governorates.map(gov => (
                 <GovernorateCard key={gov.id} gov={gov} />
               ))}
@@ -418,13 +425,15 @@ export default function App() {
           </div>
         );
       case 'risk':
-        return <RiskModel variables={rriVariables} onUpdate={setRRIVariables} />;
+        return <RiskModel variables={rriVariables} />;
       case 'economy':
         return <Economy />;
       case 'actors':
         return <Actors />;
       case 'narratives':
         return <Narratives />;
+      case 'media':
+        return <Media />;
       case 'energy':
         return <Energy />;
       case 'elections':
@@ -444,40 +453,58 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
-      <Header />
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} onOpenAI={() => setIsAIAnalystOpen(true)} />
-      
-      <AIAnalyst 
-        isOpen={isAIAnalystOpen} 
-        onClose={() => setIsAIAnalystOpen(false)} 
-        context={{
-          rri,
-          pRev,
-          events,
-          governorates
-        }}
-      />
-      <main className="pl-20 pt-16 pb-16 min-h-screen">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="p-8"
-          >
-            {renderContent()}
+      <AnimatePresence mode="wait">
+        {isInitializing ? (
+          <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
+            <TacticalLoading onComplete={() => setIsInitializing(false)} />
           </motion.div>
-        </AnimatePresence>
-      </main>
+        ) : (
+          <motion.div 
+            key="app" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.8 }}
+            className="min-h-screen"
+          >
+            <Header />
+            <Navigation activeTab={activeTab} setActiveTab={setActiveTab} onOpenAI={() => setIsAIAnalystOpen(true)} />
+            
+            <AIAnalyst 
+              isOpen={isAIAnalystOpen} 
+              onClose={() => setIsAIAnalystOpen(false)} 
+              context={{
+                rri,
+                pRev,
+                events,
+                governorates
+              }}
+            />
+            <main className="md:pl-20 pt-16 pb-32 md:pb-16 min-h-screen">
+              <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="py-8"
+                  >
+                    {renderContent()}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </main>
 
-      <WatchmanStrip 
-        rri={rri} 
-        pRev={pRev} 
-        eventsCount={events.length} 
-        waterCrisisGovs={waterCrisisGovs} 
-      />
+            <WatchmanStrip 
+              rri={rri} 
+              pRev={pRev} 
+              eventsCount={events.length} 
+              waterCrisisGovs={waterCrisisGovs} 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -12,14 +12,14 @@ const narratives = [
 export const Narratives: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Political Narratives</h2>
-          <p className="text-slate-500 text-sm mt-1">Tracking momentum and salience of competing political discourses</p>
-        </div>
-        <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg">
-          <Zap className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">12 Active Clusters</span>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Political Narratives</h2>
+        <p className="text-slate-500 text-sm">Tracking momentum and salience of competing political discourses</p>
+        <div className="pt-4">
+          <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 px-4 py-2 rounded-lg">
+            <Zap className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">12 Active Clusters</span>
+          </div>
         </div>
       </div>
 

@@ -5,15 +5,21 @@ import { RRIVariable } from '../types/intel';
 import { calculateRRI, getRiskTier, calculatePRev } from '../utils/rriEngine';
 
 interface RiskModelProps {
-  initialVariables: RRIVariable[];
+  variables: RRIVariable[];
 }
 
-export const RiskModel: React.FC<RiskModelProps> = ({ initialVariables }) => {
-  const [variables, setVariables] = useState<RRIVariable[]>(initialVariables);
+export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariables }) => {
+  const [variables, setVariables] = useState<RRIVariable[]>(initialVariables || []);
   const [warDistraction, setWarDistraction] = useState(0.72);
   const [rri, setRri] = useState(0);
   const [pRev, setPRev] = useState(0);
   const [isSimulating, setIsSimulating] = useState(false);
+
+  useEffect(() => {
+    if (initialVariables) {
+      setVariables(initialVariables);
+    }
+  }, [initialVariables]);
 
   useEffect(() => {
     const newRri = calculateRRI(variables, warDistraction);
@@ -22,7 +28,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ initialVariables }) => {
   }, [variables, warDistraction]);
 
   const handleVariableChange = (id: string, newValue: number) => {
-    setVariables(prev => prev.map(v => v.id === id ? { ...v, value: newValue } : v));
+    setVariables(prev => (prev || []).map(v => v.id === id ? { ...v, value: newValue } : v));
   };
 
   const runSimulation = () => {
@@ -34,19 +40,19 @@ export const RiskModel: React.FC<RiskModelProps> = ({ initialVariables }) => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Regime Resilience Index</h2>
-          <p className="text-slate-500 text-sm mt-1">Quantitative model of regime stability derived from selectorate theory</p>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Regime Resilience Index</h2>
+        <p className="text-slate-500 text-sm">Quantitative model of regime stability derived from selectorate theory</p>
+        <div className="pt-4">
+          <button 
+            onClick={runSimulation}
+            disabled={isSimulating}
+            className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg hover:bg-intel-cyan/20 transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
+            <span className="text-xs font-mono uppercase font-bold">Run Monte Carlo</span>
+          </button>
         </div>
-        <button 
-          onClick={runSimulation}
-          disabled={isSimulating}
-          className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg hover:bg-intel-cyan/20 transition-all disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
-          <span className="text-xs font-mono uppercase font-bold">Run Monte Carlo</span>
-        </button>
       </div>
 
       <div className="grid grid-cols-12 gap-8">
@@ -126,7 +132,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ initialVariables }) => {
             <div className="text-[10px] font-mono text-slate-500 uppercase">61 Variables Active</div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
             {variables.map(v => (
               <div key={v.id} className="space-y-3">
                 <div className="flex items-center justify-between">

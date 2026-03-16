@@ -12,18 +12,18 @@ const cases = [
 export const Cases: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Intelligence Cases</h2>
-          <p className="text-slate-500 text-sm mt-1">Structured investigation files for high-impact political and security incidents</p>
-        </div>
-        <div className="flex items-center space-x-2 bg-intel-purple/10 text-intel-purple border border-intel-purple/20 px-4 py-2 rounded-lg">
-          <Briefcase className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">13 Case Files</span>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Intelligence Cases</h2>
+        <p className="text-slate-500 text-sm">Structured investigation files for high-impact political and security incidents</p>
+        <div className="pt-4">
+          <div className="flex items-center space-x-2 bg-intel-purple/10 text-intel-purple border border-intel-purple/20 px-4 py-2 rounded-lg">
+            <Briefcase className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">13 Case Files</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {cases.map((c, i) => (
           <motion.div 
             key={c.id}

@@ -12,14 +12,14 @@ export const Elections: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Electoral Legitimacy</h2>
-          <p className="text-slate-500 text-sm mt-1">Analysis of 2024 Presidential results and parliamentary composition</p>
-        </div>
-        <div className="flex items-center space-x-2 bg-intel-purple/10 text-intel-purple border border-intel-purple/20 px-4 py-2 rounded-lg">
-          <Users className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">Turnout: 11.2%</span>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Electoral Legitimacy</h2>
+        <p className="text-slate-500 text-sm">Analysis of 2024 Presidential results and parliamentary composition</p>
+        <div className="pt-4">
+          <div className="flex items-center space-x-2 bg-intel-purple/10 text-intel-purple border border-intel-purple/20 px-4 py-2 rounded-lg">
+            <Users className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">Turnout: 11.2%</span>
+          </div>
         </div>
       </div>
 

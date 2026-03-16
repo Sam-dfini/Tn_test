@@ -12,18 +12,18 @@ const actors = [
 export const Actors: React.FC = () => {
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Actor Network</h2>
-          <p className="text-slate-500 text-sm mt-1">Influence mapping and defection risk monitoring of key political figures</p>
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Actor Network</h2>
+        <p className="text-slate-500 text-sm">Influence mapping and defection risk monitoring of key political figures</p>
+        <div className="pt-4">
+          <button className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg hover:bg-intel-cyan/20 transition-all">
+            <Network className="w-4 h-4" />
+            <span className="text-xs font-mono uppercase font-bold">View Influence Graph</span>
+          </button>
         </div>
-        <button className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 px-4 py-2 rounded-lg hover:bg-intel-cyan/20 transition-all">
-          <Network className="w-4 h-4" />
-          <span className="text-xs font-mono uppercase font-bold">View Influence Graph</span>
-        </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {actors.map((actor, i) => (
           <motion.div 
             key={actor.id}

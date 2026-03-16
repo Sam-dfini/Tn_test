@@ -14,12 +14,10 @@ export const Economy: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl tracking-tight">Economic Intelligence</h2>
-          <p className="text-slate-500 text-sm mt-1">Macroeconomic indicators and fiscal stability monitoring</p>
-        </div>
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col items-center text-center space-y-2">
+        <h2 className="text-2xl tracking-tight">Economic Intelligence</h2>
+        <p className="text-slate-500 text-sm">Macroeconomic indicators and fiscal stability monitoring</p>
+        <div className="pt-4">
            <div className="flex items-center space-x-2 bg-intel-red/10 text-intel-red border border-intel-red/20 px-4 py-2 rounded-lg">
               <AlertTriangle className="w-4 h-4" />
               <span className="text-xs font-mono uppercase font-bold">BCT Warning Threshold</span>
@@ -27,7 +25,7 @@ export const Economy: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {indicators.map((ind, i) => (
           <motion.div 
             key={ind.label}
