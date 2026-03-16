@@ -1,0 +1,34 @@
+{
+  "events": [
+    {
+      "id": "E001",
+      "date": "2025-11-14",
+      "type": "protest",
+      "title": "Sfax Port Blockade",
+      "summary": "Protesters blocked the main entrance to Sfax port demanding better water infrastructure and job opportunities.",
+      "gov": "sfax",
+      "lat": 34.74,
+      "lon": 10.76,
+      "severity": 3,
+      "urgent": true,
+      "actors": ["taboubi", "cpg"],
+      "source": "Nawaat",
+      "cases": ["C004"]
+    },
+    {
+      "id": "E002",
+      "date": "2026-03-08",
+      "type": "political",
+      "title": "UGTT Strike Vote",
+      "summary": "UGTT members voted to authorize strike action in response to stalled wage negotiations.",
+      "gov": "tunis",
+      "lat": 36.8,
+      "lon": 10.18,
+      "severity": 2,
+      "urgent": false,
+      "actors": ["taboubi"],
+      "source": "Mosaique FM",
+      "cases": []
+    }
+  ]
+}

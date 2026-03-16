@@ -1,0 +1,44 @@
+{
+  "variables": [
+    {
+      "id": "E1",
+      "category": "Economic Distress",
+      "name": "Unemployment Rate",
+      "value": 0.187,
+      "weight": 0.15,
+      "direction": "positive",
+      "source": "INS 2024",
+      "last_updated": "2025-03-01"
+    },
+    {
+      "id": "E2",
+      "category": "Economic Distress",
+      "name": "Inflation Rate",
+      "value": 0.71,
+      "weight": 0.12,
+      "direction": "positive",
+      "source": "BCT 2026",
+      "last_updated": "2026-03-01"
+    },
+    {
+      "id": "P1",
+      "category": "Political Repression",
+      "name": "Decree 54 Arrests",
+      "value": 0.85,
+      "weight": 0.18,
+      "direction": "positive",
+      "source": "HRW 2026",
+      "last_updated": "2026-03-10"
+    },
+    {
+      "id": "S1",
+      "category": "Social Mobilisation",
+      "name": "Protest Frequency",
+      "value": 0.64,
+      "weight": 0.20,
+      "direction": "positive",
+      "source": "ACLED 2026",
+      "last_updated": "2026-03-15"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "TUNISIAINTEL v2.0",
+  "description": "Professional-grade political risk intelligence platform for Tunisia. Real-time monitoring, quantitative risk modeling, and AI-assisted synthesis.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
