@@ -127,56 +127,86 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-sm tracking-widest flex items-center">
               <Sliders className="w-4 h-4 mr-2 text-intel-cyan" />
-              Variable Inputs (9 Categories)
+              Variable Inputs
             </h3>
-            <div className="text-[10px] font-mono text-slate-500 uppercase">61 Variables Active</div>
+            <div className="text-[10px] font-mono text-slate-500 uppercase">{variables.length} Variables Active</div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-8">
-            {variables.map(v => (
-              <div key={v.id} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-intel-cyan uppercase">{v.category}</span>
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">{v.name}</span>
+          <div className="space-y-12">
+            {Object.entries(
+              variables.reduce((acc, v) => {
+                if (!acc[v.category]) acc[v.category] = [];
+                acc[v.category].push(v);
+                return acc;
+              }, {} as Record<string, RRIVariable[]>)
+            ).map(([category, vars]) => {
+              const categoryVars = vars as RRIVariable[];
+              return (
+                <div key={category} className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <h4 className="text-[10px] font-mono text-intel-cyan uppercase font-bold tracking-widest whitespace-nowrap">
+                      {category}
+                    </h4>
+                    <div className="h-[1px] w-full bg-intel-cyan/20"></div>
                   </div>
-                  <span className="text-xs font-mono text-white">{(v.value * 100).toFixed(0)}%</span>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+                    {categoryVars.map(v => (
+                      <div key={v.id} className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-white uppercase tracking-wider">{v.name}</span>
+                            <span className="text-[8px] font-mono text-slate-500 uppercase">{v.source}</span>
+                          </div>
+                          <span className="text-xs font-mono text-white">{(v.value * 100).toFixed(0)}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01"
+                          value={v.value}
+                          onChange={(e) => handleVariableChange(v.id, parseFloat(e.target.value))}
+                          className="w-full h-1.5 bg-intel-border rounded-full appearance-none cursor-pointer accent-intel-cyan"
+                        />
+                        <div className="flex justify-between text-[8px] font-mono text-slate-500 uppercase">
+                          <span>{v.direction === 'positive' ? 'Low Risk' : 'High Risk'}</span>
+                          <span>{v.direction === 'positive' ? 'High Risk' : 'Low Risk'}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <input 
-                  type="range" 
-                  min="0" 
-                  max="1" 
-                  step="0.01"
-                  value={v.value}
-                  onChange={(e) => handleVariableChange(v.id, parseFloat(e.target.value))}
-                  className="w-full h-1.5 bg-intel-border rounded-full appearance-none cursor-pointer accent-intel-cyan"
-                />
-                <div className="flex justify-between text-[8px] font-mono text-slate-500 uppercase">
-                  <span>{v.direction === 'positive' ? 'Low Risk' : 'High Risk'}</span>
-                  <span>{v.direction === 'positive' ? 'High Risk' : 'Low Risk'}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
 
-            <div className="space-y-3 pt-4 border-t border-intel-border">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-[8px] font-mono text-intel-purple uppercase">Global Suppressor</span>
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">War Distraction W(t)</span>
-                </div>
-                <span className="text-xs font-mono text-white">{(warDistraction * 100).toFixed(0)}%</span>
+            <div className="space-y-6 pt-8 border-t border-intel-border">
+              <div className="flex items-center space-x-4">
+                <h4 className="text-[10px] font-mono text-intel-purple uppercase font-bold tracking-widest whitespace-nowrap">
+                  Global Suppressors
+                </h4>
+                <div className="h-[1px] w-full bg-intel-purple/20"></div>
               </div>
-              <input 
-                type="range" 
-                min="0" 
-                max="1" 
-                step="0.01"
-                value={warDistraction}
-                onChange={(e) => setWarDistraction(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-intel-border rounded-full appearance-none cursor-pointer accent-intel-purple"
-              />
-              <div className="text-[8px] font-mono text-slate-500 uppercase italic">
-                Dampens protest mobilisation when external threat is high
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold text-white uppercase tracking-wider">War Distraction W(t)</span>
+                      <span className="text-[8px] font-mono text-slate-500 uppercase italic">Dampens protest mobilisation</span>
+                    </div>
+                    <span className="text-xs font-mono text-white">{(warDistraction * 100).toFixed(0)}%</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="1" 
+                    step="0.01"
+                    value={warDistraction}
+                    onChange={(e) => setWarDistraction(parseFloat(e.target.value))}
+                    className="w-full h-1.5 bg-intel-border rounded-full appearance-none cursor-pointer accent-intel-purple"
+                  />
+                </div>
               </div>
             </div>
           </div>

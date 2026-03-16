@@ -43,6 +43,8 @@ import { Suspects } from './components/Suspects';
 import { Predict } from './components/Predict';
 import { Timeline } from './components/Timeline';
 import { TacticalLoading } from './components/TacticalLoading';
+import { ModeSelection } from './components/ModeSelection';
+import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { generateAnalystResponse } from './services/geminiService';
 
 // Components
@@ -363,7 +365,8 @@ const Header = () => {
 };
 
 export default function App() {
-  const [isInitializing, setIsInitializing] = useState(true);
+  const [appMode, setAppMode] = useState<'simplified' | 'advanced' | null>(null);
+  const [isInitializing, setIsInitializing] = useState(false);
   const [activeTab, setActiveTab] = useState('map');
   const [rri, setRri] = useState(2.31);
   const [pRev, setPRev] = useState(0.643);
@@ -451,12 +454,30 @@ export default function App() {
     }
   };
 
+  const handleModeSelect = (mode: 'simplified' | 'advanced') => {
+    setAppMode(mode);
+    setIsInitializing(true);
+  };
+
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
       <AnimatePresence mode="wait">
-        {isInitializing ? (
+        {!appMode ? (
+          <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+            <ModeSelection onSelect={handleModeSelect} />
+          </motion.div>
+        ) : isInitializing ? (
           <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
-            <TacticalLoading onComplete={() => setIsInitializing(false)} />
+            <TacticalLoading mode={appMode} onComplete={() => setIsInitializing(false)} />
+          </motion.div>
+        ) : appMode === 'advanced' ? (
+          <motion.div 
+            key="tactical-app" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.8 }}
+          >
+            <TacticalDashboard governorates={governorates} events={events} />
           </motion.div>
         ) : (
           <motion.div 

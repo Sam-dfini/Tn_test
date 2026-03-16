@@ -25,6 +25,8 @@ export interface Governorate {
   literacy_pct: number;
   internal_migration: number;
   healthcare_beds_1k: number;
+  lat?: number;
+  lon?: number;
   tribal_influence: 'LOW' | 'MEDIUM' | 'HIGH';
   police_presence: 'LOW' | 'MEDIUM' | 'HIGH';
   main_tribes: string[];

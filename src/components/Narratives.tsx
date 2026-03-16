@@ -3,13 +3,95 @@ import { motion } from 'motion/react';
 import { FileText, TrendingUp, MessageSquare, Users, Zap } from 'lucide-react';
 
 const narratives = [
-  { id: 'n1', title: 'Economic Sovereignty', momentum: 0.85, sentiment: 'GOV', sources: 12, trend: 'up' },
-  { id: 'n2', title: 'Judicial Independence', momentum: 0.72, sentiment: 'OPP', sources: 8, trend: 'up' },
-  { id: 'n3', title: 'Security Legitimacy', momentum: 0.64, sentiment: 'GOV', sources: 15, trend: 'down' },
-  { id: 'n4', title: 'UGTT Resistance', momentum: 0.78, sentiment: 'STREET', sources: 22, trend: 'up' },
+  { 
+    id: 'n1', 
+    title: 'Economic Sovereignty', 
+    momentum: 0.85, 
+    sentiment: 'GOV', 
+    sources: 12, 
+    trend: 'up',
+    history: [0.65, 0.70, 0.75, 0.82, 0.85]
+  },
+  { 
+    id: 'n2', 
+    title: 'Judicial Independence', 
+    momentum: 0.72, 
+    sentiment: 'OPP', 
+    sources: 8, 
+    trend: 'up',
+    history: [0.45, 0.52, 0.60, 0.68, 0.72]
+  },
+  { 
+    id: 'n3', 
+    title: 'Security Legitimacy', 
+    momentum: 0.64, 
+    sentiment: 'GOV', 
+    sources: 15, 
+    trend: 'down',
+    history: [0.80, 0.78, 0.72, 0.68, 0.64]
+  },
+  { 
+    id: 'n4', 
+    title: 'UGTT Resistance', 
+    momentum: 0.78, 
+    sentiment: 'STREET', 
+    sources: 22, 
+    trend: 'up',
+    history: [0.55, 0.62, 0.70, 0.75, 0.78]
+  },
 ];
 
+const Sparkline: React.FC<{ data: number[], color: string }> = ({ data, color }) => {
+  const width = 60;
+  const height = 20;
+  const padding = 2;
+  const points = data.map((d, i) => ({
+    x: (i / (data.length - 1)) * (width - padding * 2) + padding,
+    y: height - (d * (height - padding * 2) + padding)
+  }));
+
+  const pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
+
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <path
+        d={pathData}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx={points[points.length - 1].x}
+        cy={points[points.length - 1].y}
+        r="2"
+        fill={color}
+        className="animate-pulse"
+      />
+    </svg>
+  );
+};
+
 export const Narratives: React.FC = () => {
+  const getSentimentColor = (sentiment: string) => {
+    switch (sentiment) {
+      case 'GOV': return '#00f2ff'; // intel-cyan
+      case 'OPP': return '#ff3b3b'; // intel-red
+      case 'STREET': return '#f59e0b'; // intel-orange
+      default: return '#94a3b8';
+    }
+  };
+
+  const getSentimentGradient = (sentiment: string) => {
+    switch (sentiment) {
+      case 'GOV': return 'from-intel-cyan/20 to-intel-cyan';
+      case 'OPP': return 'from-intel-red/20 to-intel-red';
+      case 'STREET': return 'from-intel-orange/20 to-intel-orange';
+      default: return 'from-slate-500/20 to-slate-500';
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col items-center text-center space-y-2">
@@ -47,17 +129,23 @@ export const Narratives: React.FC = () => {
                     <span className="text-[8px] font-mono text-slate-500 uppercase">{nar.sources} Monitored Sources</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Momentum</div>
-                  <div className="text-xl font-bold font-mono text-white">{(nar.momentum * 100).toFixed(0)}</div>
+                <div className="flex flex-col items-end">
+                  <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Momentum Trend</div>
+                  <Sparkline data={nar.history} color={getSentimentColor(nar.sentiment)} />
+                  <div className="text-xl font-bold font-mono text-white mt-1">{(nar.momentum * 100).toFixed(0)}</div>
                 </div>
               </div>
 
               <div className="flex items-center space-x-4">
                 <div className="flex-1 h-1.5 bg-intel-border rounded-full overflow-hidden">
-                  <div className="h-full bg-intel-cyan" style={{ width: `${nar.momentum * 100}%` }}></div>
+                  <div 
+                    className={`h-full bg-gradient-to-r ${getSentimentGradient(nar.sentiment)}`} 
+                    style={{ width: `${nar.momentum * 100}%` }}
+                  ></div>
                 </div>
-                <TrendingUp className={`w-4 h-4 ${nar.trend === 'up' ? 'text-intel-green' : 'text-intel-red opacity-50'}`} />
+                <div className={`text-[10px] font-mono font-bold ${nar.trend === 'up' ? 'text-intel-green' : 'text-intel-red'}`}>
+                  {nar.trend === 'up' ? '↑' : '↓'}
+                </div>
               </div>
             </motion.div>
           ))}

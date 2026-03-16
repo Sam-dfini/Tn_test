@@ -63,7 +63,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer }) =
           />
           
           {/* We would normally load real GeoJSON here. For now, we'll use markers for events */}
-          {(events || []).map(event => (
+          {(events || []).filter(e => e.lat != null && e.lon != null).map(event => (
             <Marker 
               key={event.id} 
               position={[event.lat, event.lon]}

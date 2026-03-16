@@ -2,11 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Zap, Globe, Activity, Lock } from 'lucide-react';
 
-export const TacticalLoading: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplified' | 'advanced' | null }> = ({ onComplete, mode }) => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('INITIALIZING SYSTEM...');
   
-  const statusMessages = [
+  const simplifiedMessages = [
+    'CONNECTING TO PUBLIC DATA FEEDS...',
+    'SUMMARIZING REGIONAL INDICATORS...',
+    'PREPARING DASHBOARD OVERVIEW...',
+    'OPTIMIZING FOR LEGACY ACCESS...',
+    'SYSTEM READY.'
+  ];
+
+  const advancedMessages = [
     'ESTABLISHING SECURE ENCRYPTED LINK...',
     'CONNECTING TO TUNISIA-INTEL CORE...',
     'DECRYPTING GEOSPATIAL DATA LAYERS...',
@@ -15,6 +23,8 @@ export const TacticalLoading: React.FC<{ onComplete: () => void }> = ({ onComple
     'INITIALIZING AI ANALYST ENGINE...',
     'SYSTEM READY. ACCESS GRANTED.'
   ];
+
+  const statusMessages = mode === 'advanced' ? advancedMessages : simplifiedMessages;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -67,7 +77,7 @@ export const TacticalLoading: React.FC<{ onComplete: () => void }> = ({ onComple
               TUNISIA<span className="text-intel-cyan">INTEL</span>
             </h1>
             <div className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.5em] mt-2">
-              Tactical Risk Intelligence v2.0
+              {mode === 'advanced' ? 'Tactical OSINT Tunisia' : 'Tactical Risk Intelligence v2.0'}
             </div>
           </div>
         </div>

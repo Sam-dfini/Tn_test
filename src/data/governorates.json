@@ -3,6 +3,8 @@
     {
       "id": "tunis",
       "name": { "en": "Tunis", "ar": "تونس" },
+      "lat": 36.8065,
+      "lon": 10.1815,
       "risk_level": "MEDIUM",
       "tension": "moderate",
       "rri_score": 1.85,
@@ -32,6 +34,8 @@
     {
       "id": "sfax",
       "name": { "en": "Sfax", "ar": "صفاقس" },
+      "lat": 34.7400,
+      "lon": 10.7600,
       "risk_level": "ALERT",
       "tension": "alert",
       "rri_score": 2.89,
@@ -61,6 +65,8 @@
     {
       "id": "kasserine",
       "name": { "en": "Kasserine", "ar": "القصرين" },
+      "lat": 35.1676,
+      "lon": 8.8365,
       "risk_level": "HIGH",
       "tension": "tension",
       "rri_score": 2.65,
@@ -90,6 +96,8 @@
     {
       "id": "gafsa",
       "name": { "en": "Gafsa", "ar": "قفصة" },
+      "lat": 34.4250,
+      "lon": 8.7842,
       "risk_level": "HIGH",
       "tension": "tension",
       "rri_score": 2.58,

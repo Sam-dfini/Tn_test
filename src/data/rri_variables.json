@@ -2,7 +2,7 @@
   "variables": [
     {
       "id": "E1",
-      "category": "Economic Distress",
+      "category": "Economic Stability",
       "name": "Unemployment Rate",
       "value": 0.187,
       "weight": 0.15,
@@ -12,7 +12,7 @@
     },
     {
       "id": "E2",
-      "category": "Economic Distress",
+      "category": "Economic Stability",
       "name": "Inflation Rate",
       "value": 0.71,
       "weight": 0.12,
