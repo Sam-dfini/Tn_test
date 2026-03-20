@@ -505,7 +505,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
       ) : activeTab === 'geopolitical' ? (
         <GeopoliticalIntelligence />
       ) : activeTab === 'political' ? (
-        <PoliticalIntelligence />
+        <PoliticalIntelligence context={context} />
       ) : activeTab === 'security' ? (
         <SecurityIntelligence />
       ) : activeTab === 'energy' ? (
@@ -517,7 +517,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
       ) : activeTab === 'strategic' ? (
         <StrategicModeling />
       ) : (
-        <SimulationIntelligence context={context} />
+        <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}
     </div>
   );

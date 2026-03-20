@@ -64,6 +64,17 @@ export interface RRIVariable {
   methodology?: string;
 }
 
+export interface RRIState {
+  rri: number;
+  prev: number;
+  salience: number;
+  W: number;
+  regime_age: { age_pct: number; years: number };
+  ci_low: number;
+  ci_high: number;
+  monte_carlo_runs: number;
+}
+
 export interface Actor {
   id: string;
   name: string;

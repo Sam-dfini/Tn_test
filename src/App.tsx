@@ -32,8 +32,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import governoratesData from './data/governorates.json';
 import eventsData from './data/events.json';
 import rriData from './data/rri_variables.json';
-import { calculateRRI, getRiskTier, calculatePRev } from './utils/rriEngine';
-import { Governorate, IntelEvent, RRIVariable } from './types/intel';
+import { calculateFullRRIState, getRiskTier } from './utils/rriEngine';
+import { Governorate, IntelEvent, RRIVariable, RRIState } from './types/intel';
 import { Map } from './components/Map';
 import { RiskModel } from './components/RiskModel';
 import { Economy } from './components/Economy';
@@ -503,6 +503,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('map');
   const [rri, setRri] = useState(2.31);
   const [pRev, setPRev] = useState(0.643);
+  const [ciLow, setCiLow] = useState(0.58);
+  const [ciHigh, setCiHigh] = useState(0.72);
+  const [salience, setSalience] = useState(0.412);
+  const [warSuppressor, setWarSuppressor] = useState(1.0);
+  const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables || []) as RRIVariable[]);
@@ -520,9 +525,14 @@ export default function App() {
   };
 
   useEffect(() => {
-    const calculatedRri = calculateRRI(rriVariables);
-    setRri(calculatedRri);
-    setPRev(calculatePRev(calculatedRri));
+    const state = calculateFullRRIState(rriVariables);
+    setRri(state.rri);
+    setPRev(state.prev);
+    setCiLow(state.ci_low);
+    setCiHigh(state.ci_high);
+    setSalience(state.salience);
+    setWarSuppressor(state.W);
+    setRegimeAge(state.regime_age);
   }, [rriVariables]);
 
   const governorates = (governoratesData?.governorates || []) as Governorate[];
@@ -556,7 +566,9 @@ export default function App() {
           events, 
           governorates, 
           actors: actorData.actors, 
-          movements: actorData.movements 
+          movements: actorData.movements,
+          variables: rriVariables,
+          regimeAge
         }} />;
       case 'govs':
         return (
@@ -583,7 +595,19 @@ export default function App() {
           </div>
         );
       case 'risk':
-        return <RiskModel variables={rriVariables} />;
+        return <RiskModel 
+          variables={rriVariables} 
+          rriState={{
+            rri,
+            prev: pRev,
+            ci_low: ciLow,
+            ci_high: ciHigh,
+            salience,
+            W: warSuppressor,
+            regime_age: regimeAge,
+            monte_carlo_runs: 1000
+          }} 
+        />;
       case 'economy':
         return <Economy />;
       case 'actors':
@@ -603,14 +627,17 @@ export default function App() {
       case 'predict':
         return <Predict />;
       case 'simulation':
-        return <SimulationIntelligence context={{ 
-          rri, 
-          pRev, 
-          events, 
-          governorates, 
-          actors: actorData.actors, 
-          movements: actorData.movements 
-        }} />;
+        return <SimulationIntelligence 
+          variables={rriVariables}
+          context={{ 
+            rri, 
+            pRev, 
+            events, 
+            governorates, 
+            actors: actorData.actors, 
+            movements: actorData.movements 
+          }} 
+        />;
       case 'timeline':
         return <Timeline />;
       case 'sources':

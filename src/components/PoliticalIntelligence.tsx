@@ -8,7 +8,8 @@ import {
   TrendingUp,
   Activity,
   Lock,
-  Globe
+  Globe,
+  Network
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { Elections } from './Elections';
@@ -17,10 +18,11 @@ import { SentimentAnalysis } from './political/SentimentAnalysis';
 import { CivilMovements } from './political/CivilMovements';
 import { PartyDossier } from './political/PartyDossier';
 import { FreedomIndex } from './political/FreedomIndex';
+import { ActorNetwork } from './political/ActorNetwork';
 
-type TabType = 'overview' | 'sentiment' | 'movements' | 'elections' | 'parties' | 'freedom';
+type TabType = 'overview' | 'sentiment' | 'movements' | 'elections' | 'parties' | 'freedom' | 'powermap';
 
-export const PoliticalIntelligence: React.FC = () => {
+export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) => {
   const [activeSubTab, setActiveSubTab] = useState<TabType>('overview');
 
   const tabs: { id: TabType; label: string; icon: any; description: string }[] = [
@@ -30,6 +32,7 @@ export const PoliticalIntelligence: React.FC = () => {
     { id: 'elections', label: 'Elections', icon: BarChart3, description: 'Electoral legitimacy and voting pattern analysis' },
     { id: 'parties', label: 'Parties', icon: Users, description: 'Political party dossiers and coalition dynamics' },
     { id: 'freedom', label: 'Freedom', icon: Lock, description: 'Institutional erosion and human rights monitoring' },
+    { id: 'powermap', label: 'Power Map', icon: Network, description: 'Interactive actor network and influence mapping' },
   ];
 
   return (
@@ -92,7 +95,7 @@ export const PoliticalIntelligence: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl">
         {tabs.map(tab => (
           <button 
             key={tab.id}
@@ -128,6 +131,7 @@ export const PoliticalIntelligence: React.FC = () => {
         {activeSubTab === 'elections' && <Elections />}
         {activeSubTab === 'parties' && <PartyDossier />}
         {activeSubTab === 'freedom' && <FreedomIndex />}
+        {activeSubTab === 'powermap' && <ActorNetwork context={context} />}
       </div>
 
       {/* Footer Intelligence Note */}

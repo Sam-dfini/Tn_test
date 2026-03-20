@@ -49,6 +49,8 @@ import {
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { generateAnalystResponse } from '../services/geminiService';
+import { runMonteCarlo, simulateScenario, calculatePRev as engineCalculatePRev } from '../utils/rriEngine';
+import { RRIVariable } from '../types/intel';
 
 // --- Types ---
 
@@ -74,7 +76,6 @@ interface AnalystPersona {
   id: string;
   name: string;
   role: string;
-  avatar: string;
   color: string;
 }
 
@@ -88,12 +89,12 @@ const SIM_ALERTS = [
 ];
 
 const ANALYST_PERSONAS: AnalystPersona[] = [
-  { id: 'realist', name: 'Dr. Aris Thorne', role: 'Realist Power Dynamics', avatar: 'https://picsum.photos/seed/realist/100/100', color: '#00f2ff' },
-  { id: 'inst', name: 'Prof. Elena Vance', role: 'Institutional Stability', avatar: 'https://picsum.photos/seed/inst/100/100', color: '#bf00ff' },
-  { id: 'const', name: 'Marcus Chen', role: 'Constructivist Narratives', avatar: 'https://picsum.photos/seed/const/100/100', color: '#22c55e' },
-  { id: 'sec', name: 'Gen. Sarah Miller', role: 'Security & Order', avatar: 'https://picsum.photos/seed/sec/100/100', color: '#ef4444' },
-  { id: 'econ', name: 'David Stein', role: 'Macro-Fiscal Impact', avatar: 'https://picsum.photos/seed/econ/100/100', color: '#f97316' },
-  { id: 'civil', name: 'Nadia Mansour', role: 'Civil Society Pulse', avatar: 'https://picsum.photos/seed/civil/100/100', color: '#fbbf24' }
+  { id: 'realist', name: 'Dr. Aris Thorne', role: 'Realist Power Dynamics', color: '#00f2ff' },
+  { id: 'inst', name: 'Prof. Elena Vance', role: 'Institutional Stability', color: '#bf00ff' },
+  { id: 'const', name: 'Marcus Chen', role: 'Constructivist Narratives', color: '#22c55e' },
+  { id: 'sec', name: 'Gen. Sarah Miller', role: 'Security & Order', color: '#ef4444' },
+  { id: 'econ', name: 'David Stein', role: 'Macro-Fiscal Impact', color: '#f97316' },
+  { id: 'civil', name: 'Nadia Mansour', role: 'Civil Society Pulse', color: '#fbbf24' }
 ];
 
 const SCENARIO_PRESETS = [
@@ -156,18 +157,27 @@ const calculatePRev = (params: Record<string, number>) => {
 
 // --- Components ---
 
-export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context }) => {
+export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVariable[] }> = ({ context, variables }) => {
   const [activeTab, setActiveTab] = useState<Tab>('monte-carlo');
   
   // Monte Carlo State
-  const [mcData, setMcData] = useState(() => generateMonteCarlo());
+  const [mcData, setMcData] = useState(() => runMonteCarlo(variables));
   
   // Scenario State
-  const [scenarioParams, setScenarioParams] = useState<Record<string, number>>(SCENARIO_PRESETS[0].params);
+  const [scenarioParams, setScenarioParams] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    variables.forEach(v => {
+      initial[v.id] = v.value;
+    });
+    return initial;
+  });
   const [savedScenarios, setSavedScenarios] = useState<Scenario[]>([]);
   const [scenarioName, setScenarioName] = useState('');
   
-  const currentPRev = useMemo(() => calculatePRev(scenarioParams), [scenarioParams]);
+  const currentPRev = useMemo(() => {
+    const state = simulateScenario(variables, scenarioParams);
+    return state.prev;
+  }, [scenarioParams, variables]);
   
   // Agent Simulation State
   const [isSimulating, setIsSimulating] = useState(false);
@@ -193,13 +203,13 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
   const [aiForecast, setAiForecast] = useState(0);
 
   // Backtesting State
-  const backtestLogs = [
+  const [backtestLogs, setBacktestLogs] = useState([
     { date: '2025-Q1', sim: 62, actual: 58, error: -4, event: 'IMF Delay' },
     { date: '2025-Q2', sim: 68, actual: 72, error: 4, event: 'Subsidy Protest' },
     { date: '2025-Q3', sim: 75, actual: 74, error: -1, event: 'Security Reform' },
     { date: '2025-Q4', sim: 82, actual: 85, error: 3, event: 'Election Crisis' },
-    { date: '2026-Q1', sim: 78, actual: 79, error: 1, event: 'Remittance Surge' }
-  ];
+    { date: '2026-Q1', sim: 78, actual: 79, error: 1, event: 'Remittance Surge' },
+  ]);
 
   const calibrationData = [
     { predicted: 10, actual: 12 },
@@ -216,7 +226,7 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
   // --- Handlers ---
 
   const handleRunMC = () => {
-    setMcData(generateMonteCarlo());
+    setMcData(runMonteCarlo(variables));
   };
 
   const handleParamChange = (key: string, val: number) => {
@@ -335,6 +345,40 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
     }
   };
 
+  const handleInjectEvent = (eventType: string) => {
+    setAgents(prev => prev.map(agent => {
+      switch(eventType) {
+        case 'POLICE_BRUTALITY':
+          // Increases citizen and opposition activation, reduces security threshold
+          if (agent.type === 'Citizens') 
+            return { ...agent, active: Math.min(agent.count, agent.active * 1.4), threshold: agent.threshold * 0.8 };
+          if (agent.type === 'Opposition') 
+            return { ...agent, active: Math.min(agent.count, agent.active * 1.8) };
+          if (agent.type === 'Security') 
+            return { ...agent, threshold: agent.threshold * 1.2 };
+          return agent;
+        case 'UGTT_STRIKE':
+          if (agent.type === 'UGTT') 
+            return { ...agent, active: Math.min(agent.count, agent.active * 2.0) };
+          if (agent.type === 'Citizens')
+            return { ...agent, active: Math.min(agent.count, agent.active * 1.2) };
+          return agent;
+        case 'IMF_REJECTION':
+          if (agent.type === 'Elites')
+            return { ...agent, threshold: agent.threshold * 0.5 };
+          if (agent.type === 'Citizens')
+            return { ...agent, threshold: agent.threshold * 0.7 };
+          return agent;
+        case 'REMITTANCE_SURGE':
+          if (agent.type === 'Citizens')
+            return { ...agent, active: Math.max(0, agent.active * 0.7), threshold: agent.threshold * 1.3 };
+          return agent;
+        default:
+          return agent;
+      }
+    }));
+  };
+
   // --- Render Helpers ---
 
   const renderMonteCarlo = () => (
@@ -344,7 +388,7 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
           <div className="flex items-center justify-between mb-6">
             <div className="space-y-1">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">RRI Distribution Analysis</h3>
-              <p className="text-[10px] text-slate-500 font-mono">10,000 Iterations // Monte Carlo Engine v4.2</p>
+              <p className="text-[10px] text-slate-500 font-mono">1,000 Iterations // Monte Carlo Engine v4.2</p>
             </div>
             <button 
               onClick={handleRunMC}
@@ -354,6 +398,19 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
               <span>RE-RUN SIMULATION</span>
             </button>
           </div>
+          
+          {context?.regimeAge && (
+            <div className="mb-6 grid grid-cols-2 gap-4">
+              <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Regime Age (Years)</div>
+                <div className="text-lg font-bold font-mono text-white">{context.regimeAge.years} Years</div>
+              </div>
+              <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+                <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Age Percentile</div>
+                <div className="text-lg font-bold font-mono text-intel-cyan">{(context.regimeAge.age_pct * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+          )}
           
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -374,8 +431,8 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
                 <Bar dataKey="frequency">
                   {mcData.chartData.map((entry, index) => {
                     let color = '#1e293b';
-                    if (entry.rri >= mcData.stats.p5 && entry.rri <= mcData.stats.p95) color = '#00f2ff44';
-                    if (entry.rri >= 80) color = '#ef444488';
+                    if (entry.rri >= mcData.p5 && entry.rri <= mcData.p95) color = '#00f2ff44';
+                    if (entry.rri >= 3.0) color = '#ef444488'; // Threshold is 2.31, critical is 3.0
                     return <Cell key={`cell-${index}`} fill={color} />;
                   })}
                 </Bar>
@@ -403,10 +460,10 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
             </h3>
             <div className="space-y-4">
               {[
-                { label: 'Mean RRI', value: mcData.stats.mean.toFixed(1), color: 'text-white' },
-                { label: 'Median RRI', value: mcData.stats.median.toFixed(1), color: 'text-white' },
-                { label: '5th Percentile', value: mcData.stats.p5.toFixed(1), color: 'text-intel-cyan' },
-                { label: '95th Percentile', value: mcData.stats.p95.toFixed(1), color: 'text-intel-red' },
+                { label: 'Mean RRI', value: mcData.mean.toFixed(2), color: 'text-white' },
+                { label: 'Median RRI', value: mcData.median.toFixed(2), color: 'text-white' },
+                { label: '5th Percentile', value: mcData.p5.toFixed(2), color: 'text-intel-cyan' },
+                { label: '95th Percentile', value: mcData.p95.toFixed(2), color: 'text-intel-red' },
               ].map((stat, i) => (
                 <div key={i} className="flex items-center justify-between border-b border-white/5 pb-2">
                   <span className="text-[10px] font-mono text-slate-500 uppercase">{stat.label}</span>
@@ -458,31 +515,22 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-            {[
-              { id: 'war', label: 'War Distraction', icon: Zap },
-              { id: 'repression', label: 'State Repression', icon: Shield },
-              { id: 'remittances', label: 'Remittance Flow', icon: TrendingUp },
-              { id: 'imf', label: 'IMF Deal Prob.', icon: Landmark },
-              { id: 'ugtt', label: 'UGTT Mobilisation', icon: Users },
-              { id: 'fx', label: 'FX Reserve Level', icon: BarChart3 },
-              { id: 'youth', label: 'Youth Unemp.', icon: Activity },
-              { id: 'elite', label: 'Elite Cohesion', icon: Target },
-            ].map((param) => (
-              <div key={param.id} className="space-y-3">
+            {variables.map((v) => (
+              <div key={v.id} className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-slate-300">
-                    <param.icon className="w-3 h-3 text-intel-cyan" />
-                    <span className="text-[10px] font-mono uppercase tracking-wider">{param.label}</span>
+                    <Activity className="w-3 h-3 text-intel-cyan" />
+                    <span className="text-[10px] font-mono uppercase tracking-wider">{v.name}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-intel-cyan font-bold">{(scenarioParams[param.id] * 100).toFixed(0)}%</span>
+                  <span className="text-[10px] font-mono text-intel-cyan font-bold">{(scenarioParams[v.id] * 100).toFixed(0)}%</span>
                 </div>
                 <input 
                   type="range" 
                   min="0" 
                   max="1" 
                   step="0.01" 
-                  value={scenarioParams[param.id]} 
-                  onChange={(e) => handleParamChange(param.id, parseFloat(e.target.value))}
+                  value={scenarioParams[v.id]} 
+                  onChange={(e) => handleParamChange(v.id, parseFloat(e.target.value))}
                   className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-intel-cyan"
                 />
                 <div className="flex justify-between text-[8px] font-mono text-slate-600 uppercase">
@@ -731,19 +779,31 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
           </div>
           
           <div className="mt-6 pt-6 border-t border-white/5 grid grid-cols-4 gap-4">
-            <button className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-xl text-center hover:bg-intel-red/20 transition-all group">
+            <button 
+              onClick={() => handleInjectEvent('POLICE_BRUTALITY')}
+              className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-xl text-center hover:bg-intel-red/20 transition-all group"
+            >
               <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Inject Event</div>
               <div className="text-[10px] text-white font-bold group-hover:text-intel-red transition-colors">POLICE BRUTALITY</div>
             </button>
-            <button className="p-3 bg-intel-cyan/10 border border-intel-cyan/20 rounded-xl text-center hover:bg-intel-cyan/20 transition-all group">
+            <button 
+              onClick={() => handleInjectEvent('UGTT_STRIKE')}
+              className="p-3 bg-intel-cyan/10 border border-intel-cyan/20 rounded-xl text-center hover:bg-intel-cyan/20 transition-all group"
+            >
               <div className="text-[8px] font-mono text-intel-cyan uppercase font-bold mb-1">Inject Event</div>
               <div className="text-[10px] text-white font-bold group-hover:text-intel-cyan transition-colors">UGTT STRIKE</div>
             </button>
-            <button className="p-3 bg-intel-orange/10 border border-intel-orange/20 rounded-xl text-center hover:bg-intel-orange/20 transition-all group">
+            <button 
+              onClick={() => handleInjectEvent('IMF_REJECTION')}
+              className="p-3 bg-intel-orange/10 border border-intel-orange/20 rounded-xl text-center hover:bg-intel-orange/20 transition-all group"
+            >
               <div className="text-[8px] font-mono text-intel-orange uppercase font-bold mb-1">Inject Event</div>
               <div className="text-[10px] text-white font-bold group-hover:text-intel-orange transition-colors">IMF REJECTION</div>
             </button>
-            <button className="p-3 bg-intel-green/10 border border-intel-green/20 rounded-xl text-center hover:bg-intel-green/20 transition-all group">
+            <button 
+              onClick={() => handleInjectEvent('REMITTANCE_SURGE')}
+              className="p-3 bg-intel-green/10 border border-intel-green/20 rounded-xl text-center hover:bg-intel-green/20 transition-all group"
+            >
               <div className="text-[8px] font-mono text-intel-green uppercase font-bold mb-1">Inject Event</div>
               <div className="text-[10px] text-white font-bold group-hover:text-intel-green transition-colors">REMITTANCE SURGE</div>
             </button>
@@ -844,7 +904,12 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
                     {response.dissent && <div className="absolute top-0 right-0 bg-intel-red text-white text-[8px] px-2 py-0.5 font-bold uppercase">Dissent</div>}
                     
                     <div className="flex items-center space-x-3">
-                      <img src={persona.avatar} alt={persona.name} className="w-10 h-10 rounded-lg border border-white/10" />
+                      <div 
+                        className="w-10 h-10 rounded-lg border border-white/10 flex items-center justify-center text-sm font-bold"
+                        style={{ backgroundColor: `${persona.color}20`, color: persona.color, borderColor: `${persona.color}40` }}
+                      >
+                        {persona.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                      </div>
                       <div className="space-y-0.5">
                         <div className="text-[10px] font-bold text-white">{persona.name}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{persona.role}</div>
@@ -994,6 +1059,38 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
                 </div>
               ))}
             </div>
+            
+            <div className="pt-4 border-t border-white/5 space-y-3">
+              <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+                Log New Entry
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <input id="bt-date" placeholder="Period (e.g. 2026-Q2)" 
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                <input id="bt-event" placeholder="Event description" 
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                <input id="bt-sim" type="number" placeholder="Simulated %" 
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                <input id="bt-actual" type="number" placeholder="Actual %" 
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+              </div>
+              <button
+                onClick={() => {
+                  const date = (document.getElementById('bt-date') as HTMLInputElement).value;
+                  const event = (document.getElementById('bt-event') as HTMLInputElement).value;
+                  const sim = parseInt((document.getElementById('bt-sim') as HTMLInputElement).value);
+                  const actual = parseInt((document.getElementById('bt-actual') as HTMLInputElement).value);
+                  if (!date || !event || isNaN(sim) || isNaN(actual)) return;
+                  const error = actual - sim;
+                  setBacktestLogs(prev => [{ date, event, sim, actual, error }, ...prev]);
+                  ['bt-date','bt-event','bt-sim','bt-actual'].forEach(id => 
+                    (document.getElementById(id) as HTMLInputElement).value = '');
+                }}
+                className="w-full py-2 bg-intel-cyan/10 border border-intel-cyan/30 rounded text-[10px] font-mono font-bold text-intel-cyan hover:bg-intel-cyan/20 transition-all uppercase tracking-wider"
+              >
+                + Log Entry
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1058,24 +1155,6 @@ export const SimulationIntelligence: React.FC<{ context?: any }> = ({ context })
         </div>
       </div>
       
-      {/* Footer Stats */}
-      <div className="fixed bottom-0 left-0 right-0 bg-intel-bg/80 backdrop-blur-md border-t border-white/5 py-2 px-6 flex items-center justify-between z-50">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 rounded-full bg-intel-green"></div>
-            <span className="text-[10px] font-mono text-slate-500 uppercase">Engine: Stable</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-mono text-slate-500 uppercase">Compute Load:</span>
-            <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
-              <div className="h-full bg-intel-cyan w-[32%]"></div>
-            </div>
-          </div>
-        </div>
-        <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-          Last Sync: {new Date().toLocaleTimeString()} // v4.2.0-PRO
-        </div>
-      </div>
     </div>
   );
 };
