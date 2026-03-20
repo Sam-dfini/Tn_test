@@ -25,7 +25,8 @@ import {
   Vote,
   Database,
   Download,
-  Home
+  Home,
+  Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import governoratesData from './data/governorates.json';
@@ -51,6 +52,7 @@ import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { ProfessionalIntel } from './components/ProfessionalIntel';
 import { SourceLibrary } from './components/SourceLibrary';
 import { CitizenEdition } from './components/CitizenEdition';
+import SimulationIntelligence from './components/SimulationIntelligence';
 import { generateAnalystResponse } from './services/geminiService';
 
 import actorData from './data/actors.json';
@@ -311,6 +313,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
     { id: 'cases', icon: Briefcase, label: 'Cases' },
     { id: 'suspects', icon: UserX, label: 'Suspects' },
     { id: 'predict', icon: TrendingUp, label: 'Predict' },
+    { id: 'simulation', icon: Cpu, label: 'Simulation Intel' },
     { id: 'timeline', icon: Clock, label: 'Timeline' },
   ];
 
@@ -547,7 +550,14 @@ export default function App() {
           </div>
         );
       case 'professional':
-        return <ProfessionalIntel />;
+        return <ProfessionalIntel context={{ 
+          rri, 
+          pRev, 
+          events, 
+          governorates, 
+          actors: actorData.actors, 
+          movements: actorData.movements 
+        }} />;
       case 'govs':
         return (
           <div className="space-y-8">
@@ -592,6 +602,15 @@ export default function App() {
         return <Suspects />;
       case 'predict':
         return <Predict />;
+      case 'simulation':
+        return <SimulationIntelligence context={{ 
+          rri, 
+          pRev, 
+          events, 
+          governorates, 
+          actors: actorData.actors, 
+          movements: actorData.movements 
+        }} />;
       case 'timeline':
         return <Timeline />;
       case 'sources':

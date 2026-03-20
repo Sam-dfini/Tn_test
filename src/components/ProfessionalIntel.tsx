@@ -18,7 +18,8 @@ import {
   BrainCircuit,
   Clock,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Cpu
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { EconomyIntelligence } from './EconomyIntelligence';
@@ -29,6 +30,7 @@ import { SecurityIntelligence } from './SecurityIntelligence';
 import { StrategicModeling } from './StrategicModeling';
 import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { PoliticalIntelligence } from './PoliticalIntelligence';
+import SimulationIntelligence from './SimulationIntelligence';
 import { NewsFeed } from './NewsFeed';
 
 const reports = [
@@ -61,9 +63,9 @@ const reports = [
   }
 ];
 
-export const ProfessionalIntel: React.FC = () => {
+export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const [selectedReport, setSelectedReport] = useState<typeof reports[0] | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const toggleRow = (item: string) => {
@@ -182,6 +184,18 @@ export const ProfessionalIntel: React.FC = () => {
             <span>Strategic Modeling</span>
           </div>
           {activeTab === 'strategic' && (
+            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('simulation')}
+          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'simulation' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+        >
+          <div className="flex items-center space-x-2">
+            <Cpu className="w-4 h-4" />
+            <span>Simulation Intelligence</span>
+          </div>
+          {activeTab === 'simulation' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
           )}
         </button>
@@ -500,8 +514,10 @@ export const ProfessionalIntel: React.FC = () => {
         <EnvironmentalIntelligence />
       ) : activeTab === 'social' ? (
         <SocialIntelligence />
-      ) : (
+      ) : activeTab === 'strategic' ? (
         <StrategicModeling />
+      ) : (
+        <SimulationIntelligence context={context} />
       )}
     </div>
   );
