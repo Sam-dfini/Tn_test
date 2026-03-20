@@ -20,7 +20,8 @@ import {
   Pill,
   Skull,
   LayoutGrid,
-  Search
+  Search,
+  Stethoscope
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -32,6 +33,7 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Cell,
   ComposedChart,
   Line,
   LineChart,
@@ -53,6 +55,7 @@ const socialIndicators = [
   { label: 'Population Pressure', value: '7.2/10', trend: 'Urban density at peak', status: 'WARNING', icon: Users, color: 'text-intel-orange', history: [6.5, 6.8, 7.0, 7.1, 7.2] },
   { label: 'Suicide Rate', value: '12.4', trend: 'Per 100k inhabitants', status: 'CRITICAL', icon: HeartPulse, color: 'text-intel-red', history: [9.2, 10.5, 11.2, 11.8, 12.4] },
   { label: 'Mental Health Stress', value: '68%', trend: 'Surveyed population', status: 'CRITICAL', icon: Brain, color: 'text-intel-red', history: [45, 52, 58, 62, 68] },
+  { label: 'Chronic Disease %', value: '42.8%', trend: 'Rising in urban areas', status: 'WARNING', icon: Stethoscope, color: 'text-intel-orange', history: [35, 38, 40, 41, 42.8] },
   { label: 'Street Signal S(t)', value: '0.78', trend: 'Protest probability: HIGH', status: 'CRITICAL', icon: Activity, color: 'text-intel-red', history: [0.45, 0.55, 0.62, 0.72, 0.78] },
   { label: 'Social Cohesion', value: 'LOW', trend: 'Trust in institutions < 15%', status: 'CRITICAL', icon: ShieldAlert, color: 'text-intel-red', history: [35, 28, 22, 18, 15] },
 ];
@@ -109,21 +112,18 @@ const divorceByRegion = [
   { region: 'South West', rate: 12.5, economicStress: 8.2 }
 ];
 
-const drugConsumptionData = [
-  { name: 'Cannabis (Zatla)', value: 65, color: '#22c55e', description: 'Most prevalent, widespread among youth.' },
-  { name: 'Psychotropic Pills', value: 22, color: '#f59e0b', description: 'Rising abuse of prescription meds (Parkizol, etc).' },
-  { name: 'Cocaine', value: 8, color: '#0ea5e9', description: 'Increasing availability in urban nightlife hubs.' },
-  { name: 'Heroin/Injectables', value: 3, color: '#ef4444', description: 'High-risk, concentrated in specific urban pockets.' },
-  { name: 'Synthetic/New', value: 2, color: '#a855f7', description: 'Emerging chemical variants, difficult to track.' }
+const drugAddictionAgeData = [
+  { age: '12-17', percentage: 8.4, color: '#0ea5e9' },
+  { age: '18-25', percentage: 24.8, color: '#ef4444' },
+  { age: '26-35', percentage: 18.2, color: '#f59e0b' },
+  { age: '36-45', percentage: 12.5, color: '#6366f1' },
+  { age: '46+', percentage: 6.1, color: '#94a3b8' }
 ];
 
-const drugArrestTrends = [
-  { month: 'OCT', users: 850, dealers: 120 },
-  { month: 'NOV', users: 920, dealers: 145 },
-  { month: 'DEC', users: 1100, dealers: 180 },
-  { month: 'JAN', users: 880, dealers: 130 },
-  { month: 'FEB', users: 950, dealers: 155 },
-  { month: 'MAR', users: 1050, dealers: 190 }
+const addictionStats = [
+  { label: 'Total Addicts (Est.)', value: '450K', trend: '+12% YoY', status: 'CRITICAL' },
+  { label: 'Youth Addiction Rate', value: '24.8%', trend: 'Ages 18-25', status: 'CRITICAL' },
+  { label: 'Relapse Frequency', value: '72%', trend: 'Within 12 months', status: 'CRITICAL' }
 ];
 
 const rehabMetrics = [
@@ -131,6 +131,23 @@ const rehabMetrics = [
   { category: 'NGO Support Centers', current: 15, required: 45, status: 'WARNING' },
   { category: 'Relapse Rate (12m)', current: 72, required: 30, status: 'CRITICAL' },
   { category: 'Youth Outreach', current: 25, required: 100, status: 'WARNING' }
+];
+
+const demographicStatsData = [
+  { year: '2015', birthRate: 18.2, deathRate: 6.4, netGrowth: 11.8 },
+  { year: '2018', birthRate: 17.5, deathRate: 6.6, netGrowth: 10.9 },
+  { year: '2021', birthRate: 16.8, deathRate: 7.2, netGrowth: 9.6 },
+  { year: '2023', birthRate: 16.2, deathRate: 7.5, netGrowth: 8.7 },
+  { year: '2024', birthRate: 15.8, deathRate: 7.8, netGrowth: 8.0 },
+  { year: '2025', birthRate: 15.4, deathRate: 8.1, netGrowth: 7.3 }
+];
+
+const chronicDiseaseBreakdown = [
+  { name: 'Hypertension', value: 32.5, color: '#ef4444', trend: '+4.2%' },
+  { name: 'Diabetes', value: 18.2, color: '#f59e0b', trend: '+2.8%' },
+  { name: 'Cardiovascular', value: 12.4, color: '#0ea5e9', trend: '+1.5%' },
+  { name: 'Respiratory', value: 9.8, color: '#6366f1', trend: '+0.9%' },
+  { name: 'Other', value: 27.1, color: '#94a3b8', trend: '+0.4%' }
 ];
 
 export const SocialIntelligence: React.FC = () => {
@@ -331,6 +348,94 @@ export const SocialIntelligence: React.FC = () => {
                 <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Family & Demographics</h3>
               </div>
 
+        {/* Demographic Statistics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Demographic Vitality Index</h4>
+                <p className="text-[10px] text-slate-500 uppercase">Birth Rate vs Death Rate (per 1,000 inhabitants)</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-intel-cyan"></div>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Birth Rate</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-intel-red"></div>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Death Rate</span>
+                </div>
+              </div>
+            </div>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={demographicStatsData}>
+                  <defs>
+                    <linearGradient id="colorBirth" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00f2ff" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#00f2ff" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorDeath" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Area type="monotone" dataKey="birthRate" stroke="#00f2ff" fillOpacity={1} fill="url(#colorBirth)" strokeWidth={3} name="Birth Rate" />
+                  <Area type="monotone" dataKey="deathRate" stroke="#ef4444" fillOpacity={1} fill="url(#colorDeath)" strokeWidth={3} name="Death Rate" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+            <div className="space-y-6">
+              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Vital Statistics</h4>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono uppercase">
+                    <span className="text-slate-500">Net Population Growth</span>
+                    <span className="text-intel-cyan">7.3‰</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-intel-cyan w-[40%]"></div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono uppercase">
+                    <span className="text-slate-500">Fertility Rate</span>
+                    <span className="text-intel-orange">1.92</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-intel-orange w-[55%]"></div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono uppercase">
+                    <span className="text-slate-500">Life Expectancy</span>
+                    <span className="text-intel-green">76.8Y</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-intel-green w-[76%]"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
+              <div className="flex items-center space-x-2">
+                <TrendingDown className="w-4 h-4 text-intel-red" />
+                <span className="text-[10px] font-bold text-white uppercase">Demographic Winter Risk</span>
+              </div>
+              <p className="text-[9px] text-slate-500 leading-tight">
+                Birth rates have reached a historical low of 15.4‰. Combined with rising death rates due to aging and health stress, the net growth is decelerating rapidly.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Key Indicators Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {socialIndicators.filter(ind => ['Population Pressure'].includes(ind.label)).map((ind, i) => (
@@ -481,7 +586,7 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Key Indicators Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {socialIndicators.filter(ind => ['Suicide Rate', 'Mental Health Stress'].includes(ind.label)).map((ind, i) => (
+          {socialIndicators.filter(ind => ['Suicide Rate', 'Mental Health Stress', 'Chronic Disease %'].includes(ind.label)).map((ind, i) => (
             <motion.div 
               key={i} 
               initial={{ opacity: 0, y: 20 }}
@@ -524,64 +629,131 @@ export const SocialIntelligence: React.FC = () => {
           ))}
         </div>
 
-        {/* Narcotics Intelligence Section */}
+        {/* Chronic Disease Breakdown Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Consumption Breakdown */}
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
-            <h4 className="text-lg font-bold text-white uppercase tracking-tight flex items-center space-x-2">
-              <Pill className="w-5 h-5 text-intel-cyan" />
-              <span>Consumption Profile</span>
-            </h4>
-            <div className="space-y-6">
-              {drugConsumptionData.map((drug, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase">{drug.name}</span>
-                    <span className="text-xs font-bold text-white">{drug.value}%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${drug.value}%` }}
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      className="h-full" 
-                      style={{ backgroundColor: drug.color }}
-                    ></motion.div>
-                  </div>
-                </div>
-              ))}
+          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Chronic Disease Prevalence</h4>
+              <p className="text-[10px] text-slate-500 uppercase">Distribution of non-communicable diseases (NCDs)</p>
+            </div>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chronicDiseaseBreakdown} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }}
+                    width={100}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
+                  />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
+                    {chronicDiseaseBreakdown.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Arrest Trends */}
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+            <div className="space-y-6">
+              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Health Risk Analysis</h4>
+              <div className="space-y-4">
+                {chronicDiseaseBreakdown.map((disease, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-intel-border">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: disease.color }}></div>
+                      <span className="text-[10px] font-mono text-slate-300 uppercase">{disease.name}</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-bold text-white">{disease.value}%</span>
+                      <span className="text-[8px] font-mono text-intel-red">{disease.trend}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4 bg-intel-orange/5 border border-intel-orange/20 rounded-xl space-y-2">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 text-intel-orange" />
+                <span className="text-[10px] font-bold text-white uppercase">Systemic Health Strain</span>
+              </div>
+              <p className="text-[9px] text-slate-500 leading-tight">
+                Chronic diseases now account for 72% of all deaths. Sedentary lifestyles and poor dietary habits in urban centers are accelerating these trends.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Narcotics Intelligence Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Addiction Prevalence & Age Breakdown */}
           <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Law Enforcement Activity</h4>
-                <p className="text-[10px] text-slate-500 uppercase">Monthly Drug-Related Arrests (Users vs Dealers)</p>
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Addiction Prevalence & Age Demographics</h4>
+                <p className="text-[10px] text-slate-500 uppercase">Percentage of population by age group</p>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-intel-orange"></div>
-                  <span className="text-[8px] font-mono text-slate-500 uppercase">Users</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 rounded-full bg-intel-red"></div>
-                  <span className="text-[8px] font-mono text-slate-500 uppercase">Dealers</span>
-                </div>
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="w-4 h-4 text-intel-red" />
+                <span className="text-[10px] font-bold text-intel-red uppercase">Critical Youth Surge</span>
               </div>
             </div>
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={drugArrestTrends}>
+                <BarChart data={drugAddictionAgeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                  <Bar dataKey="users" fill="#f97316" fillOpacity={0.6} radius={[4, 4, 0, 0]} name="User Arrests" />
-                  <Bar dataKey="dealers" fill="#ef4444" radius={[4, 4, 0, 0]} name="Dealer Arrests" />
+                  <XAxis dataKey="age" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
+                  />
+                  <Bar dataKey="percentage" radius={[4, 4, 0, 0]} barSize={40}>
+                    {drugAddictionAgeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+            <div className="space-y-6">
+              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Addiction Metrics</h4>
+              <div className="space-y-4">
+                {addictionStats.map((stat, i) => (
+                  <div key={i} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[8px] font-mono text-slate-500 uppercase">{stat.label}</span>
+                      <span className="text-[8px] font-mono text-intel-red uppercase">{stat.status}</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <span className="text-xl font-bold text-white">{stat.value}</span>
+                      <span className="text-[10px] font-mono text-intel-red">{stat.trend}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
+              <div className="flex items-center space-x-2">
+                <ShieldAlert className="w-4 h-4 text-intel-red" />
+                <span className="text-[10px] font-bold text-white uppercase">Intelligence Warning</span>
+              </div>
+              <p className="text-[9px] text-slate-500 leading-tight">
+                Addiction rates among the 18-25 demographic have spiked by 24% in the last 18 months. Synthetic drug accessibility is the primary catalyst.
+              </p>
             </div>
           </div>
         </div>

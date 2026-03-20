@@ -664,12 +664,8 @@ export default function App() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             transition={{ duration: 0.8 }}
+            className="min-h-screen bg-intel-bg"
           >
-            <Navigation 
-              activeTab={activeTab} 
-              setActiveTab={setActiveTab} 
-              onOpenAI={() => setIsAIAnalystOpen(true)}
-            />
             <CitizenEdition 
               governorates={governorates} 
               events={events} 
@@ -685,13 +681,6 @@ export default function App() {
                 actors: actorData.actors,
                 movements: actorData.movements
               }}
-            />
-            <WatchmanStrip 
-              rri={rri} 
-              pRev={pRev} 
-              eventsCount={events.length} 
-              waterCrisisGovs={waterCrisisGovs} 
-              mode={appMode}
             />
             <AIAnalyst 
               isOpen={isAIAnalystOpen} 

@@ -28,7 +28,8 @@ import {
   Siren,
   Construction,
   LayoutGrid,
-  Search
+  Search,
+  Pill
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -95,6 +96,23 @@ const drugArrestsData = [
   { month: 'Jan', arrests: 490, trend: '+8%' },
   { month: 'Feb', arrests: 550, trend: '+15%' },
   { month: 'Mar', arrests: 620, trend: '+20%' },
+];
+
+const drugArrestTrends = [
+  { month: 'OCT', users: 850, dealers: 120 },
+  { month: 'NOV', users: 920, dealers: 145 },
+  { month: 'DEC', users: 1100, dealers: 180 },
+  { month: 'JAN', users: 880, dealers: 130 },
+  { month: 'FEB', users: 950, dealers: 155 },
+  { month: 'MAR', users: 1050, dealers: 190 }
+];
+
+const drugConsumptionData = [
+  { name: 'Cannabis (Zatla)', value: 65, color: '#22c55e', description: 'Most prevalent, widespread among youth.' },
+  { name: 'Psychotropic Pills', value: 22, color: '#f59e0b', description: 'Rising abuse of prescription meds (Parkizol, etc).' },
+  { name: 'Cocaine', value: 8, color: '#0ea5e9', description: 'Increasing availability in urban nightlife hubs.' },
+  { name: 'Heroin/Injectables', value: 3, color: '#ef4444', description: 'High-risk, concentrated in specific urban pockets.' },
+  { name: 'Synthetic/New', value: 2, color: '#a855f7', description: 'Emerging chemical variants, difficult to track.' }
 ];
 
 const drugSeizures = [
@@ -506,6 +524,38 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
         </div>
 
+        {/* Law Enforcement Activity - Drug Related Arrests */}
+        <div className="lg:col-span-3 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Law Enforcement Activity</h4>
+              <p className="text-[10px] text-slate-500 uppercase">Monthly Drug-Related Arrests (Users vs Dealers)</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-intel-orange"></div>
+                <span className="text-[8px] font-mono text-slate-500 uppercase">Users</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-intel-red"></div>
+                <span className="text-[8px] font-mono text-slate-500 uppercase">Dealers</span>
+              </div>
+            </div>
+          </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={drugArrestTrends}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                <Bar dataKey="users" fill="#f97316" fillOpacity={0.6} radius={[4, 4, 0, 0]} name="User Arrests" />
+                <Bar dataKey="dealers" fill="#ef4444" radius={[4, 4, 0, 0]} name="Dealer Arrests" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
         {/* Major Seizures & Substances */}
         <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
@@ -561,6 +611,36 @@ export const SecurityIntelligence: React.FC = () => {
                 <div className="text-[8px] font-mono text-slate-600 uppercase">TND</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Consumption Profile */}
+        <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Consumption Profile</h3>
+              <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Market Prevalence</p>
+            </div>
+            <Pill className="w-5 h-5 text-intel-cyan" />
+          </div>
+          <div className="space-y-6">
+            {drugConsumptionData.map((drug, i) => (
+              <div key={i} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase">{drug.name}</span>
+                  <span className="text-xs font-bold text-white">{drug.value}%</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${drug.value}%` }}
+                    transition={{ duration: 1, delay: i * 0.1 }}
+                    className="h-full" 
+                    style={{ backgroundColor: drug.color }}
+                  ></motion.div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
