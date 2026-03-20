@@ -1,10 +1,11 @@
 import React from 'react';
 
 const items = [
-  { source: 'INTELSLAVA', time: '6h ago', content: 'The arrival of an Iranian ballistic missile in southern Israel.' },
-  { source: 'INTELSLAVA', time: '6h ago', content: 'The Israeli Air Force carried out a strike on the headquarters of the Nepalese battalion operating a' },
-  { source: 'BBC', time: '6h ago', content: 'More US Marines and warships to be moved to Middle East, reports say' },
-  { source: 'NYT', time: '6h ago', content: 'A New Trump Envoy Stirs Fears of U.S. Meddling in Brazil\'s Elections' },
+  { source: 'TAP', time: '12m ago', content: 'Central Bank of Tunisia maintains interest rate at 8% amid inflation concerns.' },
+  { source: 'MOSAIQUE', time: '45m ago', content: 'Protests reported in Gafsa over employment opportunities in the mining sector.' },
+  { source: 'SHEMS FM', time: '1h ago', content: 'Ministry of Agriculture warns of water scarcity in northern dams following dry winter.' },
+  { source: 'JAWHERA', time: '2h ago', content: 'New investment agreement signed between Tunisia and EU for renewable energy projects.' },
+  { source: 'REUTERS', time: '3h ago', content: 'Tunisia seeks IMF deal as economic pressure mounts on the Mediterranean nation.' },
 ];
 
 export const NewsTicker: React.FC = () => {

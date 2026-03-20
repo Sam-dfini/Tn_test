@@ -36,6 +36,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
 
   const [breachedEvents, setBreachedEvents] = useState<Set<string>>(new Set());
   const [recentBreaches, setRecentBreaches] = useState<Set<string>>(new Set());
+  const alertedBreaches = React.useRef<Set<string>>(new Set());
 
   React.useEffect(() => {
     if (!onGeofenceBreach) return;
@@ -48,9 +49,13 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
       GEOFENCES.forEach(gf => {
         const dist = L.latLng(event.lat!, event.lon!).distanceTo(L.latLng(gf.lat, gf.lon));
         if (dist <= gf.radius) {
+          const breachId = `${gf.id}-${event.id}`;
           newBreaches.add(event.id);
-          if (!breachedEvents.has(event.id)) {
-            // New breach detected
+          
+          if (!alertedBreaches.current.has(breachId)) {
+            // New breach detected for this specific geofence/event combo
+            alertedBreaches.current.add(breachId);
+            
             setRecentBreaches(prev => {
               const next = new Set(prev);
               next.add(event.id);
@@ -67,7 +72,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
             }, 5000);
 
             onGeofenceBreach({
-              id: `gf-alert-${event.id}`,
+              id: `gf-alert-${breachId}-${Date.now()}`, // Make it truly unique
               source: 'GEOFENCE_WATCH',
               time: new Date().toISOString().split('T')[1].slice(0, 5) + 'Z',
               type: 'GEOFENCE_BREACH',
@@ -80,7 +85,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
     });
 
     setBreachedEvents(newBreaches);
-  }, [events]);
+  }, [events, onGeofenceBreach]);
 
   const toggleLayer = (layer: keyof typeof layers) => {
     setLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
@@ -98,6 +103,20 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
 
   return (
     <div className="relative h-[600px] bg-[#0a0e14] rounded-lg border border-intel-border overflow-hidden group">
+      {/* Animated Red Border for Tunisia Focus */}
+      <motion.div 
+        animate={{ 
+          opacity: [0.2, 0.5, 0.2],
+          boxShadow: [
+            '0 0 5px rgba(255, 59, 59, 0.1)',
+            '0 0 10px rgba(255, 59, 59, 0.4)',
+            '0 0 5px rgba(255, 59, 59, 0.1)'
+          ]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 left-0 right-0 h-[1px] bg-intel-red/50 z-40 pointer-events-none"
+      />
+      
       {/* Tactical Overlay: Grid */}
       {layers.grid && (
         <div className="absolute inset-0 z-10 pointer-events-none opacity-20" 

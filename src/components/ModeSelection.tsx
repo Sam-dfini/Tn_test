@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Shield, Zap, Target, Layout, ChevronRight, AlertCircle } from 'lucide-react';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced') => void;
+  onSelect: (mode: 'simplified' | 'advanced' | 'professional') => void;
 }
 
 export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect }) => {
@@ -16,7 +16,7 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect }) => {
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-intel-cyan/5 rounded-full blur-[120px]"></div>
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-intel-purple/5 rounded-full blur-[120px]"></div>
 
-      <div className="max-w-5xl w-full space-y-12 relative z-20">
+      <div className="max-w-6xl w-full space-y-12 relative z-20">
         <div className="text-center space-y-4">
           <motion.div 
             initial={{ opacity: 0, y: -20 }}
@@ -43,39 +43,71 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect }) => {
             transition={{ delay: 0.3 }}
             className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto font-light tracking-wide"
           >
-            Select your operational interface. Advanced Tactical mode requires high-level clearance and provides deep geospatial intelligence.
+            Select your operational interface. Professional Intel provides high-end analysis and strategic dossiers for decision makers.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Simplified Mode */}
           <motion.button
             whileHover={{ scale: 1.02, translateY: -5 }}
             whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             onClick={() => onSelect('simplified')}
-            className="group relative glass p-8 rounded-3xl border border-intel-border hover:border-intel-cyan/30 transition-all text-left overflow-hidden"
+            className="group relative glass p-6 rounded-3xl border border-intel-border hover:border-intel-cyan/30 transition-all text-left overflow-hidden"
           >
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Layout className="w-32 h-32" />
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Layout className="w-24 h-24" />
             </div>
             
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 rounded-2xl bg-slate-800/50 flex items-center justify-center border border-slate-700 group-hover:border-intel-cyan/50 transition-colors">
-                <Layout className="w-7 h-7 text-slate-400 group-hover:text-intel-cyan" />
+            <div className="relative z-10 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-slate-800/50 flex items-center justify-center border border-slate-700 group-hover:border-intel-cyan/50 transition-colors">
+                <Layout className="w-6 h-6 text-slate-400 group-hover:text-intel-cyan" />
               </div>
               
               <div>
-                <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-2">Simplified</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Standard intelligence overview. Focuses on high-level trends, basic risk metrics, and general stability indicators.
+                <h3 className="text-xl font-bold text-white uppercase tracking-tight mb-1">Simplified</h3>
+                <p className="text-slate-500 text-xs leading-relaxed">
+                  Standard intelligence overview. Focuses on high-level trends and basic risk metrics.
                 </p>
               </div>
 
-              <div className="flex items-center text-intel-cyan text-xs font-mono uppercase tracking-widest font-bold pt-4">
-                Initialize Standard Link <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center text-intel-cyan text-[10px] font-mono uppercase tracking-widest font-bold pt-2">
+                Standard Link <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          </motion.button>
+
+          {/* Professional Intel Mode */}
+          <motion.button
+            whileHover={{ scale: 1.02, translateY: -5 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={() => onSelect('professional')}
+            className="group relative glass p-6 rounded-3xl border border-intel-border hover:border-intel-cyan/30 transition-all text-left overflow-hidden bg-gradient-to-br from-intel-card to-white/5"
+          >
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Zap className="w-24 h-24" />
+            </div>
+            
+            <div className="relative z-10 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-intel-cyan/50 transition-colors">
+                <Zap className="w-6 h-6 text-white group-hover:text-intel-cyan" />
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-bold text-white uppercase tracking-tight mb-1">Professional Intel</h3>
+                <p className="text-slate-500 text-xs leading-relaxed">
+                  Premium strategic analysis. Deep-dive dossiers, market intelligence, and executive briefs.
+                </p>
+              </div>
+
+              <div className="flex items-center text-intel-cyan text-[10px] font-mono uppercase tracking-widest font-bold pt-2">
+                Professional Link <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </motion.button>
@@ -84,35 +116,35 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect }) => {
           <motion.button
             whileHover={{ scale: 1.02, translateY: -5 }}
             whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
             onClick={() => onSelect('advanced')}
-            className="group relative glass p-8 rounded-3xl border border-intel-border hover:border-intel-cyan/30 transition-all text-left overflow-hidden bg-gradient-to-br from-intel-card to-intel-cyan/5"
+            className="group relative glass p-6 rounded-3xl border border-intel-border hover:border-intel-cyan/30 transition-all text-left overflow-hidden bg-gradient-to-br from-intel-card to-intel-cyan/5"
           >
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Shield className="w-32 h-32" />
+            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Shield className="w-24 h-24" />
             </div>
             
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 rounded-2xl bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/20 group-hover:border-intel-cyan/50 transition-colors">
-                <Target className="w-7 h-7 text-intel-cyan" />
+            <div className="relative z-10 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/20 group-hover:border-intel-cyan/50 transition-colors">
+                <Target className="w-6 h-6 text-intel-cyan" />
               </div>
               
               <div>
-                <div className="flex items-center space-x-2 mb-2">
-                  <h3 className="text-2xl font-bold text-white uppercase tracking-tight">Tactical OSINT Tunisia</h3>
-                  <div className="px-2 py-0.5 rounded bg-intel-red/10 border border-intel-red/20 text-[8px] font-mono text-intel-red font-bold animate-pulse">
+                <div className="flex items-center space-x-2 mb-1">
+                  <h3 className="text-xl font-bold text-white uppercase tracking-tight">Tactical OSINT</h3>
+                  <div className="px-1.5 py-0.5 rounded bg-intel-red/10 border border-intel-red/20 text-[6px] font-mono text-intel-red font-bold animate-pulse">
                     CLASSIFIED
                   </div>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed">
-                  Deep-dive geospatial intelligence. Real-time incident tracking, predictive modeling, and granular actor network analysis.
+                <p className="text-slate-500 text-xs leading-relaxed">
+                  Deep-dive geospatial intelligence. Real-time incident tracking and predictive modeling.
                 </p>
               </div>
 
-              <div className="flex items-center text-intel-cyan text-xs font-mono uppercase tracking-widest font-bold pt-4">
-                Initialize Tactical Link <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center text-intel-cyan text-[10px] font-mono uppercase tracking-widest font-bold pt-2">
+                Tactical Link <ChevronRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </motion.button>

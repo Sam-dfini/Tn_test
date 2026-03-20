@@ -22,7 +22,10 @@ import {
   UserX,
   TrendingUp,
   Clock,
-  Vote
+  Vote,
+  Database,
+  Download,
+  Home
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import governoratesData from './data/governorates.json';
@@ -45,7 +48,14 @@ import { Timeline } from './components/Timeline';
 import { TacticalLoading } from './components/TacticalLoading';
 import { ModeSelection } from './components/ModeSelection';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
+import { ProfessionalIntel } from './components/ProfessionalIntel';
+import { SourceLibrary } from './components/SourceLibrary';
+import { CitizenEdition } from './components/CitizenEdition';
 import { generateAnalystResponse } from './services/geminiService';
+
+import actorData from './data/actors.json';
+
+import { Onboarding } from './components/Onboarding';
 
 // Components
 const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () => void, context: any }) => {
@@ -164,17 +174,30 @@ interface GovernorateCardProps {
 
 const GovernorateCard: React.FC<GovernorateCardProps> = ({ gov }) => {
   return (
-    <div className="glass p-5 rounded-2xl border border-intel-border hover:border-intel-cyan/40 transition-all group cursor-pointer">
+    <div className="glass p-5 rounded-2xl border border-intel-border hover:border-intel-cyan/40 transition-all group cursor-pointer relative">
+      {/* Hover Tooltip */}
+      <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-intel-card border border-intel-border p-2 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 whitespace-nowrap">
+        <div className="text-[10px] font-bold text-white mb-1">{gov.name.ar}</div>
+        <div className="flex items-center space-x-2">
+          <span className="text-[8px] text-slate-500 uppercase">Tension:</span>
+          <span className={`text-[8px] font-bold uppercase ${
+            gov.tension === 'alert' ? 'text-intel-red' : 
+            gov.tension === 'high' ? 'text-intel-orange' : 
+            'text-intel-cyan'
+          }`}>{gov.tension}</span>
+        </div>
+      </div>
+
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="text-[8px] font-mono text-slate-500 uppercase mb-0.5">{gov.id}</div>
           <h4 className="text-lg font-bold text-white tracking-tight">{gov.name.en}</h4>
           <div className="text-[10px] font-mono text-slate-400">{gov.name.ar}</div>
         </div>
-        <div className={`px-2 py-1 rounded text-[8px] font-mono font-bold border ${
-          gov.risk_level === 'ALERT' ? 'bg-intel-red/10 text-intel-red border-intel-red/20' :
-          gov.risk_level === 'HIGH' ? 'bg-intel-orange/10 text-intel-orange border-intel-orange/20' :
-          'bg-intel-green/10 text-intel-green border-intel-green/20'
+        <div className={`px-2 py-1 rounded text-[8px] font-mono font-bold border shadow-lg ${
+          gov.risk_level === 'ALERT' ? 'bg-intel-red text-white border-intel-red shadow-intel-red/20' :
+          gov.risk_level === 'HIGH' ? 'bg-gradient-to-br from-intel-orange to-intel-red text-white border-intel-orange shadow-intel-orange/20' :
+          'bg-intel-green/20 text-intel-green border-intel-green/30'
         }`}>
           {gov.risk_level}
         </div>
@@ -216,9 +239,11 @@ const GovernorateCard: React.FC<GovernorateCardProps> = ({ gov }) => {
     </div>
   );
 };
-const WatchmanStrip = ({ rri, pRev, eventsCount, waterCrisisGovs }: { rri: number, pRev: number, eventsCount: number, waterCrisisGovs: number }) => {
+const WatchmanStrip = ({ rri, pRev, eventsCount, waterCrisisGovs, mode }: { rri: number, pRev: number, eventsCount: number, waterCrisisGovs: number, mode: string | null }) => {
+  if (mode === 'professional') return null;
+  
   return (
-    <div className="fixed bottom-14 md:bottom-0 left-0 md:left-20 right-0 h-16 bg-intel-card border-t border-intel-border flex items-center px-6 z-50 overflow-x-auto whitespace-nowrap scrollbar-hide">
+    <div className={`fixed ${mode === 'simplified' ? 'bottom-32 md:bottom-32' : 'bottom-14 md:bottom-0'} left-0 right-0 h-16 bg-intel-card border-t border-intel-border flex items-center px-6 z-50 overflow-x-auto whitespace-nowrap scrollbar-hide`}>
       <div className="flex items-center space-x-4 md:space-x-8">
         <div className="flex flex-col">
           <span className="text-[8px] md:text-[10px] text-slate-500 uppercase tracking-widest font-mono">RRI Score</span>
@@ -274,6 +299,7 @@ const WatchmanStrip = ({ rri, pRev, eventsCount, waterCrisisGovs }: { rri: numbe
 const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, setActiveTab: (t: string) => void, onOpenAI: () => void }) => {
   const tabs = [
     { id: 'map', icon: MapIcon, label: 'Map' },
+    { id: 'professional', icon: Zap, label: 'Professional Intel' },
     { id: 'govs', icon: Globe, label: 'Gov. Risk' },
     { id: 'economy', icon: BarChart3, label: 'Economy' },
     { id: 'risk', icon: ShieldAlert, label: 'Risk Model' },
@@ -324,9 +350,16 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   );
 };
 
-const Header = () => {
+const Header = ({ onOpenSourceLibrary, activeTab, onOpenAI, data, onGoHome }: { onOpenSourceLibrary: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifications = [
+    { id: 1, title: 'RRI Alert: Sfax', message: 'Risk score increased by 0.45 in the last 24h.', time: '12m ago', type: 'alert' },
+    { id: 2, title: 'New Report Available', message: 'Strategic Stability Outlook: Q2 2026 is now live.', time: '1h ago', type: 'info' },
+    { id: 3, title: 'System Sync', message: 'Database synchronization completed successfully.', time: '3h ago', type: 'success' },
+  ];
+
   return (
-    <header className="fixed top-0 left-0 md:left-20 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-30">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-30">
       {/* Left side secondary info */}
       <div className="hidden md:flex items-center space-x-4">
         <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
@@ -344,9 +377,106 @@ const Header = () => {
 
       {/* Right side profile */}
       <div className="flex items-center justify-end space-x-3 md:space-x-6">
-        <div className="hidden sm:flex items-center space-x-2 bg-intel-card px-3 py-1.5 rounded-full border border-intel-border">
-          <div className="w-1.5 h-1.5 rounded-full bg-intel-green"></div>
-          <span className="text-[10px] font-mono text-intel-green uppercase tracking-tighter">System Nominal</span>
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`p-2 rounded-lg border transition-all relative ${
+                showNotifications 
+                  ? 'bg-intel-red/10 border-intel-red/40 text-intel-red glow-red' 
+                  : 'bg-intel-card border-intel-border text-slate-500 hover:text-white hover:border-slate-700'
+              }`}
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-intel-red rounded-full border border-intel-bg"></span>
+            </button>
+
+            <AnimatePresence>
+              {showNotifications && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowNotifications(false)}
+                  ></div>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-80 bg-intel-card border border-intel-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-intel-border flex items-center justify-between bg-white/5">
+                      <h3 className="text-xs font-bold text-white uppercase tracking-widest">Intelligence Alerts</h3>
+                      <span className="text-[8px] font-mono text-intel-cyan uppercase">3 New</span>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto scrollbar-hide">
+                      {notifications.map((n) => (
+                        <div key={n.id} className="p-4 border-b border-intel-border last:border-0 hover:bg-white/5 transition-colors cursor-pointer group">
+                          <div className="flex items-start justify-between mb-1">
+                            <span className={`text-[10px] font-bold uppercase tracking-tighter ${
+                              n.type === 'alert' ? 'text-intel-red' : 
+                              n.type === 'success' ? 'text-intel-green' : 'text-intel-cyan'
+                            }`}>
+                              {n.title}
+                            </span>
+                            <span className="text-[8px] font-mono text-slate-600 uppercase">{n.time}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+                            {n.message}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <button className="w-full py-3 text-[9px] font-mono text-slate-500 hover:text-white uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all">
+                      View All Notifications
+                    </button>
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <button 
+            onClick={onGoHome}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="Go to Home Screen"
+          >
+            <Home className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => {
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `tunisiaintel_export_${new Date().toISOString().split('T')[0]}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="Export Intel Data"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onOpenAI}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+          >
+            <Zap className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onOpenSourceLibrary}
+            className={`p-2 rounded-lg border transition-all ${
+              activeTab === 'sources' 
+                ? 'bg-intel-cyan/10 border-intel-cyan/40 text-intel-cyan glow-cyan' 
+                : 'bg-intel-card border-intel-border text-slate-500 hover:text-white hover:border-slate-700'
+            }`}
+          >
+            <Database className="w-4 h-4" />
+          </button>
+          <div className="hidden sm:flex items-center space-x-2 bg-intel-card px-3 py-1.5 rounded-full border border-intel-border">
+            <div className="w-1.5 h-1.5 rounded-full bg-intel-green"></div>
+            <span className="text-[10px] font-mono text-intel-green uppercase tracking-tighter">System Nominal</span>
+          </div>
         </div>
         <div className="flex items-center space-x-2 md:space-x-3">
           <div className="text-right hidden xs:block">
@@ -365,13 +495,26 @@ const Header = () => {
 };
 
 export default function App() {
-  const [appMode, setAppMode] = useState<'simplified' | 'advanced' | null>(null);
+  const [appMode, setAppMode] = useState<'simplified' | 'advanced' | 'professional' | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [activeTab, setActiveTab] = useState('map');
   const [rri, setRri] = useState(2.31);
   const [pRev, setPRev] = useState(0.643);
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables || []) as RRIVariable[]);
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('hasSeenOnboarding', 'true');
+  };
 
   useEffect(() => {
     const calculatedRri = calculateRRI(rriVariables);
@@ -403,6 +546,8 @@ export default function App() {
             </div>
           </div>
         );
+      case 'professional':
+        return <ProfessionalIntel />;
       case 'govs':
         return (
           <div className="space-y-8">
@@ -449,19 +594,27 @@ export default function App() {
         return <Predict />;
       case 'timeline':
         return <Timeline />;
+      case 'sources':
+        return <SourceLibrary onBack={() => setActiveTab('professional')} />;
       default:
         return <div className="text-white">Module Under Construction</div>;
     }
   };
 
-  const handleModeSelect = (mode: 'simplified' | 'advanced') => {
+  const handleModeSelect = (mode: 'simplified' | 'advanced' | 'professional') => {
     setAppMode(mode);
+    if (mode === 'professional') {
+      setActiveTab('professional');
+    }
     setIsInitializing(true);
   };
 
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
       <AnimatePresence mode="wait">
+        {showOnboarding && (
+          <Onboarding onComplete={handleOnboardingComplete} />
+        )}
         {!appMode ? (
           <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
             <ModeSelection onSelect={handleModeSelect} />
@@ -477,7 +630,82 @@ export default function App() {
             animate={{ opacity: 1 }} 
             transition={{ duration: 0.8 }}
           >
-            <TacticalDashboard governorates={governorates} events={events} />
+            <TacticalDashboard 
+              governorates={governorates} 
+              events={events} 
+              onOpenAI={() => setIsAIAnalystOpen(true)} 
+              onGoHome={() => setAppMode(null)}
+              data={{
+                rri,
+                pRev,
+                events,
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements
+              }}
+            />
+            <AIAnalyst 
+              isOpen={isAIAnalystOpen} 
+              onClose={() => setIsAIAnalystOpen(false)} 
+              context={{
+                rri,
+                pRev,
+                events,
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements,
+                activeTab
+              }}
+            />
+          </motion.div>
+        ) : appMode === 'simplified' ? (
+          <motion.div 
+            key="citizen-app" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.8 }}
+          >
+            <Navigation 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              onOpenAI={() => setIsAIAnalystOpen(true)}
+            />
+            <CitizenEdition 
+              governorates={governorates} 
+              events={events} 
+              rri={rri} 
+              pRev={pRev} 
+              onOpenAI={() => setIsAIAnalystOpen(true)}
+              onGoHome={() => setAppMode(null)}
+              data={{
+                rri,
+                pRev,
+                events,
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements
+              }}
+            />
+            <WatchmanStrip 
+              rri={rri} 
+              pRev={pRev} 
+              eventsCount={events.length} 
+              waterCrisisGovs={waterCrisisGovs} 
+              mode={appMode}
+            />
+            <AIAnalyst 
+              isOpen={isAIAnalystOpen} 
+              onClose={() => setIsAIAnalystOpen(false)} 
+              context={{
+                rri,
+                pRev,
+                events,
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements,
+                activeTab
+              }}
+            />
           </motion.div>
         ) : (
           <motion.div 
@@ -487,8 +715,20 @@ export default function App() {
             transition={{ duration: 0.8 }}
             className="min-h-screen"
           >
-            <Header />
-            <Navigation activeTab={activeTab} setActiveTab={setActiveTab} onOpenAI={() => setIsAIAnalystOpen(true)} />
+            <Header 
+              onOpenSourceLibrary={() => setActiveTab('sources')} 
+              activeTab={activeTab}
+              onOpenAI={() => setIsAIAnalystOpen(true)}
+              onGoHome={() => setAppMode(null)}
+              data={{
+                rri,
+                pRev,
+                events,
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements
+              }}
+            />
             
             <AIAnalyst 
               isOpen={isAIAnalystOpen} 
@@ -497,10 +737,13 @@ export default function App() {
                 rri,
                 pRev,
                 events,
-                governorates
+                governorates,
+                actors: actorData.actors,
+                movements: actorData.movements,
+                activeTab
               }}
             />
-            <main className="md:pl-20 pt-16 pb-32 md:pb-16 min-h-screen">
+            <main className="pt-16 pb-16 min-h-screen">
               <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -516,13 +759,6 @@ export default function App() {
                 </AnimatePresence>
               </div>
             </main>
-
-            <WatchmanStrip 
-              rri={rri} 
-              pRev={pRev} 
-              eventsCount={events.length} 
-              waterCrisisGovs={waterCrisisGovs} 
-            />
           </motion.div>
         )}
       </AnimatePresence>

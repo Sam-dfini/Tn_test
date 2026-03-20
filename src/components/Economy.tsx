@@ -1,15 +1,16 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { BarChart3, TrendingDown, TrendingUp, DollarSign, Landmark, PieChart, Info } from 'lucide-react';
+import { BarChart3, TrendingDown, TrendingUp, DollarSign, Landmark, PieChart, Info, AlertTriangle } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 export const Economy: React.FC = () => {
   const indicators = [
-    { label: 'GDP Growth', value: '0.4%', trend: 'down', color: 'text-intel-red' },
-    { label: 'Inflation', value: '7.1%', trend: 'up', color: 'text-intel-red' },
-    { label: 'Unemployment', value: '16.4%', trend: 'up', color: 'text-intel-orange' },
-    { label: 'Youth Unemp.', value: '37.8%', trend: 'up', color: 'text-intel-red' },
-    { label: 'Public Debt', value: '81.2% GDP', trend: 'up', color: 'text-intel-red' },
-    { label: 'BCT Reserves', value: '88 Days', trend: 'down', color: 'text-intel-red' },
+    { label: 'GDP Growth', value: '0.4%', trend: 'down', color: 'text-intel-red', history: [0.8, 0.6, 0.5, 0.4, 0.4] },
+    { label: 'Inflation', value: '7.1%', trend: 'up', color: 'text-intel-red', history: [8.2, 7.8, 7.5, 7.2, 7.1] },
+    { label: 'Unemployment', value: '16.4%', trend: 'up', color: 'text-intel-orange', history: [15.5, 15.8, 16.0, 16.1, 16.2] },
+    { label: 'Youth Unemp.', value: '37.8%', trend: 'up', color: 'text-intel-red', history: [35, 36, 37, 37.5, 37.8] },
+    { label: 'Public Debt', value: '81.2%', trend: 'up', color: 'text-intel-red', history: [78, 79, 80, 80.5, 81.2] },
+    { label: 'BCT Reserves', value: '88 Days', trend: 'down', color: 'text-intel-red', history: [112, 105, 98, 92, 88] },
   ];
 
   return (
@@ -32,12 +33,29 @@ export const Economy: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
-            className="glass p-4 rounded-xl border border-intel-border hover:border-intel-cyan/30 transition-all group"
+            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+            className="glass p-4 rounded-xl border border-intel-border hover:border-intel-cyan/30 transition-all group relative overflow-hidden h-32 flex flex-col justify-between"
           >
-            <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">{ind.label}</div>
-            <div className="flex items-center justify-between">
-              <div className={`text-xl font-bold font-mono ${ind.color}`}>{ind.value}</div>
-              {ind.trend === 'up' ? <TrendingUp className={`w-4 h-4 ${ind.color}`} /> : <TrendingDown className={`w-4 h-4 ${ind.color}`} />}
+            <div className="relative z-10">
+              <div className="text-[8px] font-mono text-slate-500 uppercase mb-1 tracking-widest">{ind.label}</div>
+              <div className="flex items-center justify-between">
+                <div className={`text-xl font-bold font-mono ${ind.color} tracking-tighter`}>{ind.value}</div>
+                {ind.trend === 'up' ? <TrendingUp className={`w-3 h-3 ${ind.color}`} /> : <TrendingDown className={`w-3 h-3 ${ind.color}`} />}
+              </div>
+            </div>
+
+            <div className="h-10 w-full mt-2 opacity-30 group-hover:opacity-60 transition-opacity">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={ind.history.map((v, idx) => ({ v, idx }))}>
+                  <Line 
+                    type="monotone" 
+                    dataKey="v" 
+                    stroke={ind.color.includes('red') ? '#ef4444' : ind.color.includes('orange') ? '#f97316' : '#00f2ff'} 
+                    strokeWidth={2} 
+                    dot={false} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </motion.div>
         ))}
@@ -136,5 +154,3 @@ export const Economy: React.FC = () => {
     </div>
   );
 };
-
-import { AlertTriangle } from 'lucide-react';

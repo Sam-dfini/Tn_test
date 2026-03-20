@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Radio, Activity, Maximize2, Settings, Shield, Zap, Eye,
@@ -6,6 +6,8 @@ import {
   Tv, Music, Globe
 } from 'lucide-react';
 import ReactPlayer from 'react-player';
+
+const Player = ReactPlayer as any;
 
 type StreamCategory = 'INTERNATIONAL' | 'LOCAL_TV' | 'RADIO';
 
@@ -38,11 +40,11 @@ const STREAMS: Stream[] = [
   },
   {
     id: 'int-3',
-    name: 'BBC ARABIC',
-    url: 'https://www.youtube.com/watch?v=v_p8M7R1_2E',
+    name: 'SKY NEWS ARABIA',
+    url: 'https://www.youtube.com/watch?v=9AuqejYxE_8',
     category: 'INTERNATIONAL',
-    location: 'London, UK',
-    bitrate: '3.8 Mbps'
+    location: 'Abu Dhabi, UAE',
+    bitrate: '4.2 Mbps'
   },
   {
     id: 'int-4',
@@ -56,7 +58,7 @@ const STREAMS: Stream[] = [
   {
     id: 'loc-1',
     name: 'AL WATANIYA 1',
-    url: 'https://www.youtube.com/watch?v=O_6_6_6_6_6', // Placeholder for National TV 1
+    url: 'https://www.youtube.com/watch?v=O_6_6_6_6_6', // Placeholder
     category: 'LOCAL_TV',
     location: 'Tunis, Tunisia',
     bitrate: '3.5 Mbps'
@@ -64,7 +66,7 @@ const STREAMS: Stream[] = [
   {
     id: 'loc-2',
     name: 'AL WATANIYA 2',
-    url: 'https://www.youtube.com/watch?v=X_X_X_X_X_X', // Placeholder for National TV 2
+    url: 'https://www.youtube.com/watch?v=X_X_X_X_X_X', // Placeholder
     category: 'LOCAL_TV',
     location: 'Tunis, Tunisia',
     bitrate: '3.2 Mbps'
@@ -72,7 +74,7 @@ const STREAMS: Stream[] = [
   {
     id: 'loc-3',
     name: 'ATTESSIA TV',
-    url: 'https://www.youtube.com/watch?v=Y_Y_Y_Y_Y_Y', // Placeholder for Attessia
+    url: 'https://www.youtube.com/watch?v=Y_Y_Y_Y_Y_Y', // Placeholder
     category: 'LOCAL_TV',
     location: 'Tunis, Tunisia',
     bitrate: '4.0 Mbps'
@@ -106,14 +108,59 @@ const STREAMS: Stream[] = [
 
 export const LiveMediaStreams: React.FC = () => {
   const [activeStream, setActiveStream] = useState<Stream>(STREAMS[0]);
+  const [customUrls, setCustomUrls] = useState<Record<string, string>>({});
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(true);
   const [played, setPlayed] = useState(0);
   const [duration, setDuration] = useState(0);
   const [activeCategory, setActiveCategory] = useState<StreamCategory>('INTERNATIONAL');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [tempUrl, setTempUrl] = useState('');
+  const [errorStatus, setErrorStatus] = useState<{ hasError: boolean; message: string }>({ hasError: false, message: '' });
   
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [canPlay, setCanPlay] = useState(false);
+  const playerInstanceRef = useRef<any>(null);
   const playerRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      setIsPlaying(false);
+    };
+  }, []);
+
+  const validateYoutubeUrl = (url: string) => {
+    if (!url) return false;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11);
+  };
+
+  const normalizeUrl = (url: string) => {
+    if (!url) return '';
+    
+    // Check if it's a YouTube URL and validate it
+    const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+    if (isYoutube && !validateYoutubeUrl(url)) {
+      return 'INVALID_YOUTUBE_URL';
+    }
+
+    // Convert youtube.com/live/ID to youtube.com/watch?v=ID
+    if (url.includes('youtube.com/live/')) {
+      const parts = url.split('youtube.com/live/');
+      const id = parts[1].split('?')[0];
+      return `https://www.youtube.com/watch?v=${id}`;
+    }
+    return url;
+  };
+
+  const currentUrl = normalizeUrl(customUrls[activeStream.id] || activeStream.url);
+
+  useEffect(() => {
+    setCanPlay(false);
+    setIsPlayerReady(false);
+  }, [currentUrl]);
 
   const handlePlayPause = () => setIsPlaying(!isPlaying);
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,13 +174,98 @@ export const LiveMediaStreams: React.FC = () => {
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     setPlayed(val);
-    playerRef.current?.seekTo(val);
+    if (isPlayerReady && playerInstanceRef.current && typeof playerInstanceRef.current.seekTo === 'function') {
+      try {
+        playerInstanceRef.current.seekTo(val);
+      } catch (err) {
+        console.error('Seek error:', err);
+      }
+    }
+  };
+
+  const handleOpenSettings = () => {
+    setTempUrl(currentUrl === 'INVALID_YOUTUBE_URL' ? '' : currentUrl);
+    setIsSettingsOpen(true);
+  };
+
+  const handleSaveUrl = () => {
+    if (tempUrl && (tempUrl.includes('youtube.com') || tempUrl.includes('youtu.be')) && !validateYoutubeUrl(tempUrl)) {
+      setErrorStatus({ hasError: true, message: 'CRITICAL: Invalid YouTube URL detected. Handshake failed.' });
+      return;
+    }
+    setCustomUrls(prev => ({ ...prev, [activeStream.id]: tempUrl }));
+    setErrorStatus({ hasError: false, message: '' });
+    setIsSettingsOpen(false);
+  };
+
+  const handleRefresh = () => {
+    const url = currentUrl;
+    setCustomUrls(prev => ({ ...prev, [activeStream.id]: '' }));
+    setTimeout(() => {
+      setCustomUrls(prev => ({ ...prev, [activeStream.id]: url }));
+      setErrorStatus({ hasError: false, message: '' });
+    }, 10);
+  };
+
+  const handleError = (e: any) => {
+    console.error('Player Error:', e);
+    let msg = 'The stream source is unreachable or restricted.';
+    if (currentUrl === 'INVALID_YOUTUBE_URL') {
+      msg = 'CRITICAL: Invalid YouTube URL. Video ID extraction failed.';
+    } else if (currentUrl.includes('youtube.com')) {
+      msg = 'Uplink restricted by YouTube. Embedding may be disabled for this live content.';
+    }
+    setErrorStatus({ hasError: true, message: msg });
   };
 
   const filteredStreams = STREAMS.filter(s => s.category === activeCategory);
 
   return (
-    <div className="glass rounded-lg border border-intel-border overflow-hidden flex flex-col h-[600px]">
+    <div className="glass rounded-lg border border-intel-border overflow-hidden flex flex-col h-[600px] relative">
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-6">
+          <div className="w-full max-w-md bg-[#0a0e14] border border-intel-cyan/30 p-4 space-y-4">
+            <div className="flex items-center justify-between border-b border-intel-cyan/20 pb-2">
+              <h4 className="text-[10px] font-mono text-intel-cyan uppercase font-bold tracking-widest">Stream Configuration</h4>
+              <button onClick={() => setIsSettingsOpen(false)} className="text-slate-500 hover:text-white">
+                <Settings className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[8px] font-mono text-slate-400 uppercase">Active Stream: {activeStream.name}</label>
+              <div className="flex flex-col space-y-1">
+                <span className="text-[7px] font-mono text-intel-cyan uppercase">Source URL (YouTube/HLS/MP4)</span>
+                <input 
+                  type="text" 
+                  value={tempUrl}
+                  onChange={(e) => setTempUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="bg-black border border-intel-cyan/20 p-2 text-[10px] font-mono text-white focus:border-intel-cyan outline-none w-full"
+                />
+              </div>
+              <p className="text-[7px] font-mono text-slate-500 italic">
+                Note: Some YouTube live streams may restrict embedding. Use direct stream links if available.
+              </p>
+            </div>
+            <div className="flex space-x-2 pt-2">
+              <button 
+                onClick={handleSaveUrl}
+                className="flex-1 bg-intel-cyan/20 border border-intel-cyan/50 text-intel-cyan text-[9px] font-mono uppercase py-2 hover:bg-intel-cyan/30 transition-all"
+              >
+                Update Uplink
+              </button>
+              <button 
+                onClick={handleRefresh}
+                className="flex-1 bg-white/5 border border-white/10 text-slate-400 text-[9px] font-mono uppercase py-2 hover:bg-white/10 transition-all"
+              >
+                Reset & Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-black/40 border-b border-intel-border p-3 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -152,25 +284,71 @@ export const LiveMediaStreams: React.FC = () => {
             <Activity className="w-3 h-3 text-intel-green" />
             <span className="text-[8px] font-mono text-slate-500 uppercase">Uplink: Stable</span>
           </div>
-          <Settings className="w-3 h-3 text-slate-500 cursor-pointer hover:text-intel-cyan transition-colors" />
+          <Settings 
+            onClick={handleOpenSettings}
+            className="w-3 h-3 text-slate-500 cursor-pointer hover:text-intel-cyan transition-colors" 
+          />
         </div>
       </div>
 
       {/* Main Player Area */}
       <div className="relative flex-1 bg-black group overflow-hidden">
+        {errorStatus.hasError && (
+          <div className="absolute inset-0 z-20 bg-black/80 flex flex-col items-center justify-center p-6 text-center">
+            <Zap className="w-8 h-8 text-intel-red mb-2" />
+            <h4 className="text-xs font-mono text-white uppercase font-bold mb-1">Uplink Failure</h4>
+            <p className="text-[9px] font-mono text-slate-400 uppercase mb-4 max-w-[250px] leading-relaxed">
+              {errorStatus.message}
+            </p>
+            <div className="flex space-x-2">
+              <button 
+                onClick={handleRefresh}
+                className="px-4 py-2 bg-intel-cyan/10 border border-intel-cyan/50 text-intel-cyan text-[9px] font-mono uppercase hover:bg-intel-cyan/20 transition-all"
+              >
+                Retry Connection
+              </button>
+              <button 
+                onClick={handleOpenSettings}
+                className="px-4 py-2 border border-white/20 text-white text-[9px] font-mono uppercase hover:bg-white/10 transition-all"
+              >
+                Configure Manual Uplink
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="absolute inset-0 z-0">
-          <ReactPlayer
+          <Player
+            key={currentUrl}
             ref={playerRef}
-            url={activeStream.url}
-            playing={isPlaying}
+            url={currentUrl === 'INVALID_YOUTUBE_URL' ? '' : currentUrl}
+            playing={isPlaying && canPlay}
             volume={volume}
             muted={isMuted}
             onProgress={handleProgress}
-            onDuration={handleDuration}
+            onReady={(player: any) => {
+              playerInstanceRef.current = player;
+              setIsPlayerReady(true);
+              setCanPlay(true);
+              setErrorStatus({ hasError: false, message: '' });
+              if (player && typeof player.getDuration === 'function') {
+                setDuration(player.getDuration());
+              }
+            }}
+            onError={handleError}
             width="100%"
             height="100%"
-            style={{ pointerEvents: 'none' }}
-            {...({} as any)}
+            config={{
+              youtube: {
+                playerVars: { 
+                  autoplay: 0, // Disable autoplay to avoid play() interruption
+                  modestbranding: 1,
+                  rel: 0,
+                  origin: window.location.origin,
+                  enablejsapi: 1
+                }
+              } as any
+            }}
           />
         </div>
 
@@ -184,9 +362,17 @@ export const LiveMediaStreams: React.FC = () => {
               </div>
               <div className="text-[8px] font-mono text-intel-cyan uppercase">{activeStream.location}</div>
             </div>
-            <div className="bg-black/60 backdrop-blur-sm border border-intel-cyan/30 p-2 text-right">
+            <div className="bg-black/60 backdrop-blur-sm border border-intel-cyan/30 p-2 text-right pointer-events-auto">
               <div className="text-[10px] font-mono text-white font-bold uppercase">{new Date().toLocaleTimeString()}</div>
               <div className="text-[8px] font-mono text-slate-400 uppercase">LAT: 34.74° N // LON: 10.76° E</div>
+              <a 
+                href={currentUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[7px] font-mono text-intel-cyan hover:underline block mt-1"
+              >
+                EXTERNAL_LINK_UPLINK
+              </a>
             </div>
           </div>
 

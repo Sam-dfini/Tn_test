@@ -9,9 +9,11 @@ export const generateAnalystResponse = async (prompt: string, context: any) => {
   - P(Revolution): ${context.pRev}
   - Active Events: ${JSON.stringify(context.events)}
   - Governorate Data: ${JSON.stringify(context.governorates)}
+  - Key Actors: ${JSON.stringify(context.actors)}
+  - Recent Actor Movements: ${JSON.stringify(context.movements)}
   
   Answer the user's intelligence query with professional, data-grounded assessment. 
-  Cite specific model figures and events. Be concise and objective.`;
+  Cite specific model figures, events, and actor movements. Be concise and objective.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-pro-preview',

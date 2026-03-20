@@ -22,9 +22,10 @@ interface MapProps {
   governorates: Governorate[];
   events: IntelEvent[];
   activeLayer: string;
+  heatmapPoints?: { lat: number; lon: number; intensity: number; label?: string; risk?: string }[];
 }
 
-export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer }) => {
+export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, heatmapPoints }) => {
   const tunisiaCenter: [number, number] = [33.8869, 9.5375];
   const zoom = 6;
 
@@ -62,6 +63,33 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer }) =
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
           
+          {/* Heatmap Layer Simulation */}
+          {heatmapPoints?.map((point, i) => (
+            <React.Fragment key={`heat-${i}`}>
+              <Marker 
+                position={[point.lat, point.lon]}
+                icon={L.divIcon({
+                  className: 'heatmap-icon',
+                  html: `<div class="relative">
+                          <div class="absolute inset-0 w-24 h-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-intel-red opacity-[0.15] blur-xl animate-pulse"></div>
+                          <div class="absolute inset-0 w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-intel-red opacity-[0.2] blur-lg"></div>
+                          <div class="w-2 h-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-intel-red shadow-[0_0_10px_#ef4444]"></div>
+                        </div>`,
+                  iconSize: [0, 0],
+                })}
+              >
+                <Popup className="intel-popup">
+                  <div className="p-2 min-w-[150px] bg-intel-card text-slate-300 border border-intel-border rounded-lg shadow-2xl">
+                    <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Vulnerability Alert</div>
+                    <h4 className="text-xs font-bold text-white uppercase mb-1">{point.label}</h4>
+                    <div className="text-[10px] text-slate-400">Risk Factor: <span className="text-intel-orange">{point.risk}</span></div>
+                    <div className="text-[10px] text-slate-400">Intensity: <span className="text-intel-red font-bold">{(point.intensity * 100).toFixed(0)}%</span></div>
+                  </div>
+                </Popup>
+              </Marker>
+            </React.Fragment>
+          ))}
+
           {/* We would normally load real GeoJSON here. For now, we'll use markers for events */}
           {(events || []).filter(e => e.lat != null && e.lon != null).map(event => (
             <Marker 

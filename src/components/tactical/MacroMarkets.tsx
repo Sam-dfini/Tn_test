@@ -2,21 +2,22 @@ import React from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
 const indexes = [
-  { label: 'S&P 500', value: '$662.29', change: '-1.5%', trend: 'down' },
-  { label: 'NASDAQ 100', value: '$593.72', change: '-1.01%', trend: 'down' },
-  { label: 'DOW JONES', value: '$466.41', change: '-1.56%', trend: 'down' },
-  { label: 'RUSSELL 2000', value: '$246.59', change: '-1.71%', trend: 'down' },
+  { label: 'TUNINDEX', value: '9,842.15', change: '-0.24%', trend: 'down' },
+  { label: 'BVMT', value: '2,456.80', change: '+0.12%', trend: 'up' },
+  { label: 'S&P 500', value: '$5,124.29', change: '-1.5%', trend: 'down' },
+  { label: 'NASDAQ', value: '$16,248.5', change: '-1.01%', trend: 'down' },
 ];
 
-const crypto = [
-  { label: 'BITCOIN', value: '$70,653.2', change: '+1.04%', trend: 'up' },
-  { label: 'ETHEREUM', value: '$2,078.14', change: '+2.01%', trend: 'up' },
+const forex = [
+  { label: 'USD/TND', value: '3.1245', change: '+0.05%', trend: 'up' },
+  { label: 'EUR/TND', value: '3.3892', change: '-0.12%', trend: 'down' },
+  { label: 'SAR/TND', value: '0.8331', change: '0.00%', trend: 'stable' },
 ];
 
 const energy = [
-  { label: 'WTI CRUDE', value: '$98.71', change: '$/bbl', trend: 'down' },
-  { label: 'BRENT', value: '$103.14', change: '$/bbl', trend: 'up' },
-  { label: 'NAT GAS', value: '$3.13', change: '$/MMBtu', trend: 'down' },
+  { label: 'BRENT CRUDE', value: '$82.45', change: '$/bbl', trend: 'up' },
+  { label: 'WTI CRUDE', value: '$78.12', change: '$/bbl', trend: 'down' },
+  { label: 'NAT GAS', value: '$1.84', change: '$/MMBtu', trend: 'down' },
 ];
 
 export const MacroMarkets: React.FC = () => {
@@ -24,7 +25,10 @@ export const MacroMarkets: React.FC = () => {
     <div className="glass p-4 rounded-lg border border-intel-border h-full">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Macro + Markets</h3>
-        <span className="text-[8px] font-mono text-intel-cyan uppercase font-bold">Live</span>
+        <div className="flex items-center space-x-2">
+          <span className="w-1 h-1 rounded-full bg-intel-green animate-pulse"></span>
+          <span className="text-[8px] font-mono text-intel-cyan uppercase font-bold">Live Data Feed</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-6">
@@ -34,9 +38,9 @@ export const MacroMarkets: React.FC = () => {
             {indexes.map(idx => (
               <div key={idx.label}>
                 <div className="text-[8px] font-mono text-slate-500 uppercase">{idx.label}</div>
-                <div className="text-xs font-bold font-mono text-intel-orange">{idx.value}</div>
-                <div className={`text-[8px] font-mono flex items-center ${idx.trend === 'up' ? 'text-intel-green' : 'text-intel-red'}`}>
-                  {idx.trend === 'up' ? <TrendingUp className="w-2 h-2 mr-1" /> : <TrendingDown className="w-2 h-2 mr-1" />}
+                <div className="text-xs font-bold font-mono text-white">{idx.value}</div>
+                <div className={`text-[8px] font-mono flex items-center ${idx.trend === 'up' ? 'text-intel-green' : idx.trend === 'down' ? 'text-intel-red' : 'text-slate-500'}`}>
+                  {idx.trend === 'up' ? <TrendingUp className="w-2 h-2 mr-1" /> : idx.trend === 'down' ? <TrendingDown className="w-2 h-2 mr-1" /> : null}
                   {idx.change}
                 </div>
               </div>
@@ -45,15 +49,15 @@ export const MacroMarkets: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">Crypto</div>
+          <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">Forex (TND)</div>
           <div className="grid grid-cols-1 gap-4">
-            {crypto.map(c => (
-              <div key={c.label}>
-                <div className="text-[8px] font-mono text-slate-500 uppercase">{c.label}</div>
-                <div className="text-xs font-bold font-mono text-intel-green">{c.value}</div>
-                <div className={`text-[8px] font-mono flex items-center ${c.trend === 'up' ? 'text-intel-green' : 'text-intel-red'}`}>
-                  {c.trend === 'up' ? <TrendingUp className="w-2 h-2 mr-1" /> : <TrendingDown className="w-2 h-2 mr-1" />}
-                  {c.change}
+            {forex.map(f => (
+              <div key={f.label}>
+                <div className="text-[8px] font-mono text-slate-500 uppercase">{f.label}</div>
+                <div className="text-xs font-bold font-mono text-intel-cyan">{f.value}</div>
+                <div className={`text-[8px] font-mono flex items-center ${f.trend === 'up' ? 'text-intel-green' : f.trend === 'down' ? 'text-intel-red' : 'text-slate-500'}`}>
+                  {f.trend === 'up' ? <TrendingUp className="w-2 h-2 mr-1" /> : f.trend === 'down' ? <TrendingDown className="w-2 h-2 mr-1" /> : null}
+                  {f.change}
                 </div>
               </div>
             ))}
@@ -61,13 +65,13 @@ export const MacroMarkets: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">Energy + Macro</div>
+          <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">Energy + Commodities</div>
           <div className="grid grid-cols-2 gap-4">
             {energy.map(e => (
               <div key={e.label}>
                 <div className="text-[8px] font-mono text-slate-500 uppercase">{e.label}</div>
                 <div className="text-xs font-bold font-mono text-white">{e.value}</div>
-                <div className="text-[8px] font-mono text-slate-600">{e.change}</div>
+                <div className={`text-[8px] font-mono ${e.trend === 'up' ? 'text-intel-green' : 'text-intel-red'}`}>{e.change}</div>
               </div>
             ))}
           </div>

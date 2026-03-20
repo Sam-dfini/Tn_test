@@ -61,6 +61,7 @@ export interface RRIVariable {
   direction: 'positive' | 'negative';
   source: string;
   last_updated: string;
+  methodology?: string;
 }
 
 export interface Actor {

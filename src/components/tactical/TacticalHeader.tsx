@@ -1,10 +1,24 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Clock, Globe, Zap, AlertTriangle } from 'lucide-react';
+import { Clock, Globe, Zap, AlertTriangle, Download, Home } from 'lucide-react';
 
-export const TacticalHeader: React.FC = () => {
+export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => void, data: any }> = ({ onOpenAI, onGoHome, data }) => {
   return (
-    <header className="h-14 border-b border-intel-border bg-intel-card/50 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-[100]">
+    <header className="h-14 border-b border-intel-border bg-intel-card/50 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-[100] overflow-hidden">
+      {/* Animated Red Border for Tunisia Focus */}
+      <motion.div 
+        animate={{ 
+          opacity: [0.3, 0.8, 0.3],
+          boxShadow: [
+            '0 0 5px rgba(255, 59, 59, 0.2)',
+            '0 0 15px rgba(255, 59, 59, 0.6)',
+            '0 0 5px rgba(255, 59, 59, 0.2)'
+          ]
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-intel-red z-10"
+      />
+      
       <div className="flex items-center space-x-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-intel-cyan/10 border border-intel-cyan/20 rounded flex items-center justify-center">
@@ -41,6 +55,35 @@ export const TacticalHeader: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
+          <button 
+            onClick={onGoHome}
+            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            title="Go to Home Screen"
+          >
+            <Home className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onOpenAI}
+            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            title="AI Analyst"
+          >
+            <Zap className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => {
+              const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `tunisiaintel_export_${new Date().toISOString().split('T')[0]}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            title="Export Intel Data"
+          >
+            <Download className="w-4 h-4" />
+          </button>
           <div className="hidden lg:flex flex-col items-end">
             <div className="text-[8px] font-mono text-slate-500 uppercase">Sources</div>
             <div className="text-xs font-bold text-white font-mono">26/26</div>

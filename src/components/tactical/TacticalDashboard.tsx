@@ -16,6 +16,7 @@ import { RiskGauges } from './RiskGauges';
 import { TacticalMap } from './TacticalMap';
 import { BreakingIntelFeed } from './BreakingIntelFeed';
 import { OSINTStream } from './OSINTStream';
+import { SocialMonitor } from './SocialMonitor';
 import { SignalCore } from './SignalCore';
 import { NewsTicker } from './NewsTicker';
 import { SweepDelta } from './SweepDelta';
@@ -27,9 +28,12 @@ import { Governorate, IntelEvent } from '../../types/intel';
 interface TacticalDashboardProps {
   governorates: Governorate[];
   events: IntelEvent[];
+  onOpenAI: () => void;
+  onGoHome: () => void;
+  data: any;
 }
 
-export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorates, events }) => {
+export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorates, events, onOpenAI, onGoHome, data }) => {
   const [geofenceAlerts, setGeofenceAlerts] = React.useState<any[]>([]);
 
   const addGeofenceAlert = (alert: any) => {
@@ -38,20 +42,22 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-intel-cyan/30 overflow-x-hidden">
-      <TacticalHeader />
+      <TacticalHeader onOpenAI={onOpenAI} onGoHome={onGoHome} data={data} />
       
-      <div className="p-4 grid grid-cols-12 gap-4">
-        {/* Left Sidebar */}
-        <div className="col-span-12 lg:col-span-2 space-y-4">
+      <div className="p-4 grid grid-cols-12 gap-4 h-[calc(100vh-3.5rem)] overflow-hidden">
+        {/* Left Sidebar: Sensors & Risk */}
+        <div className="col-span-12 lg:col-span-2 space-y-4 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-intel-cyan/10">
           <SensorGrid />
           <NuclearWatch />
           <RiskGauges />
         </div>
 
-        {/* Center Area */}
-        <div className="col-span-12 lg:col-span-7 space-y-4">
-          <TacticalMap governorates={governorates} events={events} onGeofenceBreach={addGeofenceAlert} />
-          <div className="grid grid-cols-12 gap-4">
+        {/* Center Area: Map & Market Intel */}
+        <div className="col-span-12 lg:col-span-7 flex flex-col space-y-4 overflow-hidden">
+          <div className="flex-1 min-h-[400px]">
+            <TacticalMap governorates={governorates} events={events} onGeofenceBreach={addGeofenceAlert} />
+          </div>
+          <div className="grid grid-cols-12 gap-4 h-[250px] shrink-0">
             <div className="col-span-12 md:col-span-4">
               <NewsTicker />
             </div>
@@ -64,9 +70,10 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="col-span-12 lg:col-span-3 space-y-4">
+        {/* Right Sidebar: Live Media & Social Monitoring */}
+        <div className="col-span-12 lg:col-span-3 space-y-4 overflow-y-auto pl-2 scrollbar-thin scrollbar-thumb-intel-cyan/10">
           <LiveMediaStreams />
+          <SocialMonitor />
           <BreakingIntelFeed externalAlerts={geofenceAlerts} />
           <OSINTStream />
         </div>

@@ -8,7 +8,8 @@
       "weight": 0.15,
       "direction": "positive",
       "source": "INS 2024",
-      "last_updated": "2025-03-01"
+      "last_updated": "2025-03-01",
+      "methodology": "Calculated as the percentage of the labor force that is jobless and actively seeking employment, based on quarterly national surveys."
     },
     {
       "id": "E2",
@@ -18,7 +19,8 @@
       "weight": 0.12,
       "direction": "positive",
       "source": "BCT 2026",
-      "last_updated": "2026-03-01"
+      "last_updated": "2026-03-01",
+      "methodology": "Consumer Price Index (CPI) year-on-year change, weighted across essential goods and services."
     },
     {
       "id": "P1",
@@ -28,7 +30,8 @@
       "weight": 0.18,
       "direction": "positive",
       "source": "HRW 2026",
-      "last_updated": "2026-03-10"
+      "last_updated": "2026-03-10",
+      "methodology": "Count of documented arrests and summonses under Decree 54, normalized against historical political detention averages."
     },
     {
       "id": "S1",
@@ -38,7 +41,8 @@
       "weight": 0.20,
       "direction": "positive",
       "source": "ACLED 2026",
-      "last_updated": "2026-03-15"
+      "last_updated": "2026-03-15",
+      "methodology": "Rolling 30-day average of protest events, weighted by participant count and geographic spread."
     }
   ]
 }

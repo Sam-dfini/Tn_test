@@ -2,6 +2,28 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Zap, TrendingUp, AlertTriangle, Calendar, Activity } from 'lucide-react';
 
+import { 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Area, 
+  AreaChart,
+  ReferenceLine
+} from 'recharts';
+
+const forecastData = [
+  { date: '2026-03-18', mean: 64.3, low: 64.3, high: 64.3 },
+  { date: '2026-04-18', mean: 66.1, low: 62.1, high: 70.1 },
+  { date: '2026-05-18', mean: 68.4, low: 61.4, high: 75.4 },
+  { date: '2026-06-18', mean: 71.2, low: 60.2, high: 82.2 },
+  { date: '2026-07-18', mean: 74.5, low: 58.5, high: 90.5 },
+  { date: '2026-08-18', mean: 78.1, low: 55.1, high: 98.1 },
+];
+
 export const Predict: React.FC = () => {
   const forecasts = [
     { label: 'Protest Intensity', prob: 0.82, timeframe: '7-Day', trend: 'up' },
@@ -70,39 +92,58 @@ export const Predict: React.FC = () => {
             <Calendar className="w-4 h-4 mr-2 text-intel-cyan" />
             90-Day Stability Trajectory
           </h3>
-          <div className="relative h-64 w-full bg-intel-bg/50 rounded-xl border border-intel-border overflow-hidden p-6">
-             {/* Confidence Bands Visualization */}
-             <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                <div className="w-[80%] h-32 bg-intel-cyan/20 blur-3xl rounded-full transform -rotate-12"></div>
-             </div>
-             
-             <div className="absolute inset-0 flex items-center px-12">
-                <svg className="w-full h-full" viewBox="0 0 1000 400">
-                  <path 
-                    d="M0,200 Q250,150 500,250 T1000,100" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="3" 
-                    className="text-intel-cyan"
-                  />
-                  <path 
-                    d="M0,200 Q250,100 500,200 T1000,50 L1000,150 T500,300 Q250,200 0,200" 
-                    fill="currentColor" 
-                    className="text-intel-cyan/10"
-                  />
-                </svg>
-             </div>
-
-             <div className="absolute top-6 right-6 flex flex-col items-end space-y-2">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-intel-cyan rounded"></div>
-                  <span className="text-[8px] font-mono text-slate-400 uppercase">Mean Projection</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-intel-cyan/20 rounded"></div>
-                  <span className="text-[8px] font-mono text-slate-400 uppercase">95% Confidence Interval</span>
-                </div>
-             </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={forecastData}>
+                <defs>
+                  <linearGradient id="colorMean" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00f2ff" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#00f2ff" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }}
+                  tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', { month: 'short' })}
+                />
+                <YAxis 
+                  domain={[0, 100]} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }}
+                  tickFormatter={(val) => `${val}%`}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
+                  labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="high" 
+                  stroke="none" 
+                  fill="#00f2ff" 
+                  fillOpacity={0.1} 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="low" 
+                  stroke="none" 
+                  fill="#0a0a0a" 
+                  fillOpacity={1} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="mean" 
+                  stroke="#00f2ff" 
+                  strokeWidth={3} 
+                  dot={{ r: 4, fill: '#00f2ff' }}
+                />
+                <ReferenceLine y={75} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'CRITICAL', position: 'right', fill: '#ef4444', fontSize: 8 }} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 

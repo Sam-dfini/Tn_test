@@ -1,0 +1,13 @@
+{
+  "actors": [
+    { "id": "saied", "name": "Kais Saied", "role": "President", "faction": "REGIME", "influence": 0.95, "defection": 0.05, "threat": "ACTIVE", "recent_activity": "Issued decree expanding security sector oversight." },
+    { "id": "taboubi", "name": "Noureddine Taboubi", "role": "UGTT Sec Gen", "faction": "LABOUR", "influence": 0.82, "defection": 0.45, "threat": "ACTIVE", "recent_activity": "Publicly criticized IMF subsidy reform proposals." },
+    { "id": "ghannouchi", "name": "Rached Ghannouchi", "role": "Ennahdha Leader", "faction": "OPPOSITION", "influence": 0.45, "defection": 0.15, "threat": "DETAINED", "recent_activity": "Legal team filed appeal against detention extension." },
+    { "id": "moussi", "name": "Abir Moussi", "role": "PDL Leader", "faction": "OPPOSITION", "influence": 0.38, "defection": 0.10, "threat": "DETAINED", "recent_activity": "Legal team filed appeal against detention extension." }
+  ],
+  "movements": [
+    { "date": "2026-03-15", "actor": "Kais Saied", "text": "Issued decree expanding security sector oversight." },
+    { "date": "2026-03-14", "actor": "Noureddine Taboubi", "text": "Publicly criticized IMF subsidy reform proposals." },
+    { "date": "2026-03-12", "actor": "Abir Moussi", "text": "Legal team filed appeal against detention extension." }
+  ]
+}

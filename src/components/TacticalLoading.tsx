@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Zap, Globe, Activity, Lock } from 'lucide-react';
 
-export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplified' | 'advanced' | null }> = ({ onComplete, mode }) => {
+export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplified' | 'advanced' | 'professional' | null }> = ({ onComplete, mode }) => {
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState('INITIALIZING SYSTEM...');
   
@@ -24,7 +24,18 @@ export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplif
     'SYSTEM READY. ACCESS GRANTED.'
   ];
 
-  const statusMessages = mode === 'advanced' ? advancedMessages : simplifiedMessages;
+  const professionalMessages = [
+    'AUTHENTICATING EXECUTIVE CLEARANCE...',
+    'LOADING STRATEGIC DOSSIERS...',
+    'FETCHING MARKET INTELLIGENCE...',
+    'SYNCHRONIZING GLOBAL SIGNALS...',
+    'PREPARING PREMIUM ANALYSIS...',
+    'SYSTEM READY. WELCOME ANALYST.'
+  ];
+
+  const statusMessages = mode === 'advanced' ? advancedMessages : 
+                         mode === 'professional' ? professionalMessages : 
+                         simplifiedMessages;
 
   useEffect(() => {
     const timer = setInterval(() => {

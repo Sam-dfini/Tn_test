@@ -2,12 +2,10 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Users, Network, Shield, Link2, ExternalLink } from 'lucide-react';
 
-const actors = [
-  { id: 'saied', name: 'Kais Saied', role: 'President', faction: 'REGIME', influence: 0.95, defection: 0.05, threat: 'ACTIVE' },
-  { id: 'taboubi', name: 'Noureddine Taboubi', role: 'UGTT Sec Gen', faction: 'LABOUR', influence: 0.82, defection: 0.45, threat: 'ACTIVE' },
-  { id: 'ghannouchi', name: 'Rached Ghannouchi', role: 'Ennahdha Leader', faction: 'OPPOSITION', influence: 0.45, defection: 0.15, threat: 'DETAINED' },
-  { id: 'moussi', name: 'Abir Moussi', role: 'PDL Leader', faction: 'OPPOSITION', influence: 0.38, defection: 0.10, threat: 'DETAINED' },
-];
+import actorData from '../data/actors.json';
+
+const actors = actorData.actors;
+const movements = actorData.movements;
 
 export const Actors: React.FC = () => {
   return (
@@ -84,11 +82,7 @@ export const Actors: React.FC = () => {
           Recent Actor Activity
         </h3>
         <div className="space-y-4">
-          {[
-            { date: '2026-03-15', actor: 'Kais Saied', text: 'Issued decree expanding security sector oversight.' },
-            { date: '2026-03-14', actor: 'Noureddine Taboubi', text: 'Publicly criticized IMF subsidy reform proposals.' },
-            { date: '2026-03-12', actor: 'Abir Moussi', text: 'Legal team filed appeal against detention extension.' },
-          ].map((item, i) => (
+          {movements.map((item, i) => (
             <div key={i} className="flex items-start space-x-4 p-4 bg-white/5 rounded-xl border border-intel-border">
               <div className="text-[10px] font-mono text-slate-500 w-24 shrink-0">{item.date}</div>
               <div className="text-xs">
