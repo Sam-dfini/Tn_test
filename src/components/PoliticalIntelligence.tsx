@@ -19,8 +19,9 @@ import { CivilMovements } from './political/CivilMovements';
 import { PartyDossier } from './political/PartyDossier';
 import { FreedomIndex } from './political/FreedomIndex';
 import { ActorNetwork } from './political/ActorNetwork';
+import { UGTTMonitor } from './political/UGTTMonitor';
 
-type TabType = 'overview' | 'sentiment' | 'movements' | 'elections' | 'parties' | 'freedom' | 'powermap';
+type TabType = 'overview' | 'sentiment' | 'movements' | 'ugtt' | 'elections' | 'parties' | 'freedom' | 'powermap';
 
 export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) => {
   const [activeSubTab, setActiveSubTab] = useState<TabType>('overview');
@@ -29,6 +30,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
     { id: 'overview', label: 'Overview', icon: Globe, description: 'Strategic regime stability and institutional landscape' },
     { id: 'sentiment', label: 'Sentiment', icon: TrendingUp, description: 'Real-time social media and public opinion tracking' },
     { id: 'movements', label: 'Movements', icon: Activity, description: 'Civil unrest, protest frequency, and social actors' },
+    { id: 'ugtt', label: 'UGTT', icon: Users, description: 'Labor union monitoring, strike frequency, and wage negotiations' },
     { id: 'elections', label: 'Elections', icon: BarChart3, description: 'Electoral legitimacy and voting pattern analysis' },
     { id: 'parties', label: 'Parties', icon: Users, description: 'Political party dossiers and coalition dynamics' },
     { id: 'freedom', label: 'Freedom', icon: Lock, description: 'Institutional erosion and human rights monitoring' },
@@ -95,7 +97,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
       </div>
 
       {/* Navigation Tabs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl">
         {tabs.map(tab => (
           <button 
             key={tab.id}
@@ -128,6 +130,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
         {activeSubTab === 'overview' && <PoliticalOverview />}
         {activeSubTab === 'sentiment' && <SentimentAnalysis />}
         {activeSubTab === 'movements' && <CivilMovements />}
+        {activeSubTab === 'ugtt' && <UGTTMonitor />}
         {activeSubTab === 'elections' && <Elections />}
         {activeSubTab === 'parties' && <PartyDossier />}
         {activeSubTab === 'freedom' && <FreedomIndex />}

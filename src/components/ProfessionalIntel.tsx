@@ -19,7 +19,8 @@ import {
   Clock,
   ChevronDown,
   ChevronUp,
-  Cpu
+  Cpu,
+  Database
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { EconomyIntelligence } from './EconomyIntelligence';
@@ -32,41 +33,122 @@ import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { PoliticalIntelligence } from './PoliticalIntelligence';
 import SimulationIntelligence from './SimulationIntelligence';
 import { NewsFeed } from './NewsFeed';
+import { DataPipeline } from './DataPipeline';
 
-const reports = [
+interface IntelReport {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  readTime: string;
+  image: string;
+  summary: string;
+  keyFindings: string[];
+  classification: string;
+}
+
+const reports: IntelReport[] = [
   {
     id: 'REP-001',
-    title: 'Strategic Stability Outlook: Q2 2026',
-    category: 'Geopolitical',
+    title: 'The Gafsa Corridor: Mining Crisis and Social Cascade Risk',
+    category: 'Social-Economic',
     date: 'MAR 15, 2026',
-    author: 'Dr. Elias Vance',
-    readTime: '12 min',
-    image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800'
+    author: 'Social Intelligence Unit',
+    readTime: '14 min',
+    image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800',
+    summary: 'CPG phosphate production has fallen 40% since 2010 due to sustained protest disruption. 12,000 workers face wage arrears averaging 2.1 months. The sit-in tradition — established in 2008 — has created a self-reinforcing cycle of economic decline and social mobilisation. Current RRI contribution from E51 (protest frequency) stands at maximum weight.',
+    keyFindings: [
+      'CPG revenue down 68% from 2010 peak — from 2.2B TND to 0.7B TND annually',
+      'Wage arrears across 847 contracted workers average 2.1 months — approaching the 3-month general strike trigger',
+      'Security deployment has increased 340% since January 2026 — suggesting regime anticipates escalation',
+      'Water scarcity in Gafsa (14 hrs/day cuts) compounding economic grievances into compound crisis',
+      'Protest contagion risk to Kasserine, Sidi Bouzid — historically linked mobilisation corridors'
+    ],
+    classification: 'Level 3 // Social Intelligence'
   },
   {
     id: 'REP-002',
-    title: 'Tunisian Energy Transition: Risks & Opportunities',
+    title: 'IMF Negotiations: The 1.9B USD Deadlock and Fiscal Cliff',
     category: 'Economic',
     date: 'MAR 12, 2026',
-    author: 'Sarah Al-Fassi',
-    readTime: '8 min',
-    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
+    author: 'Economic Intelligence Unit',
+    readTime: '11 min',
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
+    summary: 'Tunisia requires 1.9B USD in IMF financing to meet 2026 external debt obligations totalling 4.2B TND. Three consecutive failed negotiation rounds since 2023 have created a fiscal cliff scenario. The IMF conditions — subsidy reform, public wage freeze, SOE privatisation — are politically undeliverable under current regime constraints.',
+    keyFindings: [
+      'External debt service 2026: 4.2B TND — requires IMF deal or selective default by Q3',
+      'FX reserves at 84 days import cover — below the 90-day critical threshold',
+      'IMF condition: 25% electricity tariff increase — estimated +12% protest probability',
+      'Alternative financing: Gulf states offered 800M USD but with political conditions Saied rejected',
+      'Probability of IMF deal before Q3 2026: 31% (down from 48% in January)'
+    ],
+    classification: 'Level 4 // Economic Intelligence'
   },
   {
     id: 'REP-003',
-    title: 'Maritime Security in the Gulf of Gabes',
-    category: 'Security',
+    title: 'Decree 54: Press Freedom Collapse and Information Warfare',
+    category: 'Political',
     date: 'MAR 10, 2026',
-    author: 'Cmdr. Marc Rossi',
-    readTime: '15 min',
-    image: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?auto=format&fit=crop&q=80&w=800'
+    author: 'Political Intelligence Division',
+    readTime: '9 min',
+    image: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?auto=format&fit=crop&q=80&w=800',
+    summary: 'Decree 54 (September 2022) criminalises "false news" with up to 10 years imprisonment. 67 journalists and activists have been charged since enactment. The decree functions as a political instrument — 89% of charges target regime critics. Tunisia dropped 27 places in RSF Press Freedom Index 2025, now ranked 118th globally.',
+    keyFindings: [
+      '67 charged under Decree 54 since 2022 — 89% are political opposition or journalists',
+      'RSF ranking: 118th globally (2025) — down from 91st in 2021 pre-coup',
+      'Internet throttling events: 14 documented since 2023 — targeting protest coordination',
+      'Self-censorship index (per civil society monitors): 74% of journalists report topic avoidance',
+      'International response: EU suspended media freedom dialogue — diplomatic signal with no enforcement'
+    ],
+    classification: 'Level 3 // Political Intelligence'
   }
 ];
 
 export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
-  const [selectedReport, setSelectedReport] = useState<typeof reports[0] | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation'>('overview');
+  const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'pipeline'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const handleNavigateToPipeline = () => {
+      setActiveTab('pipeline');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.addEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+    
+    // Check hash on load
+    if (window.location.hash === '#pipeline') {
+      setActiveTab('pipeline');
+    }
+
+    return () => window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+  }, []);
+
+  const globalSignals = [
+    'EU-Tunisia Migration Pact Review',
+    'IMF Mission to Tunis: Update',
+    'Maghreb Regional Security Summit',
+    'Mediterranean Energy Corridor Talks',
+    'BCT FX Reserve Report Q1 2026',
+    'UGTT Wage Negotiation Deadlock',
+    'Sfax Water Crisis — UN Report',
+    'Nawara Gas Field Production Update'
+  ];
+
+  const filteredReports = reports.filter(r => 
+    searchQuery === '' ||
+    r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.author.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredSignals = globalSignals.filter(s =>
+    searchQuery === '' ||
+    s.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const toggleRow = (item: string) => {
     const newExpanded = new Set(expandedRows);
@@ -76,15 +158,16 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   };
 
   const stabilityRisk = useMemo(() => {
-    if (!context?.pRev) return 65;
-    const avg = Object.values(context.pRev).reduce((a: any, b: any) => a + b, 0) as number / Object.keys(context.pRev).length;
-    return Math.min(100, Math.max(0, 100 - avg));
+    if (!context?.pRev || typeof context.pRev !== 'number') return 65;
+    return Math.min(100, Math.max(0, Math.round(context.pRev * 100)));
   }, [context]);
 
   const economicResilience = useMemo(() => {
-    if (!context?.governorates) return 45;
-    const avgUnemployment = context.governorates.reduce((a: any, b: any) => a + b.unemployment, 0) / context.governorates.length;
-    return Math.min(100, Math.max(0, 100 - (avgUnemployment * 2))); // Scale for visualization
+    if (!context?.governorates?.length) return 45;
+    const avgUnemp = context.governorates.reduce(
+      (a: number, b: any) => a + (b.unemp || 0), 0
+    ) / context.governorates.length;
+    return Math.min(100, Math.max(0, Math.round(100 - avgUnemp)));
   }, [context]);
 
   const socialCohesion = useMemo(() => {
@@ -238,6 +321,18 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
           )}
         </button>
+        <button 
+          onClick={() => setActiveTab('pipeline')}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'pipeline' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+        >
+          <div className="flex items-center space-x-2">
+            <Database className="w-4 h-4" />
+            <span>Data Pipeline</span>
+          </div>
+          {activeTab === 'pipeline' && (
+            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
+          )}
+        </button>
       </div>
 
       {activeTab === 'overview' ? (
@@ -302,7 +397,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reports.map((report, i) => (
+            {filteredReports.map((report, i) => (
               <motion.div 
                 key={report.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -409,36 +504,27 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
                         </div>
                         <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 uppercase">
                           <Lock className="w-4 h-4" />
-                          <span>Classified: Level 4</span>
+                          <span>{selectedReport.classification}</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-6 text-slate-400 leading-relaxed">
-                      <p className="text-lg text-white/90 font-medium">
-                        Executive Summary: This report provides a high-fidelity analysis of emerging trends within the {selectedReport.category.toLowerCase()} sector, focusing on the period of Q2 2026.
-                      </p>
-                      <p>
-                        Our strategic research team has identified several key inflection points that are likely to define the regional landscape over the next six months. Through a combination of geospatial intelligence, economic modeling, and on-the-ground human intelligence, we have synthesized a comprehensive outlook for stakeholders.
+                      <p className="text-lg text-white/90 font-medium leading-relaxed">
+                        {selectedReport.summary}
                       </p>
                       <div className="p-6 bg-white/5 rounded-2xl border border-intel-border space-y-4">
                         <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center space-x-2">
                           <ShieldCheck className="w-4 h-4 text-intel-cyan" />
                           <span>Key Findings</span>
                         </h4>
-                        <ul className="space-y-2 text-xs">
-                          <li className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-1"></div>
-                            <span>Increased volatility in regional trade corridors due to shifting maritime security protocols.</span>
-                          </li>
-                          <li className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-1"></div>
-                            <span>Emergence of new social narratives centered around resource equity and digital sovereignty.</span>
-                          </li>
-                          <li className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-1"></div>
-                            <span>Acceleration of energy transition initiatives in the southern governorates.</span>
-                          </li>
+                        <ul className="space-y-3 text-xs">
+                          {selectedReport.keyFindings.map((finding, i) => (
+                            <li key={i} className="flex items-start space-x-3">
+                              <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-1.5 flex-shrink-0"></div>
+                              <span className="text-slate-300 leading-relaxed">{finding}</span>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     </div>
@@ -470,8 +556,15 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             <input 
               type="text" 
               placeholder="Search Intelligence Database..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-intel-card border border-intel-border rounded-full pl-12 pr-4 py-3 text-sm text-white focus:outline-none focus:border-intel-cyan transition-all"
             />
+            {searchQuery && (
+              <div className="text-[9px] font-mono text-slate-500 px-4 mt-1">
+                {filteredReports.length} reports · {filteredSignals.length} signals
+              </div>
+            )}
           </div>
 
           {/* Strategic Outlook */}
@@ -547,12 +640,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
           <div className="space-y-4">
             <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em] px-2">Global Signals</h4>
             <div className="space-y-2">
-              {[
-                'EU-Tunisia Migration Pact Review',
-                'IMF Mission to Tunis: Update',
-                'Maghreb Regional Security Summit',
-                'Mediterranean Energy Corridor Talks'
-              ].map((signal, i) => (
+              {filteredSignals.map((signal, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-white/5 border border-intel-border rounded-xl hover:border-intel-cyan/30 transition-all group cursor-pointer">
                   <span className="text-xs text-slate-300 group-hover:text-white transition-colors">{signal}</span>
                   <Globe className="w-3 h-3 text-slate-600 group-hover:text-intel-cyan" />
@@ -579,6 +667,8 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         <SocialIntelligence />
       ) : activeTab === 'strategic' ? (
         <StrategicModeling />
+      ) : activeTab === 'pipeline' ? (
+        <DataPipeline />
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}

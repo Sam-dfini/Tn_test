@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Zap, 
@@ -75,6 +75,21 @@ const STABILIZING_EVENTS: CrisisEvent[] = [
   { id: 'tourism_surge', label: 'Tourism Surge (+40%)', description: 'Coastal employment. Forex inflows. Optimism signal.', impact: -5, type: 'stabilizing' },
 ];
 
+const DEFAULT_PROBS: Record<string, number> = {
+  imf_fail: 35,
+  subsidies_cut: 25,
+  ugtt_strike: 62,
+  forex_low: 48,
+  gafsa_violent: 71,
+  military_statement: 8,
+  libya_border: 22,
+  health_crisis: 12,
+  uae_withdraw: 18,
+  dinar_fall: 28,
+  eu_suspend: 15,
+  drought: 44,
+};
+
 const FORECAST_DATA = [
   { date: 'Mar 26', base: 68.7, escalation: 68.7, recovery: 68.7 },
   { date: 'Apr 26', base: 70.2, escalation: 74.5, recovery: 65.1 },
@@ -101,7 +116,26 @@ const PROBABILITY_MATRIX = [
 
 export const StrategicModeling: React.FC = () => {
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
+  const [eventProbabilities, setEventProbabilities] = useState<Record<string, number>>(() => {
+    const saved = localStorage.getItem('ti_scenario_probs');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const baseRRI = 68.7;
+
+  useEffect(() => {
+    localStorage.setItem('ti_scenario_probs', JSON.stringify(eventProbabilities));
+  }, [eventProbabilities]);
+
+  const compositeRisk = useMemo(() => {
+    const events = CRISIS_EVENTS;
+    const totalWeightedRisk = events.reduce((sum, event) => {
+      const prob = (eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20) / 100;
+      return sum + (prob * event.impact);
+    }, 0);
+    const maxPossible = events.reduce((sum, e) => sum + e.impact, 0);
+    return Math.round((totalWeightedRisk / maxPossible) * 100);
+  }, [eventProbabilities]);
 
   const simulatedRRI = useMemo(() => {
     const delta = activeEvents.reduce((acc, id) => {
@@ -181,6 +215,29 @@ export const StrategicModeling: React.FC = () => {
                 <AlertTriangle className="w-4 h-4" />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Crisis Events (toggle to activate)</span>
               </div>
+
+              <div className="intel-card p-6 rounded-2xl border border-intel-border mb-6 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">Composite Crisis Risk Score</div>
+                  <div className={`text-4xl font-bold font-mono ${
+                    compositeRisk > 60 ? 'text-intel-red' : 
+                    compositeRisk > 35 ? 'text-intel-orange' : 'text-intel-cyan'
+                  }`}>{compositeRisk}%</div>
+                  <div className="text-[9px] font-mono text-slate-500 mt-1">
+                    Based on probability × impact across all scenarios
+                  </div>
+                </div>
+                <div className="w-48 h-2 bg-white/5 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      compositeRisk > 60 ? 'bg-intel-red' : 
+                      compositeRisk > 35 ? 'bg-intel-orange' : 'bg-intel-cyan'
+                    }`}
+                    style={{ width: compositeRisk + '%' }}
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {CRISIS_EVENTS.map(event => (
                   <button
@@ -199,6 +256,34 @@ export const StrategicModeling: React.FC = () => {
                       <span className="text-[10px] font-mono text-intel-red">+{event.impact} RRI</span>
                     </div>
                     <p className="text-[9px] text-slate-500 leading-tight">{event.description}</p>
+                    
+                    <div className="mt-3 space-y-1.5 border-t border-white/5 pt-3" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[8px] font-mono text-slate-500 uppercase">
+                          Probability Estimate
+                        </span>
+                        <span className={`text-xs font-bold font-mono ${
+                          (eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20) > 60 
+                            ? 'text-intel-red' 
+                            : (eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20) > 35 
+                            ? 'text-intel-orange' 
+                            : 'text-intel-cyan'
+                        }`}>
+                          {eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20}
+                        onChange={(e) => setEventProbabilities(prev => ({
+                          ...prev,
+                          [event.id]: parseInt(e.target.value)
+                        }))}
+                        className="w-full h-1 accent-intel-cyan cursor-pointer"
+                      />
+                    </div>
                   </button>
                 ))}
               </div>

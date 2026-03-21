@@ -58,6 +58,7 @@ import { generateAnalystResponse } from './services/geminiService';
 import actorData from './data/actors.json';
 
 import { Onboarding } from './components/Onboarding';
+import { PipelineProvider } from './context/PipelineContext';
 
 // Components
 const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () => void, context: any }) => {
@@ -467,12 +468,13 @@ const Header = ({ onOpenSourceLibrary, activeTab, onOpenAI, data, onGoHome }: { 
             <Zap className="w-4 h-4" />
           </button>
           <button 
-            onClick={onOpenSourceLibrary}
-            className={`p-2 rounded-lg border transition-all ${
-              activeTab === 'sources' 
-                ? 'bg-intel-cyan/10 border-intel-cyan/40 text-intel-cyan glow-cyan' 
-                : 'bg-intel-card border-intel-border text-slate-500 hover:text-white hover:border-slate-700'
-            }`}
+            onClick={() => {
+              window.location.hash = 'pipeline';
+              const event = new CustomEvent('navigate-to-pipeline');
+              window.dispatchEvent(event);
+            }}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="Data Pipeline"
           >
             <Database className="w-4 h-4" />
           </button>
@@ -534,6 +536,14 @@ export default function App() {
     setWarSuppressor(state.W);
     setRegimeAge(state.regime_age);
   }, [rriVariables]);
+
+  useEffect(() => {
+    const handleNavigateToPipeline = () => {
+      setActiveTab('professional');
+    };
+    window.addEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+    return () => window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+  }, []);
 
   const governorates = (governoratesData?.governorates || []) as Governorate[];
   const events = (eventsData?.events || []) as IntelEvent[];
@@ -656,147 +666,149 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
-      <AnimatePresence mode="wait">
-        {showOnboarding && (
-          <Onboarding onComplete={handleOnboardingComplete} />
-        )}
-        {!appMode ? (
-          <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-            <ModeSelection onSelect={handleModeSelect} />
-          </motion.div>
-        ) : isInitializing ? (
-          <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
-            <TacticalLoading mode={appMode} onComplete={() => setIsInitializing(false)} />
-          </motion.div>
-        ) : appMode === 'advanced' ? (
-          <motion.div 
-            key="tactical-app" 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ duration: 0.8 }}
-          >
-            <TacticalDashboard 
-              governorates={governorates} 
-              events={events} 
-              onOpenAI={() => setIsAIAnalystOpen(true)} 
-              onGoHome={() => setAppMode(null)}
-              data={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements
-              }}
-            />
-            <AIAnalyst 
-              isOpen={isAIAnalystOpen} 
-              onClose={() => setIsAIAnalystOpen(false)} 
-              context={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements,
-                activeTab
-              }}
-            />
-          </motion.div>
-        ) : appMode === 'simplified' ? (
-          <motion.div 
-            key="citizen-app" 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ duration: 0.8 }}
-            className="min-h-screen bg-intel-bg"
-          >
-            <CitizenEdition 
-              governorates={governorates} 
-              events={events} 
-              rri={rri} 
-              pRev={pRev} 
-              onOpenAI={() => setIsAIAnalystOpen(true)}
-              onGoHome={() => setAppMode(null)}
-              data={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements
-              }}
-            />
-            <AIAnalyst 
-              isOpen={isAIAnalystOpen} 
-              onClose={() => setIsAIAnalystOpen(false)} 
-              context={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements,
-                activeTab
-              }}
-            />
-          </motion.div>
-        ) : (
-          <motion.div 
-            key="app" 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ duration: 0.8 }}
-            className="min-h-screen"
-          >
-            <Header 
-              onOpenSourceLibrary={() => setActiveTab('sources')} 
-              activeTab={activeTab}
-              onOpenAI={() => setIsAIAnalystOpen(true)}
-              onGoHome={() => setAppMode(null)}
-              data={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements
-              }}
-            />
-            
-            <AIAnalyst 
-              isOpen={isAIAnalystOpen} 
-              onClose={() => setIsAIAnalystOpen(false)} 
-              context={{
-                rri,
-                pRev,
-                events,
-                governorates,
-                actors: actorData.actors,
-                movements: actorData.movements,
-                activeTab
-              }}
-            />
-            <main className="pt-16 pb-16 min-h-screen">
-              <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="py-8"
-                  >
-                    {renderContent()}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-            </main>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <PipelineProvider>
+      <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
+        <AnimatePresence mode="wait">
+          {showOnboarding && (
+            <Onboarding onComplete={handleOnboardingComplete} />
+          )}
+          {!appMode ? (
+            <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+              <ModeSelection onSelect={handleModeSelect} />
+            </motion.div>
+          ) : isInitializing ? (
+            <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
+              <TacticalLoading mode={appMode} onComplete={() => setIsInitializing(false)} />
+            </motion.div>
+          ) : appMode === 'advanced' ? (
+            <motion.div 
+              key="tactical-app" 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ duration: 0.8 }}
+            >
+              <TacticalDashboard 
+                governorates={governorates} 
+                events={events} 
+                onOpenAI={() => setIsAIAnalystOpen(true)} 
+                onGoHome={() => setAppMode(null)}
+                data={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements
+                }}
+              />
+              <AIAnalyst 
+                isOpen={isAIAnalystOpen} 
+                onClose={() => setIsAIAnalystOpen(false)} 
+                context={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements,
+                  activeTab
+                }}
+              />
+            </motion.div>
+          ) : appMode === 'simplified' ? (
+            <motion.div 
+              key="citizen-app" 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ duration: 0.8 }}
+              className="min-h-screen bg-intel-bg"
+            >
+              <CitizenEdition 
+                governorates={governorates} 
+                events={events} 
+                rri={rri} 
+                pRev={pRev} 
+                onOpenAI={() => setIsAIAnalystOpen(true)}
+                onGoHome={() => setAppMode(null)}
+                data={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements
+                }}
+              />
+              <AIAnalyst 
+                isOpen={isAIAnalystOpen} 
+                onClose={() => setIsAIAnalystOpen(false)} 
+                context={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements,
+                  activeTab
+                }}
+              />
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="app" 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ duration: 0.8 }}
+              className="min-h-screen"
+            >
+              <Header 
+                onOpenSourceLibrary={() => setActiveTab('sources')} 
+                activeTab={activeTab}
+                onOpenAI={() => setIsAIAnalystOpen(true)}
+                onGoHome={() => setAppMode(null)}
+                data={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements
+                }}
+              />
+              
+              <AIAnalyst 
+                isOpen={isAIAnalystOpen} 
+                onClose={() => setIsAIAnalystOpen(false)} 
+                context={{
+                  rri,
+                  pRev,
+                  events,
+                  governorates,
+                  actors: actorData.actors,
+                  movements: actorData.movements,
+                  activeTab
+                }}
+              />
+              <main className="pt-16 pb-16 min-h-screen">
+                <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeTab}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="py-8"
+                    >
+                      {renderContent()}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </main>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </PipelineProvider>
   );
 }

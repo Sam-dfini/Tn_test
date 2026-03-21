@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { usePipeline } from '../context/PipelineContext';
 import { 
   Globe, 
   TrendingUp, 
@@ -57,26 +58,68 @@ import {
 } from './ProfessionalShared';
 
 const actors = [
-  { id: 'imf', name: 'IMF', color: '#3b82f6', icon: DollarSign, pressure: 85, dependency: 92, status: 'CRITICAL NEGOTIATION', region: 'Global', volatility: 'High' },
+  { id: 'imf', name: 'IMF', color: '#3b82f6', icon: DollarSign, pressure: 85, dependency: 92, status: 'STALLED NEGOTIATION', region: 'Global', volatility: 'High' },
   { id: 'eu', name: 'European Union', color: '#1d4ed8', icon: Globe, pressure: 72, dependency: 88, status: 'STRATEGIC PARTNER', region: 'Europe', volatility: 'Medium' },
   { id: 'us', name: 'United States', color: '#ef4444', icon: Flag, pressure: 65, dependency: 45, status: 'SECURITY FOCUS', region: 'North America', volatility: 'Low' },
   { id: 'france', name: 'France', color: '#2563eb', icon: Landmark, pressure: 58, dependency: 76, status: 'HISTORICAL TIES', region: 'Europe', volatility: 'Medium' },
-  { id: 'gulf', name: 'Gulf States', color: '#10b981', icon: Landmark, pressure: 42, dependency: 64, status: 'FINANCIAL SUPPORT', region: 'Middle East', volatility: 'Low' },
+  { id: 'gulf', name: 'Gulf States', color: '#10b981', icon: Landmark, pressure: 42, dependency: 64, status: 'SELECTIVE ENGAGEMENT', region: 'Middle East', volatility: 'Low' },
   { id: 'china', name: 'China', color: '#dc2626', icon: Zap, pressure: 35, dependency: 52, status: 'INFRASTRUCTURE', region: 'Asia', volatility: 'Medium' },
   { id: 'wb', name: 'World Bank', color: '#0891b2', icon: Landmark, pressure: 68, dependency: 82, status: 'DEVELOPMENT', region: 'Global', volatility: 'Low' }
 ];
 
+// Low score = high pressure on regime / misalignment
+// High score = alignment with regime priorities
 const alignmentData = [
-  { subject: 'Democracy', imf: 20, eu: 40, us: 30, gulf: 80, china: 90, wb: 40, france: 45, weight: 0.8 },
-  { subject: 'Migration', imf: 50, eu: 15, us: 60, gulf: 70, china: 80, wb: 50, france: 20, weight: 0.9 },
-  { subject: 'Economic Reform', imf: 10, eu: 30, us: 40, gulf: 60, china: 75, wb: 20, france: 35, weight: 1.0 },
-  { subject: 'Counter-terrorism', imf: 80, eu: 85, us: 95, gulf: 90, china: 85, wb: 80, france: 90, weight: 0.7 },
-  { subject: 'Press Freedom', imf: 30, eu: 25, us: 35, gulf: 85, china: 95, wb: 30, france: 30, weight: 0.6 },
-  { subject: 'Human Rights', imf: 40, eu: 35, us: 45, gulf: 80, china: 90, wb: 40, france: 40, weight: 0.6 },
-  { subject: 'Regional Stability', imf: 70, eu: 75, us: 80, gulf: 85, china: 70, wb: 70, france: 75, weight: 0.9 },
-  { subject: 'Energy Security', imf: 60, eu: 80, us: 70, gulf: 90, china: 85, wb: 60, france: 85, weight: 0.8 },
-  { subject: 'Debt Sustainability', imf: 15, eu: 40, us: 50, gulf: 70, china: 60, wb: 25, france: 45, weight: 1.0 },
-  { subject: 'Trade Relations', imf: 50, eu: 90, us: 60, gulf: 80, china: 85, wb: 50, france: 85, weight: 0.7 }
+  { 
+    subject: 'Democracy', 
+    imf: 65, eu: 25, us: 45, gulf: 90, china: 95, wb: 60, france: 40,
+    weight: 0.8
+  },
+  { 
+    subject: 'Migration Control', 
+    imf: 70, eu: 85, us: 65, gulf: 75, china: 80, wb: 70, france: 90,
+    weight: 0.9
+  },
+  { 
+    subject: 'Economic Reform', 
+    imf: 15, eu: 35, us: 40, gulf: 75, china: 80, wb: 20, france: 45,
+    weight: 1.0
+  },
+  { 
+    subject: 'Counter-terrorism', 
+    imf: 70, eu: 80, us: 90, gulf: 85, china: 75, wb: 70, france: 88,
+    weight: 0.7
+  },
+  { 
+    subject: 'Press Freedom', 
+    imf: 55, eu: 20, us: 35, gulf: 90, china: 95, wb: 50, france: 30,
+    weight: 0.6
+  },
+  { 
+    subject: 'Human Rights', 
+    imf: 60, eu: 22, us: 40, gulf: 88, china: 92, wb: 55, france: 28,
+    weight: 0.6
+  },
+  { 
+    subject: 'Regional Stability', 
+    imf: 65, eu: 70, us: 75, gulf: 80, china: 72, wb: 65, france: 72,
+    weight: 0.9
+  },
+  { 
+    subject: 'Energy Security', 
+    imf: 55, eu: 85, us: 65, gulf: 88, china: 82, wb: 58, france: 88,
+    weight: 0.8
+  },
+  { 
+    subject: 'Debt Sustainability', 
+    imf: 10, eu: 38, us: 45, gulf: 72, china: 65, wb: 15, france: 42,
+    weight: 1.0
+  },
+  { 
+    subject: 'Trade Relations', 
+    imf: 55, eu: 88, us: 58, gulf: 78, china: 82, wb: 55, france: 90,
+    weight: 0.7
+  }
 ];
 
 const strategicRisks = [
@@ -125,13 +168,14 @@ const strategicRisks = [
 export const GeopoliticalIntelligence: React.FC = () => {
   const [selectedActor, setSelectedActor] = useState(actors[0]);
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
+  const { data } = usePipeline();
 
   const stats = useMemo(() => [
-    { label: 'Global Pressure', value: '74.2', trend: '+2.4%', status: 'critical', icon: Activity },
-    { label: 'Strategic Autonomy', value: '32.8%', trend: '-1.2%', status: 'warning', icon: Shield },
-    { label: 'Diplomatic Reach', value: '68.5', trend: '+0.8%', status: 'normal', icon: Globe },
+    { label: 'IMF Deal Probability', value: `${data.geopolitical.imf_deal_probability}%`, trend: '+2.4%', status: data.geopolitical.imf_deal_probability < 30 ? 'critical' : 'warning', icon: Activity },
+    { label: 'EU Partnership', value: data.geopolitical.eu_partnership_status, trend: '-1.2%', status: 'warning', icon: Shield },
+    { label: 'External Debt', value: `${data.geopolitical.external_debt_2026}B`, trend: '+0.8%', status: 'normal', icon: Globe },
     { label: 'Risk Exposure', value: 'High', trend: 'Rising', status: 'critical', icon: AlertTriangle }
-  ], []);
+  ], [data.geopolitical]);
 
   // Data for the US actor stacked bar chart
   const usAlignmentData = useMemo(() => {
@@ -267,6 +311,11 @@ export const GeopoliticalIntelligence: React.FC = () => {
                     />
                   </RadarChart>
                 </ResponsiveContainer>
+                <div className="mt-4 text-center">
+                  <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                    Score interpretation: Lower = more pressure on Saied regime. Higher = alignment with regime's strategic priorities.
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-6">
