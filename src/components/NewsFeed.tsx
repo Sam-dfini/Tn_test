@@ -15,9 +15,13 @@ import {
   Sparkles,
   RefreshCw,
   Calendar,
-  Tag
+  Tag,
+  AlertCircle,
+  Database,
+  CheckCircle2
 } from 'lucide-react';
 import { CornerAccent } from './ProfessionalShared';
+import { usePipeline } from '../context/PipelineContext';
 
 interface NewsArticle {
   id: string;
@@ -27,6 +31,7 @@ interface NewsArticle {
   date: string;
   timestamp: number;
   relevance: number; // 0-100
+  severity: 1 | 2 | 3 | 4 | 5; // 1: Low, 5: Critical
   category: string;
   url: string;
   summary: string;
@@ -42,6 +47,7 @@ const mockNews: NewsArticle[] = [
     date: '2026-03-17T14:30:00Z',
     timestamp: 1742221800000,
     relevance: 95,
+    severity: 4,
     category: 'Economy',
     url: 'https://reuters.com/tunisia-imf',
     summary: 'The International Monetary Fund has reached a staff-level agreement with Tunisian authorities for a new 48-month Extended Fund Facility.',
@@ -55,6 +61,7 @@ const mockNews: NewsArticle[] = [
     date: '2026-03-18T09:15:00Z',
     timestamp: 1742289300000,
     relevance: 88,
+    severity: 3,
     category: 'Infrastructure',
     url: 'https://tap.info.tn/sfax-desalination',
     summary: 'A major desalination project in Sfax has officially started operations, expected to provide drinking water for over 600,000 residents.',
@@ -68,6 +75,7 @@ const mockNews: NewsArticle[] = [
     date: '2026-03-16T11:00:00Z',
     timestamp: 1742122800000,
     relevance: 75,
+    severity: 3,
     category: 'Geopolitics',
     url: 'https://bbc.com/eu-maghreb-security',
     summary: 'The European Commission has unveiled a new strategy for security cooperation with North African nations, focusing on counter-terrorism and border management.',
@@ -81,6 +89,7 @@ const mockNews: NewsArticle[] = [
     date: '2026-03-17T16:45:00Z',
     timestamp: 1742229900000,
     relevance: 82,
+    severity: 2,
     category: 'Economy',
     url: 'https://businessnews.com.tn/bct-rate',
     summary: 'The Central Bank of Tunisia (BCT) has decided to keep its key interest rate unchanged at 8%, citing the need to balance inflation control with economic growth.',
@@ -94,6 +103,7 @@ const mockNews: NewsArticle[] = [
     date: '2026-03-15T13:20:00Z',
     timestamp: 1742044800000,
     relevance: 60,
+    severity: 1,
     category: 'Technology',
     url: 'https://mosaiquefm.net/tunis-tech-summit',
     summary: 'Tunis is preparing to host the Mediterranean Digital Forum, attracting startups and investors from across the region.',
@@ -101,19 +111,71 @@ const mockNews: NewsArticle[] = [
   }
 ];
 
+type SeverityLevel = 'ALL' | 'CRITICAL' | 'HIGH' | 'MEDIUM';
+type IntelModule = 'ALL' | 'POLITICAL' | 'ECONOMIC' | 'SOCIAL' | 'ENVIRONMENTAL' | 'SECURITY';
+
 export const NewsFeed: React.FC = () => {
+  const { pushApprovedChanges } = usePipeline();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'source' | 'relevance'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [severityFilter, setSeverityFilter] = useState<SeverityLevel>('ALL');
+  const [moduleFilter, setModuleFilter] = useState<IntelModule>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState<string | null>(null);
+  const [pushedArticles, setPushedArticles] = useState<Set<string>>(new Set());
+
+  const getModuleTag = (article: NewsArticle): IntelModule => {
+    const title = article.title.toLowerCase();
+    const cat = article.category.toLowerCase();
+    const summary = article.summary.toLowerCase();
+
+    if (cat.includes('economy') || title.includes('loan') || title.includes('bank') || title.includes('imf')) return 'ECONOMIC';
+    if (cat.includes('geopolitics') || title.includes('partnership') || title.includes('eu')) return 'POLITICAL';
+    if (cat.includes('infrastructure') || title.includes('water') || title.includes('desalination')) return 'ENVIRONMENTAL';
+    if (cat.includes('security') || title.includes('terrorism') || title.includes('border')) return 'SECURITY';
+    if (cat.includes('social') || title.includes('protest') || title.includes('unemployment')) return 'SOCIAL';
+    
+    return 'ECONOMIC'; // Default
+  };
+
+  const moduleTagColors: Record<IntelModule, string> = {
+    ALL: 'text-slate-500',
+    POLITICAL: 'text-intel-purple',
+    ECONOMIC: 'text-intel-cyan',
+    SOCIAL: 'text-intel-orange',
+    ENVIRONMENTAL: 'text-intel-green',
+    SECURITY: 'text-intel-red'
+  };
+
+  const counts = useMemo(() => {
+    return {
+      ALL: mockNews.length,
+      CRITICAL: mockNews.filter(e => e.severity >= 4).length,
+      HIGH: mockNews.filter(e => e.severity >= 3).length,
+      MEDIUM: mockNews.filter(e => e.severity >= 2).length,
+    };
+  }, []);
 
   const filteredAndSortedNews = useMemo(() => {
-    let result = mockNews.filter(article => 
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let result = mockNews.filter(article => {
+      const matchesSearch = 
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesSeverity = 
+        severityFilter === 'ALL' || 
+        (severityFilter === 'CRITICAL' && article.severity >= 4) ||
+        (severityFilter === 'HIGH' && article.severity >= 3) ||
+        (severityFilter === 'MEDIUM' && article.severity >= 2);
+      
+      const matchesModule = 
+        moduleFilter === 'ALL' || 
+        getModuleTag(article) === moduleFilter;
+
+      return matchesSearch && matchesSeverity && matchesModule;
+    });
 
     result.sort((a, b) => {
       let comparison = 0;
@@ -129,7 +191,7 @@ export const NewsFeed: React.FC = () => {
     });
 
     return result;
-  }, [searchQuery, sortBy, sortOrder]);
+  }, [searchQuery, sortBy, sortOrder, severityFilter, moduleFilter]);
 
   const toggleSort = (newSortBy: 'date' | 'source' | 'relevance') => {
     if (sortBy === newSortBy) {
@@ -148,154 +210,223 @@ export const NewsFeed: React.FC = () => {
     }, 1500);
   };
 
+  const handlePushToPipeline = (article: NewsArticle) => {
+    // Emit event for DataPipeline to catch
+    window.dispatchEvent(new CustomEvent('pipeline-article', { 
+      detail: { url: article.url, title: article.title } 
+    }));
+    
+    setPushedArticles(prev => new Set(prev).add(article.id));
+    
+    // Also add a small notification or visual feedback
+    console.log(`Article ${article.id} pushed to pipeline`);
+  };
+
   return (
     <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
       <CornerAccent position="tl" />
       <CornerAccent position="br" />
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6">
-        <div className="space-y-1">
-          <h3 className="text-xl font-bold text-white tracking-tight flex items-center space-x-3">
-            <Newspaper className="w-6 h-6 text-intel-cyan" />
-            <span>Real-time News Feed</span>
-          </h3>
-          <p className="text-xs text-slate-500 uppercase font-mono tracking-wider">Aggregated global & local intelligence</p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Filter news..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-48"
-            />
+      <div className="flex flex-col space-y-6 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-1">
+            <h3 className="text-xl font-bold text-white tracking-tight flex items-center space-x-3">
+              <Newspaper className="w-6 h-6 text-intel-cyan" />
+              <span>Real-time News Feed</span>
+            </h3>
+            <p className="text-xs text-slate-500 uppercase font-mono tracking-wider">Aggregated global & local intelligence</p>
           </div>
 
-          <div className="flex items-center bg-white/5 rounded-xl border border-white/10 p-1">
-            <button 
-              onClick={() => toggleSort('date')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'date' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input 
+                type="text" 
+                placeholder="Filter news..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-48"
+              />
+            </div>
+
+            <div className="flex items-center bg-white/5 rounded-xl border border-white/10 p-1">
+              <button 
+                onClick={() => toggleSort('date')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'date' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+              >
+                <Calendar className="w-3 h-3" />
+                <span>DATE</span>
+                {sortBy === 'date' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
+              </button>
+              <button 
+                onClick={() => toggleSort('source')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'source' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+              >
+                <Globe className="w-3 h-3" />
+                <span>SOURCE</span>
+                {sortBy === 'source' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
+              </button>
+              <button 
+                onClick={() => toggleSort('relevance')}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'relevance' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+              >
+                <Zap className="w-3 h-3" />
+                <span>REL</span>
+                {sortBy === 'relevance' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Severity Filter Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
+          <div className="flex items-center space-x-2">
+            {(['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'] as SeverityLevel[]).map((sev) => (
+              <button
+                key={sev}
+                onClick={() => setSeverityFilter(sev)}
+                className={`px-3 py-1 rounded-full text-[9px] font-mono font-bold transition-all border ${
+                  severityFilter === sev 
+                    ? 'bg-intel-cyan border-intel-cyan text-intel-bg' 
+                    : 'bg-transparent border-white/10 text-slate-500 hover:border-white/30'
+                }`}
+              >
+                {sev} ({counts[sev]})
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <span className="text-[10px] font-mono text-slate-600 uppercase">Module:</span>
+            <select 
+              value={moduleFilter}
+              onChange={(e) => setModuleFilter(e.target.value as IntelModule)}
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50"
             >
-              <Calendar className="w-3 h-3" />
-              <span>DATE</span>
-              {sortBy === 'date' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
-            </button>
-            <button 
-              onClick={() => toggleSort('source')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'source' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
-            >
-              <Globe className="w-3 h-3" />
-              <span>SOURCE</span>
-              {sortBy === 'source' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
-            </button>
-            <button 
-              onClick={() => toggleSort('relevance')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'relevance' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
-            >
-              <Zap className="w-3 h-3" />
-              <span>REL</span>
-              {sortBy === 'relevance' && (sortOrder === 'asc' ? <SortAsc className="w-3 h-3" /> : <SortDesc className="w-3 h-3" />)}
-            </button>
+              <option value="ALL">ALL MODULES</option>
+              <option value="POLITICAL">POLITICAL</option>
+              <option value="ECONOMIC">ECONOMIC</option>
+              <option value="SOCIAL">SOCIAL</option>
+              <option value="ENVIRONMENTAL">ENVIRONMENTAL</option>
+              <option value="SECURITY">SECURITY</option>
+            </select>
           </div>
         </div>
       </div>
 
       <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
         <AnimatePresence mode="popLayout">
-          {filteredAndSortedNews.map((article) => (
-            <motion.div 
-              key={article.id}
-              layout
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className={`p-5 rounded-2xl border transition-all group ${
-                expandedId === article.id ? 'bg-white/10 border-intel-cyan/30' : 'bg-white/5 border-white/5 hover:border-white/20'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center space-x-3">
-                    <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
-                      article.sourceType === 'international' ? 'bg-intel-purple/20 text-intel-purple border border-intel-purple/30' : 'bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30'
-                    }`}>
-                      {article.source}
-                    </span>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase flex items-center">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {new Date(article.date).toLocaleDateString()}
-                    </span>
-                    <span className="text-[9px] font-mono text-slate-500 uppercase flex items-center">
-                      <Tag className="w-3 h-3 mr-1" />
-                      {article.category}
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors leading-tight">
-                    {article.title}
-                  </h4>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <button 
-                    onClick={() => handleSummarize(article.id)}
-                    disabled={isSummarizing === article.id}
-                    className={`p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan ${isSummarizing === article.id ? 'animate-pulse' : ''}`}
-                    title="AI Summarize"
-                  >
-                    {isSummarizing === article.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  </button>
-                  <a 
-                    href={article.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                  <button 
-                    onClick={() => setExpandedId(expandedId === article.id ? null : article.id)}
-                    className="p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan"
-                  >
-                    {expandedId === article.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {expandedId === article.id && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pt-4 mt-4 border-t border-white/10 space-y-4">
-                      <div className="space-y-2">
-                        <div className="text-[9px] font-mono text-slate-500 uppercase font-bold tracking-widest">Original Summary</div>
-                        <p className="text-xs text-slate-400 leading-relaxed">{article.summary}</p>
-                      </div>
-                      
-                      {article.aiSummary && (
-                        <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="text-[9px] font-mono text-intel-cyan uppercase font-bold tracking-widest flex items-center">
-                              <Sparkles className="w-3 h-3 mr-1" />
-                              AI-Powered Insight
-                            </div>
-                            <div className="text-[8px] font-mono text-intel-cyan/50 uppercase">Confidence: 98%</div>
-                          </div>
-                          <p className="text-xs text-slate-300 leading-relaxed italic">"{article.aiSummary}"</p>
-                        </div>
+          {filteredAndSortedNews.map((article) => {
+            const moduleTag = getModuleTag(article);
+            return (
+              <motion.div 
+                key={article.id}
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className={`p-5 rounded-2xl border transition-all group ${
+                  expandedId === article.id ? 'bg-white/10 border-intel-cyan/30' : 'bg-white/5 border-white/5 hover:border-white/20'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
+                        article.sourceType === 'international' ? 'bg-intel-purple/20 text-intel-purple border border-intel-purple/30' : 'bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30'
+                      }`}>
+                        {article.source}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-white/5 border border-white/10 ${moduleTagColors[moduleTag]}`}>
+                        {moduleTag}
+                      </span>
+                      <span className="text-[9px] font-mono text-slate-500 uppercase flex items-center">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {new Date(article.date).toLocaleDateString()}
+                      </span>
+                      {article.severity >= 4 && (
+                        <span className="flex items-center text-[8px] font-mono text-intel-red font-bold animate-pulse">
+                          <AlertCircle className="w-3 h-3 mr-1" />
+                          CRITICAL
+                        </span>
                       )}
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
+                    <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors leading-tight">
+                      {article.title}
+                    </h4>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={() => handlePushToPipeline(article)}
+                      disabled={pushedArticles.has(article.id)}
+                      className={`p-2 rounded-lg border transition-all ${
+                        pushedArticles.has(article.id)
+                          ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-500'
+                          : 'border-white/10 hover:border-intel-cyan/50 text-slate-400 hover:text-intel-cyan'
+                      }`}
+                      title="Push to Data Pipeline"
+                    >
+                      {pushedArticles.has(article.id) ? <CheckCircle2 className="w-4 h-4" /> : <Database className="w-4 h-4" />}
+                    </button>
+                    <button 
+                      onClick={() => handleSummarize(article.id)}
+                      disabled={isSummarizing === article.id}
+                      className={`p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan ${isSummarizing === article.id ? 'animate-pulse' : ''}`}
+                      title="AI Summarize"
+                    >
+                      {isSummarizing === article.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    </button>
+                    <a 
+                      href={article.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                    <button 
+                      onClick={() => setExpandedId(expandedId === article.id ? null : article.id)}
+                      className="p-2 rounded-lg border border-white/10 hover:border-intel-cyan/50 transition-all text-slate-400 hover:text-intel-cyan"
+                    >
+                      {expandedId === article.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {expandedId === article.id && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-4 mt-4 border-t border-white/10 space-y-4">
+                        <div className="space-y-2">
+                          <div className="text-[9px] font-mono text-slate-500 uppercase font-bold tracking-widest">Original Summary</div>
+                          <p className="text-xs text-slate-400 leading-relaxed">{article.summary}</p>
+                        </div>
+                        
+                        {article.aiSummary && (
+                          <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="text-[9px] font-mono text-intel-cyan uppercase font-bold tracking-widest flex items-center">
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                AI-Powered Insight
+                              </div>
+                              <div className="text-[8px] font-mono text-intel-cyan/50 uppercase">Confidence: 98%</div>
+                            </div>
+                            <p className="text-xs text-slate-300 leading-relaxed italic">"{article.aiSummary}"</p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
 

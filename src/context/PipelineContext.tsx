@@ -56,6 +56,17 @@ interface SocialData {
   press_freedom_rank: number;        // RSF rank e.g. 118
   decree54_charged: number;          // e.g. 67
   water_crisis_govs: number;         // govs with >10hr cuts
+  happiness_index: number;           // 0-10 e.g. 4.2
+  youth_rage_index: number;          // 0-10 e.g. 8.5
+  population_pressure: number;       // 0-10 e.g. 7.2
+  suicide_rate: number;              // per 100k e.g. 12.4
+  mental_health_stress: number;      // % e.g. 68
+  chronic_disease_pct: number;       // % e.g. 42.8
+  street_signal: number;             // 0-1 e.g. 0.78
+  social_cohesion: string;           // e.g. 'LOW'
+  divorce_rate: number;              // % e.g. 22.1
+  addiction_total: string;           // e.g. '450K'
+  youth_addiction_rate: number;      // % e.g. 24.8
   last_updated: string;
   source: string;
 }
@@ -122,6 +133,17 @@ const DEFAULT_DATA: PlatformData = {
     press_freedom_rank: 118,
     decree54_charged: 67,
     water_crisis_govs: 8,
+    happiness_index: 4.2,
+    youth_rage_index: 8.5,
+    population_pressure: 7.2,
+    suicide_rate: 12.4,
+    mental_health_stress: 68,
+    chronic_disease_pct: 42.8,
+    street_signal: 0.78,
+    social_cohesion: 'LOW',
+    divorce_rate: 22.1,
+    addiction_total: '450K',
+    youth_addiction_rate: 24.8,
     last_updated: '2026-03-14',
     source: 'UGTT / RSF / TAP'
   },

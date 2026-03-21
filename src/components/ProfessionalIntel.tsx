@@ -112,8 +112,20 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const handleNavigateToPipeline = () => {
-      setActiveTab('pipeline');
+    const handleNavigateToPipeline = (e: any) => {
+      const { tab, subTab } = e.detail || {};
+      if (tab) {
+        setActiveTab(tab);
+        if (subTab) {
+          // We'll handle sub-tab navigation via a separate event or state if needed
+          // For now, let's dispatch a sub-tab navigation event that modules can listen to
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('navigate-subtab', { detail: { subTab } }));
+          }, 100);
+        }
+      } else {
+        setActiveTab('pipeline');
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 

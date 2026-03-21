@@ -54,6 +54,7 @@ import {
 } from 'recharts';
 import { getRealTimeMacroIndicators, MacroIndicator } from '../services/economicDataService';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
+import { usePipeline } from '../context/PipelineContext';
 
 type SubTab = 'macro' | 'sector' | 'market' | 'regional' | 'poverty' | 'pharmacy';
 
@@ -63,91 +64,6 @@ const economicAlerts = [
   { code: 'ECON-DEBT-09', title: 'External Repayment Q2 Peak', impact: 'HIGH' },
   { code: 'ECON-TND-12', title: 'Parallel Market Premium +20%', impact: 'HIGH' },
   { code: 'ECON-GDP-02', title: 'Growth Forecast Revised Down', impact: 'MEDIUM' }
-];
-
-const macroData = [
-  { month: 'JAN 25', gdp: 0.8, inflation: 7.2 },
-  { month: 'FEB 25', gdp: 0.7, inflation: 7.3 },
-  { month: 'MAR 25', gdp: 0.6, inflation: 7.4 },
-  { month: 'APR 25', gdp: 0.5, inflation: 7.5 },
-  { month: 'MAY 25', gdp: 0.4, inflation: 7.4 },
-  { month: 'JUN 25', gdp: 0.45, inflation: 7.3 },
-  { month: 'JUL 25', gdp: 0.5, inflation: 7.2 },
-  { month: 'AUG 25', gdp: 0.4, inflation: 7.1 },
-  { month: 'SEP 25', gdp: 0.35, inflation: 7.0 },
-  { month: 'OCT 25', gdp: 0.3, inflation: 7.1 },
-  { month: 'NOV 25', gdp: 0.25, inflation: 7.2 },
-  { month: 'DEC 25', gdp: 0.2, inflation: 7.3 },
-  { month: 'JAN 26', gdp: 0.25, inflation: 7.2 },
-  { month: 'FEB 26', gdp: 0.3, inflation: 7.1 },
-  { month: 'MAR 26', gdp: 0.4, inflation: 7.1 }
-];
-
-const sectorData = [
-  { name: 'Agriculture', growth: 4.2, contribution: 10.2, jobs: 14.5, jobTrend: -1.8, minWage: 450, avgSalary: 650, wageGrowth: 2.1 },
-  { name: 'Manufacturing', growth: 0.5, contribution: 16.8, jobs: 21.2, jobTrend: 0.3, minWage: 520, avgSalary: 950, wageGrowth: 3.4 },
-  { name: 'Tourism', growth: -12.4, contribution: 7.4, jobs: 8.7, jobTrend: -12.4, minWage: 480, avgSalary: 820, wageGrowth: -1.5 },
-  { name: 'Phosphate', growth: -28.0, contribution: 3.1, jobs: 3.4, jobTrend: -2.8, minWage: 650, avgSalary: 1450, wageGrowth: 5.2 },
-  { name: 'Energy', growth: -6.1, contribution: 4.2, jobs: 2.1, jobTrend: -6.1, minWage: 700, avgSalary: 1850, wageGrowth: 4.8 },
-  { name: 'Financial', growth: 1.2, contribution: 8.3, jobs: 4.6, jobTrend: 1.2, minWage: 850, avgSalary: 2450, wageGrowth: 6.1 },
-  { name: 'Construction', growth: -3.4, contribution: 5.9, jobs: 12.3, jobTrend: -3.4, minWage: 490, avgSalary: 880, wageGrowth: 1.8 },
-  { name: 'Services', growth: 1.1, contribution: 44.1, jobs: 33.2, jobTrend: 1.1, minWage: 550, avgSalary: 1150, wageGrowth: 4.2 }
-];
-
-const ministryWorkforceData = [
-  { name: 'Education', workers: 245000, percentage: 35.2, avgSalary: 1250, growth: 4.2 },
-  { name: 'Interior', workers: 112000, percentage: 16.1, avgSalary: 1350, growth: 5.8 },
-  { name: 'Health', workers: 85000, percentage: 12.2, avgSalary: 1450, growth: 6.5 },
-  { name: 'Defense', workers: 65000, percentage: 9.3, avgSalary: 1550, growth: 7.2 },
-  { name: 'Agriculture', workers: 42000, percentage: 6.0, avgSalary: 1100, growth: 3.5 },
-  { name: 'Finance', workers: 28000, percentage: 4.0, avgSalary: 1850, growth: 8.4 },
-  { name: 'Higher Ed', workers: 25000, percentage: 3.6, avgSalary: 2100, growth: 5.1 },
-  { name: 'Justice', workers: 18000, percentage: 2.6, avgSalary: 1650, growth: 4.8 },
-  { name: 'Other', workers: 76000, percentage: 11.0, avgSalary: 1050, growth: 2.9 }
-];
-
-const getSectorHealth = (sector: typeof sectorData[0]) => {
-  if (sector.growth < -10 || (sector.growth < 0 && sector.wageGrowth < 0)) return 'CRITICAL';
-  if (sector.growth > 2 && sector.wageGrowth > 2) return 'GOOD';
-  return 'WARNING';
-};
-
-const inflationDriversData = [
-  { month: 'APR 25', food: 4.2, energy: 2.1, services: 1.2 },
-  { month: 'MAY 25', food: 4.0, energy: 2.2, services: 1.2 },
-  { month: 'JUN 25', food: 3.8, energy: 2.3, services: 1.2 },
-  { month: 'JUL 25', food: 3.7, energy: 2.3, services: 1.2 },
-  { month: 'AUG 25', food: 3.6, energy: 2.3, services: 1.2 },
-  { month: 'SEP 25', food: 3.5, energy: 2.3, services: 1.2 },
-  { month: 'OCT 25', food: 3.6, energy: 2.3, services: 1.2 },
-  { month: 'NOV 25', food: 3.7, energy: 2.3, services: 1.2 },
-  { month: 'DEC 25', food: 3.8, energy: 2.3, services: 1.2 },
-  { month: 'JAN 26', food: 3.7, energy: 2.3, services: 1.2 },
-  { month: 'FEB 26', food: 3.6, energy: 2.3, services: 1.2 },
-  { month: 'MAR 26', food: 3.6, energy: 2.3, services: 1.2 }
-];
-
-const phosphateTrends = [
-  { year: '2010', volume: 8.2, revenue: 1.8 },
-  { year: '2015', volume: 4.5, revenue: 1.2 },
-  { year: '2020', volume: 3.8, revenue: 0.9 },
-  { year: '2023', volume: 3.5, revenue: 1.1 },
-  { year: '2024', volume: 3.3, revenue: 0.95 },
-  { year: '2025', volume: 3.1, revenue: 0.82 }
-];
-
-const regionalData = [
-  { country: 'Tunisia', gdp: 0.4, inflation: 7.1, debt: 87.4, unemployment: 16.2, reserves: 88, risk: 'CRITICAL', isTarget: true },
-  { country: 'Morocco', gdp: 3.4, inflation: 4.2, debt: 71.3, unemployment: 11.8, reserves: 142, risk: 'MEDIUM' },
-  { country: 'Egypt', gdp: 4.2, inflation: 12.8, debt: 94.2, unemployment: 7.4, reserves: 98, risk: 'HIGH' },
-  { country: 'Algeria', gdp: 3.8, inflation: 6.9, debt: 52.1, unemployment: 12.3, reserves: 196, risk: 'MEDIUM' },
-  { country: 'Jordan', gdp: 2.8, inflation: 3.9, debt: 91.4, unemployment: 22.4, reserves: 112, risk: 'HIGH' }
-];
-
-const debtBreakdownData = [
-  { name: 'External Debt', value: 62, color: '#ef4444' },
-  { name: 'Domestic Debt', value: 28, color: '#f97316' },
-  { name: 'SOE Debt', value: 10, color: '#fbbf24' }
 ];
 
 const tunindexHistory = [
@@ -339,6 +255,93 @@ const essentialMedsStatus = [
 ];
 
 export const EconomyIntelligence: React.FC = () => {
+  const { data } = usePipeline();
+
+  const macroData = [
+    { month: 'JAN 25', gdp: 0.8, inflation: 7.2 },
+    { month: 'FEB 25', gdp: 0.7, inflation: 7.3 },
+    { month: 'MAR 25', gdp: 0.6, inflation: 7.4 },
+    { month: 'APR 25', gdp: 0.5, inflation: 7.5 },
+    { month: 'MAY 25', gdp: 0.4, inflation: 7.4 },
+    { month: 'JUN 25', gdp: 0.45, inflation: 7.3 },
+    { month: 'JUL 25', gdp: 0.5, inflation: 7.2 },
+    { month: 'AUG 25', gdp: 0.4, inflation: 7.1 },
+    { month: 'SEP 25', gdp: 0.35, inflation: 7.0 },
+    { month: 'OCT 25', gdp: 0.3, inflation: 7.1 },
+    { month: 'NOV 25', gdp: 0.25, inflation: 7.2 },
+    { month: 'DEC 25', gdp: 0.2, inflation: 7.3 },
+    { month: 'JAN 26', gdp: 0.25, inflation: 7.2 },
+    { month: 'FEB 26', gdp: 0.3, inflation: 7.1 },
+    { month: 'MAR 26', gdp: data.economy.gdp_growth, inflation: data.economy.inflation }
+  ];
+
+  const sectorData = [
+    { name: 'Agriculture', growth: 4.2, contribution: 10.2, jobs: 14.5, jobTrend: -1.8, minWage: 450, avgSalary: 650, wageGrowth: 2.1 },
+    { name: 'Manufacturing', growth: 0.5, contribution: 16.8, jobs: 21.2, jobTrend: 0.3, minWage: 520, avgSalary: 950, wageGrowth: 3.4 },
+    { name: 'Tourism', growth: -12.4, contribution: 7.4, jobs: 8.7, jobTrend: -12.4, minWage: 480, avgSalary: 820, wageGrowth: -1.5 },
+    { name: 'Phosphate', growth: -28.0, contribution: 3.1, jobs: 3.4, jobTrend: -2.8, minWage: 650, avgSalary: 1450, wageGrowth: 5.2 },
+    { name: 'Energy', growth: -6.1, contribution: 4.2, jobs: 2.1, jobTrend: -6.1, minWage: 700, avgSalary: 1850, wageGrowth: 4.8 },
+    { name: 'Financial', growth: 1.2, contribution: 8.3, jobs: 4.6, jobTrend: 1.2, minWage: 850, avgSalary: 2450, wageGrowth: 6.1 },
+    { name: 'Construction', growth: -3.4, contribution: 5.9, jobs: 12.3, jobTrend: -3.4, minWage: 490, avgSalary: 880, wageGrowth: 1.8 },
+    { name: 'Services', growth: 1.1, contribution: 44.1, jobs: 33.2, jobTrend: 1.1, minWage: 550, avgSalary: 1150, wageGrowth: 4.2 }
+  ];
+
+  const ministryWorkforceData = [
+    { name: 'Education', workers: 245000, percentage: 35.2, avgSalary: 1250, growth: 4.2 },
+    { name: 'Interior', workers: 112000, percentage: 16.1, avgSalary: 1350, growth: 5.8 },
+    { name: 'Health', workers: 85000, percentage: 12.2, avgSalary: 1450, growth: 6.5 },
+    { name: 'Defense', workers: 65000, percentage: 9.3, avgSalary: 1550, growth: 7.2 },
+    { name: 'Agriculture', workers: 42000, percentage: 6.0, avgSalary: 1100, growth: 3.5 },
+    { name: 'Finance', workers: 28000, percentage: 4.0, avgSalary: 1850, growth: 8.4 },
+    { name: 'Higher Ed', workers: 25000, percentage: 3.6, avgSalary: 2100, growth: 5.1 },
+    { name: 'Justice', workers: 18000, percentage: 2.6, avgSalary: 1650, growth: 4.8 },
+    { name: 'Other', workers: 76000, percentage: 11.0, avgSalary: 1050, growth: 2.9 }
+  ];
+
+  const getSectorHealth = (sector: typeof sectorData[0]) => {
+    if (sector.growth < -10 || (sector.growth < 0 && sector.wageGrowth < 0)) return 'CRITICAL';
+    if (sector.growth > 2 && sector.wageGrowth > 2) return 'GOOD';
+    return 'WARNING';
+  };
+
+  const inflationDriversData = [
+    { month: 'APR 25', food: 4.2, energy: 2.1, services: 1.2 },
+    { month: 'MAY 25', food: 4.0, energy: 2.2, services: 1.2 },
+    { month: 'JUN 25', food: 3.8, energy: 2.3, services: 1.2 },
+    { month: 'JUL 25', food: 3.7, energy: 2.3, services: 1.2 },
+    { month: 'AUG 25', food: 3.6, energy: 2.3, services: 1.2 },
+    { month: 'SEP 25', food: 3.5, energy: 2.3, services: 1.2 },
+    { month: 'OCT 25', food: 3.6, energy: 2.3, services: 1.2 },
+    { month: 'NOV 25', food: 3.7, energy: 2.3, services: 1.2 },
+    { month: 'DEC 25', food: 3.8, energy: 2.3, services: 1.2 },
+    { month: 'JAN 26', food: 3.7, energy: 2.3, services: 1.2 },
+    { month: 'FEB 26', food: 3.6, energy: 2.3, services: 1.2 },
+    { month: 'MAR 26', food: 3.6, energy: 2.3, services: 1.2 }
+  ];
+
+  const phosphateTrends = [
+    { year: '2010', volume: 8.2, revenue: 1.8 },
+    { year: '2015', volume: 4.5, revenue: 1.2 },
+    { year: '2020', volume: 3.8, revenue: 0.9 },
+    { year: '2023', volume: 3.5, revenue: 1.1 },
+    { year: '2024', volume: 3.3, revenue: 0.95 },
+    { year: '2025', volume: 3.1, revenue: 0.82 }
+  ];
+
+  const regionalData = [
+    { country: 'Tunisia', gdp: data.economy.gdp_growth, inflation: data.economy.inflation, debt: data.economy.public_debt, unemployment: data.economy.unemployment, reserves: data.economy.fx_reserves, risk: 'CRITICAL', isTarget: true },
+    { country: 'Morocco', gdp: 3.4, inflation: 4.2, debt: 71.3, unemployment: 11.8, reserves: 142, risk: 'MEDIUM' },
+    { country: 'Egypt', gdp: 4.2, inflation: 12.8, debt: 94.2, unemployment: 7.4, reserves: 98, risk: 'HIGH' },
+    { country: 'Algeria', gdp: 3.8, inflation: 6.9, debt: 52.1, unemployment: 12.3, reserves: 196, risk: 'MEDIUM' },
+    { country: 'Jordan', gdp: 2.8, inflation: 3.9, debt: 91.4, unemployment: 22.4, reserves: 112, risk: 'HIGH' }
+  ];
+
+  const debtBreakdownData = [
+    { name: 'External Debt', value: 62, color: '#ef4444' },
+    { name: 'Domestic Debt', value: 28, color: '#f97316' },
+    { name: 'SOE Debt', value: 10, color: '#fbbf24' }
+  ];
+
   const [activeCategory, setActiveCategory] = useState<'ALL' | 'MACRO' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL'>('ALL');
 
   const categories = [
@@ -396,13 +399,13 @@ export const EconomyIntelligence: React.FC = () => {
           ))
         ) : (
           (macroIndicators.length > 0 ? macroIndicators : [
-            { label: 'GDP Growth', value: '0.4%', trend: '-1.2 vs Q4 2025', status: 'CRITICAL', desc: 'Real GDP growth rate Q1 2026. Revised down from 1.6% forecast.', source: 'INS Tunisia', history: [0.8, 0.6, 0.5, 0.4, 0.4] },
-            { label: 'CPI Inflation', value: '7.1%', trend: '-0.4 vs Feb 2026', status: 'WARNING', desc: 'Consumer Price Index annual variation. Food inflation at 9.3%.', source: 'INS Tunisia', history: [8.2, 7.8, 7.5, 7.2, 7.1] },
-            { label: 'BCT Forex Reserves', value: '88 days', trend: '-11 vs Jan 2026', status: 'CRITICAL', desc: 'Foreign exchange reserves expressed as import cover days. Below 90-day safety threshold.', source: 'Banque Centrale de Tunisie', history: [112, 105, 98, 92, 88] },
-            { label: 'Unemployment', value: '16.2%', trend: '+0.3 vs Q4 2025', status: 'CRITICAL', desc: 'National unemployment rate. Youth (15-24) rate: 38.7%. Interior regions: 29%+', source: 'INS Tunisia', history: [15.5, 15.8, 16.0, 16.1, 16.2] },
-            { label: 'Public Debt / GDP', value: '87.4%', trend: '+2.1 vs 2025', status: 'CRITICAL', desc: 'Total public debt as % of GDP. External debt service: $3.2B due in 2026.', source: 'Ministry of Finance', history: [82, 84, 85, 86, 87.4] },
+            { label: 'GDP Growth', value: `${data.economy.gdp_growth}%`, trend: '-1.2 vs Q4 2025', status: 'CRITICAL', desc: 'Real GDP growth rate Q1 2026. Revised down from 1.6% forecast.', source: 'INS Tunisia', history: [0.8, 0.6, 0.5, 0.4, 0.4] },
+            { label: 'CPI Inflation', value: `${data.economy.inflation}%`, trend: '-0.4 vs Feb 2026', status: 'WARNING', desc: 'Consumer Price Index annual variation. Food inflation at 9.3%.', source: 'INS Tunisia', history: [8.2, 7.8, 7.5, 7.2, 7.1] },
+            { label: 'BCT Forex Reserves', value: `${data.economy.fx_reserves} days`, trend: '-11 vs Jan 2026', status: 'CRITICAL', desc: 'Foreign exchange reserves expressed as import cover days. Below 90-day safety threshold.', source: 'Banque Centrale de Tunisie', history: [112, 105, 98, 92, 88] },
+            { label: 'Unemployment', value: `${data.economy.unemployment}%`, trend: '+0.3 vs Q4 2025', status: 'CRITICAL', desc: `National unemployment rate. Youth (15-24) rate: ${data.economy.youth_unemployment}%. Interior regions: 29%+`, source: 'INS Tunisia', history: [15.5, 15.8, 16.0, 16.1, 16.2] },
+            { label: 'Public Debt / GDP', value: `${data.economy.public_debt}%`, trend: '+2.1 vs 2025', status: 'CRITICAL', desc: 'Total public debt as % of GDP. External debt service: $3.2B due in 2026.', source: 'Ministry of Finance', history: [82, 84, 85, 86, 87.4] },
             { label: 'Current Account', value: '-8.3%', trend: '-0.7 vs 2025', status: 'CRITICAL', desc: 'Current account balance as % of GDP. Trade deficit widening due to energy imports.', source: 'BCT', history: [-7.2, -7.5, -7.8, -8.1, -8.3] },
-            { label: 'TND / USD', value: '3.21', trend: '+4.2 YTD 2026', status: 'WARNING', desc: 'Official dinar exchange rate. Parallel market estimated at 3.85 TND/USD (+20%).', source: 'BCT Official Rate', history: [3.05, 3.12, 3.15, 3.18, 3.21] },
+            { label: 'TND / USD', value: `${data.economy.tnd_usd}`, trend: '+4.2 YTD 2026', status: 'WARNING', desc: 'Official dinar exchange rate. Parallel market estimated at 3.85 TND/USD (+20%).', source: 'BCT Official Rate', history: [3.05, 3.12, 3.15, 3.18, 3.21] },
             { label: 'Budget Deficit', value: '-7.8%', trend: '-0.3 vs 2025 target', status: 'CRITICAL', desc: 'Fiscal deficit vs GDP. IMF target was -6.0%. Wage bill expansion driving overrun.', source: 'Ministry of Finance', history: [-6.8, -7.2, -7.4, -7.6, -7.8] },
             { label: 'FDI Inflows', value: '1.24B', trend: '-18.4 vs 2025', status: 'CRITICAL', desc: 'Foreign direct investment inflows YTD. Energy sector FDI down 34%.', source: 'FIPA', history: [1.8, 1.6, 1.5, 1.3, 1.24] },
             { label: 'Remittances', value: '$2.87B', trend: '+3.1 vs 2025', status: 'GOOD', desc: 'Diaspora remittances — one of Tunisia\'s key forex sources. Slight growth driven by Europe.', source: 'BCT', history: [2.6, 2.7, 2.75, 2.8, 2.87] },
@@ -587,7 +590,7 @@ export const EconomyIntelligence: React.FC = () => {
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">CPI Inflation by Component</h3>
               <p className="text-[10px] text-slate-500">Annual % change - March 2026</p>
             </div>
-            <span className="text-[10px] font-mono text-intel-orange uppercase">7.1% Overall</span>
+            <span className="text-[10px] font-mono text-intel-orange uppercase">{data.economy.inflation}% Overall</span>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">

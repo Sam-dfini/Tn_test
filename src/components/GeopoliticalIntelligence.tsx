@@ -50,6 +50,7 @@ import {
   Line,
   Legend
 } from 'recharts';
+import { cn } from '../lib/utils';
 import { 
   CornerAccent, 
   BackgroundGrid, 
@@ -170,6 +171,19 @@ export const GeopoliticalIntelligence: React.FC = () => {
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
   const { data } = usePipeline();
 
+  const reserves = data.economy.fx_reserves; // 84 days
+  const CRISIS_THRESHOLD = 60;  // days — IMF crisis level
+  const WARNING_THRESHOLD = 90; // days — BCT warning level
+  const SAFE_THRESHOLD = 120;   // days — comfortable level
+
+  const runwayPct = Math.min(100, (reserves / SAFE_THRESHOLD) * 100);
+  const daysToWarning = reserves - WARNING_THRESHOLD; // negative = already below
+  const daysToCrisis = reserves - CRISIS_THRESHOLD;
+  const status = reserves < CRISIS_THRESHOLD ? 'CRISIS' :
+                 reserves < WARNING_THRESHOLD ? 'WARNING' : 'STABLE';
+  const statusColor = status === 'CRISIS' ? '#ef4444' :
+                      status === 'WARNING' ? '#f97316' : '#10b981';
+
   const stats = useMemo(() => [
     { label: 'IMF Deal Probability', value: `${data.geopolitical.imf_deal_probability}%`, trend: '+2.4%', status: data.geopolitical.imf_deal_probability < 30 ? 'critical' : 'warning', icon: Activity },
     { label: 'EU Partnership', value: data.geopolitical.eu_partnership_status, trend: '-1.2%', status: 'warning', icon: Shield },
@@ -200,6 +214,129 @@ export const GeopoliticalIntelligence: React.FC = () => {
         icon={Globe}
         nodeId="GEOPOL-01"
       />
+
+      {/* Treasury Runway Widget */}
+      <div className={cn(
+        "intel-card p-6 rounded-3xl border relative overflow-hidden z-20 transition-all",
+        status === 'CRISIS' ? "border-intel-red/50 bg-intel-red/5 shadow-[0_0_30px_rgba(239,68,68,0.1)]" :
+        status === 'WARNING' ? "border-intel-orange/50 bg-intel-orange/5 shadow-[0_0_30px_rgba(249,115,22,0.1)]" :
+        "border-intel-border"
+      )}>
+        {status !== 'STABLE' && (
+          <div className={cn(
+            "absolute left-0 top-0 bottom-0 w-1 animate-pulse",
+            status === 'CRISIS' ? "bg-intel-red" : "bg-intel-orange"
+          )} />
+        )}
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          {/* Left Section */}
+          <div className="lg:col-span-3 space-y-1">
+            <div className="flex items-baseline space-x-2">
+              <span className={cn("text-5xl font-bold font-mono tracking-tighter", 
+                status === 'CRISIS' ? "text-intel-red" : status === 'WARNING' ? "text-intel-orange" : "text-intel-green"
+              )}>
+                {reserves}
+              </span>
+              <span className="text-[10px] font-mono text-slate-500 uppercase font-bold">Days Import Cover</span>
+            </div>
+            <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+              BCT FX Reserves — {data.economy.last_updated}
+            </div>
+          </div>
+
+          {/* Center Section: Progress Bar */}
+          <div className="lg:col-span-6 space-y-4">
+            <div className="relative h-6 bg-white/5 rounded-full border border-white/10 overflow-hidden">
+              {/* Zone Markers */}
+              <div className="absolute inset-0 flex">
+                <div className="h-full border-r border-white/10" style={{ width: '50%' }} /> {/* 60/120 = 50% */}
+                <div className="h-full border-r border-white/10" style={{ width: '25%' }} /> {/* 90/120 = 75% total */}
+              </div>
+              
+              {/* Progress Fill */}
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${runwayPct}%` }}
+                className="h-full transition-all duration-1000"
+                style={{ 
+                  backgroundColor: statusColor,
+                  boxShadow: `0 0 20px ${statusColor}40`
+                }}
+              />
+
+              {/* Current Position Marker */}
+              <motion.div 
+                initial={{ left: 0 }}
+                animate={{ left: `${runwayPct}%` }}
+                className="absolute top-0 bottom-0 w-[2px] bg-white z-10 -translate-x-1/2"
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white shadow-[0_0_10px_white]" />
+              </motion.div>
+            </div>
+
+            <div className="flex justify-between text-[8px] font-mono font-bold uppercase tracking-tighter">
+              <div className="flex flex-col items-start">
+                <span className="text-intel-red">60 CRISIS</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-intel-orange">90 WARNING</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-intel-green">120 SAFE</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section */}
+          <div className="lg:col-span-3 flex flex-col items-end space-y-2">
+            <div className={cn(
+              "px-3 py-1 rounded border text-[10px] font-mono font-bold",
+              status === 'CRISIS' ? "bg-intel-red/20 border-intel-red/30 text-intel-red" :
+              status === 'WARNING' ? "bg-intel-orange/20 border-intel-orange/30 text-intel-orange" :
+              "bg-intel-green/20 border-intel-green/30 text-intel-green"
+            )}>
+              {status}
+            </div>
+            <div className="text-right space-y-1">
+              {reserves < 90 && (
+                <div className="text-[9px] font-mono text-intel-orange font-bold uppercase">
+                  ⚠ {Math.abs(daysToWarning)} days below warning threshold
+                </div>
+              )}
+              {reserves < 60 && (
+                <div className="text-[10px] font-mono text-intel-red font-bold uppercase animate-pulse">
+                  🔴 SOVEREIGN DEFAULT RISK
+                </div>
+              )}
+              <div className="text-[8px] font-mono text-slate-500 uppercase">
+                BCT · Push update via Pipeline
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Milestone Markers */}
+        <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
+          <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            AT CURRENT RATE: Crisis in ~{Math.round((reserves-60)/1.2)} days
+          </div>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'economy' }}))}
+              className="text-[8px] font-mono text-intel-cyan underline cursor-pointer"
+            >
+              → Economy Impact
+            </button>
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'freedom' }}))}
+              className="text-[8px] font-mono text-intel-cyan underline cursor-pointer"
+            >
+              → Freedom Index
+            </button>
+          </div>
+        </div>
+      </div>
 
       <LiveTicker items={strategicRisks} />
 

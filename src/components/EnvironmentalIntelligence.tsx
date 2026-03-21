@@ -46,6 +46,8 @@ import {
 } from 'recharts';
 import { Map } from './Map';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
+import { usePipeline } from '../context/PipelineContext';
+import { cn } from '../lib/utils';
 
 const environmentalAlerts = [
   { code: 'ENV-WATER-02', title: 'Aquifer Depletion Rate: CRITICAL', impact: 'CRITICAL' },
@@ -144,6 +146,7 @@ const fireHotspots = [
 ];
 
 export const EnvironmentalIntelligence: React.FC = () => {
+  const { data } = usePipeline();
   const [activeCategory, setActiveCategory] = useState('ALL');
 
   const categories = [
@@ -170,11 +173,12 @@ export const EnvironmentalIntelligence: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={cn(
+                "flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all whitespace-nowrap",
                 activeCategory === cat.id
                   ? 'bg-intel-cyan text-black shadow-[0_0_20px_rgba(0,242,255,0.3)]'
                   : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/5'
-              }`}
+              )}
             >
               <cat.icon className="w-3 h-3" />
               <span>{cat.label}</span>
@@ -195,179 +199,399 @@ export const EnvironmentalIntelligence: React.FC = () => {
       <LiveTicker items={environmentalAlerts} />
 
       <AnimatePresence mode="wait">
-        <motion.div
-          key={activeCategory}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-          className="space-y-12"
-        >
-          {/* CATEGORY 1: WATER SECURITY & HYDRIC STRESS */}
-          {(activeCategory === 'ALL' || activeCategory === 'WATER') && (
-            <div className="space-y-6 relative z-20">
-              <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
-                <Droplets className="w-4 h-4 text-intel-cyan" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Water Security & Hydric Stress</h3>
-              </div>
-
-        {/* Key Indicators Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { label: 'Dam Reserves', value: '28%', status: 'CRITICAL', icon: Waves },
-            { label: 'Potable Water Coverage', value: '94.2%', status: 'WARNING', icon: Droplets },
-            { label: 'Aquifer Depletion', value: '82%', status: 'CRITICAL', icon: Activity },
-            { label: 'Avg Temp Anomaly', value: '+2.1°C', status: 'CRITICAL', icon: Thermometer },
-          ].map((metric, i) => (
-            <div key={i} className="glass p-6 rounded-3xl border border-intel-border relative overflow-hidden group">
-              <CornerAccent position="tl" />
-              <CornerAccent position="br" />
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-intel-cyan group-hover:scale-110 transition-transform duration-300">
-                  <metric.icon className="w-5 h-5" />
-                </div>
-                <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                  metric.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/5' : 'text-intel-orange border-intel-orange/30 bg-intel-orange/5'
-                }`}>
-                  {metric.status}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{metric.label}</div>
-                <div className="text-2xl font-bold text-white tracking-tight">{metric.value}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Dam Reserves Decline */}
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Dam Reserve Levels</h3>
-                <p className="text-xs text-slate-500 mt-1 uppercase font-mono">2026 Hydric Stress Trend Analysis</p>
-              </div>
-              <Waves className="w-5 h-5 text-intel-cyan" />
-            </div>
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={damReservesData}>
-                  <defs>
-                    <linearGradient id="colorWater" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.2}/>
-                      <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                  <Area type="monotone" dataKey="level" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Water Cut Impact */}
-          <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Regional Water Cuts</h3>
-              <Activity className="w-5 h-5 text-intel-cyan" />
-            </div>
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-              {waterCutData.map((item) => (
-                <div key={item.region} className="space-y-1">
-                  <div className="flex justify-between text-[10px] font-mono uppercase">
-                    <span className="text-slate-400">{item.region}</span>
-                    <span className="text-white font-bold">{item.hours}h/day</span>
+        {activeCategory === 'WATER' ? (
+          <motion.div
+            key="water-tab"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-8"
+          >
+            {/* Header Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: 'Governorates in Crisis', value: data.social.water_crisis_govs, icon: AlertTriangle, color: 'text-intel-red' },
+                { label: 'Daily Cut Average', value: '14.2 hrs', icon: Droplets, color: 'text-intel-orange' },
+                { label: 'Aquifer Depletion Rate', value: '1.8m/yr', icon: TrendingDown, color: 'text-intel-red' },
+                { label: 'Dam Fill Level', value: '28.4%', icon: Waves, color: 'text-intel-orange' }
+              ].map((stat, i) => (
+                <div key={i} className="intel-card p-4 rounded-2xl border border-white/10 flex items-center space-x-4">
+                  <div className={cn("p-2 rounded-lg bg-white/5", stat.color)}>
+                    <stat.icon className="w-5 h-5" />
                   </div>
-                  <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-intel-cyan" style={{ width: `${(item.hours / 24) * 100}%` }} />
+                  <div>
+                    <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{stat.label}</div>
+                    <div className={cn("text-xl font-bold font-mono", stat.color)}>{stat.value}</div>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
 
-        {/* Water Crisis Heatmap & Regional Stress Analysis */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
-          <CornerAccent position="tl" />
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Water Crisis Heatmap & Regional Stress Analysis</h3>
-              <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Governorate-level hydric stress & aquifer depletion monitoring</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-intel-cyan animate-pulse"></div>
-                <span className="text-[10px] font-mono text-intel-cyan uppercase font-bold">Hydric Stress Indicators</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Water Stress Table */}
+              <div className="lg:col-span-8 intel-card p-6 rounded-3xl border border-white/10">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-white flex items-center">
+                      <Droplets className="w-5 h-5 mr-2 text-intel-cyan" />
+                      Governorate Water Stress Matrix
+                    </h3>
+                    <p className="text-xs text-slate-500 font-mono">Real-time supply/demand deficit monitoring — March 2026</p>
+                  </div>
+                  <div className="px-3 py-1 bg-intel-red/20 border border-intel-red/30 rounded text-[10px] font-mono text-intel-red font-bold">
+                    SYSTEMIC DEFICIT
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Governorate</th>
+                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Supply (m³/d)</th>
+                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Status</th>
+                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Trend</th>
+                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Pop. Affected</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-xs font-mono">
+                      {[
+                        { name: 'Sfax', supply: '124k', status: 'CRITICAL', trend: 'UP', pop: '1.2M' },
+                        { name: 'Kairouan', supply: '42k', status: 'CRITICAL', trend: 'UP', pop: '620k' },
+                        { name: 'Gafsa', supply: '38k', status: 'HIGH', trend: 'STABLE', pop: '350k' },
+                        { name: 'Sidi Bouzid', supply: '45k', status: 'HIGH', trend: 'UP', pop: '480k' },
+                        { name: 'Gabès', supply: '52k', status: 'MODERATE', trend: 'UP', pop: '410k' },
+                        { name: 'Zaghouan', supply: '28k', status: 'HIGH', trend: 'UP', pop: '190k' },
+                        { name: 'Grand Tunis', supply: '480k', status: 'LOW', trend: 'UP', pop: '2.8M' },
+                        { name: 'Bizerte', supply: '95k', status: 'NOMINAL', trend: 'STABLE', pop: '580k' }
+                      ].map((gov, i) => (
+                        <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="py-3 px-4 font-bold text-white">{gov.name}</td>
+                          <td className="py-3 px-4 text-slate-400">{gov.supply}</td>
+                          <td className="py-3 px-4">
+                            <span className={cn(
+                              "px-2 py-0.5 rounded text-[9px] font-bold",
+                              gov.status === 'CRITICAL' ? "bg-intel-red/20 text-intel-red" :
+                              gov.status === 'HIGH' ? "bg-intel-orange/20 text-intel-orange" :
+                              gov.status === 'MODERATE' ? "bg-yellow-500/20 text-yellow-500" :
+                              "bg-intel-green/20 text-intel-green"
+                            )}>
+                              {gov.status}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {gov.trend === 'UP' ? <TrendingUp className="w-3 h-3 text-intel-red" /> : <TrendingDown className="w-3 h-3 text-intel-green" />}
+                          </td>
+                          <td className="py-3 px-4 text-slate-400">{gov.pop}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <Droplets className="w-5 h-5 text-intel-cyan" />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 h-[500px] w-full rounded-2xl overflow-hidden border border-white/5 bg-black/20">
-              <Map 
-                governorates={[]} 
-                events={[]} 
-                activeLayer="Water Security" 
-                heatmapPoints={waterStressHeatmapPoints}
-              />
+              {/* Dam Levels Chart */}
+              <div className="lg:col-span-4 intel-card p-6 rounded-3xl border border-white/10">
+                <h3 className="text-lg font-bold text-white mb-1 flex items-center">
+                  <Waves className="w-5 h-5 mr-2 text-intel-cyan" />
+                  Dam Reservoir Levels
+                </h3>
+                <p className="text-[10px] font-mono text-slate-500 mb-6 uppercase tracking-widest">Current vs 10-Year Average (%)</p>
+                
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { name: 'Sidi Salem', current: 22, avg: 68 },
+                      { name: 'Bou Heurtma', current: 35, avg: 72 },
+                      { name: 'Joumine', current: 18, avg: 55 },
+                      { name: 'Sejnane', current: 42, avg: 78 },
+                      { name: 'Bir Mcherga', current: 15, avg: 45 }
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="name" stroke="#64748b" fontSize={8} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#64748b" fontSize={8} tickLine={false} axisLine={false} unit="%" />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                        itemStyle={{ fontSize: '10px', fontFamily: 'monospace' }}
+                      />
+                      <Bar dataKey="avg" fill="#ffffff10" radius={[4, 4, 0, 0]} name="10yr Avg" />
+                      <Bar dataKey="current" radius={[4, 4, 0, 0]} name="Current Level">
+                        {damReservesData.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={entry.level < 25 ? '#ef4444' : '#f97316'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="mt-4 p-4 rounded-xl bg-intel-red/5 border border-intel-red/20">
+                  <div className="flex items-center space-x-2 text-intel-red mb-1">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span className="text-[10px] font-mono font-bold uppercase">Critical Threshold Alert</span>
+                  </div>
+                  <p className="text-[9px] font-mono text-slate-400 leading-relaxed">
+                    Sidi Salem (largest reservoir) is at 22% capacity. Dead storage level estimated at 12%. 
+                    Without significant rainfall, irrigation cuts will expand to 100% of northern governorates.
+                  </p>
+                </div>
+              </div>
             </div>
-            
-            <div className="lg:col-span-1 space-y-4">
-              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest border-b border-intel-border pb-2">Governorate Stress Index</div>
-              <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-                {governorateWaterStress.map((gov) => (
-                  <div key={gov.name} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-white uppercase tracking-tight">{gov.name}</span>
-                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
-                        gov.status === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
-                      }`}>
-                        {gov.status}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 mr-4">
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${gov.stress}%` }}
-                            transition={{ duration: 1, delay: 0.5 }}
-                            className={`h-full ${gov.stress > 90 ? 'bg-intel-red' : 'bg-intel-orange'}`}
-                          />
-                        </div>
+
+            {/* Aquifer & Correlation */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="intel-card p-6 rounded-3xl border border-white/10">
+                <h3 className="text-lg font-bold text-white mb-6 flex items-center">
+                  <Activity className="w-5 h-5 mr-2 text-intel-cyan" />
+                  Aquifer Depletion Monitoring
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { name: 'Northern Aquifer (Ghardimaou)', depletion: '1.2m/yr', salt: 'Low', remaining: '45 yrs' },
+                    { name: 'Central Aquifer (Kairouan)', depletion: '2.4m/yr', salt: 'Medium', remaining: '12 yrs' },
+                    { name: 'Southern Aquifer (Chott)', depletion: '0.8m/yr', salt: 'High', remaining: '8 yrs' }
+                  ].map((aq, i) => (
+                    <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex justify-between items-center">
+                      <div>
+                        <div className="text-sm font-bold text-white">{aq.name}</div>
+                        <div className="text-[10px] font-mono text-slate-500 uppercase">Depletion: {aq.depletion}</div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-white font-mono">{gov.stress}%</span>
-                        {gov.trend === 'UP' ? (
-                          <TrendingUp className="w-3 h-3 text-intel-red" />
-                        ) : (
-                          <Activity className="w-3 h-3 text-intel-cyan" />
-                        )}
+                      <div className="text-right">
+                        <div className={cn(
+                          "text-xs font-mono font-bold",
+                          parseInt(aq.remaining) < 15 ? "text-intel-red" : "text-intel-orange"
+                        )}>
+                          {aq.remaining} Est. Remaining
+                        </div>
+                        <div className="text-[9px] font-mono text-slate-600 uppercase">Salt Intrusion: {aq.salt}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="intel-card p-6 rounded-3xl border border-white/10 bg-gradient-to-br from-intel-red/5 to-transparent">
+                <h3 className="text-lg font-bold text-white mb-2 flex items-center">
+                  <AlertTriangle className="w-5 h-5 mr-2 text-intel-red" />
+                  Water-Protest Correlation
+                </h3>
+                <p className="text-[10px] font-mono text-slate-500 mb-6 uppercase tracking-widest">Social Instability Linkage (RRI Index)</p>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-6">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase">
+                        <span>Water Scarcity Index</span>
+                        <span className="text-intel-red">88%</span>
+                      </div>
+                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-intel-red w-[88%]" />
+                      </div>
+                    </div>
+                    <div className="w-px h-12 bg-white/10" />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase">
+                        <span>Social Unrest Probability</span>
+                        <span className="text-intel-orange">74%</span>
+                      </div>
+                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-intel-orange w-[74%]" />
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-              <div className="p-4 rounded-xl bg-intel-cyan/5 border border-intel-cyan/20">
-                <div className="flex items-center space-x-2 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-intel-cyan" />
-                  <span className="text-[10px] font-bold text-intel-cyan uppercase">Security Implication</span>
+
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                    <p className="text-xs text-slate-400 leading-relaxed italic">
+                      "Historical data shows a 0.82 correlation coefficient between water cuts exceeding 12 hours and 
+                      unspontaneous civil movements in central governorates. Current RRI spikes in Kairouan are 
+                      directly linked to the 18-hour daily cut average."
+                    </p>
+                    <div className="mt-4 flex justify-end">
+                      <button 
+                        onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'movements' }}))}
+                        className="px-4 py-2 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded-xl text-[10px] font-mono text-intel-cyan font-bold transition-all"
+                      >
+                        View Civil Movements →
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
-                  Stress levels exceeding 80% in agricultural hubs (Sidi Bouzid, Kairouan) correlate with increased risk of localized social unrest and rural-to-urban migration.
-                </p>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-    )}
+          </motion.div>
+        ) : (
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="space-y-12"
+          >
+            {/* CATEGORY 1: WATER SECURITY & HYDRIC STRESS */}
+            {(activeCategory === 'ALL' || activeCategory === 'WATER') && (
+              <div className="space-y-6 relative z-20">
+                <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
+                  <Droplets className="w-4 h-4 text-intel-cyan" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Water Security & Hydric Stress</h3>
+                </div>
+
+                {/* Key Indicators Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[
+                    { label: 'Dam Reserves', value: '28%', status: 'CRITICAL', icon: Waves },
+                    { label: 'Potable Water Coverage', value: '94.2%', status: 'WARNING', icon: Droplets },
+                    { label: 'Aquifer Depletion', value: '82%', status: 'CRITICAL', icon: Activity },
+                    { label: 'Avg Temp Anomaly', value: '+2.1°C', status: 'CRITICAL', icon: Thermometer },
+                  ].map((metric, i) => (
+                    <div key={i} className="glass p-6 rounded-3xl border border-intel-border relative overflow-hidden group">
+                      <CornerAccent position="tl" />
+                      <CornerAccent position="br" />
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-intel-cyan group-hover:scale-110 transition-transform duration-300">
+                          <metric.icon className="w-5 h-5" />
+                        </div>
+                        <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                          metric.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/5' : 'text-intel-orange border-intel-orange/30 bg-intel-orange/5'
+                        }`}>
+                          {metric.status}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{metric.label}</div>
+                        <div className="text-2xl font-bold text-white tracking-tight">{metric.value}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Dam Reserves Decline */}
+                  <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Dam Reserve Levels</h3>
+                        <p className="text-xs text-slate-500 mt-1 uppercase font-mono">2026 Hydric Stress Trend Analysis</p>
+                      </div>
+                      <Waves className="w-5 h-5 text-intel-cyan" />
+                    </div>
+                    <div className="h-[300px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={damReservesData}>
+                          <defs>
+                            <linearGradient id="colorWater" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                          <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                          <Area type="monotone" dataKey="level" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2} />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Water Cut Impact */}
+                  <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-lg font-bold text-white uppercase tracking-tight">Regional Water Cuts</h3>
+                      <Activity className="w-5 h-5 text-intel-cyan" />
+                    </div>
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {waterCutData.map((item) => (
+                        <div key={item.region} className="space-y-1">
+                          <div className="flex justify-between text-[10px] font-mono uppercase">
+                            <span className="text-slate-400">{item.region}</span>
+                            <span className="text-white font-bold">{item.hours}h/day</span>
+                          </div>
+                          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-intel-cyan" style={{ width: `${(item.hours / 24) * 100}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Water Crisis Heatmap & Regional Stress Analysis */}
+                <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                  <CornerAccent position="tl" />
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-bold text-white uppercase tracking-tight">Water Crisis Heatmap & Regional Stress Analysis</h3>
+                      <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Governorate-level hydric stress & aquifer depletion monitoring</p>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-intel-cyan animate-pulse"></div>
+                        <span className="text-[10px] font-mono text-intel-cyan uppercase font-bold">Hydric Stress Indicators</span>
+                      </div>
+                      <Droplets className="w-5 h-5 text-intel-cyan" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 h-[500px] w-full rounded-2xl overflow-hidden border border-white/5 bg-black/20">
+                      <Map 
+                        governorates={[]} 
+                        events={[]} 
+                        activeLayer="Water Security" 
+                        heatmapPoints={waterStressHeatmapPoints}
+                      />
+                    </div>
+                    
+                    <div className="lg:col-span-1 space-y-4">
+                      <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest border-b border-intel-border pb-2">Governorate Stress Index</div>
+                      <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+                        {governorateWaterStress.map((gov) => (
+                          <div key={gov.name} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-bold text-white uppercase tracking-tight">{gov.name}</span>
+                              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
+                                gov.status === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
+                              }`}>
+                                {gov.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 mr-4">
+                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${gov.stress}%` }}
+                                    transition={{ duration: 1, delay: 0.5 }}
+                                    className={`h-full ${gov.stress > 90 ? 'bg-intel-red' : 'bg-intel-orange'}`}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs font-bold text-white font-mono">{gov.stress}%</span>
+                                {gov.trend === 'UP' ? (
+                                  <TrendingUp className="w-3 h-3 text-intel-red" />
+                                ) : (
+                                  <Activity className="w-3 h-3 text-intel-cyan" />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="p-4 rounded-xl bg-intel-cyan/5 border border-intel-cyan/20">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <AlertTriangle className="w-4 h-4 text-intel-cyan" />
+                          <span className="text-[10px] font-bold text-intel-cyan uppercase">Security Implication</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
+                          Stress levels exceeding 80% in agricultural hubs (Sidi Bouzid, Kairouan) correlate with increased risk of localized social unrest and rural-to-urban migration.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
           {/* CATEGORY 2: ECOLOGICAL STABILITY & LAND USE */}
           {(activeCategory === 'ALL' || activeCategory === 'ECOLOGY') && (
@@ -582,7 +806,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
             </div>
           )}
         </motion.div>
-      </AnimatePresence>
-    </div>
-  );
+      )}
+    </AnimatePresence>
+  </div>
+);
 };

@@ -40,6 +40,7 @@ import {
   Legend
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
+import { usePipeline } from '../context/PipelineContext';
 
 type SubTab = 'cohesion' | 'family' | 'narcotics';
 
@@ -47,27 +48,6 @@ const socialAlerts = [
   { code: 'SOC-RAGE-01', title: 'Youth Rage Index at Critical Peak', impact: 'CRITICAL' },
   { code: 'SOC-DIV-09', title: 'Divorce Rate Surpasses 22% Threshold', impact: 'HIGH' },
   { code: 'SOC-DRUG-02', title: 'New Synthetic Molecule Detected', impact: 'CRITICAL' }
-];
-
-const socialIndicators = [
-  { label: 'Happiness Index', value: '4.2/10', trend: 'Lowest in 15 years', status: 'CRITICAL', icon: Smile, color: 'text-intel-red', history: [5.8, 5.2, 4.8, 4.5, 4.2] },
-  { label: 'Youth Rage Index', value: '8.5/10', trend: 'Rising in interior hubs', status: 'CRITICAL', icon: Flame, color: 'text-intel-red', history: [6.2, 6.8, 7.5, 8.0, 8.5] },
-  { label: 'Population Pressure', value: '7.2/10', trend: 'Urban density at peak', status: 'WARNING', icon: Users, color: 'text-intel-orange', history: [6.5, 6.8, 7.0, 7.1, 7.2] },
-  { label: 'Suicide Rate', value: '12.4', trend: 'Per 100k inhabitants', status: 'CRITICAL', icon: HeartPulse, color: 'text-intel-red', history: [9.2, 10.5, 11.2, 11.8, 12.4] },
-  { label: 'Mental Health Stress', value: '68%', trend: 'Surveyed population', status: 'CRITICAL', icon: Brain, color: 'text-intel-red', history: [45, 52, 58, 62, 68] },
-  { label: 'Chronic Disease %', value: '42.8%', trend: 'Rising in urban areas', status: 'WARNING', icon: Stethoscope, color: 'text-intel-orange', history: [35, 38, 40, 41, 42.8] },
-  { label: 'Street Signal S(t)', value: '0.78', trend: 'Protest probability: HIGH', status: 'CRITICAL', icon: Activity, color: 'text-intel-red', history: [0.45, 0.55, 0.62, 0.72, 0.78] },
-  { label: 'Social Cohesion', value: 'LOW', trend: 'Trust in institutions < 15%', status: 'CRITICAL', icon: ShieldAlert, color: 'text-intel-red', history: [35, 28, 22, 18, 15] },
-];
-
-const streetSignalData = [
-  { time: '08:00', signal: 0.65, threshold: 0.75 },
-  { time: '10:00', signal: 0.68, threshold: 0.75 },
-  { time: '12:00', signal: 0.72, threshold: 0.75 },
-  { time: '14:00', signal: 0.78, threshold: 0.75 },
-  { time: '16:00', signal: 0.82, threshold: 0.75 },
-  { time: '18:00', signal: 0.79, threshold: 0.75 },
-  { time: '20:00', signal: 0.75, threshold: 0.75 }
 ];
 
 const roadAccidentData = [
@@ -85,15 +65,6 @@ const accidentCauses = [
   { name: 'Infrastructure', value: 20, color: '#0ea5e9' },
   { name: 'Mechanical', value: 10, color: '#6366f1' },
   { name: 'Other', value: 10, color: '#94a3b8' }
-];
-
-const divorceRateData = [
-  { year: '2015', rate: 12.4, marriages: 110000, divorces: 13600 },
-  { year: '2018', rate: 14.8, marriages: 105000, divorces: 15500 },
-  { year: '2021', rate: 16.2, marriages: 98000, divorces: 15800 },
-  { year: '2023', rate: 18.5, marriages: 92000, divorces: 17000 },
-  { year: '2024', rate: 20.4, marriages: 88000, divorces: 17950 },
-  { year: '2025', rate: 22.1, marriages: 85000, divorces: 18780 }
 ];
 
 const familyDynamicsData = [
@@ -118,12 +89,6 @@ const drugAddictionAgeData = [
   { age: '26-35', percentage: 18.2, color: '#f59e0b' },
   { age: '36-45', percentage: 12.5, color: '#6366f1' },
   { age: '46+', percentage: 6.1, color: '#94a3b8' }
-];
-
-const addictionStats = [
-  { label: 'Total Addicts (Est.)', value: '450K', trend: '+12% YoY', status: 'CRITICAL' },
-  { label: 'Youth Addiction Rate', value: '24.8%', trend: 'Ages 18-25', status: 'CRITICAL' },
-  { label: 'Relapse Frequency', value: '72%', trend: 'Within 12 months', status: 'CRITICAL' }
 ];
 
 const rehabMetrics = [
@@ -152,6 +117,43 @@ const chronicDiseaseBreakdown = [
 
 export const SocialIntelligence: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
+  const { data } = usePipeline();
+
+  const socialIndicators = [
+    { label: 'Happiness Index', value: `${data.social.happiness_index}/10`, trend: 'Lowest in 15 years', status: 'CRITICAL', icon: Smile, color: 'text-intel-red', history: [5.8, 5.2, 4.8, 4.5, data.social.happiness_index] },
+    { label: 'Youth Rage Index', value: `${data.social.youth_rage_index}/10`, trend: 'Rising in interior hubs', status: 'CRITICAL', icon: Flame, color: 'text-intel-red', history: [6.2, 6.8, 7.5, 8.0, data.social.youth_rage_index] },
+    { label: 'Population Pressure', value: `${data.social.population_pressure}/10`, trend: 'Urban density at peak', status: 'WARNING', icon: Users, color: 'text-intel-orange', history: [6.5, 6.8, 7.0, 7.1, data.social.population_pressure] },
+    { label: 'Suicide Rate', value: `${data.social.suicide_rate}`, trend: 'Per 100k inhabitants', status: 'CRITICAL', icon: HeartPulse, color: 'text-intel-red', history: [9.2, 10.5, 11.2, 11.8, data.social.suicide_rate] },
+    { label: 'Mental Health Stress', value: `${data.social.mental_health_stress}%`, trend: 'Surveyed population', status: 'CRITICAL', icon: Brain, color: 'text-intel-red', history: [45, 52, 58, 62, data.social.mental_health_stress] },
+    { label: 'Chronic Disease %', value: `${data.social.chronic_disease_pct}%`, trend: 'Rising in urban areas', status: 'WARNING', icon: Stethoscope, color: 'text-intel-orange', history: [35, 38, 40, 41, data.social.chronic_disease_pct] },
+    { label: 'Street Signal S(t)', value: `${data.social.street_signal}`, trend: 'Protest probability: HIGH', status: 'CRITICAL', icon: Activity, color: 'text-intel-red', history: [0.45, 0.55, 0.62, 0.72, data.social.street_signal] },
+    { label: 'Social Cohesion', value: data.social.social_cohesion, trend: 'Trust in institutions < 15%', status: 'CRITICAL', icon: ShieldAlert, color: 'text-intel-red', history: [35, 28, 22, 18, 15] },
+  ];
+
+  const streetSignalData = [
+    { time: '08:00', signal: 0.65, threshold: 0.75 },
+    { time: '10:00', signal: 0.68, threshold: 0.75 },
+    { time: '12:00', signal: 0.72, threshold: 0.75 },
+    { time: '14:00', signal: 0.78, threshold: 0.75 },
+    { time: '16:00', signal: 0.82, threshold: 0.75 },
+    { time: '18:00', signal: 0.79, threshold: 0.75 },
+    { time: '20:00', signal: data.social.street_signal, threshold: 0.75 }
+  ];
+
+  const divorceRateData = [
+    { year: '2015', rate: 12.4, marriages: 110000, divorces: 13600 },
+    { year: '2018', rate: 14.8, marriages: 105000, divorces: 15500 },
+    { year: '2021', rate: 16.2, marriages: 98000, divorces: 15800 },
+    { year: '2023', rate: 18.5, marriages: 92000, divorces: 17000 },
+    { year: '2024', rate: 20.4, marriages: 88000, divorces: 17950 },
+    { year: '2025', rate: data.social.divorce_rate, marriages: 85000, divorces: 18780 }
+  ];
+
+  const addictionStats = [
+    { label: 'Total Addicts (Est.)', value: data.social.addiction_total, trend: '+12% YoY', status: 'CRITICAL' },
+    { label: 'Youth Addiction Rate', value: `${data.social.youth_addiction_rate}%`, trend: 'Ages 18-25', status: 'CRITICAL' },
+    { label: 'Relapse Frequency', value: '72%', trend: 'Within 12 months', status: 'CRITICAL' }
+  ];
 
   const categories = [
     { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
@@ -282,7 +284,7 @@ export const SocialIntelligence: React.FC = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-intel-red font-mono">0.78</div>
+              <div className="text-2xl font-bold text-intel-red font-mono">{data.social.street_signal}</div>
               <div className="text-[8px] font-mono text-slate-500 uppercase">Threshold: 0.75</div>
             </div>
           </div>
@@ -517,7 +519,7 @@ export const SocialIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl flex items-start space-x-3">
               <AlertTriangle className="w-4 h-4 text-intel-red mt-0.5" />
               <p className="text-[9px] text-slate-400 leading-relaxed">
-                <span className="text-white font-bold uppercase">Intelligence Alert:</span> The divorce rate has surpassed 22% in 2025, a 78% increase over the last decade. Economic stress and shifting social norms are primary drivers.
+                <span className="text-white font-bold uppercase">Intelligence Alert:</span> The divorce rate has surpassed {data.social.divorce_rate}% in 2025, a 78% increase over the last decade. Economic stress and shifting social norms are primary drivers.
               </p>
             </div>
           </div>

@@ -105,6 +105,38 @@ export const FIELD_MAP = {
     sources: ['RSF', 'CPJ', 'Nawaat'],
     module: 'Social'
   },
+  'social.happiness_index': {
+    label: 'Happiness Index',
+    unit: '0-10',
+    description: 'National happiness and life satisfaction index',
+    keywords: ['happiness', 'bonheur', 'satisfaction', 'well-being'],
+    sources: ['UN World Happiness Report', 'Local Surveys'],
+    module: 'Social'
+  },
+  'social.youth_rage_index': {
+    label: 'Youth Rage Index',
+    unit: '0-10',
+    description: 'Level of frustration and anger among youth population',
+    keywords: ['rage', 'colère', 'frustration', 'jeunesse', 'youth'],
+    sources: ['Interior Ministry', 'Social Monitoring'],
+    module: 'Social'
+  },
+  'social.street_signal': {
+    label: 'Street Signal S(t)',
+    unit: '0-1',
+    description: 'Probability of imminent street protests',
+    keywords: ['street signal', 'protest probability', 'unrest', 'manifestation'],
+    sources: ['AI Predictive Model', 'Social Listening'],
+    module: 'Social'
+  },
+  'social.divorce_rate': {
+    label: 'Divorce Rate',
+    unit: '%',
+    description: 'Annual divorce rate as percentage of marriages',
+    keywords: ['divorce', 'séparation', 'marriage', 'famille'],
+    sources: ['Ministry of Justice', 'INS'],
+    module: 'Social'
+  },
   'rri.p_rev': {
     label: 'P(Revolution)',
     unit: '0-1',
