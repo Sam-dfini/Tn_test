@@ -191,6 +191,10 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [lastScan, setLastScan] = useState<string | null>(null);
 
+  // Relationship Editor State
+  const [newRel, setNewRel] = useState({ from: '', to: '', type: 'TENSION', strength: 2, label: '' });
+  const [showRelEditor, setShowRelEditor] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -377,13 +381,19 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
     }
   };
 
-  const handleAddRelationship = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddRelationship = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!relData.from || !relData.to) return;
+    if (relData.from === relData.to) return;
     
     const newRel = { ...relData };
     setRelationships(prev => [...prev, newRel]);
     setRelData({ from: '', to: '', type: 'ALLIANCE', strength: 1, label: '' });
+    setShowRelEditor(false);
+  };
+
+  const handleDeleteRelationship = (idx: number) => {
+    setRelationships(prev => prev.filter((_, i) => i !== idx));
   };
 
   const handleScanActors = async () => {
@@ -659,15 +669,104 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 </div>
 
                 <div className="space-y-3">
-                  <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Network Connections</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Network Connections</span>
+                    <button 
+                      onClick={() => setShowRelEditor(!showRelEditor)}
+                      className="p-1 text-intel-cyan hover:bg-intel-cyan/10 rounded transition-all"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {showRelEditor && (
+                    <div className="p-3 bg-white/5 rounded-xl border border-intel-cyan/20 space-y-3 animate-in fade-in slide-in-from-top-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-[7px] font-mono text-slate-500 uppercase">Target Actor</label>
+                          <select 
+                            value={relData.to}
+                            onChange={(e) => setRelData(prev => ({ ...prev, to: e.target.value, from: selectedActor.id }))}
+                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          >
+                            <option value="">Select...</option>
+                            {actors.filter(a => a.id !== selectedActor.id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[7px] font-mono text-slate-500 uppercase">Type</label>
+                          <select 
+                            value={relData.type}
+                            onChange={(e) => setRelData(prev => ({ ...prev, type: e.target.value }))}
+                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          >
+                            <option value="ALLIANCE">ALLIANCE</option>
+                            <option value="TENSION">TENSION</option>
+                            <option value="RIVALRY">RIVALRY</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[7px] font-mono text-slate-500 uppercase">Relationship Label</label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Strategic alliance"
+                          value={relData.label}
+                          onChange={(e) => setRelData(prev => ({ ...prev, label: e.target.value }))}
+                          className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex space-x-1">
+                          {[1, 2, 3].map(s => (
+                            <button
+                              key={s}
+                              onClick={() => setRelData(prev => ({ ...prev, strength: s }))}
+                              className={`w-6 h-6 rounded border text-[8px] font-mono transition-all ${
+                                relData.strength === s ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={handleAddRelationship}
+                          className="px-3 py-1 bg-intel-cyan text-black rounded text-[9px] font-bold font-mono uppercase hover:bg-white transition-all"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     {relationships.filter(rel => rel.from === selectedActor.id || rel.to === selectedActor.id).map((rel, idx) => {
                       const otherId = rel.from === selectedActor.id ? rel.to : rel.from;
                       const otherActor = actors.find(a => a.id === otherId);
+                      const actualIdx = relationships.findIndex(r => r === rel);
                       return (
-                        <div key={idx} className="flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5">
-                          <div className="flex items-center space-x-2"><div className="w-1 h-4 rounded-full" style={{ backgroundColor: rel.type === 'ALLIANCE' ? '#00f2ff' : rel.type === 'TENSION' ? '#f97316' : '#ef4444' }} /><span className="text-[10px] font-mono text-white">{otherActor?.name}</span></div>
-                          <div className="flex items-center space-x-2"><span className="text-[8px] font-mono text-slate-500 uppercase">{rel.type}</span><div className="flex space-x-0.5">{[...Array(3)].map((_, i) => (<div key={i} className={`w-1 h-1 rounded-full ${i < rel.strength ? 'bg-intel-cyan' : 'bg-slate-700'}`} />))}</div></div>
+                        <div key={idx} className="group flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-all">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-1 h-4 rounded-full" style={{ backgroundColor: rel.type === 'ALLIANCE' ? '#00f2ff' : rel.type === 'TENSION' ? '#f97316' : '#ef4444' }} />
+                            <span className="text-[10px] font-mono text-white">{otherActor?.name}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center mr-2">
+                              <button 
+                                onClick={() => handleDeleteRelationship(actualIdx)}
+                                className="p-1 text-slate-500 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                            <span className="text-[8px] font-mono text-slate-500 uppercase">{rel.type}</span>
+                            <div className="flex space-x-0.5">
+                              {[...Array(3)].map((_, i) => (
+                                <div key={i} className={`w-1 h-1 rounded-full ${i < rel.strength ? 'bg-intel-cyan' : 'bg-slate-700'}`} />
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
@@ -874,81 +973,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 </form>
 
                 <div className="pt-8 border-t border-intel-border">
-                  <h4 className="text-[10px] font-bold text-white uppercase tracking-widest mb-4 flex items-center">
-                    <LinkIcon className="w-3 h-3 mr-2 text-intel-cyan" />
-                    Define Network Relationships
-                  </h4>
-                  <form onSubmit={handleAddRelationship} className="grid grid-cols-3 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
-                    <div className="space-y-1.5">
-                      <label className="text-[8px] font-mono text-slate-500 uppercase">From</label>
-                      <select 
-                        value={relData.from}
-                        onChange={(e) => setRelData(prev => ({ ...prev, from: e.target.value }))}
-                        className="w-full bg-black/40 border border-intel-border rounded-lg py-1.5 px-2 text-[10px] text-white focus:outline-none focus:border-intel-cyan font-mono"
-                      >
-                        <option value="">Select...</option>
-                        {actors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[8px] font-mono text-slate-500 uppercase">To</label>
-                      <select 
-                        value={relData.to}
-                        onChange={(e) => setRelData(prev => ({ ...prev, to: e.target.value }))}
-                        className="w-full bg-black/40 border border-intel-border rounded-lg py-1.5 px-2 text-[10px] text-white focus:outline-none focus:border-intel-cyan font-mono"
-                      >
-                        <option value="">Select...</option>
-                        {actors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[8px] font-mono text-slate-500 uppercase">Type</label>
-                      <select 
-                        value={relData.type}
-                        onChange={(e) => setRelData(prev => ({ ...prev, type: e.target.value }))}
-                        className="w-full bg-black/40 border border-intel-border rounded-lg py-1.5 px-2 text-[10px] text-white focus:outline-none focus:border-intel-cyan font-mono"
-                      >
-                        <option value="ALLIANCE">ALLIANCE</option>
-                        <option value="TENSION">TENSION</option>
-                        <option value="RIVALRY">RIVALRY</option>
-                      </select>
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[8px] font-mono text-slate-500 uppercase">Strength</label>
-                      <div className="flex space-x-2">
-                        {[1, 2, 3].map(s => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() => setRelData(prev => ({ ...prev, strength: s }))}
-                            className={`flex-1 py-1 rounded border text-[10px] font-mono transition-all ${
-                              relData.strength === s ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="col-span-2 space-y-1.5">
-                      <label className="text-[8px] font-mono text-slate-500 uppercase">Label</label>
-                      <div className="flex space-x-2">
-                        <input 
-                          type="text" 
-                          placeholder="e.g. Strategic alliance"
-                          value={relData.label}
-                          onChange={(e) => setRelData(prev => ({ ...prev, label: e.target.value }))}
-                          className="flex-1 bg-black/40 border border-intel-border rounded-lg py-1.5 px-2 text-[10px] text-white focus:outline-none focus:border-intel-cyan font-mono"
-                        />
-                        <button 
-                          type="submit"
-                          className="px-4 bg-white/10 text-white rounded-lg text-[10px] font-bold font-mono hover:bg-white/20 transition-all border border-white/10"
-                        >
-                          ADD
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+                  {/* Relationship editor moved to Spotlight Panel */}
                 </div>
               </div>
             </motion.div>

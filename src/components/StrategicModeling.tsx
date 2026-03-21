@@ -13,7 +13,8 @@ import {
   RefreshCcw,
   ChevronRight,
   Info,
-  Lock
+  Lock,
+  BrainCircuit
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -31,8 +32,17 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 
 // --- Data & Types ---
+
+const simAlerts = [
+  { code: 'SIM-MODEL-01', title: 'Monte Carlo Simulation: 84% Convergence', impact: 'STABLE' },
+  { code: 'SIM-RISK-04', title: 'High Probability: Interior Unrest Spike', impact: 'HIGH' },
+  { code: 'SIM-DEBT-09', title: 'Debt Sustainability: Critical Threshold', impact: 'CRITICAL' },
+  { code: 'SIM-SOCIAL-12', title: 'Social Tension: Regional Variance High', impact: 'HIGH' },
+  { code: 'SIM-FOREX-02', title: 'BCT Reserves: 72-Day Floor Breach', impact: 'CRITICAL' }
+];
 
 interface CrisisEvent {
   id: string;
@@ -108,26 +118,17 @@ export const StrategicModeling: React.FC = () => {
   const resetSimulator = () => setActiveEvents([]);
 
   return (
-    <div className="space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <div className="text-[10px] font-mono text-intel-cyan uppercase tracking-[0.3em]">Module: Strategic Intelligence</div>
-          <h2 className="text-4xl font-bold text-white tracking-tight">Strategic Forecasting & Crisis Modeling</h2>
-          <p className="text-slate-500 text-sm max-w-3xl">
-            Advanced simulation engine for modeling political-economic shocks, predictive scenario analysis, and game-theoretic interaction mapping.
-          </p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button 
-            onClick={resetSimulator}
-            className="px-4 py-2 bg-white/5 border border-intel-border rounded-xl flex items-center space-x-2 text-[10px] font-mono text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <RefreshCcw className="w-3 h-3" />
-            <span>RESET SIMULATOR</span>
-          </button>
-        </div>
-      </div>
+    <div className="space-y-12 pb-20 animate-in fade-in duration-700 relative">
+      <BackgroundGrid />
+      
+      <ModuleHeader 
+        title="Strategic Forecasting & Crisis Modeling"
+        subtitle="Advanced simulation engine for modeling political-economic shocks and predictive scenario analysis"
+        icon={BrainCircuit}
+        nodeId="STRAT-NODE-09"
+      />
+
+      <LiveTicker items={simAlerts} />
 
       {/* Section 1: Crisis Simulator */}
       <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">

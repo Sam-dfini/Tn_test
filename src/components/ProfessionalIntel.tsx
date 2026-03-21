@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   FileText, 
@@ -41,7 +41,7 @@ const reports = [
     date: 'MAR 15, 2026',
     author: 'Dr. Elias Vance',
     readTime: '12 min',
-    image: 'https://picsum.photos/seed/stability/800/400'
+    image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 'REP-002',
@@ -50,7 +50,7 @@ const reports = [
     date: 'MAR 12, 2026',
     author: 'Sarah Al-Fassi',
     readTime: '8 min',
-    image: 'https://picsum.photos/seed/energy/800/400'
+    image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800'
   },
   {
     id: 'REP-003',
@@ -59,7 +59,7 @@ const reports = [
     date: 'MAR 10, 2026',
     author: 'Cmdr. Marc Rossi',
     readTime: '15 min',
-    image: 'https://picsum.photos/seed/maritime/800/400'
+    image: 'https://images.unsplash.com/photo-1520437358207-323b43b50729?auto=format&fit=crop&q=80&w=800'
   }
 ];
 
@@ -75,13 +75,52 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
     setExpandedRows(newExpanded);
   };
 
+  const stabilityRisk = useMemo(() => {
+    if (!context?.pRev) return 65;
+    const avg = Object.values(context.pRev).reduce((a: any, b: any) => a + b, 0) as number / Object.keys(context.pRev).length;
+    return Math.min(100, Math.max(0, 100 - avg));
+  }, [context]);
+
+  const economicResilience = useMemo(() => {
+    if (!context?.governorates) return 45;
+    const avgUnemployment = context.governorates.reduce((a: any, b: any) => a + b.unemployment, 0) / context.governorates.length;
+    return Math.min(100, Math.max(0, 100 - (avgUnemployment * 2))); // Scale for visualization
+  }, [context]);
+
+  const socialCohesion = useMemo(() => {
+    if (!context?.events) return 85;
+    const tensionEvents = context.events.filter((e: any) => e.type === 'protest' || e.type === 'strike').length;
+    return Math.min(100, Math.max(0, 100 - (tensionEvents * 5)));
+  }, [context]);
+
+  const handleDownloadDossier = () => {
+    if (!selectedReport) return;
+    const content = `TUNISIAINTEL STRATEGIC DOSSIER\nReference: ${selectedReport.id}\nTitle: ${selectedReport.title}\nCategory: ${selectedReport.category}\nDate: ${selectedReport.date}\nAuthor: ${selectedReport.author}\n\n[CLASSIFIED INFORMATION SUMMARY]\nThis report provides a deep-dive analysis into ${selectedReport.category.toLowerCase()} dynamics affecting Tunisian national security and economic stability. Full data sets are available via the secure terminal.`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedReport.id}_Dossier.txt`;
+    a.click();
+  };
+
+  const handleDownloadOutlook = () => {
+    const content = `TUNISIAINTEL STRATEGIC OUTLOOK\nGenerated: ${new Date().toLocaleString()}\n\nRegional Stability: ${stabilityRisk.toFixed(1)}% (Risk Level: ${stabilityRisk > 70 ? 'CRITICAL' : stabilityRisk > 40 ? 'MODERATE' : 'LOW'})\nEconomic Resilience: ${economicResilience.toFixed(1)}%\nSocial Cohesion: ${socialCohesion.toFixed(1)}%\n\nAnalysis: Current indicators suggest a period of heightened volatility in the southern sectors, primarily driven by resource scarcity and localized economic grievances.`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Strategic_Outlook_${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+  };
+
   return (
     <div className="space-y-12 pb-20">
       {/* Sub-navigation */}
-      <div className="flex items-center space-x-8 border-b border-intel-border">
+      <div className="flex items-center border-b border-intel-border overflow-x-auto scrollbar-hide gap-0 pb-0">
         <button 
           onClick={() => setActiveTab('overview')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'overview' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'overview' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <LayoutDashboard className="w-4 h-4" />
@@ -93,11 +132,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('economy')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'economy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'economy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <TrendingUp className="w-4 h-4" />
-            <span>Economy Intelligence</span>
+            <span>Economy</span>
           </div>
           {activeTab === 'economy' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -105,11 +144,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('geopolitical')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'geopolitical' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'geopolitical' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
-            <span>Geopolitical Intelligence</span>
+            <span>Geopolitical</span>
           </div>
           {activeTab === 'geopolitical' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -117,11 +156,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('political')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'political' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'political' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Users className="w-4 h-4" />
-            <span>Political Intelligence</span>
+            <span>Political</span>
           </div>
           {activeTab === 'political' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -129,11 +168,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('security')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'security' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'security' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <ShieldCheck className="w-4 h-4" />
-            <span>Security Intelligence</span>
+            <span>Security</span>
           </div>
           {activeTab === 'security' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -141,11 +180,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('energy')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'energy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'energy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Zap className="w-4 h-4" />
-            <span>Energy Intelligence</span>
+            <span>Energy</span>
           </div>
           {activeTab === 'energy' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -153,11 +192,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('environment')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'environment' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'environment' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Sprout className="w-4 h-4" />
-            <span>Environmental Intelligence</span>
+            <span>Environment</span>
           </div>
           {activeTab === 'environment' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -165,11 +204,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('social')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'social' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'social' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Users className="w-4 h-4" />
-            <span>Social Intelligence</span>
+            <span>Social</span>
           </div>
           {activeTab === 'social' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -177,11 +216,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('strategic')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'strategic' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'strategic' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <BrainCircuit className="w-4 h-4" />
-            <span>Strategic Modeling</span>
+            <span>Strategic</span>
           </div>
           {activeTab === 'strategic' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -189,11 +228,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         </button>
         <button 
           onClick={() => setActiveTab('simulation')}
-          className={`pb-4 text-sm font-mono uppercase tracking-widest transition-all relative ${activeTab === 'simulation' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'simulation' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
           <div className="flex items-center space-x-2">
             <Cpu className="w-4 h-4" />
-            <span>Simulation Intelligence</span>
+            <span>Simulation</span>
           </div>
           {activeTab === 'simulation' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
@@ -206,7 +245,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
           {/* Hero Section */}
       <section className="relative h-[500px] rounded-3xl overflow-hidden group">
         <img 
-          src="https://picsum.photos/seed/tunis/1920/1080" 
+          src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1920" 
           alt="Tunis Skyline" 
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           referrerPolicy="no-referrer"
@@ -405,7 +444,10 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
                     </div>
 
                     <div className="pt-8 flex items-center justify-between">
-                      <button className="px-8 py-3 bg-intel-cyan text-intel-bg rounded-full font-bold text-sm hover:bg-white transition-colors flex items-center space-x-2">
+                      <button 
+                        onClick={handleDownloadDossier}
+                        className="px-8 py-3 bg-intel-cyan text-intel-bg rounded-full font-bold text-sm hover:bg-white transition-colors flex items-center space-x-2"
+                      >
                         <Download className="w-4 h-4" />
                         <span>Download Full Dossier</span>
                       </button>
@@ -443,30 +485,48 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-mono uppercase">
                   <span className="text-slate-500">Regional Stability</span>
-                  <span className="text-intel-orange">Moderate Risk</span>
+                  <span className={stabilityRisk > 70 ? 'text-intel-red' : stabilityRisk > 40 ? 'text-intel-orange' : 'text-intel-green'}>
+                    {stabilityRisk > 70 ? 'Critical Risk' : stabilityRisk > 40 ? 'Moderate Risk' : 'Low Risk'}
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-intel-orange w-[65%]"></div>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stabilityRisk}%` }}
+                    className={`h-full ${stabilityRisk > 70 ? 'bg-intel-red' : stabilityRisk > 40 ? 'bg-intel-orange' : 'bg-intel-green'}`}
+                  />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-mono uppercase">
                   <span className="text-slate-500">Economic Resilience</span>
-                  <span className="text-intel-cyan">Stable</span>
+                  <span className={economicResilience < 40 ? 'text-intel-red' : economicResilience < 70 ? 'text-intel-orange' : 'text-intel-cyan'}>
+                    {economicResilience < 40 ? 'Fragile' : economicResilience < 70 ? 'Stable' : 'Robust'}
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-intel-cyan w-[45%]"></div>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${economicResilience}%` }}
+                    className={`h-full ${economicResilience < 40 ? 'bg-intel-red' : economicResilience < 70 ? 'bg-intel-orange' : 'bg-intel-cyan'}`}
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-mono uppercase">
                   <span className="text-slate-500">Social Cohesion</span>
-                  <span className="text-intel-red">High Tension</span>
+                  <span className={socialCohesion < 40 ? 'text-intel-red' : socialCohesion < 70 ? 'text-intel-orange' : 'text-intel-green'}>
+                    {socialCohesion < 40 ? 'High Tension' : socialCohesion < 70 ? 'Strained' : 'Stable'}
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-intel-red w-[85%]"></div>
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${socialCohesion}%` }}
+                    className={`h-full ${socialCohesion < 40 ? 'bg-intel-red' : socialCohesion < 70 ? 'bg-intel-orange' : 'bg-intel-green'}`}
+                  />
                 </div>
               </div>
             </div>
@@ -475,7 +535,10 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
               "Current indicators suggest a period of heightened volatility in the southern sectors, primarily driven by resource scarcity and localized economic grievances."
             </p>
 
-            <button className="w-full py-3 border border-intel-cyan/30 text-intel-cyan text-xs font-mono uppercase font-bold hover:bg-intel-cyan/10 transition-all rounded-xl">
+            <button 
+              onClick={handleDownloadOutlook}
+              className="w-full py-3 border border-intel-cyan/30 text-intel-cyan text-xs font-mono uppercase font-bold hover:bg-intel-cyan/10 transition-all rounded-xl"
+            >
               Download Full Outlook (PDF)
             </button>
           </div>
