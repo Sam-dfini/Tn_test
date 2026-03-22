@@ -52,6 +52,8 @@ import { generateAnalystResponse } from '../services/geminiService';
 import { runMonteCarlo, simulateScenario, calculatePRev as engineCalculatePRev } from '../utils/rriEngine';
 import { RRIVariable } from '../types/intel';
 
+import { usePipeline } from '../context/PipelineContext';
+
 // --- Types ---
 
 type Tab = 'monte-carlo' | 'scenario' | 'agent' | 'ai-multi' | 'backtesting';
@@ -158,10 +160,11 @@ const calculatePRev = (params: Record<string, number>) => {
 // --- Components ---
 
 export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVariable[] }> = ({ context, variables }) => {
+  const { rriState } = usePipeline();
   const [activeTab, setActiveTab] = useState<Tab>('monte-carlo');
   
   // Monte Carlo State
-  const [mcData, setMcData] = useState(() => runMonteCarlo(variables));
+  const [mcData, setMcData] = useState(() => runMonteCarlo(variables as any));
   
   // Scenario State
   const [scenarioParams, setScenarioParams] = useState<Record<string, number>>(() => {
@@ -319,8 +322,8 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
       Return a JSON array of objects with "id", "persona", "forecast" (0-100), "reasoning", and "dissent" (boolean).`;
       
       const response = await generateAnalystResponse(prompt, context || {
-        rri: 2.31,
-        pRev: 0.643,
+        rri: rriState.rri,
+        pRev: rriState.p_rev,
         events: [],
         governorates: [],
         actors: [],

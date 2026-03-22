@@ -25,6 +25,8 @@ import { LiveMediaStreams } from './LiveMediaStreams';
 
 import { Governorate, IntelEvent } from '../../types/intel';
 
+import { usePipeline } from '../../context/PipelineContext';
+
 interface TacticalDashboardProps {
   governorates: Governorate[];
   events: IntelEvent[];
@@ -34,6 +36,7 @@ interface TacticalDashboardProps {
 }
 
 export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorates, events, onOpenAI, onGoHome, data }) => {
+  const { rriState } = usePipeline();
   const [geofenceAlerts, setGeofenceAlerts] = React.useState<any[]>([]);
 
   const addGeofenceAlert = (alert: any) => {
@@ -82,7 +85,10 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
       {/* Persistent Footer Ticker */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-md border-t border-intel-cyan/30 h-8 z-50 flex items-center overflow-hidden">
         <div className="bg-intel-red px-3 h-full flex items-center shrink-0">
-          <span className="text-[10px] font-mono font-bold text-white uppercase tracking-tighter animate-pulse">Flash Intel</span>
+          <span className="text-[10px] font-mono font-bold text-white uppercase tracking-tighter animate-pulse">Live RRI: {rriState.rri.toFixed(2)}</span>
+        </div>
+        <div className="bg-intel-orange px-3 h-full flex items-center shrink-0 border-l border-white/10">
+          <span className="text-[10px] font-mono font-bold text-white uppercase tracking-tighter">P_rev: {(rriState.p_rev * 100).toFixed(1)}%</span>
         </div>
         <div className="flex-1 overflow-hidden whitespace-nowrap flex items-center">
           <motion.div 

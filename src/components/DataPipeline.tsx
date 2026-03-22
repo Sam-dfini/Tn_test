@@ -44,7 +44,7 @@ const pipelineAlerts = [
   { code: 'PIPE-02', title: 'INS Unemployment Survey — March Data Available', impact: 'MEDIUM' },
 ];
 
-export const DataPipeline: React.FC = () => {
+export const DataPipeline: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { data, pushApprovedChanges } = usePipeline();
   
   const [documents, setDocuments] = useState<IngestedDoc[]>([
@@ -58,6 +58,14 @@ export const DataPipeline: React.FC = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [activeDocType, setActiveDocType] = useState(DOCUMENT_TYPES[0]);
+
+  useEffect(() => {
+    const prefillUrl = sessionStorage.getItem('pipeline_prefill_url');
+    if (prefillUrl) {
+      setUrlInput(prefillUrl);
+      sessionStorage.removeItem('pipeline_prefill_url');
+    }
+  }, []);
 
   const handleExtractDocument = useCallback(async (url: string, title?: string, typeName?: string) => {
     const newDoc: IngestedDoc = {
@@ -127,23 +135,44 @@ export const DataPipeline: React.FC = () => {
     
     pushApprovedChanges(changesToPush);
     setApprovedChanges([]);
-    // Success notification would go here
+    
+    // Trigger global RRI recalculation event
+    window.dispatchEvent(new CustomEvent('rri-recalculate'));
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white p-8 font-sans overflow-hidden">
-      <BackgroundGrid />
-      
-      <div className="relative z-10 max-w-[1600px] mx-auto space-y-8">
-        <ModuleHeader 
-          title="Data Ingestion Pipeline" 
-          subtitle="Autonomous Intelligence Extraction & Validation Engine"
-          icon={Database}
-        />
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="fixed inset-0 z-[200] bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"
+    >
+      {/* Overlay Header */}
+      <div className="h-16 border-b border-white/10 flex items-center justify-between px-8 bg-black/40">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 bg-intel-cyan/10 rounded-xl flex items-center justify-center border border-intel-cyan/20">
+            <Database className="w-5 h-5 text-intel-cyan" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">Data Ingestion Pipeline</h2>
+            <div className="flex items-center space-x-2">
+              <span className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest">Analyst Access Only</span>
+              <span className="text-slate-700">•</span>
+              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Autonomous Extraction Engine</span>
+            </div>
+          </div>
+        </div>
+        <button 
+          onClick={onClose}
+          className="p-2 hover:bg-white/10 rounded-full transition-colors group"
+        >
+          <X className="w-6 h-6 text-slate-500 group-hover:text-white" />
+        </button>
+      </div>
 
-        <LiveTicker items={pipelineAlerts} />
-
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+      <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
+        <div className="max-w-[1600px] mx-auto space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
           {/* Left Column: Ingestion & History */}
           <div className="lg:col-span-4 space-y-6">
             <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-md relative overflow-hidden group">
@@ -379,8 +408,9 @@ export const DataPipeline: React.FC = () => {
               )}
             </div>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

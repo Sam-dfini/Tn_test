@@ -71,15 +71,24 @@ const scenarios = [
 
 export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariables, rriState: externalState }) => {
   const [variables, setVariables] = useState<RRIVariable[]>(initialVariables || []);
-  const [state, setState] = useState<RRIState>(externalState || {
+  const [state, setState] = useState<RRIState>((externalState as any) || {
     rri: 0,
-    prev: 0,
+    p_rev: 0,
     salience: 0.5,
-    W: 1.0,
+    w_t: 1.0,
     regime_age: { age_pct: 0.5, years: 15 },
     ci_low: 0,
     ci_high: 0,
-    monte_carlo_runs: 1000
+    monte_carlo_runs: 1000,
+    elite_defection_prob: 0,
+    velocity: 0,
+    cascade_prob: 0,
+    info_amplification: 0,
+    pattern_similarity: 0,
+    compound_stress: 0,
+    risk_tier: 'Low',
+    confidence: 0,
+    timestamp: Date.now()
   });
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
@@ -95,8 +104,8 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
 
     // Simulate processing time
     setTimeout(() => {
-      const newState = simulateScenario(variables, scenario.impact);
-      setState(newState);
+      const newState = simulateScenario(variables as any, scenario.impact);
+      setState(newState as any);
       setIsSimulating(false);
     }, 800);
   };
@@ -105,26 +114,26 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
     setVariables(initialVariables || []);
     setActiveScenario(null);
     if (initialVariables) {
-      setState(calculateFullRRIState(initialVariables));
+      setState(calculateFullRRIState(initialVariables as any) as any);
     }
   };
 
   useEffect(() => {
     if (initialVariables) {
       setVariables(initialVariables);
-      const initialState = calculateFullRRIState(initialVariables);
-      setState(initialState);
+      const initialState = calculateFullRRIState(initialVariables as any);
+      setState(initialState as any);
       
       // Initial MC run for the chart
-      const mc = runMonteCarlo(initialVariables);
+      const mc = runMonteCarlo(initialVariables as any);
       setMcData(mc.chartData.map(d => ({ rri: d.rri, count: d.frequency })));
     }
   }, [initialVariables]);
 
   useEffect(() => {
     if (!activeScenario) {
-      const newState = calculateFullRRIState(variables);
-      setState(newState);
+      const newState = calculateFullRRIState(variables as any);
+      setState(newState as any);
     }
   }, [variables, activeScenario]);
 
@@ -139,7 +148,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
   const runSimulation = () => {
     setIsSimulating(true);
     setTimeout(() => {
-      const mc = runMonteCarlo(variables);
+      const mc = runMonteCarlo(variables as any);
       setMcData(mc.chartData.map(d => ({ rri: d.rri, count: d.frequency })));
       setState(prev => ({
         ...prev,
@@ -151,7 +160,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
   };
 
   const tier = getRiskTier(state.rri);
-  const confidence = calculateModelConfidence(variables);
+  const confidence = calculateModelConfidence(variables as any);
 
   return (
     <div className="space-y-8">

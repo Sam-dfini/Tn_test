@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   BarChart3, 
@@ -25,6 +25,18 @@ type TabType = 'overview' | 'sentiment' | 'movements' | 'ugtt' | 'elections' | '
 
 export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) => {
   const [activeSubTab, setActiveSubTab] = useState<TabType>('overview');
+
+  useEffect(() => {
+    const handleNavigateSubTab = (e: any) => {
+      const { subTab } = e.detail || {};
+      if (subTab && tabs.some(t => t.id === subTab)) {
+        setActiveSubTab(subTab as TabType);
+      }
+    };
+
+    window.addEventListener('navigate-subtab', handleNavigateSubTab);
+    return () => window.removeEventListener('navigate-subtab', handleNavigateSubTab);
+  }, []);
 
   const tabs: { id: TabType; label: string; icon: any; description: string }[] = [
     { id: 'overview', label: 'Overview', icon: Globe, description: 'Strategic regime stability and institutional landscape' },

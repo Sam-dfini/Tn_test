@@ -72,7 +72,7 @@ const riskMatrix = [
 ];
 
 export const PoliticalOverview: React.FC = () => {
-  const { data } = usePipeline();
+  const { data, rriState } = usePipeline();
   const [ideologyFilter, setIdeologyFilter] = useState<string>('All');
   const [stanceFilter, setStanceFilter] = useState<string>('All');
 
@@ -107,25 +107,25 @@ export const PoliticalOverview: React.FC = () => {
               <h2 className="text-xl font-bold text-white uppercase tracking-tight">Rapid Risk Indicator (RRI) State</h2>
             </div>
             <p className="text-xs text-slate-400 font-mono uppercase tracking-widest">
-              Live Pipeline Feed: R(t) = {data.rri.rri.toFixed(4)} | P_rev = {data.rri.p_rev.toFixed(2)} | S(t) = {data.rri.w_t.toFixed(2)}
+              Live Pipeline Feed: R(t) = {rriState.rri.toFixed(4)} | P_rev = {(rriState.p_rev * 100).toFixed(1)}% | S(t) = {rriState.salience.toFixed(2)}
             </p>
           </div>
-
+  
           <div className="flex items-center space-x-8">
             <div className="text-center">
               <div className="text-[10px] font-mono text-slate-500 uppercase mb-1">Current R(t)</div>
               <div className={cn(
                 "text-3xl font-bold font-mono",
-                data.rri.rri > 0.8 ? "text-intel-red" : "text-intel-orange"
+                rriState.rri > 2.5 ? "text-intel-red" : "text-intel-orange"
               )}>
-                {data.rri.rri.toFixed(4)}
+                {rriState.rri.toFixed(4)}
               </div>
             </div>
             <div className="h-12 w-px bg-white/10" />
             <div className="text-center">
               <div className="text-[10px] font-mono text-slate-500 uppercase mb-1">CI Bands</div>
               <div className="text-sm font-bold text-white font-mono">
-                [{data.rri.ci_low.toFixed(2)} - {data.rri.ci_high.toFixed(2)}]
+                [{rriState.ci_low.toFixed(2)} - {rriState.ci_high.toFixed(2)}]
               </div>
             </div>
             <button 

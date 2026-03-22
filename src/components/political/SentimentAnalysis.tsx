@@ -71,7 +71,22 @@ const urbanRuralData = [
 ];
 
 export const SentimentAnalysis: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'narratives' | 'geography'>('overview');
+  const [activeTab, setActiveTab] = useState<'actors' | 'topics' | 'platforms'>('actors');
+
+  const trendingTopics = [
+    { topic: 'Economic Sovereignty', volume: 85, velocity: '+12%' },
+    { topic: 'Decree 54', volume: 72, velocity: '+24%' },
+    { topic: 'IMF Negotiations', volume: 64, velocity: '-5%' },
+    { topic: 'Bread Shortages', volume: 58, velocity: '+18%' },
+    { topic: 'Migration Policy', volume: 45, velocity: '+8%' },
+  ];
+
+  const platformData = [
+    { name: 'Facebook', value: 68, color: '#1877F2' },
+    { name: 'TikTok', value: 18, color: '#000000' },
+    { name: 'X (Twitter)', value: 8, color: '#1DA1F2' },
+    { name: 'Instagram', value: 6, color: '#E4405F' },
+  ];
 
   return (
     <div className="relative min-h-screen bg-black text-white p-8 font-sans overflow-hidden">
@@ -89,9 +104,9 @@ export const SentimentAnalysis: React.FC = () => {
         {/* Sub-Tabs */}
         <div className="flex space-x-1 bg-white/5 p-1 rounded-xl border border-white/10 w-fit">
           {[
-            { id: 'overview', label: 'OVERVIEW', icon: <Activity className="w-4 h-4" /> },
-            { id: 'narratives', label: 'NARRATIVES', icon: <Zap className="w-4 h-4" /> },
-            { id: 'geography', label: 'GEOGRAPHY', icon: <MapPin className="w-4 h-4" /> }
+            { id: 'actors', label: 'ACTORS', icon: <Activity className="w-4 h-4" /> },
+            { id: 'topics', label: 'TOPICS', icon: <Zap className="w-4 h-4" /> },
+            { id: 'platforms', label: 'PLATFORMS', icon: <MessageSquare className="w-4 h-4" /> }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -109,7 +124,7 @@ export const SentimentAnalysis: React.FC = () => {
           ))}
         </div>
 
-        {activeTab === 'overview' && (
+        {activeTab === 'actors' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Stats Row */}
             <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -226,162 +241,83 @@ export const SentimentAnalysis: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'narratives' && (
+        {activeTab === 'topics' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Dominant Narratives Table */}
-            <div className="lg:col-span-8 intel-card overflow-hidden">
-              <div className="p-8 border-b border-white/10">
-                <h3 className="text-lg font-bold tracking-tight">DOMINANT NARRATIVES</h3>
-                <p className="text-xs text-slate-500 font-mono uppercase">Top discourse themes by digital impact</p>
+            {/* Trending Topics Bar Chart */}
+            <div className="lg:col-span-8 intel-card p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h3 className="text-lg font-bold tracking-tight">TRENDING TOPICS</h3>
+                  <p className="text-xs text-slate-500 font-mono uppercase">Volume of discourse by theme</p>
+                </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-white/5 border-b border-white/10">
-                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Narrative Theme</th>
-                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Impact Score</th>
-                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Sentiment</th>
-                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Lifecycle</th>
-                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase text-right">Reach</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {narratives.map((n) => (
-                      <tr key={n.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="p-4">
-                          <div className="text-sm font-bold">{n.topic}</div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex-1 h-1 bg-white/10 rounded-full max-w-[60px]">
-                              <div className="h-full bg-intel-cyan" style={{ width: `${n.impact}%` }} />
-                            </div>
-                            <span className="text-xs font-mono">{n.impact}</span>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <span className={cn(
-                            "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                            n.sentiment === 'Positive' ? "bg-emerald-500/10 text-emerald-400" :
-                            n.sentiment === 'Negative' ? "bg-intel-red/10 text-intel-red" :
-                            "bg-white/10 text-slate-400"
-                          )}>
-                            {n.sentiment}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center space-x-2">
-                            <div className={cn(
-                              "w-2 h-2 rounded-full",
-                              n.lifecycle === 'Peak' ? "bg-intel-cyan animate-pulse" :
-                              n.lifecycle === 'Emergence' ? "bg-emerald-400" : "bg-slate-500"
-                            )} />
-                            <span className="text-xs">{n.lifecycle}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <span className="text-xs font-mono text-slate-400">{n.reach}</span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              
+              <div className="h-[400px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={trendingTopics} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+                    <XAxis type="number" hide />
+                    <YAxis 
+                      dataKey="topic" 
+                      type="category" 
+                      stroke="#475569" 
+                      fontSize={12} 
+                      tickLine={false} 
+                      axisLine={false}
+                      width={150}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                      contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
+                    />
+                    <Bar dataKey="volume" fill="#00ffff" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Narrative Lifecycle Visualization */}
+            {/* Topic Velocity Panel */}
             <div className="lg:col-span-4 intel-card p-8">
-              <h3 className="text-lg font-bold tracking-tight mb-6">NARRATIVE LIFECYCLE</h3>
-              <div className="relative h-[300px] flex items-end justify-between px-4">
-                <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                  <TrendingUp className="w-48 h-48 text-intel-cyan" />
-                </div>
-                
-                {[
-                  { label: 'Emergence', height: '30%', color: 'bg-emerald-500/20 border-emerald-500/50' },
-                  { label: 'Growth', height: '60%', color: 'bg-intel-cyan/20 border-intel-cyan/50' },
-                  { label: 'Peak', height: '100%', color: 'bg-intel-cyan/40 border-intel-cyan shadow-[0_0_20px_rgba(0,255,255,0.2)]' },
-                  { label: 'Decay', height: '40%', color: 'bg-slate-500/20 border-slate-500/50' }
-                ].map((stage, i) => (
-                  <div key={i} className="flex flex-col items-center space-y-4 w-16">
-                    <motion.div 
-                      initial={{ height: 0 }}
-                      animate={{ height: stage.height }}
-                      className={cn("w-full rounded-t-lg border-t-2 border-x-2", stage.color)}
-                    />
-                    <span className="text-[10px] font-mono text-slate-500 uppercase rotate-45 origin-left mt-2">{stage.label}</span>
+              <h3 className="text-lg font-bold tracking-tight mb-6">TOPIC VELOCITY</h3>
+              <div className="space-y-6">
+                {trendingTopics.map((topic) => (
+                  <div key={topic.topic} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div>
+                      <div className="text-sm font-bold">{topic.topic}</div>
+                      <div className="text-[10px] text-slate-500 font-mono">Volume: {topic.volume}k</div>
+                    </div>
+                    <div className={cn(
+                      "flex items-center space-x-1 px-2 py-1 rounded text-[10px] font-bold font-mono",
+                      topic.velocity.startsWith('+') ? "bg-emerald-500/10 text-emerald-400" : "bg-intel-red/10 text-intel-red"
+                    )}>
+                      {topic.velocity.startsWith('+') ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
+                      <span>{topic.velocity}</span>
+                    </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="mt-12 space-y-4">
-                <div className="text-[10px] font-mono text-slate-500 uppercase border-b border-white/10 pb-2">Active Lifecycle Alerts</div>
-                <div className="flex items-start space-x-3 p-3 bg-intel-red/5 border border-intel-red/20 rounded-lg">
-                  <AlertTriangle className="w-4 h-4 text-intel-red shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-slate-400">
-                    <span className="text-intel-red font-bold">CRITICAL:</span> "Decree 54 Resistance" narrative has entered <span className="text-white">Growth Phase</span> in 48 hours.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'geography' && (
+        {activeTab === 'platforms' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Regional Sentiment Heatmap */}
-            <div className="lg:col-span-7 intel-card p-8">
-              <div className="flex justify-between items-center mb-8">
-                <div>
-                  <h3 className="text-lg font-bold tracking-tight">REGIONAL SENTIMENT HEATMAP</h3>
-                  <p className="text-xs text-slate-500 font-mono uppercase">Geographic distribution of public sentiment</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 h-2 bg-gradient-to-r from-intel-red via-slate-700 to-intel-cyan rounded-full" />
-                  <div className="flex justify-between w-32 text-[8px] font-mono text-slate-500">
-                    <span>NEG</span>
-                    <span>POS</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {regionalSentiment.map((region) => (
-                  <div key={region.region} className="group cursor-pointer">
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="flex items-center space-x-3">
-                        <MapPin className={cn(
-                          "w-4 h-4",
-                          region.score > 60 ? "text-intel-cyan" :
-                          region.score > 50 ? "text-emerald-400" :
-                          region.score > 45 ? "text-intel-orange" : "text-intel-red"
-                        )} />
-                        <span className="text-sm font-bold group-hover:text-intel-cyan transition-colors">{region.region}</span>
-                        <span className="text-[10px] text-slate-500 font-mono">Pop: {region.pop}</span>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <span className={cn(
-                          "text-[10px] font-mono px-2 py-0.5 rounded uppercase",
-                          region.trend === 'up' ? "bg-emerald-500/10 text-emerald-400" :
-                          region.trend === 'down' ? "bg-intel-orange/10 text-intel-orange" :
-                          region.trend === 'critical' ? "bg-intel-red/10 text-intel-red" :
-                          "bg-white/10 text-slate-400"
-                        )}>
-                          {region.trend}
-                        </span>
-                        <span className="text-sm font-bold font-mono">{region.score}</span>
-                      </div>
+            {/* Platform Breakdown */}
+            <div className="lg:col-span-4 intel-card p-8">
+              <h3 className="text-lg font-bold tracking-tight mb-8">PLATFORM BREAKDOWN</h3>
+              <div className="space-y-8">
+                {platformData.map((platform) => (
+                  <div key={platform.name} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-bold">{platform.name}</span>
+                      <span className="text-sm font-mono text-slate-400">{platform.value}%</span>
                     </div>
                     <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
-                        animate={{ width: `${region.score}%` }}
-                        className={cn(
-                          "h-full",
-                          region.score > 60 ? "bg-intel-cyan shadow-[0_0_10px_rgba(0,255,255,0.3)]" :
-                          region.score > 50 ? "bg-emerald-400" :
-                          region.score > 45 ? "bg-intel-orange" : "bg-intel-red"
-                        )}
+                        animate={{ width: `${platform.value}%` }}
+                        className="h-full"
+                        style={{ backgroundColor: platform.color }}
                       />
                     </div>
                   </div>
@@ -389,46 +325,59 @@ export const SentimentAnalysis: React.FC = () => {
               </div>
             </div>
 
-            {/* Urban vs Rural Divergence */}
-            <div className="lg:col-span-5 intel-card p-8">
-              <h3 className="text-lg font-bold tracking-tight mb-8">URBAN VS RURAL DIVERGENCE</h3>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={urbanRuralData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
-                    <XAxis type="number" hide />
-                    <YAxis 
-                      dataKey="category" 
-                      type="category" 
-                      stroke="#475569" 
-                      fontSize={12} 
-                      tickLine={false} 
-                      axisLine={false}
-                    />
-                    <Tooltip 
-                      cursor={{ fill: 'transparent' }}
-                      contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                    />
-                    <Bar dataKey="positive" stackId="a" fill="#00ffff" radius={[0, 0, 0, 0]} />
-                    <Bar dataKey="neutral" stackId="a" fill="#475569" />
-                    <Bar dataKey="negative" stackId="a" fill="#ff4444" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Geographic Sentiment Table */}
+            <div className="lg:col-span-8 intel-card overflow-hidden">
+              <div className="p-8 border-b border-white/10">
+                <h3 className="text-lg font-bold tracking-tight">GEOGRAPHIC SENTIMENT BY REGION</h3>
+                <p className="text-xs text-slate-500 font-mono uppercase">Sentiment distribution across governorates</p>
               </div>
-
-              <div className="mt-8 grid grid-cols-3 gap-2">
-                <div className="p-3 bg-intel-cyan/10 border border-intel-cyan/20 rounded-lg text-center">
-                  <div className="text-[8px] text-intel-cyan font-mono uppercase">Positive</div>
-                  <div className="text-lg font-bold">58%</div>
-                </div>
-                <div className="p-3 bg-slate-500/10 border border-slate-500/20 rounded-lg text-center">
-                  <div className="text-[8px] text-slate-500 font-mono uppercase">Neutral</div>
-                  <div className="text-lg font-bold">18%</div>
-                </div>
-                <div className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-lg text-center">
-                  <div className="text-[8px] text-intel-red font-mono uppercase">Negative</div>
-                  <div className="text-lg font-bold">24%</div>
-                </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/10">
+                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Region</th>
+                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Sentiment Score</th>
+                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Trend</th>
+                      <th className="p-4 text-[10px] font-mono text-slate-500 uppercase text-right">Population</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {regionalSentiment.map((region) => (
+                      <tr key={region.region} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                        <td className="p-4">
+                          <div className="text-sm font-bold">{region.region}</div>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center space-x-2">
+                            <div className="flex-1 h-1 bg-white/10 rounded-full max-w-[100px]">
+                              <div className={cn(
+                                "h-full",
+                                region.score > 60 ? "bg-intel-cyan" :
+                                region.score > 50 ? "bg-emerald-400" :
+                                region.score > 45 ? "bg-intel-orange" : "bg-intel-red"
+                              )} style={{ width: `${region.score}%` }} />
+                            </div>
+                            <span className="text-xs font-mono">{region.score}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className={cn(
+                            "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
+                            region.trend === 'up' ? "bg-emerald-500/10 text-emerald-400" :
+                            region.trend === 'down' ? "bg-intel-orange/10 text-intel-orange" :
+                            region.trend === 'critical' ? "bg-intel-red/10 text-intel-red" :
+                            "bg-white/10 text-slate-400"
+                          )}>
+                            {region.trend}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right">
+                          <span className="text-xs font-mono text-slate-400">{region.pop}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

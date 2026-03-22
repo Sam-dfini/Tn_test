@@ -33,7 +33,6 @@ import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { PoliticalIntelligence } from './PoliticalIntelligence';
 import SimulationIntelligence from './SimulationIntelligence';
 import { NewsFeed } from './NewsFeed';
-import { DataPipeline } from './DataPipeline';
 
 interface IntelReport {
   id: string;
@@ -105,38 +104,21 @@ const reports: IntelReport[] = [
   }
 ];
 
+import { usePipeline } from '../context/PipelineContext';
+
 export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
+  const { rriState } = usePipeline();
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'pipeline'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const handleNavigateToPipeline = (e: any) => {
-      const { tab, subTab } = e.detail || {};
-      if (tab) {
-        setActiveTab(tab);
-        if (subTab) {
-          // We'll handle sub-tab navigation via a separate event or state if needed
-          // For now, let's dispatch a sub-tab navigation event that modules can listen to
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('navigate-subtab', { detail: { subTab } }));
-          }, 100);
-        }
-      } else {
-        setActiveTab('pipeline');
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    window.addEventListener('navigate-to-pipeline', handleNavigateToPipeline);
-    
     // Check hash on load
     if (window.location.hash === '#pipeline') {
-      setActiveTab('pipeline');
+      // The pipeline is now an overlay, so we don't set activeTab here
+      // App.tsx handles the navigate-to-pipeline event
     }
-
-    return () => window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
   }, []);
 
   const globalSignals = [
@@ -170,11 +152,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   };
 
   const stabilityRisk = useMemo(() => {
-    if (!context?.pRev || typeof context.pRev !== 'number') return 65;
-    return Math.min(100, Math.max(0, Math.round(context.pRev * 100)));
-  }, [context]);
+    return Math.min(100, Math.max(0, Math.round(rriState.p_rev * 100)));
+  }, [rriState.p_rev]);
 
   const economicResilience = useMemo(() => {
+    // Derived from RRI state components if possible, or keep existing logic
     if (!context?.governorates?.length) return 45;
     const avgUnemp = context.governorates.reduce(
       (a: number, b: any) => a + (b.unemp || 0), 0
@@ -183,6 +165,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   }, [context]);
 
   const socialCohesion = useMemo(() => {
+    // Derived from RRI state components if possible, or keep existing logic
     if (!context?.events) return 85;
     const tensionEvents = context.events.filter((e: any) => e.type === 'protest' || e.type === 'strike').length;
     return Math.min(100, Math.max(0, 100 - (tensionEvents * 5)));
@@ -330,18 +313,6 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             <span>Simulation</span>
           </div>
           {activeTab === 'simulation' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('pipeline')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'pipeline' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Database className="w-4 h-4" />
-            <span>Data Pipeline</span>
-          </div>
-          {activeTab === 'pipeline' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
           )}
         </button>
@@ -679,8 +650,6 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         <SocialIntelligence />
       ) : activeTab === 'strategic' ? (
         <StrategicModeling />
-      ) : activeTab === 'pipeline' ? (
-        <DataPipeline />
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}

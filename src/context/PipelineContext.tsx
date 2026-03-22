@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import calculateRRI, {
+  updateVariableFromPipeline
+} from '../utils/rriEngine';
 
 interface EconomyData {
   gdp_growth: number;        // % e.g. 0.4
@@ -12,6 +15,20 @@ interface EconomyData {
   remittances: number;       // B TND e.g. 8.2
   tourism_revenue: number;   // B TND e.g. 2.1
   trade_deficit: number;     // B TND e.g. 12.4
+  remittances_total_bnd: number;        // 8.8
+  remittances_pct_gdp: number;          // 9.4
+  remittances_urban_bnd: number;        // 7.04
+  remittances_rural_bnd: number;        // 1.76
+  remittances_growth_yoy: number;       // 2.3
+  remittances_france_pct: number;       // 40
+  parallel_market_premium: number;      // 18
+  cpi_score: number;                    // 40
+  heritage_freedom_score: number;       // 49.8
+  fdi_inflow_usd: number;               // 0.9
+  doing_business_rank: number;         // 78
+  informal_economy_pct: number;        // 47
+  sme_credit_access_pct: number;       // 18
+  new_business_registrations: number;  // 12400
   last_updated: string;      // ISO date
   source: string;
 }
@@ -67,6 +84,19 @@ interface SocialData {
   divorce_rate: number;              // % e.g. 22.1
   addiction_total: string;           // e.g. '450K'
   youth_addiction_rate: number;      // % e.g. 24.8
+  diaspora_total: number;               // 1400000
+  diaspora_pct_population: number;      // 11
+  engineers_leaving_per_year: number;   // 3500
+  doctors_leaving_per_year: number;     // 800
+  phd_emigration_pct: number;           // 60
+  illegal_crossing_attempts: number;    // 36000
+  illegal_crossing_deaths: number;      // 1200
+  youth_emigration_aspiration_pct: number; // 65
+  return_migration_annual: number;      // 8000
+  net_migration: number;               // -10000
+  smuggling_network_revenue_usd_m: number; // 57 (midpoint estimate)
+  coast_guard_interceptions: number;   // 23000
+  sub_saharan_transit_pct: number;     // 55
   last_updated: string;
   source: string;
 }
@@ -93,7 +123,21 @@ const DEFAULT_DATA: PlatformData = {
     remittances: 8.2,
     tourism_revenue: 2.1,
     trade_deficit: 12.4,
+    remittances_total_bnd: 8.8,
+    remittances_pct_gdp: 9.4,
+    remittances_urban_bnd: 7.04,
+    remittances_rural_bnd: 1.76,
+    remittances_growth_yoy: 2.3,
+    remittances_france_pct: 40,
     last_updated: '2026-03-01',
+    parallel_market_premium: 18,
+    cpi_score: 40,
+    heritage_freedom_score: 49.8,
+    fdi_inflow_usd: 0.9,
+    doing_business_rank: 78,
+    informal_economy_pct: 47,
+    sme_credit_access_pct: 18,
+    new_business_registrations: 12400,
     source: 'BCT / INS'
   },
   energy: {
@@ -144,6 +188,19 @@ const DEFAULT_DATA: PlatformData = {
     divorce_rate: 22.1,
     addiction_total: '450K',
     youth_addiction_rate: 24.8,
+    diaspora_total: 1400000,
+    diaspora_pct_population: 11,
+    engineers_leaving_per_year: 3500,
+    doctors_leaving_per_year: 800,
+    phd_emigration_pct: 60,
+    illegal_crossing_attempts: 36000,
+    illegal_crossing_deaths: 1200,
+    youth_emigration_aspiration_pct: 65,
+    return_migration_annual: 8000,
+    net_migration: -10000,
+    smuggling_network_revenue_usd_m: 57,
+    coast_guard_interceptions: 23000,
+    sub_saharan_transit_pct: 55,
     last_updated: '2026-03-14',
     source: 'UGTT / RSF / TAP'
   },
@@ -177,6 +234,8 @@ interface PipelineContextType {
   resetToDefaults: () => void;
   addAuditEntry: (entry: Omit<AuditEntry, 'id'>) => void;
   auditLog: AuditEntry[];
+  rriState: any;
+  recalculateRRI: () => void;
 }
 
 export const PipelineContext = createContext<PipelineContextType>(
@@ -198,6 +257,32 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch { return []; }
   });
 
+  const [rriState, setRriState] = useState(() => {
+    try {
+      return calculateRRI();
+    } catch(e) {
+      console.error('RRI init failed:', e);
+      return {
+        rri: 2.31, p_rev: 0.643, salience: 0.412, w_t: 0.72,
+        velocity: 0.18, velocity_label: 'DETERIORATING',
+        compound_stress: 0.08, pattern_similarity: 0.67,
+        pattern_label: 'HIGH — SIGNIFICANT SIMILARITY TO TUNISIA 2010',
+        cascade_probability: 0.58, info_amplification: 0.82,
+        elite_cohesion_dynamics: 0.65,
+        elite_defection_prob: 0.12,
+        ci_low: 59.8, ci_high: 68.7, p_rev_mean: 64.3,
+        simulations_run: 0,
+        category_scores: {},
+        model_confidence: 0.72,
+        last_calculated: new Date().toISOString(),
+        variables_count: 250,
+        threshold_breaches: ['A_FX','M_UGTT','E51'],
+        sir_susceptible: 0.94, sir_infected: 0.04, sir_recovered: 0.02,
+        stochastic_shock: 0.001
+      };
+    }
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem('ti_platform_data', JSON.stringify(data));
@@ -209,6 +294,65 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       localStorage.setItem('ti_audit_log', JSON.stringify(auditLog.slice(0, 200)));
     } catch {}
   }, [auditLog]);
+
+  const recalculateRRI = useCallback(() => {
+    try {
+      // Build overrides from current pipeline data
+      const overrides: Record<string, number> = {
+        'economy.fx_reserves': data.economy.fx_reserves,
+        'economy.inflation': data.economy.inflation,
+        'economy.unemployment': data.economy.unemployment,
+        'economy.tnd_usd': data.economy.tnd_usd,
+        'economy.remittances_total_bnd': data.economy.remittances_total_bnd ?? 8.8,
+        'economy.parallel_market_premium': data.economy.parallel_market_premium ?? 18,
+        'economy.cpi_score': data.economy.cpi_score ?? 40,
+        'economy.heritage_freedom_score': data.economy.heritage_freedom_score ?? 49.8,
+        'economy.fdi_inflow_usd': data.economy.fdi_inflow_usd ?? 0.9,
+        'social.protest_events_30d': data.social.protest_events_30d,
+        'social.decree54_charged': data.social.decree54_charged,
+        'social.ugtt_mobilisation_level':
+          data.social.ugtt_mobilisation_level === 'HIGH' ? 80 :
+          data.social.ugtt_mobilisation_level === 'ELEVATED' ? 65 : 50,
+        'social.water_crisis_govs': data.social.water_crisis_govs,
+        'social.press_freedom_rank': data.social.press_freedom_rank ?? 118,
+        'social.youth_emigration_aspiration_pct':
+          data.social.youth_emigration_aspiration_pct ?? 65,
+        'social.engineers_leaving_per_year':
+          data.social.engineers_leaving_per_year ?? 3500,
+        'social.coast_guard_interceptions':
+          data.social.coast_guard_interceptions ?? 23000,
+        'social.smuggling_network_revenue_usd_m':
+          data.social.smuggling_network_revenue_usd_m ?? 57,
+        'geopolitical.imf_deal_probability':
+          data.geopolitical?.imf_deal_probability ?? 31,
+        'geopolitical.external_debt_2026':
+          data.geopolitical?.external_debt_2026 ?? 4.2,
+        'energy.steg_debt': data.energy?.steg_debt ?? 4.2,
+      };
+
+      const newState = calculateRRI(overrides);
+      setRriState(newState);
+
+      // Also update the legacy data.rri fields for backward compatibility
+      // We use a functional update to avoid dependency on data
+      setData(prev => ({
+        ...prev,
+        rri: {
+          ...prev.rri,
+          rri: newState.rri,
+          p_rev: newState.p_rev,
+          salience: newState.salience,
+          w_t: newState.w_t,
+          ci_low: newState.ci_low,
+          ci_high: newState.ci_high,
+          last_updated: new Date().toISOString()
+        }
+      }));
+
+    } catch(e) {
+      console.error('RRI recalculation failed:', e);
+    }
+  }, [data.economy, data.social, data.geopolitical, data.energy]);
 
   const addAuditEntry = useCallback((entry: Omit<AuditEntry, 'id'>) => {
     setAuditLog(prev => [{
@@ -241,7 +385,13 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       return next;
     });
-  }, [addAuditEntry]);
+
+    // Update RRI variable if mapped
+    if (typeof value === 'number') {
+      updateVariableFromPipeline(path, value);
+    }
+    setTimeout(() => recalculateRRI(), 100);
+  }, [addAuditEntry, recalculateRRI]);
 
   const pushApprovedChanges = useCallback((changes: ApprovedChange[]) => {
     setData(prev => {
@@ -269,7 +419,25 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       next.last_pipeline_push = new Date().toISOString();
       return next;
     });
-  }, [addAuditEntry]);
+
+    // Update RRI variables for each change
+    changes.forEach(change => {
+      if (typeof change.value === 'number') {
+        updateVariableFromPipeline(change.field, change.value);
+      }
+    });
+    setTimeout(() => recalculateRRI(), 100);
+  }, [addAuditEntry, recalculateRRI]);
+
+  useEffect(() => {
+    recalculateRRI();
+  }, []);
+
+  useEffect(() => {
+    const handler = () => recalculateRRI();
+    window.addEventListener('rri-recalculate', handler);
+    return () => window.removeEventListener('rri-recalculate', handler);
+  }, [recalculateRRI]);
 
   const resetToDefaults = useCallback(() => {
     setData(DEFAULT_DATA);
@@ -286,7 +454,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <PipelineContext.Provider value={{
       data, updateField, pushApprovedChanges, 
-      resetToDefaults, addAuditEntry, auditLog
+      resetToDefaults, addAuditEntry, auditLog,
+      rriState, recalculateRRI
     }}>
       {children}
     </PipelineContext.Provider>

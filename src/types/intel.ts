@@ -55,24 +55,76 @@ export interface IntelEvent {
 export interface RRIVariable {
   id: string;
   category: string;
+  category_name: string;
   name: string;
+  label: string;
   value: number; // normalized 0-1
+  raw_value: number;
+  unit: string;
   weight: number;
+  invert: boolean;
+  min_value: number;
+  max_value: number;
+  volatility: number;
+  threshold: number | null;
+  threshold_weight: number;
+  pipeline_field: string | null;
+  nlp_keywords: string[];
+  nlp_nudge: number;
+  history: number[];
   direction: 'positive' | 'negative';
   source: string;
   last_updated: string;
+  update_frequency: string;
   methodology?: string;
 }
 
 export interface RRIState {
-  rri: number;
-  prev: number;
-  salience: number;
-  W: number;
-  regime_age: { age_pct: number; years: number };
+  // Core outputs (Samir Dni model)
+  rri: number;                  // R(t) — Revolutionary Risk Index
+  p_rev: number;                // P_rev — Revolution probability 0-1
+  salience: number;             // S(t) — Narrative salience
+  w_t: number;                  // W(t) — War distraction suppressor
+  elite_defection_prob: number; // Probability of elite defection
+
+  // New outputs (TUNISIAINTEL extensions)
+  velocity: number;             // V(t) — Rate of change (-1 to +1)
+  velocity_label: string;       // "DETERIORATING FAST" etc
+  compound_stress: number;      // CS(t) — Non-linear interaction bonus
+  pattern_similarity: number;   // HPS(t) — Historical pattern match 0-1
+  pattern_label: string;        // "HIGH SIMILARITY TO 2010"
+  cascade_probability: number;  // P_cascade — Regional cascade risk
+  info_amplification: number;   // A(t) — Information environment factor
+  elite_cohesion_dynamics: number; // EC(t) — Elite cohesion trajectory
+
+  // Monte Carlo outputs
   ci_low: number;
   ci_high: number;
-  monte_carlo_runs: number;
+  p_rev_mean: number;
+  simulations_run: number;
+
+  // Category scores
+  category_scores: Record<string, number>;
+
+  // Metadata
+  model_confidence: number;
+  last_calculated: string;
+  variables_count: number;
+  threshold_breaches: string[];
+
+  // SIR model state
+  sir_susceptible: number;
+  sir_infected: number;
+  sir_recovered: number;
+
+  // Shock model
+  stochastic_shock: number;
+
+  // Legacy fields for backward compatibility
+  prev?: number;
+  W?: number;
+  regime_age?: { age_pct: number; years: number };
+  monte_carlo_runs?: number;
 }
 
 export interface Actor {

@@ -50,8 +50,10 @@ import { TacticalLoading } from './components/TacticalLoading';
 import { ModeSelection } from './components/ModeSelection';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { ProfessionalIntel } from './components/ProfessionalIntel';
+import { DataPipeline } from './components/DataPipeline';
 import { SourceLibrary } from './components/SourceLibrary';
 import { CitizenEdition } from './components/CitizenEdition';
+import { RRIMethodology } from './components/RRIMethodology';
 import SimulationIntelligence from './components/SimulationIntelligence';
 import { generateAnalystResponse } from './services/geminiService';
 
@@ -315,6 +317,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
     { id: 'suspects', icon: UserX, label: 'Suspects' },
     { id: 'predict', icon: TrendingUp, label: 'Predict' },
     { id: 'simulation', icon: Cpu, label: 'Simulation Intel' },
+    { id: 'methodology', icon: FileText, label: 'RRI Methodology' },
     { id: 'timeline', icon: Clock, label: 'Timeline' },
   ];
 
@@ -354,7 +357,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   );
 };
 
-const Header = ({ onOpenSourceLibrary, activeTab, onOpenAI, data, onGoHome }: { onOpenSourceLibrary: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
+const Header = ({ onOpenSourceLibrary, onOpenPipeline, activeTab, onOpenAI, data, onGoHome }: { onOpenSourceLibrary: () => void, onOpenPipeline: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const notifications = [
     { id: 1, title: 'RRI Alert: Sfax', message: 'Risk score increased by 0.45 in the last 24h.', time: '12m ago', type: 'alert' },
@@ -468,11 +471,14 @@ const Header = ({ onOpenSourceLibrary, activeTab, onOpenAI, data, onGoHome }: { 
             <Zap className="w-4 h-4" />
           </button>
           <button 
-            onClick={() => {
-              window.location.hash = 'pipeline';
-              const event = new CustomEvent('navigate-to-pipeline');
-              window.dispatchEvent(event);
-            }}
+            onClick={onOpenSourceLibrary}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="Source Library"
+          >
+            <Globe className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onOpenPipeline}
             className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
             title="Data Pipeline"
           >
@@ -511,8 +517,10 @@ export default function App() {
   const [warSuppressor, setWarSuppressor] = useState(1.0);
   const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
+  const [isPipelineOpen, setIsPipelineOpen] = useState(false);
+  const [isSourceLibraryOpen, setIsSourceLibraryOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables || []) as RRIVariable[]);
+  const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables as any) || []);
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
@@ -529,17 +537,21 @@ export default function App() {
   useEffect(() => {
     const state = calculateFullRRIState(rriVariables);
     setRri(state.rri);
-    setPRev(state.prev);
+    setPRev(state.p_rev);
     setCiLow(state.ci_low);
     setCiHigh(state.ci_high);
     setSalience(state.salience);
-    setWarSuppressor(state.W);
-    setRegimeAge(state.regime_age);
+    setWarSuppressor(state.w_t);
+    setRegimeAge(state.regime_age || { age_pct: 0.29, years: 5 });
   }, [rriVariables]);
 
   useEffect(() => {
-    const handleNavigateToPipeline = () => {
-      setActiveTab('professional');
+    const handleNavigateToPipeline = (e: any) => {
+      const { url } = e.detail || {};
+      if (url) {
+        sessionStorage.setItem('pipeline_prefill_url', url);
+      }
+      setIsPipelineOpen(true);
     };
     window.addEventListener('navigate-to-pipeline', handleNavigateToPipeline);
     return () => window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
@@ -609,14 +621,14 @@ export default function App() {
           variables={rriVariables} 
           rriState={{
             rri,
-            prev: pRev,
+            p_rev: pRev,
             ci_low: ciLow,
             ci_high: ciHigh,
             salience,
-            W: warSuppressor,
+            w_t: warSuppressor,
             regime_age: regimeAge,
             monte_carlo_runs: 1000
-          }} 
+          } as any} 
         />;
       case 'economy':
         return <Economy />;
@@ -648,10 +660,10 @@ export default function App() {
             movements: actorData.movements 
           }} 
         />;
+      case 'methodology':
+        return <RRIMethodology />;
       case 'timeline':
         return <Timeline />;
-      case 'sources':
-        return <SourceLibrary onBack={() => setActiveTab('professional')} />;
       default:
         return <div className="text-white">Module Under Construction</div>;
     }
@@ -762,13 +774,14 @@ export default function App() {
               className="min-h-screen"
             >
               <Header 
-                onOpenSourceLibrary={() => setActiveTab('sources')} 
+                onOpenSourceLibrary={() => setIsSourceLibraryOpen(true)} 
+                onOpenPipeline={() => setIsPipelineOpen(true)}
                 activeTab={activeTab}
                 onOpenAI={() => setIsAIAnalystOpen(true)}
                 onGoHome={() => setAppMode(null)}
                 data={{
                   rri,
-                  pRev,
+                  p_rev: pRev,
                   events,
                   governorates,
                   actors: actorData.actors,
@@ -781,7 +794,7 @@ export default function App() {
                 onClose={() => setIsAIAnalystOpen(false)} 
                 context={{
                   rri,
-                  pRev,
+                  p_rev: pRev,
                   events,
                   governorates,
                   actors: actorData.actors,
@@ -806,6 +819,18 @@ export default function App() {
                 </div>
               </main>
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {isPipelineOpen && (
+            <DataPipeline onClose={() => setIsPipelineOpen(false)} />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {isSourceLibraryOpen && (
+            <SourceLibrary onClose={() => setIsSourceLibraryOpen(false)} />
           )}
         </AnimatePresence>
       </div>

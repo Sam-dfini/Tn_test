@@ -49,6 +49,94 @@ export const FIELD_MAP = {
     sources: ['INS'],
     module: 'Economy'
   },
+  'economy.trade_deficit': {
+    label: 'Trade Deficit',
+    unit: 'B TND',
+    description: 'Annual trade imbalance',
+    keywords: ['trade', 'deficit', 'imports', 'exports'],
+    sources: ['INS'],
+    module: 'Economy'
+  },
+  'economy.remittances_total_bnd': {
+    label: 'Total Remittances',
+    unit: 'B TND',
+    description: 'Total annual remittances from diaspora',
+    keywords: ['remittances', 'diaspora', 'transfers'],
+    sources: ['BCT'],
+    module: 'Economy'
+  },
+  'economy.remittances_pct_gdp': {
+    label: 'Remittances % GDP',
+    unit: '%',
+    description: 'Remittances as percentage of GDP',
+    keywords: ['remittances', 'gdp', 'dependency'],
+    sources: ['BCT', 'World Bank'],
+    module: 'Economy'
+  },
+  'economy.remittances_urban_bnd': {
+    label: 'Urban Remittances',
+    unit: 'B TND',
+    description: 'Remittances flowing to urban areas',
+    keywords: ['remittances', 'urban', 'distribution'],
+    sources: ['BCT Estimate'],
+    module: 'Economy'
+  },
+  'economy.remittances_rural_bnd': {
+    label: 'Rural Remittances',
+    unit: 'B TND',
+    description: 'Remittances flowing to rural areas',
+    keywords: ['remittances', 'rural', 'distribution'],
+    sources: ['BCT Estimate'],
+    module: 'Economy'
+  },
+  'economy.remittances_growth_yoy': {
+    label: 'Remittance Growth',
+    unit: '%',
+    description: 'Year-on-year growth in remittances',
+    keywords: ['remittances', 'growth', 'trend'],
+    sources: ['BCT'],
+    module: 'Economy'
+  },
+  'economy.remittances_france_pct': {
+    label: 'France Remittance Share',
+    unit: '%',
+    description: 'Percentage of remittances originating from France',
+    keywords: ['remittances', 'france', 'concentration'],
+    sources: ['BCT'],
+    module: 'Economy'
+  },
+  'economy.heritage_freedom_score': {
+    label: 'Heritage Economic Freedom Score',
+    unit: '/100',
+    description: 'Heritage Foundation Economic Freedom Index',
+    keywords: ['Heritage', 'economic freedom', 'liberté économique'],
+    sources: ['Heritage Foundation'],
+    module: 'Economy'
+  },
+  'economy.cpi_score': {
+    label: 'Corruption Perceptions Index',
+    unit: '/100',
+    description: 'Transparency International CPI score',
+    keywords: ['CPI', 'corruption', 'Transparency International'],
+    sources: ['Transparency International'],
+    module: 'Economy'
+  },
+  'economy.parallel_market_premium': {
+    label: 'Parallel Market Premium',
+    unit: '%',
+    description: 'TND parallel market premium above official BCT rate',
+    keywords: ['parallel', 'marché noir', 'premium', 'black market'],
+    sources: ['Forex monitors', 'FTDES'],
+    module: 'Economy'
+  },
+  'economy.fdi_inflow_usd': {
+    label: 'FDI Inflow',
+    unit: 'B USD',
+    description: 'Annual foreign direct investment inflow',
+    keywords: ['FDI', 'investissement étranger', 'foreign investment'],
+    sources: ['BCT', 'FIPA'],
+    module: 'Economy'
+  },
   'energy.steg_debt': {
     label: 'STEG Debt to State',
     unit: 'B TND',
@@ -135,6 +223,110 @@ export const FIELD_MAP = {
     description: 'Annual divorce rate as percentage of marriages',
     keywords: ['divorce', 'séparation', 'marriage', 'famille'],
     sources: ['Ministry of Justice', 'INS'],
+    module: 'Social'
+  },
+  'social.diaspora_total': {
+    label: 'Total Diaspora',
+    unit: 'people',
+    description: 'Total Tunisians living abroad',
+    keywords: ['diaspora', 'migration', 'population'],
+    sources: ['OTE'],
+    module: 'Social'
+  },
+  'social.diaspora_pct_population': {
+    label: 'Diaspora % Population',
+    unit: '%',
+    description: 'Diaspora as percentage of total population',
+    keywords: ['diaspora', 'migration', 'demographics'],
+    sources: ['OTE / INS'],
+    module: 'Social'
+  },
+  'social.engineers_leaving_per_year': {
+    label: 'Engineer Brain Drain',
+    unit: 'per year',
+    description: 'Number of engineers emigrating annually',
+    keywords: ['brain drain', 'engineers', 'migration'],
+    sources: ['OIT'],
+    module: 'Social'
+  },
+  'social.doctors_leaving_per_year': {
+    label: 'Medical Brain Drain',
+    unit: 'per year',
+    description: 'Number of doctors emigrating annually',
+    keywords: ['brain drain', 'doctors', 'migration'],
+    sources: ['Medical Council'],
+    module: 'Social'
+  },
+  'social.phd_emigration_pct': {
+    label: 'PhD Emigration Rate',
+    unit: '%',
+    description: 'Percentage of PhD holders seeking to emigrate',
+    keywords: ['brain drain', 'phd', 'academia'],
+    sources: ['University Survey'],
+    module: 'Social'
+  },
+  'social.illegal_crossing_attempts': {
+    label: 'Illegal Crossing Attempts',
+    unit: 'count',
+    description: 'Recorded attempts to cross Mediterranean illegally',
+    keywords: ['migration', 'illegal', 'crossings'],
+    sources: ['FTDES / Coast Guard'],
+    module: 'Social'
+  },
+  'social.illegal_crossing_deaths': {
+    label: 'Illegal Crossing Deaths',
+    unit: 'count',
+    description: 'Recorded deaths/missing during illegal crossings',
+    keywords: ['migration', 'deaths', 'tragedy'],
+    sources: ['FTDES / IOM'],
+    module: 'Social'
+  },
+  'social.youth_emigration_aspiration_pct': {
+    label: 'Youth Emigration Aspiration',
+    unit: '%',
+    description: 'Percentage of youth expressing desire to emigrate',
+    keywords: ['youth', 'migration', 'aspiration'],
+    sources: ['FTDES Survey'],
+    module: 'Social'
+  },
+  'social.return_migration_annual': {
+    label: 'Annual Return Migration',
+    unit: 'count',
+    description: 'Number of Tunisians returning permanently',
+    keywords: ['migration', 'return', 'reintegration'],
+    sources: ['OTE'],
+    module: 'Social'
+  },
+  'social.net_migration': {
+    label: 'Net Migration',
+    unit: 'count',
+    description: 'Difference between immigration and emigration',
+    keywords: ['migration', 'net', 'demographics'],
+    sources: ['INS'],
+    module: 'Social'
+  },
+  'social.smuggling_network_revenue_usd_m': {
+    label: 'Smuggling Revenue',
+    unit: 'M USD',
+    description: 'Estimated annual revenue of smuggling networks',
+    keywords: ['smuggling', 'crime', 'migration'],
+    sources: ['Security Estimate'],
+    module: 'Social'
+  },
+  'social.coast_guard_interceptions': {
+    label: 'Coast Guard Interceptions',
+    unit: 'count',
+    description: 'Number of migrants intercepted by coast guard',
+    keywords: ['security', 'migration', 'interception'],
+    sources: ['Ministry of Interior'],
+    module: 'Social'
+  },
+  'social.sub_saharan_transit_pct': {
+    label: 'Sub-Saharan Transit %',
+    unit: '%',
+    description: 'Percentage of intercepted migrants from Sub-Saharan Africa',
+    keywords: ['migration', 'transit', 'sub-saharan'],
+    sources: ['Ministry of Interior'],
     module: 'Social'
   },
   'rri.p_rev': {

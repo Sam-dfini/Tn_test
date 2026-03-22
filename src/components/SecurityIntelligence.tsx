@@ -29,7 +29,8 @@ import {
   Construction,
   LayoutGrid,
   Search,
-  Pill
+  Pill,
+  ArrowUpRight
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -59,7 +60,7 @@ import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './Profes
 const securityAlerts = [
   { code: 'SEC-BORDER-01', title: 'Increased Activity at Western Border', impact: 'CRITICAL' },
   { code: 'SEC-CYBER-04', title: 'DDoS Attempt on Gov Infrastructure', impact: 'HIGH' },
-  { code: 'SEC-PROTEST-09', title: 'Civil Unrest Reported in Kasserine', impact: 'HIGH' },
+  { code: 'SEC-PROTEST-09', title: 'Civil Unrest Reported in Kasserine', impact: 'HIGH', link: 'CIVIL MOVEMENTS', subTab: 'movements' },
   { code: 'SEC-MARITIME-12', title: 'Unidentified Vessel in Territorial Waters', impact: 'MEDIUM' },
   { code: 'SEC-INTEL-02', title: 'Strategic Threat Level: ELEVATED', impact: 'HIGH' }
 ];
@@ -200,6 +201,37 @@ export const SecurityIntelligence: React.FC = () => {
       />
 
       <LiveTicker items={securityAlerts} />
+
+      {/* Strategic Links Panel */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-20">
+        <div className="glass p-6 rounded-3xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/50 transition-all"
+             onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'freedom' } }))}>
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-intel-cyan/10 rounded-xl border border-intel-cyan/20 group-hover:bg-intel-cyan/20 transition-all">
+              <Lock className="w-6 h-6 text-intel-cyan" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Decree 54 Tracker</h3>
+              <p className="text-[10px] text-slate-500 font-mono">Monitor institutional erosion & press freedom</p>
+            </div>
+          </div>
+          <ArrowUpRight className="w-5 h-5 text-slate-500 group-hover:text-intel-cyan transition-all" />
+        </div>
+
+        <div className="glass p-6 rounded-3xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-orange/50 transition-all"
+             onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'movements' } }))}>
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-intel-orange/10 rounded-xl border border-intel-orange/20 group-hover:bg-intel-orange/20 transition-all">
+              <Users className="w-6 h-6 text-intel-orange" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Civil Movements</h3>
+              <p className="text-[10px] text-slate-500 font-mono">Real-time protest frequency & social actors</p>
+            </div>
+          </div>
+          <ArrowUpRight className="w-5 h-5 text-slate-500 group-hover:text-intel-orange transition-all" />
+        </div>
+      </div>
 
       {/* CATEGORY SELECTOR */}
       <div className="flex flex-wrap items-center gap-2 border-b border-intel-border/30 pb-4 sticky top-0 bg-black/50 backdrop-blur-md z-50 py-2">
@@ -452,7 +484,7 @@ export const SecurityIntelligence: React.FC = () => {
                     <div key={i} className="p-3 rounded-xl bg-white/5 border border-intel-border">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-[10px] font-bold text-white uppercase">{hotspot.name}</span>
-                        <span className={`text-[8px] font-mono font-bold ${hotspot.risk === 'CRITICAL' ? 'text-intel-red' : 'hotspot.risk === "HIGH" ? "text-intel-orange" : "text-intel-cyan"'}`}>{hotspot.risk}</span>
+                        <span className={`text-[8px] font-mono font-bold ${hotspot.risk === 'CRITICAL' ? 'text-intel-red' : hotspot.risk === 'HIGH' ? 'text-intel-orange' : 'text-intel-cyan'}`}>{hotspot.risk}</span>
                       </div>
                       <div className="flex justify-between text-[9px] text-slate-500">
                         <span>{hotspot.activity}</span>

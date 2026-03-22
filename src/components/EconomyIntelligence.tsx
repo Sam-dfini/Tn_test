@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '../utils/cn';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -50,20 +51,30 @@ import {
   LineChart,
   PieChart,
   Pie,
-  Legend
+  Legend,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ScatterChart,
+  Scatter,
+  ZAxis
 } from 'recharts';
 import { getRealTimeMacroIndicators, MacroIndicator } from '../services/economicDataService';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
 
-type SubTab = 'macro' | 'sector' | 'market' | 'regional' | 'poverty' | 'pharmacy';
+type SubTab = 'macro' | 'sector' | 'market' | 'regional' | 'poverty' | 'pharmacy' | 'business';
 
 const economicAlerts = [
   { code: 'ECON-CPI-01', title: 'Inflation Spike in Food Sector', impact: 'CRITICAL' },
   { code: 'ECON-BCT-04', title: 'Forex Reserves Below 90 Days', impact: 'CRITICAL' },
   { code: 'ECON-DEBT-09', title: 'External Repayment Q2 Peak', impact: 'HIGH' },
   { code: 'ECON-TND-12', title: 'Parallel Market Premium +20%', impact: 'HIGH' },
-  { code: 'ECON-GDP-02', title: 'Growth Forecast Revised Down', impact: 'MEDIUM' }
+  { code: 'ECON-GDP-02', title: 'Growth Forecast Revised Down', impact: 'MEDIUM' },
+  { code: 'REM-GDP-01', title: 'Remittance Share: 9.4% GDP — Structural Dependency', impact: 'HIGH' },
+  { code: 'REM-FRA-02', title: 'France Concentration: 52% of Inflows — Risk', impact: 'MEDIUM' }
 ];
 
 const tunindexHistory = [
@@ -247,6 +258,32 @@ const startupEcosystemMetrics = [
   { label: 'Exit Rate', value: '4.2%', change: '+0.8%', trend: 'up', status: 'WARNING' }
 ];
 
+const remittanceHistory = [
+  { year: '2020', total: 1.8, pctGdp: 4.2 },
+  { year: '2021', total: 2.1, pctGdp: 5.1 },
+  { year: '2022', total: 2.4, pctGdp: 6.2 },
+  { year: '2023', total: 2.6, pctGdp: 7.8 },
+  { year: '2024', total: 2.8, pctGdp: 8.5 },
+  { year: '2025', total: 3.1, pctGdp: 9.4 }
+];
+
+const remittanceDistribution = [
+  { name: 'France', value: 52, color: '#00f2ff' },
+  { name: 'Italy', value: 18, color: '#bf00ff' },
+  { name: 'Germany', value: 12, color: '#f43f5e' },
+  { name: 'GCC', value: 10, color: '#f97316' },
+  { name: 'Other', value: 8, color: '#475569' }
+];
+
+const remittanceRegionalData = [
+  { region: 'Grand Tunis', urban: 42, rural: 5, total: 47 },
+  { region: 'North East', urban: 15, rural: 8, total: 23 },
+  { region: 'Sahel', urban: 25, rural: 12, total: 37 },
+  { region: 'Center West', urban: 8, rural: 18, total: 26 },
+  { region: 'South East', urban: 12, rural: 22, total: 34 },
+  { region: 'South West', urban: 5, rural: 15, total: 20 }
+];
+
 const essentialMedsStatus = [
   { category: 'Insulin', availability: 62, trend: 'down', status: 'CRITICAL' },
   { category: 'Cancer Treatments', availability: 45, trend: 'down', status: 'CRITICAL' },
@@ -342,16 +379,18 @@ export const EconomyIntelligence: React.FC = () => {
     { name: 'SOE Debt', value: 10, color: '#fbbf24' }
   ];
 
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'MACRO' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL'>('ALL');
+  const [activeCategory, setActiveCategory] = useState<'ALL' | 'MACRO' | 'REMITTANCES' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL' | 'BUSINESS'>('ALL');
 
   const categories = [
     { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
     { id: 'MACRO', label: 'Macroeconomic', icon: Landmark },
+    { id: 'REMITTANCES', label: 'Remittances', icon: Globe },
     { id: 'SECTOR', label: 'Sector Dynamics', icon: Layers },
     { id: 'MARKET', label: 'Market & Price Monitoring', icon: BarChart3 },
     { id: 'STARTUP', label: 'Startup Ecosystem', icon: Rocket },
     { id: 'SOCIAL', label: 'Social Economy', icon: Users },
     { id: 'REGIONAL', label: 'Regional Analysis', icon: Globe },
+    { id: 'BUSINESS', label: 'Business Climate', icon: Briefcase },
   ];
 
   const [macroIndicators, setMacroIndicators] = useState<MacroIndicator[]>([]);
@@ -371,10 +410,13 @@ export const EconomyIntelligence: React.FC = () => {
       const data = await getRealTimeMacroIndicators();
       if (data && data.length > 0) {
         // Enhance with mock history for sparklines
-        const enhancedData = data.map(ind => ({
-          ...ind,
-          history: Array(5).fill(0).map(() => parseFloat(ind.value) * (0.9 + Math.random() * 0.2))
-        }));
+        const enhancedData = data.map(ind => {
+          const baseValue = parseFloat(ind.value) || 0;
+          return {
+            ...ind,
+            history: Array(5).fill(0).map(() => baseValue * (0.9 + Math.random() * 0.2))
+          };
+        });
         setMacroIndicators(enhancedData);
       }
       setLastUpdated(new Date().toLocaleTimeString());
@@ -388,6 +430,676 @@ export const EconomyIntelligence: React.FC = () => {
   useEffect(() => {
     fetchRealTimeData();
   }, []);
+
+  const renderBusinessClimate = () => {
+    const compositeScore = (
+      (data.economy.heritage_freedom_score || 0) + 
+      (data.economy.cpi_score || 0) + 
+      45 + // Global Innovation Index (Mock)
+      48 + // Global Competitiveness (Mock)
+      (100 - (data.economy.doing_business_rank || 0)) + // Doing Business Proxy
+      42   // Fraser Institute (Mock)
+    ) / 6;
+
+    const getScoreColor = (score: number) => {
+      if (score < 50) return 'text-intel-red';
+      if (score < 60) return 'text-intel-orange';
+      if (score < 70) return 'text-intel-cyan';
+      return 'text-intel-green';
+    };
+
+    return (
+      <div className="space-y-12 animate-in fade-in duration-500">
+        {/* SECTION 1 — ECONOMIC FREEDOM SCORECARD */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="flex items-center justify-between border-b border-intel-border pb-6">
+            <div className="space-y-1">
+              <h3 className="text-2xl font-bold text-white tracking-tight">Economic Freedom Composite Score</h3>
+              <p className="text-sm text-slate-500">Multi-index assessment — March 2026</p>
+            </div>
+            <div className="text-right">
+              <div className={`text-5xl font-bold font-mono ${getScoreColor(compositeScore)}`}>
+                {compositeScore.toFixed(1)}<span className="text-xl text-slate-600">/100</span>
+              </div>
+              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Overall Climate Status</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Index Breakdown</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th className="py-3 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Index</th>
+                      <th className="py-3 text-[10px] font-mono text-slate-500 uppercase tracking-widest text-right">Score</th>
+                      <th className="py-3 text-[10px] font-mono text-slate-500 uppercase tracking-widest text-right">Rank</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {[
+                      { name: 'Heritage Economic Freedom', score: data.economy.heritage_freedom_score || 0, rank: '121/184' },
+                      { name: 'Transparency Intl (CPI)', score: data.economy.cpi_score || 0, rank: '87/180' },
+                      { name: 'Global Innovation Index', score: 45, rank: '71/132' },
+                      { name: 'Global Competitiveness', score: 48, rank: '87/141' },
+                      { name: 'Doing Business (Proxy)', score: 100 - (data.economy.doing_business_rank || 0), rank: `${data.economy.doing_business_rank || 0}/190` },
+                      { name: 'Economic Freedom (Fraser)', score: 42, rank: '128/165' }
+                    ].map((idx, i) => (
+                      <tr key={i} className="hover:bg-white/5 transition-colors">
+                        <td className="py-3 text-[10px] font-bold text-white uppercase">{idx.name}</td>
+                        <td className={`py-3 text-[10px] font-mono font-bold text-right ${getScoreColor(idx.score)}`}>{idx.score.toString()}</td>
+                        <td className="py-3 text-[10px] font-mono text-slate-400 text-right">{idx.rank}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="h-80 w-full flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                  { subject: 'Property Rights', A: 42, full: 100 },
+                  { subject: 'Gov Integrity', A: data.economy.cpi_score, full: 100 },
+                  { subject: 'Judicial Effect', A: 38, full: 100 },
+                  { subject: 'Tax Burden', A: 72, full: 100 },
+                  { subject: 'Gov Spending', A: 45, full: 100 },
+                  { subject: 'Fiscal Health', A: 32, full: 100 },
+                  { subject: 'Business Freedom', A: 58, full: 100 },
+                  { subject: 'Labor Freedom', A: 48, full: 100 },
+                  { subject: 'Monetary Freedom', A: 65, full: 100 },
+                  { subject: 'Trade Freedom', A: 68, full: 100 },
+                  { subject: 'Invest Freedom', A: 35, full: 100 },
+                  { subject: 'Finan Freedom', A: 30, full: 100 }
+                ]}>
+                  <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                  <Radar name="Economic Freedom" dataKey="A" stroke="#00f2ff" fill="#00f2ff" fillOpacity={0.3} />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 2 — HERITAGE BREAKDOWN */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Heritage Index: 12 Pillars</h3>
+              <p className="text-[10px] text-slate-500">Comparative performance across 4 key categories</p>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { cat: 'Rule of Law', val: 37.3, color: '#ef4444' },
+                  { cat: 'Gov Size', val: 49.7, color: '#f97316' },
+                  { cat: 'Reg Efficiency', val: 57.0, color: '#fbbf24' },
+                  { cat: 'Open Markets', val: 44.3, color: '#ef4444' }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="cat" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Bar dataKey="val" radius={[4, 4, 0, 0]}>
+                    { [37.3, 49.7, 57.0, 44.3].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry < 50 ? '#ef4444' : entry < 60 ? '#f97316' : '#00f2ff'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl">
+              <p className="text-[9px] text-slate-400 leading-relaxed">
+                <span className="text-intel-red font-bold">CRITICAL WEAKNESS:</span> Rule of Law (37.3) remains the primary bottleneck, driven by low scores in Property Rights and Judicial Effectiveness.
+              </p>
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Corruption Perception (CPI) Trend</h3>
+              <p className="text-[10px] text-slate-500">Transparency International Score - 2020-2026</p>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={[
+                  { year: '2020', score: 44 },
+                  { year: '2021', score: 44 },
+                  { year: '2022', score: 42 },
+                  { year: '2023', score: 40 },
+                  { year: '2024', score: 41 },
+                  { year: '2025', score: 40 },
+                  { year: '2026', score: data.economy.cpi_score }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Line type="monotone" dataKey="score" stroke="#00f2ff" strokeWidth={3} dot={{ r: 4, fill: '#00f2ff' }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono">
+              <span className="text-slate-500 uppercase">Current Score: {(data.economy.cpi_score || 0).toString()}/100</span>
+              <span className="text-intel-red font-bold uppercase">Stagnant / Declining</span>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 3 — FDI TRACKER */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">FDI Inflow & Sectoral Concentration</h3>
+              <p className="text-[10px] text-slate-500">Annual inflows (B USD) and primary destination sectors</p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-white font-mono">{(data.economy.fdi_inflow_usd || 0).toString()}B USD</div>
+              <p className="text-[8px] font-mono text-slate-500 uppercase">Annual Inflow (2025)</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={[
+                  { year: '2020', fdi: 1.8 },
+                  { year: '2021', fdi: 1.6 },
+                  { year: '2022', fdi: 1.5 },
+                  { year: '2023', fdi: 1.3 },
+                  { year: '2024', fdi: 1.4 },
+                  { year: '2025', fdi: data.economy.fdi_inflow_usd }
+                ]}>
+                  <defs>
+                    <linearGradient id="colorFdi" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#00f2ff" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#00f2ff" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Area type="monotone" dataKey="fdi" stroke="#00f2ff" fillOpacity={1} fill="url(#colorFdi)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">FDI by Sector (%)</h4>
+              <div className="space-y-3">
+                {[
+                  { name: 'Manufacturing', val: 42, color: 'bg-intel-cyan' },
+                  { name: 'Energy', val: 28, color: 'bg-intel-orange' },
+                  { name: 'Services', val: 18, color: 'bg-intel-green' },
+                  { name: 'Agriculture', val: 7, color: 'bg-slate-600' },
+                  { name: 'Tourism', val: 5, color: 'bg-intel-red' }
+                ].map((s, i) => (
+                  <div key={i} className="space-y-1">
+                    <div className="flex justify-between text-[8px] font-mono uppercase">
+                      <span className="text-slate-500">{s.name}</span>
+                      <span className="text-white font-bold">{s.val}%</span>
+                    </div>
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className={`h-full ${s.color}`} style={{ width: `${s.val}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 4 — ENTREPRENEURSHIP & SME CREDIT */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">SME Credit Access</h3>
+              <p className="text-[10px] text-slate-500">% of SMEs with active bank credit lines</p>
+            </div>
+            <div className="flex items-center justify-center h-48">
+              <div className="relative w-40 h-40">
+                <svg className="w-full h-full" viewBox="0 0 36 36">
+                  <path
+                    className="stroke-current text-white/5"
+                    strokeWidth="3"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="stroke-current text-intel-cyan"
+                    strokeWidth="3"
+                    strokeDasharray={`${data.economy.sme_credit_access_pct}, 100`}
+                    strokeLinecap="round"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-white font-mono">{(data.economy.sme_credit_access_pct || 0).toString()}%</span>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Access Rate</span>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
+                <div className="text-xs font-bold text-white">12.4%</div>
+                <div className="text-[8px] font-mono text-slate-500 uppercase">Avg Interest Rate</div>
+              </div>
+              <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
+                <div className="text-xs font-bold text-white">180%</div>
+                <div className="text-[8px] font-mono text-slate-500 uppercase">Collateral Req.</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">New Business Registrations</h3>
+              <p className="text-[10px] text-slate-500">Monthly volume - last 6 months</p>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { month: 'OCT', val: 1240 },
+                  { month: 'NOV', val: 1180 },
+                  { month: 'DEC', val: 950 },
+                  { month: 'JAN', val: 1050 },
+                  { month: 'FEB', val: 1120 },
+                  { month: 'MAR', val: data.economy.new_business_registrations }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Bar dataKey="val" fill="#00f2ff" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono">
+              <span className="text-slate-500 uppercase">Total YTD: 3,410</span>
+              <span className="text-intel-green font-bold uppercase">+4.2% YoY</span>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 5 — REGULATORY BURDEN */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regulatory Burden & Compliance</h3>
+            <p className="text-[10px] text-slate-500">Time and cost metrics for key business operations</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { label: 'Starting a Business', val: '12 days', cost: '3.4% GNI', status: 'GOOD' },
+              { label: 'Building Permits', val: '184 days', cost: '4.2% value', status: 'CRITICAL' },
+              { label: 'Getting Electricity', val: '65 days', cost: '840% income', status: 'WARNING' },
+              { label: 'Registering Property', val: '35 days', cost: '6.1% value', status: 'WARNING' },
+              { label: 'Paying Taxes', val: '144 hrs/yr', cost: '60.7% profit', status: 'CRITICAL' },
+              { label: 'Trading Across Borders', val: '48 hrs', cost: '$450/doc', status: 'GOOD' },
+              { label: 'Enforcing Contracts', val: '565 days', cost: '27% claim', status: 'CRITICAL' },
+              { label: 'Resolving Insolvency', val: '1.3 years', cost: '7% estate', status: 'GOOD' }
+            ].map((op, i) => (
+              <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+                <div className="flex justify-between items-start">
+                  <span className="text-[9px] font-bold text-white uppercase tracking-tight leading-tight w-2/3">{op.label}</span>
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    op.status === 'CRITICAL' ? 'bg-intel-red animate-pulse' : 
+                    op.status === 'WARNING' ? 'bg-intel-orange' : 'bg-intel-green'
+                  }`}></div>
+                </div>
+                <div className="flex justify-between items-end pt-2">
+                  <div className="text-xs font-bold text-white font-mono">{op.val}</div>
+                  <div className="text-[8px] font-mono text-slate-500">{op.cost}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* SECTION 6 — ONSHORE/OFFSHORE DUALITY */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Onshore vs. Offshore Duality</h3>
+              <p className="text-[10px] text-slate-500">Structural divide in the Tunisian economy</p>
+            </div>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[
+                  { name: 'Export Share', onshore: 28, offshore: 72 },
+                  { name: 'Tax Contribution', onshore: 85, offshore: 15 },
+                  { name: 'Employment', onshore: 65, offshore: 35 },
+                  { name: 'FDI Share', onshore: 15, offshore: 85 }
+                ]} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8, fontFamily: 'monospace' }} width={100} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingBottom: '10px' }} />
+                  <Bar dataKey="onshore" name="Onshore" stackId="a" fill="#475569" />
+                  <Bar dataKey="offshore" name="Offshore" stackId="a" fill="#00f2ff" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl">
+              <p className="text-[9px] text-slate-400 leading-relaxed">
+                The "Two-Speed Economy": The offshore sector (export-oriented) enjoys tax holidays and simplified customs but has limited linkages to the domestic onshore economy, which bears the primary tax burden.
+              </p>
+            </div>
+          </div>
+
+          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Informal Economy Estimation</h3>
+              <p className="text-[10px] text-slate-500">Estimated % of GDP operating outside formal regulation</p>
+            </div>
+            <div className="flex items-center justify-center h-48">
+              <div className="relative w-40 h-40">
+                <svg className="w-full h-full" viewBox="0 0 36 36">
+                  <path
+                    className="stroke-current text-intel-cyan"
+                    strokeWidth="3"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="stroke-current text-intel-orange"
+                    strokeWidth="3"
+                    strokeDasharray={`${data.economy.informal_economy_pct}, 100`}
+                    strokeLinecap="round"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-intel-orange font-mono">{(data.economy.informal_economy_pct || 0).toString()}%</span>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Informal Share</span>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-mono">
+                <span className="text-slate-500 uppercase">Formal Sector</span>
+                <span className="text-intel-cyan font-bold">{(100 - (data.economy.informal_economy_pct || 0)).toString()}%</span>
+              </div>
+              <div className="flex justify-between text-[10px] font-mono">
+                <span className="text-slate-500 uppercase">Informal Sector</span>
+                <span className="text-intel-orange font-bold">{(data.economy.informal_economy_pct || 0).toString()}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 7 — CAPITAL FLIGHT INDICATORS */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Capital Flight & Parallel Market</h3>
+              <p className="text-[10px] text-slate-500">Parallel market premium and estimated illicit outflows</p>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-intel-red font-mono">+{(data.economy.parallel_market_premium || 0).toString()}%</div>
+              <p className="text-[8px] font-mono text-slate-500 uppercase">Parallel Premium (Ben Guerdane/Djerba)</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={[
+                  { month: 'OCT', official: 3.25, parallel: 3.58 },
+                  { month: 'NOV', official: 3.28, parallel: 3.65 },
+                  { month: 'DEC', official: 3.31, parallel: 3.78 },
+                  { month: 'JAN', official: 3.35, parallel: 3.92 },
+                  { month: 'FEB', official: 3.38, parallel: 4.05 },
+                  { month: 'MAR', official: 3.42, parallel: 3.42 * (1 + data.economy.parallel_market_premium / 100) }
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                  <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingBottom: '20px' }} />
+                  <Line type="monotone" dataKey="official" name="Official BCT Rate" stroke="#00f2ff" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="parallel" name="Parallel Rate" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Capital Flight Drivers</h4>
+              <div className="space-y-4">
+                {[
+                  { label: 'Trade Misinvoicing', risk: 'HIGH', desc: 'Under-invoicing of exports and over-invoicing of imports to move capital abroad.' },
+                  { label: 'Forex Rationing', risk: 'CRITICAL', desc: 'BCT restrictions on corporate FX transfers driving firms to parallel markets.' },
+                  { label: 'Political Instability', risk: 'HIGH', desc: 'Uncertainty regarding property rights and future tax regimes.' }
+                ].map((d, i) => (
+                  <div key={i} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-bold text-white uppercase">{d.label}</span>
+                      <span className="text-[8px] font-mono text-intel-red font-bold">{d.risk}</span>
+                    </div>
+                    <p className="text-[9px] text-slate-500 leading-tight">{d.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 8 — ECONOMIC FREEDOM VS RRI LINK */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Economic Freedom vs. Revolution Risk (RRI)</h3>
+            <p className="text-[10px] text-slate-500">Correlation between business climate deterioration and social unrest risk</p>
+          </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis type="number" dataKey="freedom" name="Freedom Score" unit="" domain={[30, 70]} label={{ value: 'Economic Freedom Score', position: 'insideBottom', offset: -10, fill: '#475569', fontSize: 8 }} tick={{ fill: '#475569', fontSize: 8 }} />
+                <YAxis type="number" dataKey="rri" name="RRI" unit="" domain={[0, 100]} label={{ value: 'Revolution Risk Index (RRI)', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 8 }} tick={{ fill: '#475569', fontSize: 8 }} />
+                <ZAxis type="number" dataKey="pop" range={[50, 400]} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                <Scatter name="Regions" data={[
+                  { name: 'Tunisia (Current)', freedom: data.economy.heritage_freedom_score, rri: 78, pop: 300, color: '#ef4444' },
+                  { name: 'Morocco', freedom: 58, rri: 42, pop: 200, color: '#22c55e' },
+                  { name: 'Egypt', freedom: 48, rri: 65, pop: 250, color: '#f97316' },
+                  { name: 'Algeria', freedom: 42, rri: 58, pop: 180, color: '#f59e0b' },
+                  { name: 'Jordan', freedom: 62, rri: 38, pop: 120, color: '#00f2ff' }
+                ]}>
+                  { [
+                    { name: 'Tunisia (Current)', freedom: data.economy.heritage_freedom_score, rri: 78, pop: 300, color: '#ef4444' },
+                    { name: 'Morocco', freedom: 58, rri: 42, pop: 200, color: '#22c55e' },
+                    { name: 'Egypt', freedom: 48, rri: 65, pop: 250, color: '#f97316' },
+                    { name: 'Algeria', freedom: 42, rri: 58, pop: 180, color: '#f59e0b' },
+                    { name: 'Jordan', freedom: 62, rri: 38, pop: 120, color: '#00f2ff' }
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Scatter>
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="p-4 bg-intel-orange/5 border border-intel-orange/20 rounded-xl">
+            <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+              <span className="text-intel-orange font-bold">ANALYSIS:</span> Tunisia currently sits in the "High Risk / Low Freedom" quadrant. Historical data suggests that when Economic Freedom drops below 50 while RRI exceeds 70, the probability of structural social unrest increases by 65%.
+            </p>
+          </div>
+        </div>
+
+        {/* SECTION 9 — STARTUP ECOSYSTEM (RE-RENDERED FOR BUSINESS CONTEXT) */}
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Ecosystem: The Only Growth Engine?</h3>
+              <p className="text-[10px] text-slate-500">Comparing Startup Act performance vs. traditional SME sector</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div className="text-[10px] font-bold text-intel-cyan uppercase">Startup Act Labels</div>
+              <div className="text-2xl font-bold text-white font-mono">980</div>
+              <p className="text-[8px] text-slate-500">Total labels granted since 2019. Providing tax holidays and FX accounts.</p>
+            </div>
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div className="text-[10px] font-bold text-intel-green uppercase">Avg Funding</div>
+              <div className="text-2xl font-bold text-white font-mono">$630K</div>
+              <p className="text-[8px] text-slate-500">Average seed/Series A round. Driven by international VCs (212, AfricInvest).</p>
+            </div>
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div className="text-[10px] font-bold text-intel-red uppercase">Brain Drain Risk</div>
+              <div className="text-2xl font-bold text-white font-mono">42%</div>
+              <p className="text-[8px] text-slate-500">Startups considering relocation to France/UAE due to local FX restrictions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderRemittances = () => (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Remittances', value: `${data.economy.remittances_total_bnd}B TND`, trend: `+${data.economy.remittances_growth_yoy}% YoY`, status: 'GOOD', desc: 'Total annual inflows from Tunisian diaspora.' },
+          { label: '% of GDP', value: `${data.economy.remittances_pct_gdp}%`, trend: 'Structural Pillar', status: 'WARNING', desc: 'Critical source of foreign exchange and household income.' },
+          { label: 'France Share', value: `${data.economy.remittances_france_pct}%`, trend: 'High Concentration', status: 'WARNING', desc: 'Percentage of total remittances originating from France.' },
+          { label: 'Avg Transfer Cost', value: '6.2%', trend: 'SDG Target: 3%', status: 'CRITICAL', desc: 'Average cost of sending $200 to Tunisia.' }
+        ].map((stat, i) => (
+          <div key={i} className="glass p-4 rounded-xl border border-intel-border space-y-2">
+            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{stat.label}</span>
+            <div className="text-2xl font-bold text-white font-mono">{stat.value}</div>
+            <div className="flex items-center justify-between">
+              <span className={`text-[10px] font-mono ${stat.status === 'GOOD' ? 'text-intel-green' : stat.status === 'WARNING' ? 'text-intel-orange' : 'text-intel-red'}`}>
+                {stat.trend}
+              </span>
+              <div className={`w-1.5 h-1.5 rounded-full ${stat.status === 'GOOD' ? 'bg-intel-green' : stat.status === 'WARNING' ? 'bg-intel-orange' : 'bg-intel-red animate-pulse'}`}></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Growth & GDP Impact</h3>
+              <p className="text-[10px] text-slate-500">Total volume (B TND) vs % of GDP - 2020-2025</p>
+            </div>
+          </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={remittanceHistory}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingBottom: '20px' }} />
+                <Bar yAxisId="left" dataKey="total" name="Total (B TND)" fill="#00f2ff" radius={[4, 4, 0, 0]} barSize={30} />
+                <Line yAxisId="right" type="monotone" dataKey="pctGdp" name="% of GDP" stroke="#f43f5e" strokeWidth={3} dot={{ r: 4, fill: '#f43f5e' }} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Geographic Origin Distribution</h3>
+              <p className="text-[10px] text-slate-500">Breakdown of remittance inflows by source country/region</p>
+            </div>
+          </div>
+          <div className="h-80 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={remittanceDistribution}
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {remittanceDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingTop: '20px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Distribution: Urban vs Rural</h3>
+            <p className="text-[10px] text-slate-500">Inflow concentration by region and settlement type (M TND)</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-intel-cyan"></div>
+              <span className="text-[8px] font-mono text-slate-500 uppercase">Urban</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-intel-orange"></div>
+              <span className="text-[8px] font-mono text-slate-500 uppercase">Rural</span>
+            </div>
+          </div>
+        </div>
+        <div className="h-80 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={remittanceRegionalData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+              <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+              <YAxis dataKey="region" type="category" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8, fontFamily: 'monospace' }} width={100} />
+              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+              <Bar dataKey="urban" name="Urban Inflows" stackId="a" fill="#00f2ff" />
+              <Bar dataKey="rural" name="Rural Inflows" stackId="a" fill="#f97316" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl">
+          <div className="flex items-start space-x-3">
+            <Info className="w-4 h-4 text-intel-cyan mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-[10px] text-white font-bold uppercase">Structural Urban Bias</p>
+              <p className="text-[9px] text-slate-400 leading-relaxed">
+                72% of total remittances are directed towards coastal urban centers (Grand Tunis, Sahel, Sfax), exacerbating regional wealth disparities. Rural areas, despite higher migration rates in some cases, receive lower absolute volumes, often used for immediate consumption rather than investment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Policy & Strategic Links</h3>
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate-subtab', { detail: { subtab: 'migration' } }))}
+            className="text-[10px] font-mono text-intel-cyan hover:underline flex items-center space-x-1"
+          >
+            <ArrowUpRight className="w-3 h-3" />
+            <span>VIEW DIASPORA INTELLIGENCE</span>
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { title: 'Digitalization Push', desc: 'BCT promoting mobile wallet integration for diaspora to reduce transfer costs and informal flows.', impact: 'HIGH', color: 'text-intel-cyan' },
+            { title: 'Investment Incentives', desc: 'New "Diaspora Bond" proposal to channel remittances into infrastructure and green energy projects.', impact: 'MEDIUM', color: 'text-intel-green' },
+            { title: 'Informal Channel Risk', desc: 'Estimated 25% of total flows bypass official banking system via informal "hand-to-hand" networks.', impact: 'CRITICAL', color: 'text-intel-red' }
+          ].map((item, i) => (
+            <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div className="text-[10px] font-bold text-white uppercase tracking-tight">{item.title}</div>
+              <p className="text-[10px] text-slate-500 leading-relaxed">{item.desc}</p>
+              <div className={`text-[8px] font-mono font-bold uppercase ${item.color}`}>{item.impact} IMPACT</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const renderMacroIndicators = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -406,7 +1118,19 @@ export const EconomyIntelligence: React.FC = () => {
             { label: 'Public Debt / GDP', value: `${data.economy.public_debt}%`, trend: '+2.1 vs 2025', status: 'CRITICAL', desc: 'Total public debt as % of GDP. External debt service: $3.2B due in 2026.', source: 'Ministry of Finance', history: [82, 84, 85, 86, 87.4] },
             { label: 'Current Account', value: '-8.3%', trend: '-0.7 vs 2025', status: 'CRITICAL', desc: 'Current account balance as % of GDP. Trade deficit widening due to energy imports.', source: 'BCT', history: [-7.2, -7.5, -7.8, -8.1, -8.3] },
             { label: 'TND / USD', value: `${data.economy.tnd_usd}`, trend: '+4.2 YTD 2026', status: 'WARNING', desc: 'Official dinar exchange rate. Parallel market estimated at 3.85 TND/USD (+20%).', source: 'BCT Official Rate', history: [3.05, 3.12, 3.15, 3.18, 3.21] },
-            { label: 'Budget Deficit', value: '-7.8%', trend: '-0.3 vs 2025 target', status: 'CRITICAL', desc: 'Fiscal deficit vs GDP. IMF target was -6.0%. Wage bill expansion driving overrun.', source: 'Ministry of Finance', history: [-6.8, -7.2, -7.4, -7.6, -7.8] },
+            { 
+              label: 'Budget Deficit', 
+              value: '-7.8%', 
+              trend: '-0.3 vs 2025 target', 
+              status: 'CRITICAL', 
+              desc: 'Fiscal deficit vs GDP. IMF target was -6.0%. Wage bill expansion driving overrun.', 
+              source: 'Ministry of Finance', 
+              history: [-6.8, -7.2, -7.4, -7.6, -7.8],
+              links: [
+                { label: 'VIEW UGTT MONITOR', tab: 'political', subTab: 'ugtt', color: 'text-intel-cyan' },
+                { label: 'VIEW GEOPOLITICAL PRESSURE', tab: 'geopolitical', color: 'text-intel-orange' }
+              ]
+            },
             { label: 'FDI Inflows', value: '1.24B', trend: '-18.4 vs 2025', status: 'CRITICAL', desc: 'Foreign direct investment inflows YTD. Energy sector FDI down 34%.', source: 'FIPA', history: [1.8, 1.6, 1.5, 1.3, 1.24] },
             { label: 'Remittances', value: '$2.87B', trend: '+3.1 vs 2025', status: 'GOOD', desc: 'Diaspora remittances — one of Tunisia\'s key forex sources. Slight growth driven by Europe.', source: 'BCT', history: [2.6, 2.7, 2.75, 2.8, 2.87] },
             { label: 'Tourism Revenue', value: '1.4B', trend: '-24 vs Q1 2025', status: 'CRITICAL', desc: 'Tourist revenue Q1 2026. Bookings down 42% amid political instability and visa issues.', source: 'Ministry of Tourism', history: [2.1, 1.9, 1.7, 1.5, 1.4] },
@@ -464,6 +1188,25 @@ export const EconomyIntelligence: React.FC = () => {
                       </span>
                     </div>
                   </div>
+
+                  {ind.links && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {ind.links.map((link: any, idx: number) => (
+                        <button 
+                          key={idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: link.tab, subTab: link.subTab } }));
+                          }}
+                          className={cn("text-[8px] font-mono font-bold hover:underline flex items-center space-x-1", link.color)}
+                        >
+                          <ArrowUpRight className="w-2 h-2" />
+                          <span>{link.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                   
                   {/* Mini Sparkline */}
                   <div className="h-12 w-20 opacity-50 group-hover:opacity-100 transition-opacity">
@@ -484,7 +1227,6 @@ export const EconomyIntelligence: React.FC = () => {
                     </ResponsiveContainer>
                   </div>
                 </div>
-              </div>
 
               <div className="pt-2 border-t border-white/5 mt-auto relative z-10">
                 <p className="text-[9px] text-slate-500 leading-tight line-clamp-2 group-hover:line-clamp-none transition-all">
@@ -590,7 +1332,7 @@ export const EconomyIntelligence: React.FC = () => {
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">CPI Inflation by Component</h3>
               <p className="text-[10px] text-slate-500">Annual % change - March 2026</p>
             </div>
-            <span className="text-[10px] font-mono text-intel-orange uppercase">{data.economy.inflation}% Overall</span>
+            <span className="text-[10px] font-mono text-intel-orange uppercase">{(data.economy.inflation || 0).toString()}% Overall</span>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -766,7 +1508,7 @@ export const EconomyIntelligence: React.FC = () => {
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Risk Signals</h3>
             <div className="space-y-4">
               {[
-                { label: 'IMF Deal Status', value: 'SUSPENDED', color: 'text-intel-red' },
+                { label: 'IMF Deal Status', value: 'SUSPENDED', color: 'text-intel-red', link: { label: 'VIEW GEOPOLITICAL PRESSURE', tab: 'geopolitical', color: 'text-intel-orange' } },
                 { label: 'Eurobond Yield', value: '11.2% (+340bps)', color: 'text-intel-red' },
                 { label: 'Credit Rating (Fitch)', value: 'CCC+ (Negative)', color: 'text-intel-red' },
                 { label: 'Subsidy Bill 2026', value: '8.4B TND (+18%)', color: 'text-intel-orange' },
@@ -774,10 +1516,21 @@ export const EconomyIntelligence: React.FC = () => {
                 { label: 'Inflation Expectation', value: '6.8% (12m)', color: 'text-intel-orange' },
                 { label: 'BCT Policy Rate', value: '8.0% (unchanged)', color: 'text-intel-orange' },
                 { label: 'Diaspora Confidence', value: 'STABLE', color: 'text-intel-green' }
-              ].map((signal, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-tighter">{signal.label}</span>
-                  <span className={`text-[10px] font-mono font-bold ${signal.color}`}>{signal.value}</span>
+              ].map((signal: any, i) => (
+                <div key={i} className="flex flex-col space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-tighter">{signal.label}</span>
+                    <span className={`text-[10px] font-mono font-bold ${signal.color}`}>{signal.value}</span>
+                  </div>
+                  {signal.link && (
+                    <button 
+                      onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: signal.link.tab, subTab: signal.link.subTab } }))}
+                      className={cn("text-[8px] font-mono font-bold hover:underline flex items-center space-x-1", signal.link.color)}
+                    >
+                      <ArrowUpRight className="w-2 h-2" />
+                      <span>{signal.link.label}</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -1524,7 +2277,7 @@ export const EconomyIntelligence: React.FC = () => {
                     }`}></div>
                   </div>
                   <div className="flex items-end justify-between">
-                    <span className="text-xs font-bold text-white font-mono">{gov.vulnerability}</span>
+                    <span className="text-xs font-bold text-white font-mono">{gov.vulnerability.toString()}</span>
                     <span className="text-[7px] font-mono text-slate-600 uppercase">Risk Index</span>
                   </div>
                 </div>
@@ -2200,6 +2953,17 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
+          {/* Category: Remittances */}
+          {(activeCategory === 'ALL' || activeCategory === 'REMITTANCES') && (
+            <div className="space-y-8">
+              <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
+                <Globe className="w-6 h-6 text-intel-cyan" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Remittance Intelligence</h2>
+              </div>
+              {renderRemittances()}
+            </div>
+          )}
+
           {/* Category: Regional Comparison (Split from Macro if needed or kept as sub-section) */}
           {(activeCategory === 'ALL' || activeCategory === 'REGIONAL') && (
             <div className="space-y-8">
@@ -2243,6 +3007,17 @@ export const EconomyIntelligence: React.FC = () => {
                 <h2 className="text-xl font-bold text-white uppercase tracking-wider">Startup Ecosystem & Venture Capital</h2>
               </div>
               {renderStartupIntelligence()}
+            </div>
+          )}
+
+          {/* Category: Business Climate */}
+          {(activeCategory === 'ALL' || activeCategory === 'BUSINESS') && (
+            <div className="space-y-8">
+              <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
+                <Briefcase className="w-6 h-6 text-intel-cyan" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Business Climate & Economic Freedom</h2>
+              </div>
+              {renderBusinessClimate()}
             </div>
           )}
 

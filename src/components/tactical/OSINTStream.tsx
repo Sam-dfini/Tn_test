@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { motion } from 'motion/react';
 import { RefreshCw, AlertTriangle, Globe } from 'lucide-react';
+import { processArticleForRRI } from '../../utils/rriEngine';
 
 interface NewsItem {
   source: string;
@@ -31,6 +32,14 @@ export const OSINTStream: React.FC = () => {
 
       const data = JSON.parse(response.text);
       setNews(data);
+
+      // Nudge RRI for each news item
+      data.forEach((item: any) => {
+        processArticleForRRI(item.source + ' ' + item.content, 0.5);
+      });
+      
+      // Trigger global RRI recalculation event
+      window.dispatchEvent(new CustomEvent('rri-recalculate'));
     } catch (err) {
       console.error('Failed to fetch OSINT data:', err);
       setError('Uplink failed. Retrying connection...');

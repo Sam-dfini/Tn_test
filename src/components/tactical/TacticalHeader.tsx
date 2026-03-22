@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Clock, Globe, Zap, AlertTriangle, Download, Home } from 'lucide-react';
+import { Clock, Globe, Zap, AlertTriangle, Download, Home, TrendingUp } from 'lucide-react';
+import { usePipeline } from '../../context/PipelineContext';
 
 export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => void, data: any }> = ({ onOpenAI, onGoHome, data }) => {
+  const { rriState } = usePipeline();
+  
   return (
     <header className="h-14 border-b border-intel-border bg-intel-card/50 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-[100] overflow-hidden">
       {/* Animated Red Border for Tunisia Focus */}
@@ -85,15 +88,19 @@ export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => vo
             <Download className="w-4 h-4" />
           </button>
           <div className="hidden lg:flex flex-col items-end">
-            <div className="text-[8px] font-mono text-slate-500 uppercase">Sources</div>
-            <div className="text-xs font-bold text-white font-mono">26/26</div>
+            <div className="text-[8px] font-mono text-slate-500 uppercase">RRI</div>
+            <div className={`text-xs font-bold font-mono ${rriState.rri > 2.5 ? 'text-intel-red' : 'text-intel-cyan'}`}>
+              {rriState.rri.toFixed(2)}
+            </div>
           </div>
           <div className="hidden lg:flex flex-col items-end">
-            <div className="text-[8px] font-mono text-slate-500 uppercase">Delta</div>
-            <div className="text-xs font-bold text-intel-cyan font-mono">◆ Mixed</div>
+            <div className="text-[8px] font-mono text-slate-500 uppercase">P_REV</div>
+            <div className={`text-xs font-bold font-mono ${rriState.p_rev > 0.7 ? 'text-intel-red' : 'text-intel-cyan'}`}>
+              {(rriState.p_rev * 100).toFixed(1)}%
+            </div>
           </div>
-          <div className="px-3 py-1 bg-intel-red text-white text-[10px] font-bold uppercase tracking-widest rounded">
-            High Alert
+          <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded ${rriState.rri > 2.5 ? 'bg-intel-red text-white' : 'bg-intel-orange text-black'}`}>
+            {rriState.rri > 2.5 ? 'High Alert' : 'Elevated Risk'}
           </div>
         </div>
       </div>

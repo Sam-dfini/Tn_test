@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { CornerAccent } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
+import { processArticleForRRI } from '../utils/rriEngine';
 
 interface NewsArticle {
   id: string;
@@ -211,6 +212,9 @@ export const NewsFeed: React.FC = () => {
   };
 
   const handlePushToPipeline = (article: NewsArticle) => {
+    // Process for RRI nudging
+    processArticleForRRI(article.title + ' ' + article.summary, 0.5);
+
     // Emit event for DataPipeline to catch
     window.dispatchEvent(new CustomEvent('pipeline-article', { 
       detail: { url: article.url, title: article.title } 
@@ -219,7 +223,10 @@ export const NewsFeed: React.FC = () => {
     setPushedArticles(prev => new Set(prev).add(article.id));
     
     // Also add a small notification or visual feedback
-    console.log(`Article ${article.id} pushed to pipeline`);
+    console.log(`Article ${article.id} pushed to pipeline and RRI nudged`);
+    
+    // Trigger global RRI recalculation event
+    window.dispatchEvent(new CustomEvent('rri-recalculate'));
   };
 
   return (
