@@ -157,7 +157,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 relative">
+    <div className="p-3 md:p-4 space-y-8 animate-in fade-in duration-700 relative">
       <BackgroundGrid />
       
       <ModuleHeader 
@@ -167,7 +167,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
         nodeId="ENV-NODE-02"
       />
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-4 rounded-2xl border border-white/5 shadow-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-3 md:p-4 rounded-xl border border-white/5 shadow-2xl">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
           {categories.map((cat) => (
             <button
@@ -215,7 +215,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 { label: 'Aquifer Depletion Rate', value: '1.8m/yr', icon: TrendingDown, color: 'text-intel-red' },
                 { label: 'Dam Fill Level', value: '28.4%', icon: Waves, color: 'text-intel-orange' }
               ].map((stat, i) => (
-                <div key={i} className="intel-card p-4 rounded-2xl border border-white/10 flex items-center space-x-4">
+                <div key={i} className="intel-card p-4 rounded-xl border border-white/10 flex items-center space-x-4">
                   <div className={cn("p-2 rounded-lg bg-white/5", stat.color)}>
                     <stat.icon className="w-5 h-5" />
                   </div>
@@ -229,7 +229,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Water Stress Table */}
-              <div className="lg:col-span-8 intel-card p-6 rounded-3xl border border-white/10">
+              <div className="lg:col-span-8 intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
                 <div className="flex justify-between items-center mb-6">
                   <div>
                     <h3 className="text-lg font-bold text-white flex items-center">
@@ -243,8 +243,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <table className="w-full text-left border-collapse min-w-[600px]">
                     <thead>
                       <tr className="border-b border-white/10">
                         <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Governorate</th>
@@ -291,7 +291,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
               </div>
 
               {/* Dam Levels Chart */}
-              <div className="lg:col-span-4 intel-card p-6 rounded-3xl border border-white/10">
+              <div className="lg:col-span-4 intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
                 <h3 className="text-lg font-bold text-white mb-1 flex items-center">
                   <Waves className="w-5 h-5 mr-2 text-intel-cyan" />
                   Dam Reservoir Levels
@@ -339,7 +339,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
 
             {/* Aquifer & Correlation */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="intel-card p-6 rounded-3xl border border-white/10">
+              <div className="intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
                 <h3 className="text-lg font-bold text-white mb-6 flex items-center">
                   <Activity className="w-5 h-5 mr-2 text-intel-cyan" />
                   Aquifer Depletion Monitoring
@@ -350,7 +350,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                     { name: 'Central Aquifer (Kairouan)', depletion: '2.4m/yr', salt: 'Medium', remaining: '12 yrs' },
                     { name: 'Southern Aquifer (Chott)', depletion: '0.8m/yr', salt: 'High', remaining: '8 yrs' }
                   ].map((aq, i) => (
-                    <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex justify-between items-center">
+                    <div key={i} className="p-4 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex justify-between items-center">
                       <div>
                         <div className="text-sm font-bold text-white">{aq.name}</div>
                         <div className="text-[10px] font-mono text-slate-500 uppercase">Depletion: {aq.depletion}</div>
@@ -369,7 +369,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 </div>
               </div>
 
-              <div className="intel-card p-6 rounded-3xl border border-white/10 bg-gradient-to-br from-intel-red/5 to-transparent">
+              <div className="intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-br from-intel-red/5 to-transparent">
                 <h3 className="text-lg font-bold text-white mb-2 flex items-center">
                   <AlertTriangle className="w-5 h-5 mr-2 text-intel-red" />
                   Water-Protest Correlation
@@ -399,7 +399,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                  <div className="p-4 rounded-xl md:rounded-2xl bg-black/40 border border-white/5">
                     <p className="text-xs text-slate-400 leading-relaxed italic">
                       "Historical data shows a 0.82 correlation coefficient between water cuts exceeding 12 hours and 
                       unspontaneous civil movements in central governorates. Current RRI spikes in Kairouan are 
@@ -443,7 +443,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                     { label: 'Aquifer Depletion', value: '82%', status: 'CRITICAL', icon: Activity },
                     { label: 'Avg Temp Anomaly', value: '+2.1°C', status: 'CRITICAL', icon: Thermometer },
                   ].map((metric, i) => (
-                    <div key={i} className="glass p-6 rounded-3xl border border-intel-border relative overflow-hidden group">
+                    <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
                       <CornerAccent position="tl" />
                       <CornerAccent position="br" />
                       <div className="flex items-center justify-between mb-4">
@@ -466,7 +466,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Dam Reserves Decline */}
-                  <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+                  <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
                     <div className="flex items-center justify-between mb-8">
                       <div>
                         <h3 className="text-lg font-bold text-white uppercase tracking-tight">Dam Reserve Levels</h3>
@@ -494,7 +494,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   </div>
 
                   {/* Water Cut Impact */}
-                  <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
+                  <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
                     <div className="flex items-center justify-between mb-8">
                       <h3 className="text-lg font-bold text-white uppercase tracking-tight">Regional Water Cuts</h3>
                       <Activity className="w-5 h-5 text-intel-cyan" />
@@ -516,7 +516,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 </div>
 
                 {/* Water Crisis Heatmap & Regional Stress Analysis */}
-                <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                   <CornerAccent position="tl" />
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="space-y-1">
@@ -533,7 +533,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 h-[500px] w-full rounded-2xl overflow-hidden border border-white/5 bg-black/20">
+                    <div className="lg:col-span-2 h-[500px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/5 bg-black/20">
                       <Map 
                         governorates={[]} 
                         events={[]} 
@@ -603,7 +603,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Land Classification */}
-          <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
+          <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Land Classification</h3>
               <PieChartIcon className="w-5 h-5 text-intel-cyan" />
@@ -641,7 +641,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
           </div>
 
           {/* CO2 Emissions */}
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-bold text-white uppercase tracking-tight">CO2 Emissions Trend</h3>
@@ -675,7 +675,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
 
       {/* Forest Fire Intelligence */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-20">
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+        <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Forest Fire Dynamics</h3>
@@ -697,7 +697,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
+        <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8 border-b border-intel-border pb-4">
             <h3 className="text-lg font-bold text-white uppercase tracking-tight">Active Hotspots</h3>
             <MapIcon className="w-4 h-4 text-intel-cyan" />
@@ -730,7 +730,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
       </div>
 
       {/* Forest Fire Risk & Ecological Heatmap */}
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6 relative z-20">
+      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6 relative z-20">
         <CornerAccent position="tr" />
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -745,7 +745,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
             <FireExtinguisher className="w-5 h-5 text-intel-red" />
           </div>
         </div>
-        <div className="h-[500px] w-full rounded-2xl overflow-hidden border border-white/5 bg-black/20">
+        <div className="h-[500px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/5 bg-black/20">
           <Map 
             governorates={[]} 
             events={[]} 
@@ -759,7 +759,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
             { title: 'Thermal Anomalies', color: 'text-intel-red', desc: 'Real-time satellite detection of surface temperature spikes > 45°C.' },
             { title: 'Ecological Vulnerability', color: 'text-intel-cyan', desc: 'Endemic species habitats at risk of permanent degradation from fire cycles.' }
           ].map((item, i) => (
-            <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-2 group hover:border-white/20 transition-all">
+            <div key={i} className="p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/10 space-y-2 group hover:border-white/20 transition-all">
               <div className={`text-[10px] font-bold ${item.color} uppercase tracking-widest flex items-center space-x-2`}>
                 <div className={`w-1 h-1 rounded-full bg-current`}></div>
                 <span>{item.title}</span>
@@ -787,7 +787,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   desc: 'Rising summer temperatures and prolonged droughts have increased wildfire frequency by 40% since 2020. The Kroumirie and Mogods forests are at extreme risk. Human activity (both accidental and arson) accounts for 90% of ignitions.' 
                 },
               ].map((dossier, i) => (
-                <div key={i} className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
+                <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
                   <CornerAccent position="tl" />
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-3">

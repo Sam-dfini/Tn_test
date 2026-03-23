@@ -9,7 +9,8 @@ import {
   Activity,
   Lock,
   Globe,
-  Network
+  Network,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { Elections } from './Elections';
@@ -29,8 +30,11 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
   useEffect(() => {
     const handleNavigateSubTab = (e: any) => {
       const { subTab } = e.detail || {};
-      if (subTab && tabs.some(t => t.id === subTab)) {
-        setActiveSubTab(subTab as TabType);
+      if (subTab) {
+        const targetTab = tabs.find(t => t.id.toLowerCase() === subTab.toLowerCase());
+        if (targetTab) {
+          setActiveSubTab(targetTab.id);
+        }
       }
     };
 
@@ -50,10 +54,10 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
   ];
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-6 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Top Metadata Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-2 bg-intel-cyan/5 border-y border-intel-cyan/10 text-[10px] font-mono uppercase tracking-widest text-slate-500">
-        <div className="flex items-center space-x-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-4 md:px-6 py-3 md:py-2 bg-intel-cyan/5 border-y border-intel-cyan/10 text-[9px] md:text-[10px] font-mono uppercase tracking-widest text-slate-500">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Classification:</span>
             <span className="text-white">Top Secret // Intel-Alpha</span>
@@ -63,7 +67,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
             <span className="text-white">Political Intelligence (PID)</span>
           </div>
         </div>
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Last Update:</span>
             <span className="text-white">{new Date().toISOString().split('T')[0]} 06:00 Z</span>
@@ -76,46 +80,56 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
       </div>
 
       {/* Professional Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 px-2">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8 px-2">
         <div className="space-y-4">
           <div className="flex items-center space-x-3 text-intel-cyan">
             <div className="p-2 bg-intel-cyan/10 rounded-lg border border-intel-cyan/20">
-              <Users className="w-6 h-6" />
+              <Users className="w-5 h-5 md:w-6 md:h-6" />
             </div>
-            <span className="text-xs font-mono uppercase tracking-[0.4em] font-bold">Political Intelligence Division</span>
+            <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] md:tracking-[0.4em] font-bold">Political Intelligence Division</span>
           </div>
           <div>
-            <h2 className="text-5xl font-bold text-white tracking-tight leading-none">Regime Stability & Political Landscape</h2>
-            <p className="text-slate-500 mt-4 max-w-3xl text-lg leading-relaxed">
+            <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight md:leading-none">Regime Stability & Political Landscape</h2>
+            <p className="text-slate-500 mt-4 max-w-3xl text-base md:text-lg leading-relaxed">
               Strategic analysis of institutional power, electoral legitimacy, and the shifting dynamics of Tunisia's political actors. 
               Real-time monitoring of civil unrest and sentiment trends.
             </p>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-4">
-          <div className="flex items-center space-x-4 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
+        <div className="flex flex-col items-start lg:items-end gap-4">
+          <div className="flex items-center space-x-4 px-4 py-2 bg-white/5 rounded-xl border border-white/10 w-full sm:w-auto justify-between sm:justify-start">
             <div className="flex flex-col items-end">
-              <span className="text-[10px] text-slate-500 uppercase font-mono">Stability Index</span>
-              <span className="text-xl font-bold text-intel-orange font-mono">4.2 / 10</span>
+              <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-mono">Stability Index</span>
+              <span className="text-lg md:text-xl font-bold text-intel-orange font-mono">4.2 / 10</span>
             </div>
             <div className="w-px h-8 bg-white/10" />
             <div className="flex flex-col items-end">
-              <span className="text-[10px] text-slate-500 uppercase font-mono">Risk Level</span>
-              <span className="text-xl font-bold text-intel-red font-mono">Elevated</span>
+              <span className="text-[9px] md:text-[10px] text-slate-500 uppercase font-mono">Risk Level</span>
+              <span className="text-lg md:text-xl font-bold text-intel-red font-mono">Elevated</span>
             </div>
+            <div className="w-px h-8 bg-white/10" />
+            <button 
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+              }}
+              className="p-2 bg-intel-cyan/10 rounded-lg border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+              title="RRI Methodology"
+            >
+              <BookOpen className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 p-1 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl">
+      <div className="flex overflow-x-auto scrollbar-hide p-1 bg-black/40 rounded-xl md:rounded-2xl border border-white/5 backdrop-blur-xl gap-1">
         {tabs.map(tab => (
           <button 
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id)}
             className={cn(
-              "flex flex-col items-center justify-center gap-2 p-4 rounded-xl transition-all group relative overflow-hidden",
+              "flex flex-col items-center justify-center gap-2 p-2 md:p-4 rounded-lg md:rounded-xl transition-all group relative overflow-hidden flex-shrink-0 min-w-[80px] md:min-w-0 md:flex-1",
               activeSubTab === tab.id 
                 ? "bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 shadow-[0_0_20px_rgba(0,255,255,0.1)]" 
                 : "text-slate-500 hover:text-white hover:bg-white/5 border border-transparent"
@@ -124,8 +138,8 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
             {activeSubTab === tab.id && (
               <div className="absolute top-0 left-0 w-full h-0.5 bg-intel-cyan shadow-[0_0_10px_rgba(0,255,255,0.5)]" />
             )}
-            <tab.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", activeSubTab === tab.id ? "text-intel-cyan" : "text-slate-500 group-hover:text-intel-cyan")} />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{tab.label}</span>
+            <tab.icon className={cn("w-4 h-4 md:w-5 md:h-5 transition-transform group-hover:scale-110", activeSubTab === tab.id ? "text-intel-cyan" : "text-slate-500 group-hover:text-intel-cyan")} />
+            <span className="text-[9px] md:text-[10px] font-mono font-bold uppercase tracking-widest">{tab.label}</span>
           </button>
         ))}
       </div>
@@ -150,12 +164,12 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
       </div>
 
       {/* Footer Intelligence Note */}
-      <div className="pt-12 border-t border-intel-border/30">
-        <div className="flex items-start space-x-4 p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/10">
-          <ShieldAlert className="w-6 h-6 text-intel-cyan shrink-0 mt-1" />
+      <div className="pt-8 md:pt-12 border-t border-intel-border/30">
+        <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 p-4 md:p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/10">
+          <ShieldAlert className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan shrink-0 mt-1" />
           <div className="space-y-2">
             <h4 className="text-sm font-bold text-white uppercase tracking-wider">Intelligence Advisory</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <p className="text-[11px] md:text-xs text-slate-400 leading-relaxed">
               This dossier is compiled from multi-source intelligence including satellite imagery of protest hotspots, 
               NLP-driven social media sentiment analysis, and field reports from civil society monitors. 
               Data is refreshed every 6 hours to reflect the volatile nature of the current political transition.

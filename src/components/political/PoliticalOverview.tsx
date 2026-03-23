@@ -91,9 +91,9 @@ export const PoliticalOverview: React.FC = () => {
   const daysDetained = Math.floor((today.getTime() - arrestDate.getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <div className="space-y-8">
+    <div className="p-3 md:p-4 space-y-6">
       {/* RRI Status Banner */}
-      <div className="intel-card p-6 rounded-3xl border border-intel-red/30 bg-intel-red/5 relative overflow-hidden group">
+      <div className="intel-card p-5 md:p-6 rounded-2xl border border-intel-red/30 bg-intel-red/5 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
           <Activity className="w-24 h-24 text-intel-red" />
         </div>
@@ -141,7 +141,7 @@ export const PoliticalOverview: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Regime Stability Scorecard */}
-        <div className="lg:col-span-7 intel-card p-8 rounded-3xl border border-white/10">
+        <div className="lg:col-span-7 intel-card p-5 md:p-6 rounded-2xl border border-white/10">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-bold text-white flex items-center">
@@ -156,8 +156,8 @@ export const PoliticalOverview: React.FC = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto scrollbar-hide">
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Dimension</th>
@@ -197,7 +197,7 @@ export const PoliticalOverview: React.FC = () => {
         </div>
 
         {/* Key Actor Status Summary */}
-        <div className="lg:col-span-5 intel-card p-8 rounded-3xl border border-white/10">
+        <div className="lg:col-span-5 intel-card p-5 md:p-6 rounded-2xl border border-white/10">
           <h3 className="text-lg font-bold text-white mb-6 flex items-center">
             <Users className="w-5 h-5 mr-2 text-intel-purple" />
             Key Actor Status Summary
@@ -240,7 +240,7 @@ export const PoliticalOverview: React.FC = () => {
         </div>
 
         {/* Presidential Appearance Frequency */}
-        <div className="lg:col-span-8 glass p-8 rounded-3xl border border-intel-border/50 space-y-6">
+        <div className="lg:col-span-8 glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
@@ -293,7 +293,7 @@ export const PoliticalOverview: React.FC = () => {
         </div>
 
         {/* Political Compass */}
-        <div className="lg:col-span-4 glass p-8 rounded-3xl border border-intel-border/50 space-y-6">
+        <div className="lg:col-span-4 glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-6">
           <div className="space-y-1">
             <h3 className="text-lg font-bold text-white flex items-center space-x-2">
               <Compass className="w-5 h-5 text-intel-purple" />
@@ -379,7 +379,7 @@ export const PoliticalOverview: React.FC = () => {
         {/* Political Freedom Index Summary */}
         <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-4 gap-4">
           {freedomMetrics.map((metric, i) => (
-            <div key={metric.label} className="glass p-5 rounded-2xl border border-intel-border/50 space-y-3">
+            <div key={metric.label} className="glass p-4 rounded-xl border border-intel-border/50 space-y-3">
               <div className="flex justify-between items-start">
                 <div className="text-[9px] text-slate-500 uppercase font-mono tracking-wider">{metric.label}</div>
                 {metric.trend === 'down' ? (
@@ -411,7 +411,7 @@ export const PoliticalOverview: React.FC = () => {
 
         {/* Risk Assessment & Timeline */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="glass p-6 rounded-2xl border border-intel-border/50 space-y-4">
+          <div className="glass p-5 rounded-xl border border-intel-border/50 space-y-4">
             <h4 className="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-2">
               <Info className="w-4 h-4 text-intel-cyan" />
               Risk Assessment Matrix
@@ -433,7 +433,7 @@ export const PoliticalOverview: React.FC = () => {
         </div>
 
         {/* Recent Political Events Timeline */}
-        <div className="lg:col-span-12 intel-card p-8 rounded-3xl border border-white/10">
+        <div className="lg:col-span-12 intel-card p-5 md:p-6 rounded-2xl border border-white/10">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-lg font-bold text-white uppercase tracking-widest flex items-center">
               <Calendar className="w-5 h-5 mr-2 text-intel-cyan" />
@@ -462,7 +462,7 @@ export const PoliticalOverview: React.FC = () => {
                     event.impact === 'HIGH' ? "bg-intel-orange shadow-[0_0_10px_#f97316]" :
                     "bg-intel-cyan shadow-[0_0_10px_#22d3ee]"
                   )} />
-                  <div className="intel-card p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
+                  <div className="intel-card p-3 rounded-xl border border-white/5 hover:border-white/10 transition-all">
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center space-x-3">
                         <span className="text-[10px] font-mono text-slate-500">{event.date}</span>

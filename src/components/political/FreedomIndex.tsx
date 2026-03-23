@@ -163,7 +163,7 @@ export const FreedomIndex: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 relative z-10">
+    <div className="p-3 md:p-4 space-y-8 animate-in fade-in duration-700 relative z-10">
       <BackgroundGrid />
       
       <ModuleHeader 
@@ -209,7 +209,7 @@ export const FreedomIndex: React.FC = () => {
               { label: 'Activists / Opposition', value: '38', sub: '57% of total', color: 'text-intel-cyan' },
               { label: 'Business Figures', value: '6', sub: '9% of total', color: 'text-intel-cyan' }
             ].map((stat, i) => (
-              <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+              <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{stat.label}</span>
                   <div className={cn("text-2xl font-bold font-mono", stat.color)}>
@@ -224,7 +224,7 @@ export const FreedomIndex: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Timeline Chart */}
-            <div className="lg:col-span-8 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-white uppercase tracking-widest">Decree 54 Charges by Quarter (2022–2026)</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase">Tracking the acceleration of cybercrime law enforcement</p>
@@ -254,7 +254,7 @@ export const FreedomIndex: React.FC = () => {
             </div>
 
             {/* Category Breakdown */}
-            <div className="lg:col-span-4 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Category Breakdown</h3>
               <div className="space-y-6">
                 {categoryBreakdown.map((item, i) => (
@@ -279,10 +279,10 @@ export const FreedomIndex: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Recent Cases Table */}
-            <div className="lg:col-span-7 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-7 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Decree 54 Cases</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto scrollbar-hide">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="border-b border-intel-border">
                       <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Date</th>
@@ -317,7 +317,7 @@ export const FreedomIndex: React.FC = () => {
             </div>
 
             {/* Throttling Log */}
-            <div className="lg:col-span-5 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-5 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Documented Internet Restriction Events</h3>
               <div className="space-y-4">
                 {throttlingLog.map((incident, i) => (
@@ -343,7 +343,7 @@ export const FreedomIndex: React.FC = () => {
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Detention Overview */}
-            <div className="lg:col-span-4 intel-card p-8 rounded-3xl border border-intel-border flex flex-col items-center justify-center space-y-8">
+            <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col items-center justify-center space-y-8">
               <div className="text-center space-y-2">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Currently Detained</span>
                 <div className="text-6xl font-bold font-mono text-intel-red">59</div>
@@ -387,7 +387,7 @@ export const FreedomIndex: React.FC = () => {
             </div>
 
             {/* Trend Chart */}
-            <div className="lg:col-span-8 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h3 className="text-sm font-bold text-white uppercase tracking-widest">Detention Trend (18 Months)</h3>
@@ -419,7 +419,7 @@ export const FreedomIndex: React.FC = () => {
             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Notable Detainees & Status</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {notableDetainees.map((detainee, i) => (
-                <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
+                <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-white">{detainee.name}</div>
@@ -459,7 +459,7 @@ export const FreedomIndex: React.FC = () => {
         <div className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* RSF Ranking Chart */}
-            <div className="lg:col-span-8 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-white uppercase tracking-widest">RSF Press Freedom Index — Tunisia Global Rank</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Lower rank number = better freedom. Data: 2015-2026</p>
@@ -488,7 +488,7 @@ export const FreedomIndex: React.FC = () => {
             </div>
 
             {/* Self-Censorship Gauge */}
-            <div className="lg:col-span-4 intel-card p-8 rounded-3xl border border-intel-border flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col items-center justify-center relative overflow-hidden">
               <div className="absolute top-6 left-6">
                 <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Self-Censorship Rate</h3>
               </div>
@@ -525,7 +525,7 @@ export const FreedomIndex: React.FC = () => {
               { title: 'Independent (Under Pressure)', items: mediaLandscape.independent, color: 'text-intel-orange' },
               { title: 'Shut Down / Suspended', items: mediaLandscape.suspended, color: 'text-slate-500' }
             ].map((group, i) => (
-              <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
+              <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4">
                 <h4 className={cn("text-xs font-bold uppercase tracking-widest", group.color)}>{group.title}</h4>
                 <div className="space-y-3">
                   {group.items.map((media, j) => (
@@ -561,7 +561,7 @@ export const FreedomIndex: React.FC = () => {
                       "absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-intel-bg z-10",
                       event.impact === 'CRITICAL' ? "bg-intel-red" : event.impact === 'HIGH' ? "bg-intel-orange" : "bg-intel-yellow"
                     )} />
-                    <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-2 group-hover:border-intel-cyan/30 transition-all">
+                    <div className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-2 group-hover:border-intel-cyan/30 transition-all">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-mono text-intel-cyan font-bold">{event.date}</span>
                         <span className={cn(
@@ -584,9 +584,9 @@ export const FreedomIndex: React.FC = () => {
             {/* Health Scorecard */}
             <div className="lg:col-span-5 space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Institutional Health Scorecard</h3>
-              <div className="intel-card p-8 rounded-3xl border border-intel-border">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+              <div className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <table className="w-full text-left border-collapse min-w-[500px]">
                     <thead>
                       <tr className="border-b border-intel-border">
                         <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Institution</th>
@@ -620,7 +620,7 @@ export const FreedomIndex: React.FC = () => {
               </div>
 
               {/* Summary Note */}
-              <div className="p-6 bg-intel-red/5 border border-intel-red/20 rounded-2xl space-y-4">
+              <div className="p-5 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-4">
                 <div className="flex items-center space-x-2 text-intel-red">
                   <AlertTriangle className="w-4 h-4" />
                   <span className="text-[10px] font-bold uppercase tracking-widest">Systemic Risk Assessment</span>

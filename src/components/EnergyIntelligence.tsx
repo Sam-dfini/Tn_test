@@ -142,7 +142,7 @@ export const EnergyIntelligence: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="glass p-4 rounded-xl border border-white/10 relative overflow-hidden group"
+            className="glass p-3 md:p-4 rounded-xl border border-white/10 relative overflow-hidden group"
           >
             <CornerAccent position="tl" />
             <div className="flex flex-col h-full justify-between space-y-2">
@@ -166,7 +166,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Energy Balance Chart */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Energy Generation vs Demand</h3>
@@ -214,7 +214,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
 
         {/* STEG Financial Health */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">STEG Financial Health</h3>
@@ -251,7 +251,7 @@ export const EnergyIntelligence: React.FC = () => {
       </div>
 
       {/* Infrastructure Heatmap */}
-      <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
@@ -312,7 +312,7 @@ export const EnergyIntelligence: React.FC = () => {
           { label: 'Oil Reserves', value: '425M bbl', trend: 'STABLE', icon: Battery, color: 'text-intel-cyan' },
           { label: 'Gas Reserves', value: '1.1T cf', trend: 'STABLE', icon: Factory, color: 'text-intel-cyan' },
         ].map((metric, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-white/10 space-y-2">
+          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
@@ -327,7 +327,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Production Decline Chart */}
-        <div className="lg:col-span-2 glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Production Decline Trend (10Y)</h3>
@@ -360,7 +360,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
 
         {/* Strategic Assets Table */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Strategic Assets</h3>
           <div className="space-y-4">
             {[
@@ -408,7 +408,7 @@ export const EnergyIntelligence: React.FC = () => {
           { label: 'Target 2030', value: '35%', current: '4.1%', icon: Globe, color: 'text-intel-green' },
           { label: 'Avoided CO2', value: '0.8M t/y', target: '4.5M t/y', icon: Droplets, color: 'text-intel-green' },
         ].map((metric, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-white/10 space-y-2">
+          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
@@ -423,7 +423,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* RE Roadmap */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Renewable Energy Roadmap</h3>
@@ -453,7 +453,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
 
         {/* Capacity by Tech */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Capacity by Technology</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -487,10 +487,10 @@ export const EnergyIntelligence: React.FC = () => {
       </div>
 
       {/* Active Projects Table */}
-      <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
         <h3 className="text-xs font-bold text-white uppercase tracking-widest">Active Renewable Projects</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto scrollbar-hide">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="border-b border-white/5">
                 <th className="pb-3 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Project Name</th>
@@ -543,7 +543,7 @@ export const EnergyIntelligence: React.FC = () => {
           { label: 'Interconnection Capacity', value: '1,200 MW', trend: 'ELMED', icon: Network, color: 'text-intel-cyan' },
           { label: 'Storage Capacity', value: '0 MW', trend: 'CRITICAL', icon: Battery, color: 'text-intel-red' },
         ].map((metric, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-white/10 space-y-2">
+          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
@@ -558,7 +558,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Regional Grid Stress */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Grid Stress Index</h3>
@@ -591,7 +591,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
 
         {/* Major Infrastructure Projects */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Infrastructure Pipeline</h3>
           <div className="space-y-4">
             {[
@@ -639,7 +639,7 @@ export const EnergyIntelligence: React.FC = () => {
           { label: 'Protest Risk', value: 'HIGH', trend: 'SUBSIDY SENSITIVE', icon: ShieldAlert, color: 'text-intel-red' },
           { label: 'Fiscal Impact', value: 'CRITICAL', trend: 'STEG DEFICIT', icon: AlertTriangle, color: 'text-intel-red' },
         ].map((metric, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-white/10 space-y-2">
+          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
@@ -652,7 +652,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Subsidy Breakdown */}
-        <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
             <PieChartIcon className="w-4 h-4 mr-2 text-intel-cyan" />
             Subsidy Breakdown
@@ -691,7 +691,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
 
         {/* Reform Roadmap */}
-        <div className="lg:col-span-2 glass p-6 rounded-2xl border border-white/10 space-y-6">
+        <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Reform Roadmap & Milestones</h3>
           <div className="relative space-y-8 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-white/10">
             {[
@@ -729,7 +729,7 @@ export const EnergyIntelligence: React.FC = () => {
       </div>
 
       {/* Protest Risk Assessment */}
-      <div className="glass p-6 rounded-2xl border border-white/10 space-y-6">
+      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Protest Risk Assessment</h3>
@@ -765,7 +765,7 @@ export const EnergyIntelligence: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-screen bg-intel-bg p-8 overflow-hidden">
+    <div className="relative min-h-screen bg-intel-bg p-3 md:p-4 overflow-hidden">
       <BackgroundGrid />
       
       <div className="relative z-10 max-w-7xl mx-auto space-y-8">

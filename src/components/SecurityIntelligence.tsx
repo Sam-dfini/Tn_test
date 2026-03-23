@@ -204,7 +204,7 @@ export const SecurityIntelligence: React.FC = () => {
 
       {/* Strategic Links Panel */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-20">
-        <div className="glass p-6 rounded-3xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/50 transition-all"
+        <div className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/50 transition-all"
              onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'freedom' } }))}>
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-intel-cyan/10 rounded-xl border border-intel-cyan/20 group-hover:bg-intel-cyan/20 transition-all">
@@ -218,7 +218,7 @@ export const SecurityIntelligence: React.FC = () => {
           <ArrowUpRight className="w-5 h-5 text-slate-500 group-hover:text-intel-cyan transition-all" />
         </div>
 
-        <div className="glass p-6 rounded-3xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-orange/50 transition-all"
+        <div className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-orange/50 transition-all"
              onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'movements' } }))}>
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-intel-orange/10 rounded-xl border border-intel-orange/20 group-hover:bg-intel-orange/20 transition-all">
@@ -276,7 +276,7 @@ export const SecurityIntelligence: React.FC = () => {
             { label: 'Surveillance Nodes', value: '842', status: 'STABLE', icon: Eye },
             { label: 'Border Integrity', value: '94%', status: 'STABLE', icon: ShieldCheck },
           ].map((metric, i) => (
-            <div key={i} className="glass p-6 rounded-3xl border border-intel-border relative overflow-hidden group">
+            <div key={i} className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
               <CornerAccent position="tl" />
               <CornerAccent position="br" />
               <div className="flex items-center justify-between mb-4">
@@ -301,7 +301,7 @@ export const SecurityIntelligence: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Readiness Assessment */}
-          <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border">
+          <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-bold text-white uppercase tracking-tight">Readiness Matrix</h3>
@@ -329,7 +329,7 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
 
           {/* Incident Trends */}
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+          <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-lg font-bold text-white uppercase tracking-tight">Incident Dynamics</h3>
@@ -415,7 +415,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="space-y-8 relative z-20">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Immigration Trends */}
-            <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="text-lg font-bold text-white uppercase tracking-tight">Migration Interception Dynamics</h4>
@@ -447,7 +447,7 @@ export const SecurityIntelligence: React.FC = () => {
             </div>
 
             {/* Maritime Metrics */}
-            <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+            <div className="glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-8">
               <div className="space-y-6">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Maritime Readiness</h4>
                 <div className="space-y-4">
@@ -511,7 +511,7 @@ export const SecurityIntelligence: React.FC = () => {
         {/* Drug & Narcotic Intelligence */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Arrests Trend */}
-        <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border flex flex-col">
+        <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Narcotic Enforcement</h3>
@@ -557,7 +557,7 @@ export const SecurityIntelligence: React.FC = () => {
         </div>
 
         {/* Law Enforcement Activity - Drug Related Arrests */}
-        <div className="lg:col-span-3 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-3 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight">Law Enforcement Activity</h4>
@@ -589,7 +589,7 @@ export const SecurityIntelligence: React.FC = () => {
         </div>
 
         {/* Major Seizures & Substances */}
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+        <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Strategic Seizures</h3>
@@ -647,7 +647,7 @@ export const SecurityIntelligence: React.FC = () => {
         </div>
 
         {/* Consumption Profile */}
-        <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Consumption Profile</h3>
@@ -679,7 +679,7 @@ export const SecurityIntelligence: React.FC = () => {
 
       {/* Trafficking Routes & Addiction Link */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-20">
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
+        <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Trafficking Vector Analysis</h3>
@@ -712,7 +712,7 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-1 glass p-8 rounded-3xl border border-intel-border flex flex-col justify-between">
+        <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Social Impact</h3>
@@ -766,7 +766,7 @@ export const SecurityIntelligence: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Accident Trends */}
-            <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="text-lg font-bold text-white uppercase tracking-tight">Monthly Accident Dynamics</h4>

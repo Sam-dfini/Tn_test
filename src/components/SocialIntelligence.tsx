@@ -162,7 +162,7 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
   }
 
   return (
-    <div className="glass p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden">
+    <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4 relative overflow-hidden">
       <div className="absolute top-0 right-0 p-4 opacity-10">
         <Globe className="w-12 h-12 text-intel-cyan" />
       </div>
@@ -210,6 +210,27 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
 export const SocialIntelligence: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('ALL');
   const { data } = usePipeline();
+
+  React.useEffect(() => {
+    const handleNavigateSubTab = (e: any) => {
+      const { subTab } = e.detail || {};
+      if (subTab) {
+        // Map subTab to activeCategory
+        const mapping: Record<string, string> = {
+          'cohesion': 'COHESION',
+          'migration': 'MIGRATION',
+          'family': 'FAMILY',
+          'health': 'HEALTH'
+        };
+        const category = mapping[subTab.toLowerCase()];
+        if (category) {
+          setActiveCategory(category);
+        }
+      }
+    };
+    window.addEventListener('navigate-subtab', handleNavigateSubTab);
+    return () => window.removeEventListener('navigate-subtab', handleNavigateSubTab);
+  }, []);
 
   const socialIndicators = [
     { label: 'Happiness Index', value: `${data.social.happiness_index || 4.2}/10`, trend: 'Lowest in 15 years', status: 'CRITICAL', icon: Smile, color: 'text-intel-red', history: [5.8, 5.2, 4.8, 4.5, data.social.happiness_index || 4.2] },
@@ -297,7 +318,7 @@ export const SocialIntelligence: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-4 rounded-2xl border border-white/5 shadow-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-3 md:p-4 rounded-xl border border-white/5 shadow-2xl">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
           {categories.map((cat) => (
             <button
@@ -353,7 +374,7 @@ export const SocialIntelligence: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              className="glass p-5 rounded-2xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
+              className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
             >
               <div className="relative z-10">
                 <div className="flex items-center justify-between">
@@ -390,7 +411,7 @@ export const SocialIntelligence: React.FC = () => {
         </div>
 
         {/* Street Signal S(t) */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between border-b border-intel-border pb-4">
             <div className="flex items-center space-x-3">
               <Activity className="w-5 h-5 text-intel-red" />
@@ -437,7 +458,7 @@ export const SocialIntelligence: React.FC = () => {
               desc: 'Trust in public institutions has reached an all-time low (< 15%). Polarization between urban coastal elites and rural interior populations is widening, creating fertile ground for populist movements and civil disobedience.' 
             }
           ].map((dossier, i) => (
-            <div key={i} className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+            <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <ShieldAlert className={`w-5 h-5 ${dossier.color}`} />
@@ -468,7 +489,7 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Demographic Statistics Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight">Demographic Vitality Index</h4>
@@ -509,7 +530,7 @@ export const SocialIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Vital Statistics</h4>
               <div className="space-y-6">
@@ -563,7 +584,7 @@ export const SocialIntelligence: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              className="glass p-5 rounded-2xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
+              className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
             >
               <div className="relative z-10">
                 <div className="flex items-center justify-between">
@@ -602,7 +623,7 @@ export const SocialIntelligence: React.FC = () => {
         {/* Divorce & Family Dynamics Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Divorce Trends */}
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight">National Divorce Trends</h4>
@@ -641,7 +662,7 @@ export const SocialIntelligence: React.FC = () => {
           </div>
 
           {/* Regional Breakdown & Family Stats */}
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Regional Breakdown</h4>
               <div className="space-y-4">
@@ -711,7 +732,7 @@ export const SocialIntelligence: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              className="glass p-5 rounded-2xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
+              className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-3 group hover:border-intel-cyan/30 transition-all relative overflow-hidden h-40 flex flex-col justify-between"
             >
               <div className="relative z-10">
                 <div className="flex items-center justify-between">
@@ -749,7 +770,7 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Chronic Disease Breakdown Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight">Chronic Disease Prevalence</h4>
               <p className="text-[10px] text-slate-500 uppercase">Distribution of non-communicable diseases (NCDs)</p>
@@ -781,7 +802,7 @@ export const SocialIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Health Risk Analysis</h4>
               <div className="space-y-4">
@@ -815,7 +836,7 @@ export const SocialIntelligence: React.FC = () => {
         {/* Narcotics Intelligence Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Addiction Prevalence & Age Breakdown */}
-          <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight">Addiction Prevalence & Age Demographics</h4>
@@ -846,7 +867,7 @@ export const SocialIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Addiction Metrics</h4>
               <div className="space-y-4">
@@ -879,7 +900,7 @@ export const SocialIntelligence: React.FC = () => {
         {/* Rehab Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {rehabMetrics.map((metric, i) => (
-            <div key={i} className="glass p-5 rounded-2xl border border-intel-border space-y-3">
+            <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.category}</span>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
@@ -949,7 +970,7 @@ export const SocialIntelligence: React.FC = () => {
                 {migrationTab === 'diaspora' && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                      <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden group">
+                      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
                         <BackgroundGrid />
                         <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-4">
                           <div className="text-[10px] font-mono text-intel-cyan uppercase tracking-[0.4em]">Total Tunisian Diaspora (Global)</div>
@@ -971,7 +992,7 @@ export const SocialIntelligence: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
                           <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Geographic Concentration</h4>
                           <div className="space-y-4">
                             {[
@@ -999,7 +1020,7 @@ export const SocialIntelligence: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
                           <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Economic Impact (Remittances)</h4>
                           <div className="h-48">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1038,7 +1059,7 @@ export const SocialIntelligence: React.FC = () => {
                     <div className="space-y-6">
                       <MigrationStressIndex />
                       
-                      <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
                         <div className="flex items-center space-x-2 text-intel-orange">
                           <AlertTriangle className="w-4 h-4" />
                           <h4 className="text-xs font-bold uppercase tracking-widest">Diaspora Engagement Risk</h4>
@@ -1082,7 +1103,7 @@ export const SocialIntelligence: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <h4 className="text-lg font-bold text-white uppercase tracking-tight">Engineer Exodus</h4>
@@ -1114,7 +1135,7 @@ export const SocialIntelligence: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
                               <h4 className="text-lg font-bold text-white uppercase tracking-tight">Medical Drain</h4>
@@ -1147,7 +1168,7 @@ export const SocialIntelligence: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                      <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                         <h4 className="text-sm font-bold text-white uppercase tracking-widest">The "PhD Paradox"</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-1">
@@ -1170,7 +1191,7 @@ export const SocialIntelligence: React.FC = () => {
                     </div>
 
                     <div className="space-y-6">
-                      <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                      <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                         <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Impact Assessment</h4>
                         <div className="space-y-4">
                           <div className="space-y-2">
@@ -1203,7 +1224,7 @@ export const SocialIntelligence: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="p-6 bg-intel-red/10 border border-intel-red/20 rounded-2xl space-y-3">
+                      <div className="p-4 md:p-6 bg-intel-red/10 border border-intel-red/20 rounded-xl md:rounded-2xl space-y-3">
                         <div className="text-xs font-bold text-white uppercase">Cost of Training Loss</div>
                         <div className="text-3xl font-bold text-intel-red font-mono">1.2B TND</div>
                         <p className="text-[9px] text-slate-400 leading-tight">
@@ -1218,7 +1239,7 @@ export const SocialIntelligence: React.FC = () => {
                 {migrationTab === 'workers' && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
                             <h4 className="text-lg font-bold text-white uppercase tracking-tight">Youth Emigration Aspiration</h4>
@@ -1251,7 +1272,7 @@ export const SocialIntelligence: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                        <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                           <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Seasonal Labor Flows</h4>
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
@@ -1269,7 +1290,7 @@ export const SocialIntelligence: React.FC = () => {
                           </div>
                         </div>
 
-                        <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                        <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                           <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Return Migration</h4>
                           <div className="flex items-end justify-between">
                             <div className="text-3xl font-bold text-intel-green font-mono">{data.social.return_migration_annual}</div>
@@ -1283,7 +1304,7 @@ export const SocialIntelligence: React.FC = () => {
                     </div>
 
                     <div className="space-y-6">
-                      <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                      <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                         <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">The "Harraga" Factor</h4>
                         <div className="space-y-4">
                           <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-1">
@@ -1311,7 +1332,7 @@ export const SocialIntelligence: React.FC = () => {
                 {migrationTab === 'policy' && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+                      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                         <h4 className="text-lg font-bold text-white uppercase tracking-tight">Migration Governance Framework</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-4">
@@ -1366,7 +1387,7 @@ export const SocialIntelligence: React.FC = () => {
                     </div>
 
                     <div className="space-y-6">
-                      <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+                      <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
                         <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">RRI Model Impact</h4>
                         <div className="space-y-4">
                           <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-1">

@@ -19,6 +19,7 @@
 @layer base {
   body {
     @apply bg-intel-bg text-slate-300 font-sans selection:bg-intel-cyan/30;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -62,8 +63,17 @@
   100% { transform: translateX(-50%); }
 }
 
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -73,4 +83,35 @@
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Mobile utility rules */
+@media (max-width: 768px) {
+  /* Ensure all modal/overlay overlays are full screen */
+  .fixed.inset-0 {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* Recharts on mobile */
+  .recharts-wrapper {
+    width: 100% !important;
+  }
+
+  /* Reduce font sizes that are too small to read on mobile */
+  .text-\[8px\] {
+    font-size: 9px;
+  }
+
+  /* Better tap targets */
+  button {
+    min-height: 32px;
+  }
+}
+
+/* Safe area for devices with notches */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

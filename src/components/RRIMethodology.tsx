@@ -198,8 +198,9 @@ const EquationCard: React.FC<{
 
 export const RRIMethodology: React.FC<{
   onClose?: () => void;
+  onNavigateToPipeline?: (tab: string) => void;
   jumpToEquation?: string;
-}> = ({ onClose, jumpToEquation }) => {
+}> = ({ onClose, onNavigateToPipeline, jumpToEquation }) => {
 
   const { rriState, data } = usePipeline();
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,6 +251,14 @@ export const RRIMethodology: React.FC<{
           </div>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => onNavigateToPipeline?.('pipeline')}
+            className="flex items-center space-x-2 px-3 py-1.5 text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"
+            title="Data Pipeline"
+          >
+            <Database className="w-3 h-4" />
+            <span>Data Pipeline</span>
+          </button>
           <button
             onClick={() => window.print()}
             className="flex items-center space-x-2 px-3 py-1.5 text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"

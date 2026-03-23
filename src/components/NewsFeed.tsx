@@ -230,36 +230,36 @@ export const NewsFeed: React.FC = () => {
   };
 
   return (
-    <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
+    <div className="glass p-4 md:p-8 rounded-3xl border border-intel-border relative overflow-hidden">
       <CornerAccent position="tl" />
       <CornerAccent position="br" />
 
       <div className="flex flex-col space-y-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <h3 className="text-xl font-bold text-white tracking-tight flex items-center space-x-3">
-              <Newspaper className="w-6 h-6 text-intel-cyan" />
+            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight flex items-center space-x-3">
+              <Newspaper className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan" />
               <span>Real-time News Feed</span>
             </h3>
-            <p className="text-xs text-slate-500 uppercase font-mono tracking-wider">Aggregated global & local intelligence</p>
+            <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Aggregated global & local intelligence</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
+            <div className="relative flex-1 md:flex-none">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input 
                 type="text" 
                 placeholder="Filter news..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-48"
+                className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-full md:w-48"
               />
             </div>
 
-            <div className="flex items-center bg-white/5 rounded-xl border border-white/10 p-1">
+            <div className="flex items-center bg-white/5 rounded-xl border border-white/10 p-1 overflow-x-auto scrollbar-hide">
               <button 
                 onClick={() => toggleSort('date')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'date' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 flex-shrink-0 ${sortBy === 'date' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
               >
                 <Calendar className="w-3 h-3" />
                 <span>DATE</span>
@@ -267,7 +267,7 @@ export const NewsFeed: React.FC = () => {
               </button>
               <button 
                 onClick={() => toggleSort('source')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'source' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 flex-shrink-0 ${sortBy === 'source' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
               >
                 <Globe className="w-3 h-3" />
                 <span>SOURCE</span>
@@ -275,7 +275,7 @@ export const NewsFeed: React.FC = () => {
               </button>
               <button 
                 onClick={() => toggleSort('relevance')}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 ${sortBy === 'relevance' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all flex items-center space-x-2 flex-shrink-0 ${sortBy === 'relevance' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'}`}
               >
                 <Zap className="w-3 h-3" />
                 <span>REL</span>
@@ -286,13 +286,13 @@ export const NewsFeed: React.FC = () => {
         </div>
 
         {/* Severity Filter Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-white/5">
+          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
             {(['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'] as SeverityLevel[]).map((sev) => (
               <button
                 key={sev}
                 onClick={() => setSeverityFilter(sev)}
-                className={`px-3 py-1 rounded-full text-[9px] font-mono font-bold transition-all border ${
+                className={`px-3 py-1 rounded-full text-[9px] font-mono font-bold transition-all border flex-shrink-0 ${
                   severityFilter === sev 
                     ? 'bg-intel-cyan border-intel-cyan text-intel-bg' 
                     : 'bg-transparent border-white/10 text-slate-500 hover:border-white/30'
@@ -332,11 +332,11 @@ export const NewsFeed: React.FC = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className={`p-5 rounded-2xl border transition-all group ${
+                className={`p-4 md:p-5 rounded-2xl border transition-all group ${
                   expandedId === article.id ? 'bg-white/10 border-intel-cyan/30' : 'bg-white/5 border-white/5 hover:border-white/20'
                 }`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center flex-wrap gap-2">
                       <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold uppercase ${
@@ -363,7 +363,7 @@ export const NewsFeed: React.FC = () => {
                     </h4>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 self-end sm:self-start">
                     <button 
                       onClick={() => handlePushToPipeline(article)}
                       disabled={pushedArticles.has(article.id)}

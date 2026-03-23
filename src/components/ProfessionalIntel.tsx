@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   FileText, 
   TrendingUp, 
+  TrendingDown,
+  Minus,
   ShieldCheck, 
+  Shield,
   Globe, 
   ChevronRight, 
   Download, 
@@ -20,7 +23,13 @@ import {
   ChevronDown,
   ChevronUp,
   Cpu,
-  Database
+  Database,
+  BookOpen,
+  AlertTriangle,
+  Activity,
+  Radio,
+  Eye,
+  Target
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { EconomyIntelligence } from './EconomyIntelligence';
@@ -107,11 +116,25 @@ const reports: IntelReport[] = [
 import { usePipeline } from '../context/PipelineContext';
 
 export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
-  const { rriState } = usePipeline();
+  const { data, rriState, auditLog } = usePipeline();
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'methodology'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileTabOpen, setMobileTabOpen] = useState(false);
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'economy', label: 'Economy', icon: TrendingUp },
+    { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
+    { id: 'political', label: 'Political', icon: Users },
+    { id: 'security', label: 'Security', icon: ShieldCheck },
+    { id: 'energy', label: 'Energy', icon: Zap },
+    { id: 'environment', label: 'Environment', icon: Sprout },
+    { id: 'social', label: 'Social', icon: Users },
+    { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
+    { id: 'simulation', label: 'Simulation', icon: Cpu },
+  ];
 
   useEffect(() => {
     // Check hash on load
@@ -193,9 +216,68 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   };
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="space-y-6 md:space-y-12 pb-20 relative">
       {/* Sub-navigation */}
-      <div className="flex items-center border-b border-intel-border overflow-x-auto scrollbar-hide gap-0 pb-0">
+      {/* Mobile: dropdown selector */}
+      <div className="block md:hidden px-4 py-3 border-b border-intel-border">
+        <button
+          onClick={() => setMobileTabOpen(!mobileTabOpen)}
+          className="w-full flex items-center justify-between
+            px-4 py-3 bg-black/40 border border-intel-border
+            rounded-xl text-[11px] font-mono text-white"
+        >
+          <div className="flex items-center space-x-2">
+            <span className="text-intel-cyan uppercase tracking-widest">
+              {tabs.find(t => t.id === activeTab)?.label || activeTab}
+            </span>
+          </div>
+          <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${
+            mobileTabOpen ? 'rotate-180' : ''
+          }`} />
+        </button>
+
+        {mobileTabOpen && (
+          <div className="mt-2 bg-black/80 border border-intel-border
+            rounded-xl overflow-hidden z-50 absolute left-4 right-4 shadow-2xl">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  setMobileTabOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3
+                  text-[11px] font-mono uppercase tracking-wider
+                  border-b border-intel-border/30 last:border-0
+                  transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-intel-cyan/10 text-intel-cyan'
+                    : 'text-slate-400 hover:bg-white/5'
+                }`}
+              >
+                <tab.icon className="w-4 h-4 shrink-0" />
+                <span>{tab.label}</span>
+                {activeTab === tab.id && (
+                  <span className="ml-auto text-intel-cyan">✓</span>
+                )}
+              </button>
+            ))}
+            <button 
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+                setMobileTabOpen(false);
+              }}
+              className="w-full flex items-center space-x-3 px-4 py-3 text-[11px] font-mono uppercase tracking-wider text-slate-400 hover:bg-white/5"
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              <span>Methodology</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: horizontal scrolling tabs */}
+      <div className="hidden md:flex items-center border-b border-intel-border overflow-x-auto scrollbar-hide gap-0 pb-0">
         <button 
           onClick={() => setActiveTab('overview')}
           className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'overview' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
@@ -316,325 +398,677 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
           )}
         </button>
+        <button 
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+          }}
+          className="flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative text-slate-500 hover:text-intel-cyan"
+        >
+          <div className="flex items-center space-x-2">
+            <BookOpen className="w-4 h-4" />
+            <span>Methodology</span>
+          </div>
+        </button>
       </div>
 
-      {activeTab === 'overview' ? (
-        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          {/* Hero Section */}
-      <section className="relative h-[500px] rounded-3xl overflow-hidden group">
-        <img 
-          src="https://images.unsplash.com/photo-1541746972996-4e0b0f43e02a?auto=format&fit=crop&q=80&w=1920" 
-          alt="Tunis Skyline" 
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-intel-bg via-intel-bg/40 to-transparent"></div>
-        
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 space-y-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center space-x-3"
-          >
-            <span className="px-3 py-1 bg-intel-cyan text-intel-bg text-[10px] font-mono font-bold uppercase tracking-widest rounded">Featured Analysis</span>
-            <span className="text-white/60 text-[10px] font-mono uppercase">15 MAR 2026</span>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold text-white max-w-4xl leading-tight tracking-tight"
-          >
-            The Gafsa Corridor: Navigating the Intersection of Mining and Social Stability
-          </motion.h1>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex items-center space-x-6 pt-4"
-          >
-            <button className="bg-white text-intel-bg px-8 py-3 rounded-full font-bold text-sm hover:bg-intel-cyan transition-colors flex items-center space-x-2">
-              <span>Read Full Report</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
-            <div className="flex items-center space-x-2 text-white/60 text-sm">
-              <Users className="w-4 h-4" />
-              <span>By Strategic Research Team</span>
+      <div className="px-4 md:px-8 py-4 md:py-8">
+        {activeTab === 'overview' ? (
+  <div className="space-y-6 pb-8">
+
+    {/* ============================================
+        ROW 1 — SITUATION STATUS HEADER
+        Full width. The most critical information.
+    ============================================ */}
+    <div className={`rounded-2xl border p-5 space-y-4 ${
+      rriState.rri >= 2.625
+        ? 'border-intel-red/50 bg-intel-red/5'
+        : rriState.velocity > 0.15
+        ? 'border-intel-orange/40 bg-intel-orange/5'
+        : 'border-intel-border bg-black/20'
+    }`}>
+
+      {/* Status bar top */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center space-x-3">
+          <div className={`w-2 h-2 rounded-full animate-pulse ${
+            rriState.rri >= 2.625 ? 'bg-intel-red' :
+            rriState.velocity > 0.15 ? 'bg-intel-orange' : 'bg-intel-cyan'
+          }`} />
+          <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+            Tunisia Intelligence Briefing —{' '}
+            {new Date().toLocaleDateString('en-GB', {
+              day: 'numeric', month: 'long', year: 'numeric'
+            })}
+          </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className={`text-[9px] font-mono px-2 py-1 rounded border uppercase ${
+            rriState.rri >= 2.625
+              ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+              : 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+          }`}>
+            {rriState.rri >= 2.625 ? 'THRESHOLD BREACHED' : 'ELEVATED RISK'}
+          </span>
+          <span className="text-[9px] font-mono text-slate-600">
+            Last calc: {new Date(rriState.last_calculated).toLocaleTimeString()}
+          </span>
+        </div>
+      </div>
+
+      {/* RRI core metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+        {[
+          {
+            label: 'R(t) Index',
+            value: rriState.rri.toFixed(4),
+            color: rriState.rri >= 2.625 ? 'text-intel-red' : 'text-intel-orange',
+            sub: rriState.rri >= 2.625 ? 'THRESHOLD' : 'ELEVATED',
+            size: 'text-2xl'
+          },
+          {
+            label: 'P(Revolution)',
+            value: (rriState.p_rev * 100).toFixed(1) + '%',
+            color: rriState.p_rev > 0.70 ? 'text-intel-red' : 'text-intel-orange',
+            sub: `CI [${rriState.ci_low}–${rriState.ci_high}%]`,
+            size: 'text-2xl'
+          },
+          {
+            label: 'Velocity V(t)',
+            value: (rriState.velocity > 0 ? '+' : '') + rriState.velocity.toFixed(3),
+            color: rriState.velocity > 0.15 ? 'text-intel-red' :
+                   rriState.velocity < -0.15 ? 'text-intel-cyan' : 'text-slate-400',
+            sub: rriState.velocity_label,
+            size: 'text-xl'
+          },
+          {
+            label: 'Salience S(t)',
+            value: rriState.salience.toFixed(3),
+            color: 'text-white',
+            sub: `W(t) = ${rriState.w_t.toFixed(2)}`,
+            size: 'text-xl'
+          },
+          {
+            label: 'Pattern HPS',
+            value: (rriState.pattern_similarity * 100).toFixed(0) + '%',
+            color: rriState.pattern_similarity > 0.65 ? 'text-intel-red' :
+                   rriState.pattern_similarity > 0.5 ? 'text-intel-orange' : 'text-slate-400',
+            sub: rriState.pattern_similarity > 0.5 ? 'MATCH ACTIVE' : 'NO MATCH',
+            size: 'text-xl'
+          },
+          {
+            label: 'Cascade Risk',
+            value: (rriState.cascade_probability * 100).toFixed(0) + '%',
+            color: rriState.cascade_probability > 0.6 ? 'text-intel-red' :
+                   rriState.cascade_probability > 0.4 ? 'text-intel-orange' : 'text-slate-400',
+            sub: 'Sfax → Kasserine',
+            size: 'text-xl'
+          },
+          {
+            label: 'Conf.',
+            value: (rriState.model_confidence * 100).toFixed(0) + '%',
+            color: 'text-slate-400',
+            sub: `${rriState.variables_count} vars`,
+            size: 'text-xl'
+          },
+        ].map(m => (
+          <div key={m.label} className="space-y-0.5">
+            <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">
+              {m.label}
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Left: Latest Reports */}
-        <div className="lg:col-span-8 space-y-8">
-          <div className="flex items-center justify-between border-b border-intel-border pb-4">
-            <h2 className="text-2xl font-bold text-white tracking-tight">Intelligence Dossiers</h2>
-            <button className="text-intel-cyan text-sm font-mono uppercase flex items-center space-x-2 hover:underline">
-              <span>View All Reports</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            <div className={`${m.size} font-bold font-mono ${m.color}`}>
+              {m.value}
+            </div>
+            <div className="text-[8px] font-mono text-slate-600 truncate">
+              {m.sub}
+            </div>
           </div>
+        ))}
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredReports.map((report, i) => (
-              <motion.div 
-                key={report.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                onClick={() => setSelectedReport(report)}
-                className="group bg-intel-card border border-intel-border rounded-2xl overflow-hidden cursor-pointer hover:border-intel-cyan/40 transition-all flex flex-col"
-              >
-                <div className="h-48 overflow-hidden relative">
-                  <img 
-                    src={report.image} 
-                    alt={report.title} 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[8px] font-mono text-white uppercase">
-                    {report.category}
-                  </div>
-                </div>
-                <div className="p-5 flex-1 flex flex-col space-y-3">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 uppercase">
-                    <span>{report.id}</span>
-                    <span>{report.date}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-white group-hover:text-intel-cyan transition-colors leading-tight line-clamp-2">
-                    {report.title}
-                  </h3>
-                  <div className="pt-2 mt-auto flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 rounded-full bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/20">
-                        <Users className="w-3 h-3 text-intel-cyan" />
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-medium">{report.author}</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-[9px] font-mono text-slate-600 uppercase">
-                      <Clock className="w-3 h-3" />
-                      <span>{report.readTime}</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+      {/* Pattern label if active */}
+      {rriState.pattern_similarity > 0.5 && (
+        <div className="flex items-center space-x-2 pt-1">
+          <AlertTriangle className="w-3 h-3 text-intel-orange shrink-0" />
+          <span className="text-[10px] font-mono text-intel-orange">
+            {rriState.pattern_label}
+          </span>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('open-methodology',
+              { detail: { equation: '20' } }))}
+            className="text-[9px] font-mono text-slate-600 hover:text-intel-cyan ml-2"
+          >
+            EQ.20 →
+          </button>
+        </div>
+      )}
+    </div>
+
+    {/* ============================================
+        ROW 2 — ACTIVE ALERTS
+        Critical signals requiring analyst attention
+    ============================================ */}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+          Active Alerts
+        </div>
+        <div className="text-[9px] font-mono text-slate-600">
+          {rriState.threshold_breaches.length} threshold breaches active
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {[
+          {
+            code: 'ECO-001',
+            title: 'FX Reserves Below Warning',
+            value: `${data.economy.fx_reserves} days import cover`,
+            threshold: '90 days warning / 60 days crisis',
+            priority: data.economy.fx_reserves < 60 ? 'CRITICAL' : 'HIGH',
+            tab: 'economy',
+            urgent: data.economy.fx_reserves < 90,
+          },
+          {
+            code: 'SOC-002',
+            title: 'UGTT Mobilisation Level',
+            value: data.social.ugtt_mobilisation_level,
+            threshold: 'General strike trigger at 64%',
+            priority: data.social.ugtt_mobilisation_level === 'HIGH' ? 'CRITICAL' : 'HIGH',
+            tab: 'political',
+            subTab: 'ugtt',
+            urgent: data.social.ugtt_mobilisation_level === 'HIGH',
+          },
+          {
+            code: 'POL-003',
+            title: 'Decree 54 Charges',
+            value: `${data.social.decree54_charged} individuals charged`,
+            threshold: 'Press freedom critical',
+            priority: data.social.decree54_charged > 50 ? 'HIGH' : 'MEDIUM',
+            tab: 'political',
+            subTab: 'decree54',
+            urgent: data.social.decree54_charged > 60,
+          },
+          {
+            code: 'ENV-004',
+            title: 'Water Crisis',
+            value: `${data.social.water_crisis_govs} governorates affected`,
+            threshold: 'Sfax: 6 hrs/day supply',
+            priority: data.social.water_crisis_govs > 5 ? 'HIGH' : 'MEDIUM',
+            tab: 'environment',
+            subTab: 'water',
+            urgent: data.social.water_crisis_govs > 8,
+          },
+          {
+            code: 'GEO-005',
+            title: 'IMF Deal Probability',
+            value: `${data.geopolitical?.imf_deal_probability ?? 31}%`,
+            threshold: 'Below 40% = fiscal risk',
+            priority: (data.geopolitical?.imf_deal_probability ?? 31) < 40 ? 'HIGH' : 'MEDIUM',
+            tab: 'geopolitical',
+            urgent: (data.geopolitical?.imf_deal_probability ?? 31) < 40,
+          },
+          {
+            code: 'RRI-006',
+            title: 'Compound Stress',
+            value: `CS(t) = ${rriState.compound_stress.toFixed(3)}`,
+            threshold: `${rriState.threshold_breaches.length} simultaneous breaches`,
+            priority: rriState.compound_stress > 0.1 ? 'HIGH' : 'MEDIUM',
+            tab: 'risk',
+            urgent: rriState.compound_stress > 0.15,
+          },
+        ].map(alert => (
+          <div
+            key={alert.code}
+            onClick={() => window.dispatchEvent(new CustomEvent(
+              'navigate-to-pipeline',
+              { detail: { tab: alert.tab, subTab: alert.subTab } }
             ))}
+            className={`flex items-start space-x-3 p-3 rounded-xl border
+              cursor-pointer transition-all group ${
+              alert.urgent
+                ? 'border-intel-red/30 bg-intel-red/5 hover:border-intel-red/50'
+                : 'border-intel-border bg-black/20 hover:border-intel-orange/30'
+            }`}
+          >
+            <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
+              alert.priority === 'CRITICAL' ? 'bg-intel-red animate-pulse' :
+              alert.priority === 'HIGH' ? 'bg-intel-orange' : 'bg-yellow-500'
+            }`} />
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9px] font-mono text-slate-600">{alert.code}</span>
+                <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border flex-shrink-0 ${
+                  alert.priority === 'CRITICAL'
+                    ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+                    : alert.priority === 'HIGH'
+                    ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+                    : 'text-yellow-500 border-yellow-500/30 bg-yellow-500/10'
+                }`}>{alert.priority}</span>
+              </div>
+              <div className="text-[11px] font-bold text-white group-hover:text-intel-cyan
+                transition-colors truncate">{alert.title}</div>
+              <div className="text-[10px] font-mono text-intel-orange truncate">{alert.value}</div>
+              <div className="text-[9px] text-slate-600 truncate">{alert.threshold}</div>
+            </div>
           </div>
+        ))}
+      </div>
+    </div>
 
-          {/* Real-time News Feed */}
-          <NewsFeed />
+    {/* ============================================
+        ROW 3 — THREE COLUMNS
+        Timeline | Category Scores | Narratives
+    ============================================ */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {/* LEFT — Recent Events */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Radio className="w-3 h-3 text-intel-cyan" />
+            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Recent Events
+            </span>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent(
+              'navigate-main', { detail: { tab: 'timeline' } }
+            ))}
+            className="text-[9px] font-mono text-intel-cyan hover:underline"
+          >
+            View All →
+          </button>
         </div>
 
-        {/* Report Detail Modal */}
-        <AnimatePresence>
-          {selectedReport && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-intel-card border border-intel-border rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl relative"
-              >
-                <button 
-                  onClick={() => setSelectedReport(null)}
-                  className="absolute top-6 right-6 z-20 p-2 bg-black/40 hover:bg-black/60 rounded-full transition-colors text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-
-                <div className="overflow-y-auto h-full scrollbar-hide">
-                  <div className="h-64 md:h-80 relative">
-                    <img 
-                      src={selectedReport.image} 
-                      alt={selectedReport.title} 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-intel-card via-transparent to-transparent"></div>
-                  </div>
-
-                  <div className="p-8 md:p-12 space-y-8">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <span className="px-3 py-1 bg-intel-cyan/20 text-intel-cyan text-[10px] font-mono font-bold uppercase tracking-widest rounded border border-intel-cyan/30">
-                          {selectedReport.category}
-                        </span>
-                        <span className="text-slate-500 text-[10px] font-mono uppercase">{selectedReport.date}</span>
-                      </div>
-                      <h2 className="text-3xl md:text-5xl font-bold text-white tracking-tight leading-tight">
-                        {selectedReport.title}
-                      </h2>
-                      <div className="flex items-center space-x-6 py-4 border-y border-intel-border">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-intel-cyan to-intel-purple p-[1px]">
-                            <div className="w-full h-full rounded-full bg-intel-bg flex items-center justify-center">
-                              <Users className="w-5 h-5 text-slate-400" />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-xs font-bold text-white">{selectedReport.author}</div>
-                            <div className="text-[10px] text-slate-500 uppercase">Senior Intelligence Analyst</div>
-                          </div>
-                        </div>
-                        <div className="h-8 w-[1px] bg-intel-border"></div>
-                        <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 uppercase">
-                          <Clock className="w-4 h-4" />
-                          <span>{selectedReport.readTime} Read Time</span>
-                        </div>
-                        <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 uppercase">
-                          <Lock className="w-4 h-4" />
-                          <span>{selectedReport.classification}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6 text-slate-400 leading-relaxed">
-                      <p className="text-lg text-white/90 font-medium leading-relaxed">
-                        {selectedReport.summary}
-                      </p>
-                      <div className="p-6 bg-white/5 rounded-2xl border border-intel-border space-y-4">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center space-x-2">
-                          <ShieldCheck className="w-4 h-4 text-intel-cyan" />
-                          <span>Key Findings</span>
-                        </h4>
-                        <ul className="space-y-3 text-xs">
-                          {selectedReport.keyFindings.map((finding, i) => (
-                            <li key={i} className="flex items-start space-x-3">
-                              <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-1.5 flex-shrink-0"></div>
-                              <span className="text-slate-300 leading-relaxed">{finding}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="pt-8 flex items-center justify-between">
-                      <button 
-                        onClick={handleDownloadDossier}
-                        className="px-8 py-3 bg-intel-cyan text-intel-bg rounded-full font-bold text-sm hover:bg-white transition-colors flex items-center space-x-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Download Full Dossier</span>
-                      </button>
-                      <div className="text-[10px] font-mono text-slate-600 uppercase">
-                        Reference ID: {selectedReport.id}-SEC-2026
-                      </div>
-                    </div>
-                  </div>
+        <div className="space-y-2">
+          {auditLog
+            .filter(entry => entry.type === 'APPROVED' || entry.type === 'PUSH')
+            .slice(0, 6)
+            .map((event, i) => (
+            <div key={event.id} className="flex items-start space-x-3 p-2.5 rounded-lg
+              bg-black/20 border border-intel-border/30 hover:border-intel-border
+              transition-all cursor-pointer group">
+              <span className="text-[9px] font-mono text-slate-600 whitespace-nowrap mt-0.5">
+                {new Date(event.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+              </span>
+              <div className={`w-1 h-1 rounded-full mt-1.5 shrink-0 ${
+                event.field.includes('social') ? 'bg-intel-red' :
+                event.field.includes('economy') ? 'bg-intel-orange' : 'bg-intel-cyan'
+              }`} />
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] text-slate-300 group-hover:text-white
+                  transition-colors leading-snug line-clamp-1">
+                  {event.label} Updated
                 </div>
-              </motion.div>
+                <div className="text-[8px] font-mono text-slate-600 truncate">
+                  {event.oldValue ?? 'N/A'} → {isNaN(Number(event.value)) ? '0' : event.value} // {event.source}
+                </div>
+              </div>
+              <span className={`text-[8px] font-mono ml-auto shrink-0 ${
+                event.type === 'PUSH' ? 'text-intel-cyan' : 'text-intel-green'
+              }`}>
+                {event.type}
+              </span>
+            </div>
+          ))}
+          {auditLog.filter(e => e.type === 'APPROVED' || e.type === 'PUSH').length === 0 && (
+            <div className="p-8 text-center border border-dashed border-white/5 rounded-xl">
+              <div className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">No Recent Pipeline Activity</div>
             </div>
           )}
-        </AnimatePresence>
-
-        {/* Right: Sidebar Info */}
-        <div className="lg:col-span-4 space-y-8">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search Intelligence Database..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-intel-card border border-intel-border rounded-full pl-12 pr-4 py-3 text-sm text-white focus:outline-none focus:border-intel-cyan transition-all"
-            />
-            {searchQuery && (
-              <div className="text-[9px] font-mono text-slate-500 px-4 mt-1">
-                {filteredReports.length} reports · {filteredSignals.length} signals
-              </div>
-            )}
-          </div>
-
-          {/* Strategic Outlook */}
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
-            <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
-              <ShieldCheck className="w-5 h-5 text-intel-cyan" />
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Strategic Outlook</h3>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-mono uppercase">
-                  <span className="text-slate-500">Regional Stability</span>
-                  <span className={stabilityRisk > 70 ? 'text-intel-red' : stabilityRisk > 40 ? 'text-intel-orange' : 'text-intel-green'}>
-                    {stabilityRisk > 70 ? 'Critical Risk' : stabilityRisk > 40 ? 'Moderate Risk' : 'Low Risk'}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stabilityRisk}%` }}
-                    className={`h-full ${stabilityRisk > 70 ? 'bg-intel-red' : stabilityRisk > 40 ? 'bg-intel-orange' : 'bg-intel-green'}`}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-mono uppercase">
-                  <span className="text-slate-500">Economic Resilience</span>
-                  <span className={economicResilience < 40 ? 'text-intel-red' : economicResilience < 70 ? 'text-intel-orange' : 'text-intel-cyan'}>
-                    {economicResilience < 40 ? 'Fragile' : economicResilience < 70 ? 'Stable' : 'Robust'}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${economicResilience}%` }}
-                    className={`h-full ${economicResilience < 40 ? 'bg-intel-red' : economicResilience < 70 ? 'bg-intel-orange' : 'bg-intel-cyan'}`}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-mono uppercase">
-                  <span className="text-slate-500">Social Cohesion</span>
-                  <span className={socialCohesion < 40 ? 'text-intel-red' : socialCohesion < 70 ? 'text-intel-orange' : 'text-intel-green'}>
-                    {socialCohesion < 40 ? 'High Tension' : socialCohesion < 70 ? 'Strained' : 'Stable'}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${socialCohesion}%` }}
-                    className={`h-full ${socialCohesion < 40 ? 'bg-intel-red' : socialCohesion < 70 ? 'bg-intel-orange' : 'bg-intel-green'}`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs text-slate-500 leading-relaxed italic">
-              "Current indicators suggest a period of heightened volatility in the southern sectors, primarily driven by resource scarcity and localized economic grievances."
-            </p>
-
-            <button 
-              onClick={handleDownloadOutlook}
-              className="w-full py-3 border border-intel-cyan/30 text-intel-cyan text-xs font-mono uppercase font-bold hover:bg-intel-cyan/10 transition-all rounded-xl"
-            >
-              Download Full Outlook (PDF)
-            </button>
-          </div>
-
-          {/* Global Signals */}
-          <div className="space-y-4">
-            <h4 className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em] px-2">Global Signals</h4>
-            <div className="space-y-2">
-              {filteredSignals.map((signal, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-white/5 border border-intel-border rounded-xl hover:border-intel-cyan/30 transition-all group cursor-pointer">
-                  <span className="text-xs text-slate-300 group-hover:text-white transition-colors">{signal}</span>
-                  <Globe className="w-3 h-3 text-slate-600 group-hover:text-intel-cyan" />
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* CENTER — RRI Category Scores Heatmap */}
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <Activity className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            RRI Category Scores
+          </span>
+        </div>
+
+        <div className="space-y-1.5">
+          {[
+            { cat: 'A', label: 'Economic', weight: 0.20 },
+            { cat: 'E', label: 'Social', weight: 0.07 },
+            { cat: 'L', label: 'Regime', weight: 0.06 },
+            { cat: 'N', label: 'Security', weight: 0.06 },
+            { cat: 'D', label: 'Political', weight: 0.08 },
+            { cat: 'O', label: 'Grievances', weight: 0.04 },
+            { cat: 'M', label: 'Opposition', weight: 0.05 },
+            { cat: 'C', label: 'Digital', weight: 0.06 },
+            { cat: 'B', label: 'Environment', weight: 0.04 },
+            { cat: 'I', label: 'External', weight: 0.05 },
+            { cat: 'P', label: 'Youth', weight: 0.04 },
+            { cat: 'F', label: 'Socio-Cultural', weight: 0.05 },
+          ].map(item => {
+            const score = rriState.category_scores?.[item.cat] ?? 0.5;
+            return (
+              <div key={item.cat} className="flex items-center space-x-2">
+                <span className="text-[8px] font-mono text-slate-600 w-4 shrink-0">
+                  {item.cat}
+                </span>
+                <span className="text-[9px] text-slate-500 w-20 shrink-0 truncate">
+                  {item.label}
+                </span>
+                <div className="flex-1 h-3 bg-slate-800/60 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${
+                      score > 0.75 ? 'bg-intel-red' :
+                      score > 0.60 ? 'bg-intel-orange' :
+                      score > 0.45 ? 'bg-yellow-600' : 'bg-intel-cyan'
+                    }`}
+                    style={{ width: `${score * 100}%` }}
+                  />
+                </div>
+                <span className={`text-[9px] font-mono w-8 text-right shrink-0 ${
+                  score > 0.75 ? 'text-intel-red' :
+                  score > 0.60 ? 'text-intel-orange' : 'text-slate-400'
+                }`}>
+                  {(score * 100).toFixed(0)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent(
+            'navigate-main', { detail: { tab: 'risk' } }
+          ))}
+          className="w-full py-2 border border-intel-border rounded-xl
+            text-[9px] font-mono text-slate-500 hover:text-intel-cyan
+            hover:border-intel-cyan/30 transition-all"
+        >
+          Full Risk Model →
+        </button>
       </div>
-      ) : activeTab === 'economy' ? (
+
+      {/* RIGHT — Active Narratives */}
+      <div className="space-y-3">
+        <div className="flex items-center space-x-2">
+          <Zap className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Active Narratives
+          </span>
+        </div>
+
+        <div className="space-y-2">
+          {[
+            { 
+              title: 'Economic Sovereignty', 
+              actor: 'REGIME', 
+              momentum: (rriState.salience || 0) > 0.5 ? 'SURGING' : 'RISING', 
+              strength: Math.round((rriState.salience || 0) * 100), 
+              trend: [30, 38, 55, 62, 70, Math.round((rriState.salience || 0) * 100)] 
+            },
+            { 
+              title: 'Water Crisis as State Failure', 
+              actor: 'GRASSROOTS', 
+              momentum: (data.social.water_crisis_govs || 0) > 5 ? 'SURGING' : 'RISING', 
+              strength: Math.round(((data.social.water_crisis_govs || 0) / 24) * 100 + 40), 
+              trend: [30, 38, 55, 62, 70, Math.round(((data.social.water_crisis_govs || 0) / 24) * 100 + 40)] 
+            },
+            { 
+              title: 'UGTT Resistance', 
+              actor: 'LABOR', 
+              momentum: data.social.ugtt_mobilisation_level === 'HIGH' ? 'SURGING' : 'RISING', 
+              strength: data.social.ugtt_mobilisation_level === 'HIGH' ? 85 : 65, 
+              trend: [40, 48, 56, 60, 62, data.social.ugtt_mobilisation_level === 'HIGH' ? 85 : 65] 
+            },
+            { 
+              title: 'Migration as Escape', 
+              actor: 'YOUTH', 
+              momentum: (data.social.youth_rage_index || 0) > 7 ? 'SURGING' : 'RISING', 
+              strength: Math.round((data.social.youth_rage_index || 0) * 10), 
+              trend: [50, 57, 63, 66, 69, Math.round((data.social.youth_rage_index || 0) * 10)] 
+            },
+          ].map((n, i) => {
+            const sparkline = (() => {
+              const d = n.trend;
+              const max = Math.max(...d);
+              const min = Math.min(...d);
+              const w = 50; const h = 20;
+              const pts = d.map((v, idx) =>
+                `${(idx/(d.length-1))*w},${h-((v-min)/(max-min||1))*h}`
+              );
+              return `M ${pts.join(' L ')}`;
+            })();
+            return (
+              <div key={i} className="flex items-center space-x-3 p-2.5
+                rounded-lg bg-black/20 border border-intel-border/30
+                hover:border-intel-border transition-all">
+                <div className="flex-1 min-w-0 space-y-0.5">
+                  <div className="text-[10px] text-slate-300 truncate leading-snug">
+                    {n.title}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`text-[8px] font-mono ${
+                      n.actor === 'REGIME' ? 'text-intel-cyan' :
+                      n.actor === 'OPPOSITION' ? 'text-blue-400' :
+                      n.actor === 'GRASSROOTS' ? 'text-intel-orange' :
+                      n.actor === 'LABOR' ? 'text-purple-400' : 'text-pink-400'
+                    }`}>{n.actor}</span>
+                    <span className={`text-[8px] font-mono ${
+                      n.momentum === 'SURGING' ? 'text-intel-red' :
+                      n.momentum === 'RISING' ? 'text-intel-orange' :
+                      n.momentum === 'DECLINING' ? 'text-intel-cyan' : 'text-slate-500'
+                    }`}>{n.momentum}</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 shrink-0">
+                  <svg width="50" height="20" className="overflow-visible">
+                    <path
+                      d={sparkline}
+                      fill="none"
+                      stroke={
+                        n.momentum === 'SURGING' ? '#ff453a' :
+                        n.momentum === 'RISING' ? '#ff9f0a' :
+                        n.momentum === 'DECLINING' ? '#00d4ff' : '#475569'
+                      }
+                      strokeWidth="1.5"
+                    />
+                  </svg>
+                  <span className={`text-[10px] font-mono font-bold w-6 text-right ${
+                    (n.strength || 0) > 70 ? 'text-intel-red' :
+                    (n.strength || 0) > 55 ? 'text-intel-orange' : 'text-slate-400'
+                  }`}>{isNaN(n.strength) ? 0 : n.strength}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent(
+            'navigate-main', { detail: { tab: 'narratives' } }
+          ))}
+          className="w-full py-2 border border-intel-border rounded-xl
+            text-[9px] font-mono text-slate-500 hover:text-intel-cyan
+            hover:border-intel-cyan/30 transition-all"
+        >
+          Full Narrative Tracker →
+        </button>
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 4 — PIPELINE ACTIVITY + MODULE STATUS
+    ============================================ */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      {/* Pipeline recent activity */}
+      <div className="glass p-5 rounded-2xl border border-intel-border space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Database className="w-3 h-3 text-intel-cyan" />
+            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Pipeline Activity
+            </span>
+          </div>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent(
+              'navigate-to-pipeline', { detail: { tab: 'pipeline' } }
+            ))}
+            className="text-[9px] font-mono text-intel-cyan hover:underline"
+          >
+            Open Pipeline →
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {auditLog.slice(0, 5).map((item, i) => (
+            <div key={item.id} className="flex items-center space-x-3 text-[10px]">
+              <span className={`font-mono font-bold text-[8px] px-1.5 py-0.5
+                rounded border shrink-0 ${
+                item.type === 'PUSH'
+                  ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10'
+                  : item.type === 'APPROVED'
+                  ? 'text-intel-green border-intel-green/30 bg-intel-green/10'
+                  : 'text-slate-500 border-slate-700 bg-slate-900'
+              }`}>{item.type}</span>
+              <span className="text-slate-400 truncate flex-1">{item.label}</span>
+              <span className="text-slate-500 font-mono text-[9px] shrink-0">
+                {item.oldValue ?? 'N/A'} → {isNaN(Number(item.value)) ? '0' : item.value}
+              </span>
+              <span className="text-slate-700 text-[9px] shrink-0">
+                {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          ))}
+          {auditLog.length === 0 && (
+            <div className="py-8 text-center text-[10px] font-mono text-slate-600 italic">
+              No pipeline activity recorded.
+            </div>
+          )}
+        </div>
+
+        <div className="pt-2 border-t border-intel-border/30 flex items-center
+          justify-between text-[9px] font-mono text-slate-600">
+          <span>Model confidence: {(rriState.model_confidence * 100).toFixed(0)}%</span>
+          <span>{rriState.variables_count} variables tracked</span>
+        </div>
+      </div>
+
+      {/* Module status grid */}
+      <div className="glass p-5 rounded-2xl border border-intel-border space-y-4">
+        <div className="flex items-center space-x-2">
+          <Eye className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Module Status
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Economy', status: data.economy.fx_reserves < 90 ? 'CRITICAL' : 'NOMINAL', value: `FX ${data.economy.fx_reserves}d`, tab: 'economy' },
+            { label: 'Political', status: data.social.ugtt_mobilisation_level === 'HIGH' ? 'CRITICAL' : 'HIGH', value: `UGTT ${data.social.ugtt_mobilisation_level}`, tab: 'political' },
+            { label: 'Security', status: data.social.decree54_charged > 50 ? 'HIGH' : 'MEDIUM', value: `${data.social.decree54_charged} charged`, tab: 'security' },
+            { label: 'Geopolitical', status: (data.geopolitical?.imf_deal_probability ?? 31) < 40 ? 'HIGH' : 'MEDIUM', value: `IMF ${data.geopolitical?.imf_deal_probability ?? 31}%`, tab: 'geopolitical' },
+            { label: 'Social', status: data.social.protest_events_30d > 20 ? 'HIGH' : 'MEDIUM', value: `${data.social.protest_events_30d} protests/mo`, tab: 'social' },
+            { label: 'Environment', status: data.social.water_crisis_govs > 5 ? 'HIGH' : 'MEDIUM', value: `${data.social.water_crisis_govs} govs water`, tab: 'environment' },
+            { label: 'Energy', status: (data.energy?.steg_debt ?? 4.2) > 4 ? 'MEDIUM' : 'NOMINAL', value: `STEG ${data.energy?.steg_debt ?? 4.2}B TND`, tab: 'energy' },
+            { label: 'Risk Model', status: rriState.rri >= 2.625 ? 'CRITICAL' : 'HIGH', value: `R(t) ${rriState.rri.toFixed(2)}`, tab: 'risk' },
+          ].map(mod => (
+            <div
+              key={mod.label}
+              onClick={() => setActiveTab(mod.tab as any)}
+              className="flex items-center justify-between p-2.5 rounded-lg
+                bg-black/20 border border-intel-border/30 cursor-pointer
+                hover:border-intel-border transition-all group"
+            >
+              <div className="space-y-0.5">
+                <div className="text-[10px] font-bold text-slate-300
+                  group-hover:text-white transition-colors">
+                  {mod.label}
+                </div>
+                <div className="text-[9px] font-mono text-slate-600 truncate">
+                  {mod.value}
+                </div>
+              </div>
+              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded
+                border shrink-0 ml-2 ${
+                mod.status === 'CRITICAL'
+                  ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+                  : mod.status === 'HIGH'
+                  ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+                  : 'text-yellow-500 border-yellow-500/30 bg-yellow-500/10'
+              }`}>{mod.status}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 5 — QUICK ACTIONS
+    ============================================ */}
+    <div className="space-y-3">
+      <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+        Analyst Quick Actions
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Ingest Data', icon: Database, action: () => window.dispatchEvent(new CustomEvent('navigate-to-pipeline')), color: 'text-intel-cyan border-intel-cyan/20 bg-intel-cyan/5' },
+          { label: 'Run Simulation', icon: Cpu, action: () => setActiveTab('simulation'), color: 'text-intel-purple border-intel-purple/20 bg-intel-purple/5' },
+          { label: 'Generate Report', icon: FileText, action: () => setSelectedReport(reports[0]), color: 'text-intel-green border-intel-green/20 bg-intel-green/5' },
+          { label: 'Export Data', icon: Download, action: handleDownloadOutlook, color: 'text-slate-400 border-white/10 bg-white/5' },
+        ].map(action => (
+          <button
+            key={action.label}
+            onClick={action.action}
+            className={`flex items-center space-x-3 p-3 rounded-xl border transition-all hover:scale-[1.02] active:scale-[0.98] ${action.color}`}
+          >
+            <action.icon className="w-4 h-4" />
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{action.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 6 — QUICK NAVIGATION FOOTER
+    ============================================ */}
+    <div className="flex flex-wrap gap-2 pt-2 border-t border-intel-border/30">
+      <span className="text-[9px] font-mono text-slate-600 uppercase
+        tracking-widest self-center mr-2">
+        Quick access:
+      </span>
+      {[
+        { label: 'Risk Model', tab: 'risk', isMain: true },
+        { label: 'Timeline', tab: 'timeline', isMain: true },
+        { label: 'Narratives', tab: 'narratives', isMain: true },
+        { label: 'UGTT Monitor', tab: 'political', subTab: 'ugtt' },
+        { label: 'FX Reserves', tab: 'economy', subTab: 'macro' },
+        { label: 'Water Crisis', tab: 'environment', subTab: 'water' },
+        { label: 'Freedom Index', tab: 'political', subTab: 'decree54' },
+        { label: 'Methodology', isMethodology: true },
+      ].map(link => (
+        <button
+          key={link.label}
+          onClick={() => {
+            if (link.isMethodology) {
+              window.dispatchEvent(new CustomEvent('open-methodology'));
+            } else if (link.isMain) {
+              window.dispatchEvent(new CustomEvent('navigate-main',
+                { detail: { tab: link.tab } }));
+            } else {
+              window.dispatchEvent(new CustomEvent('navigate-to-pipeline',
+                { detail: { tab: link.tab, subTab: link.subTab } }));
+            }
+          }}
+          className="text-[9px] font-mono text-slate-500 border border-intel-border/50
+            px-3 py-1.5 rounded-lg hover:text-intel-cyan hover:border-intel-cyan/30
+            transition-all"
+        >
+          {link.label}
+        </button>
+      ))}
+    </div>
+
+  </div>
+) : activeTab === 'economy' ? (
         <EconomyIntelligence />
       ) : activeTab === 'geopolitical' ? (
         <GeopoliticalIntelligence />
@@ -653,6 +1087,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}
+      </div>
     </div>
   );
 };

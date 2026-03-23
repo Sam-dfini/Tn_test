@@ -205,7 +205,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
   }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 relative">
+    <div className="p-4 md:p-8 space-y-6 md:space-y-12 pb-20 relative">
       <BackgroundGrid />
       
       <ModuleHeader 
@@ -217,7 +217,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
 
       {/* Treasury Runway Widget */}
       <div className={cn(
-        "intel-card p-6 rounded-3xl border relative overflow-hidden z-20 transition-all",
+        "intel-card p-4 md:p-8 rounded-xl md:rounded-3xl border relative overflow-hidden z-20 transition-all",
         status === 'CRISIS' ? "border-intel-red/50 bg-intel-red/5 shadow-[0_0_30px_rgba(239,68,68,0.1)]" :
         status === 'WARNING' ? "border-intel-orange/50 bg-intel-orange/5 shadow-[0_0_30px_rgba(249,115,22,0.1)]" :
         "border-intel-border"
@@ -229,11 +229,11 @@ export const GeopoliticalIntelligence: React.FC = () => {
           )} />
         )}
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 items-center">
           {/* Left Section */}
-          <div className="lg:col-span-3 space-y-1">
+          <div className="lg:col-span-3 space-y-1 w-full lg:w-auto">
             <div className="flex items-baseline space-x-2">
-              <span className={cn("text-5xl font-bold font-mono tracking-tighter", 
+              <span className={cn("text-4xl md:text-5xl font-bold font-mono tracking-tighter", 
                 status === 'CRISIS' ? "text-intel-red" : status === 'WARNING' ? "text-intel-orange" : "text-intel-green"
               )}>
                 {reserves}
@@ -246,7 +246,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
           </div>
 
           {/* Center Section: Progress Bar */}
-          <div className="lg:col-span-6 space-y-4">
+          <div className="lg:col-span-6 space-y-4 w-full">
             <div className="relative h-6 bg-white/5 rounded-full border border-white/10 overflow-hidden">
               {/* Zone Markers */}
               <div className="absolute inset-0 flex">
@@ -289,7 +289,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
           </div>
 
           {/* Right Section */}
-          <div className="lg:col-span-3 flex flex-col items-end space-y-2">
+          <div className="lg:col-span-3 flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-start w-full lg:w-auto gap-4 lg:space-y-2">
             <div className={cn(
               "px-3 py-1 rounded border text-[10px] font-mono font-bold",
               status === 'CRISIS' ? "bg-intel-red/20 border-intel-red/30 text-intel-red" :
@@ -317,8 +317,8 @@ export const GeopoliticalIntelligence: React.FC = () => {
         </div>
 
         {/* Milestone Markers */}
-        <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
-          <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+        <div className="mt-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest text-center sm:text-left">
             AT CURRENT RATE: Crisis in ~{Math.round((reserves-60)/1.2)} days
           </div>
           <div className="flex items-center space-x-4">
@@ -341,9 +341,9 @@ export const GeopoliticalIntelligence: React.FC = () => {
       <LiveTicker items={strategicRisks} />
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-20">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative z-20">
         {stats.map((stat, i) => (
-          <div key={i} className="glass p-6 rounded-3xl border border-intel-border relative overflow-hidden group hover:border-intel-cyan/30 transition-all">
+          <div key={i} className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden group hover:border-intel-cyan/30 transition-all">
             <CornerAccent position="tl" />
             <CornerAccent position="br" />
             <div className="flex items-center justify-between mb-4">
@@ -376,26 +376,26 @@ export const GeopoliticalIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-20">
         {/* Main Analysis Area */}
-        <div className="lg:col-span-8 space-y-8">
-          <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
+        <div className="lg:col-span-8 space-y-6 md:space-y-8">
+          <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden">
             <CornerAccent position="tl" />
             <CornerAccent position="br" />
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-10 gap-6">
               <div className="space-y-1">
-                <h3 className="text-xl font-bold text-white tracking-tight flex items-center space-x-3">
-                  <Target className="w-6 h-6 text-intel-cyan" />
+                <h3 className="text-lg md:text-xl font-bold text-white tracking-tight flex items-center space-x-3">
+                  <Target className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan" />
                   <span>Actor Alignment Matrix</span>
                 </h3>
-                <p className="text-xs text-slate-500 uppercase font-mono tracking-wider">Cross-dimensional strategic synchronization</p>
+                <p className="text-[10px] md:text-xs text-slate-500 uppercase font-mono tracking-wider">Cross-dimensional strategic synchronization</p>
               </div>
               
-              <div className="flex flex-wrap gap-2 justify-end">
+              <div className="flex flex-wrap gap-2 justify-end overflow-x-auto scrollbar-hide pb-2 md:pb-0">
                 {actors.map(actor => (
                   <button
                     key={actor.id}
                     onClick={() => setSelectedActor(actor)}
-                    className={`px-4 py-2 rounded-xl border text-[10px] font-bold transition-all flex items-center space-x-2 group ${
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl border text-[9px] md:text-[10px] font-bold transition-all flex items-center space-x-2 group flex-shrink-0 ${
                       selectedActor.id === actor.id 
                         ? 'border-intel-cyan bg-intel-cyan/10 text-intel-cyan shadow-[0_0_20px_rgba(0,242,255,0.15)]' 
                         : 'border-white/10 bg-white/5 text-slate-500 hover:border-white/30 hover:text-white'
@@ -408,8 +408,8 @@ export const GeopoliticalIntelligence: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div className="h-[400px] relative group">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+              <div className="h-[300px] md:h-[400px] relative group">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
                   <Crosshair className="w-64 h-64 text-intel-cyan/20 animate-spin-slow" />
                 </div>
@@ -456,7 +456,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-6 relative overflow-hidden">
+                <div className="p-4 md:p-8 rounded-xl md:rounded-3xl bg-white/5 border border-white/10 space-y-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-intel-cyan/5 to-transparent pointer-events-none" />
                   
                   <div className="flex items-center justify-between">
@@ -508,7 +508,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
 
                 {/* US Specific Stacked Bar Chart */}
                 {selectedActor.id === 'us' && (
-                  <div className="p-6 rounded-2xl bg-white/5 border border-intel-cyan/20 space-y-4">
+                  <div className="p-4 md:p-8 rounded-xl md:rounded-3xl bg-white/5 border border-intel-cyan/20 space-y-4">
                     <div className="flex items-center space-x-2">
                       <BarChart3 className="w-4 h-4 text-intel-cyan" />
                       <h4 className="text-xs font-bold text-white uppercase tracking-widest">Security Alignment Metrics</h4>
@@ -561,8 +561,8 @@ export const GeopoliticalIntelligence: React.FC = () => {
           </div>
 
           {/* Dependency Breakdown */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden">
               <CornerAccent position="tl" />
               <h4 className="text-sm font-bold text-white mb-6 flex items-center space-x-3">
                 <Layers className="w-5 h-5 text-intel-cyan" />
@@ -593,7 +593,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               </div>
             </div>
 
-            <div className="glass p-8 rounded-3xl border border-intel-border relative overflow-hidden">
+            <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden">
               <CornerAccent position="tr" />
               <h4 className="text-sm font-bold text-white mb-6 flex items-center space-x-3">
                 <TrendingUp className="w-5 h-5 text-intel-cyan" />
@@ -627,8 +627,8 @@ export const GeopoliticalIntelligence: React.FC = () => {
         </div>
 
         {/* Sidebar: Risks & Events */}
-        <div className="lg:col-span-4 space-y-8">
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-8 relative overflow-hidden">
+        <div className="lg:col-span-4 space-y-6 md:space-y-8">
+          <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6 md:space-y-8 relative overflow-hidden">
             <CornerAccent position="tr" />
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white flex items-center space-x-3">
@@ -646,7 +646,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                 <motion.div 
                   key={risk.id} 
                   whileHover={{ x: 4, backgroundColor: 'rgba(255,255,255,0.08)' }}
-                  className="p-5 rounded-2xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group relative overflow-hidden"
+                  className="p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group relative overflow-hidden"
                 >
                   <div className={`absolute top-0 left-0 w-1 h-full ${
                     risk.impact === 'CRITICAL' ? 'bg-intel-red' : risk.impact === 'HIGH' ? 'bg-intel-orange' : 'bg-intel-cyan'
@@ -682,7 +682,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               ))}
             </div>
 
-            <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-bold text-slate-400 hover:bg-white/10 hover:text-white transition-all uppercase tracking-[0.2em] flex items-center justify-center space-x-3 group">
+            <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold text-slate-400 hover:bg-white/10 hover:text-white transition-all uppercase tracking-[0.2em] flex items-center justify-center space-x-3 group">
               <Terminal className="w-4 h-4 group-hover:text-intel-cyan" />
               <span>Access Intelligence Logs</span>
             </button>
@@ -695,7 +695,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="glass p-8 rounded-3xl border border-intel-red/20 bg-intel-red/5 space-y-6 relative overflow-hidden"
+              className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-red/20 bg-intel-red/5 space-y-6 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-6 opacity-10">
                 <AlertTriangle className="w-16 h-16 text-intel-red" />

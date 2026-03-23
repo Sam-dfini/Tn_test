@@ -66,10 +66,10 @@ const protestDrivers = [
 
 export const CivilMovements: React.FC = () => {
   return (
-    <div className="space-y-12">
+    <div className="p-3 md:p-4 space-y-12">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Protest Frequency Graph */}
-        <div className="lg:col-span-8 glass p-8 rounded-3xl border border-intel-border/50 space-y-8">
+        <div className="lg:col-span-8 glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
@@ -143,7 +143,7 @@ export const CivilMovements: React.FC = () => {
 
         {/* Protest Hotspots */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="glass p-8 rounded-3xl border border-intel-border/50 space-y-6">
+          <div className="glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-6">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white flex items-center space-x-2">
                 <MapPin className="w-5 h-5 text-intel-cyan" />
@@ -160,7 +160,7 @@ export const CivilMovements: React.FC = () => {
                 { region: 'Tataouine', intensity: 'Moderate', focus: 'Resource Allocation' },
                 { region: 'Kasserine', intensity: 'High', focus: 'Social Marginalization' }
               ].map(spot => (
-                <div key={spot.region} className="p-4 bg-black/20 rounded-xl border border-intel-border space-y-2">
+                <div key={spot.region} className="p-3 bg-black/20 rounded-lg border border-intel-border space-y-2">
                   <div className="flex justify-between items-center">
                     <div className="text-sm font-bold text-white">{spot.region}</div>
                     <span className={cn(
@@ -177,7 +177,7 @@ export const CivilMovements: React.FC = () => {
           </div>
 
           {/* Protest Drivers Breakdown */}
-          <div className="glass p-6 rounded-2xl border border-intel-border/50 space-y-4">
+          <div className="glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-4">
             <h4 className="text-xs font-bold text-white uppercase tracking-widest">Primary Protest Drivers</h4>
             <div className="space-y-4">
               {protestDrivers.map(driver => (
@@ -205,7 +205,7 @@ export const CivilMovements: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {civilMovements.map(movement => (
-            <div key={movement.name} className="glass p-8 rounded-3xl border border-intel-border/50 space-y-6 group hover:border-intel-orange/30 transition-all">
+            <div key={movement.name} className="glass p-5 md:p-6 rounded-2xl border border-intel-border/50 space-y-6 group hover:border-intel-orange/30 transition-all">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <h4 className="text-xl font-bold text-white group-hover:text-intel-orange transition-colors">{movement.name}</h4>

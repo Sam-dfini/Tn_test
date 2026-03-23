@@ -457,9 +457,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
   };
 
   return (
-    <div className="flex flex-col h-full space-y-4 animate-in fade-in duration-500">
+    <div className="flex flex-col h-full p-3 md:p-4 space-y-4 animate-in fade-in duration-500">
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 intel-card border border-intel-border rounded-xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-5 md:p-6 intel-card border border-intel-border rounded-2xl">
         <div className="flex items-center space-x-4 flex-1 min-w-[300px]">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -630,9 +630,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               initial={{ x: 320, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 320, opacity: 0 }}
-              className="w-80 intel-card border border-intel-border rounded-2xl flex flex-col overflow-hidden bg-black/40 backdrop-blur-xl"
+              className="w-full md:w-80 intel-card border border-intel-border rounded-2xl flex flex-col overflow-hidden bg-black/40 backdrop-blur-xl"
             >
-              <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+              <div className="p-5 md:p-6 space-y-6 overflow-y-auto custom-scrollbar">
                 <div className="relative">
                   <div className="absolute -top-2 -right-2 flex space-x-1">
                     <button onClick={() => openEditModal(selectedActor)} className="p-2 text-slate-500 hover:text-intel-cyan transition-colors"><Edit2 className="w-3 h-3" /></button>
@@ -786,9 +786,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               initial={{ x: 320, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 320, opacity: 0 }}
-              className="absolute top-0 right-0 bottom-0 w-80 intel-card border border-intel-border rounded-2xl flex flex-col overflow-hidden bg-black/60 backdrop-blur-2xl z-50"
+              className="absolute top-0 right-0 bottom-0 w-full md:w-80 intel-card border border-intel-border rounded-2xl flex flex-col overflow-hidden bg-black/60 backdrop-blur-2xl z-50"
             >
-              <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar">
+              <div className="p-5 md:p-6 space-y-6 overflow-y-auto custom-scrollbar">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-purple-400 uppercase tracking-widest flex items-center">
                     <Radar className="w-3 h-3 mr-2" />
@@ -832,9 +832,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-2xl intel-card border border-intel-border rounded-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              className="w-full max-w-2xl intel-card border border-intel-border rounded-3xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="p-6 border-b border-intel-border flex items-center justify-between bg-white/5">
+              <div className="p-6 md:p-8 border-b border-intel-border flex items-center justify-between bg-white/5">
                 <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center">
                   {editingActor ? <Edit2 className="w-4 h-4 mr-2 text-intel-cyan" /> : <Plus className="w-4 h-4 mr-2 text-intel-cyan" />}
                   {editingActor ? 'Edit Actor Profile' : 'Register New Political Actor'}
@@ -842,7 +842,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
 
-              <div className="p-6 overflow-y-auto custom-scrollbar space-y-8">
+              <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar space-y-8">
                 <form onSubmit={handleSaveActor} className="grid grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="space-y-1.5">

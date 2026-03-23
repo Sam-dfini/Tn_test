@@ -39,13 +39,13 @@ export const ModuleHeader = ({
     <div className="space-y-1">
       <div className="flex items-center space-x-2 text-intel-cyan">
         <div className="w-1.5 h-1.5 bg-intel-cyan rounded-full animate-pulse" />
-        <span className="text-[10px] font-mono uppercase tracking-[0.3em] font-bold">Intelligence Node: {nodeId} // STATUS: {statusLabel}</span>
+        <span className="text-[8px] md:text-[10px] font-mono uppercase tracking-[0.3em] font-bold">Intelligence Node: {nodeId} // STATUS: {statusLabel}</span>
       </div>
-      <h2 className="text-3xl font-bold text-white tracking-tight flex items-center space-x-3">
-        <Icon className="w-8 h-8 text-intel-cyan" />
+      <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight flex items-center space-x-3">
+        <Icon className="w-6 h-6 md:w-8 md:h-8 text-intel-cyan" />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">{title}</span>
       </h2>
-      <p className="text-slate-500 text-xs uppercase font-mono tracking-wider">{subtitle}</p>
+      <p className="text-slate-500 text-[10px] md:text-xs uppercase font-mono tracking-wider">{subtitle}</p>
     </div>
     
     <div className="flex items-center space-x-4">
@@ -61,11 +61,11 @@ export const ModuleHeader = ({
         </div>
       </div>
       
-      <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-xl border border-white/10">
+      <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-xl border border-white/10 overflow-x-auto scrollbar-hide">
         {['24H', '7D', '30D', '1Y'].map(range => (
           <button 
             key={range}
-            className={`px-3 py-1.5 text-[10px] font-mono font-bold rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-[10px] font-mono font-bold rounded-lg transition-all flex-shrink-0 ${
               range === '7D' ? 'bg-intel-cyan text-intel-bg' : 'text-slate-500 hover:text-white'
             }`}
           >
@@ -81,11 +81,11 @@ export const LiveTicker = ({ items }: { items: { code: string; title: string; im
   <div className="bg-intel-bg/80 backdrop-blur-md border-y border-white/5 py-2 overflow-hidden relative z-20">
     <div className="flex animate-marquee whitespace-nowrap">
       {[...items, ...items].map((item, i) => (
-        <div key={i} className="flex items-center space-x-8 mx-8">
+        <div key={i} className="flex items-center space-x-8 mx-4 md:mx-8">
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-mono text-intel-cyan font-bold">{item.code}</span>
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.title}</span>
-            <span className={`text-[10px] font-mono font-bold ${
+            <span className="text-[8px] md:text-[10px] font-mono text-intel-cyan font-bold">{item.code}</span>
+            <span className="text-[8px] md:text-[10px] font-mono text-slate-400 uppercase tracking-widest">{item.title}</span>
+            <span className={`text-[8px] md:text-[10px] font-mono font-bold ${
               item.impact === 'CRITICAL' ? 'text-intel-red' : 
               item.impact === 'HIGH' ? 'text-intel-orange' : 'text-intel-cyan'
             }`}>[{item.impact}]</span>

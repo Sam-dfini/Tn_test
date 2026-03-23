@@ -381,6 +381,29 @@ export const EconomyIntelligence: React.FC = () => {
 
   const [activeCategory, setActiveCategory] = useState<'ALL' | 'MACRO' | 'REMITTANCES' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL' | 'BUSINESS'>('ALL');
 
+  React.useEffect(() => {
+    const handleNavigateSubTab = (e: any) => {
+      const { subTab } = e.detail || {};
+      if (subTab) {
+        const mapping: Record<string, string> = {
+          'macro': 'MACRO',
+          'sector': 'SECTOR',
+          'market': 'MARKET',
+          'regional': 'REGIONAL',
+          'poverty': 'SOCIAL',
+          'pharmacy': 'MARKET',
+          'business': 'BUSINESS'
+        };
+        const category = mapping[subTab.toLowerCase()];
+        if (category) {
+          setActiveCategory(category as any);
+        }
+      }
+    };
+    window.addEventListener('navigate-subtab', handleNavigateSubTab);
+    return () => window.removeEventListener('navigate-subtab', handleNavigateSubTab);
+  }, []);
+
   const categories = [
     { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
     { id: 'MACRO', label: 'Macroeconomic', icon: Landmark },
@@ -449,27 +472,27 @@ export const EconomyIntelligence: React.FC = () => {
     };
 
     return (
-      <div className="space-y-12 animate-in fade-in duration-500">
+      <div className="space-y-6 md:space-y-12 animate-in fade-in duration-500">
         {/* SECTION 1 — ECONOMIC FREEDOM SCORECARD */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
-          <div className="flex items-center justify-between border-b border-intel-border pb-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6 md:space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-intel-border pb-6 space-y-4 md:space-y-0">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold text-white tracking-tight">Economic Freedom Composite Score</h3>
-              <p className="text-sm text-slate-500">Multi-index assessment — March 2026</p>
+              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">Economic Freedom Composite Score</h3>
+              <p className="text-xs md:text-sm text-slate-500">Multi-index assessment — March 2026</p>
             </div>
-            <div className="text-right">
-              <div className={`text-5xl font-bold font-mono ${getScoreColor(compositeScore)}`}>
-                {compositeScore.toFixed(1)}<span className="text-xl text-slate-600">/100</span>
+            <div className="text-left md:text-right">
+              <div className={`text-4xl md:text-5xl font-bold font-mono ${getScoreColor(compositeScore)}`}>
+                {compositeScore.toFixed(1)}<span className="text-lg md:text-xl text-slate-600">/100</span>
               </div>
               <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">Overall Climate Status</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
+            <div className="lg:col-span-6 space-y-4">
               <h4 className="text-xs font-bold text-white uppercase tracking-widest">Index Breakdown</h4>
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full min-w-[400px] text-left border-collapse">
                   <thead>
                     <tr className="border-b border-white/10">
                       <th className="py-3 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Index</th>
@@ -525,7 +548,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         {/* SECTION 2 — HERITAGE BREAKDOWN */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Heritage Index: 12 Pillars</h3>
               <p className="text-[10px] text-slate-500">Comparative performance across 4 key categories</p>
@@ -557,7 +580,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Corruption Perception (CPI) Trend</h3>
               <p className="text-[10px] text-slate-500">Transparency International Score - 2020-2026</p>
@@ -589,7 +612,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* SECTION 3 — FDI TRACKER */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">FDI Inflow & Sectoral Concentration</h3>
@@ -652,7 +675,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         {/* SECTION 4 — ENTREPRENEURSHIP & SME CREDIT */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">SME Credit Access</h3>
               <p className="text-[10px] text-slate-500">% of SMEs with active bank credit lines</p>
@@ -693,7 +716,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">New Business Registrations</h3>
               <p className="text-[10px] text-slate-500">Monthly volume - last 6 months</p>
@@ -724,7 +747,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* SECTION 5 — REGULATORY BURDEN */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regulatory Burden & Compliance</h3>
             <p className="text-[10px] text-slate-500">Time and cost metrics for key business operations</p>
@@ -759,7 +782,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         {/* SECTION 6 — ONSHORE/OFFSHORE DUALITY */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Onshore vs. Offshore Duality</h3>
               <p className="text-[10px] text-slate-500">Structural divide in the Tunisian economy</p>
@@ -789,7 +812,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Informal Economy Estimation</h3>
               <p className="text-[10px] text-slate-500">Estimated % of GDP operating outside formal regulation</p>
@@ -832,7 +855,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* SECTION 7 — CAPITAL FLIGHT INDICATORS */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Capital Flight & Parallel Market</h3>
@@ -886,7 +909,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* SECTION 8 — ECONOMIC FREEDOM VS RRI LINK */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Economic Freedom vs. Revolution Risk (RRI)</h3>
             <p className="text-[10px] text-slate-500">Correlation between business climate deterioration and social unrest risk</p>
@@ -927,7 +950,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* SECTION 9 — STARTUP ECOSYSTEM (RE-RENDERED FOR BUSINESS CONTEXT) */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Ecosystem: The Only Growth Engine?</h3>
@@ -979,7 +1002,7 @@ export const EconomyIntelligence: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Growth & GDP Impact</h3>
@@ -1002,7 +1025,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Geographic Origin Distribution</h3>
@@ -1031,7 +1054,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+      <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Distribution: Urban vs Rural</h3>
@@ -1073,7 +1096,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
       </div>
 
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+      <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Policy & Strategic Links</h3>
           <button 
@@ -1244,7 +1267,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Historical Macro Trends (5Y)</h3>
@@ -1275,7 +1298,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Inflation Drivers (CPI Contribution)</h3>
@@ -1299,7 +1322,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Growth Trend</h3>
@@ -1326,7 +1349,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">CPI Inflation by Component</h3>
@@ -1362,7 +1385,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Trade Balance</h3>
@@ -1392,7 +1415,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Dinar Exchange Rate</h3>
@@ -1433,7 +1456,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Bottom Row: Debt Calendar & Risk Signals */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">External Debt Service Calendar</h3>
             <p className="text-[10px] text-slate-500">Upcoming repayments (USD M) - 2026-2027</p>
@@ -1462,7 +1485,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
+        <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
               <PieChartIcon className="w-4 h-4 mr-2 text-intel-cyan" />
@@ -1587,7 +1610,7 @@ export const EconomyIntelligence: React.FC = () => {
   const renderSectorAnalysis = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Sector Growth & GDP Impact</h3>
@@ -1641,7 +1664,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Contribution & Employment</h3>
             <p className="text-[10px] text-slate-500">% of GDP and % of workforce - 2025</p>
@@ -1681,7 +1704,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Wage & Salary Analysis */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Wage & Salary Analysis</h3>
             <p className="text-[10px] text-slate-500">Average Salary vs. Minimum Wage by Sector (TND)</p>
@@ -1701,7 +1724,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Wage Growth vs. Average Salary</h3>
             <p className="text-[10px] text-slate-500">Comparing annual growth % against absolute salary levels</p>
@@ -1760,7 +1783,7 @@ export const EconomyIntelligence: React.FC = () => {
       </div>
 
       {/* Ministry Workforce & Salary Analysis */}
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+      <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-8">
         <div className="flex items-center justify-between border-b border-intel-border pb-6">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-intel-cyan/10 rounded-xl border border-intel-cyan/30">
@@ -1845,7 +1868,7 @@ export const EconomyIntelligence: React.FC = () => {
       </div>
 
       {/* Phosphate Sector Deep Dive */}
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
+      <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-8">
         <div className="flex items-center justify-between border-b border-intel-border pb-6">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-intel-red/10 rounded-xl border border-intel-red/30">
@@ -2001,7 +2024,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* TUNINDEX Performance */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">TUNINDEX Performance</h3>
@@ -2032,7 +2055,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* Currency Trends */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Currency Trends (TND)</h3>
@@ -2061,7 +2084,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Food Prices & Inflation */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Essential Goods Prices</h3>
@@ -2106,7 +2129,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Food Inflation Trend</h3>
@@ -2140,7 +2163,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Market News & Sentiment */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Market Sentiment & News</h3>
           <div className="space-y-4">
             {[
@@ -2166,7 +2189,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Market Composition</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -2201,7 +2224,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="lg:col-span-3 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-3 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Food Basket Analysis</h3>
@@ -2230,7 +2253,7 @@ export const EconomyIntelligence: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Poverty by Governorate */}
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between border-b border-intel-border pb-4">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Poverty Rate by Governorate</h3>
@@ -2392,7 +2415,7 @@ export const EconomyIntelligence: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Shortage Trends */}
-        <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between border-b border-intel-border pb-4">
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-white uppercase tracking-tight">Pharmaceutical Shortage Trends</h3>
@@ -2594,7 +2617,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Strategic Stock & Procurement */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Strategic Stock Levels</h3>
           <div className="space-y-6">
             {[
@@ -2621,7 +2644,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Procurement Risk Matrix</h3>
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -2693,7 +2716,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Growth & Funding Trends */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Growth & Funding</h3>
@@ -2721,7 +2744,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         {/* Sector Breakdown */}
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Sector Distribution</h3>
@@ -2755,7 +2778,7 @@ export const EconomyIntelligence: React.FC = () => {
       </div>
 
       {/* Startup News & Highlights */}
-      <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+      <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
         <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Ecosystem Intelligence</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
@@ -2787,12 +2810,12 @@ export const EconomyIntelligence: React.FC = () => {
 
   const renderRegionalComparison = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="glass rounded-2xl border border-intel-border overflow-hidden">
-        <div className="px-6 py-4 border-b border-intel-border bg-white/5">
+      <div className="glass rounded-2xl border border-intel-border overflow-hidden overflow-x-auto scrollbar-hide">
+        <div className="px-6 py-4 border-b border-intel-border bg-white/5 min-w-[800px]">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">MENA Economic Comparison</h3>
           <p className="text-[10px] text-slate-500">Tunisia vs regional peers - 2025/2026 data</p>
         </div>
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-white/5 border-b border-intel-border">
               <th className="px-6 py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Country</th>
@@ -2855,7 +2878,7 @@ export const EconomyIntelligence: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Growth Comparison</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -2874,7 +2897,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass p-8 rounded-3xl border border-intel-border space-y-6">
+        <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <h3 className="text-xs font-bold text-white uppercase tracking-widest">Forex Reserves (Import Days)</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -2901,7 +2924,7 @@ export const EconomyIntelligence: React.FC = () => {
   );
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700 relative">
+    <div className="space-y-6 md:space-y-12 animate-in fade-in duration-700 relative">
       <BackgroundGrid />
       
       <ModuleHeader 
@@ -2914,21 +2937,24 @@ export const EconomyIntelligence: React.FC = () => {
       <LiveTicker items={economicAlerts} />
 
       {/* CATEGORY SELECTOR */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-intel-border/30 pb-4 sticky top-0 bg-black/50 backdrop-blur-md z-50 py-2">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id as any)}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 border ${
-              activeCategory === cat.id 
-                ? 'bg-intel-cyan/10 border-intel-cyan text-intel-cyan shadow-[0_0_15px_rgba(0,242,255,0.1)]' 
-                : 'bg-white/5 border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
-            }`}
-          >
-            <cat.icon className={`w-4 h-4 ${activeCategory === cat.id ? 'text-intel-cyan' : 'text-slate-500'}`} />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{cat.label}</span>
-          </button>
-        ))}
+      <div className="relative">
+        <div className="flex items-center gap-2 border-b border-intel-border/30 pb-4 sticky top-0 bg-black/50 backdrop-blur-md z-50 py-2 overflow-x-auto scrollbar-hide">
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id as any)}
+              className={`flex-shrink-0 flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 border ${
+                activeCategory === cat.id 
+                  ? 'bg-intel-cyan/10 border-intel-cyan text-intel-cyan shadow-[0_0_15px_rgba(0,242,255,0.1)]' 
+                  : 'bg-white/5 border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
+              }`}
+            >
+              <cat.icon className={`w-4 h-4 ${activeCategory === cat.id ? 'text-intel-cyan' : 'text-slate-500'}`} />
+              <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{cat.label}</span>
+            </button>
+          ))}
+        </div>
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020810] to-transparent pointer-events-none md:hidden z-[60]" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -2938,7 +2964,7 @@ export const EconomyIntelligence: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="space-y-20 relative z-20"
+          className="space-y-10 md:space-y-20 relative z-20"
         >
           {/* Category 1: Macroeconomic Foundation */}
           {(activeCategory === 'ALL' || activeCategory === 'MACRO') && (

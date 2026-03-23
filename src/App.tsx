@@ -26,7 +26,8 @@ import {
   Database,
   Download,
   Home,
-  Cpu
+  Cpu,
+  HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import governoratesData from './data/governorates.json';
@@ -51,7 +52,6 @@ import { ModeSelection } from './components/ModeSelection';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { ProfessionalIntel } from './components/ProfessionalIntel';
 import { DataPipeline } from './components/DataPipeline';
-import { SourceLibrary } from './components/SourceLibrary';
 import { CitizenEdition } from './components/CitizenEdition';
 import { RRIMethodology } from './components/RRIMethodology';
 import SimulationIntelligence from './components/SimulationIntelligence';
@@ -357,7 +357,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   );
 };
 
-const Header = ({ onOpenSourceLibrary, onOpenPipeline, activeTab, onOpenAI, data, onGoHome }: { onOpenSourceLibrary: () => void, onOpenPipeline: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
+const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, onGoHome }: { onOpenPipeline: (tab?: 'pipeline' | 'sources') => void, onOpenMethodology: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const notifications = [
     { id: 1, title: 'RRI Alert: Sfax', message: 'Risk score increased by 0.45 in the last 24h.', time: '12m ago', type: 'alert' },
@@ -471,18 +471,25 @@ const Header = ({ onOpenSourceLibrary, onOpenPipeline, activeTab, onOpenAI, data
             <Zap className="w-4 h-4" />
           </button>
           <button 
-            onClick={onOpenSourceLibrary}
+            onClick={() => onOpenPipeline('sources')}
             className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
             title="Source Library"
           >
             <Globe className="w-4 h-4" />
           </button>
           <button 
-            onClick={onOpenPipeline}
+            onClick={() => onOpenPipeline()}
             className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
             title="Data Pipeline"
           >
             <Database className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={onOpenMethodology}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="RRI Methodology"
+          >
+            <HelpCircle className="w-4 h-4" />
           </button>
           <div className="hidden sm:flex items-center space-x-2 bg-intel-card px-3 py-1.5 rounded-full border border-intel-border">
             <div className="w-1.5 h-1.5 rounded-full bg-intel-green"></div>
@@ -518,7 +525,9 @@ export default function App() {
   const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
   const [isPipelineOpen, setIsPipelineOpen] = useState(false);
-  const [isSourceLibraryOpen, setIsSourceLibraryOpen] = useState(false);
+  const [pipelineInitialTab, setPipelineInitialTab] = useState<'pipeline' | 'sources'>('pipeline');
+  const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
+  const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>(undefined);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [rriVariables, setRRIVariables] = useState<RRIVariable[]>((rriData?.variables as any) || []);
 
@@ -547,14 +556,38 @@ export default function App() {
 
   useEffect(() => {
     const handleNavigateToPipeline = (e: any) => {
-      const { url } = e.detail || {};
+      const { tab, url, initialTab } = e.detail || {};
       if (url) {
         sessionStorage.setItem('pipeline_prefill_url', url);
       }
+      if (tab === 'pipeline') {
+        setActiveTab('simulation');
+      }
+      setPipelineInitialTab(initialTab || 'pipeline');
       setIsPipelineOpen(true);
     };
+
+    const handleNavigateToMethodology = (e: any) => {
+      const { equation } = e.detail || {};
+      setMethodologyEquation(equation);
+      setIsMethodologyOpen(true);
+    };
+
+    const handleNavigateMain = (e: any) => {
+      const { tab } = e.detail || {};
+      if (tab) {
+        setActiveTab(tab);
+      }
+    };
+
     window.addEventListener('navigate-to-pipeline', handleNavigateToPipeline);
-    return () => window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+    window.addEventListener('navigate-to-methodology', handleNavigateToMethodology);
+    window.addEventListener('navigate-main', handleNavigateMain);
+    return () => {
+      window.removeEventListener('navigate-to-pipeline', handleNavigateToPipeline);
+      window.removeEventListener('navigate-to-methodology', handleNavigateToMethodology);
+      window.removeEventListener('navigate-main', handleNavigateMain);
+    };
   }, []);
 
   const governorates = (governoratesData?.governorates || []) as Governorate[];
@@ -774,8 +807,11 @@ export default function App() {
               className="min-h-screen"
             >
               <Header 
-                onOpenSourceLibrary={() => setIsSourceLibraryOpen(true)} 
-                onOpenPipeline={() => setIsPipelineOpen(true)}
+                onOpenPipeline={(tab) => {
+                  setPipelineInitialTab(tab || 'pipeline');
+                  setIsPipelineOpen(true);
+                }}
+                onOpenMethodology={() => setIsMethodologyOpen(true)}
                 activeTab={activeTab}
                 onOpenAI={() => setIsAIAnalystOpen(true)}
                 onGoHome={() => setAppMode(null)}
@@ -824,13 +860,27 @@ export default function App() {
 
         <AnimatePresence>
           {isPipelineOpen && (
-            <DataPipeline onClose={() => setIsPipelineOpen(false)} />
+            <DataPipeline 
+              onClose={() => setIsPipelineOpen(false)} 
+              initialTab={pipelineInitialTab}
+            />
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {isSourceLibraryOpen && (
-            <SourceLibrary onClose={() => setIsSourceLibraryOpen(false)} />
+          {isMethodologyOpen && (
+            <RRIMethodology 
+              onClose={() => setIsMethodologyOpen(false)} 
+              onNavigateToPipeline={(tab) => {
+                if (tab === 'pipeline') {
+                  setActiveTab('simulation');
+                  setPipelineInitialTab('pipeline');
+                  setIsPipelineOpen(true);
+                  setIsMethodologyOpen(false);
+                }
+              }}
+              jumpToEquation={methodologyEquation} 
+            />
           )}
         </AnimatePresence>
       </div>

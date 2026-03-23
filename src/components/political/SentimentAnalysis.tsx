@@ -89,7 +89,7 @@ export const SentimentAnalysis: React.FC = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white p-8 font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-black text-white p-4 md:p-8 font-sans overflow-hidden">
       <BackgroundGrid />
       
       <div className="relative z-10 max-w-7xl mx-auto space-y-8">
@@ -134,7 +134,7 @@ export const SentimentAnalysis: React.FC = () => {
                 { label: 'TOP PLATFORM', value: 'FB', sub: '68% Volume', color: 'text-blue-400' },
                 { label: 'BOT ACTIVITY', value: '4.2%', sub: 'Minimal Impact', color: 'text-slate-400' }
               ].map((stat, i) => (
-                <div key={i} className="intel-card p-6 border-l-2 border-l-intel-cyan">
+                <div key={i} className="intel-card p-6 md:p-8 rounded-3xl border-l-2 border-l-intel-cyan">
                   <div className="text-[10px] text-slate-500 font-mono uppercase tracking-tighter">{stat.label}</div>
                   <div className={cn("text-3xl font-bold tracking-tighter mt-1", stat.color)}>{stat.value}</div>
                   <div className="text-[10px] text-slate-400 font-mono mt-1">{stat.sub}</div>
@@ -143,7 +143,7 @@ export const SentimentAnalysis: React.FC = () => {
             </div>
 
             {/* Main Trend Chart */}
-            <div className="lg:col-span-8 intel-card p-8">
+            <div className="lg:col-span-8 intel-card p-6 md:p-8 rounded-3xl">
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h3 className="text-lg font-bold tracking-tight">SENTIMENT TREND (30D)</h3>
@@ -199,7 +199,7 @@ export const SentimentAnalysis: React.FC = () => {
             </div>
 
             {/* Actor Sentiment Matrix */}
-            <div className="lg:col-span-4 intel-card p-8">
+            <div className="lg:col-span-4 intel-card p-6 md:p-8 rounded-3xl">
               <h3 className="text-lg font-bold tracking-tight mb-6">ACTOR SENTIMENT MATRIX</h3>
               <div className="space-y-6">
                 {actorSentiment.map((actor) => (
@@ -244,7 +244,7 @@ export const SentimentAnalysis: React.FC = () => {
         {activeTab === 'topics' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Trending Topics Bar Chart */}
-            <div className="lg:col-span-8 intel-card p-8">
+            <div className="lg:col-span-8 intel-card p-6 md:p-8 rounded-3xl">
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h3 className="text-lg font-bold tracking-tight">TRENDING TOPICS</h3>
@@ -277,7 +277,7 @@ export const SentimentAnalysis: React.FC = () => {
             </div>
 
             {/* Topic Velocity Panel */}
-            <div className="lg:col-span-4 intel-card p-8">
+            <div className="lg:col-span-4 intel-card p-6 md:p-8 rounded-3xl">
               <h3 className="text-lg font-bold tracking-tight mb-6">TOPIC VELOCITY</h3>
               <div className="space-y-6">
                 {trendingTopics.map((topic) => (
@@ -303,7 +303,7 @@ export const SentimentAnalysis: React.FC = () => {
         {activeTab === 'platforms' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Platform Breakdown */}
-            <div className="lg:col-span-4 intel-card p-8">
+            <div className="lg:col-span-4 intel-card p-6 md:p-8 rounded-3xl">
               <h3 className="text-lg font-bold tracking-tight mb-8">PLATFORM BREAKDOWN</h3>
               <div className="space-y-8">
                 {platformData.map((platform) => (
@@ -326,13 +326,13 @@ export const SentimentAnalysis: React.FC = () => {
             </div>
 
             {/* Geographic Sentiment Table */}
-            <div className="lg:col-span-8 intel-card overflow-hidden">
-              <div className="p-8 border-b border-white/10">
+            <div className="lg:col-span-8 intel-card rounded-3xl overflow-hidden">
+              <div className="p-6 md:p-8 border-b border-white/10">
                 <h3 className="text-lg font-bold tracking-tight">GEOGRAPHIC SENTIMENT BY REGION</h3>
                 <p className="text-xs text-slate-500 font-mono uppercase">Sentiment distribution across governorates</p>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto scrollbar-hide">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="bg-white/5 border-b border-white/10">
                       <th className="p-4 text-[10px] font-mono text-slate-500 uppercase">Region</th>
