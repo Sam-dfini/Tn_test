@@ -31,6 +31,11 @@ export interface Governorate {
   police_presence: 'LOW' | 'MEDIUM' | 'HIGH';
   main_tribes: string[];
   key_industry: string;
+  water_source: string;
+  election_turnout_2023: number;
+  decree54_cases: number;
+  migration_attempts_2025: number;
+  cascade_risk: number;
   pred_7d: number;
   pred_30d: number;
   pred_90d: number;
@@ -39,7 +44,9 @@ export interface Governorate {
 export interface IntelEvent {
   id: string;
   date: string;
-  type: 'protest' | 'arrest' | 'economic' | 'water' | 'migration' | 'internet' | 'political' | 'detention';
+  type: 'protest' | 'arrest' | 'economic' | 'water' |
+        'migration' | 'internet' | 'political' | 'detention' |
+        'infrastructure' | 'rights' | 'labor';
   title: string;
   summary: string;
   gov: string;

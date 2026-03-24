@@ -1,34 +1,19 @@
 {
   "events": [
-    {
-      "id": "E001",
-      "date": "2025-11-14",
-      "type": "protest",
-      "title": "Sfax Port Blockade",
-      "summary": "Protesters blocked the main entrance to Sfax port demanding better water infrastructure and job opportunities.",
-      "gov": "sfax",
-      "lat": 34.74,
-      "lon": 10.76,
-      "severity": 3,
-      "urgent": true,
-      "actors": ["taboubi", "cpg"],
-      "source": "Nawaat",
-      "cases": ["C004"]
-    },
-    {
-      "id": "E002",
-      "date": "2026-03-08",
-      "type": "political",
-      "title": "UGTT Strike Vote",
-      "summary": "UGTT members voted to authorize strike action in response to stalled wage negotiations.",
-      "gov": "tunis",
-      "lat": 36.8,
-      "lon": 10.18,
-      "severity": 2,
-      "urgent": false,
-      "actors": ["taboubi"],
-      "source": "Mosaique FM",
-      "cases": []
-    }
+    { "id":"E001","date":"2026-03-15","type":"protest","title":"Sfax Water Protest Day 4","summary":"Ongoing water supply cuts entering fourth day. Residents blockade municipality entrance. Security forces deployed to harbor area.","gov":"sfax","lat":34.74,"lon":10.76,"severity":3,"urgent":true,"actors":["ugtt","civil_society"],"source":"Nawaat","cases":["C006"] },
+    { "id":"E002","date":"2026-03-12","type":"economic","title":"IMF Mission Departs Without Agreement","summary":"IMF mission leaves Tunis without Q1 agreement. BCT FX reserves confirmed at 84 days import cover. Q3 deadline unchanged.","gov":"tunis","lat":36.82,"lon":10.18,"severity":3,"urgent":true,"actors":["bct","imf"],"source":"Business News","cases":["C007"] },
+    { "id":"E003","date":"2026-03-10","type":"arrest","title":"Journalist Detained Under Decree 54","summary":"Investigative journalist arrested for publishing report on BCT reserve levels. Charged with spreading false information.","gov":"tunis","lat":36.80,"lon":10.17,"severity":3,"urgent":true,"actors":["security_forces"],"source":"RSF","cases":["C005"] },
+    { "id":"E004","date":"2026-02-28","type":"protest","title":"CPG Workers Blockade Metlaoui Mine","summary":"Compagnie des Phosphates de Gafsa workers blockade Metlaoui mine entrance over 3 months unpaid wage arrears.","gov":"gafsa","lat":34.33,"lon":8.40,"severity":2,"urgent":false,"actors":["ugtt","cpg_workers"],"source":"UGTT","cases":["C004"] },
+    { "id":"E005","date":"2026-02-15","type":"arrest","title":"3 Civil Activists Charged Decree 54","summary":"Three civil society activists charged under Decree 54 for social media posts criticizing water management policy.","gov":"tunis","lat":36.81,"lon":10.16,"severity":2,"urgent":false,"actors":["security_forces"],"source":"FTDES","cases":["C005"] },
+    { "id":"E006","date":"2026-01-28","type":"protest","title":"UGTT Strike Warning — Public Sector","summary":"UGTT secretariat issues formal 72-hour strike warning covering public sector. General strike probability at 64%.","gov":"tunis","lat":36.80,"lon":10.18,"severity":3,"urgent":true,"actors":["ugtt","taboubi"],"source":"UGTT","cases":[] },
+    { "id":"E007","date":"2026-01-15","type":"protest","title":"Kasserine Youth Protest — Unemployment","summary":"Youth demonstration in Kasserine city center against unemployment. 200+ participants. One arrested. Police dispersal with teargas.","gov":"kasserine","lat":35.17,"lon":8.83,"severity":2,"urgent":false,"actors":["youth_movement"],"source":"Nawaat","cases":[] },
+    { "id":"E008","date":"2025-12-20","type":"internet","title":"VPN Blocking Attempt — 48 Hours","summary":"ATI implements VPN blocking attempt lasting 48 hours. Popular VPN services disrupted. Workarounds widely shared.","gov":"tunis","lat":36.84,"lon":10.15,"severity":2,"urgent":false,"actors":["ati","ministry_interior"],"source":"OONI","cases":[] },
+    { "id":"E009","date":"2025-11-18","type":"water","title":"Sfax Water Supply Reduced to 6hrs/Day","summary":"SONEDE confirms Sfax water supply reduced to 6 hours per day. Infrastructure failure cited. Opposition disputes explanation.","gov":"sfax","lat":34.73,"lon":10.75,"severity":3,"urgent":true,"actors":["sonede","municipal_council"],"source":"SONEDE","cases":[] },
+    { "id":"E010","date":"2025-10-30","type":"economic","title":"Parallel Market TND Premium Reaches 18%","summary":"TND parallel market premium reaches 18% above official BCT rate. Capital flight indicator at warning level.","gov":"tunis","lat":36.79,"lon":10.18,"severity":2,"urgent":false,"actors":["bct"],"source":"Forex monitors","cases":[] },
+    { "id":"E011","date":"2025-08-20","type":"protest","title":"Gabes Chemical Pollution Protest","summary":"500+ residents protest ongoing industrial pollution from chemical complex. Ministry denies toxic levels. NGO data contradicts.","gov":"gabes","lat":33.88,"lon":10.10,"severity":2,"urgent":false,"actors":["environmental_groups"],"source":"Inkyfada","cases":[] },
+    { "id":"E012","date":"2025-07-25","type":"political","title":"4th Anniversary Presidential Power Grab","summary":"Opposition marks July 25 with protests across Tunis. Regime celebrates. Security deployment heavy. 12 arrests reported.","gov":"tunis","lat":36.80,"lon":10.18,"severity":2,"urgent":false,"actors":["opposition","nsf","security_forces"],"source":"Multiple","cases":[] },
+    { "id":"E013","date":"2025-06-10","type":"protest","title":"STEG Power Cuts — Sidi Bouzid Protest","summary":"STEG announces rolling power cuts in interior regions. Protest in Sidi Bouzid city center. 150 participants.","gov":"sidi_bouzid","lat":35.04,"lon":9.49,"severity":2,"urgent":false,"actors":["steg"],"source":"STEG/Nawaat","cases":[] },
+    { "id":"E014","date":"2025-04-17","type":"arrest","title":"Ghannouchi Arrest — Day 1","summary":"Rached Ghannouchi arrested on terrorism charges. Ennahda HQ raided. Mass international condemnation. Protests in Paris.","gov":"tunis","lat":36.82,"lon":10.17,"severity":3,"urgent":true,"actors":["ghannouchi","security_forces","ennahda"],"source":"Multiple","cases":[] },
+    { "id":"E015","date":"2025-03-15","type":"migration","title":"Mass Crossing Attempt — Sfax Coast","summary":"250+ migrants attempt Mediterranean crossing from El Amra departure zone. Coast Guard intercepts 180. 12 missing.","gov":"sfax","lat":34.68,"lon":10.78,"severity":3,"urgent":true,"actors":["coast_guard","iom"],"source":"IOM","cases":["C006"] }
   ]
 }

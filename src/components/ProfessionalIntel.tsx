@@ -29,7 +29,9 @@ import {
   Activity,
   Radio,
   Eye,
-  Target
+  Target,
+  RotateCcw,
+  Calendar
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { EconomyIntelligence } from './EconomyIntelligence';
@@ -40,7 +42,9 @@ import { SecurityIntelligence } from './SecurityIntelligence';
 import { StrategicModeling } from './StrategicModeling';
 import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { PoliticalIntelligence } from './PoliticalIntelligence';
+import { PoliticalCalendar } from './PoliticalCalendar';
 import SimulationIntelligence from './SimulationIntelligence';
+import { CivilizationalAnalysis } from './CivilizationalAnalysis';
 import { NewsFeed } from './NewsFeed';
 
 interface IntelReport {
@@ -118,7 +122,7 @@ import { usePipeline } from '../context/PipelineContext';
 export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const { data, rriState, auditLog } = usePipeline();
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'methodology'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'methodology' | 'civilizational' | 'calendar'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -128,12 +132,14 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
     { id: 'economy', label: 'Economy', icon: TrendingUp },
     { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
     { id: 'political', label: 'Political', icon: Users },
+    { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'security', label: 'Security', icon: ShieldCheck },
     { id: 'energy', label: 'Energy', icon: Zap },
     { id: 'environment', label: 'Environment', icon: Sprout },
     { id: 'social', label: 'Social', icon: Users },
     { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
     { id: 'simulation', label: 'Simulation', icon: Cpu },
+    { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
   ];
 
   useEffect(() => {
@@ -327,6 +333,18 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
           )}
         </button>
         <button 
+          onClick={() => setActiveTab('calendar')}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'calendar' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+        >
+          <div className="flex items-center space-x-2">
+            <Calendar className="w-4 h-4" />
+            <span>Calendar</span>
+          </div>
+          {activeTab === 'calendar' && (
+            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
+          )}
+        </button>
+        <button 
           onClick={() => setActiveTab('security')}
           className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'security' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
         >
@@ -395,6 +413,18 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             <span>Simulation</span>
           </div>
           {activeTab === 'simulation' && (
+            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('civilizational')}
+          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'civilizational' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
+        >
+          <div className="flex items-center space-x-2">
+            <RotateCcw className="w-4 h-4" />
+            <span>Civilizational</span>
+          </div>
+          {activeTab === 'civilizational' && (
             <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
           )}
         </button>
@@ -1084,6 +1114,10 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         <SocialIntelligence />
       ) : activeTab === 'strategic' ? (
         <StrategicModeling />
+      ) : activeTab === 'civilizational' ? (
+        <CivilizationalAnalysis />
+      ) : activeTab === 'calendar' ? (
+        <PoliticalCalendar />
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}

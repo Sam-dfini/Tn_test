@@ -43,7 +43,7 @@ export const SocialMonitor: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.0-flash",
         contents: "Generate a tactical social media monitoring report for Tunisia. Include: 1. Top 8 trending hashtags in Tunisia (Arabic and Latin script). 2. 6 simulated but realistic trending news posts from platforms like WhatsApp, Telegram, Twitter, Facebook, and Discord. Format as a JSON object with two arrays: 'hashtags' (tag, count, trend: 'up'|'down'|'stable') and 'posts' (platform, user, time, content, verified: boolean, engagement).",
         config: {
           tools: [{ googleSearch: {} }],
@@ -58,10 +58,14 @@ export const SocialMonitor: React.FC = () => {
       console.error('Failed to fetch social monitor data:', err);
       // Fallback data
       setHashtags([
-        { tag: '#Tunisia', count: '45.2K', trend: 'up' },
-        { tag: '#تونس', count: '38.1K', trend: 'up' },
-        { tag: '#Sfax', count: '12.4K', trend: 'stable' },
-        { tag: '#EconomieTN', count: '8.9K', trend: 'down' },
+        { tag: '#تونس', count: '182K', trend: 'up' },
+        { tag: '#أزمة_المياه', count: '145K', trend: 'up' },
+        { tag: '#صفاقس', count: '98K', trend: 'up' },
+        { tag: '#النهضة', count: '71K', trend: 'stable' },
+        { tag: '#IMF_تونس', count: '65K', trend: 'down' },
+        { tag: '#اتحاد_الشغل', count: '58K', trend: 'up' },
+        { tag: '#Tunisia', count: '44K', trend: 'stable' },
+        { tag: '#EconomieTN', count: '38K', trend: 'down' },
       ]);
       setPosts([
         { 

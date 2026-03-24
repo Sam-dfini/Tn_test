@@ -1,19 +1,85 @@
 import React from 'react';
 import { motion } from 'motion/react';
-
-const sensors = [
-  { label: 'Border Activity', value: 'HIGH', sub: 'Tunis-Libya/Alg', color: 'text-intel-orange', bg: 'bg-intel-orange' },
-  { label: 'Social Unrest', value: 'MODERATE', sub: '3 active protests', color: 'text-intel-orange', bg: 'bg-intel-orange' },
-  { label: 'SDR Coverage', value: '24/24', sub: 'Governorate sync', color: 'text-intel-cyan', bg: 'bg-intel-cyan' },
-  { label: 'Maritime Watch', value: '14', sub: 'Vessels in port', color: 'text-intel-purple', bg: 'bg-intel-purple' },
-  { label: 'Water Crisis', value: 'CRITICAL', sub: '12 govs affected', color: 'text-intel-red', bg: 'bg-intel-red' },
-  { label: 'Conflict Events', value: '2', sub: 'Border skirmish', color: 'text-intel-red', bg: 'bg-intel-red' },
-  { label: 'Health Watch', value: 'STABLE', sub: 'Local clinics', color: 'text-intel-green', bg: 'bg-intel-green' },
-  { label: 'Local News', value: '12', sub: 'TAP geolocated', color: 'text-intel-cyan', bg: 'bg-intel-cyan' },
-  { label: 'OSINT Feed', value: '84', sub: '8 urgent', color: 'text-intel-orange', bg: 'bg-intel-orange' },
-];
+import { usePipeline } from '../../context/PipelineContext';
 
 export const SensorGrid: React.FC = () => {
+  const { data, rriState } = usePipeline();
+
+  const sensors = [
+    {
+      label: 'Social Unrest',
+      value: data.social.protest_events_30d > 20 ? 'CRITICAL' :
+             data.social.protest_events_30d > 10 ? 'HIGH' : 'MODERATE',
+      sub: `${data.social.protest_events_30d} events / 30d`,
+      color: data.social.protest_events_30d > 20 ?
+        'text-intel-red' : 'text-intel-orange',
+      bg: data.social.protest_events_30d > 20 ?
+        'bg-intel-red' : 'bg-intel-orange'
+    },
+    {
+      label: 'UGTT Alert',
+      value: data.social.ugtt_mobilisation_level,
+      sub: `${data.social.ugtt_strike_count_2025 || 847} strikes 2025`,
+      color: data.social.ugtt_mobilisation_level === 'HIGH' ?
+        'text-intel-red' : 'text-intel-orange',
+      bg: data.social.ugtt_mobilisation_level === 'HIGH' ?
+        'bg-intel-red' : 'bg-intel-orange'
+    },
+    {
+      label: 'Water Crisis',
+      value: 'CRITICAL',
+      sub: `${data.social.water_crisis_govs} govs affected`,
+      color: 'text-intel-red',
+      bg: 'bg-intel-red'
+    },
+    {
+      label: 'FX Reserves',
+      value: data.economy.fx_reserves < 90 ? 'WARNING' : 'STABLE',
+      sub: `${data.economy.fx_reserves} days cover`,
+      color: data.economy.fx_reserves < 90 ?
+        'text-intel-orange' : 'text-intel-cyan',
+      bg: data.economy.fx_reserves < 90 ?
+        'bg-intel-orange' : 'bg-intel-cyan'
+    },
+    {
+      label: 'Decree 54',
+      value: `${data.social.decree54_charged} CHARGED`,
+      sub: 'Press / Activists',
+      color: 'text-intel-red',
+      bg: 'bg-intel-red'
+    },
+    {
+      label: 'RRI Status',
+      value: rriState.rri >= 2.625 ? 'THRESHOLD' : 'ELEVATED',
+      sub: `R(t) = ${rriState.rri.toFixed(2)}`,
+      color: rriState.rri >= 2.625 ?
+        'text-intel-red' : 'text-intel-orange',
+      bg: rriState.rri >= 2.625 ?
+        'bg-intel-red' : 'bg-intel-orange'
+    },
+    {
+      label: 'Border Activity',
+      value: 'ELEVATED',
+      sub: 'Libya-Algeria sectors',
+      color: 'text-intel-orange',
+      bg: 'bg-intel-orange'
+    },
+    {
+      label: 'Maritime Watch',
+      value: '14',
+      sub: 'Vessels monitored',
+      color: 'text-intel-cyan',
+      bg: 'bg-intel-cyan'
+    },
+    {
+      label: 'Press Freedom',
+      value: `RANK ${data.social.press_freedom_rank || 118}`,
+      sub: 'RSF Global Index',
+      color: 'text-intel-orange',
+      bg: 'bg-intel-orange'
+    },
+  ];
+
   return (
     <div className="glass p-4 rounded-lg border border-intel-border">
       <div className="flex items-center justify-between mb-4">

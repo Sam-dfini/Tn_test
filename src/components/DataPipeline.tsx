@@ -49,215 +49,11 @@ const pipelineAlerts = [
   { code: 'PIPE-02', title: 'INS Unemployment Survey — March Data Available', impact: 'MEDIUM' },
 ];
 
-interface Source {
-  name: string;
-  reliability: 'HIGH' | 'MEDIUM' | 'PENDING';
-  description: string;
-  url: string;
-}
-
-interface SourceCategory {
-  title: string;
-  sources: Source[];
-}
-
-const sourceData: SourceCategory[] = [
-  {
-    title: "OFFICIAL / GOVERNMENT",
-    sources: [
-      {
-        name: "INS Tunisia",
-        reliability: "HIGH",
-        description: "National statistics institute — CPI, GDP, employment, poverty",
-        url: "ins.tn"
-      },
-      {
-        name: "Banque Centrale de Tunisie",
-        reliability: "HIGH",
-        description: "Monetary policy, forex reserves, banking sector data",
-        url: "bct.gov.tn"
-      },
-      {
-        name: "Ministry of Finance",
-        reliability: "HIGH",
-        description: "Budget, debt, fiscal data",
-        url: "finances.gov.tn"
-      },
-      {
-        name: "ISIE",
-        reliability: "MEDIUM",
-        description: "Electoral results and voter registration",
-        url: "isie.tn"
-      },
-      {
-        name: "TAP Wire",
-        reliability: "MEDIUM",
-        description: "Official government statements — biased but authoritative for gov positions",
-        url: "tap.info.tn"
-      },
-      {
-        name: "FIPA",
-        reliability: "HIGH",
-        description: "Foreign investment promotion — FDI data",
-        url: "investintunisia.tn"
-      }
-    ]
-  },
-  {
-    title: "SOCIAL MEDIA",
-    sources: [
-      {
-        name: "UGTT Facebook",
-        reliability: "HIGH",
-        description: "Official union announcements and labor mobilization",
-        url: "facebook.com/ugtt.tunisie"
-      },
-      {
-        name: "Presidency Tunisia",
-        reliability: "HIGH",
-        description: "Official presidential decrees and statements",
-        url: "facebook.com/Presidence.tn"
-      },
-      {
-        name: "Nawaat Facebook",
-        reliability: "HIGH",
-        description: "Independent news and civil society updates",
-        url: "facebook.com/nawaat"
-      },
-      {
-        name: "Inkyfada Facebook",
-        reliability: "HIGH",
-        description: "Data-driven investigative reports and social issues",
-        url: "facebook.com/inkyfada"
-      },
-      {
-        name: "Tunisia OSINT Telegram",
-        reliability: "MEDIUM",
-        description: "Open-source intelligence and security alerts",
-        url: "t.me/tunisia_osint"
-      }
-    ]
-  },
-  {
-    title: "INVESTIGATIVE & INDEPENDENT MEDIA",
-    sources: [
-      {
-        name: "Inkyfada",
-        reliability: "HIGH",
-        description: "Investigative journalism, human rights, data journalism. Highest quality Tunisian outlet.",
-        url: "inkyfada.com"
-      },
-      {
-        name: "Nawaat",
-        reliability: "HIGH",
-        description: "Pioneered online journalism in Tunisia. Strong on civil liberties and political repression.",
-        url: "nawaat.org"
-      },
-      {
-        name: "Business News TN",
-        reliability: "HIGH",
-        description: "Economic and financial reporting. Good industry coverage.",
-        url: "businessnews.com.tn"
-      },
-      {
-        name: "Mosaique FM",
-        reliability: "MEDIUM",
-        description: "Most listened radio. Generally balanced; cautious on presidential criticism.",
-        url: "mosaiquefm.net"
-      }
-    ]
-  },
-  {
-    title: "DATA SOURCES",
-    sources: [
-      {
-        name: "BCT Publications",
-        reliability: "HIGH",
-        description: "Central Bank economic notes and monetary bulletins",
-        url: "bct.gov.tn/publications"
-      },
-      {
-        name: "INS Statistics",
-        reliability: "HIGH",
-        description: "National Institute of Statistics data portal",
-        url: "ins.tn/en/data"
-      },
-      {
-        name: "IMF Tunisia",
-        reliability: "HIGH",
-        description: "International Monetary Fund country reports and data",
-        url: "imf.org/en/Countries/TUN"
-      },
-      {
-        name: "World Bank Tunisia",
-        reliability: "HIGH",
-        description: "World Bank development indicators and economic outlook",
-        url: "worldbank.org/en/country/tunisia"
-      },
-      {
-        name: "ANME Energy",
-        reliability: "HIGH",
-        description: "National Agency for Energy Management — energy balance data",
-        url: "anme.tn"
-      },
-      {
-        name: "STEG Reports",
-        reliability: "HIGH",
-        description: "National electricity and gas company annual reports",
-        url: "steg.com.tn"
-      },
-      {
-        name: "Heritage Foundation",
-        reliability: "HIGH",
-        description: "Index of Economic Freedom — Tunisia profile",
-        url: "heritage.org/index/country/tunisia"
-      },
-      {
-        name: "RSF Press Freedom",
-        reliability: "HIGH",
-        description: "Reporters Without Borders — Press freedom rankings",
-        url: "rsf.org/en/country/tunisia"
-      },
-      {
-        name: "Transparency International",
-        reliability: "HIGH",
-        description: "Corruption Perceptions Index — Tunisia data",
-        url: "transparency.org/en/countries/tunisia"
-      }
-    ]
-  },
-  {
-    title: "INTERNATIONAL NEWS & ANALYSIS",
-    sources: [
-      {
-        name: "Reuters",
-        reliability: "HIGH",
-        description: "Primary international wire for Tunisia economic/political news",
-        url: "reuters.com"
-      },
-      {
-        name: "AFP",
-        reliability: "HIGH",
-        description: "French wire with strong Maghreb coverage",
-        url: "afp.com"
-      },
-      {
-        name: "Le Monde Afrique",
-        reliability: "HIGH",
-        description: "French-language analysis, strong Tunisia coverage",
-        url: "lemonde.fr/afrique"
-      },
-      {
-        name: "Middle East Eye",
-        reliability: "MEDIUM",
-        description: "Regional analysis. Good on political Islam and opposition perspectives.",
-        url: "middleeasteye.net"
-      }
-    ]
-  }
-];
-
-export const DataPipeline: React.FC<{ onClose: () => void, initialTab?: 'pipeline' | 'sources' }> = ({ onClose, initialTab = 'pipeline' }) => {
+export const DataPipeline: React.FC<{ 
+  onClose: () => void, 
+  initialTab?: 'pipeline' | 'sources',
+  onOpenSources?: () => void
+}> = ({ onClose, initialTab = 'pipeline', onOpenSources }) => {
   const { data, pushApprovedChanges } = usePipeline();
   
   const [activeTab, setActiveTab] = useState<'pipeline' | 'sources'>(initialTab);
@@ -404,7 +200,13 @@ export const DataPipeline: React.FC<{ onClose: () => void, initialTab?: 'pipelin
               Pipeline
             </button>
             <button
-              onClick={() => setActiveTab('sources')}
+              onClick={() => {
+                if (onOpenSources) {
+                  onOpenSources();
+                } else {
+                  setActiveTab('sources');
+                }
+              }}
               className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'sources' 
                   ? 'bg-intel-cyan text-black font-bold' 
@@ -748,133 +550,23 @@ export const DataPipeline: React.FC<{ onClose: () => void, initialTab?: 'pipelin
               </div>
             </div>
           ) : (
-            <div className="space-y-12">
-              <div className="flex flex-col items-center text-center space-y-6">
-                <div className="w-16 h-16 bg-intel-cyan/10 rounded-2xl flex items-center justify-center border border-intel-cyan/20">
-                  <Library className="w-8 h-8 text-intel-cyan" />
-                </div>
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold text-white tracking-tight">Intelligence Source Library</h2>
-                  <p className="text-slate-500 text-sm max-w-2xl">
-                    A curated database of authoritative sources used to ground the platform's risk models and AI analysis.
-                  </p>
-                </div>
-                
-                <div className="relative w-full max-w-xl">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                  <input 
-                    type="text" 
-                    value={sourceSearch}
-                    onChange={(e) => setSourceSearch(e.target.value)}
-                    placeholder="Search sources by name, description or URL..."
-                    className="w-full bg-intel-card border border-intel-border rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-intel-cyan/50 transition-all shadow-2xl"
-                  />
-                </div>
+            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
+              <div className="w-16 h-16 bg-intel-cyan/10 rounded-2xl flex items-center justify-center border border-intel-cyan/20">
+                <Library className="w-8 h-8 text-intel-cyan" />
               </div>
-
-              <div className="space-y-16">
-                {sourceData.map((category, idx) => {
-                  const filteredSources = category.sources.filter(s => 
-                    s.name.toLowerCase().includes(sourceSearch.toLowerCase()) ||
-                    s.description.toLowerCase().includes(sourceSearch.toLowerCase()) ||
-                    s.url.toLowerCase().includes(sourceSearch.toLowerCase())
-                  );
-
-                  if (filteredSources.length === 0) return null;
-
-                  return (
-                    <motion.section 
-                      key={category.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center space-x-4 border-b border-intel-border pb-4">
-                        <div className="w-1.5 h-6 bg-intel-cyan rounded-full"></div>
-                        <h3 className="text-sm font-mono font-bold text-intel-cyan uppercase tracking-[0.2em]">
-                          {category.title}
-                        </h3>
-                        <span className="text-[10px] font-mono text-slate-600 ml-auto">{filteredSources.length} Sources</span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filteredSources.map((source) => (
-                          <motion.div
-                            key={source.name}
-                            whileHover={{ x: 10 }}
-                            className="group bg-intel-card/50 border border-intel-border rounded-xl p-4 flex items-center justify-between hover:border-intel-cyan/30 transition-all"
-                          >
-                            <div className="flex items-center space-x-6">
-                              <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center border border-white/5 group-hover:border-intel-cyan/20 transition-colors">
-                                <Globe className="w-5 h-5 text-slate-500 group-hover:text-intel-cyan transition-colors" />
-                              </div>
-                              <div>
-                                <div className="flex items-center space-x-3">
-                                  <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors">
-                                    {source.name}
-                                  </h4>
-                                  <span className={`px-1.5 py-0.5 rounded text-[8px] font-mono font-bold border ${
-                                    source.reliability === 'HIGH' ? 'bg-intel-green/10 text-intel-green border-intel-green/20' :
-                                    source.reliability === 'MEDIUM' ? 'bg-intel-orange/10 text-intel-orange border-intel-orange/20' :
-                                    'bg-slate-500/10 text-slate-500 border-slate-500/20'
-                                  }`}>
-                                    {source.reliability}
-                                  </span>
-                                </div>
-                                <p className="text-xs text-slate-500 mt-1">
-                                  {source.description}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                              <button 
-                                onClick={() => {
-                                  setUrlInput(source.url);
-                                  setActiveTab('pipeline');
-                                }}
-                                className="px-3 py-1.5 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded-lg text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-intel-cyan hover:text-black transition-all flex items-center space-x-2"
-                              >
-                                <Plus className="w-3 h-3" />
-                                <span>Pipeline</span>
-                              </button>
-                              <a href={`https://${source.url}`} target="_blank" rel="noreferrer" className="p-1 hover:bg-white/10 rounded transition-colors">
-                                <ExternalLink className="w-4 h-4 text-slate-700 group-hover:text-intel-cyan transition-colors" />
-                              </a>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </motion.section>
-                  );
-                })}
+              <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-white">Source Library Integration</h3>
+                <p className="text-slate-500 text-sm max-w-md mx-auto">
+                  The source library has been moved to a dedicated management interface for enhanced reliability testing and ingestion.
+                </p>
               </div>
-
-              {/* Methodology Note */}
-              <div className="mt-20 p-8 rounded-3xl border border-intel-border bg-white/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Shield className="w-32 h-32 text-intel-cyan" />
-                </div>
-                <div className="relative z-10 space-y-4">
-                  <div className="flex items-center space-x-2 text-intel-cyan">
-                    <Info className="w-4 h-4" />
-                    <span className="text-xs font-mono uppercase font-bold tracking-widest">Methodology & Verification</span>
-                  </div>
-                  <p className="text-sm text-slate-400 max-w-3xl leading-relaxed">
-                    The TunisiaIntel platform employs a multi-source verification protocol. Data from official government sources is cross-referenced with independent investigative reports and international academic datasets to ensure the highest level of accuracy in our risk models.
-                  </p>
-                  <div className="flex items-center space-x-6 pt-4">
-                    <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500">
-                      <Clock className="w-3 h-3" />
-                      <span>Last Audit: March 10, 2026</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500">
-                      <Database className="w-3 h-3" />
-                      <span>24 Active API Connections</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <button 
+                onClick={onOpenSources}
+                className="px-6 py-3 bg-intel-cyan text-black rounded-xl font-mono font-bold text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center space-x-2"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Open Source Library</span>
+              </button>
             </div>
           )}
         </div>

@@ -4,11 +4,9 @@ import { ShieldAlert, Info, TrendingUp, RefreshCw, Sliders, Zap, AlertCircle, Tr
 import { RRIVariable, RRIState } from '../types/intel';
 import { 
   getRiskTier, 
-  calculateFullRRIState, 
-  simulateScenario, 
-  calculateModelConfidence,
   runMonteCarlo
 } from '../utils/rriEngine';
+import { usePipeline } from '../context/PipelineContext';
 
 interface RiskModelProps {
   variables: RRIVariable[];
@@ -69,27 +67,9 @@ const scenarios = [
   }
 ];
 
-export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariables, rriState: externalState }) => {
+export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariables }) => {
+  const { rriState } = usePipeline();
   const [variables, setVariables] = useState<RRIVariable[]>(initialVariables || []);
-  const [state, setState] = useState<RRIState>((externalState as any) || {
-    rri: 0,
-    p_rev: 0,
-    salience: 0.5,
-    w_t: 1.0,
-    regime_age: { age_pct: 0.5, years: 15 },
-    ci_low: 0,
-    ci_high: 0,
-    monte_carlo_runs: 1000,
-    elite_defection_prob: 0,
-    velocity: 0,
-    cascade_prob: 0,
-    info_amplification: 0,
-    pattern_similarity: 0,
-    compound_stress: 0,
-    risk_tier: 'Low',
-    confidence: 0,
-    timestamp: Date.now()
-  });
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
   const [hoveredVarId, setHoveredVarId] = useState<string | null>(null);
@@ -104,8 +84,6 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
 
     // Simulate processing time
     setTimeout(() => {
-      const newState = simulateScenario(variables as any, scenario.impact);
-      setState(newState as any);
       setIsSimulating(false);
     }, 800);
   };
@@ -113,29 +91,16 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
   const resetVariables = () => {
     setVariables(initialVariables || []);
     setActiveScenario(null);
-    if (initialVariables) {
-      setState(calculateFullRRIState(initialVariables as any) as any);
-    }
   };
 
   useEffect(() => {
     if (initialVariables) {
       setVariables(initialVariables);
-      const initialState = calculateFullRRIState(initialVariables as any);
-      setState(initialState as any);
-      
       // Initial MC run for the chart
       const mc = runMonteCarlo(initialVariables as any);
       setMcData(mc.chartData.map(d => ({ rri: d.rri, count: d.frequency })));
     }
   }, [initialVariables]);
-
-  useEffect(() => {
-    if (!activeScenario) {
-      const newState = calculateFullRRIState(variables as any);
-      setState(newState as any);
-    }
-  }, [variables, activeScenario]);
 
   const handleVariableChange = (id: string, newValue: number) => {
     setVariables(prev => (prev || []).map(v => v.id === id ? { ...v, value: newValue } : v));
@@ -150,17 +115,12 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
     setTimeout(() => {
       const mc = runMonteCarlo(variables as any);
       setMcData(mc.chartData.map(d => ({ rri: d.rri, count: d.frequency })));
-      setState(prev => ({
-        ...prev,
-        ci_low: mc.ci_low,
-        ci_high: mc.ci_high
-      }));
       setIsSimulating(false);
     }, 1500);
   };
 
-  const tier = getRiskTier(state.rri);
-  const confidence = calculateModelConfidence(variables as any);
+  const tier = getRiskTier(rriState.rri);
+  const confidence = rriState.model_confidence;
 
   return (
     <div className="space-y-8">
@@ -188,22 +148,22 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
             </div>
             
             <div className="relative z-10">
-              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-2">Current State — March 2026</div>
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-2">Current State — {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
               <div className="flex items-baseline space-x-4">
-                <span className={`text-6xl font-bold font-mono ${tier.color}`}>{state.rri.toFixed(2)}</span>
+                <span className={`text-6xl font-bold font-mono ${tier.color}`}>{rriState.rri.toFixed(2)}</span>
                 <span className="text-sm font-mono text-slate-400 uppercase">R(t) Index</span>
               </div>
               
               <div className="mt-8 grid grid-cols-2 gap-4">
                 <div className="p-4 bg-white/5 rounded-xl border border-intel-border">
                   <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">P(Revolution)</div>
-                  <div className="text-xl font-bold font-mono text-white">{(state.prev * 100).toFixed(1)}%</div>
+                  <div className="text-xl font-bold font-mono text-white">{(rriState.p_rev * 100).toFixed(1)}%</div>
                 </div>
                 <div className="p-4 bg-white/5 rounded-xl border border-intel-border">
                   <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Risk Tier</div>
-                  <div className="text-xl font-bold font-mono text-intel-red uppercase">{tier.label}</div>
+                  <div className={`text-xl font-bold font-mono uppercase ${tier.color}`}>{tier.label}</div>
                   <div className="mt-1 text-[10px] font-mono text-slate-400">
-                    Regime Age: <span className="text-white font-bold">{state.regime_age.years}Y</span> ({(state.regime_age.age_pct * 100).toFixed(0)}%)
+                    Regime Age: <span className="text-white font-bold">{rriState.regime_age.years}Y</span> ({(rriState.regime_age.age_pct * 100).toFixed(0)}%)
                   </div>
                 </div>
               </div>
@@ -211,11 +171,11 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
               <div className="mt-4 grid grid-cols-3 gap-2">
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
                   <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">95% CI Low</div>
-                  <div className="text-xs font-mono text-slate-300">{state.ci_low.toFixed(2)}</div>
+                  <div className="text-xs font-mono text-slate-300">{rriState.ci_low.toFixed(2)}</div>
                 </div>
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
                   <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">95% CI High</div>
-                  <div className="text-xs font-mono text-slate-300">{state.ci_high.toFixed(2)}</div>
+                  <div className="text-xs font-mono text-slate-300">{rriState.ci_high.toFixed(2)}</div>
                 </div>
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
                   <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">Confidence</div>
@@ -232,9 +192,163 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                    R(t) = Σ[wi * vi(t)] / Σwi · W(t) · S(t)
                  </div>
                  <div className="mt-2 text-[8px] text-slate-500 leading-relaxed">
-                   Where W(t) is the war distractor ({state.W.toFixed(2)}) and S(t) is salience ({state.salience.toFixed(2)}).
+                   Where W(t) is the war distractor ({rriState.w_t.toFixed(2)}) and S(t) is salience ({rriState.salience.toFixed(2)}).
                  </div>
               </div>
+            </div>
+          </div>
+
+          {/* VELOCITY PANEL */}
+          <div className="glass p-6 rounded-2xl border border-intel-border space-y-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Velocity Index V(t) — Rate of Change
+            </div>
+            <div className="flex items-center justify-between">
+              <div className={`text-3xl font-bold font-mono ${
+                rriState.velocity > 0.15 ? 'text-intel-red' :
+                rriState.velocity < -0.15 ? 'text-intel-cyan' : 'text-slate-400'
+              }`}>
+                {rriState.velocity > 0 ? '+' : ''}{rriState.velocity.toFixed(3)}
+              </div>
+              <div className={`text-xs font-mono px-3 py-1 rounded border ${
+                rriState.velocity > 0.4 ? 'text-intel-red border-intel-red/30 bg-intel-red/10' :
+                rriState.velocity > 0.15 ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' :
+                rriState.velocity < -0.15 ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10' :
+                'text-slate-500 border-slate-700'
+              }`}>
+                {rriState.velocity_label}
+              </div>
+            </div>
+            <div className="text-[10px] text-slate-500">
+              Measures rate of change across all 250 variables.
+              Positive = situation deteriorating. Negative = improving.
+            </div>
+            <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all ${
+                  rriState.velocity > 0 ? 'bg-intel-red' : 'bg-intel-cyan'
+                }`}
+                style={{
+                  width: `${Math.abs(rriState.velocity) * 100}%`,
+                  marginLeft: rriState.velocity < 0 ? 'auto' : '0'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* HISTORICAL PATTERN SIMILARITY PANEL */}
+          <div className="glass p-6 rounded-2xl border border-intel-border space-y-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Historical Pattern Similarity HPS(t)
+            </div>
+            <div className="flex items-center justify-between">
+              <div className={`text-3xl font-bold font-mono ${
+                rriState.pattern_similarity > 0.65 ? 'text-intel-red' :
+                rriState.pattern_similarity > 0.5 ? 'text-intel-orange' : 'text-slate-400'
+              }`}>
+                {(rriState.pattern_similarity * 100).toFixed(0)}%
+              </div>
+              {rriState.pattern_similarity > 0.5 && (
+                <div className="text-[9px] font-mono text-intel-orange animate-pulse">
+                  ⚠ PATTERN MATCH DETECTED
+                </div>
+              )}
+            </div>
+            <div className="text-[10px] text-intel-orange leading-relaxed">
+              {rriState.pattern_label}
+            </div>
+            <div className="text-[10px] text-slate-500">
+              Cosine similarity to known pre-crisis reference states:
+              Tunisia 2010, Tunisia 2021, Egypt 2011, Algeria 2019.
+            </div>
+          </div>
+
+          {/* COMPOUND STRESS PANEL */}
+          <div className="glass p-6 rounded-2xl border border-intel-border space-y-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Compound Stress Index CS(t)
+            </div>
+            <div className="text-3xl font-bold font-mono text-intel-orange">
+              {rriState.compound_stress.toFixed(3)}
+            </div>
+            <div className="text-[10px] text-slate-500">
+              Non-linear interaction bonus. Fires when multiple variables
+              breach thresholds simultaneously. Current R(t) includes
+              {' '}{(rriState.compound_stress * 100).toFixed(1)}% compound stress amplification.
+            </div>
+            <div className="space-y-1">
+              <div className="text-[9px] font-mono text-slate-600 uppercase">Active threshold breaches</div>
+              <div className="flex flex-wrap gap-2">
+                {rriState.threshold_breaches.slice(0, 8).map((id: string) => (
+                  <span key={id} className="text-[8px] font-mono px-2 py-0.5
+                    bg-intel-red/10 text-intel-red border border-intel-red/20 rounded">
+                    {id}
+                  </span>
+                ))}
+                {rriState.threshold_breaches.length > 8 && (
+                  <span className="text-[8px] font-mono text-slate-500">
+                    +{rriState.threshold_breaches.length - 8} more
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* CASCADE PROBABILITY PANEL */}
+          <div className="glass p-6 rounded-2xl border border-intel-border space-y-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              Regional Cascade Probability P_cascade(t)
+            </div>
+            <div className={`text-3xl font-bold font-mono ${
+              rriState.cascade_probability > 0.6 ? 'text-intel-red' :
+              rriState.cascade_probability > 0.4 ? 'text-intel-orange' : 'text-slate-400'
+            }`}>
+              {(rriState.cascade_probability * 100).toFixed(0)}%
+            </div>
+            <div className="text-[10px] text-slate-500">
+              Probability that instability in one governorate triggers
+              cascade to neighbors. High-risk pathway: Sfax → Kasserine.
+            </div>
+            <div className="space-y-2">
+              {[
+                { from: 'Sfax', to: 'Kasserine', prob: 0.71 },
+                { from: 'Sfax', to: 'Gafsa', prob: 0.58 },
+                { from: 'Kasserine', to: 'Sidi Bouzid', prob: 0.52 },
+              ].map(path => (
+                <div key={path.from+path.to} className="flex items-center
+                  justify-between text-[10px]">
+                  <span className="text-slate-400">{path.from} → {path.to}</span>
+                  <span className={`font-mono font-bold ${
+                    path.prob > 0.6 ? 'text-intel-red' : 'text-intel-orange'
+                  }`}>{(path.prob * 100).toFixed(0)}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SIR MODEL PANEL */}
+          <div className="glass p-6 rounded-2xl border border-intel-border space-y-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              SIR Protest Spread Model — EQ.4
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'Susceptible S', value: rriState.sir_susceptible, color: 'text-intel-cyan', desc: 'Potential protesters' },
+                { label: 'Infected I', value: rriState.sir_infected, color: 'text-intel-orange', desc: 'Active protesters' },
+                { label: 'Recovered R', value: rriState.sir_recovered, color: 'text-slate-400', desc: 'Former participants' },
+              ].map(item => (
+                <div key={item.label} className="text-center space-y-1">
+                  <div className={`text-xl font-bold font-mono ${item.color}`}>
+                    {(item.value * 100).toFixed(1)}%
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-500 uppercase">{item.label}</div>
+                  <div className="text-[8px] text-slate-600">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+            <div className="text-[9px] text-slate-600">
+              beta=0.4 (transmission) · gamma=0.15 (repression efficacy)
+              · Samir Dni (2025) calibrated
             </div>
           </div>
 
@@ -460,12 +574,12 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                       <span className="text-xs font-bold text-white uppercase tracking-wider">War Distraction W(t)</span>
                       <span className="text-[8px] font-mono text-slate-500 uppercase italic">Dampens protest mobilisation</span>
                     </div>
-                    <span className="text-xs font-mono text-white">{(state.W * 100).toFixed(0)}%</span>
+                    <span className="text-xs font-mono text-white">{(rriState.w_t * 100).toFixed(0)}%</span>
                   </div>
                   <div className="w-full h-1.5 bg-intel-border rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-intel-purple transition-all duration-500" 
-                      style={{ width: `${state.W * 100}%` }}
+                      style={{ width: `${rriState.w_t * 100}%` }}
                     ></div>
                   </div>
                 </div>
@@ -474,14 +588,14 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                       <span className="text-xs font-bold text-white uppercase tracking-wider">Regime Age Factor</span>
-                      <span className="text-[8px] font-mono text-slate-500 uppercase italic">{state.regime_age.years} years in power</span>
+                      <span className="text-[8px] font-mono text-slate-500 uppercase italic">{rriState.regime_age.years} years in power</span>
                     </div>
-                    <span className="text-xs font-mono text-white">{(state.regime_age.age_pct * 100).toFixed(0)}%</span>
+                    <span className="text-xs font-mono text-white">{(rriState.regime_age.age_pct * 100).toFixed(0)}%</span>
                   </div>
                   <div className="w-full h-1.5 bg-intel-border rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-intel-cyan transition-all duration-500" 
-                      style={{ width: `${state.regime_age.age_pct * 100}%` }}
+                      style={{ width: `${rriState.regime_age.age_pct * 100}%` }}
                     ></div>
                   </div>
                 </div>
@@ -489,6 +603,22 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
             </div>
           </div>
         </div>
+      </div>
+
+      {/* MODEL METADATA FOOTER */}
+      <div className="glass p-4 rounded-xl border border-intel-border/30
+        flex flex-wrap gap-6 text-[10px] font-mono text-slate-600">
+        <span>Variables: {rriState.variables_count}</span>
+        <span>Confidence: {(rriState.model_confidence * 100).toFixed(0)}%</span>
+        <span>Simulations: {rriState.simulations_run.toLocaleString()}</span>
+        <span>Last calc: {new Date(rriState.last_calculated).toLocaleTimeString()}</span>
+        <span>Threshold breaches: {rriState.threshold_breaches.length}</span>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('open-methodology'))}
+          className="text-intel-cyan hover:underline ml-auto"
+        >
+          → View Full Methodology
+        </button>
       </div>
     </div>
   );

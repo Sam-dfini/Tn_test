@@ -1,56 +1,60 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Radio, Bell, Zap, AlertCircle } from 'lucide-react';
-
-const updates = [
-  {
-    id: 1,
-    source: 'OSINT_ALPHA',
-    time: '02:45Z',
-    type: 'CRITICAL',
-    content: 'Unconfirmed reports of multiple explosions near Sfax industrial zone. Local sources reporting power outages.',
-    urgent: true
-  },
-  {
-    id: 2,
-    source: 'SIGINT_DELTA',
-    time: '02:38Z',
-    type: 'SIGNAL',
-    content: 'Increased radio traffic detected between maritime assets in the Gulf of Gabes. Frequency hopping observed.',
-    urgent: false
-  },
-  {
-    id: 3,
-    source: 'GEOINT_PRIME',
-    time: '02:15Z',
-    type: 'UPDATE',
-    content: 'Satellite imagery confirms mobilization of heavy equipment near Gafsa mining facilities.',
-    urgent: false
-  },
-  {
-    id: 4,
-    source: 'NEWS_WIRE',
-    time: '01:55Z',
-    type: 'BREAKING',
-    content: 'UGTT leadership calls for emergency meeting following stalled negotiations in Tunis.',
-    urgent: true
-  },
-  {
-    id: 5,
-    source: 'HUMINT_NET',
-    time: '01:30Z',
-    type: 'INTEL',
-    content: 'Reports of localized protests forming in Kasserine over water distribution delays.',
-    urgent: false
-  }
-];
+import { usePipeline } from '../../context/PipelineContext';
 
 interface BreakingIntelFeedProps {
   externalAlerts?: any[];
 }
 
 export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAlerts = [] }) => {
-  const allUpdates = [...externalAlerts, ...updates];
+  const { data, rriState } = usePipeline();
+
+  const updates = useMemo(() => [
+    {
+      id: 1,
+      source: 'RRI_ENGINE',
+      time: new Date().toTimeString().slice(0,8) + 'Z',
+      type: rriState.rri >= 2.625 ? 'CRITICAL' : 'UPDATE',
+      content: `RRI INDEX AT ${rriState.rri.toFixed(4)} — REVOLUTION PROBABILITY ${(rriState.p_rev*100).toFixed(1)}% — CI [${rriState.ci_low}%, ${rriState.ci_high}%]`,
+      urgent: rriState.rri >= 2.625
+    },
+    {
+      id: 2,
+      source: 'BCT_WIRE',
+      time: data.economy.last_updated || '06:00Z',
+      type: data.economy.fx_reserves < 90 ? 'SIGNAL' : 'UPDATE',
+      content: `FX RESERVES: ${data.economy.fx_reserves} DAYS IMPORT COVER. TND/USD: ${data.economy.tnd_usd}. INFLATION: ${data.economy.inflation}%.`,
+      urgent: data.economy.fx_reserves < 90
+    },
+    {
+      id: 3,
+      source: 'UGTT_MONITOR',
+      time: data.social.last_updated || '04:00Z',
+      type: data.social.ugtt_mobilisation_level === 'HIGH' ? 'BREAKING' : 'INTEL',
+      content: `UGTT MOBILISATION: ${data.social.ugtt_mobilisation_level}. ${data.social.ugtt_strike_count_2025 || 847} STRIKES IN 2025. GENERAL STRIKE TRIGGER: 64%.`,
+      urgent: data.social.ugtt_mobilisation_level === 'HIGH'
+    },
+    {
+      id: 4,
+      source: 'DECREE54_TRACKER',
+      time: '02:00Z',
+      type: 'INTEL',
+      content: `DECREE 54: ${data.social.decree54_charged} INDIVIDUALS CHARGED. RSF PRESS FREEDOM RANK: ${data.social.press_freedom_rank || 118}. ${data.social.water_crisis_govs} GOVS IN WATER CRISIS.`,
+      urgent: false
+    },
+    {
+      id: 5,
+      source: 'CASCADE_MONITOR',
+      time: '01:00Z',
+      type: rriState.cascade_probability > 0.6 ? 'SIGNAL' : 'UPDATE',
+      content: `CASCADE RISK: P_cascade = ${(rriState.cascade_probability*100).toFixed(0)}%. PRIMARY PATH: SFAX → KASSERINE. COMPOUND STRESS CS(t) = ${rriState.compound_stress.toFixed(3)}.`,
+      urgent: rriState.cascade_probability > 0.6
+    },
+    ...externalAlerts
+  ], [rriState, data, externalAlerts]);
+
+  const allUpdates = updates;
 
   return (
     <div className="glass p-4 rounded-lg border border-intel-border h-[400px] flex flex-col">

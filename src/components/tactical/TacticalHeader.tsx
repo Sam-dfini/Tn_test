@@ -1,10 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Clock, Globe, Zap, AlertTriangle, Download, Home, TrendingUp } from 'lucide-react';
 import { usePipeline } from '../../context/PipelineContext';
 
-export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => void, data: any }> = ({ onOpenAI, onGoHome, data }) => {
+interface TacticalHeaderProps {
+  onOpenAI: () => void;
+  onGoHome: () => void;
+  data: any;
+  activeRegion: string;
+  onRegionChange: (region: string) => void;
+}
+
+export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHome, data, activeRegion, onRegionChange }) => {
   const { rriState } = usePipeline();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).toUpperCase();
+  };
   
   return (
     <header className="h-14 border-b border-intel-border bg-intel-card/50 backdrop-blur-md flex items-center justify-between px-4 sticky top-0 z-[100] overflow-hidden">
@@ -40,7 +73,12 @@ export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => vo
           {['National', 'North', 'Sahel', 'Central', 'South', 'Borders'].map((tab) => (
             <button 
               key={tab}
-              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded ${tab === 'National' ? 'bg-intel-cyan text-intel-bg font-bold' : 'text-slate-500 hover:text-white'}`}
+              onClick={() => onRegionChange(tab)}
+              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded ${
+                activeRegion === tab
+                  ? 'bg-intel-cyan text-intel-bg font-bold'
+                  : 'text-slate-500 hover:text-white'
+              }`}
             >
               {tab}
             </button>
@@ -51,10 +89,19 @@ export const TacticalHeader: React.FC<{ onOpenAI: () => void, onGoHome: () => vo
       <div className="flex items-center space-x-8">
         <div className="hidden md:flex flex-col items-end">
           <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 uppercase">
-            <span>Sweep</span>
-            <span className="text-white font-bold">46.0s</span>
+            <span>V(t)</span>
+            <span className={`font-bold ${
+              rriState.velocity > 0.15 ? 'text-intel-red' :
+              rriState.velocity < -0.15 ? 'text-intel-cyan' :
+              'text-white'
+            }`}>
+              {rriState.velocity_label}
+            </span>
           </div>
-          <div className="text-[10px] font-mono text-white">MAR 14, 2026 <span className="text-intel-cyan">12:12 AM</span></div>
+          <div className="text-[10px] font-mono text-white">
+            {formatDate(currentTime)}{' '}
+            <span className="text-intel-cyan">{formatTime(currentTime)}</span>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">

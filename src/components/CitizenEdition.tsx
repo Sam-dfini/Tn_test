@@ -161,7 +161,7 @@ const predictions = [
 
 // --- Sub-components ---
 
-const KeywordItem = ({ keyword }: { keyword: typeof topKeywords[0] }) => (
+const KeywordItem: React.FC<{ keyword: typeof topKeywords[0] }> = ({ keyword }) => (
   <div className="flex items-center justify-between p-4 border-b border-intel-border hover:bg-white/5 transition-colors">
     <div className="flex items-center space-x-4">
       <span className="text-intel-red font-mono font-bold">#{keyword.id}</span>
@@ -176,7 +176,7 @@ const KeywordItem = ({ keyword }: { keyword: typeof topKeywords[0] }) => (
   </div>
 );
 
-const FeedCard = ({ item }: { item: typeof feedItems[0] }) => (
+const FeedCard: React.FC<{ item: typeof feedItems[0] }> = ({ item }) => (
   <div className="glass p-5 rounded-3xl border border-intel-border space-y-4 hover:border-intel-cyan/30 transition-all group">
     <div className="flex items-start justify-between">
       <div className="flex items-center space-x-2">
@@ -219,7 +219,7 @@ const FeedCard = ({ item }: { item: typeof feedItems[0] }) => (
   </div>
 );
 
-const MarketRow = ({ item }: { item: any }) => (
+const MarketRow: React.FC<{ item: any }> = ({ item }) => (
   <div className="flex items-center justify-between p-4 border-b border-intel-border hover:bg-white/5 transition-colors">
     <div className="flex items-center space-x-3">
       <div className="flex flex-col">
@@ -238,7 +238,7 @@ const MarketRow = ({ item }: { item: any }) => (
   </div>
 );
 
-const PredictionCard = ({ item }: { item: typeof predictions[0] }) => (
+const PredictionCard: React.FC<{ item: typeof predictions[0] }> = ({ item }) => (
   <div className="glass p-6 rounded-3xl border border-intel-border space-y-6 hover:border-intel-cyan/30 transition-all group">
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-2">

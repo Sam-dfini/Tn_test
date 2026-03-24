@@ -1,362 +1,233 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, 
   Activity, 
   TrendingUp, 
-  AlertTriangle,
-  FileText,
-  Clock,
-  ShieldAlert
+  Zap, 
+  AlertTriangle, 
+  Clock, 
+  Users, 
+  ShieldAlert, 
+  ChevronRight, 
+  ChevronDown, 
+  ChevronUp, 
+  BarChart3, 
+  Briefcase,
+  Globe
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  Cell,
-  ComposedChart,
-  Line
-} from 'recharts';
-import { motion } from 'motion/react';
 import { cn } from '../../utils/cn';
+import { usePipeline } from '../../context/PipelineContext';
 
 const strikeHistory = [
-  { month: 'Mar25', count: 52 },
-  { month: 'Apr', count: 48 },
-  { month: 'May', count: 65 },
-  { month: 'Jun', count: 71 },
-  { month: 'Jul', count: 58 },
-  { month: 'Aug', count: 44 },
-  { month: 'Sep', count: 67 },
-  { month: 'Oct', count: 89 },
-  { month: 'Nov', count: 95 },
-  { month: 'Dec', count: 78 },
-  { month: 'Jan26', count: 102 },
-  { month: 'Feb', count: 88 },
-  { month: 'Mar', count: 94 },
+  { date: '2025-12-15', sector: 'Transport', impact: 'HIGH', status: 'RESOLVED', description: 'National rail strike over wage arrears.' },
+  { date: '2026-01-10', sector: 'Education', impact: 'MEDIUM', status: 'ONGOING', description: 'Teacher union protests against budget cuts.' },
+  { date: '2026-02-05', sector: 'Health', impact: 'CRITICAL', status: 'THREATENED', description: 'General health strike threatened for March.' },
+  { date: '2026-02-20', sector: 'Phosphate (CPG)', impact: 'CRITICAL', status: 'ACTIVE', description: 'Regional strike in Gafsa basin.' },
 ];
 
 const wageNegotiations = [
-  { sector: 'Education', demand: 1450, offer: 1180, gap: -270, status: 'DEADLOCKED' },
-  { sector: 'Healthcare', demand: 1520, offer: 1240, gap: -280, status: 'DEADLOCKED' },
-  { sector: 'Transport', demand: 1280, offer: 1100, gap: -180, status: 'NEGOTIATING' },
-  { sector: 'Mining/CPG', demand: 1850, offer: 1420, gap: -430, status: 'STRIKE ACTIVE' },
-  { sector: 'Civil Service', demand: 1350, offer: 1190, gap: -160, status: 'FROZEN' },
-  { sector: 'Banking', demand: 2100, offer: 1980, gap: -120, status: 'NEAR AGREEMENT' },
+  { sector: 'Public Service', demand: '+12%', offer: '+4%', gap: '8%', status: 'STALLED', risk: 'HIGH' },
+  { sector: 'Education', demand: '+15%', offer: '+6%', gap: '9%', status: 'ACTIVE', risk: 'CRITICAL' },
+  { sector: 'Health', demand: '+10%', offer: '+5%', gap: '5%', status: 'NEGOTIATING', risk: 'MEDIUM' },
+  { sector: 'Transport', demand: '+8%', offer: '+3%', gap: '5%', status: 'STALLED', risk: 'HIGH' },
 ];
 
 const contributingFactors = [
-  { factor: 'CPG wage arrears', impact: 18, type: 'positive' },
-  { factor: 'Inflation 7.1%', impact: 12, type: 'positive' },
-  { factor: 'Saied anti-union rhetoric', impact: 8, type: 'positive' },
-  { factor: 'IMF wage freeze condition', impact: 15, type: 'positive' },
-  { factor: 'Previous strike failures', impact: -8, type: 'negative' },
-  { factor: 'Ghannouchi detention', impact: -4, type: 'negative' },
-  { factor: 'Ramadan period', impact: -6, type: 'negative' },
-];
-
-const triggerConditions = [
-  { label: 'Wage arrears > 3 months', current: '2.1 months', progress: 70 },
-  { label: 'Simultaneous strikes in 5+ sectors', current: '3 sectors active', progress: 60 },
-  { label: 'Public sector participation > 40%', current: '28%', progress: 70 },
+  { factor: 'Inflation (CPI)', value: '10.2%', trend: 'up', impact: 0.92 },
+  { factor: 'Purchasing Power', value: '-15%', trend: 'down', impact: 0.88 },
+  { factor: 'Public Debt/GDP', value: '88%', trend: 'up', impact: 0.75 },
+  { factor: 'Unemployment', value: '16.4%', trend: 'up', impact: 0.82 },
 ];
 
 export const UGTTMonitor: React.FC = () => {
-  const strikeProb = 67;
+  const { rriState } = usePipeline();
+  const [selectedSector, setSelectedSector] = useState<string | null>(null);
+
+  const stats = [
+    { label: 'Total Membership', value: '750k+', icon: Users, color: 'text-intel-cyan' },
+    { label: 'Strike Probability', value: '64%', icon: Zap, color: 'text-intel-red' },
+    { label: 'Negotiation Gap', value: 'Avg 6.8%', icon: Activity, color: 'text-intel-orange' },
+    { label: 'Economic Impact', value: 'HIGH', icon: TrendingUp, color: 'text-intel-red' },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Members', value: '650,000', sub: 'Largest in North Africa', icon: Users, color: 'text-intel-cyan' },
-          { label: 'Sectors Covered', value: '23', sub: 'Out of 28 public sectors', icon: Activity, color: 'text-intel-cyan' },
-          { label: 'Strike Actions 2025', value: '847', sub: 'Annual total', icon: TrendingUp, color: 'text-intel-orange' },
-          { label: 'Mobilisation Level', value: 'HIGH', sub: 'Active threat', icon: AlertTriangle, color: 'text-intel-red', badge: true }
-        ].map((stat, i) => (
+        {stats.map((stat, i) => (
           <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{stat.label}</span>
-                <div className={cn("text-2xl font-bold font-mono", stat.color)}>
-                  {stat.value}
-                  {stat.badge && (
-                    <span className="ml-2 inline-flex items-center">
-                      <span className="w-2 h-2 rounded-full bg-intel-red animate-pulse mr-1.5" />
-                    </span>
-                  )}
-                </div>
+                <div className={cn("text-2xl font-bold font-mono", stat.color)}>{stat.value}</div>
               </div>
               <stat.icon className={cn("w-5 h-5 opacity-20", stat.color)} />
             </div>
-            <div className="text-[9px] font-mono text-slate-600 uppercase mt-4">{stat.sub}</div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Strike History Chart */}
-        <div className="lg:col-span-8 intel-card p-8 rounded-3xl border border-intel-border space-y-8">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white flex items-center space-x-2">
-                <Activity className="w-5 h-5 text-intel-red" />
-                <span>Strike Frequency — Monthly (2025-2026)</span>
-              </h3>
-              <p className="text-xs text-slate-500 uppercase font-mono">Tracking industrial action and labor unrest</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Wage Negotiations & Factors */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="intel-card p-8 rounded-3xl border border-intel-border space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Wage Negotiation Status</h3>
+              <BarChart3 className="w-5 h-5 text-intel-cyan opacity-20" />
             </div>
-          </div>
-
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={strikeHistory}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis 
-                  dataKey="month" 
-                  stroke="#475569" 
-                  fontSize={10} 
-                  tickLine={false} 
-                  axisLine={false}
-                  fontFamily="JetBrains Mono"
-                />
-                <YAxis 
-                  stroke="#475569" 
-                  fontSize={10} 
-                  tickLine={false} 
-                  axisLine={false}
-                  fontFamily="JetBrains Mono"
-                />
-                <Tooltip 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                  contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
-                />
-                <Bar dataKey="count">
-                  {strikeHistory.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={entry.count > 80 ? '#ef4444' : entry.count > 60 ? '#f97316' : '#00f2ff'} 
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Probability Gauge */}
-        <div className="lg:col-span-4 intel-card p-8 rounded-3xl border border-intel-border flex flex-col items-center justify-center relative overflow-hidden">
-          <div className="absolute top-6 left-6">
-            <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">General Strike Probability</h3>
-          </div>
-          
-          <div className="relative w-48 h-48 mt-4">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle
-                cx="96"
-                cy="96"
-                r="80"
-                fill="none"
-                stroke="rgba(255,255,255,0.05)"
-                strokeWidth="12"
-                strokeDasharray="502.4"
-                strokeDashoffset="125.6"
-              />
-              <motion.circle
-                cx="96"
-                cy="96"
-                r="80"
-                fill="none"
-                stroke={strikeProb > 60 ? '#ef4444' : strikeProb > 35 ? '#f97316' : '#00f2ff'}
-                strokeWidth="12"
-                strokeDasharray="502.4"
-                initial={{ strokeDashoffset: 502.4 }}
-                animate={{ strokeDashoffset: 502.4 - (strikeProb / 100 * 376.8) }}
-                transition={{ type: 'spring', damping: 20 }}
-              />
-            </svg>
-            
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <div className={cn(
-                "text-4xl font-bold font-mono tracking-tighter",
-                strikeProb > 60 ? 'text-intel-red' : strikeProb > 35 ? 'text-intel-orange' : 'text-intel-cyan'
-              )}>
-                {strikeProb}%
-              </div>
-              <div className="text-[8px] font-mono text-slate-500 uppercase mt-1 tracking-widest">Risk Level: HIGH</div>
-            </div>
-          </div>
-
-          <div className="mt-8 w-full space-y-4">
-            <div className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-xl">
-              <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Trigger Warning</div>
-              <p className="text-[10px] text-slate-400 leading-tight italic">
-                "Current wage arrear and sector coverage metrics most closely resemble January 1978 precursors."
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Wage Negotiation Table */}
-        <div className="lg:col-span-7 intel-card p-8 rounded-3xl border border-intel-border space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Wage Negotiation Status</h3>
-            <span className="text-[10px] font-mono text-slate-500 uppercase">Real-time tracking</span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-intel-border">
-                  <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Sector</th>
-                  <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Demand (TND)</th>
-                  <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Offer (TND)</th>
-                  <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Gap</th>
-                  <th className="py-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {wageNegotiations.map((row, i) => (
-                  <tr key={i} className="group hover:bg-white/5 transition-colors">
-                    <td className="py-4 text-xs font-bold text-white">{row.sector}</td>
-                    <td className="py-4 text-xs font-mono text-slate-300">{row.demand.toLocaleString()}</td>
-                    <td className="py-4 text-xs font-mono text-slate-300">{row.offer.toLocaleString()}</td>
-                    <td className="py-4 text-xs font-mono text-intel-red">{row.gap.toLocaleString()}</td>
-                    <td className="py-4">
-                      <span className={cn(
-                        "text-[8px] font-mono px-2 py-1 rounded border uppercase inline-flex items-center",
-                        row.status === 'DEADLOCKED' || row.status === 'STRIKE ACTIVE' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
-                        row.status === 'NEAR AGREEMENT' ? "bg-intel-green/10 text-intel-green border-intel-green/20" :
-                        "bg-intel-orange/10 text-intel-orange border-intel-orange/20"
-                      )}>
-                        {row.status === 'STRIKE ACTIVE' && <span className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse mr-1.5" />}
-                        {row.status}
-                      </span>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-white/5 text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                    <th className="pb-4 font-normal">Sector</th>
+                    <th className="pb-4 font-normal">Demand</th>
+                    <th className="pb-4 font-normal">Offer</th>
+                    <th className="pb-4 font-normal">Gap</th>
+                    <th className="pb-4 font-normal text-right">Risk Level</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Contributing Factors & Trigger Conditions */}
-        <div className="lg:col-span-5 space-y-8">
-          {/* Contributing Factors Breakdown */}
-          <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-6">
-            <h4 className="text-xs font-bold text-white uppercase tracking-widest">Contributing Factors Breakdown</h4>
-            <div className="h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={contributingFactors} layout="vertical" margin={{ left: 20, right: 20 }}>
-                  <XAxis type="number" hide />
-                  <YAxis 
-                    dataKey="factor" 
-                    type="category" 
-                    stroke="#64748b" 
-                    fontSize={8} 
-                    tickLine={false} 
-                    axisLine={false}
-                    width={120}
-                    fontFamily="JetBrains Mono"
-                  />
-                  <Tooltip 
-                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
-                  />
-                  <Bar dataKey="impact">
-                    {contributingFactors.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.type === 'positive' ? '#ef4444' : '#22c55e'} 
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {wageNegotiations.map((neg, i) => (
+                    <tr key={i} className="group hover:bg-white/5 transition-colors">
+                      <td className="py-4">
+                        <div className="text-xs font-bold text-white">{neg.sector}</div>
+                        <div className="text-[8px] font-mono text-slate-500 uppercase">{neg.status}</div>
+                      </td>
+                      <td className="py-4 text-[10px] font-mono text-slate-300">{neg.demand}</td>
+                      <td className="py-4 text-[10px] font-mono text-slate-300">{neg.offer}</td>
+                      <td className="py-4 text-[10px] font-mono text-intel-orange font-bold">{neg.gap}</td>
+                      <td className="py-4 text-right">
+                        <span className={cn(
+                          "text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase font-bold",
+                          neg.risk === 'CRITICAL' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
+                          neg.risk === 'HIGH' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
+                          "bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20"
+                        )}>
+                          {neg.risk}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          {/* Trigger Conditions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contributing Economic Factors</h4>
+              <div className="space-y-4">
+                {contributingFactors.map((factor, i) => (
+                  <div key={i} className="space-y-1.5">
+                    <div className="flex justify-between text-[10px] font-mono">
+                      <span className="text-slate-400">{factor.factor}</span>
+                      <div className="space-x-2">
+                        <span className="text-white font-bold">{factor.value}</span>
+                        <span className={cn(
+                          "text-[8px]",
+                          factor.trend === 'up' ? "text-intel-red" : "text-intel-green"
+                        )}>{factor.trend === 'up' ? '↑' : '↓'}</span>
+                      </div>
+                    </div>
+                    <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className={cn(
+                          "h-full transition-all duration-1000",
+                          factor.impact > 0.85 ? "bg-intel-red" : factor.impact > 0.7 ? "bg-intel-orange" : "bg-intel-cyan"
+                        )} 
+                        style={{ width: `${factor.impact * 100}%` }} 
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="glass p-6 rounded-2xl border border-intel-cyan/20 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2 text-intel-cyan">
+                  <ShieldAlert className="w-4 h-4" />
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest">Strategic Assessment</h4>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed italic">
+                  "The UGTT is currently the only institutional force capable of resisting the executive's economic program. Internal debate between 'confrontation' and 'dialogue' factions is reaching a tipping point. A general strike in Q2 2026 is the primary risk vector for regime stability."
+                </p>
+              </div>
+              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                <div className="text-[8px] font-mono text-slate-500 uppercase">Leadership Status</div>
+                <div className="text-[10px] font-bold text-white uppercase tracking-widest">Tense / Defensive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Strike History & Triggers */}
+        <div className="space-y-8">
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">General Strike Trigger Conditions</h4>
-              <span className="px-2 py-0.5 bg-intel-red/10 text-intel-red border border-intel-red/20 rounded text-[8px] font-mono uppercase font-bold">64% Composite</span>
+              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Strike Activity</h3>
+              <Clock className="w-4 h-4 text-intel-cyan opacity-20" />
             </div>
-            <div className="space-y-6">
-              {triggerConditions.map((condition, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-mono">
-                    <span className="text-slate-400 uppercase">{condition.label}</span>
-                    <span className="text-white font-bold">{condition.current}</span>
+            <div className="space-y-4">
+              {strikeHistory.map((strike, i) => (
+                <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2 group hover:border-intel-cyan/30 transition-all cursor-pointer">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-bold text-white">{strike.sector}</div>
+                      <div className="text-[8px] font-mono text-slate-500">{strike.date}</div>
+                    </div>
+                    <span className={cn(
+                      "text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase font-bold",
+                      strike.impact === 'CRITICAL' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
+                      strike.impact === 'HIGH' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
+                      "bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20"
+                    )}>
+                      {strike.impact}
+                    </span>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-intel-red" 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${condition.progress}%` }}
-                      transition={{ duration: 1, delay: i * 0.2 }}
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <span className="text-[8px] font-mono text-slate-600 uppercase">{condition.progress}% to trigger</span>
+                  <p className="text-[10px] text-slate-400 leading-tight">{strike.description}</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    <span className="text-[8px] font-mono text-slate-600 uppercase">Status: {strike.status}</span>
+                    <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-intel-cyan transition-colors" />
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Historical Context Box */}
-      <div className="intel-card p-8 rounded-3xl border border-intel-border bg-gradient-to-br from-intel-card to-intel-red/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <FileText className="w-24 h-24 text-intel-red" />
-        </div>
-        
-        <div className="flex items-start space-x-6">
-          <div className="p-3 bg-intel-red/10 rounded-xl border border-intel-red/20">
-            <ShieldAlert className="w-6 h-6 text-intel-red" />
+          <div className="intel-card p-6 rounded-2xl border border-intel-red/20 space-y-4">
+            <div className="flex items-center space-x-2 text-intel-red">
+              <AlertTriangle className="w-4 h-4" />
+              <h4 className="text-[10px] font-bold uppercase tracking-widest">General Strike Triggers</h4>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label: 'Arrest of Executive Bureau Member', prob: '85%' },
+                { label: 'Unilateral Civil Service Wage Freeze', prob: '72%' },
+                { label: 'Privatization of CPG or STEG', prob: '94%' },
+                { label: 'Failure to reach 2026 Wage Agreement', prob: '68%' },
+              ].map((trigger, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between text-[9px] font-mono">
+                    <span className="text-slate-400">{trigger.label}</span>
+                    <span className="text-intel-red font-bold">{trigger.prob}</span>
+                  </div>
+                  <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-intel-red opacity-50" style={{ width: trigger.prob }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="space-y-6 flex-1">
-            <div className="space-y-1">
-              <h4 className="text-sm font-bold text-white uppercase tracking-widest">Historical Context & Precursor Analysis</h4>
-              <p className="text-[10px] text-slate-500 font-mono uppercase">Reference Dossier: PID-UGTT-78-13</p>
+
+          <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-3">
+            <div className="flex items-center space-x-2">
+              <Globe className="w-4 h-4 text-intel-cyan" />
+              <h4 className="text-[10px] font-bold text-intel-cyan uppercase tracking-widest">International Alignment</h4>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-intel-red font-mono">JAN 1978: BLACK THURSDAY</div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    General strike led to widespread civil unrest and military intervention. The regime's institutional foundation was fatally compromised, leading to collapse within 18 months.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-intel-red font-mono">FEB 2013: POST-REVOLUTION CRISIS</div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    General strike attempt following political assassinations. Failed to achieve regime-change objectives due to elite fragmentation and lack of unified labor-opposition coordination.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-black/40 rounded-2xl border border-intel-red/30 border-dashed space-y-4">
-                <div className="flex items-center space-x-2 text-intel-red">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Analyst Warning</span>
-                </div>
-                <p className="text-xs text-slate-300 leading-relaxed font-mono italic">
-                  "Current wage arrear and sector coverage metrics most closely resemble January 1978 precursors. The decoupling of UGTT leadership from regime stability protocols suggests a high-probability shift toward total industrial paralysis by Q3 2026."
-                </p>
-                <div className="flex items-center justify-between pt-4 border-t border-intel-red/20">
-                  <span className="text-[8px] font-mono text-slate-500 uppercase">Confidence Level</span>
-                  <span className="text-[10px] font-bold text-intel-red font-mono">84%</span>
-                </div>
-              </div>
-            </div>
+            <p className="text-[10px] text-slate-400 leading-relaxed">
+              UGTT maintains strong ties with the ITUC and European trade unions. Any state action against UGTT leadership will likely trigger international labor sanctions and diplomatic pressure from the EU.
+            </p>
           </div>
         </div>
       </div>

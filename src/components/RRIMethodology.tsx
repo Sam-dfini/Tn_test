@@ -1,6 +1,7 @@
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { usePipeline } from '../context/PipelineContext';
 import {
   BookOpen, ChevronDown, ChevronRight,
@@ -196,6 +197,721 @@ const EquationCard: React.FC<{
   </div>
 );
 
+const DataFlowDiagram: React.FC<{
+  rriState: any;
+  data: any;
+}> = ({ rriState, data }) => {
+  const [activeNode, setActiveNode] = useState<string | null>(null);
+  const [animStep, setAnimStep] = useState(0);
+
+  // Animate flow steps on mount
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimStep(prev => (prev + 1) % 6);
+    }, 1200);
+    return () => clearInterval(interval);
+  }, []);
+
+  const isActive = (step: number) => animStep >= step;
+  const isPulsing = (step: number) => animStep === step;
+
+  // Node hover descriptions
+  const NODE_DESC: Record<string, string> = {
+    sources: 'RSS feeds, APIs, PDFs, and social media monitored continuously for new intelligence',
+    pipeline: 'Documents ingested, fields extracted, analyst reviews and approves changes',
+    variables: 'All 250 RRI variables stored with current values, history, and pipeline field mappings',
+    engine: 'rriEngine.ts runs 20 equations including Monte Carlo simulation (10,000 runs)',
+    outputs: 'R(t), P_rev, V(t), HPS, CS(t), P_cascade — 7 model outputs updated in real-time',
+    modules: '10 Professional modules pull live data from PipelineContext and display analytics',
+    notifications: 'Alert system fires when thresholds breached — analyst notified immediately',
+    tactical: 'Tactical dashboard shows live R(t), map, OSINT stream, and geofence alerts',
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Description on hover */}
+      <div className="h-10 flex items-center">
+        {activeNode ? (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[11px] text-intel-cyan font-mono"
+          >
+            {NODE_DESC[activeNode]}
+          </motion.div>
+        ) : (
+          <div className="text-[10px] text-slate-600 font-mono">
+            Hover any node to learn more
+          </div>
+        )}
+      </div>
+
+      {/* SVG Diagram */}
+      <svg
+        viewBox="0 0 900 400"
+        className="w-full"
+        style={{ maxHeight: '420px' }}
+      >
+        {/* === COLUMN 1: SOURCES === */}
+        {[
+          { y: 60, label: 'RSS Feeds', sub: '7 active', color: '#ff9f0a' },
+          { y: 130, label: 'APIs', sub: 'BCT, IMF, WB', color: '#00d4ff' },
+          { y: 200, label: 'Documents', sub: 'PDF / HTML', color: '#bf5af2' },
+          { y: 270, label: 'Social Media', sub: 'FB / Telegram', color: '#0a84ff' },
+        ].map((s, i) => (
+          <g key={i}
+            onMouseEnter={() => setActiveNode('sources')}
+            onMouseLeave={() => setActiveNode(null)}
+            style={{ cursor: 'pointer' }}
+          >
+            <rect x="20" y={s.y - 18} width="120" height="36"
+              rx="6" fill={`${s.color}15`}
+              stroke={isActive(0) ? s.color : '#1e293b'}
+              strokeWidth="1"
+              className="transition-all duration-500"
+            />
+            <text x="80" y={s.y - 3} textAnchor="middle"
+              fill={isActive(0) ? '#e2e8f0' : '#475569'}
+              fontSize="10" fontFamily="monospace"
+              fontWeight="bold"
+              className="transition-all duration-500"
+            >{s.label}</text>
+            <text x="80" y={s.y + 11} textAnchor="middle"
+              fill={isActive(0) ? s.color : '#334155'}
+              fontSize="8" fontFamily="monospace"
+            >{s.sub}</text>
+          </g>
+        ))}
+
+        {/* COLUMN 1 LABEL */}
+        <text x="80" y="330" textAnchor="middle"
+          fill="#475569" fontSize="8" fontFamily="monospace"
+          fontWeight="bold" letterSpacing="2"
+        >SOURCES</text>
+
+        {/* === ARROWS: Sources → Pipeline === */}
+        {[60, 130, 200, 270].map((y, i) => (
+          <g key={i}>
+            <line x1="142" y1={y} x2="200" y2="165"
+              stroke={isActive(1) ? '#00d4ff' : '#1e293b'}
+              strokeWidth={isPulsing(1) ? "1.5" : "1"}
+              strokeDasharray="4 3"
+              className="transition-all duration-500"
+            />
+            {isPulsing(1) && (
+              <circle cx={142 + (200-142)*0.5} cy={y + (165-y)*0.5}
+                r="3" fill="#00d4ff">
+                <animate attributeName="opacity"
+                  values="1;0;1" dur="0.8s" repeatCount="indefinite"/>
+              </circle>
+            )}
+          </g>
+        ))}
+
+        {/* === COLUMN 2: PIPELINE === */}
+        <g onMouseEnter={() => setActiveNode('pipeline')}
+           onMouseLeave={() => setActiveNode(null)}
+           style={{ cursor: 'pointer' }}>
+          <rect x="200" y="110" width="130" height="110"
+            rx="8"
+            fill={isActive(1) ? 'rgba(0,212,255,0.08)' : 'rgba(0,0,0,0.3)'}
+            stroke={isActive(1) ? '#00d4ff' : '#1e293b'}
+            strokeWidth={isPulsing(1) ? "2" : "1"}
+            className="transition-all duration-500"
+          />
+          <text x="265" y="140" textAnchor="middle"
+            fill={isActive(1) ? '#e2e8f0' : '#475569'}
+            fontSize="11" fontFamily="monospace" fontWeight="bold"
+          >PIPELINE</text>
+          {[
+            { y: 160, text: '① Ingest', color: '#00d4ff' },
+            { y: 178, text: '② Extract', color: '#ff9f0a' },
+            { y: 196, text: '③ Review', color: '#bf5af2' },
+            { y: 214, text: '④ Approve', color: '#30d158' },
+          ].map((item, i) => (
+            <text key={i} x="265" y={item.y} textAnchor="middle"
+              fill={isActive(1) ? item.color : '#334155'}
+              fontSize="9" fontFamily="monospace"
+              className="transition-all duration-500"
+            >{item.text}</text>
+          ))}
+        </g>
+
+        {/* === ARROW: Pipeline → Variables === */}
+        <g>
+          <line x1="332" y1="165" x2="390" y2="165"
+            stroke={isActive(2) ? '#30d158' : '#1e293b'}
+            strokeWidth={isPulsing(2) ? "2" : "1"}
+            className="transition-all duration-500"
+          />
+          <polygon
+            points={`${isActive(2) ? '395' : '390'},165 385,160 385,170`}
+            fill={isActive(2) ? '#30d158' : '#1e293b'}
+            className="transition-all duration-500"
+          />
+          {isPulsing(2) && (
+            <circle cx="361" cy="165" r="3" fill="#30d158">
+              <animate attributeName="cx"
+                values="332;390" dur="0.8s" repeatCount="indefinite"/>
+            </circle>
+          )}
+        </g>
+
+        {/* === COLUMN 3: VARIABLES === */}
+        <g onMouseEnter={() => setActiveNode('variables')}
+           onMouseLeave={() => setActiveNode(null)}
+           style={{ cursor: 'pointer' }}>
+          <rect x="395" y="110" width="130" height="110"
+            rx="8"
+            fill={isActive(2) ? 'rgba(48,209,88,0.08)' : 'rgba(0,0,0,0.3)'}
+            stroke={isActive(2) ? '#30d158' : '#1e293b'}
+            strokeWidth={isPulsing(2) ? "2" : "1"}
+            className="transition-all duration-500"
+          />
+          <text x="460" y="138" textAnchor="middle"
+            fill={isActive(2) ? '#e2e8f0' : '#475569'}
+            fontSize="11" fontFamily="monospace" fontWeight="bold"
+          >VARIABLES</text>
+          <text x="460" y="158" textAnchor="middle"
+            fill={isActive(2) ? '#30d158' : '#334155'}
+            fontSize="9" fontFamily="monospace"
+          >250 variables</text>
+          <text x="460" y="175" textAnchor="middle"
+            fill={isActive(2) ? '#30d158' : '#334155'}
+            fontSize="9" fontFamily="monospace"
+          >24 categories</text>
+          <text x="460" y="192" textAnchor="middle"
+            fill={isActive(2) ? '#30d158' : '#334155'}
+            fontSize="9" fontFamily="monospace"
+          >A → X</text>
+          <text x="460" y="209" textAnchor="middle"
+            fill={isActive(2) ? '#475569' : '#1e293b'}
+            fontSize="8" fontFamily="monospace"
+          >rri_variables.json</text>
+        </g>
+
+        {/* === ARROW: Variables → Engine === */}
+        <g>
+          <line x1="527" y1="165" x2="585" y2="165"
+            stroke={isActive(3) ? '#ff453a' : '#1e293b'}
+            strokeWidth={isPulsing(3) ? "2" : "1"}
+            className="transition-all duration-500"
+          />
+          <polygon
+            points="590,165 580,160 580,170"
+            fill={isActive(3) ? '#ff453a' : '#1e293b'}
+            className="transition-all duration-500"
+          />
+          {isPulsing(3) && (
+            <circle cx="527" cy="165" r="3" fill="#ff453a">
+              <animate attributeName="cx"
+                values="527;585" dur="0.8s" repeatCount="indefinite"/>
+            </circle>
+          )}
+        </g>
+
+        {/* === COLUMN 4: RRI ENGINE === */}
+        <g onMouseEnter={() => setActiveNode('engine')}
+           onMouseLeave={() => setActiveNode(null)}
+           style={{ cursor: 'pointer' }}>
+          <rect x="590" y="80" width="130" height="170"
+            rx="8"
+            fill={isActive(3) ? 'rgba(255,69,58,0.08)' : 'rgba(0,0,0,0.3)'}
+            stroke={isActive(3) ? '#ff453a' : '#1e293b'}
+            strokeWidth={isPulsing(3) ? "2" : "1"}
+            className="transition-all duration-500"
+          />
+          <text x="655" y="108" textAnchor="middle"
+            fill={isActive(3) ? '#e2e8f0' : '#475569'}
+            fontSize="11" fontFamily="monospace" fontWeight="bold"
+          >RRI ENGINE</text>
+          <text x="655" y="125" textAnchor="middle"
+            fill={isActive(3) ? '#ff453a' : '#334155'}
+            fontSize="9" fontFamily="monospace"
+          >rriEngine.ts</text>
+          {[
+            '20 equations',
+            'Monte Carlo',
+            '10,000 runs',
+            'EQ.1 → EQ.20',
+            'Samir Dni +',
+            'TN Extensions',
+          ].map((t, i) => (
+            <text key={i} x="655" y={145 + i * 16}
+              textAnchor="middle"
+              fill={isActive(3) ? '#94a3b8' : '#1e293b'}
+              fontSize="8" fontFamily="monospace"
+              className="transition-all duration-500"
+            >{t}</text>
+          ))}
+        </g>
+
+        {/* === ARROWS: Engine → Outputs (up and down) === */}
+        {[
+          { y: 100, label: `R(t)=${rriState.rri.toFixed(2)}`, color: '#ff453a' },
+          { y: 145, label: `P_rev=${(rriState.p_rev*100).toFixed(0)}%`, color: '#ff9f0a' },
+          { y: 190, label: `V(t)=${rriState.velocity > 0 ? '+' : ''}${rriState.velocity.toFixed(2)}`, color: '#00d4ff' },
+          { y: 235, label: `HPS=${(rriState.pattern_similarity*100).toFixed(0)}%`, color: '#bf5af2' },
+        ].map((out, i) => (
+          <g key={i}
+            onMouseEnter={() => setActiveNode('outputs')}
+            onMouseLeave={() => setActiveNode(null)}
+            style={{ cursor: 'pointer' }}
+          >
+            <line x1="722" y1={out.y} x2="760" y2={out.y}
+              stroke={isActive(4) ? out.color : '#1e293b'}
+              strokeWidth={isPulsing(4) ? "2" : "1"}
+              className="transition-all duration-500"
+            />
+            <polygon
+              points={`765,${out.y} 758,${out.y-4} 758,${out.y+4}`}
+              fill={isActive(4) ? out.color : '#1e293b'}
+              className="transition-all duration-500"
+            />
+            <rect x="768" y={out.y - 12} width="110" height="24"
+              rx="4"
+              fill={isActive(4) ? `${out.color}15` : 'rgba(0,0,0,0.3)'}
+              stroke={isActive(4) ? out.color : '#1e293b'}
+              strokeWidth="1"
+              className="transition-all duration-500"
+            />
+            <text x="823" y={out.y + 4}
+              textAnchor="middle"
+              fill={isActive(4) ? out.color : '#475569'}
+              fontSize="9" fontFamily="monospace" fontWeight="bold"
+              className="transition-all duration-500"
+            >{out.label}</text>
+          </g>
+        ))}
+
+        {/* COLUMN LABELS */}
+        <text x="265" y="345" textAnchor="middle"
+          fill="#475569" fontSize="8" fontFamily="monospace"
+          fontWeight="bold" letterSpacing="2">PIPELINE</text>
+        <text x="460" y="345" textAnchor="middle"
+          fill="#475569" fontSize="8" fontFamily="monospace"
+          fontWeight="bold" letterSpacing="2">VARIABLES</text>
+        <text x="655" y="345" textAnchor="middle"
+          fill="#475569" fontSize="8" fontFamily="monospace"
+          fontWeight="bold" letterSpacing="2">ENGINE</text>
+        <text x="823" y="345" textAnchor="middle"
+          fill="#475569" fontSize="8" fontFamily="monospace"
+          fontWeight="bold" letterSpacing="2">OUTPUTS</text>
+
+        {/* Bottom arrows — outputs feed modules and notifications */}
+        <line x1="655" y1="252" x2="655" y2="310"
+          stroke={isActive(5) ? '#00d4ff' : '#1e293b'}
+          strokeWidth="1" strokeDasharray="4 3"
+          className="transition-all duration-500"
+        />
+        <text x="655" y="325" textAnchor="middle"
+          fill={isActive(5) ? '#00d4ff' : '#334155'}
+          fontSize="8" fontFamily="monospace"
+        >→ 10 Modules + Notifications + Tactical</text>
+
+      </svg>
+
+      {/* Live values row */}
+      <div className="flex flex-wrap gap-3 pt-2 border-t
+        border-intel-border/30">
+        {[
+          { label: 'Variables', value: `${rriState.variables_count}`, color: 'text-intel-green' },
+          { label: 'Equations', value: '20', color: 'text-intel-cyan' },
+          { label: 'Simulations', value: '10,000', color: 'text-intel-orange' },
+          { label: 'R(t)', value: rriState.rri.toFixed(4), color: 'text-intel-red' },
+          { label: 'P_rev', value: (rriState.p_rev*100).toFixed(1)+'%', color: 'text-intel-orange' },
+          { label: 'Confidence', value: (rriState.model_confidence*100).toFixed(0)+'%', color: 'text-slate-400' },
+        ].map(item => (
+          <div key={item.label} className="space-y-0.5">
+            <div className="text-[8px] font-mono text-slate-600 uppercase">
+              {item.label}
+            </div>
+            <div className={`text-[11px] font-mono font-bold ${item.color}`}>
+              {item.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
+  const [hoveredEq, setHoveredEq] = useState<string | null>(null);
+
+  const EQ_DESC: Record<string, string> = {
+    'EQ.1': 'Base RRI sum — 250 variables × weights across 24 categories',
+    'EQ.3': 'Salience S(t) — how much attention is on revolutionary grievances vs suppressed by war/propaganda',
+    'EQ.4': 'SIR epidemic model — protest spread like infection: Susceptible → Infected → Recovered',
+    'EQ.7': 'Elite defection utility — Nash equilibrium calculation for when elites rationally defect',
+    'EQ.8': 'War intensity W(t) — regional conflict suppresses domestic protest attention',
+    'EQ.9': 'Remittance mobilization — each $1M urban remittances = +250 potential protesters',
+    'EQ.12': 'Logistic P_rev — sigmoid function converting R(t) to probability. Threshold: R(t) > 2.625',
+    'EQ.13': 'Stochastic shock — black swan events (assassinations, disasters) injected as epsilon(t)',
+    'EQ.14': 'Monte Carlo — 10,000 simulations with Gaussian noise. Produces confidence interval.',
+    'EQ.15': 'Compound stress CS(t) — bonus when multiple variables breach thresholds simultaneously',
+    'EQ.16': 'Velocity V(t) — rate of change of R(t). Positive = deteriorating. Negative = improving.',
+    'EQ.17': 'Cascade P_cascade — probability protest in one governorate spreads to neighbors',
+    'EQ.18': 'Elite cohesion EC(t) — time-series stock depleted by capital flight and arrest proxies',
+    'EQ.20': 'Historical pattern HPS — cosine similarity to Tunisia 2010, Egypt 2011, Algeria 2019',
+  };
+
+  const equations = [
+    // Row 1 — inputs
+    { id: 'vars', x: 50, y: 30, w: 120, h: 40, label: '250 Variables', sub: 'Categories A-X', color: '#30d158', type: 'input' },
+    // Row 2 — core
+    { id: 'EQ.1', x: 220, y: 30, w: 100, h: 40, label: 'EQ.1', sub: 'R(t) base', color: '#ff453a', type: 'core' },
+    { id: 'EQ.3', x: 220, y: 100, w: 100, h: 40, label: 'EQ.3', sub: 'Salience', color: '#ff9f0a', type: 'core' },
+    { id: 'EQ.4', x: 220, y: 170, w: 100, h: 40, label: 'EQ.4', sub: 'SIR Spread', color: '#bf5af2', type: 'core' },
+    { id: 'EQ.8', x: 220, y: 240, w: 100, h: 40, label: 'EQ.8', sub: 'War W(t)', color: '#64748b', type: 'core' },
+    { id: 'EQ.9', x: 220, y: 310, w: 100, h: 40, label: 'EQ.9', sub: 'Remittances', color: '#0a84ff', type: 'core' },
+    // Row 3 — intermediate
+    { id: 'EQ.7', x: 380, y: 30, w: 100, h: 40, label: 'EQ.7', sub: 'Elite Defection', color: '#ff9f0a', type: 'intermediate' },
+    { id: 'EQ.13', x: 380, y: 100, w: 100, h: 40, label: 'EQ.13', sub: 'Shock ε(t)', color: '#ff453a', type: 'intermediate' },
+    { id: 'EQ.15', x: 380, y: 170, w: 100, h: 40, label: 'EQ.15', sub: 'Compound CS(t)', color: '#ff9f0a', type: 'ext' },
+    { id: 'EQ.18', x: 380, y: 240, w: 100, h: 40, label: 'EQ.18', sub: 'Cohesion EC(t)', color: '#ff9f0a', type: 'ext' },
+    { id: 'EQ.20', x: 380, y: 310, w: 100, h: 40, label: 'EQ.20', sub: 'Pattern HPS', color: '#ff9f0a', type: 'ext' },
+    // Row 4 — probability
+    { id: 'EQ.12', x: 540, y: 115, w: 110, h: 50, label: 'EQ.12', sub: 'P_rev logistic', color: '#ff453a', type: 'output' },
+    { id: 'EQ.14', x: 540, y: 200, w: 110, h: 50, label: 'EQ.14', sub: 'Monte Carlo', color: '#00d4ff', type: 'output' },
+    { id: 'EQ.16', x: 540, y: 285, w: 110, h: 50, label: 'EQ.16', sub: 'Velocity V(t)', color: '#00d4ff', type: 'ext' },
+    { id: 'EQ.17', x: 540, y: 355, w: 110, h: 40, label: 'EQ.17', sub: 'Cascade', color: '#ff9f0a', type: 'ext' },
+    // Row 5 — final outputs
+    { id: 'rri', x: 720, y: 80, w: 120, h: 40, label: `R(t) = ${rriState.rri.toFixed(4)}`, sub: 'Risk Index', color: '#ff453a', type: 'final' },
+    { id: 'prev', x: 720, y: 140, w: 120, h: 40, label: `P_rev = ${(rriState.p_rev*100).toFixed(1)}%`, sub: 'Revolution probability', color: '#ff9f0a', type: 'final' },
+    { id: 'ci', x: 720, y: 200, w: 120, h: 40, label: `CI [${rriState.ci_low}%, ${rriState.ci_high}%]`, sub: '95% confidence', color: '#00d4ff', type: 'final' },
+    { id: 'vel', x: 720, y: 260, w: 120, h: 40, label: `V(t) = ${rriState.velocity > 0 ? '+' : ''}${rriState.velocity.toFixed(3)}`, sub: rriState.velocity_label, color: '#00d4ff', type: 'final' },
+    { id: 'hps', x: 720, y: 320, w: 120, h: 40, label: `HPS = ${(rriState.pattern_similarity*100).toFixed(0)}%`, sub: rriState.pattern_label?.slice(0,20), color: '#bf5af2', type: 'final' },
+  ];
+
+  const connections = [
+    { from: 'vars', to: 'EQ.1' },
+    { from: 'vars', to: 'EQ.3' },
+    { from: 'vars', to: 'EQ.4' },
+    { from: 'vars', to: 'EQ.8' },
+    { from: 'vars', to: 'EQ.9' },
+    { from: 'EQ.1', to: 'EQ.7' },
+    { from: 'EQ.1', to: 'EQ.13' },
+    { from: 'EQ.1', to: 'EQ.15' },
+    { from: 'EQ.3', to: 'EQ.12' },
+    { from: 'EQ.8', to: 'EQ.3' },
+    { from: 'EQ.7', to: 'EQ.12' },
+    { from: 'EQ.13', to: 'EQ.12' },
+    { from: 'EQ.15', to: 'EQ.12' },
+    { from: 'EQ.9', to: 'EQ.12' },
+    { from: 'EQ.18', to: 'EQ.7' },
+    { from: 'EQ.12', to: 'rri' },
+    { from: 'EQ.12', to: 'prev' },
+    { from: 'EQ.14', to: 'ci' },
+    { from: 'EQ.12', to: 'EQ.14' },
+    { from: 'EQ.16', to: 'vel' },
+    { from: 'EQ.1', to: 'EQ.16' },
+    { from: 'EQ.17', to: 'EQ.14' },
+    { from: 'EQ.20', to: 'hps' },
+  ];
+
+  const getCenter = (eq: typeof equations[0]) => ({
+    x: eq.x + eq.w / 2,
+    y: eq.y + eq.h / 2,
+  });
+
+  const getColor = (type: string) => {
+    if (type === 'ext') return '#ff9f0a';
+    if (type === 'final') return '#00d4ff';
+    if (type === 'output') return '#ff453a';
+    if (type === 'input') return '#30d158';
+    return '#475569';
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Hover description */}
+      <div className="h-8 flex items-center">
+        {hoveredEq ? (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[11px] text-intel-cyan font-mono"
+          >
+            <span className="text-white font-bold mr-2">{hoveredEq}:</span>
+            {EQ_DESC[hoveredEq] || 'Equation in the RRI model'}
+          </motion.div>
+        ) : (
+          <div className="text-[10px] text-slate-600 font-mono">
+            Hover any equation to see what it does
+          </div>
+        )}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center space-x-6 text-[9px] font-mono">
+        {[
+          { color: '#30d158', label: 'Input data' },
+          { color: '#475569', label: 'Core (Samir Dni 2025)' },
+          { color: '#ff9f0a', label: 'Extension (TUNISIAINTEL)' },
+          { color: '#ff453a', label: 'Key output equation' },
+          { color: '#00d4ff', label: 'Final output' },
+        ].map(item => (
+          <div key={item.label} className="flex items-center space-x-1.5">
+            <div className="w-2.5 h-2.5 rounded-sm"
+              style={{ backgroundColor: item.color + '40',
+                       border: `1px solid ${item.color}` }} />
+            <span className="text-slate-500">{item.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* SVG */}
+      <svg viewBox="0 0 870 410" className="w-full"
+        style={{ maxHeight: '440px' }}>
+
+        {/* Draw connections first (behind nodes) */}
+        {connections.map((conn, i) => {
+          const fromEq = equations.find(e => e.id === conn.from);
+          const toEq = equations.find(e => e.id === conn.to);
+          if (!fromEq || !toEq) return null;
+          const from = getCenter(fromEq);
+          const to = getCenter(toEq);
+          const isHighlighted = hoveredEq === conn.from || hoveredEq === conn.to;
+          return (
+            <line key={i}
+              x1={from.x + fromEq.w/2 - 10} y1={from.y}
+              x2={to.x - toEq.w/2 + 10} y2={to.y}
+              stroke={isHighlighted ? '#00d4ff' : '#1e293b'}
+              strokeWidth={isHighlighted ? "1.5" : "0.75"}
+              strokeDasharray={conn.from === 'vars' ? "none" : "3 2"}
+              className="transition-all duration-200"
+            />
+          );
+        })}
+
+        {/* Draw nodes */}
+        {equations.map(eq => {
+          const isHovered = hoveredEq === eq.id;
+          const color = eq.color;
+          return (
+            <g key={eq.id}
+              onMouseEnter={() => setHoveredEq(eq.id)}
+              onMouseLeave={() => setHoveredEq(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              <rect
+                x={eq.x} y={eq.y}
+                width={eq.w} height={eq.h}
+                rx="6"
+                fill={isHovered ? `${color}20` : `${color}0a`}
+                stroke={isHovered ? color : (eq.type === 'final' ? color : '#1e293b')}
+                strokeWidth={isHovered ? "2" : "1"}
+                className="transition-all duration-200"
+              />
+              <text
+                x={eq.x + eq.w/2} y={eq.y + 16}
+                textAnchor="middle"
+                fill={isHovered ? '#ffffff' : (eq.type === 'final' ? color : '#94a3b8')}
+                fontSize="10" fontFamily="monospace" fontWeight="bold"
+                className="transition-all duration-200"
+              >{eq.label}</text>
+              <text
+                x={eq.x + eq.w/2} y={eq.y + 30}
+                textAnchor="middle"
+                fill={isHovered ? color : '#475569'}
+                fontSize="8" fontFamily="monospace"
+                className="transition-all duration-200"
+              >{eq.sub}</text>
+            </g>
+          );
+        })}
+
+      </svg>
+    </div>
+  );
+};
+
+const NodeNetworkDiagram: React.FC = () => {
+  const [activeLayer, setActiveLayer] = useState<string | null>(null);
+
+  const layers = [
+    {
+      id: 'nodes',
+      title: 'Citizen Nodes',
+      subtitle: 'Ground reporters in all 24 governorates',
+      color: '#30d158',
+      items: [
+        'Local event reports',
+        'Article reactions (Confirm/Dispute)',
+        'Water/power/food alerts',
+        'Protest confirmation',
+        'Photo evidence',
+      ],
+      status: 'ROADMAP',
+    },
+    {
+      id: 'platform',
+      title: 'Platform Core',
+      subtitle: 'Intelligence aggregation engine',
+      color: '#00d4ff',
+      items: [
+        'RSS feed processor',
+        'RRI engine (live)',
+        'Gap detection',
+        'Credibility scoring',
+        'Notification system',
+      ],
+      status: 'BUILDING',
+    },
+    {
+      id: 'professional',
+      title: 'Professional Tier',
+      subtitle: 'Analyst tools',
+      color: '#ff9f0a',
+      items: [
+        '10 intelligence modules',
+        'Pipeline management',
+        'Strategic analysis',
+        'Full RRI model',
+        'PDF export',
+      ],
+      status: 'LIVE',
+    },
+    {
+      id: 'public',
+      title: 'Public Outputs',
+      subtitle: 'Counter-narrative layer',
+      color: '#bf5af2',
+      items: [
+        'Reality vs Official dashboard',
+        'Live R(t) public feed',
+        'CitizenEdition',
+        'API access',
+        'Research exports',
+      ],
+      status: 'ROADMAP',
+    },
+  ];
+
+  const STATUS_COLORS = {
+    LIVE: 'text-intel-green border-intel-green/30 bg-intel-green/10',
+    BUILDING: 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10',
+    ROADMAP: 'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
+  };
+
+  return (
+    <div className="space-y-6">
+      <p className="text-[11px] text-slate-500 leading-relaxed">
+        The platform is designed to scale from a personal analyst tool
+        into a distributed counter-narrative intelligence network.
+        Citizen nodes provide crowdsourced ground truth that feeds
+        the RRI engine and powers gap detection between official
+        narrative and reality.
+      </p>
+
+      {/* Flow diagram */}
+      <div className="relative">
+
+        {/* Connection arrows between layers */}
+        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2
+          flex items-center justify-between px-[calc(25%-20px)]
+          pointer-events-none z-0">
+          {[0,1,2].map(i => (
+            <div key={i} className="flex items-center">
+              <div className="h-px w-16 bg-gradient-to-r
+                from-intel-border to-intel-cyan/30" />
+              <div className="w-0 h-0 border-t-4 border-b-4
+                border-l-8 border-transparent
+                border-l-intel-cyan/40" />
+            </div>
+          ))}
+        </div>
+
+        {/* Layer cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+          {layers.map(layer => (
+            <motion.div
+              key={layer.id}
+              onHoverStart={() => setActiveLayer(layer.id)}
+              onHoverEnd={() => setActiveLayer(null)}
+              className={`p-5 rounded-2xl border space-y-3 cursor-pointer
+                transition-all ${
+                activeLayer === layer.id
+                  ? `border-[${layer.color}] bg-[${layer.color}]/10`
+                  : 'border-intel-border bg-black/30 hover:border-intel-border/60'
+              }`}
+              style={{
+                borderColor: activeLayer === layer.id ? layer.color : undefined,
+                backgroundColor: activeLayer === layer.id
+                  ? `${layer.color}10` : undefined,
+              }}
+            >
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="w-8 h-8 rounded-lg flex items-center
+                    justify-center"
+                    style={{ backgroundColor: `${layer.color}20`,
+                             border: `1px solid ${layer.color}40` }}>
+                    <div className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: layer.color }} />
+                  </div>
+                  <span className={`text-[8px] font-mono px-1.5 py-0.5
+                    rounded border uppercase font-bold
+                    ${STATUS_COLORS[layer.status as keyof typeof STATUS_COLORS]}`}>
+                    {layer.status}
+                  </span>
+                </div>
+                <div className="text-[11px] font-bold text-white uppercase">
+                  {layer.title}
+                </div>
+                <div className="text-[9px] text-slate-500">
+                  {layer.subtitle}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                {layer.items.map((item, i) => (
+                  <div key={i} className="flex items-center space-x-2
+                    text-[9px]">
+                    <div className="w-1 h-1 rounded-full shrink-0"
+                      style={{ backgroundColor: layer.color }} />
+                    <span className="text-slate-400">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* The vision statement */}
+      <div className="p-5 rounded-2xl bg-intel-cyan/5 border
+        border-intel-cyan/20 space-y-2">
+        <div className="text-[10px] font-mono text-intel-cyan uppercase
+          tracking-widest">The Vision</div>
+        <p className="text-[11px] text-slate-400 leading-relaxed">
+          When citizen nodes reach critical mass across all 24 governorates,
+          the platform becomes capable of documenting the gap between
+          official state narrative and ground reality in real time.
+          The RRI model — fed by hundreds of verified local reports —
+          becomes impossible for the regime to dismiss.
+          This is how a personal intelligence platform becomes
+          infrastructure for fighting authoritarianism at scale.
+        </p>
+        <div className="flex flex-wrap gap-3 pt-2 text-[9px] font-mono">
+          {[
+            { label: 'Current nodes', value: '1 (analyst)' },
+            { label: 'Target phase 1', value: '50 trusted nodes' },
+            { label: 'Target phase 2', value: '500 (national coverage)' },
+            { label: 'Revolution threshold', value: '5,000+ nodes' },
+          ].map(item => (
+            <div key={item.label} className="space-y-0.5">
+              <div className="text-slate-600">{item.label}</div>
+              <div className="text-intel-cyan font-bold">{item.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const RRIMethodology: React.FC<{
   onClose?: () => void;
   onNavigateToPipeline?: (tab: string) => void;
@@ -204,7 +920,7 @@ export const RRIMethodology: React.FC<{
 
   const { rriState, data } = usePipeline();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeSection, setActiveSection] = useState('architecture');
 
   useEffect(() => {
     if (jumpToEquation) {
@@ -216,6 +932,7 @@ export const RRIMethodology: React.FC<{
   }, [jumpToEquation]);
 
   const navItems = [
+    { id: 'architecture', label: 'Platform Architecture' },
     { id: 'overview', label: 'Overview' },
     { id: 'equations-paper', label: 'Core Equations (Samir Dni)' },
     { id: 'equations-ext', label: 'Extensions (TUNISIAINTEL)' },
@@ -330,6 +1047,81 @@ export const RRIMethodology: React.FC<{
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto px-8 py-8 scroll-smooth" id="methodology-content">
+          {/* ============================================================
+              ARCHITECTURE PAGE
+              Three animated SVG flow diagrams
+          ============================================================ */}
+          <div id="architecture" className="scroll-mt-8 mb-10">
+
+            {/* Page header */}
+            <div className="flex items-center space-x-4 mb-8">
+              <Activity className="w-6 h-6 text-intel-cyan" />
+              <div>
+                <h1 className="text-xl font-bold text-white uppercase
+                  tracking-widest">Platform Architecture</h1>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  How data flows from sources to intelligence outputs.
+                  Three diagrams — Data Flow, RRI Engine, Node Network.
+                </p>
+              </div>
+            </div>
+
+            {/* ============================================================
+                DIAGRAM 1 — DATA FLOW
+            ============================================================ */}
+            <div className="glass p-8 rounded-2xl border border-intel-border
+              space-y-6 mb-8">
+              <div className="flex items-center space-x-3 border-b
+                border-intel-border pb-4">
+                <Database className="w-4 h-4 text-intel-cyan" />
+                <h2 className="text-sm font-bold text-white uppercase
+                  tracking-widest">Diagram 1 — Intelligence Data Flow</h2>
+                <span className="text-[9px] font-mono text-slate-600 ml-auto">
+                  From source to R(t)
+                </span>
+              </div>
+
+              <DataFlowDiagram rriState={rriState} data={data} />
+            </div>
+
+            {/* ============================================================
+                DIAGRAM 2 — RRI ENGINE INTERNALS
+            ============================================================ */}
+            <div className="glass p-8 rounded-2xl border border-intel-border
+              space-y-6 mb-8">
+              <div className="flex items-center space-x-3 border-b
+                border-intel-border pb-4">
+                <Brain className="w-4 h-4 text-intel-cyan" />
+                <h2 className="text-sm font-bold text-white uppercase
+                  tracking-widest">Diagram 2 — RRI Engine Internals</h2>
+                <span className="text-[9px] font-mono text-slate-600 ml-auto">
+                  20 equations, 250 variables
+                </span>
+              </div>
+
+              <RRIEngineDiagram rriState={rriState} />
+            </div>
+
+            {/* ============================================================
+                DIAGRAM 3 — NODE NETWORK (FUTURE)
+            ============================================================ */}
+            <div className="glass p-8 rounded-2xl border border-intel-border
+              space-y-6">
+              <div className="flex items-center space-x-3 border-b
+                border-intel-border pb-4">
+                <Globe className="w-4 h-4 text-intel-cyan" />
+                <h2 className="text-sm font-bold text-white uppercase
+                  tracking-widest">Diagram 3 — Citizen Node Network</h2>
+                <span className="text-[9px] font-mono text-intel-orange ml-auto">
+                  Roadmap — Coming Soon
+                </span>
+              </div>
+
+              <NodeNetworkDiagram />
+            </div>
+
+          </div>
+
           {/* SECTION 1: OVERVIEW */}
           <div id="overview" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">

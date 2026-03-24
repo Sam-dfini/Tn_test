@@ -11,7 +11,7 @@ import {
 // Sub-components will be defined here or in separate files
 import { TacticalHeader } from './TacticalHeader';
 import { SensorGrid } from './SensorGrid';
-import { NuclearWatch } from './NuclearWatch';
+import { InfraWatch } from './NuclearWatch';
 import { RiskGauges } from './RiskGauges';
 import { TacticalMap } from './TacticalMap';
 import { BreakingIntelFeed } from './BreakingIntelFeed';
@@ -36,8 +36,9 @@ interface TacticalDashboardProps {
 }
 
 export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorates, events, onOpenAI, onGoHome, data }) => {
-  const { rriState } = usePipeline();
+  const { rriState, data: pipelineData } = usePipeline();
   const [geofenceAlerts, setGeofenceAlerts] = React.useState<any[]>([]);
+  const [activeRegion, setActiveRegion] = React.useState('National');
 
   const addGeofenceAlert = (alert: any) => {
     setGeofenceAlerts(prev => [alert, ...prev].slice(0, 10));
@@ -45,20 +46,31 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-intel-cyan/30 overflow-x-hidden">
-      <TacticalHeader onOpenAI={onOpenAI} onGoHome={onGoHome} data={data} />
+      <TacticalHeader 
+        onOpenAI={onOpenAI} 
+        onGoHome={onGoHome} 
+        data={data} 
+        activeRegion={activeRegion}
+        onRegionChange={setActiveRegion}
+      />
       
       <div className="p-4 grid grid-cols-12 gap-4 h-[calc(100vh-3.5rem)] overflow-hidden">
         {/* Left Sidebar: Sensors & Risk */}
         <div className="col-span-12 lg:col-span-2 space-y-4 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-intel-cyan/10">
           <SensorGrid />
-          <NuclearWatch />
+          <InfraWatch />
           <RiskGauges />
         </div>
 
         {/* Center Area: Map & Market Intel */}
         <div className="col-span-12 lg:col-span-7 flex flex-col space-y-4 overflow-hidden">
           <div className="flex-1 min-h-[400px]">
-            <TacticalMap governorates={governorates} events={events} onGeofenceBreach={addGeofenceAlert} />
+            <TacticalMap 
+              governorates={governorates} 
+              events={events} 
+              onGeofenceBreach={addGeofenceAlert}
+              activeRegion={activeRegion}
+            />
           </div>
           <div className="grid grid-cols-12 gap-4 h-[250px] shrink-0">
             <div className="col-span-12 md:col-span-4">
@@ -97,11 +109,14 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
             className="flex items-center space-x-12 px-4"
           >
             {[
-              "SIGNAL DETECTED: SFAX HARBOR BLOCKADE // PRIORITY ALPHA",
-              "ECONOMIC ALERT: TUNIS STOCK EXCHANGE SUSPENDS TRADING",
-              "WEATHER ADVISORY: SANDSTORM APPROACHING GAFSA SECTOR",
-              "POLITICAL: EMERGENCY CABINET MEETING CONVENED AT 03:00Z",
-              "OSINT: SOCIAL MEDIA BLACKOUT REPORTED IN SOUTHERN GOVERNORATES"
+              `RRI ALERT: R(t) = ${rriState.rri.toFixed(4)} — P_rev = ${(rriState.p_rev*100).toFixed(1)}% — ${rriState.rri >= 2.625 ? 'THRESHOLD BREACHED' : 'ELEVATED RISK'}`,
+              `VELOCITY: V(t) = ${rriState.velocity > 0 ? '+' : ''}${rriState.velocity.toFixed(3)} — ${rriState.velocity_label}`,
+              `PATTERN: HPS = ${(rriState.pattern_similarity*100).toFixed(0)}% — ${rriState.pattern_label}`,
+              `ECONOMIC: FX RESERVES ${pipelineData.economy.fx_reserves} DAYS — INFLATION ${pipelineData.economy.inflation}% — TND/USD ${pipelineData.economy.tnd_usd}`,
+              `SOCIAL: ${pipelineData.social.protest_events_30d} PROTEST EVENTS 30D — UGTT: ${pipelineData.social.ugtt_mobilisation_level} — DECREE 54: ${pipelineData.social.decree54_charged} CHARGED`,
+              `CASCADE RISK: P_cascade = ${(rriState.cascade_probability*100).toFixed(0)}% — COMPOUND STRESS CS(t) = ${rriState.compound_stress.toFixed(3)}`,
+              `WATER CRISIS: ${pipelineData.social.water_crisis_govs} GOVERNORATES AFFECTED — SFAX: 6HRS/DAY SUPPLY`,
+              `IMF: DEAL PROBABILITY ${pipelineData.geopolitical?.imf_deal_probability ?? 31}% — EXTERNAL DEBT DEADLINE Q3 2026`,
             ].map((text, i) => (
               <div key={i} className="flex items-center space-x-2">
                 <div className="w-1 h-1 rounded-full bg-intel-cyan"></div>

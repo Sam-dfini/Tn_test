@@ -52,6 +52,7 @@ import { ModeSelection } from './components/ModeSelection';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { ProfessionalIntel } from './components/ProfessionalIntel';
 import { DataPipeline } from './components/DataPipeline';
+import { SourceLibrary } from './components/SourceLibrary';
 import { CitizenEdition } from './components/CitizenEdition';
 import { RRIMethodology } from './components/RRIMethodology';
 import SimulationIntelligence from './components/SimulationIntelligence';
@@ -525,6 +526,7 @@ export default function App() {
   const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
   const [isPipelineOpen, setIsPipelineOpen] = useState(false);
+  const [isSourceLibraryOpen, setIsSourceLibraryOpen] = useState(false);
   const [pipelineInitialTab, setPipelineInitialTab] = useState<'pipeline' | 'sources'>('pipeline');
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
   const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>(undefined);
@@ -563,8 +565,15 @@ export default function App() {
       if (tab === 'pipeline') {
         setActiveTab('simulation');
       }
-      setPipelineInitialTab(initialTab || 'pipeline');
-      setIsPipelineOpen(true);
+      
+      if (initialTab === 'sources') {
+        setIsSourceLibraryOpen(true);
+        setIsPipelineOpen(false);
+      } else {
+        setPipelineInitialTab(initialTab || 'pipeline');
+        setIsPipelineOpen(true);
+        setIsSourceLibraryOpen(false);
+      }
     };
 
     const handleNavigateToMethodology = (e: any) => {
@@ -808,8 +817,12 @@ export default function App() {
             >
               <Header 
                 onOpenPipeline={(tab) => {
-                  setPipelineInitialTab(tab || 'pipeline');
-                  setIsPipelineOpen(true);
+                  if (tab === 'sources') {
+                    setIsSourceLibraryOpen(true);
+                  } else {
+                    setPipelineInitialTab(tab || 'pipeline');
+                    setIsPipelineOpen(true);
+                  }
                 }}
                 onOpenMethodology={() => setIsMethodologyOpen(true)}
                 activeTab={activeTab}
@@ -863,6 +876,18 @@ export default function App() {
             <DataPipeline 
               onClose={() => setIsPipelineOpen(false)} 
               initialTab={pipelineInitialTab}
+              onOpenSources={() => {
+                setIsPipelineOpen(false);
+                setIsSourceLibraryOpen(true);
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {isSourceLibraryOpen && (
+            <SourceLibrary 
+              onClose={() => setIsSourceLibraryOpen(false)} 
             />
           )}
         </AnimatePresence>

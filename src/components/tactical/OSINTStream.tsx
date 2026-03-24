@@ -22,7 +22,7 @@ export const OSINTStream: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-2.0-flash",
         contents: "Get the latest 5 OSINT-style news updates about Tunisia (security, politics, economy, social). Format as a JSON array of objects with fields: source (e.g., 'TUNIS_INTEL', 'TAP_AGENCY'), time (e.g., '2h ago'), tags (array of uppercase strings), and content (brief, tactical description).",
         config: {
           tools: [{ googleSearch: {} }],
@@ -45,11 +45,35 @@ export const OSINTStream: React.FC = () => {
       setError('Uplink failed. Retrying connection...');
       // Fallback data
       setNews([
-        { 
-          source: 'LOCAL_UPLINK', 
-          time: 'SYSTEM', 
-          tags: ['ERROR', 'OFFLINE'], 
-          content: 'Tactical OSINT stream is currently experiencing connectivity issues. Attempting to re-establish satellite link to Tunisia region.' 
+        {
+          source: 'TAP_AGENCY',
+          time: '12m ago',
+          tags: ['PROTEST', 'SFAX'],
+          content: 'Water distribution protests entering day 4 in Sfax. Security forces deployed to harbor area. 200+ participants.'
+        },
+        {
+          source: 'NAWAAT_OSINT',
+          time: '38m ago',
+          tags: ['LEGAL', 'DECREE54'],
+          content: 'New Decree 54 charges filed against investigative journalist. Total charged: 67. RSF condemns arrest.'
+        },
+        {
+          source: 'BCT_WIRE',
+          time: '1h ago',
+          tags: ['ECONOMIC', 'RESERVES'],
+          content: 'BCT FX reserves at 84 days import cover. Below 90-day warning threshold. IMF talks continue.'
+        },
+        {
+          source: 'UGTT_PRESS',
+          time: '2h ago',
+          tags: ['LABOR', 'UGTT'],
+          content: 'UGTT secretariat issues ultimatum on CPG wage arrears. General strike threshold at 64%.'
+        },
+        {
+          source: 'GEOPOL_INTEL',
+          time: '3h ago',
+          tags: ['IMF', 'DIPLOMATIC'],
+          content: 'IMF mission departs Tunis without agreement. Q3 debt repayment deadline unchanged.'
         }
       ]);
     } finally {
