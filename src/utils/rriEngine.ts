@@ -513,6 +513,8 @@ function eq20_historicalPatternSimilarity(
   return { score: maxSimilarity, closest_match: closestMatch, label };
 }
 
+const REGIME_AGE = { age_pct: 0.29, years: 5 };
+
 export function calculateRRI(
   overridesOrVars?: Partial<Record<string, number>> | RRIVariable[]
 ): RRIState {
@@ -683,7 +685,7 @@ export function calculateRRI(
     // Legacy fields for backward compatibility
     prev: parseFloat(p_rev_final.toFixed(4)),
     W: parseFloat(w_t.toFixed(4)),
-    regime_age: { age_pct: 0.29, years: 5 }, // Calibrated for current Tunisia
+    regime_age: REGIME_AGE, // Calibrated for current Tunisia
     monte_carlo_runs: 1000
   };
 }

@@ -42,9 +42,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
   const [activeRegion, setActiveRegion] = React.useState('National');
   const [viewMode, setViewMode] = React.useState<'MAP' | 'INTEL'>('MAP');
 
-  const addGeofenceAlert = (alert: any) => {
+  const addGeofenceAlert = React.useCallback((alert: any) => {
     setGeofenceAlerts(prev => [alert, ...prev].slice(0, 10));
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#05070a] text-slate-300 font-sans selection:bg-intel-cyan/30 overflow-x-hidden">
@@ -70,7 +70,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
         <div className="col-span-12 lg:col-span-7 flex flex-col space-y-4 overflow-hidden">
           {viewMode === 'MAP' ? (
             <>
-              <div className="flex-1 min-h-[400px]">
+              <div className="flex-[3] min-h-[300px] relative">
                 <TacticalMap 
                   governorates={governorates} 
                   events={events} 
@@ -78,7 +78,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({ governorat
                   activeRegion={activeRegion}
                 />
               </div>
-              <div className="grid grid-cols-12 gap-4 h-[250px] shrink-0">
+              <div className="flex-[1] min-h-[180px] grid grid-cols-12 gap-4 shrink-0">
                 <div className="col-span-12 md:col-span-4">
                   <NewsTicker />
                 </div>

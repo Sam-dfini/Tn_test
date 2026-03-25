@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Clock, Globe, Zap, AlertTriangle, Download, Home, TrendingUp } from 'lucide-react';
+import { Clock, Globe, Eye, AlertTriangle, Download, Home, TrendingUp } from 'lucide-react';
 import { usePipeline } from '../../context/PipelineContext';
 
 interface TacticalHeaderProps {
@@ -62,7 +62,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
       <div className="flex items-center space-x-2 sm:space-x-6">
         <div className="flex items-center space-x-2 sm:space-x-3">
           <div className="w-7 h-7 sm:w-8 sm:h-8 bg-intel-cyan/10 border border-intel-cyan/20 rounded flex items-center justify-center">
-            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-intel-cyan" />
+            <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-intel-cyan" />
           </div>
           <div>
             <h1 className="text-[10px] sm:text-sm font-bold text-white tracking-[0.1em] sm:tracking-[0.2em] uppercase truncate max-w-[120px] sm:max-w-none">Tactical OSINT</h1>
@@ -85,17 +85,6 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
             >
               <Globe className="w-3 h-3" />
               <span>Tactical Map</span>
-            </button>
-            <button 
-              onClick={() => onViewModeChange('INTEL')}
-              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded flex items-center space-x-2 ${
-                viewMode === 'INTEL'
-                  ? 'bg-intel-cyan text-intel-bg font-bold'
-                  : 'text-slate-500 hover:text-white'
-              }`}
-            >
-              <TrendingUp className="w-3 h-3" />
-              <span>Ideological Intel</span>
             </button>
           </div>
 
@@ -148,7 +137,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
             className="p-1.5 sm:p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
             title="AI Analyst"
           >
-            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button 
             onClick={() => {

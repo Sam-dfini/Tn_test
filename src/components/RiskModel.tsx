@@ -614,7 +614,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
         <span>Last calc: {new Date(rriState.last_calculated).toLocaleTimeString()}</span>
         <span>Threshold breaches: {rriState.threshold_breaches.length}</span>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent('open-methodology'))}
+          onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }))}
           className="text-intel-cyan hover:underline ml-auto"
         >
           → View Full Methodology

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Map as MapIcon, 
   BarChart3, 
@@ -513,6 +513,8 @@ const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, 
   );
 };
 
+const DEFAULT_REGIME_AGE = { age_pct: 0.29, years: 5 };
+
 export default function App() {
   const [appMode, setAppMode] = useState<'simplified' | 'advanced' | 'professional' | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -553,7 +555,7 @@ export default function App() {
     setCiHigh(state.ci_high);
     setSalience(state.salience);
     setWarSuppressor(state.w_t);
-    setRegimeAge(state.regime_age || { age_pct: 0.29, years: 5 });
+    setRegimeAge(state.regime_age || DEFAULT_REGIME_AGE);
   }, [rriVariables]);
 
   useEffect(() => {
@@ -599,9 +601,18 @@ export default function App() {
     };
   }, []);
 
-  const governorates = (governoratesData?.governorates || []) as Governorate[];
-  const events = (eventsData?.events || []) as IntelEvent[];
+  const governorates = useMemo(() => (governoratesData?.governorates || []) as Governorate[], []);
+  const events = useMemo(() => (eventsData?.events || []) as IntelEvent[], []);
   const waterCrisisGovs = governorates.filter(g => g.water_cut_hours > 10).length;
+
+  const tacticalData = useMemo(() => ({
+    rri,
+    pRev,
+    events,
+    governorates,
+    actors: actorData.actors,
+    movements: actorData.movements
+  }), [rri, pRev, events, governorates]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -711,6 +722,10 @@ export default function App() {
     }
   };
 
+  const handleTacticalLoadingComplete = React.useCallback(() => {
+    setIsInitializing(false);
+  }, []);
+
   const handleModeSelect = (mode: 'simplified' | 'advanced' | 'professional') => {
     setAppMode(mode);
     if (mode === 'professional') {
@@ -732,7 +747,7 @@ export default function App() {
             </motion.div>
           ) : isInitializing ? (
             <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
-              <TacticalLoading mode={appMode} onComplete={() => setIsInitializing(false)} />
+              <TacticalLoading mode={appMode} onComplete={handleTacticalLoadingComplete} />
             </motion.div>
           ) : appMode === 'advanced' ? (
             <motion.div 
@@ -746,14 +761,7 @@ export default function App() {
                 events={events} 
                 onOpenAI={() => setIsAIAnalystOpen(true)} 
                 onGoHome={() => setAppMode(null)}
-                data={{
-                  rri,
-                  pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements
-                }}
+                data={tacticalData}
               />
               <AIAnalyst 
                 isOpen={isAIAnalystOpen} 

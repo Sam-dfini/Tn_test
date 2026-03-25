@@ -61,7 +61,8 @@ const migrationAlerts = [
 const socialAlerts = [
   { code: 'SOC-RAGE-01', title: 'Youth Rage Index at Critical Peak', impact: 'CRITICAL' },
   { code: 'SOC-DIV-09', title: 'Divorce Rate Surpasses 22% Threshold', impact: 'HIGH' },
-  { code: 'SOC-DRUG-02', title: 'New Synthetic Molecule Detected', impact: 'CRITICAL' }
+  { code: 'SOC-DRUG-02', title: 'New Synthetic Molecule Detected', impact: 'CRITICAL' },
+  { code: 'SOC-PROT-03', title: 'March 28: Civil protest against illegal immigrants scheduled', impact: 'HIGH' }
 ];
 
 const roadAccidentData = [

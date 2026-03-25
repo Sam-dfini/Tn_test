@@ -166,17 +166,21 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
   const tunisiaCenter: [number, number] = [33.8869, 9.5375];
   const zoom = 7;
 
-  const filteredGovs = activeRegion && activeRegion !== 'National'
-    ? governorates.filter(g =>
-        REGION_GOVS[activeRegion]?.includes(g.id)
-      )
-    : governorates;
+  const filteredGovs = React.useMemo(() => 
+    activeRegion && activeRegion !== 'National'
+      ? governorates.filter(g =>
+          REGION_GOVS[activeRegion]?.includes(g.id)
+        )
+      : governorates,
+  [governorates, activeRegion]);
 
-  const filteredEvents = activeRegion && activeRegion !== 'National'
-    ? events.filter(e =>
-        REGION_GOVS[activeRegion]?.includes(e.gov)
-      )
-    : events;
+  const filteredEvents = React.useMemo(() => 
+    activeRegion && activeRegion !== 'National'
+      ? events.filter(e =>
+          REGION_GOVS[activeRegion]?.includes(e.gov)
+        )
+      : events,
+  [events, activeRegion]);
 
   const [layers, setLayers] = useState({
     grid: true,
@@ -272,7 +276,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
   };
 
   return (
-    <div className="relative h-full min-h-[500px] bg-[#0a0e14] rounded-lg border border-intel-border overflow-hidden group">
+    <div className="relative h-full w-full bg-[#0a0e14] rounded-lg border border-intel-border overflow-hidden group">
       {/* Animated Red Border for Tunisia Focus */}
       <motion.div 
         animate={{ 
@@ -287,38 +291,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
         className="absolute top-0 left-0 right-0 h-[1px] bg-intel-red/50 z-40 pointer-events-none"
       />
       
-      {/* Layer Selector */}
-      <div className="absolute top-4 left-4 right-4 lg:left-1/2 lg:right-auto lg:-translate-x-1/2 z-40 flex items-center space-x-1 bg-black/80 backdrop-blur-sm border border-intel-border rounded-xl p-1 pointer-events-auto overflow-x-auto scrollbar-hide">
-        <div className="flex items-center space-x-1 min-w-max">
-          {[
-            { id: 'risk', label: 'RRI' },
-            { id: 'water', label: 'Water' },
-            { id: 'poverty', label: 'Poverty' },
-            { id: 'unemployment', label: 'Jobs' },
-            { id: 'protests', label: 'Protests' },
-            { id: 'migration', label: 'Migration' },
-            { id: 'cascade', label: 'Cascade' },
-            { id: 'elections', label: 'Elections' },
-            { id: 'security', label: 'Security' },
-            { id: 'internet', label: 'Internet' },
-          ].map(layer => (
-            <button
-              key={layer.id}
-              onClick={() => setActiveLayer(layer.id as any)}
-              className={cn(
-                "px-2.5 py-1.5 rounded-lg text-[9px] font-mono uppercase tracking-wider transition-all shrink-0",
-                activeLayer === layer.id
-                  ? 'bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30'
-                  : 'text-slate-500 hover:text-slate-300'
-              )}
-            >
-              {layer.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tactical Overlay: Grid */}
+      {/* Map Container */}
       {layers.grid && (
         <div className="absolute inset-0 z-10 pointer-events-none opacity-20" 
              style={{ backgroundImage: 'linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
@@ -482,32 +455,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
 
       {/* Tactical Overlays: UI Elements */}
       <div className="absolute inset-0 z-30 pointer-events-none">
-        {/* Corner Brackets - Hidden on mobile */}
-        <div className="hidden sm:block absolute top-4 left-4 w-8 h-8 border-t border-l border-intel-cyan/40"></div>
-        <div className="hidden sm:block absolute top-4 right-4 w-8 h-8 border-t border-r border-intel-cyan/40"></div>
-        <div className="hidden sm:block absolute bottom-4 left-4 w-8 h-8 border-b border-l border-intel-cyan/40"></div>
-        <div className="hidden sm:block absolute bottom-4 right-4 w-8 h-8 border-b border-r border-intel-cyan/40"></div>
-
-        {/* Crosshair Center */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20">
-          <Crosshair className="w-8 h-8 sm:w-12 sm:h-12 text-intel-cyan" />
-        </div>
-
-        {/* Side Data Bars - Hidden on mobile */}
-        <div className="hidden sm:block absolute top-1/2 -translate-y-1/2 left-4 space-y-4">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="w-1 h-8 bg-intel-cyan/10 rounded-full overflow-hidden">
-              <motion.div 
-                animate={{ height: ['20%', '80%', '40%', '90%', '30%'] }}
-                transition={{ duration: 2 + i, repeat: Infinity }}
-                className="w-full bg-intel-cyan/40"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Top Status Bar - Hidden on mobile */}
-        <div className="hidden md:flex absolute top-16 left-1/2 -translate-x-1/2 items-center space-x-8 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 px-4 py-1 rounded-sm">
+        {/* Top Status Bar (Moved to Top Left) */}
+        <div className="hidden md:flex absolute top-4 left-4 flex-col space-y-2 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 px-3 py-2 rounded-sm">
           <div className="flex items-center space-x-2">
             <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse"></div>
             <span className="text-[8px] font-mono text-intel-cyan uppercase tracking-widest">Geospatial Sync: Active</span>
@@ -520,6 +469,45 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
             COORD: 33.8869° N, 9.5375° E
           </div>
         </div>
+
+        {/* Data Layer Selector (Moved back to Top Middle) */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-1 bg-black/80 backdrop-blur-sm border border-intel-border rounded-none p-1 pointer-events-auto overflow-x-auto scrollbar-hide">
+          <div className="flex items-center space-x-1 min-w-max">
+            {[
+              { id: 'risk', label: 'RRI' },
+              { id: 'water', label: 'Water' },
+              { id: 'poverty', label: 'Poverty' },
+              { id: 'unemployment', label: 'Jobs' },
+              { id: 'protests', label: 'Protests' },
+              { id: 'migration', label: 'Migration' },
+              { id: 'cascade', label: 'Cascade' },
+              { id: 'elections', label: 'Elections' },
+              { id: 'security', label: 'Security' },
+              { id: 'internet', label: 'Internet' },
+            ].map(layer => (
+              <button
+                key={layer.id}
+                onClick={() => setActiveLayer(layer.id as any)}
+                className={cn(
+                  "px-2.5 py-1.5 rounded-none text-[9px] font-mono uppercase tracking-wider transition-all shrink-0",
+                  activeLayer === layer.id
+                    ? 'bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30'
+                    : 'text-slate-500 hover:text-slate-300'
+                )}
+              >
+                {layer.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Corner Brackets - Hidden on mobile */}
+        <div className="hidden sm:block absolute top-4 left-4 w-8 h-8 border-t border-l border-intel-cyan/40"></div>
+        <div className="hidden sm:block absolute top-4 right-4 w-8 h-8 border-t border-r border-intel-cyan/40"></div>
+        <div className="hidden sm:block absolute bottom-4 left-4 w-8 h-8 border-b border-l border-intel-cyan/40"></div>
+        <div className="hidden sm:block absolute bottom-4 right-4 w-8 h-8 border-b border-r border-intel-cyan/40"></div>
+
+        {/* Side Data Bars - Hidden on mobile */}
       </div>
 
       {/* Map Controls (Interactive) */}
@@ -566,15 +554,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
           </div>
         </div>
 
-        {/* Navigation Controls */}
-        <div className="flex flex-row sm:flex-col space-x-1 sm:space-x-0 sm:space-y-1 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 p-1 ml-auto">
-          <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-intel-cyan hover:bg-intel-cyan/20 transition-colors border border-transparent hover:border-intel-cyan/30">
-            <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </button>
-          <button className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-intel-cyan hover:bg-intel-cyan/20 transition-colors border border-transparent hover:border-intel-cyan/30">
-            <Navigation className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </button>
-        </div>
+        {/* Navigation Controls (Hidden) */}
       </div>
 
       {/* Legend Overlay - Hidden on mobile */}

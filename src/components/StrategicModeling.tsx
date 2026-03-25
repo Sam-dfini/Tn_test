@@ -378,7 +378,7 @@ export const StrategicModeling: React.FC = () => {
           CS(t) = <strong className="text-intel-orange">{rriState.compound_stress.toFixed(3)}</strong>
         </span>
         <button
-          onClick={() => window.dispatchEvent(new CustomEvent('open-methodology'))}
+          onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }))}
           className="ml-auto shrink-0 text-intel-cyan hover:underline"
         >
           → Methodology
@@ -846,7 +846,7 @@ export const StrategicModeling: React.FC = () => {
               {/* RRI variable link */}
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent(
-                  'open-methodology', { detail: { equation: '7' } }
+                  'navigate-to-methodology', { detail: { equation: '7' } }
                 ))}
                 className="text-[8px] font-mono text-intel-cyan/50
                   hover:text-intel-cyan transition-colors"

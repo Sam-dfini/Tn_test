@@ -158,6 +158,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
     { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
     { id: 'simulation', label: 'Simulation', icon: Cpu },
     { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
+    { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
   ];
 
   useEffect(() => {
@@ -298,7 +299,11 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
               <button
                 key={tab.id}
                 onClick={() => {
-                  setActiveTab(tab.id as any);
+                  if ((tab as any).isEvent) {
+                    window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+                  } else {
+                    setActiveTab(tab.id as any);
+                  }
                   setMobileTabOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3
@@ -317,177 +322,37 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
                 )}
               </button>
             ))}
-            <button 
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
-                setMobileTabOpen(false);
-              }}
-              className="w-full flex items-center space-x-3 px-4 py-3 text-[11px] font-mono uppercase tracking-wider text-slate-400 hover:bg-white/5"
-            >
-              <BookOpen className="w-4 h-4 shrink-0" />
-              <span>Methodology</span>
-            </button>
           </div>
         )}
       </div>
 
       {/* Desktop: horizontal scrolling tabs */}
-      <div className="hidden md:flex items-center border-b border-intel-border overflow-x-auto scrollbar-hide gap-0 pb-0">
-        <button 
-          onClick={() => setActiveTab('overview')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'overview' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <LayoutDashboard className="w-4 h-4" />
-            <span>Overview</span>
-          </div>
-          {activeTab === 'overview' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('economy')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'economy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4" />
-            <span>Economy</span>
-          </div>
-          {activeTab === 'economy' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('geopolitical')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'geopolitical' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Globe className="w-4 h-4" />
-            <span>Geopolitical</span>
-          </div>
-          {activeTab === 'geopolitical' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('political')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'political' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4" />
-            <span>Political</span>
-          </div>
-          {activeTab === 'political' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('calendar')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'calendar' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4" />
-            <span>Calendar</span>
-          </div>
-          {activeTab === 'calendar' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('security')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'security' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Security</span>
-          </div>
-          {activeTab === 'security' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('energy')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'energy' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Zap className="w-4 h-4" />
-            <span>Energy</span>
-          </div>
-          {activeTab === 'energy' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('environment')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'environment' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Sprout className="w-4 h-4" />
-            <span>Environment</span>
-          </div>
-          {activeTab === 'environment' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('social')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'social' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4" />
-            <span>Social</span>
-          </div>
-          {activeTab === 'social' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('strategic')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'strategic' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <BrainCircuit className="w-4 h-4" />
-            <span>Strategic</span>
-          </div>
-          {activeTab === 'strategic' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('simulation')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'simulation' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <Cpu className="w-4 h-4" />
-            <span>Simulation</span>
-          </div>
-          {activeTab === 'simulation' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => setActiveTab('civilizational')}
-          className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${activeTab === 'civilizational' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-          <div className="flex items-center space-x-2">
-            <RotateCcw className="w-4 h-4" />
-            <span>Civilizational</span>
-          </div>
-          {activeTab === 'civilizational' && (
-            <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
-          )}
-        </button>
-        <button 
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
-          }}
-          className="flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative text-slate-500 hover:text-intel-cyan"
-        >
-          <div className="flex items-center space-x-2">
-            <BookOpen className="w-4 h-4" />
-            <span>Methodology</span>
-          </div>
-        </button>
+      <div className="hidden md:flex items-center border-b border-intel-border overflow-x-auto gap-0 pb-0 scrollbar-thin scrollbar-thumb-intel-border hover:scrollbar-thumb-intel-cyan transition-colors">
+        {tabs.map(tab => (
+          <button 
+            key={tab.id}
+            onClick={() => {
+              if ((tab as any).isEvent) {
+                window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+              } else {
+                setActiveTab(tab.id as any);
+              }
+            }}
+            className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${
+              activeTab === tab.id 
+                ? 'text-intel-cyan' 
+                : 'text-slate-500 hover:text-slate-300'
+            } ${(tab as any).isEvent ? 'hover:text-intel-cyan' : ''}`}
+          >
+            <div className="flex items-center space-x-2">
+              <tab.icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </div>
+            {activeTab === tab.id && !(tab as any).isEvent && (
+              <motion.div layoutId="intel-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan" />
+            )}
+          </button>
+        ))}
       </div>
 
       <div className="px-4 md:px-8 py-4 md:py-8">
@@ -811,7 +676,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
             {rriState.pattern_label}
           </span>
           <button
-            onClick={() => window.dispatchEvent(new CustomEvent('open-methodology',
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-methodology',
               { detail: { equation: '20' } }))}
             className="text-[9px] font-mono text-slate-600 hover:text-intel-cyan ml-2"
           >
@@ -1599,7 +1464,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
           key={link.label}
           onClick={() => {
             if (link.isMethodology) {
-              window.dispatchEvent(new CustomEvent('open-methodology'));
+              window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
             } else if (link.isMain) {
               window.dispatchEvent(new CustomEvent('navigate-main',
                 { detail: { tab: link.tab } }));
