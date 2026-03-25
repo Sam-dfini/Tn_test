@@ -1,147 +1,140 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, Zap, Globe, Activity, Lock } from 'lucide-react';
+import { Eye, Zap, Globe, Activity, Terminal } from 'lucide-react';
 
 export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplified' | 'advanced' | 'professional' | null }> = ({ onComplete, mode }) => {
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('INITIALIZING SYSTEM...');
+  const [logs, setLogs] = useState<string[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
   
-  const simplifiedMessages = [
-    'CONNECTING TO PUBLIC DATA FEEDS...',
-    'SUMMARIZING REGIONAL INDICATORS...',
-    'PREPARING DASHBOARD OVERVIEW...',
-    'OPTIMIZING FOR LEGACY ACCESS...',
-    'SYSTEM READY.'
+  const statusMessages = [
+    'Initializing kernel...',
+    'Connecting pipeline... [OK]',
+    'Loading RRI model... [OK]',
+    'Fetching RSS data... [OK]',
+    'Synchronizing geospatial layers... [OK]',
+    'Calibrating sensor grid... [OK]',
+    'Establishing data stream... [OK]',
+    'Finalizing system environment... [OK]',
+    'System ready.'
   ];
-
-  const advancedMessages = [
-    'ESTABLISHING SECURE ENCRYPTED LINK...',
-    'CONNECTING TO TUNISIA-INTEL CORE...',
-    'DECRYPTING GEOSPATIAL DATA LAYERS...',
-    'SYNCHRONIZING RRI MODEL VARIABLES...',
-    'LOADING GOVERNORATE RISK MATRICES...',
-    'INITIALIZING AI ANALYST ENGINE...',
-    'SYSTEM READY. ACCESS GRANTED.'
-  ];
-
-  const professionalMessages = [
-    'AUTHENTICATING EXECUTIVE CLEARANCE...',
-    'LOADING STRATEGIC DOSSIERS...',
-    'FETCHING MARKET INTELLIGENCE...',
-    'SYNCHRONIZING GLOBAL SIGNALS...',
-    'PREPARING PREMIUM ANALYSIS...',
-    'SYSTEM READY. WELCOME ANALYST.'
-  ];
-
-  const statusMessages = mode === 'advanced' ? advancedMessages : 
-                         mode === 'professional' ? professionalMessages : 
-                         simplifiedMessages;
 
   useEffect(() => {
     const timer = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(onComplete, 800);
+          setTimeout(onComplete, 1000);
           return 100;
         }
-        return prev + Math.random() * 15;
+        return prev + Math.random() * 12;
       });
-    }, 200);
+    }, 250);
 
     return () => clearInterval(timer);
   }, [onComplete]);
 
   useEffect(() => {
-    const messageIndex = Math.min(
-      Math.floor((progress / 100) * statusMessages.length),
-      statusMessages.length - 1
-    );
-    setStatus(statusMessages[messageIndex]);
+    const messageIndex = Math.floor((progress / 100) * statusMessages.length);
+    const currentMessages = statusMessages.slice(0, messageIndex + 1);
+    setLogs(currentMessages);
   }, [progress]);
 
-  return (
-    <div className="fixed inset-0 bg-intel-bg z-[100] flex flex-col items-center justify-center p-8 overflow-hidden">
-      {/* Background Grid */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #00f2ff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
-      
-      {/* Scanning Line */}
-      <motion.div 
-        animate={{ top: ['0%', '100%'] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-        className="absolute left-0 right-0 h-[2px] bg-intel-cyan/20 z-10"
-      />
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [logs]);
 
-      <div className="max-w-md w-full space-y-12 relative z-20">
-        <div className="flex flex-col items-center space-y-6">
+  return (
+    <div className="fixed inset-0 bg-[#05070a] z-[100] flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono">
+      {/* Background Grid */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, #00f2ff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+      
+      <div className="max-w-2xl w-full space-y-8 relative z-20">
+        <div className="flex flex-col items-center space-y-4 mb-8">
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-24 h-24 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/20 flex items-center justify-center relative"
+            className="w-16 h-16 rounded-xl bg-intel-cyan/5 border border-intel-cyan/20 flex items-center justify-center relative"
           >
-            <div className="absolute inset-0 bg-intel-cyan/10 animate-pulse rounded-2xl"></div>
-            <Shield className="w-12 h-12 text-intel-cyan" />
+            <div className="absolute inset-0 bg-intel-cyan/10 animate-pulse rounded-xl"></div>
+            <Eye className="w-8 h-8 text-intel-cyan" />
           </motion.div>
           
           <div className="text-center">
-            <h1 className="text-3xl tracking-[0.3em] font-bold text-white">
+            <h1 className="text-2xl tracking-[0.2em] font-bold text-white uppercase">
               TUNISIA<span className="text-intel-cyan">INTEL</span>
             </h1>
-            <div className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.5em] mt-2">
-              {mode === 'advanced' ? 'Tactical OSINT Tunisia' : 'Tactical Risk Intelligence v2.0'}
+            <div className="text-[8px] text-slate-500 uppercase tracking-[0.4em] mt-1">
+              Tactical Risk Intelligence v2.0
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex justify-between items-end">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <div className="w-1 h-1 bg-intel-cyan rounded-full animate-ping"></div>
-                <span className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest font-bold">
-                  {status}
-                </span>
-              </div>
-              <div className="text-[8px] font-mono text-slate-600 uppercase">
-                SECURE ACCESS PORT: 3000 // ENCRYPTION: AES-256
-              </div>
+        {/* Terminal Window */}
+        <div className="bg-black/80 border border-intel-border rounded-lg overflow-hidden shadow-2xl">
+          <div className="bg-intel-card border-b border-intel-border px-3 py-1.5 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Terminal className="w-3 h-3 text-intel-cyan" />
+              <span className="text-[9px] text-slate-400 uppercase tracking-widest">System Boot Sequence</span>
             </div>
-            <div className="text-2xl font-bold font-mono text-white">
-              {Math.min(100, Math.floor(progress))}%
+            <div className="flex space-x-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+              <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan/40"></div>
             </div>
           </div>
+          
+          <div 
+            ref={scrollRef}
+            className="p-4 h-48 overflow-y-auto scrollbar-hide text-[10px] space-y-1 text-intel-cyan/80"
+          >
+            {logs.map((log, i) => (
+              <motion.div 
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                key={i} 
+                className="flex items-start space-x-2"
+              >
+                <span className="text-slate-600">[{new Date().toISOString().split('T')[1].slice(0, 8)}]</span>
+                <span className={i === logs.length - 1 ? "text-white" : ""}>{log}</span>
+              </motion.div>
+            ))}
+            {progress < 100 && (
+              <div className="flex items-center space-x-2">
+                <span className="text-slate-600">[{new Date().toISOString().split('T')[1].slice(0, 8)}]</span>
+                <span className="w-2 h-3 bg-intel-cyan animate-pulse"></span>
+              </div>
+            )}
+          </div>
+        </div>
 
-          <div className="h-2 w-full bg-intel-card border border-intel-border rounded-full overflow-hidden p-[2px]">
+        <div className="space-y-2">
+          <div className="flex justify-between items-end">
+            <span className="text-[9px] text-slate-500 uppercase tracking-widest">Initialization Progress</span>
+            <span className="text-lg font-bold text-white">{Math.min(100, Math.floor(progress))}%</span>
+          </div>
+          <div className="h-1 w-full bg-intel-card border border-intel-border rounded-full overflow-hidden">
             <motion.div 
-              className="h-full bg-intel-cyan rounded-full shadow-[0_0_15px_rgba(0,242,255,0.5)]"
+              className="h-full bg-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.5)]"
               style={{ width: `${progress}%` }}
             />
           </div>
-
-          <div className="grid grid-cols-4 gap-2">
-            {[Zap, Globe, Activity, Lock].map((Icon, i) => (
-              <div key={i} className={cn(
-                "h-1 rounded-full transition-colors duration-500",
-                progress > (i + 1) * 25 ? "bg-intel-cyan" : "bg-intel-border"
-              )}></div>
-            ))}
-          </div>
         </div>
 
-        <div className="pt-8 border-t border-intel-border/50">
-          <div className="flex justify-between text-[8px] font-mono text-slate-600 uppercase tracking-widest">
-            <span>Auth: Verified</span>
-            <span>Location: Tunis, TN</span>
-            <span>Latency: 14ms</span>
-          </div>
+        <div className="flex justify-between text-[8px] text-slate-600 uppercase tracking-widest pt-4">
+          <span>Node: Tunis-01</span>
+          <span>Status: Online</span>
+          <span>Load: {Math.floor(progress * 0.8)}%</span>
         </div>
       </div>
 
       {/* Corner Accents */}
-      <div className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-intel-cyan/30"></div>
-      <div className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-intel-cyan/30"></div>
-      <div className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-intel-cyan/30"></div>
-      <div className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-intel-cyan/30"></div>
+      <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-intel-cyan/20"></div>
+      <div className="absolute top-4 right-4 w-8 h-8 border-t border-r border-intel-cyan/20"></div>
+      <div className="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-intel-cyan/20"></div>
+      <div className="absolute bottom-4 right-4 w-8 h-8 border-b border-r border-intel-cyan/20"></div>
     </div>
   );
 };

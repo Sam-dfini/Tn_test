@@ -9,9 +9,13 @@ interface TacticalHeaderProps {
   data: any;
   activeRegion: string;
   onRegionChange: (region: string) => void;
+  viewMode: 'MAP' | 'INTEL';
+  onViewModeChange: (mode: 'MAP' | 'INTEL') => void;
 }
 
-export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHome, data, activeRegion, onRegionChange }) => {
+export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ 
+  onOpenAI, onGoHome, data, activeRegion, onRegionChange, viewMode, onViewModeChange 
+}) => {
   const { rriState } = usePipeline();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -55,21 +59,48 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHo
         className="absolute bottom-0 left-0 right-0 h-[2px] bg-intel-red z-10"
       />
       
-      <div className="flex items-center space-x-6">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-intel-cyan/10 border border-intel-cyan/20 rounded flex items-center justify-center">
-            <Zap className="w-5 h-5 text-intel-cyan" />
+      <div className="flex items-center space-x-2 sm:space-x-6">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 bg-intel-cyan/10 border border-intel-cyan/20 rounded flex items-center justify-center">
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-intel-cyan" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-white tracking-[0.2em] uppercase">Tactical OSINT Tunisia</h1>
-            <div className="flex items-center space-x-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse"></span>
-              <span className="text-[8px] font-mono text-intel-red uppercase font-bold">Wartime Stagflation Risk</span>
+            <h1 className="text-[10px] sm:text-sm font-bold text-white tracking-[0.1em] sm:tracking-[0.2em] uppercase truncate max-w-[120px] sm:max-w-none">Tactical OSINT</h1>
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-intel-red animate-pulse"></span>
+              <span className="text-[6px] sm:text-[8px] font-mono text-intel-red uppercase font-bold">Wartime Risk</span>
             </div>
           </div>
         </div>
 
         <nav className="hidden xl:flex items-center space-x-1">
+          <div className="flex items-center bg-black/40 rounded p-0.5 mr-4 border border-white/10">
+            <button 
+              onClick={() => onViewModeChange('MAP')}
+              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded flex items-center space-x-2 ${
+                viewMode === 'MAP'
+                  ? 'bg-intel-cyan text-intel-bg font-bold'
+                  : 'text-slate-500 hover:text-white'
+              }`}
+            >
+              <Globe className="w-3 h-3" />
+              <span>Tactical Map</span>
+            </button>
+            <button 
+              onClick={() => onViewModeChange('INTEL')}
+              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded flex items-center space-x-2 ${
+                viewMode === 'INTEL'
+                  ? 'bg-intel-cyan text-intel-bg font-bold'
+                  : 'text-slate-500 hover:text-white'
+              }`}
+            >
+              <TrendingUp className="w-3 h-3" />
+              <span>Ideological Intel</span>
+            </button>
+          </div>
+
+          <div className="w-px h-4 bg-white/10 mx-2" />
+
           {['National', 'North', 'Sahel', 'Central', 'South', 'Borders'].map((tab) => (
             <button 
               key={tab}
@@ -86,8 +117,8 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHo
         </nav>
       </div>
 
-      <div className="flex items-center space-x-8">
-        <div className="hidden md:flex flex-col items-end">
+      <div className="flex items-center space-x-2 sm:space-x-8">
+        <div className="hidden sm:flex flex-col items-end">
           <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 uppercase">
             <span>V(t)</span>
             <span className={`font-bold ${
@@ -104,20 +135,20 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHo
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button 
             onClick={onGoHome}
-            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            className="p-1.5 sm:p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
             title="Go to Home Screen"
           >
-            <Home className="w-4 h-4" />
+            <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button 
             onClick={onOpenAI}
-            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            className="p-1.5 sm:p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
             title="AI Analyst"
           >
-            <Zap className="w-4 h-4" />
+            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
           <button 
             onClick={() => {
@@ -129,7 +160,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHo
               a.click();
               URL.revokeObjectURL(url);
             }}
-            className="p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+            className="hidden sm:block p-2 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/20 transition-all"
             title="Export Intel Data"
           >
             <Download className="w-4 h-4" />
@@ -146,8 +177,8 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ onOpenAI, onGoHo
               {(rriState.p_rev * 100).toFixed(1)}%
             </div>
           </div>
-          <div className={`px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded ${rriState.rri > 2.5 ? 'bg-intel-red text-white' : 'bg-intel-orange text-black'}`}>
-            {rriState.rri > 2.5 ? 'High Alert' : 'Elevated Risk'}
+          <div className={`px-2 sm:px-3 py-1 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest rounded ${rriState.rri > 2.5 ? 'bg-intel-red text-white' : 'bg-intel-orange text-black'}`}>
+            {rriState.rri > 2.5 ? 'High' : 'Elevated'}
           </div>
         </div>
       </div>

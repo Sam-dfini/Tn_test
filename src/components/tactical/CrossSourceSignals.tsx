@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePipeline } from '../../context/PipelineContext';
 import { cn } from '../../utils/cn';
-import { Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const CrossSourceSignals: React.FC = () => {
   const { data, rriState } = usePipeline();
@@ -58,7 +58,7 @@ export const CrossSourceSignals: React.FC = () => {
     <div className="glass p-4 rounded-lg border border-intel-border h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <Shield className="w-3 h-3 text-intel-cyan" />
+          <Eye className="w-3 h-3 text-intel-cyan" />
           <h3 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Cross-Source Signals</h3>
         </div>
         <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Triangulation Active</span>

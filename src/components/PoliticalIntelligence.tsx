@@ -21,8 +21,9 @@ import { PartyDossier } from './political/PartyDossier';
 import { FreedomIndex } from './political/FreedomIndex';
 import { ActorNetwork } from './political/ActorNetwork';
 import { UGTTMonitor } from './political/UGTTMonitor';
+import { IdeologicalIntelligence } from './tactical/IdeologicalIntelligence';
 
-type TabType = 'overview' | 'sentiment' | 'movements' | 'ugtt' | 'elections' | 'parties' | 'freedom' | 'powermap';
+type TabType = 'overview' | 'sentiment' | 'movements' | 'ugtt' | 'ideology' | 'elections' | 'parties' | 'freedom' | 'powermap';
 
 export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) => {
   const [activeSubTab, setActiveSubTab] = useState<TabType>('overview');
@@ -46,6 +47,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
     { id: 'overview', label: 'Overview', icon: Globe, description: 'Strategic regime stability and institutional landscape' },
     { id: 'sentiment', label: 'Sentiment', icon: TrendingUp, description: 'Real-time social media and public opinion tracking' },
     { id: 'movements', label: 'Movements', icon: Activity, description: 'Civil unrest, protest frequency, and social actors' },
+    { id: 'ideology', label: 'Ideology', icon: BookOpen, description: 'Evolution of Tunisian political ideologies (1956-2026)' },
     { id: 'ugtt', label: 'UGTT', icon: Users, description: 'Labor union monitoring, strike frequency, and wage negotiations' },
     { id: 'elections', label: 'Elections', icon: BarChart3, description: 'Electoral legitimacy and voting pattern analysis' },
     { id: 'parties', label: 'Parties', icon: Users, description: 'Political party dossiers and coalition dynamics' },
@@ -156,6 +158,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
         {activeSubTab === 'overview' && <PoliticalOverview />}
         {activeSubTab === 'sentiment' && <SentimentAnalysis />}
         {activeSubTab === 'movements' && <CivilMovements />}
+        {activeSubTab === 'ideology' && <IdeologicalIntelligence />}
         {activeSubTab === 'ugtt' && <UGTTMonitor />}
         {activeSubTab === 'elections' && <Elections />}
         {activeSubTab === 'parties' && <PartyDossier />}

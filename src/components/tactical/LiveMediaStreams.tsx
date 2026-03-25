@@ -361,8 +361,8 @@ export const LiveMediaStreams: React.FC = () => {
       <div className="bg-black/80 p-3 flex items-center justify-between border-t border-intel-border">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-1.5">
-            <Shield className="w-3 h-3 text-intel-cyan" />
-            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Secure Uplink</span>
+            <Eye className="w-3 h-3 text-intel-cyan" />
+            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Uplink: ACTIVE</span>
           </div>
           <div className="flex items-center space-x-1.5">
             <Eye className="w-3 h-3 text-slate-500" />

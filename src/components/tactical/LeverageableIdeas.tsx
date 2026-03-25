@@ -1,7 +1,7 @@
 import React from 'react';
 import { usePipeline } from '../../context/PipelineContext';
 import { cn } from '../../utils/cn';
-import { Lightbulb, Zap, ShieldAlert, Eye } from 'lucide-react';
+import { Lightbulb, Zap, AlertTriangle, Eye } from 'lucide-react';
 
 const generateIdeas = (rriState: any, data: any) => [
   rriState.cascade_probability > 0.5 && {
@@ -33,7 +33,7 @@ const generateIdeas = (rriState: any, data: any) => [
     title: 'Historical Pattern Match Active',
     type: 'WARNING',
     urgency: 'CRITICAL',
-    icon: ShieldAlert,
+    icon: AlertTriangle,
     color: 'text-intel-red',
     bgColor: 'bg-intel-red/10',
     borderColor: 'border-intel-red/20',
@@ -57,7 +57,7 @@ const generateIdeas = (rriState: any, data: any) => [
     title: 'Momentum Acceleration',
     type: 'WARNING',
     urgency: 'MEDIUM',
-    icon: ShieldAlert,
+    icon: AlertTriangle,
     color: 'text-intel-red',
     bgColor: 'bg-intel-red/10',
     borderColor: 'border-intel-red/20',

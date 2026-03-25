@@ -129,6 +129,12 @@ const chronicDiseaseBreakdown = [
   { name: 'Other', value: 27.1, color: '#94a3b8', trend: '+0.4%' }
 ];
 
+const healthcareFundsData = [
+  { name: 'CNAM', subscribers: '3.8M', budget: '3.2B', deficiency: '1.1B', risk: 'CRITICAL', color: '#0ea5e9', rriImpact: 'High' },
+  { name: 'CNSS', subscribers: '2.4M', budget: '4.5B', deficiency: '0.8B', risk: 'HIGH', color: '#f59e0b', rriImpact: 'Medium' },
+  { name: 'CNRPS', subscribers: '0.9M', budget: '2.8B', deficiency: '1.4B', risk: 'CRITICAL', color: '#ef4444', rriImpact: 'Critical' }
+];
+
 export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string }> = ({ compact = false, label = "Migration Stress Index" }) => {
   const { data } = usePipeline();
   
@@ -828,6 +834,81 @@ export const SocialIntelligence: React.FC = () => {
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 Chronic diseases now account for 72% of all deaths. Sedentary lifestyles and poor dietary habits in urban centers are accelerating these trends.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Healthcare Funds Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Social Security & Healthcare Funds</h4>
+                <p className="text-[10px] text-slate-500 uppercase">Subscription, Budget & Deficiency Analysis (TND)</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-intel-cyan"></div>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Budget</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-intel-red"></div>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">Deficiency</span>
+                </div>
+              </div>
+            </div>
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={healthcareFundsData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'monospace' }} />
+                  <Tooltip 
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', textTransform: 'uppercase', paddingTop: '20px' }} />
+                  <Bar dataKey="budget" name="Total Budget (B TND)" fill="#00f2ff" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="deficiency" name="Budget Deficiency (B TND)" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
+            <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Fund Intelligence</h4>
+            <div className="space-y-4">
+              {healthcareFundsData.map((fund, i) => (
+                <div key={i} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-white uppercase">{fund.name}</span>
+                    <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
+                      fund.risk === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
+                    }`}>
+                      {fund.risk}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <div className="text-[8px] font-mono text-slate-500 uppercase">Subscribers</div>
+                      <div className="text-sm font-bold text-white">{fund.subscribers}</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-[8px] font-mono text-slate-500 uppercase">RRI Impact</div>
+                      <div className={`text-sm font-bold ${fund.rriImpact === 'Critical' ? 'text-intel-red' : 'text-intel-orange'}`}>{fund.rriImpact}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
+              <div className="flex items-center space-x-2">
+                <ShieldAlert className="w-4 h-4 text-intel-red" />
+                <span className="text-[10px] font-bold text-white uppercase">Critical Risk Warning</span>
+              </div>
+              <p className="text-[9px] text-slate-500 leading-tight">
+                The systemic insolvency of social security funds (CNAM, CNSS, CNRPS) represents a direct threat to social stability. Disruptions in healthcare reimbursements or pension payments are high-probability catalysts for RRI escalation.
               </p>
             </div>
           </div>

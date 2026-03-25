@@ -114,6 +114,24 @@ const reports: IntelReport[] = [
       'International response: EU suspended media freedom dialogue — diplomatic signal with no enforcement'
     ],
     classification: 'Level 3 // Political Intelligence'
+  },
+  {
+    id: 'REP-004',
+    title: 'Migration Crisis: Rising Civil Unrest and Anti-Immigrant Sentiment',
+    category: 'Social-Security',
+    date: 'MAR 25, 2026',
+    author: 'Social Intelligence Unit',
+    readTime: '12 min',
+    image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&q=80&w=800',
+    summary: 'Coordinated civil protests scheduled for March 28th signal a significant escalation in anti-immigrant sentiment. Social media monitoring indicates mobilization across Tunis and Sfax, driven by economic grievances and perceived state failure in border management. High risk of localized clashes and security force intervention.',
+    keyFindings: [
+      '340% increase in anti-immigrant keywords on social media over the last 14 days.',
+      'Coordinated mobilization across 12 governorates for the March 28th "National Sovereignty" protest.',
+      'Security forces (GNR) increasing deployment in Sfax and Medenine by 45%.',
+      'Risk of "Social Contagion" where anti-immigrant protests merge with economic grievances.',
+      'International NGOs reporting increased vulnerability of migrant populations in urban centers.'
+    ],
+    classification: 'Level 3 // Social Intelligence'
   }
 ];
 
@@ -221,8 +239,39 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
     a.click();
   };
 
+  const kiqs = [
+    { id: 'KIQ-1', question: 'Will the UGTT call for a general strike before the IMF Q3 deadline?', status: 'CRITICAL', confidence: 'MEDIUM', impact: 'HIGH' },
+    { id: 'KIQ-2', question: 'Is the Gafsa mining disruption linked to coordinated regional actors?', status: 'INVESTIGATING', confidence: 'LOW', impact: 'MEDIUM' },
+    { id: 'KIQ-3', question: 'How will the EU-Tunisia migration pact review impact FX reserve stability?', status: 'MONITORING', confidence: 'HIGH', impact: 'HIGH' },
+  ];
+
+  const hotspots = [
+    { region: 'Gafsa', risk: 'CRITICAL', trend: 'STABLE', reason: 'Phosphate production deadlock' },
+    { region: 'Sfax', risk: 'HIGH', trend: 'WORSENING', reason: 'Water scarcity & migration pressure' },
+    { region: 'Kasserine', risk: 'ELEVATED', trend: 'WORSENING', reason: 'Social contagion risk' },
+  ];
+
+  const strategicOutlook = "The Tunisian state faces a multi-dimensional crisis as fiscal constraints collide with escalating social demands. The IMF deadlock remains the primary structural risk, with a 69% probability of selective default if no agreement is reached by Q3 2026. Social cohesion is deteriorating in the interior regions, specifically the Gafsa-Kasserine corridor, where economic marginalization is being compounded by acute water scarcity. The regime's reliance on Decree 54 suggests a shift towards securitized management of dissent rather than structural reform.";
+
+  const actors = [
+    { name: 'Regime', posture: 'CONSOLIDATING', influence: 'HIGH', sentiment: 'DEFENSIVE', trend: 'STABLE' },
+    { name: 'UGTT', posture: 'MOBILIZING', influence: 'HIGH', sentiment: 'RESISTANT', trend: 'WORSENING' },
+    { name: 'Opposition', posture: 'FRAGMENTED', influence: 'LOW', sentiment: 'SUPPRESSED', trend: 'STABLE' },
+    { name: 'Youth', posture: 'DISAFFECTED', influence: 'MEDIUM', sentiment: 'EXIT-ORIENTED', trend: 'WORSENING' },
+    { name: 'IMF/EU', posture: 'CONDITIONAL', influence: 'HIGH', sentiment: 'MONITORING', trend: 'STABLE' },
+  ];
+
+  const scenarios = [
+    { title: 'Selective Default', prob: 45, impact: 'CRITICAL', color: 'text-intel-red' },
+    { title: 'Social Cascade', prob: 30, impact: 'HIGH', color: 'text-intel-orange' },
+    { title: 'IMF Breakthrough', prob: 15, impact: 'LOW', color: 'text-intel-cyan' },
+    { title: 'Status Quo Muddle', prob: 10, impact: 'MEDIUM', color: 'text-slate-400' },
+  ];
+
   return (
     <div className="space-y-6 md:space-y-12 pb-20 relative">
+      {/* Sub-navigation */}
+      {/* ... (mobile/desktop tabs remain same) ... */}
       {/* Sub-navigation */}
       {/* Mobile: dropdown selector */}
       <div className="block md:hidden px-4 py-3 border-b border-intel-border">
@@ -443,10 +492,209 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
 
       <div className="px-4 md:px-8 py-4 md:py-8">
         {activeTab === 'overview' ? (
-  <div className="space-y-6 pb-8">
+  <div className="space-y-8 pb-8">
 
     {/* ============================================
         ROW 1 — SITUATION STATUS HEADER
+        Full width. The most critical information.
+    ============================================ */}
+    <div className={`rounded-2xl border p-6 space-y-6 relative overflow-hidden ${
+      rriState.rri >= 2.625
+        ? 'border-intel-red/50 bg-intel-red/5'
+        : rriState.velocity > 0.15
+        ? 'border-intel-orange/40 bg-intel-orange/5'
+        : 'border-intel-border bg-black/40'
+    }`}>
+      {/* Background decoration */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-intel-cyan/5 blur-3xl rounded-full -mr-32 -mt-32" />
+
+      {/* Status bar top */}
+      <div className="flex items-center justify-between flex-wrap gap-4 relative z-10">
+        <div className="flex items-center space-x-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.2em]">
+              Tunisia Intelligence Command // Strategic Overview
+            </span>
+            <span className="text-xs font-mono text-white">
+              {new Date().toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+              })}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] font-mono text-slate-500 uppercase">System Status</span>
+            <div className="flex items-center space-x-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-intel-green animate-pulse" />
+              <span className="text-[10px] font-mono text-intel-green">OPERATIONAL</span>
+            </div>
+          </div>
+          <div className="h-8 w-px bg-intel-border/50 mx-2" />
+          <div className={`px-4 py-2 rounded border font-mono text-[10px] uppercase tracking-widest ${
+            rriState.rri >= 2.625
+              ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+              : 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+          }`}>
+            {rriState.rri >= 2.625 ? 'CRITICAL THRESHOLD' : 'ELEVATED RISK'}
+          </div>
+        </div>
+      </div>
+
+      {/* RRI core metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6 relative z-10">
+        {[
+          {
+            label: 'R(t) Index',
+            value: rriState.rri.toFixed(4),
+            color: rriState.rri >= 2.625 ? 'text-intel-red' : 'text-intel-orange',
+            sub: rriState.rri >= 2.625 ? 'BREACH' : 'ELEVATED',
+            icon: Activity
+          },
+          {
+            label: 'P(Revolution)',
+            value: (rriState.p_rev * 100).toFixed(1) + '%',
+            color: rriState.p_rev > 0.70 ? 'text-intel-red' : 'text-intel-orange',
+            sub: `CI [${rriState.ci_low}–${rriState.ci_high}%]`,
+            icon: Zap
+          },
+          {
+            label: 'Velocity V(t)',
+            value: (rriState.velocity > 0 ? '+' : '') + rriState.velocity.toFixed(3),
+            color: rriState.velocity > 0.15 ? 'text-intel-red' :
+                   rriState.velocity < -0.15 ? 'text-intel-cyan' : 'text-slate-400',
+            sub: rriState.velocity_label,
+            icon: TrendingUp
+          },
+          {
+            label: 'Salience S(t)',
+            value: rriState.salience.toFixed(3),
+            color: 'text-white',
+            sub: `W(t) = ${rriState.w_t.toFixed(2)}`,
+            icon: Target
+          },
+          {
+            label: 'Pattern HPS',
+            value: (rriState.pattern_similarity * 100).toFixed(0) + '%',
+            color: rriState.pattern_similarity > 0.65 ? 'text-intel-red' :
+                   rriState.pattern_similarity > 0.5 ? 'text-intel-orange' : 'text-slate-400',
+            sub: rriState.pattern_similarity > 0.5 ? 'MATCH' : 'NOMINAL',
+            icon: Shield
+          },
+          {
+            label: 'Cascade Risk',
+            value: (rriState.cascade_probability * 100).toFixed(0) + '%',
+            color: rriState.cascade_probability > 0.6 ? 'text-intel-red' :
+                   rriState.cascade_probability > 0.4 ? 'text-intel-orange' : 'text-slate-400',
+            sub: 'REGIONAL',
+            icon: Radio
+          },
+          {
+            label: 'Confidence',
+            value: (rriState.model_confidence * 100).toFixed(0) + '%',
+            color: 'text-slate-400',
+            sub: `${rriState.variables_count} VARS`,
+            icon: Database
+          },
+        ].map(m => (
+          <div key={m.label} className="space-y-2 group cursor-help">
+            <div className="flex items-center space-x-2">
+              <m.icon className="w-3 h-3 text-slate-600 group-hover:text-intel-cyan transition-colors" />
+              <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">
+                {m.label}
+              </span>
+            </div>
+            <div className={`text-2xl font-bold font-mono tracking-tight ${m.color}`}>
+              {m.value}
+            </div>
+            <div className="text-[8px] font-mono text-slate-600 truncate opacity-60">
+              {m.sub}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 2 — EXECUTIVE SUMMARY & STRATEGIC OUTLOOK
+    ============================================ */}
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      {/* Strategic Outlook Text */}
+      <div className="xl:col-span-2 glass p-6 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <BrainCircuit className="w-4 h-4 text-intel-cyan" />
+            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+              Strategic Outlook // Q1-Q2 2026
+            </span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-[9px] font-mono text-slate-600">Classification:</span>
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded border border-intel-cyan/30 text-intel-cyan bg-intel-cyan/5">
+              RESTRICTED // ANALYST EYES ONLY
+            </span>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <p className="text-sm md:text-base text-slate-200 leading-relaxed font-serif italic">
+            "{strategicOutlook}"
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-intel-border/30">
+            <div className="space-y-1">
+              <div className="text-[9px] font-mono text-slate-500 uppercase">Primary Risk Vector</div>
+              <div className="text-xs font-bold text-intel-red">Fiscal Insolvency / Debt Default</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[9px] font-mono text-slate-500 uppercase">Social Trigger</div>
+              <div className="text-xs font-bold text-intel-orange">Water Scarcity & Subsidy Cuts</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[9px] font-mono text-slate-500 uppercase">Regime Response</div>
+              <div className="text-xs font-bold text-intel-cyan">Securitized Information Control</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Key Intelligence Questions (KIQs) */}
+      <div className="glass p-6 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Target className="w-4 h-4 text-intel-cyan" />
+          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+            Key Intelligence Questions (KIQs)
+          </span>
+        </div>
+        
+        <div className="space-y-3">
+          {kiqs.map((kiq) => (
+            <div key={kiq.id} className="p-3 rounded-xl bg-white/5 border border-intel-border/30 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono text-slate-600">{kiq.id}</span>
+                <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
+                  kiq.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' :
+                  kiq.status === 'INVESTIGATING' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' :
+                  'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10'
+                }`}>
+                  {kiq.status}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-300 leading-snug">
+                {kiq.question}
+              </div>
+              <div className="flex items-center justify-between text-[8px] font-mono text-slate-600">
+                <span>Impact: <span className={kiq.impact === 'HIGH' ? 'text-intel-red' : 'text-intel-orange'}>{kiq.impact}</span></span>
+                <span>Conf: {kiq.confidence}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 2 — SITUATION STATUS HEADER
         Full width. The most critical information.
     ============================================ */}
     <div className={`rounded-2xl border p-5 space-y-4 ${
@@ -574,7 +822,279 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
     </div>
 
     {/* ============================================
-        ROW 2 — ACTIVE ALERTS
+        ROW 3 — STRATEGIC ACTOR POSTURE & SCENARIO MATRIX
+    ============================================ */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Actor Posture */}
+      <div className="lg:col-span-2 glass p-5 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Users className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Strategic Actor Posture Matrix
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-intel-border/30">
+                <th className="py-2 text-[8px] font-mono text-slate-600 uppercase">Actor</th>
+                <th className="py-2 text-[8px] font-mono text-slate-600 uppercase">Posture</th>
+                <th className="py-2 text-[8px] font-mono text-slate-600 uppercase text-center">Influence</th>
+                <th className="py-2 text-[8px] font-mono text-slate-600 uppercase">Sentiment</th>
+                <th className="py-2 text-[8px] font-mono text-slate-600 uppercase text-right">Trend</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-intel-border/10">
+              {actors.map((actor) => (
+                <tr key={actor.name} className="group hover:bg-white/5 transition-colors">
+                  <td className="py-3 text-[10px] font-bold text-white">{actor.name}</td>
+                  <td className="py-3">
+                    <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
+                      actor.posture === 'MOBILIZING' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' :
+                      actor.posture === 'CONSOLIDATING' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10' :
+                      'text-slate-500 border-slate-700 bg-slate-900'
+                    }`}>{actor.posture}</span>
+                  </td>
+                  <td className="py-3 text-center">
+                    <div className="flex items-center justify-center space-x-1">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className={`w-1 h-2 rounded-full ${
+                          (actor.influence === 'HIGH' && i <= 3) ||
+                          (actor.influence === 'MEDIUM' && i <= 2) ||
+                          (actor.influence === 'LOW' && i <= 1)
+                            ? 'bg-intel-cyan' : 'bg-slate-800'
+                        }`} />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="py-3 text-[9px] font-mono text-slate-400">{actor.sentiment}</td>
+                  <td className="py-3 text-right">
+                    <span className={`text-[9px] font-mono ${
+                      actor.trend === 'WORSENING' ? 'text-intel-red' :
+                      actor.trend === 'IMPROVING' ? 'text-intel-green' : 'text-slate-500'
+                    }`}>{actor.trend}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Scenario Matrix */}
+      <div className="glass p-5 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Zap className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Q3 2026 Scenario Probabilities
+          </span>
+        </div>
+        <div className="space-y-4">
+          {scenarios.map((s) => (
+            <div key={s.title} className="space-y-1.5">
+              <div className="flex items-center justify-between text-[9px] font-mono">
+                <span className="text-slate-300">{s.title}</span>
+                <span className="text-white font-bold">{s.prob}%</span>
+              </div>
+              <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${s.prob}%` }}
+                  className={`h-full rounded-full ${s.prob > 40 ? 'bg-intel-red' : s.prob > 20 ? 'bg-intel-orange' : 'bg-intel-cyan'}`}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[7px] font-mono uppercase tracking-tighter text-slate-600">
+                <span>Impact: <span className={s.color}>{s.impact}</span></span>
+                <span>Confidence: HIGH</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="pt-2 border-t border-intel-border/30">
+          <p className="text-[8px] font-mono text-slate-600 leading-tight italic">
+            * Probabilities derived from Monte Carlo simulation (n=10,000) based on current RRI velocity and IMF deadlock duration.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 4 — REGIONAL HOTSPOTS & TRENDS
+    ============================================ */}
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Hotspots List */}
+      <div className="lg:col-span-1 glass p-5 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Globe className="w-3 h-3 text-intel-cyan" />
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+            Regional Hotspots
+          </span>
+        </div>
+        <div className="space-y-3">
+          {hotspots.map((h) => (
+            <div key={h.region} className="p-3 rounded-xl bg-black/20 border border-intel-border/30 space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-white">{h.region}</span>
+                <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
+                  h.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' :
+                  h.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' :
+                  'text-yellow-500 border-yellow-500/30 bg-yellow-500/10'
+                }`}>{h.risk}</span>
+              </div>
+              <div className="text-[10px] text-slate-400 leading-tight">{h.reason}</div>
+              <div className="flex items-center space-x-1 pt-1">
+                <span className="text-[8px] font-mono text-slate-600 uppercase">Trend:</span>
+                <span className={`text-[8px] font-mono ${h.trend === 'WORSENING' ? 'text-intel-red' : 'text-intel-cyan'}`}>{h.trend}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* RRI Trend Chart */}
+      <div className="lg:col-span-3 glass p-5 rounded-2xl border border-intel-border/50 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Activity className="w-3 h-3 text-intel-cyan" />
+            <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+              R(t) Index Trend — 30 Day Forecast
+            </span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-intel-cyan" />
+              <span className="text-[8px] font-mono text-slate-500">HISTORICAL</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 rounded-full bg-intel-orange border border-dashed border-intel-orange" />
+              <span className="text-[8px] font-mono text-slate-500">FORECAST</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="h-[200px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={[
+              { day: -15, val: 2.1 }, { day: -12, val: 2.3 }, { day: -9, val: 2.2 }, { day: -6, val: 2.5 }, { day: -3, val: 2.7 }, { day: 0, val: rriState.rri },
+              { day: 3, val: rriState.rri + 0.1, forecast: true }, { day: 6, val: rriState.rri + 0.25, forecast: true }, { day: 9, val: rriState.rri + 0.4, forecast: true }
+            ]}>
+              <XAxis dataKey="day" hide />
+              <YAxis domain={['dataMin - 0.5', 'dataMax + 0.5']} hide />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#000', border: '1px solid #1e293b', fontSize: '10px', fontFamily: 'monospace' }}
+                itemStyle={{ color: '#00d4ff' }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="val" 
+                stroke="#00d4ff" 
+                strokeWidth={2} 
+                dot={false}
+                strokeDasharray={(v: any) => v.forecast ? "5 5" : "0"}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="val" 
+                stroke="#ff9f0a" 
+                strokeWidth={2} 
+                dot={false}
+                strokeDasharray="5 5"
+                data={[
+                  { day: 0, val: rriState.rri },
+                  { day: 3, val: rriState.rri + 0.1 },
+                  { day: 6, val: rriState.rri + 0.25 },
+                  { day: 9, val: rriState.rri + 0.4 }
+                ]}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 pt-2 border-t border-intel-border/30">
+          <div className="text-center">
+            <div className="text-[8px] font-mono text-slate-600 uppercase">Mean Forecast</div>
+            <div className="text-xs font-bold text-white">{(rriState.rri + 0.25).toFixed(3)}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-[8px] font-mono text-slate-600 uppercase">Variance</div>
+            <div className="text-xs font-bold text-intel-orange">±0.12</div>
+          </div>
+          <div className="text-center">
+            <div className="text-[8px] font-mono text-slate-600 uppercase">Model Confidence</div>
+            <div className="text-xs font-bold text-intel-cyan">84%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 5 — LATEST INTELLIGENCE REPORTS
+    ============================================ */}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <FileText className="w-4 h-4 text-intel-cyan" />
+          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+            Latest Strategic Intelligence Reports
+          </span>
+        </div>
+        <button 
+          onClick={() => setActiveTab('overview')} // Or a dedicated reports tab if added
+          className="text-[10px] font-mono text-intel-cyan hover:underline"
+        >
+          Archive Access →
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {reports.map((report) => (
+          <div 
+            key={report.id}
+            onClick={() => setSelectedReport(report)}
+            className="group relative overflow-hidden rounded-2xl border border-intel-border/50 bg-black/40 hover:border-intel-cyan/30 transition-all cursor-pointer"
+          >
+            <div className="aspect-video w-full overflow-hidden relative">
+              <img 
+                src={report.image} 
+                alt={report.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-60 group-hover:opacity-80"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+              <div className="absolute top-3 left-3">
+                <span className="text-[8px] font-mono px-2 py-1 rounded bg-black/60 border border-white/10 text-white uppercase tracking-widest">
+                  {report.category}
+                </span>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="flex items-center justify-between text-[8px] font-mono text-slate-500">
+                <span>{report.id}</span>
+                <span>{report.date}</span>
+              </div>
+              <h3 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors line-clamp-2 leading-tight">
+                {report.title}
+              </h3>
+              <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
+                {report.summary}
+              </p>
+              <div className="flex items-center justify-between pt-2 border-t border-intel-border/30">
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded-full bg-intel-cyan/20 flex items-center justify-center">
+                    <Users className="w-2 h-2 text-intel-cyan" />
+                  </div>
+                  <span className="text-[8px] font-mono text-slate-500 uppercase">{report.author}</span>
+                </div>
+                <span className="text-[8px] font-mono text-slate-600">{report.readTime} READ</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* ============================================
+        ROW 6 — ACTIVE ALERTS
         Critical signals requiring analyst attention
     ============================================ */}
     <div className="space-y-2">

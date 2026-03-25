@@ -23,14 +23,16 @@ export const OSINTStream: React.FC = () => {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: "Get the latest 5 OSINT-style news updates about Tunisia (security, politics, economy, social). Format as a JSON array of objects with fields: source (e.g., 'TUNIS_INTEL', 'TAP_AGENCY'), time (e.g., '2h ago'), tags (array of uppercase strings), and content (brief, tactical description).",
+        contents: "Get the latest 5 OSINT-style news updates about Tunisia (security, politics, economy, social). Return ONLY a JSON array of objects with fields: source (e.g., 'TUNIS_INTEL', 'TAP_AGENCY'), time (e.g., '2h ago'), tags (array of uppercase strings), and content (brief, tactical description). Wrap the JSON in a markdown code block.",
         config: {
           tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
         },
       });
 
-      const data = JSON.parse(response.text);
+      const text = response.text;
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/);
+      const jsonStr = jsonMatch ? jsonMatch[1] : text;
+      const data = JSON.parse(jsonStr.trim());
       setNews(data);
 
       // Nudge RRI for each news item

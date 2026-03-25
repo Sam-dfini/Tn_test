@@ -109,7 +109,7 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
       <div className="mt-4 pt-2 border-t border-intel-cyan/10">
         <div className="flex items-center justify-between text-[7px] font-mono text-slate-600 uppercase">
           <span>Buffer Status: 98%</span>
-          <span>Encryption: AES-256</span>
+          <span>Pipeline: ACTIVE</span>
         </div>
       </div>
     </div>

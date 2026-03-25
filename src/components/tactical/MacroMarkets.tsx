@@ -97,11 +97,11 @@ export const MacroMarkets: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1 overflow-y-auto md:overflow-visible pr-2 md:pr-0 scrollbar-hide">
         {/* Column 1: Tunisia Markets */}
         <div className="space-y-4">
           <div className="text-[8px] font-mono text-slate-600 uppercase mb-2 border-b border-white/5 pb-1">Tunisia Markets</div>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
             {tunisiaMarkets.map(m => (
               <div key={m.label} className="group">
                 <div className="flex justify-between items-center mb-0.5">
@@ -122,8 +122,8 @@ export const MacroMarkets: React.FC = () => {
         {/* Column 2: Forex TND */}
         <div className="space-y-4">
           <div className="text-[8px] font-mono text-slate-600 uppercase mb-2 border-b border-white/5 pb-1">Forex (TND)</div>
-          <div className="grid grid-cols-1 gap-3">
-            {tunisiaMarkets.slice(0, 3).map(f => (
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+            {tunisiaMarkets.slice(0, 4).map(f => (
               <div key={f.label} className="p-2 bg-white/5 rounded border border-white/5 hover:border-intel-cyan/30 transition-all">
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-[8px] font-mono text-slate-500 uppercase">{f.label}</div>

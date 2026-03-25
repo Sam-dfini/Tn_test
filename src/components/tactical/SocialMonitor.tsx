@@ -44,14 +44,16 @@ export const SocialMonitor: React.FC = () => {
       const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       const response = await ai.models.generateContent({
         model: "gemini-2.0-flash",
-        contents: "Generate a tactical social media monitoring report for Tunisia. Include: 1. Top 8 trending hashtags in Tunisia (Arabic and Latin script). 2. 6 simulated but realistic trending news posts from platforms like WhatsApp, Telegram, Twitter, Facebook, and Discord. Format as a JSON object with two arrays: 'hashtags' (tag, count, trend: 'up'|'down'|'stable') and 'posts' (platform, user, time, content, verified: boolean, engagement).",
+        contents: "Generate a tactical social media monitoring report for Tunisia. Include: 1. Top 8 trending hashtags in Tunisia (Arabic and Latin script). 2. 6 simulated but realistic trending news posts from platforms like WhatsApp, Telegram, Twitter, Facebook, and Discord. Return ONLY a JSON object with two arrays: 'hashtags' (tag, count, trend: 'up'|'down'|'stable') and 'posts' (platform, user, time, content, verified: boolean, engagement). Wrap the JSON in a markdown code block.",
         config: {
           tools: [{ googleSearch: {} }],
-          responseMimeType: "application/json",
         },
       });
 
-      const data = JSON.parse(response.text);
+      const text = response.text;
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/```\n([\s\S]*?)\n```/);
+      const jsonStr = jsonMatch ? jsonMatch[1] : text;
+      const data = JSON.parse(jsonStr.trim());
       setHashtags(data.hashtags || []);
       setPosts(data.posts || []);
     } catch (err) {

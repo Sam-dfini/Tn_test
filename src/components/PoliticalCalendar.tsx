@@ -527,6 +527,14 @@ const CALENDAR_EVENTS: CalendarEvent[] = [
     description: 'Reporters Without Borders annual index. Tunisia rank expected to decline further.',
     source: 'RSF', upcoming: true, rriVariable: 'D44',
   },
+  {
+    id: 'CE021', date: '2026-03-28',
+    title: 'Civil Protest: Anti-Illegal Migration',
+    type: 'protest', severity: 4,
+    description: 'Coordinated civil protest against illegal immigration. Expected mobilization in Tunis and Sfax.',
+    source: 'Social Media Monitoring', governorate: 'Tunis/Sfax',
+    upcoming: true, rriImpact: '+0.04', rriVariable: 'S_MIGRATION',
+  },
 ];
 
 const getDaysSince = (dateStr: string): number => {
