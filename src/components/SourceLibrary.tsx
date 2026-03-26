@@ -5,8 +5,9 @@ import {
   Globe, RefreshCw, Check, AlertTriangle, Clock,
   Edit2, Trash2, ExternalLink, Search, Filter,
   Wifi, WifiOff, Loader, ChevronDown, ChevronRight,
-  Shield, Activity, Settings, Download
+  Shield, Activity, Settings, Download, Zap
 } from 'lucide-react';
+import { useRSS } from '../context/RSSContext';
 
 type SourceType = 'rss' | 'api' | 'file' | 'social';
 type SourceStatus = 'connected' | 'slow' | 'error' | 'untested' | 'testing';
@@ -753,7 +754,9 @@ const SourceCard: React.FC<{
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPipeline: (url: string) => void;
-}> = ({ source, onTest, onToggle, onDelete, onPipeline }) => {
+  articleCount?: number;
+  lastArticleDate?: string;
+}> = ({ source, onTest, onToggle, onDelete, onPipeline, articleCount, lastArticleDate }) => {
   const TYPE_CONFIG = {
     rss: { icon: Rss, color: 'text-intel-orange', label: 'RSS' },
     api: { icon: Database, color: 'text-intel-cyan', label: 'API' },
@@ -884,10 +887,18 @@ const SourceCard: React.FC<{
             )}
 
             {/* RSS specific info */}
-            {source.type === 'rss' && source.articleCount24h !== undefined && (
-              <div className="text-[8px] font-mono text-slate-600">
-                {source.articleCount24h} articles / 24h
-                {source.lastArticle && ` · Last: ${source.lastArticle}`}
+            {source.type === 'rss' && (
+              <div className="text-[8px] font-mono text-slate-600 flex items-center space-x-2">
+                <span className="flex items-center space-x-1">
+                  <Activity className="w-2.5 h-2.5 text-intel-cyan" />
+                  <span>{articleCount || 0} articles</span>
+                </span>
+                {lastArticleDate && (
+                  <span className="flex items-center space-x-1">
+                    <Clock className="w-2.5 h-2.5" />
+                    <span>Last: {new Date(lastArticleDate).toLocaleDateString()}</span>
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -945,6 +956,7 @@ export const SourceLibrary: React.FC<{
   isEmbedded?: boolean;
   onNavigateToPipeline?: (url: string) => void;
 }> = ({ onClose, isEmbedded = false, onNavigateToPipeline }) => {
+  const { articles, fetchNow, isFetching } = useRSS();
   const [sources, setSources] = useState<Source[]>(() => {
     try {
       const saved = localStorage.getItem('ti_sources');
@@ -1146,6 +1158,19 @@ export const SourceLibrary: React.FC<{
 
         {/* Search + Action buttons if embedded */}
         <div className="flex items-center space-x-4 shrink-0">
+          <button
+            onClick={fetchNow}
+            disabled={isFetching}
+            className={`flex items-center space-x-2 px-3 py-1.5
+              text-[10px] font-mono border rounded-lg transition-all ${
+              isFetching
+                ? 'text-slate-600 border-slate-800 cursor-not-allowed'
+                : 'text-intel-cyan border-intel-cyan/30 hover:bg-intel-cyan/10'
+            }`}
+          >
+            <RefreshCw className={`w-3 h-3 ${isFetching ? 'animate-spin' : ''}`} />
+            <span>{isFetching ? 'Syncing...' : 'Sync RSS'}</span>
+          </button>
           {isEmbedded && (
             <div className="flex items-center space-x-2">
               <button
@@ -1189,38 +1214,102 @@ export const SourceLibrary: React.FC<{
         </div>
       </div>
 
-      {/* Source list */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {filteredSources.length === 0 ? (
-          <div className="flex flex-col items-center justify-center
-            h-48 space-y-3 text-center">
-            <Globe className="w-8 h-8 text-slate-700" />
-            <div className="text-[11px] font-mono text-slate-600">
-              No sources found
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-hidden flex">
+        {/* Source list */}
+        <div className="flex-1 overflow-y-auto p-6 border-r border-white/5 no-scrollbar">
+          {filteredSources.length === 0 ? (
+            <div className="flex flex-col items-center justify-center
+              h-48 space-y-3 text-center">
+              <Globe className="w-8 h-8 text-slate-700" />
+              <div className="text-[11px] font-mono text-slate-600">
+                No sources found
+              </div>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="text-[10px] font-mono text-intel-cyan
+                  border border-intel-cyan/30 px-3 py-1.5 rounded-lg
+                  hover:bg-intel-cyan/10 transition-all"
+              >
+                + Add First Source
+              </button>
             </div>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="text-[10px] font-mono text-intel-cyan
-                border border-intel-cyan/30 px-3 py-1.5 rounded-lg
-                hover:bg-intel-cyan/10 transition-all"
-            >
-              + Add First Source
-            </button>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {filteredSources.map(source => {
+                const sourceArticles = articles.filter(a => a.url.includes(new URL(source.url).hostname));
+                const lastArticle = sourceArticles.length > 0 ? sourceArticles[0] : null;
+                
+                return (
+                  <SourceCard
+                    key={source.id}
+                    source={source}
+                    onTest={handleTest}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onPipeline={onNavigateToPipeline || handlePipeline}
+                    articleCount={sourceArticles.length}
+                    lastArticleDate={lastArticle?.published_at}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Intelligence Sidebar */}
+        <div className="w-80 bg-black/20 overflow-y-auto p-6 hidden xl:block no-scrollbar">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+              <Activity className="w-3.5 h-3.5 text-intel-cyan" />
+              <span>Recent Intelligence</span>
+            </h3>
+            <span className="text-[9px] font-mono text-slate-500">{articles.length} total</span>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {filteredSources.map(source => (
-              <SourceCard
-                key={source.id}
-                source={source}
-                onTest={handleTest}
-                onToggle={handleToggle}
-                onDelete={handleDelete}
-                onPipeline={onNavigateToPipeline || handlePipeline}
-              />
+
+          <div className="space-y-4">
+            {articles.slice(0, 15).map((article) => (
+              <div 
+                key={article.id} 
+                className="p-3 bg-white/5 border border-white/5 rounded-xl hover:border-intel-cyan/30 transition-all cursor-pointer group"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('pipeline-article', { 
+                    detail: { url: article.url, title: article.title } 
+                  }));
+                  onClose();
+                }}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[8px] font-mono text-intel-cyan uppercase">{article.source_name}</span>
+                  <span className="text-[8px] font-mono text-slate-600">
+                    {new Date(article.published_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <h4 className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors line-clamp-2 leading-relaxed">
+                  {article.title}
+                </h4>
+                {article.category && (
+                  <div className="mt-2 flex items-center space-x-2">
+                    <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase ${
+                      article.category === 'POLITICAL' ? 'bg-intel-red/10 text-intel-red' :
+                      article.category === 'ECONOMIC' ? 'bg-intel-cyan/10 text-intel-cyan' :
+                      article.category === 'SECURITY' ? 'bg-intel-orange/10 text-intel-orange' :
+                      'bg-slate-500/10 text-slate-500'
+                    }`}>
+                      {article.category}
+                    </span>
+                  </div>
+                )}
+              </div>
             ))}
+            {articles.length === 0 && (
+              <div className="py-12 text-center">
+                <Clock className="w-8 h-8 text-slate-800 mx-auto mb-3" />
+                <p className="text-[10px] font-mono text-slate-600">No recent articles found. Try syncing RSS feeds.</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Add source modal */}

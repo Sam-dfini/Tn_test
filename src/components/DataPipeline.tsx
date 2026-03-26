@@ -23,9 +23,12 @@ import {
   Shield,
   Info,
   Clock,
-  ArrowLeft
+  ArrowLeft,
+  Rss,
+  Activity
 } from 'lucide-react';
 import { usePipeline } from '../context/PipelineContext';
+import { useRSS } from '../context/RSSContext';
 import { SourceLibrary } from './SourceLibrary';
 import { 
   extractFieldsFromContent, 
@@ -55,6 +58,7 @@ export const DataPipeline: React.FC<{
   initialTab?: 'pipeline' | 'sources'
 }> = ({ onClose, initialTab = 'pipeline' }) => {
   const { data, pushApprovedChanges } = usePipeline();
+  const { articles } = useRSS();
   
   const [activeTab, setActiveTab] = useState<'pipeline' | 'sources'>(initialTab);
   const [documents, setDocuments] = useState<IngestedDoc[]>([
@@ -293,6 +297,53 @@ export const DataPipeline: React.FC<{
                         ))}
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-md">
+                  <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest mb-6 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Rss className="w-4 h-4 text-intel-cyan" />
+                      <span>Pending Intelligence</span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 font-normal">{articles.length} New</span>
+                  </h3>
+
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                    {articles.slice(0, 10).map((article) => (
+                      <div 
+                        key={article.id} 
+                        onClick={() => handleExtractDocument(article.url, article.title)}
+                        className="p-4 bg-black/40 border border-white/5 rounded-xl group hover:border-intel-cyan/30 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-start justify-between mb-1">
+                          <span className="text-[8px] font-mono text-intel-cyan uppercase">{article.source_name}</span>
+                          <span className="text-[8px] font-mono text-slate-600">
+                            {new Date(article.published_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors line-clamp-2">
+                          {article.title}
+                        </div>
+                        {article.category && (
+                          <div className="mt-2">
+                            <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase ${
+                              article.category === 'POLITICAL' ? 'bg-intel-red/10 text-intel-red' :
+                              article.category === 'ECONOMIC' ? 'bg-intel-cyan/10 text-intel-cyan' :
+                              article.category === 'SECURITY' ? 'bg-intel-orange/10 text-intel-orange' :
+                              'bg-slate-500/10 text-slate-500'
+                            }`}>
+                              {article.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {articles.length === 0 && (
+                      <div className="py-8 text-center">
+                        <p className="text-[10px] font-mono text-slate-600 italic">No pending articles. Sync RSS in Source Library.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

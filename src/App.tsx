@@ -27,7 +27,8 @@ import {
   Download,
   Home,
   Cpu,
-  HelpCircle
+  HelpCircle,
+  RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
@@ -61,7 +62,12 @@ import { generateAnalystResponse } from './services/geminiService';
 import actorData from './data/actors.json';
 
 import { Onboarding } from './components/Onboarding';
-import { PipelineProvider } from './context/PipelineContext';
+import { PipelineProvider, usePipeline } from './context/PipelineContext';
+import { RSSProvider } from './context/RSSContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { NotificationBell } from './components/NotificationPanel';
+import { NotificationToast } from './components/NotificationToast';
+import { useNotificationTriggers } from './hooks/useNotificationTriggers';
 
 // Components
 const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: boolean, onClose: () => void, context: any, variant?: 'sidebar' | 'floating' }) => {
@@ -69,6 +75,22 @@ const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: 
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([{ 
+        role: 'ai', 
+        text: "TUNISIAINTEL v2.0 is ready. I specialize in public OSINT for Tunisia.\n\nTry asking about a specific company or person, recent news in a governorate, location intelligence, or economic developments.\n\nWhat would you like to investigate today?" 
+      }]);
+    }
+  }, []);
+
+  const clearChat = () => {
+    setMessages([{ 
+      role: 'ai', 
+      text: "TUNISIAINTEL v2.0 is ready. I specialize in public OSINT for Tunisia.\n\nTry asking about a specific company or person, recent news in a governorate, location intelligence, or economic developments.\n\nWhat would you like to investigate today?" 
+    }]);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -117,24 +139,17 @@ const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: 
                 <div className="text-[8px] font-mono text-intel-green uppercase">OSINT Intelligence Assistant</div>
               </div>
             </div>
-            <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button onClick={clearChat} className="p-1.5 text-slate-500 hover:text-intel-cyan transition-colors" title="Clear Chat">
+                <RotateCcw className="w-4 h-4" />
+              </button>
+              <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
-            {messages.length === 0 && (
-              <div className="text-center py-8">
-                <div className="w-10 h-10 bg-intel-border rounded-full flex items-center justify-center mx-auto mb-3 opacity-50">
-                  <MessageSquare className="w-5 h-6 text-slate-500" />
-                </div>
-                <p className="text-[10px] text-slate-500 px-4 leading-relaxed">
-                  TUNISIAINTEL v2.0 here. Here's what I found...
-                  <br/>
-                  Ask any intelligence question about Tunisia's people, companies, or events.
-                </p>
-              </div>
-            )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`max-w-[90%] p-3 rounded-xl text-[11px] leading-relaxed ${
@@ -378,13 +393,6 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
 };
 
 const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, onGoHome }: { onOpenPipeline: (tab?: 'pipeline' | 'sources') => void, onOpenMethodology: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
-  const notifications = [
-    { id: 1, title: 'RRI Alert: Sfax', message: 'Risk score increased by 0.45 in the last 24h.', time: '12m ago', type: 'alert' },
-    { id: 2, title: 'New Report Available', message: 'Strategic Stability Outlook: Q2 2026 is now live.', time: '1h ago', type: 'info' },
-    { id: 3, title: 'System Sync', message: 'Database synchronization completed successfully.', time: '3h ago', type: 'success' },
-  ];
-
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-30">
       {/* Left side secondary info */}
@@ -405,62 +413,7 @@ const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, 
       {/* Right side profile */}
       <div className="flex items-center justify-end space-x-3 md:space-x-6">
         <div className="flex items-center space-x-2">
-          <div className="relative">
-            <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className={`p-2 rounded-lg border transition-all relative ${
-                showNotifications 
-                  ? 'bg-intel-red/10 border-intel-red/40 text-intel-red glow-red' 
-                  : 'bg-intel-card border-intel-border text-slate-500 hover:text-white hover:border-slate-700'
-              }`}
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-intel-red rounded-full border border-intel-bg"></span>
-            </button>
-
-            <AnimatePresence>
-              {showNotifications && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowNotifications(false)}
-                  ></div>
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-80 bg-intel-card border border-intel-border rounded-2xl shadow-2xl z-50 overflow-hidden"
-                  >
-                    <div className="p-4 border-b border-intel-border flex items-center justify-between bg-white/5">
-                      <h3 className="text-xs font-bold text-white uppercase tracking-widest">Intelligence Alerts</h3>
-                      <span className="text-[8px] font-mono text-intel-cyan uppercase">3 New</span>
-                    </div>
-                    <div className="max-h-96 overflow-y-auto scrollbar-hide">
-                      {notifications.map((n) => (
-                        <div key={n.id} className="p-4 border-b border-intel-border last:border-0 hover:bg-white/5 transition-colors cursor-pointer group">
-                          <div className="flex items-start justify-between mb-1">
-                            <span className={`text-[10px] font-bold uppercase tracking-tighter ${
-                              n.type === 'alert' ? 'text-intel-red' : 
-                              n.type === 'success' ? 'text-intel-green' : 'text-intel-cyan'
-                            }`}>
-                              {n.title}
-                            </span>
-                            <span className="text-[8px] font-mono text-slate-600 uppercase">{n.time}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
-                            {n.message}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                    <button className="w-full py-3 text-[9px] font-mono text-slate-500 hover:text-white uppercase tracking-widest bg-white/5 hover:bg-white/10 transition-all">
-                      View All Notifications
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
+          <NotificationBell />
 
           <button 
             onClick={onGoHome}
@@ -526,6 +479,16 @@ const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, 
 };
 
 const DEFAULT_REGIME_AGE = { age_pct: 0.29, years: 5 };
+
+const NotificationTriggerWatcher: React.FC = () => {
+  useNotificationTriggers();
+  return null;
+};
+
+const RSSProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { rriState } = usePipeline();
+  return <RSSProvider rriState={rriState}>{children}</RSSProvider>;
+};
 
 export default function App() {
   const [appMode, setAppMode] = useState<'simplified' | 'advanced' | 'professional' | null>(null);
@@ -740,154 +703,161 @@ export default function App() {
   };
 
   return (
-    <PipelineProvider>
-      <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
-        <AnimatePresence mode="wait">
-          {showOnboarding && (
-            <Onboarding onComplete={handleOnboardingComplete} />
-          )}
-          {!appMode ? (
-            <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
-              <ModeSelection onSelect={handleModeSelect} />
-            </motion.div>
-          ) : isInitializing ? (
-            <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
-              <TacticalLoading mode={appMode} onComplete={handleTacticalLoadingComplete} />
-            </motion.div>
-          ) : appMode === 'advanced' ? (
-            <motion.div 
-              key="tactical-app" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              transition={{ duration: 0.8 }}
-            >
-              <TacticalDashboard 
-                governorates={governorates} 
-                events={events} 
-                onOpenAI={() => setIsAIAnalystOpen(true)} 
-                onGoHome={() => setAppMode(null)}
-                data={tacticalData}
-              />
-            </motion.div>
-          ) : appMode === 'simplified' ? (
-            <motion.div 
-              key="citizen-app" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              transition={{ duration: 0.8 }}
-              className="min-h-screen bg-intel-bg"
-            >
-              <CitizenEdition 
-                governorates={governorates} 
-                events={events} 
-                rri={rri} 
-                pRev={pRev} 
-                onOpenAI={() => setIsAIAnalystOpen(true)}
-                onGoHome={() => setAppMode(null)}
-                data={{
-                  rri,
-                  pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements
-                }}
-              />
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="app" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              transition={{ duration: 0.8 }}
-              className="min-h-screen"
-            >
-              <Header 
-                onOpenPipeline={(tab) => {
-                  setPipelineInitialTab(tab || 'pipeline');
-                  setIsPipelineOpen(true);
-                }}
-                onOpenMethodology={() => setIsMethodologyOpen(true)}
-                activeTab={activeTab}
-                onOpenAI={() => setIsAIAnalystOpen(true)}
-                onGoHome={() => setAppMode(null)}
-                data={{
-                  rri,
-                  p_rev: pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements
-                }}
-              />
-              
-              <main className="pt-16 pb-16 min-h-screen">
-                <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={activeTab}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.3 }}
-                      className="py-8"
-                    >
-                      {renderContent()}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </main>
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <NotificationProvider>
+      <PipelineProvider>
+        <NotificationTriggerWatcher />
+        <RSSProviderWrapper>
+          <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30">
+          <AnimatePresence mode="wait">
+            {showOnboarding && (
+              <Onboarding onComplete={handleOnboardingComplete} />
+            )}
+            {!appMode ? (
+              <motion.div key="mode-selection" exit={{ opacity: 0 }} transition={{ duration: 0.5 }}>
+                <ModeSelection onSelect={handleModeSelect} />
+              </motion.div>
+            ) : isInitializing ? (
+              <motion.div key="loader" exit={{ opacity: 0, scale: 1.1 }} transition={{ duration: 0.5 }}>
+                <TacticalLoading mode={appMode} onComplete={handleTacticalLoadingComplete} />
+              </motion.div>
+            ) : appMode === 'advanced' ? (
+              <motion.div 
+                key="tactical-app" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ duration: 0.8 }}
+              >
+                <TacticalDashboard 
+                  governorates={governorates} 
+                  events={events} 
+                  onOpenAI={() => setIsAIAnalystOpen(true)} 
+                  onGoHome={() => setAppMode(null)}
+                  data={tacticalData}
+                />
+              </motion.div>
+            ) : appMode === 'simplified' ? (
+              <motion.div 
+                key="citizen-app" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ duration: 0.8 }}
+                className="min-h-screen bg-intel-bg"
+              >
+                <CitizenEdition 
+                  governorates={governorates} 
+                  events={events} 
+                  rri={rri} 
+                  pRev={pRev} 
+                  onOpenAI={() => setIsAIAnalystOpen(true)}
+                  onGoHome={() => setAppMode(null)}
+                  data={{
+                    rri,
+                    pRev,
+                    events,
+                    governorates,
+                    actors: actorData.actors,
+                    movements: actorData.movements
+                  }}
+                />
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="app" 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ duration: 0.8 }}
+                className="min-h-screen"
+              >
+                <Header 
+                  onOpenPipeline={(tab) => {
+                    setPipelineInitialTab(tab || 'pipeline');
+                    setIsPipelineOpen(true);
+                  }}
+                  onOpenMethodology={() => setIsMethodologyOpen(true)}
+                  activeTab={activeTab}
+                  onOpenAI={() => setIsAIAnalystOpen(true)}
+                  onGoHome={() => setAppMode(null)}
+                  data={{
+                    rri,
+                    p_rev: pRev,
+                    events,
+                    governorates,
+                    actors: actorData.actors,
+                    movements: actorData.movements
+                  }}
+                />
+                
+                <main className="pt-16 pb-16 min-h-screen">
+                  <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="py-8"
+                      >
+                        {renderContent()}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                </main>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        <AnimatePresence>
-          {isPipelineOpen && (
-            <DataPipeline 
-              onClose={() => setIsPipelineOpen(false)} 
-              initialTab={pipelineInitialTab}
-            />
-          )}
-        </AnimatePresence>
+          <AnimatePresence>
+            {isPipelineOpen && (
+              <DataPipeline 
+                onClose={() => setIsPipelineOpen(false)} 
+                initialTab={pipelineInitialTab}
+              />
+            )}
+          </AnimatePresence>
 
-        <AnimatePresence>
-          {isMethodologyOpen && (
-            <RRIMethodology 
-              onClose={() => setIsMethodologyOpen(false)} 
-              onNavigateToPipeline={(tab) => {
-                if (tab === 'pipeline') {
-                  setActiveTab('simulation');
-                  setPipelineInitialTab('pipeline');
-                  setIsPipelineOpen(true);
-                  setIsMethodologyOpen(false);
-                }
-              }}
-              jumpToEquation={methodologyEquation} 
-            />
-          )}
-        </AnimatePresence>
+          <AnimatePresence>
+            {isMethodologyOpen && (
+              <RRIMethodology 
+                onClose={() => setIsMethodologyOpen(false)} 
+                onNavigateToPipeline={(tab) => {
+                  if (tab === 'pipeline') {
+                    setActiveTab('simulation');
+                    setPipelineInitialTab('pipeline');
+                    setIsPipelineOpen(true);
+                    setIsMethodologyOpen(false);
+                  }
+                }}
+                jumpToEquation={methodologyEquation} 
+              />
+            )}
+          </AnimatePresence>
 
-        {/* Floating Chat Widget Trigger */}
-        <div className="fixed bottom-6 right-6 z-[70]">
-          <button 
-            onClick={() => setIsAIAnalystOpen(!isAIAnalystOpen)}
-            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${
-              isAIAnalystOpen 
-                ? 'bg-intel-red text-white rotate-90' 
-                : 'bg-intel-cyan text-black hover:scale-110'
-            }`}
-          >
-            {isAIAnalystOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
-          </button>
+          {/* Floating Chat Widget Trigger */}
+          <div className="fixed bottom-6 right-6 z-[70]">
+            <button 
+              onClick={() => setIsAIAnalystOpen(!isAIAnalystOpen)}
+              className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${
+                isAIAnalystOpen 
+                  ? 'bg-intel-red text-white rotate-90' 
+                  : 'bg-intel-cyan text-black hover:scale-110'
+              }`}
+            >
+              {isAIAnalystOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
+            </button>
+          </div>
+
+          <AIAnalyst 
+            isOpen={isAIAnalystOpen} 
+            onClose={() => setIsAIAnalystOpen(false)} 
+            variant="floating"
+            context={tacticalData}
+          />
+
+          <NotificationToast />
         </div>
-
-        <AIAnalyst 
-          isOpen={isAIAnalystOpen} 
-          onClose={() => setIsAIAnalystOpen(false)} 
-          variant="floating"
-          context={tacticalData}
-        />
-      </div>
+      </RSSProviderWrapper>
     </PipelineProvider>
-  );
+  </NotificationProvider>
+);
 }

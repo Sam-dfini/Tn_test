@@ -382,6 +382,19 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         label: path,
         timestamp: new Date().toISOString()
       });
+
+      // Dispatch window event for notifications
+      window.dispatchEvent(new CustomEvent('ti:pipeline:push', {
+        detail: {
+          fields_updated: 1,
+          new_rri: rriState.rri,
+          changes: [{
+            field: path,
+            oldValue,
+            newValue: value,
+          }]
+        }
+      }));
       
       return next;
     });
@@ -417,6 +430,20 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
 
       next.last_pipeline_push = new Date().toISOString();
+
+      // Dispatch window event for notifications
+      window.dispatchEvent(new CustomEvent('ti:pipeline:push', {
+        detail: {
+          fields_updated: changes.length,
+          new_rri: rriState.rri,
+          changes: changes.map(c => ({
+            field: c.field,
+            oldValue: c.oldValue,
+            newValue: c.value,
+          }))
+        }
+      }));
+
       return next;
     });
 
