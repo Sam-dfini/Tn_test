@@ -461,6 +461,7 @@ const AddSourceModal: React.FC<{
     setTestResult(null);
     const result = await testConnection({
       ...form,
+      keywords: form.keywords ? form.keywords.split(',').map(k => k.trim()) : [],
       id: 'test',
       status: 'testing',
       addedAt: new Date().toISOString(),

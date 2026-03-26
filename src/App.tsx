@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Map as MapIcon, 
   BarChart3, 
@@ -30,6 +30,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Markdown from 'react-markdown';
 import governoratesData from './data/governorates.json';
 import eventsData from './data/events.json';
 import rriData from './data/rri_variables.json';
@@ -63,10 +64,17 @@ import { Onboarding } from './components/Onboarding';
 import { PipelineProvider } from './context/PipelineContext';
 
 // Components
-const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () => void, context: any }) => {
+const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: boolean, onClose: () => void, context: any, variant?: 'sidebar' | 'floating' }) => {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
   const handleSend = async () => {
     if (!query.trim() || isLoading) return;
@@ -86,23 +94,27 @@ const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () 
     }
   };
 
+  const containerClasses = variant === 'sidebar' 
+    ? "fixed top-0 right-0 bottom-16 w-full sm:w-[400px] bg-intel-card border-l border-intel-border z-[60] flex flex-col shadow-2xl"
+    : "fixed bottom-24 right-6 w-[350px] h-[500px] bg-intel-card border border-intel-border rounded-2xl z-[60] flex flex-col shadow-2xl overflow-hidden";
+
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          initial={{ opacity: 0, x: 400 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 400 }}
-          className="fixed top-0 right-0 bottom-16 w-full sm:w-[400px] bg-intel-card border-l border-intel-border z-[60] flex flex-col shadow-2xl"
+          initial={variant === 'sidebar' ? { opacity: 0, x: 400 } : { opacity: 0, y: 20, scale: 0.95 }}
+          animate={variant === 'sidebar' ? { opacity: 1, x: 0 } : { opacity: 1, y: 0, scale: 1 }}
+          exit={variant === 'sidebar' ? { opacity: 0, x: 400 } : { opacity: 0, y: 20, scale: 0.95 }}
+          className={containerClasses}
         >
-          <div className="p-6 border-b border-intel-border flex items-center justify-between bg-intel-bg/50">
+          <div className="p-4 border-b border-intel-border flex items-center justify-between bg-intel-bg/50 shrink-0">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-lg bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/20">
                 <Zap className="text-intel-cyan w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">AI Analyst</h3>
-                <div className="text-[8px] font-mono text-intel-green uppercase">Grounded in Platform Data</div>
+                <h3 className="text-xs font-bold text-white uppercase tracking-widest">TUNISIAINTEL v2.0</h3>
+                <div className="text-[8px] font-mono text-intel-green uppercase">OSINT Intelligence Assistant</div>
               </div>
             </div>
             <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
@@ -110,42 +122,50 @@ const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () 
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
             {messages.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-12 h-12 bg-intel-border rounded-full flex items-center justify-center mx-auto mb-4 opacity-50">
-                  <MessageSquare className="w-6 h-6 text-slate-500" />
+              <div className="text-center py-8">
+                <div className="w-10 h-10 bg-intel-border rounded-full flex items-center justify-center mx-auto mb-3 opacity-50">
+                  <MessageSquare className="w-5 h-6 text-slate-500" />
                 </div>
-                <p className="text-xs text-slate-500 px-8">
-                  Ask any intelligence question about the current RRI state, recent events, or governorate risk levels.
+                <p className="text-[10px] text-slate-500 px-4 leading-relaxed">
+                  TUNISIAINTEL v2.0 here. Here's what I found...
+                  <br/>
+                  Ask any intelligence question about Tunisia's people, companies, or events.
                 </p>
               </div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                <div className={`max-w-[85%] p-3 rounded-xl text-xs leading-relaxed ${
+                <div className={`max-w-[90%] p-3 rounded-xl text-[11px] leading-relaxed ${
                   msg.role === 'user' 
                     ? 'bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20' 
                     : 'bg-white/5 text-slate-300 border border-intel-border'
                 }`}>
-                  {msg.text}
+                  {msg.role === 'ai' ? (
+                    <div className="markdown-body">
+                      <Markdown>{msg.text}</Markdown>
+                    </div>
+                  ) : (
+                    msg.text
+                  )}
                 </div>
-                <span className="text-[8px] font-mono text-slate-600 mt-1 uppercase">
-                  {msg.role === 'user' ? 'Analyst' : 'TUNISIAINTEL AI'}
+                <span className="text-[7px] font-mono text-slate-600 mt-1 uppercase">
+                  {msg.role === 'user' ? 'Analyst' : 'TUNISIAINTEL v2.0'}
                 </span>
               </div>
             ))}
             {isLoading && (
-              <div className="flex items-center space-x-2 text-intel-cyan animate-pulse">
+              <div className="flex items-center space-x-2 text-intel-cyan animate-pulse p-2">
                 <div className="w-1 h-1 bg-intel-cyan rounded-full"></div>
                 <div className="w-1 h-1 bg-intel-cyan rounded-full"></div>
                 <div className="w-1 h-1 bg-intel-cyan rounded-full"></div>
-                <span className="text-[8px] font-mono uppercase">Synthesizing...</span>
+                <span className="text-[7px] font-mono uppercase">Synthesizing...</span>
               </div>
             )}
           </div>
 
-          <div className="p-6 border-t border-intel-border bg-intel-bg/50">
+          <div className="p-4 border-t border-intel-border bg-intel-bg/50 shrink-0">
             <div className="relative">
               <input 
                 type="text" 
@@ -153,19 +173,19 @@ const AIAnalyst = ({ isOpen, onClose, context }: { isOpen: boolean, onClose: () 
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 placeholder="Ask intelligence query..."
-                className="w-full bg-intel-card border border-intel-border rounded-xl px-4 py-3 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 transition-colors pr-12"
+                className="w-full bg-intel-card border border-intel-border rounded-xl px-4 py-2.5 text-[11px] text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 transition-colors pr-10"
               />
               <button 
                 onClick={handleSend}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-intel-cyan hover:bg-intel-cyan/10 rounded-lg transition-colors"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 text-intel-cyan hover:bg-intel-cyan/10 rounded-lg transition-colors"
               >
-                <ChevronUp className="w-4 h-4 rotate-90" />
+                <ChevronUp className="w-3.5 h-3.5 rotate-90" />
               </button>
             </div>
-            <div className="mt-3 flex items-center justify-center space-x-4">
-               <button className="text-[8px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Situation Brief</button>
-               <button className="text-[8px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Risk Assessment</button>
-               <button className="text-[8px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Actor Dossier</button>
+            <div className="mt-2 flex items-center justify-center space-x-3">
+               <button onClick={() => setQuery("Situation Brief")} className="text-[7px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Brief</button>
+               <button onClick={() => setQuery("Risk Assessment")} className="text-[7px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Risk</button>
+               <button onClick={() => setQuery("Actor Dossier")} className="text-[7px] font-mono text-slate-500 hover:text-intel-cyan uppercase">Actor</button>
             </div>
           </div>
         </motion.div>
@@ -748,19 +768,6 @@ export default function App() {
                 onGoHome={() => setAppMode(null)}
                 data={tacticalData}
               />
-              <AIAnalyst 
-                isOpen={isAIAnalystOpen} 
-                onClose={() => setIsAIAnalystOpen(false)} 
-                context={{
-                  rri,
-                  pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements,
-                  activeTab
-                }}
-              />
             </motion.div>
           ) : appMode === 'simplified' ? (
             <motion.div 
@@ -784,19 +791,6 @@ export default function App() {
                   governorates,
                   actors: actorData.actors,
                   movements: actorData.movements
-                }}
-              />
-              <AIAnalyst 
-                isOpen={isAIAnalystOpen} 
-                onClose={() => setIsAIAnalystOpen(false)} 
-                context={{
-                  rri,
-                  pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements,
-                  activeTab
                 }}
               />
             </motion.div>
@@ -827,19 +821,6 @@ export default function App() {
                 }}
               />
               
-              <AIAnalyst 
-                isOpen={isAIAnalystOpen} 
-                onClose={() => setIsAIAnalystOpen(false)} 
-                context={{
-                  rri,
-                  p_rev: pRev,
-                  events,
-                  governorates,
-                  actors: actorData.actors,
-                  movements: actorData.movements,
-                  activeTab
-                }}
-              />
               <main className="pt-16 pb-16 min-h-screen">
                 <div className="w-full max-w-7xl px-4 md:px-8 mx-auto">
                   <AnimatePresence mode="wait">
@@ -885,6 +866,27 @@ export default function App() {
             />
           )}
         </AnimatePresence>
+
+        {/* Floating Chat Widget Trigger */}
+        <div className="fixed bottom-6 right-6 z-[70]">
+          <button 
+            onClick={() => setIsAIAnalystOpen(!isAIAnalystOpen)}
+            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 ${
+              isAIAnalystOpen 
+                ? 'bg-intel-red text-white rotate-90' 
+                : 'bg-intel-cyan text-black hover:scale-110'
+            }`}
+          >
+            {isAIAnalystOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
+          </button>
+        </div>
+
+        <AIAnalyst 
+          isOpen={isAIAnalystOpen} 
+          onClose={() => setIsAIAnalystOpen(false)} 
+          variant="floating"
+          context={tacticalData}
+        />
       </div>
     </PipelineProvider>
   );

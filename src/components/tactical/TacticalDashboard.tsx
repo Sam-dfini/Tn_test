@@ -44,6 +44,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   const { rriState, data: pipelineData } = usePipeline();
   const [geofenceAlerts, setGeofenceAlerts] = React.useState<any[]>([]);
   const [activeRegion, setActiveRegion] = React.useState('National');
+  const [viewMode, setViewMode] = React.useState<'MAP' | 'INTEL'>('MAP');
   const [leftCollapsed, setLeftCollapsed] = React.useState(window.innerWidth < 1024);
   const [rightTab, setRightTab] = React.useState<
     'intel' | 'media' | 'social' | 'signals' | 'markets' | 'leverage'
@@ -74,6 +75,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
         data={data}
         activeRegion={activeRegion}
         onRegionChange={setActiveRegion}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {/* Main content — fills remaining height */}

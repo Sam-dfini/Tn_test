@@ -855,7 +855,6 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
                 stroke="#00d4ff" 
                 strokeWidth={2} 
                 dot={false}
-                strokeDasharray={(v: any) => v.forecast ? "5 5" : "0"}
               />
               <Line 
                 type="monotone" 
