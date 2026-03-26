@@ -941,7 +941,9 @@ const SourceCard: React.FC<{
 
 export const SourceLibrary: React.FC<{
   onClose: () => void;
-}> = ({ onClose }) => {
+  isEmbedded?: boolean;
+  onNavigateToPipeline?: (url: string) => void;
+}> = ({ onClose, isEmbedded = false, onNavigateToPipeline }) => {
   const [sources, setSources] = useState<Source[]>(() => {
     try {
       const saved = localStorage.getItem('ti_sources');
@@ -1048,74 +1050,70 @@ export const SourceLibrary: React.FC<{
     { id: 'social', label: 'Social Media', icon: Share2, count: sources.filter(s => s.type === 'social').length },
   ];
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-[#020810]/98
-        backdrop-blur-md overflow-hidden flex flex-col"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4
-        border-b border-intel-border bg-black/60 shrink-0">
-        <div className="flex items-center space-x-4">
-          <Globe className="w-5 h-5 text-intel-cyan" />
-          <div>
-            <div className="text-sm font-bold text-white uppercase
-              tracking-widest">Source Library</div>
-            <div className="text-[9px] font-mono text-slate-500">
-              {stats.total} sources ·
-              <span className="text-intel-green"> {stats.connected} connected</span>
-              {stats.errors > 0 && (
-                <span className="text-intel-red"> · {stats.errors} errors</span>
-              )}
-              · {stats.rssActive} RSS active
+  const content = (
+    <div className={`flex flex-col h-full ${isEmbedded ? '' : 'bg-[#020810]/98 backdrop-blur-md'}`}>
+      {/* Header - Only show if not embedded */}
+      {!isEmbedded && (
+        <div className="flex items-center justify-between px-6 py-4
+          border-b border-intel-border bg-black/60 shrink-0">
+          <div className="flex items-center space-x-4">
+            <Globe className="w-5 h-5 text-intel-cyan" />
+            <div>
+              <div className="text-sm font-bold text-white uppercase
+                tracking-widest">Source Library</div>
+              <div className="text-[9px] font-mono text-slate-500">
+                {stats.total} sources ·
+                <span className="text-intel-green"> {stats.connected} connected</span>
+                {stats.errors > 0 && (
+                  <span className="text-intel-red"> · {stats.errors} errors</span>
+                )}
+                · {stats.rssActive} RSS active
+              </div>
             </div>
           </div>
+
+          <div className="flex items-center space-x-3">
+            {/* Test all button */}
+            <button
+              onClick={handleTestAll}
+              disabled={testingAll}
+              className={`flex items-center space-x-2 px-3 py-1.5
+                text-[10px] font-mono border rounded-lg transition-all ${
+                testingAll
+                  ? 'text-slate-600 border-slate-800 cursor-not-allowed'
+                  : 'text-slate-400 border-intel-border hover:text-intel-cyan hover:border-intel-cyan/30'
+              }`}
+            >
+              <RefreshCw className={`w-3 h-3 ${testingAll ? 'animate-spin' : ''}`} />
+              <span>{testingAll ? 'Testing...' : 'Test All'}</span>
+            </button>
+
+            {/* Add source button */}
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center space-x-2 px-3 py-1.5
+                text-[10px] font-mono text-intel-cyan border
+                border-intel-cyan/30 bg-intel-cyan/10 rounded-lg
+                hover:bg-intel-cyan/20 transition-all"
+            >
+              <Plus className="w-3 h-3" />
+              <span>Add Source</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-500 hover:text-white
+                hover:bg-white/5 rounded-lg transition-all"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-
-        <div className="flex items-center space-x-3">
-          {/* Test all button */}
-          <button
-            onClick={handleTestAll}
-            disabled={testingAll}
-            className={`flex items-center space-x-2 px-3 py-1.5
-              text-[10px] font-mono border rounded-lg transition-all ${
-              testingAll
-                ? 'text-slate-600 border-slate-800 cursor-not-allowed'
-                : 'text-slate-400 border-intel-border hover:text-intel-cyan hover:border-intel-cyan/30'
-            }`}
-          >
-            <RefreshCw className={`w-3 h-3 ${testingAll ? 'animate-spin' : ''}`} />
-            <span>{testingAll ? 'Testing...' : 'Test All'}</span>
-          </button>
-
-          {/* Add source button */}
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center space-x-2 px-3 py-1.5
-              text-[10px] font-mono text-intel-cyan border
-              border-intel-cyan/30 bg-intel-cyan/10 rounded-lg
-              hover:bg-intel-cyan/20 transition-all"
-          >
-            <Plus className="w-3 h-3" />
-            <span>Add Source</span>
-          </button>
-
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-white
-              hover:bg-white/5 rounded-lg transition-all"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Type tabs + search */}
-      <div className="flex items-center justify-between px-6 py-3
-        border-b border-intel-border bg-black/40 shrink-0 gap-4">
+      <div className={`flex items-center justify-between px-6 py-3
+        border-b border-intel-border bg-black/40 shrink-0 gap-4 ${isEmbedded ? 'bg-transparent' : ''}`}>
         {/* Type tabs */}
         <div className="flex items-center space-x-1 overflow-x-auto
           scrollbar-hide">
@@ -1145,19 +1143,48 @@ export const SourceLibrary: React.FC<{
           })}
         </div>
 
-        {/* Search */}
-        <div className="relative shrink-0">
-          <Search className="w-3 h-3 text-slate-500 absolute left-3
-            top-1/2 -translate-y-1/2" />
-          <input
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search sources..."
-            className="bg-black/40 border border-intel-border rounded-lg
-              pl-8 pr-3 py-1.5 text-[11px] font-mono text-slate-300
-              placeholder-slate-700 focus:outline-none
-              focus:border-intel-cyan/40 w-48"
-          />
+        {/* Search + Action buttons if embedded */}
+        <div className="flex items-center space-x-4 shrink-0">
+          {isEmbedded && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleTestAll}
+                disabled={testingAll}
+                className={`flex items-center space-x-2 px-3 py-1.5
+                  text-[10px] font-mono border rounded-lg transition-all ${
+                  testingAll
+                    ? 'text-slate-600 border-slate-800 cursor-not-allowed'
+                    : 'text-slate-400 border-intel-border hover:text-intel-cyan hover:border-intel-cyan/30'
+                }`}
+              >
+                <RefreshCw className={`w-3 h-3 ${testingAll ? 'animate-spin' : ''}`} />
+                <span>{testingAll ? 'Testing...' : 'Test All'}</span>
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center space-x-2 px-3 py-1.5
+                  text-[10px] font-mono text-intel-cyan border
+                  border-intel-cyan/30 bg-intel-cyan/10 rounded-lg
+                  hover:bg-intel-cyan/20 transition-all"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Add Source</span>
+              </button>
+            </div>
+          )}
+          <div className="relative">
+            <Search className="w-3 h-3 text-slate-500 absolute left-3
+              top-1/2 -translate-y-1/2" />
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search sources..."
+              className="bg-black/40 border border-intel-border rounded-lg
+                pl-8 pr-3 py-1.5 text-[11px] font-mono text-slate-300
+                placeholder-slate-700 focus:outline-none
+                focus:border-intel-cyan/40 w-48"
+            />
+          </div>
         </div>
       </div>
 
@@ -1188,7 +1215,7 @@ export const SourceLibrary: React.FC<{
                 onTest={handleTest}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
-                onPipeline={handlePipeline}
+                onPipeline={onNavigateToPipeline || handlePipeline}
               />
             ))}
           </div>
@@ -1204,6 +1231,22 @@ export const SourceLibrary: React.FC<{
           />
         )}
       </AnimatePresence>
+    </div>
+  );
+
+  if (isEmbedded) {
+    return content;
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[200] bg-[#020810]/98
+        backdrop-blur-md overflow-hidden flex flex-col"
+    >
+      {content}
     </motion.div>
   );
 };

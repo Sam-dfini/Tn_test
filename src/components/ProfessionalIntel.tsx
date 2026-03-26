@@ -326,8 +326,8 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         )}
       </div>
 
-      {/* Desktop: horizontal scrolling tabs */}
-      <div className="hidden md:flex items-center border-b border-intel-border overflow-x-auto gap-0 pb-0 scrollbar-thin scrollbar-thumb-intel-border hover:scrollbar-thumb-intel-cyan transition-colors">
+      {/* Desktop: wrapped centered tabs */}
+      <div className="hidden md:flex flex-wrap justify-center items-center border-b border-intel-border gap-y-2 pb-0 transition-colors">
         {tabs.map(tab => (
           <button 
             key={tab.id}
@@ -338,7 +338,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
                 setActiveTab(tab.id as any);
               }
             }}
-            className={`flex-shrink-0 px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${
+            className={`px-4 pb-4 text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all relative ${
               activeTab === tab.id 
                 ? 'text-intel-cyan' 
                 : 'text-slate-500 hover:text-slate-300'

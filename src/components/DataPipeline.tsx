@@ -26,6 +26,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { usePipeline } from '../context/PipelineContext';
+import { SourceLibrary } from './SourceLibrary';
 import { 
   extractFieldsFromContent, 
   DOCUMENT_TYPES, 
@@ -51,9 +52,8 @@ const pipelineAlerts = [
 
 export const DataPipeline: React.FC<{ 
   onClose: () => void, 
-  initialTab?: 'pipeline' | 'sources',
-  onOpenSources?: () => void
-}> = ({ onClose, initialTab = 'pipeline', onOpenSources }) => {
+  initialTab?: 'pipeline' | 'sources'
+}> = ({ onClose, initialTab = 'pipeline' }) => {
   const { data, pushApprovedChanges } = usePipeline();
   
   const [activeTab, setActiveTab] = useState<'pipeline' | 'sources'>(initialTab);
@@ -200,13 +200,7 @@ export const DataPipeline: React.FC<{
               Pipeline
             </button>
             <button
-              onClick={() => {
-                if (onOpenSources) {
-                  onOpenSources();
-                } else {
-                  setActiveTab('sources');
-                }
-              }}
+              onClick={() => setActiveTab('sources')}
               className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'sources' 
                   ? 'bg-intel-cyan text-black font-bold' 
@@ -550,24 +544,14 @@ export const DataPipeline: React.FC<{
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
-              <div className="w-16 h-16 bg-intel-cyan/10 rounded-2xl flex items-center justify-center border border-intel-cyan/20">
-                <Library className="w-8 h-8 text-intel-cyan" />
-              </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-white">Source Library Integration</h3>
-                <p className="text-slate-500 text-sm max-w-md mx-auto">
-                  The source library has been moved to a dedicated management interface for enhanced reliability testing and ingestion.
-                </p>
-              </div>
-              <button 
-                onClick={onOpenSources}
-                className="px-6 py-3 bg-intel-cyan text-black rounded-xl font-mono font-bold text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center space-x-2"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>Open Source Library</span>
-              </button>
-            </div>
+            <SourceLibrary 
+              onClose={onClose} 
+              isEmbedded={true} 
+              onNavigateToPipeline={(url) => {
+                setUrlInput(url);
+                setActiveTab('pipeline');
+              }}
+            />
           )}
         </div>
       </div>

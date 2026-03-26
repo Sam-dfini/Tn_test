@@ -73,11 +73,11 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
           </div>
         </div>
 
-        <nav className="hidden xl:flex items-center space-x-1">
+        <nav className="hidden lg:flex items-center space-x-1">
           <div className="flex items-center bg-black/40 rounded p-0.5 mr-4 border border-white/10">
             <button 
               onClick={() => onViewModeChange('MAP')}
-              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded flex items-center space-x-2 ${
+              className={`px-2 py-1 text-[9px] font-mono uppercase tracking-widest transition-all rounded flex items-center space-x-2 ${
                 viewMode === 'MAP'
                   ? 'bg-intel-cyan text-intel-bg font-bold'
                   : 'text-slate-500 hover:text-white'
@@ -94,7 +94,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
             <button 
               key={tab}
               onClick={() => onRegionChange(tab)}
-              className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest transition-all rounded ${
+              className={`px-2 py-1 text-[9px] font-mono uppercase tracking-widest transition-all rounded ${
                 activeRegion === tab
                   ? 'bg-intel-cyan text-intel-bg font-bold'
                   : 'text-slate-500 hover:text-white'

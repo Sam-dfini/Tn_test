@@ -90,17 +90,25 @@ export const TacticalLoading: React.FC<{ onComplete: () => void, mode?: 'simplif
             ref={scrollRef}
             className="p-4 h-48 overflow-y-auto scrollbar-hide text-[10px] space-y-1 text-intel-cyan/80"
           >
-            {logs.map((log, i) => (
-              <motion.div 
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                key={i} 
-                className="flex items-start space-x-2"
-              >
-                <span className="text-slate-600">[{new Date().toISOString().split('T')[1].slice(0, 8)}]</span>
-                <span className={i === logs.length - 1 ? "text-white" : ""}>{log}</span>
-              </motion.div>
-            ))}
+            {logs.map((log, i) => {
+              const hasOk = log.endsWith('[OK]');
+              const message = hasOk ? log.replace(' [OK]', '') : log;
+              
+              return (
+                <motion.div 
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  key={i} 
+                  className="flex items-center justify-between w-full"
+                >
+                  <div className="flex items-center space-x-2">
+                    <span className="text-slate-600">[{new Date().toISOString().split('T')[1].slice(0, 8)}]</span>
+                    <span className={i === logs.length - 1 ? "text-white" : ""}>{message}</span>
+                  </div>
+                  {hasOk && <span className="text-intel-cyan font-bold">[OK]</span>}
+                </motion.div>
+              );
+            })}
             {progress < 100 && (
               <div className="flex items-center space-x-2">
                 <span className="text-slate-600">[{new Date().toISOString().split('T')[1].slice(0, 8)}]</span>

@@ -455,8 +455,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
 
       {/* Tactical Overlays: UI Elements */}
       <div className="absolute inset-0 z-30 pointer-events-none">
-        {/* Top Status Bar (Moved to Top Left) */}
-        <div className="hidden md:flex absolute top-4 left-4 flex-col space-y-2 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 px-3 py-2 rounded-sm">
+        {/* Top Status Bar (Moved to Bottom Left) */}
+        <div className="absolute bottom-14 left-1/2 -translate-x-1/2 flex items-center space-x-6 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 px-3 py-1 rounded-sm z-40 pointer-events-none">
           <div className="flex items-center space-x-2">
             <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse"></div>
             <span className="text-[8px] font-mono text-intel-cyan uppercase tracking-widest">Geospatial Sync: Active</span>
@@ -470,8 +470,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
           </div>
         </div>
 
-        {/* Data Layer Selector (Moved back to Top Middle) */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex items-center space-x-1 bg-black/80 backdrop-blur-sm border border-intel-border rounded-none p-1 pointer-events-auto overflow-x-auto scrollbar-hide">
+        {/* Data Layer Selector (Scrollable Compact) */}
+        <div className="absolute top-3 left-3 right-3 z-40 flex items-center space-x-1 bg-black/80 backdrop-blur-sm border border-intel-border rounded-xl p-1 pointer-events-auto overflow-x-auto scrollbar-hide">
           <div className="flex items-center space-x-1 min-w-max">
             {[
               { id: 'risk', label: 'RRI' },
@@ -489,7 +489,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
                 key={layer.id}
                 onClick={() => setActiveLayer(layer.id as any)}
                 className={cn(
-                  "px-2.5 py-1.5 rounded-none text-[9px] font-mono uppercase tracking-wider transition-all shrink-0",
+                  "px-2 py-1 rounded-none text-[8px] font-mono uppercase tracking-wider transition-all shrink-0",
                   activeLayer === layer.id
                     ? 'bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30'
                     : 'text-slate-500 hover:text-slate-300'
@@ -578,7 +578,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25 }}
-            className="absolute top-0 right-0 bottom-0 w-full sm:w-[320px] z-50 bg-[#05070a]/98 border-l border-intel-border overflow-y-auto flex flex-col pointer-events-auto"
+            className="absolute top-0 right-0 bottom-0 w-[280px] z-50 bg-[#05070a]/98 border-l border-intel-border overflow-y-auto flex flex-col pointer-events-auto"
           >
             {/* Panel Header */}
             <div className="sticky top-0 bg-[#05070a] border-b border-intel-border p-4 flex items-center justify-between z-10">
@@ -595,9 +595,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({ governorates, events, 
               </div>
               <button
                 onClick={() => setPanelOpen(false)}
-                className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg"
+                className="p-2.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 

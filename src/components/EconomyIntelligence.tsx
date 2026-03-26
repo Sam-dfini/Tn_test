@@ -379,7 +379,7 @@ export const EconomyIntelligence: React.FC = () => {
     { name: 'SOE Debt', value: 10, color: '#fbbf24' }
   ];
 
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'MACRO' | 'REMITTANCES' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL' | 'BUSINESS'>('ALL');
+  const [activeCategory, setActiveCategory] = useState<'MACRO' | 'REMITTANCES' | 'SECTOR' | 'MARKET' | 'STARTUP' | 'SOCIAL' | 'REGIONAL' | 'BUSINESS'>('MACRO');
 
   React.useEffect(() => {
     const handleNavigateSubTab = (e: any) => {
@@ -405,7 +405,6 @@ export const EconomyIntelligence: React.FC = () => {
   }, []);
 
   const categories = [
-    { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
     { id: 'MACRO', label: 'Macroeconomic', icon: Landmark },
     { id: 'REMITTANCES', label: 'Remittances', icon: Globe },
     { id: 'SECTOR', label: 'Sector Dynamics', icon: Layers },
@@ -2966,8 +2965,7 @@ export const EconomyIntelligence: React.FC = () => {
           transition={{ duration: 0.3 }}
           className="space-y-10 md:space-y-20 relative z-20"
         >
-          {/* Category 1: Macroeconomic Foundation */}
-          {(activeCategory === 'ALL' || activeCategory === 'MACRO') && (
+          {activeCategory === 'MACRO' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Landmark className="w-6 h-6 text-intel-cyan" />
@@ -2979,8 +2977,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category: Remittances */}
-          {(activeCategory === 'ALL' || activeCategory === 'REMITTANCES') && (
+          {activeCategory === 'REMITTANCES' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Globe className="w-6 h-6 text-intel-cyan" />
@@ -2990,8 +2987,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category: Regional Comparison (Split from Macro if needed or kept as sub-section) */}
-          {(activeCategory === 'ALL' || activeCategory === 'REGIONAL') && (
+          {activeCategory === 'REGIONAL' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Globe className="w-6 h-6 text-intel-cyan" />
@@ -3001,8 +2997,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category 2: Sectoral Dynamics */}
-          {(activeCategory === 'ALL' || activeCategory === 'SECTOR') && (
+          {activeCategory === 'SECTOR' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Layers className="w-6 h-6 text-intel-cyan" />
@@ -3014,8 +3009,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category: Market Intelligence & Price Monitoring */}
-          {(activeCategory === 'ALL' || activeCategory === 'MARKET') && (
+          {activeCategory === 'MARKET' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <BarChart3 className="w-6 h-6 text-intel-cyan" />
@@ -3025,8 +3019,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category: Startup Ecosystem */}
-          {(activeCategory === 'ALL' || activeCategory === 'STARTUP') && (
+          {activeCategory === 'STARTUP' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Rocket className="w-6 h-6 text-intel-cyan" />
@@ -3036,8 +3029,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category: Business Climate */}
-          {(activeCategory === 'ALL' || activeCategory === 'BUSINESS') && (
+          {activeCategory === 'BUSINESS' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Briefcase className="w-6 h-6 text-intel-cyan" />
@@ -3047,8 +3039,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
           )}
 
-          {/* Category 3: Social & Strategic Economy */}
-          {(activeCategory === 'ALL' || activeCategory === 'SOCIAL') && (
+          {activeCategory === 'SOCIAL' && (
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Users className="w-6 h-6 text-intel-cyan" />
