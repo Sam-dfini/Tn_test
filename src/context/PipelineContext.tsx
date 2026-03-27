@@ -62,6 +62,7 @@ interface GeopoliticalData {
   eu_partnership_status: string; // e.g. 'STRAINED'
   gulf_support_level: string;    // e.g. 'SELECTIVE'
   external_debt_2026: number;    // B TND e.g. 4.2
+  nato_alignment: Record<string, number>;
   last_updated: string;
   source: string;
 }
@@ -167,6 +168,15 @@ const DEFAULT_DATA: PlatformData = {
     eu_partnership_status: 'STRAINED',
     gulf_support_level: 'SELECTIVE',
     external_debt_2026: 4.2,
+    nato_alignment: {
+      imf: 45,
+      eu: 92,
+      us: 100,
+      france: 95,
+      gulf: 65,
+      china: 15,
+      wb: 40
+    },
     last_updated: '2026-03-10',
     source: 'IMF / EU Delegation'
   },

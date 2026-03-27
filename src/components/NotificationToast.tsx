@@ -28,17 +28,17 @@ export const NotificationToast: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-20 right-4 z-[500] space-y-2
-      pointer-events-none">
+    <div className="fixed top-20 sm:top-24 right-0 sm:right-6 left-0 sm:left-auto z-[9999] space-y-3
+      pointer-events-none px-4 sm:px-0 flex flex-col items-center sm:items-end">
       <AnimatePresence>
         {toasts.map(toast => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 100, scale: 0.9 }}
-            transition={{ type: 'spring', damping: 20 }}
-            className={`w-[320px] rounded-2xl border p-4
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className={`w-full sm:w-[320px] max-w-[calc(100vw-32px)] rounded-2xl border p-4
               shadow-2xl pointer-events-auto ${
               toast.priority === 'CRITICAL'
                 ? 'bg-intel-red/10 border-intel-red/40'

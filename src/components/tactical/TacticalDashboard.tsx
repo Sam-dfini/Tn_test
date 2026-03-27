@@ -34,12 +34,13 @@ interface TacticalDashboardProps {
   governorates: Governorate[];
   events: IntelEvent[];
   onOpenAI: () => void;
+  onOpenPipeline: (tab?: 'pipeline' | 'sources' | 'hub') => void;
   onGoHome: () => void;
   data: any;
 }
 
 export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
-  governorates, events, onOpenAI, onGoHome, data
+  governorates, events, onOpenAI, onOpenPipeline, onGoHome, data
 }) => {
   const { rriState, data: pipelineData } = usePipeline();
   const [geofenceAlerts, setGeofenceAlerts] = React.useState<any[]>([]);
@@ -71,6 +72,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
       {/* Header */}
       <TacticalHeader
         onOpenAI={onOpenAI}
+        onOpenPipeline={onOpenPipeline}
         onGoHome={onGoHome}
         data={data}
         activeRegion={activeRegion}

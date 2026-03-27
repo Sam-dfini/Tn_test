@@ -169,7 +169,11 @@ const strategicRisks = [
 export const GeopoliticalIntelligence: React.FC = () => {
   const [selectedActor, setSelectedActor] = useState(actors[0]);
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
-  const { data } = usePipeline();
+  const { data, updateField } = usePipeline();
+  
+  const natoScores = data.geopolitical.nato_alignment || {
+    imf: 45, eu: 92, us: 100, france: 95, gulf: 65, china: 15, wb: 40
+  };
 
   const reserves = data.economy.fx_reserves; // 84 days
   const CRISIS_THRESHOLD = 60;  // days — IMF crisis level
@@ -339,6 +343,82 @@ export const GeopoliticalIntelligence: React.FC = () => {
       </div>
 
       <LiveTicker items={strategicRisks} />
+
+      {/* NATO Alignment Section */}
+      <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden z-20">
+        <CornerAccent position="tl" />
+        <CornerAccent position="br" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+              <Shield className="w-6 h-6 text-intel-cyan" />
+              <span>NATO Strategic Alignment</span>
+            </h3>
+            <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Security architecture synchronization index</p>
+          </div>
+          <div className="text-[10px] font-mono text-intel-cyan bg-intel-cyan/10 px-3 py-1 rounded border border-intel-cyan/20">
+            LIVE OPERATIONAL DATA
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Visualization */}
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={actors.map(a => ({ name: a.name, score: natoScores[a.id], color: a.color }))}
+                layout="vertical"
+                margin={{ left: 40, right: 40 }}
+              >
+                <XAxis type="number" domain={[0, 100]} hide />
+                <YAxis 
+                  type="category" 
+                  dataKey="name" 
+                  stroke="#64748b" 
+                  fontSize={10} 
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip 
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(0,242,255,0.2)', borderRadius: '8px' }}
+                />
+                <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
+                  {actors.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {actors.map(actor => (
+              <div key={actor.id} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 hover:border-intel-cyan/30 transition-all group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <actor.icon className="w-4 h-4 transition-transform group-hover:scale-110" style={{ color: actor.color }} />
+                    <span className="text-xs font-bold text-white uppercase tracking-tight">{actor.name}</span>
+                  </div>
+                  <span className="text-xs font-mono text-intel-cyan font-bold">{natoScores[actor.id]}%</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={natoScores[actor.id]} 
+                  onChange={(e) => {
+                    const newVal = parseInt(e.target.value);
+                    updateField('geopolitical.nato_alignment', { ...natoScores, [actor.id]: newVal }, 'Analyst Input');
+                  }}
+                  className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-intel-cyan"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative z-20">

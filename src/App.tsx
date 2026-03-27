@@ -28,7 +28,8 @@ import {
   Home,
   Cpu,
   HelpCircle,
-  RotateCcw
+  RotateCcw,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
@@ -392,9 +393,9 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   );
 };
 
-const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, onGoHome }: { onOpenPipeline: (tab?: 'pipeline' | 'sources') => void, onOpenMethodology: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
+const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, onGoHome }: { onOpenPipeline: (tab?: 'pipeline' | 'sources' | 'hub') => void, onOpenMethodology: () => void, activeTab: string, onOpenAI: () => void, data: any, onGoHome: () => void }) => {
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-30">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-intel-bg/80 backdrop-blur-md border-b border-intel-border grid grid-cols-3 items-center px-4 md:px-8 z-[999]">
       {/* Left side secondary info */}
       <div className="hidden md:flex items-center space-x-4">
         <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
@@ -438,17 +439,17 @@ const Header = ({ onOpenPipeline, onOpenMethodology, activeTab, onOpenAI, data, 
             <Download className="w-4 h-4" />
           </button>
           <button 
+            onClick={() => onOpenPipeline('hub')}
+            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
+            title="Intelligence & Sources"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+          <button 
             onClick={onOpenAI}
             className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
           >
             <Zap className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={() => onOpenPipeline()}
-            className="p-2 rounded-lg border bg-intel-card border-intel-border text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/40 transition-all"
-            title="Data Pipeline"
-          >
-            <Database className="w-4 h-4" />
           </button>
           <button 
             onClick={onOpenMethodology}
@@ -503,7 +504,7 @@ export default function App() {
   const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
   const [isPipelineOpen, setIsPipelineOpen] = useState(false);
-  const [pipelineInitialTab, setPipelineInitialTab] = useState<'pipeline' | 'sources'>('pipeline');
+  const [pipelineInitialTab, setPipelineInitialTab] = useState<'pipeline' | 'sources' | 'hub'>('pipeline');
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
   const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>(undefined);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -702,6 +703,10 @@ export default function App() {
     setIsInitializing(true);
   };
 
+  const handleGoHome = () => {
+    setAppMode(null);
+  };
+
   return (
     <NotificationProvider>
       <PipelineProvider>
@@ -731,7 +736,11 @@ export default function App() {
                   governorates={governorates} 
                   events={events} 
                   onOpenAI={() => setIsAIAnalystOpen(true)} 
-                  onGoHome={() => setAppMode(null)}
+                  onOpenPipeline={(tab) => {
+                    setPipelineInitialTab(tab || 'hub');
+                    setIsPipelineOpen(true);
+                  }}
+                  onGoHome={handleGoHome}
                   data={tacticalData}
                 />
               </motion.div>
@@ -749,7 +758,11 @@ export default function App() {
                   rri={rri} 
                   pRev={pRev} 
                   onOpenAI={() => setIsAIAnalystOpen(true)}
-                  onGoHome={() => setAppMode(null)}
+                  onOpenPipeline={(tab) => {
+                    setPipelineInitialTab(tab || 'hub');
+                    setIsPipelineOpen(true);
+                  }}
+                  onGoHome={handleGoHome}
                   data={{
                     rri,
                     pRev,
@@ -770,13 +783,13 @@ export default function App() {
               >
                 <Header 
                   onOpenPipeline={(tab) => {
-                    setPipelineInitialTab(tab || 'pipeline');
+                    setPipelineInitialTab(tab || 'hub');
                     setIsPipelineOpen(true);
                   }}
                   onOpenMethodology={() => setIsMethodologyOpen(true)}
                   activeTab={activeTab}
                   onOpenAI={() => setIsAIAnalystOpen(true)}
-                  onGoHome={() => setAppMode(null)}
+                  onGoHome={handleGoHome}
                   data={{
                     rri,
                     p_rev: pRev,

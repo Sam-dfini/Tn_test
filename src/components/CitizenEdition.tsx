@@ -27,7 +27,8 @@ import {
   Share2,
   Lock,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Database
 } from 'lucide-react';
 import { Governorate, IntelEvent } from '../types/intel';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
@@ -39,6 +40,7 @@ interface CitizenEditionProps {
   rri: number;
   pRev: number;
   onOpenAI: () => void;
+  onOpenPipeline: (tab?: 'pipeline' | 'sources' | 'hub') => void;
   onGoHome: () => void;
   data: any;
 }
@@ -284,7 +286,7 @@ const PredictionCard: React.FC<{ item: typeof predictions[0] }> = ({ item }) => 
 
 // --- Main Component ---
 
-export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, events, rri, pRev, onOpenAI, onGoHome, data }) => {
+export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, events, rri, pRev, onOpenAI, onOpenPipeline, onGoHome, data }) => {
   const [activeTab, setActiveTab] = useState<'keywords' | 'feed' | 'operator' | 'markets' | 'predict'>('operator');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -551,14 +553,21 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <button className="p-4 rounded-2xl border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest hover:bg-intel-cyan/10 hover:border-intel-cyan/40 hover:text-intel-cyan transition-all flex flex-col items-center space-y-2">
                 <Bell className="w-5 h-5" />
-                <span>Alert Settings</span>
+                <span>Alerts</span>
+              </button>
+              <button 
+                onClick={() => onOpenPipeline('hub')}
+                className="p-4 rounded-2xl border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest hover:bg-intel-cyan/10 hover:border-intel-cyan/40 hover:text-intel-cyan transition-all flex flex-col items-center space-y-2"
+              >
+                <Database className="w-5 h-5" />
+                <span>Database</span>
               </button>
               <button onClick={onGoHome} className="p-4 rounded-2xl border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest hover:bg-intel-red/10 hover:border-intel-red/40 hover:text-intel-red transition-all flex flex-col items-center space-y-2">
                 <Zap className="w-5 h-5" />
-                <span>Switch Mode</span>
+                <span>Modes</span>
               </button>
             </div>
           </div>

@@ -181,7 +181,7 @@ export const NotificationPanel: React.FC<{
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[150]"
+            className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-[2px]"
             onClick={onClose}
           />
 
@@ -191,10 +191,10 @@ export const NotificationPanel: React.FC<{
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute right-0 top-full mt-2
-              w-[400px] max-h-[600px] bg-[#05070a]
-              border border-intel-border rounded-2xl
-              shadow-2xl z-[200] flex flex-col overflow-hidden"
+            className="fixed sm:absolute top-20 sm:top-full right-4 sm:right-0 mt-2
+              w-[calc(100vw-32px)] sm:w-[400px] max-h-[calc(100vh-120px)] sm:max-h-[600px] 
+              bg-[#05070a] border border-intel-border rounded-2xl
+              shadow-2xl z-[9999] flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between

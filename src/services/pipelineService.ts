@@ -480,19 +480,176 @@ export const detectDocumentType = (url: string): string => {
   return 'unknown';
 };
 
+/**
+ * Fetches content from a URL via the backend proxy.
+ */
 export const fetchURLContent = async (url: string): Promise<string> => {
-  // In production this goes through a backend proxy
-  // For now return a context-rich placeholder that Gemini 
-  // can still reason about based on URL structure
-  const domain = new URL(url).hostname.replace('www.', '');
-  const docType = DOCUMENT_TYPES.find(d => url.includes(d.domain));
-  
-  return `Document from: ${domain}
+  try {
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+    const response = await fetch(proxyUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
+    }
+    
+    const content = await response.text();
+    return content;
+  } catch (error) {
+    console.error('fetchURLContent failed:', error);
+    // Fallback to informative message
+    const domain = new URL(url).hostname.replace('www.', '');
+    const docType = DOCUMENT_TYPES.find(d => url.includes(d.domain));
+    
+    return `Document from: ${domain}
 URL: ${url}
 Type: ${docType?.name || 'Unknown'}
-Note: Direct fetch blocked by CORS. 
-Please paste document text content directly, 
-or use the backend proxy when available.
-Domain suggests this is a ${docType?.name || 'government/institutional'} 
-document. Relevant fields: ${docType?.relevantFields?.join(', ') || 'unknown'}`;
+Error: ${error instanceof Error ? error.message : String(error)}
+Note: Direct fetch failed. Please check the backend proxy or paste content manually.`;
+  }
+};
+
+/**
+ * World Bank Indicator Mappings for Tunisia
+ */
+export const WB_INDICATORS = {
+  'economy.gdp_growth': 'NY.GDP.MKTP.KD.ZG',
+  'economy.inflation': 'FP.CPI.TOTL.ZG',
+  'economy.public_debt': 'GC.DOD.TOTL.GD.ZS',
+  'economy.unemployment': 'SL.UEM.TOTL.ZS',
+};
+
+/**
+ * IMF Indicator Mappings for Tunisia (WEO)
+ */
+export const IMF_INDICATORS = {
+  'economy.gdp_growth': 'NGDP_RPCH',
+  'economy.inflation': 'PCPIPCH',
+  'economy.public_debt': 'GGXWDG_NGDP',
+};
+
+/**
+ * Fetches a specific indicator from the World Bank API.
+ */
+export const fetchWorldBankIndicator = async (fieldPath: string, retries = 2): Promise<any> => {
+  const indicator = WB_INDICATORS[fieldPath as keyof typeof WB_INDICATORS];
+  if (!indicator) return null;
+
+  const url = `https://api.worldbank.org/v2/country/TUN/indicator/${indicator}?format=json&per_page=5`;
+  const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error(`WB API error: ${response.status}`);
+      
+      const data = await response.json();
+      // WB response structure: [ {page: 1, ...}, [ {indicator: ..., value: ..., date: ...}, ... ] ]
+      if (Array.isArray(data) && data.length > 1 && Array.isArray(data[1])) {
+        // Find the most recent non-null value
+        const latest = data[1].find((d: any) => d.value !== null);
+        if (latest) {
+          return {
+            value: parseFloat(latest.value.toFixed(2)),
+            date: latest.date,
+            source: 'World Bank'
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      if (i === retries) {
+        console.error(`World Bank Fetch Error (${fieldPath}) after ${retries} retries:`, error);
+        return null;
+      }
+      await new Promise(r => setTimeout(r, 1000 * (i + 1))); // Exponential backoff
+    }
+  }
+};
+
+/**
+ * Fetches a specific indicator from the IMF Data API.
+ */
+export const fetchIMFIndicator = async (fieldPath: string, retries = 2): Promise<any> => {
+  const indicator = IMF_INDICATORS[fieldPath as keyof typeof IMF_INDICATORS];
+  if (!indicator) return null;
+
+  // Using WEO (World Economic Outlook) dataset via SDMX JSON API
+  // Using https for better security and compatibility
+  const url = `https://dataservices.imf.org/REST/SDMX_JSON.svc/CompactData/WEO/A.TUN.${indicator}`;
+  const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error(`IMF API error: ${response.status}`);
+      
+      const data = await response.json();
+      
+      // IMF SDMX JSON structure is deeply nested and can vary
+      // CompactData structure: DataSet -> Series -> Obs
+      const dataSet = data?.Structure?.Data?.DataSet || data?.DataSet;
+      const series = dataSet?.Series;
+      
+      if (series) {
+        const seriesData = Array.isArray(series) ? series[0] : series;
+        const observations = seriesData?.Obs;
+        
+        if (observations && Array.isArray(observations) && observations.length > 0) {
+          // Get the last observation with a valid value
+          const validObs = [...observations].reverse().find(obs => obs['@OBS_VALUE'] !== undefined);
+          if (validObs) {
+            return {
+              value: parseFloat(parseFloat(validObs['@OBS_VALUE']).toFixed(2)),
+              date: validObs['@TIME_PERIOD'],
+              source: 'IMF'
+            };
+          }
+        }
+      }
+      return null;
+    } catch (error) {
+      if (i === retries) {
+        console.error(`IMF Fetch Error (${fieldPath}) after ${retries} retries:`, error);
+        return null;
+      }
+      await new Promise(r => setTimeout(r, 1000 * (i + 1))); // Exponential backoff
+    }
+  }
+};
+
+/**
+ * Synchronizes external data for a set of fields.
+ */
+export const syncExternalData = async (fields: string[]): Promise<ExtractedField[]> => {
+  const results: ExtractedField[] = [];
+
+  for (const field of fields) {
+    let externalData = null;
+
+    // Try World Bank first
+    if (WB_INDICATORS[field as keyof typeof WB_INDICATORS]) {
+      externalData = await fetchWorldBankIndicator(field);
+    }
+
+    // If WB failed or not available, try IMF
+    if (!externalData && IMF_INDICATORS[field as keyof typeof IMF_INDICATORS]) {
+      externalData = await fetchIMFIndicator(field);
+    }
+
+    if (externalData) {
+      const fm = FIELD_MAP[field as keyof typeof FIELD_MAP];
+      results.push({
+        field,
+        label: fm.label,
+        value: externalData.value,
+        oldValue: null, // Should be populated by caller if needed
+        confidence: 'HIGH',
+        sourceQuote: `Source: ${externalData.source} (${externalData.date})`,
+        unit: fm.unit,
+        module: fm.module
+      });
+    }
+  }
+
+  return results;
 };

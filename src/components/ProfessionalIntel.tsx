@@ -1424,7 +1424,7 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Ingest Data', icon: Database, action: () => window.dispatchEvent(new CustomEvent('navigate-to-pipeline')), color: 'text-intel-cyan border-intel-cyan/20 bg-intel-cyan/5' },
+          { label: 'Intelligence Pipeline', icon: Database, action: () => window.dispatchEvent(new CustomEvent('navigate-to-pipeline')), color: 'text-intel-cyan border-intel-cyan/20 bg-intel-cyan/5' },
           { label: 'Run Simulation', icon: Cpu, action: () => setActiveTab('simulation'), color: 'text-intel-purple border-intel-purple/20 bg-intel-purple/5' },
           { label: 'Generate Report', icon: FileText, action: () => setSelectedReport(reports[0]), color: 'text-intel-green border-intel-green/20 bg-intel-green/5' },
           { label: 'Export Data', icon: Download, action: handleDownloadOutlook, color: 'text-slate-400 border-white/10 bg-white/5' },

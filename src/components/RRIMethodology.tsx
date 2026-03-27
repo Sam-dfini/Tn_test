@@ -57,12 +57,12 @@ const VariableRow: React.FC<{
   trend?: 'up' | 'down' | 'stable';
 }> = ({ symbol, description, currentValue, unit, source, trend }) => (
   <tr className="border-b border-intel-border/30 hover:bg-white/5 transition-colors">
-    <td className="py-2 px-4 font-mono text-intel-cyan text-[11px] whitespace-nowrap">{symbol}</td>
-    <td className="py-2 px-4 text-slate-300 text-[11px]">{description}</td>
-    <td className="py-2 px-4 font-mono text-white text-[11px] font-bold whitespace-nowrap">{currentValue}</td>
-    <td className="py-2 px-4 text-slate-500 text-[10px]">{unit}</td>
-    <td className="py-2 px-4 text-slate-600 text-[10px]">{source}</td>
-    <td className="py-2 px-4 text-[10px]">
+    <td className="py-2 px-2 md:px-4 font-mono text-intel-cyan text-[10px] md:text-[11px] whitespace-nowrap">{symbol}</td>
+    <td className="py-2 px-2 md:px-4 text-slate-300 text-[10px] md:text-[11px]">{description}</td>
+    <td className="py-2 px-2 md:px-4 font-mono text-white text-[10px] md:text-[11px] font-bold whitespace-nowrap">{currentValue}</td>
+    <td className="hidden sm:table-cell py-2 px-4 text-slate-500 text-[10px]">{unit}</td>
+    <td className="hidden md:table-cell py-2 px-4 text-slate-600 text-[10px]">{source}</td>
+    <td className="py-2 px-2 md:px-4 text-[10px]">
       {trend === 'up' && <span className="text-intel-red">↑</span>}
       {trend === 'down' && <span className="text-intel-cyan">↓</span>}
       {trend === 'stable' && <span className="text-slate-500">→</span>}
@@ -84,28 +84,28 @@ const Section: React.FC<{
   return (
     <div
       id={id}
-      className="border border-intel-border rounded-2xl overflow-hidden mb-6 scroll-mt-20"
+      className="border border-intel-border rounded-2xl overflow-hidden mb-4 md:mb-6 scroll-mt-20"
     >
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-4 bg-black/40 hover:bg-white/5 transition-colors text-left"
+        className="w-full flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-black/40 hover:bg-white/5 transition-colors text-left"
       >
-        <div className="flex items-center space-x-3">
-          <div className="text-intel-cyan">{icon}</div>
-          <span className="text-sm font-bold text-white uppercase tracking-widest">{title}</span>
+        <div className="flex items-center space-x-2 md:space-x-3">
+          <div className="text-intel-cyan shrink-0">{icon}</div>
+          <span className="text-xs md:text-sm font-bold text-white uppercase tracking-widest line-clamp-1">{title}</span>
           {badge && (
-            <span className={`text-[9px] font-mono px-2 py-0.5 rounded border uppercase text-intel-${badgeColor} border-intel-${badgeColor}/30 bg-intel-${badgeColor}/10`}>
+            <span className={`hidden xs:inline text-[8px] md:text-[9px] font-mono px-1.5 md:px-2 py-0.5 rounded border uppercase text-intel-${badgeColor} border-intel-${badgeColor}/30 bg-intel-${badgeColor}/10`}>
               {badge}
             </span>
           )}
         </div>
         {open
-          ? <ChevronDown className="w-4 h-4 text-slate-500" />
-          : <ChevronRight className="w-4 h-4 text-slate-500" />
+          ? <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-slate-500 shrink-0" />
+          : <ChevronRight className="w-3 h-3 md:w-4 md:h-4 text-slate-500 shrink-0" />
         }
       </button>
       {open && (
-        <div className="px-6 py-6 bg-black/20 space-y-6">
+        <div className="px-4 md:px-6 py-4 md:py-6 bg-black/20 space-y-4 md:space-y-6">
           {children}
         </div>
       )}
@@ -128,15 +128,15 @@ const EquationCard: React.FC<{
   source?: 'paper' | 'extension';
   note?: string;
 }> = ({ number, title, latex, description, variables, currentOutput, source = 'paper', note }) => (
-  <div className={`rounded-2xl border p-6 space-y-4 ${
+  <div className={`rounded-2xl border p-4 md:p-6 space-y-4 ${
     source === 'extension'
       ? 'border-intel-orange/30 bg-intel-orange/5'
       : 'border-intel-cyan/20 bg-black/30'
   }`}>
-    <div className="flex items-start justify-between">
+    <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0">
       <div className="space-y-1">
         <div className="flex items-center space-x-3">
-          <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border uppercase ${
+          <span className={`text-[10px] md:text-xs font-mono font-bold px-1.5 md:px-2 py-0.5 rounded border uppercase ${
             source === 'extension'
               ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
               : 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10'
@@ -144,47 +144,49 @@ const EquationCard: React.FC<{
             EQ.{number}
           </span>
           {source === 'extension' && (
-            <span className="text-[9px] font-mono text-intel-orange border border-intel-orange/20 px-2 py-0.5 rounded">
+            <span className="text-[8px] md:text-[9px] font-mono text-intel-orange border border-intel-orange/20 px-1.5 md:px-2 py-0.5 rounded">
               TUNISIAINTEL EXTENSION
             </span>
           )}
         </div>
-        <h3 className="text-white font-bold text-sm">{title}</h3>
+        <h3 className="text-white font-bold text-xs md:text-sm">{title}</h3>
       </div>
       {currentOutput && (
-        <div className="text-right">
-          <div className="text-[9px] font-mono text-slate-500 uppercase">
+        <div className="text-left sm:text-right">
+          <div className="text-[8px] md:text-[9px] font-mono text-slate-500 uppercase">
             Current Output
           </div>
-          <div className="text-lg font-bold font-mono text-intel-cyan">
+          <div className="text-base md:text-lg font-bold font-mono text-intel-cyan">
             {currentOutput}
           </div>
         </div>
       )}
     </div>
 
-    <div className="bg-black/50 rounded-xl p-4 border border-white/5 overflow-x-auto">
+    <div className="bg-black/50 rounded-xl p-3 md:p-4 border border-white/5 overflow-x-auto scrollbar-hide">
       <Equation latex={latex} display={true} />
     </div>
 
-    <p className="text-slate-400 text-xs leading-relaxed">
+    <p className="text-slate-400 text-[10px] md:text-xs leading-relaxed">
       {description}
     </p>
 
     {variables.length > 0 && (
       <div className="space-y-2">
         <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Variable Definitions</div>
-        <div className="space-y-1">
+        <div className="space-y-2 md:space-y-1">
           {variables.map((v, i) => (
-            <div key={i} className="flex items-start space-x-3 text-[11px]">
-              <code className="text-intel-cyan font-mono min-w-[100px] shrink-0">{v.symbol}</code>
+            <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 text-[10px] md:text-[11px] border-b border-white/5 sm:border-none pb-1 sm:pb-0">
+              <code className="text-intel-cyan font-mono sm:min-w-[100px] shrink-0">{v.symbol}</code>
               <span className="text-slate-400">{v.meaning}</span>
-              {v.value && (
-                <span className="text-white font-mono ml-auto shrink-0">{v.value}</span>
-              )}
-              {v.calibrated && (
-                <span className="text-[9px] text-intel-orange ml-1 shrink-0">(calibrated)</span>
-              )}
+              <div className="flex items-center ml-0 sm:ml-auto shrink-0 space-x-2">
+                {v.value && (
+                  <span className="text-white font-mono">{v.value}</span>
+                )}
+                {v.calibrated && (
+                  <span className="text-[8px] md:text-[9px] text-intel-orange">(calibrated)</span>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -252,11 +254,13 @@ const DataFlowDiagram: React.FC<{
       </div>
 
       {/* SVG Diagram */}
-      <svg
-        viewBox="0 0 900 400"
-        className="w-full"
-        style={{ maxHeight: '420px' }}
-      >
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="min-w-[800px] md:min-w-0">
+          <svg
+            viewBox="0 0 900 400"
+            className="w-full h-auto"
+            style={{ maxHeight: '420px' }}
+          >
         {/* === COLUMN 1: SOURCES === */}
         {[
           { y: 60, label: 'RSS Feeds', sub: '7 active', color: '#ff9f0a' },
@@ -515,6 +519,8 @@ const DataFlowDiagram: React.FC<{
         >→ 10 Modules + Notifications + Tactical</text>
 
       </svg>
+        </div>
+      </div>
 
       {/* Live values row */}
       <div className="flex flex-wrap gap-3 pt-2 border-t
@@ -649,7 +655,7 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center space-x-6 text-[9px] font-mono">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[8px] md:text-[9px] font-mono">
         {[
           { color: '#30d158', label: 'Input data' },
           { color: '#475569', label: 'Core (Samir Dni 2025)' },
@@ -658,17 +664,19 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
           { color: '#00d4ff', label: 'Final output' },
         ].map(item => (
           <div key={item.label} className="flex items-center space-x-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm"
+            <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-sm"
               style={{ backgroundColor: item.color + '40',
                        border: `1px solid ${item.color}` }} />
-            <span className="text-slate-500">{item.label}</span>
+            <span className="text-slate-500 whitespace-nowrap">{item.label}</span>
           </div>
         ))}
       </div>
 
       {/* SVG */}
-      <svg viewBox="0 0 870 410" className="w-full"
-        style={{ maxHeight: '440px' }}>
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="min-w-[800px] md:min-w-0">
+          <svg viewBox="0 0 870 410" className="w-full h-auto"
+            style={{ maxHeight: '440px' }}>
 
         {/* Draw connections first (behind nodes) */}
         {connections.map((conn, i) => {
@@ -728,6 +736,8 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
         })}
 
       </svg>
+        </div>
+      </div>
     </div>
   );
 };
@@ -814,12 +824,12 @@ const NodeNetworkDiagram: React.FC = () => {
       <div className="relative">
 
         {/* Connection arrows between layers */}
-        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2
-          flex items-center justify-between px-[calc(25%-20px)]
+        <div className="hidden lg:flex absolute top-1/2 left-0 right-0 -translate-y-1/2
+          items-center justify-between px-[calc(12.5%)]
           pointer-events-none z-0">
           {[0,1,2].map(i => (
             <div key={i} className="flex items-center">
-              <div className="h-px w-16 bg-gradient-to-r
+              <div className="h-px w-8 xl:w-16 bg-gradient-to-r
                 from-intel-border to-intel-cyan/30" />
               <div className="w-0 h-0 border-t-4 border-b-4
                 border-l-8 border-transparent
@@ -829,13 +839,13 @@ const NodeNetworkDiagram: React.FC = () => {
         </div>
 
         {/* Layer cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
           {layers.map(layer => (
             <motion.div
               key={layer.id}
               onHoverStart={() => setActiveLayer(layer.id)}
               onHoverEnd={() => setActiveLayer(null)}
-              className={`p-5 rounded-2xl border space-y-3 cursor-pointer
+              className={`p-4 md:p-5 rounded-2xl border space-y-3 cursor-pointer
                 transition-all ${
                 activeLayer === layer.id
                   ? `border-[${layer.color}] bg-[${layer.color}]/10`
@@ -952,56 +962,63 @@ export const RRIMethodology: React.FC<{
   return (
     <div className="fixed inset-0 z-[300] bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-intel-border bg-black/60 shrink-0">
-        <div className="flex items-center space-x-4">
-          <BookOpen className="w-5 h-5 text-intel-cyan" />
-          <div>
-            <div className="text-sm font-bold text-white uppercase tracking-widest">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-3 md:py-4 border-b border-intel-border bg-black/60 shrink-0 gap-3 md:gap-0">
+        <div className="flex items-center space-x-3 md:space-x-4 w-full md:w-auto">
+          <BookOpen className="w-5 h-5 text-intel-cyan shrink-0" />
+          <div className="min-w-0">
+            <div className="text-xs md:text-sm font-bold text-white uppercase tracking-widest truncate">
               RRI Methodology
             </div>
-            <div className="text-[9px] font-mono text-slate-500">
-              Refined Regime Aging Model — Samir Dni (2025) + TUNISIAINTEL Extensions
+            <div className="text-[8px] md:text-[9px] font-mono text-slate-500 truncate">
+              Samir Dni (2025) + TUNISIAINTEL Extensions
             </div>
           </div>
-          <div className="flex items-center space-x-2 ml-6">
-            <div className="text-[9px] font-mono text-slate-500 px-3 py-1 border border-intel-border rounded">
-              v2.1 — {rriState.variables_count} Variables — 20 Equations
+          <div className="hidden sm:flex items-center space-x-2 ml-2 md:ml-6 shrink-0">
+            <div className="text-[8px] md:text-[9px] font-mono text-slate-500 px-2 md:px-3 py-1 border border-intel-border rounded">
+              v2.1 — {rriState.variables_count} Vars
             </div>
-            <div className="text-[9px] font-mono text-intel-cyan px-3 py-1 border border-intel-cyan/30 bg-intel-cyan/10 rounded">
-              R(t) = {rriState.rri.toFixed(4)} | P_rev = {(rriState.p_rev * 100).toFixed(1)}%
+            <div className="text-[8px] md:text-[9px] font-mono text-intel-cyan px-2 md:px-3 py-1 border border-intel-cyan/30 bg-intel-cyan/10 rounded">
+              R(t) = {rriState.rri.toFixed(2)}
             </div>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => onNavigateToPipeline?.('pipeline')}
-            className="flex items-center space-x-2 px-3 py-1.5 text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"
-            title="Data Pipeline"
-          >
-            <Database className="w-3 h-4" />
-            <span>Data Pipeline</span>
-          </button>
-          <button
-            onClick={() => window.print()}
-            className="flex items-center space-x-2 px-3 py-1.5 text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"
-          >
-            <Download className="w-3 h-3" />
-            <span>Print / PDF</span>
-          </button>
-          {onClose && (
+        <div className="flex items-center justify-between md:justify-end w-full md:w-auto space-x-2 md:space-x-3">
+          <div className="flex sm:hidden items-center space-x-1">
+             <div className="text-[8px] font-mono text-intel-cyan px-2 py-1 border border-intel-cyan/30 bg-intel-cyan/10 rounded">
+              R(t) = {rriState.rri.toFixed(2)}
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
             <button
-              onClick={onClose}
-              className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+              onClick={() => onNavigateToPipeline?.('pipeline')}
+              className="flex items-center space-x-1.5 px-2 md:px-3 py-1.5 text-[9px] md:text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"
+              title="Data Pipeline"
             >
-              <X className="w-5 h-5" />
+              <Database className="w-3 h-3 md:w-3 md:h-4" />
+              <span className="hidden xs:inline">Pipeline</span>
             </button>
-          )}
+            <button
+              onClick={() => window.print()}
+              className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 text-[10px] font-mono text-slate-400 border border-intel-border rounded hover:border-intel-cyan/30 hover:text-intel-cyan transition-all"
+            >
+              <Download className="w-3 h-3" />
+              <span>PDF</span>
+            </button>
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-1.5 md:p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Navigation */}
-        <div className="w-56 shrink-0 border-r border-intel-border bg-black/40 overflow-y-auto py-4">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Left Navigation - Hidden on mobile, toggleable or scrollable top bar? Let's make it a sidebar that can be hidden */}
+        <div className="hidden md:block w-56 shrink-0 border-r border-intel-border bg-black/40 overflow-y-auto py-4">
           <div className="px-4 mb-4">
             <div className="relative">
               <Search className="w-3 h-3 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -1050,8 +1067,26 @@ export const RRIMethodology: React.FC<{
           </div>
         </div>
 
+        {/* Mobile Navigation Bar */}
+        <div className="md:hidden absolute top-0 left-0 right-0 z-20 bg-black/80 border-b border-intel-border overflow-x-auto scrollbar-hide flex items-center px-4 py-2 space-x-4">
+          {navItems.map(item => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              onClick={() => setActiveSection(item.id)}
+              className={`whitespace-nowrap text-[10px] font-mono uppercase tracking-wider transition-all ${
+                activeSection === item.id
+                  ? 'text-intel-cyan'
+                  : 'text-slate-500'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-8 scroll-smooth" id="methodology-content">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 py-12 md:py-8 scroll-smooth" id="methodology-content">
           {/* ============================================================
               ARCHITECTURE PAGE
               Three animated SVG flow diagrams
@@ -1134,18 +1169,18 @@ export const RRIMethodology: React.FC<{
               <h1 className="text-xl font-bold text-white uppercase tracking-widest">Model Overview</h1>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div className="col-span-2 p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
+              <div className="col-span-1 sm:col-span-2 p-4 md:p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/20">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest mb-3">Abstract</div>
-                <p className="text-slate-300 text-sm leading-relaxed">
+                <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
                   The Refined Regime Aging Model (RRAM) presents a comprehensive quantitative framework for assessing revolutionary risk in Tunisia. Developed by Samir Dni (2025), the model integrates 250 variables across 24 categories, employing 12 mathematical methods and 14 specific equations to generate a Revolutionary Risk Index R(t) and revolution probability P_rev.
                 </p>
-                <p className="text-slate-400 text-sm leading-relaxed mt-3">
+                <p className="text-slate-400 text-xs md:text-sm leading-relaxed mt-3">
                   TUNISIAINTEL extends this model with 6 additional equations (EQ.15-20) providing velocity tracking, compound stress detection, regional cascade probability, elite defection dynamics, information amplification, and historical pattern similarity. The extended model produces 7 distinct analytical outputs updated in real-time from news feeds and pipeline document ingestion.
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-black/30 border border-intel-border space-y-4">
+              <div className="p-4 md:p-6 rounded-2xl bg-black/30 border border-intel-border space-y-4">
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Model Outputs</div>
                 {[
                   { symbol: 'R(t)', name: 'Revolutionary Risk Index', value: rriState.rri.toFixed(4), desc: 'Core composite risk score', paper: true },
@@ -1156,42 +1191,41 @@ export const RRIMethodology: React.FC<{
                   { symbol: 'CS(t)', name: 'Compound Stress', value: rriState.compound_stress.toFixed(3), desc: 'Non-linear interaction bonus', paper: false },
                   { symbol: 'P_cascade', name: 'Cascade Probability', value: (rriState.cascade_probability*100).toFixed(0)+'%', desc: 'Regional protest spread risk', paper: false },
                 ].map(o => (
-                  <div key={o.symbol} className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3">
-                      <code className="text-intel-cyan font-mono text-[11px] min-w-[60px]">{o.symbol}</code>
+                  <div key={o.symbol} className="flex items-start justify-between gap-2">
+                    <div className="flex items-start space-x-2 md:space-x-3">
+                      <code className="text-intel-cyan font-mono text-[10px] md:text-[11px] min-w-[50px] md:min-w-[60px]">{o.symbol}</code>
                       <div>
-                        <div className="text-[11px] text-white">{o.name}</div>
-                        <div className="text-[10px] text-slate-600">{o.desc}</div>
+                        <div className="text-[10px] md:text-[11px] text-white">{o.name}</div>
+                        <div className="text-[9px] md:text-[10px] text-slate-600 line-clamp-1">{o.desc}</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-[11px] font-mono font-bold text-white">{o.value}</span>
+                    <div className="flex items-center space-x-1 md:space-x-2 shrink-0">
+                      <span className="text-[10px] md:text-[11px] font-mono font-bold text-white">{o.value}</span>
                       {!o.paper && (
-                        <span className="text-[8px] text-intel-orange border border-intel-orange/20 px-1 rounded">EXT</span>
+                        <span className="text-[7px] md:text-[8px] text-intel-orange border border-intel-orange/20 px-1 rounded">EXT</span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="p-6 rounded-2xl bg-black/30 border border-intel-border space-y-3">
+              <div className="p-4 md:p-6 rounded-2xl bg-black/30 border border-intel-border space-y-3">
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Architecture</div>
                 {[
                   { label: 'Total variables', value: '250' },
-                  { label: 'Categories', value: '24 (A through X)' },
-                  { label: 'Core equations (paper)', value: '14' },
+                  { label: 'Categories', value: '24 (A-X)' },
+                  { label: 'Core equations', value: '14' },
                   { label: 'Extension equations', value: '6' },
                   { label: 'Monte Carlo runs', value: '10,000' },
-                  { label: 'Confidence interval', value: `[${rriState.ci_low}% — ${rriState.ci_high}%]` },
+                  { label: 'Confidence interval', value: `[${rriState.ci_low}%—${rriState.ci_high}%]` },
                   { label: 'Model confidence', value: (rriState.model_confidence*100).toFixed(0)+'%' },
                   { label: 'Revolution threshold', value: 'R(t) > 2.625' },
-                  { label: 'Update frequency', value: 'Real-time (event-driven)' },
-                  { label: 'Languages monitored', value: 'Arabic, French, Darija' },
-                  { label: 'Data sources', value: 'BCT, INS, IMF, RSF, social media' },
-                  { label: 'Base calibration date', value: 'March 2025 (Samir Dni)' },
-                  { label: 'Live calibration', value: 'March 2026 (TUNISIAINTEL)' },
+                  { label: 'Update frequency', value: 'Real-time' },
+                  { label: 'Languages', value: 'AR, FR, Darija' },
+                  { label: 'Data sources', value: 'BCT, INS, IMF, RSF' },
+                  { label: 'Calibration', value: 'March 2026' },
                 ].map(item => (
-                  <div key={item.label} className="flex justify-between text-[11px]">
+                  <div key={item.label} className="flex justify-between text-[10px] md:text-[11px]">
                     <span className="text-slate-500">{item.label}</span>
                     <span className="text-white font-mono">{item.value}</span>
                   </div>
@@ -1526,12 +1560,12 @@ export const RRIMethodology: React.FC<{
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-intel-border">
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">ID</th>
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Variable</th>
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Current Value</th>
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Unit</th>
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Source</th>
-                        <th className="pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Trend</th>
+                        <th className="pb-2 px-2 md:px-4 text-[8px] md:text-[9px] font-mono text-slate-500 uppercase">ID</th>
+                        <th className="pb-2 px-2 md:px-4 text-[8px] md:text-[9px] font-mono text-slate-500 uppercase">Variable</th>
+                        <th className="pb-2 px-2 md:px-4 text-[8px] md:text-[9px] font-mono text-slate-500 uppercase">Value</th>
+                        <th className="hidden sm:table-cell pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Unit</th>
+                        <th className="hidden md:table-cell pb-2 px-4 text-[9px] font-mono text-slate-500 uppercase">Source</th>
+                        <th className="pb-2 px-2 md:px-4 text-[8px] md:text-[9px] font-mono text-slate-500 uppercase">Trend</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1780,14 +1814,14 @@ export const RRIMethodology: React.FC<{
                 { type: 'DATA', citation: 'Banque Centrale de Tunisie (BCT). Monthly statistical bulletins. bct.gov.tn', url: 'https://bct.gov.tn' },
                 { type: 'DATA', citation: 'Institut National de la Statistique (INS). Economic and social indicators. ins.tn', url: 'https://ins.tn' },
               ].map((ref, i) => (
-                <div key={i} className="flex items-start space-x-4 p-4 rounded-xl bg-black/20 border border-intel-border/30">
-                  <span className={`text-[9px] font-mono px-2 py-0.5 rounded border shrink-0 mt-0.5 ${
+                <div key={i} className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl bg-black/20 border border-intel-border/30">
+                  <span className={`text-[8px] sm:text-[9px] font-mono px-1.5 sm:px-2 py-0.5 rounded border shrink-0 mt-0.5 ${
                     ref.type === 'PRIMARY' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10' : 'text-slate-500 border-slate-700 bg-slate-900'
                   }`}>{ref.type}</span>
                   <div className="flex-1">
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{ref.citation}</p>
+                    <p className="text-[10px] sm:text-[11px] text-slate-400 leading-relaxed">{ref.citation}</p>
                     {ref.url && (
-                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-intel-cyan hover:underline flex items-center space-x-1 mt-1">
+                      <a href={ref.url} target="_blank" rel="noopener noreferrer" className="text-[9px] sm:text-[10px] text-intel-cyan hover:underline flex items-center space-x-1 mt-1">
                         <ExternalLink className="w-3 h-3" />
                         <span>{ref.url}</span>
                       </a>
