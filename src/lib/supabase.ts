@@ -25,6 +25,7 @@ export interface Article {
   keywords?: string[];
   rri_nudge: number;
   rri_variable?: string;
+  ai_summary?: string;
   confirm_count: number;
   dispute_count: number;
   context_count: number;

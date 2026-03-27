@@ -24,6 +24,9 @@ import { CornerAccent } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
 import { processArticleForRRI } from '../utils/rriEngine';
 
+import { useRSS } from '../context/RSSContext';
+import { Article } from '../lib/supabase';
+
 interface NewsArticle {
   id: string;
   title: string;
@@ -37,6 +40,10 @@ interface NewsArticle {
   url: string;
   summary: string;
   aiSummary?: string;
+  keywords?: string[];
+  governorate?: string;
+  rriImpact?: string;
+  rriVariable?: string;
 }
 
 const mockNews: NewsArticle[] = [
@@ -117,6 +124,7 @@ type IntelModule = 'ALL' | 'POLITICAL' | 'ECONOMIC' | 'SOCIAL' | 'ENVIRONMENTAL'
 
 export const NewsFeed: React.FC = () => {
   const { pushApprovedChanges } = usePipeline();
+  const { articles: rssArticles, isFetching, fetchNow, lastFetch } = useRSS();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'source' | 'relevance'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -125,6 +133,28 @@ export const NewsFeed: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState<string | null>(null);
   const [pushedArticles, setPushedArticles] = useState<Set<string>>(new Set());
+
+  const liveArticles: NewsArticle[] = rssArticles.length > 0
+    ? rssArticles.map((a: Article) => ({
+        id: a.id,
+        title: a.title,
+        source: a.source_name,
+        sourceType: ['Reuters', 'BBC', 'AFP', 'Middle East Eye']
+          .includes(a.source_name) ? 'international' : 'local',
+        date: a.published_at,
+        timestamp: new Date(a.published_at).getTime(),
+        relevance: Math.min(100, 50 + (a.severity * 10) + (a.rri_nudge * 1000)),
+        severity: Math.min(5, Math.max(1, a.severity)) as 1|2|3|4|5,
+        category: a.category || 'general',
+        url: a.url,
+        summary: a.summary || a.title,
+        aiSummary: (a as any).ai_summary || undefined,
+        keywords: a.keywords || [],
+        governorate: a.governorate,
+        rriImpact: a.rri_nudge > 0 ? `+${a.rri_nudge.toFixed(3)}` : undefined,
+        rriVariable: a.rri_variable,
+      }))
+    : mockNews; // fallback to mock when RSS not yet loaded
 
   const getModuleTag = (article: NewsArticle): IntelModule => {
     const title = article.title.toLowerCase();
@@ -151,15 +181,15 @@ export const NewsFeed: React.FC = () => {
 
   const counts = useMemo(() => {
     return {
-      ALL: mockNews.length,
-      CRITICAL: mockNews.filter(e => e.severity >= 4).length,
-      HIGH: mockNews.filter(e => e.severity >= 3).length,
-      MEDIUM: mockNews.filter(e => e.severity >= 2).length,
+      ALL: liveArticles.length,
+      CRITICAL: liveArticles.filter(e => e.severity >= 4).length,
+      HIGH: liveArticles.filter(e => e.severity >= 3).length,
+      MEDIUM: liveArticles.filter(e => e.severity >= 2).length,
     };
-  }, []);
+  }, [liveArticles]);
 
   const filteredAndSortedNews = useMemo(() => {
-    let result = mockNews.filter(article => {
+    let result = liveArticles.filter(article => {
       const matchesSearch = 
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -241,6 +271,37 @@ export const NewsFeed: React.FC = () => {
               <Newspaper className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan" />
               <span>Real-time News Feed</span>
             </h3>
+            <div className="flex items-center space-x-4 text-[9px] font-mono">
+              {isFetching ? (
+                <div className="flex items-center space-x-1.5 text-intel-cyan">
+                  <RefreshCw className="w-3 h-3 animate-spin" />
+                  <span>Fetching feeds...</span>
+                </div>
+              ) : (
+                <button
+                  onClick={fetchNow}
+                  className="flex items-center space-x-1.5 text-slate-500
+                    hover:text-intel-cyan transition-colors"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Refresh</span>
+                </button>
+              )}
+              {lastFetch && (
+                <span className="text-slate-700">
+                  Updated {lastFetch.toLocaleTimeString('en-GB', {
+                    hour: '2-digit', minute: '2-digit'
+                  })}
+                </span>
+              )}
+              <span className={`px-2 py-0.5 rounded border text-[8px] ${
+                rssArticles.length > 0
+                  ? 'text-intel-green border-intel-green/20 bg-intel-green/5'
+                  : 'text-slate-600 border-slate-700'
+              }`}>
+                {rssArticles.length > 0 ? `${rssArticles.length} LIVE` : 'DEMO DATA'}
+              </span>
+            </div>
             <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Aggregated global & local intelligence</p>
           </div>
 
@@ -412,19 +473,34 @@ export const NewsFeed: React.FC = () => {
                       <div className="pt-4 mt-4 border-t border-white/10 space-y-4">
                         <div className="space-y-2">
                           <div className="text-[9px] font-mono text-slate-500 uppercase font-bold tracking-widest">Original Summary</div>
-                          <p className="text-xs text-slate-400 leading-relaxed">{article.summary}</p>
+                          {article.aiSummary ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center space-x-1.5">
+                                <Sparkles className="w-3 h-3 text-intel-cyan" />
+                                <span className="text-[8px] font-mono text-intel-cyan uppercase">
+                                  AI Summary
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-300 leading-relaxed">
+                                {article.aiSummary}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                              {article.summary}
+                            </p>
+                          )}
                         </div>
                         
-                        {article.aiSummary && (
-                          <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="text-[9px] font-mono text-intel-cyan uppercase font-bold tracking-widest flex items-center">
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                AI-Powered Insight
-                              </div>
-                              <div className="text-[8px] font-mono text-intel-cyan/50 uppercase">Confidence: 98%</div>
-                            </div>
-                            <p className="text-xs text-slate-300 leading-relaxed italic">"{article.aiSummary}"</p>
+                        {article.rriImpact && (
+                          <div className="flex items-center space-x-2 text-[9px] font-mono">
+                            <span className="text-slate-600">RRI impact:</span>
+                            <span className="text-intel-orange font-bold">
+                              {article.rriImpact}
+                            </span>
+                            {article.rriVariable && (
+                              <span className="text-slate-700">({article.rriVariable})</span>
+                            )}
                           </div>
                         )}
                       </div>

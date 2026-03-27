@@ -29,7 +29,8 @@ import {
   Cpu,
   HelpCircle,
   RotateCcw,
-  Settings
+  Settings,
+  Radio
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
@@ -54,6 +55,7 @@ import { TacticalLoading } from './components/TacticalLoading';
 import { ModeSelection } from './components/ModeSelection';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
 import { ProfessionalIntel } from './components/ProfessionalIntel';
+import { NewsFeed } from './components/NewsFeed';
 import { DataPipeline } from './components/DataPipeline';
 import { CitizenEdition } from './components/CitizenEdition';
 import { RRIMethodology } from './components/RRIMethodology';
@@ -341,6 +343,7 @@ const Navigation = ({ activeTab, setActiveTab, onOpenAI }: { activeTab: string, 
   const tabs = [
     { id: 'map', icon: MapIcon, label: 'Map' },
     { id: 'professional', icon: Zap, label: 'Professional Intel' },
+    { id: 'newsfeed', icon: Radio, label: 'News Feed' },
     { id: 'govs', icon: Globe, label: 'Gov. Risk' },
     { id: 'economy', icon: BarChart3, label: 'Economy' },
     { id: 'risk', icon: ShieldAlert, label: 'Risk Model' },
@@ -495,6 +498,17 @@ export default function App() {
   const [appMode, setAppMode] = useState<'simplified' | 'advanced' | 'professional' | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [activeTab, setActiveTab] = useState('map');
+
+  useEffect(() => {
+    const handleNavigateMain = (e: any) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab);
+      }
+    };
+    window.addEventListener('navigate-main', handleNavigateMain);
+    return () => window.removeEventListener('navigate-main', handleNavigateMain);
+  }, []);
+
   const [rri, setRri] = useState(2.31);
   const [pRev, setPRev] = useState(0.643);
   const [ciLow, setCiLow] = useState(0.58);
@@ -614,6 +628,8 @@ export default function App() {
           variables: rriVariables,
           regimeAge
         }} />;
+      case 'newsfeed':
+        return <NewsFeed />;
       case 'govs':
         return (
           <div className="space-y-8">

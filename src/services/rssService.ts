@@ -1,4 +1,5 @@
 import { supabase, Article } from '../lib/supabase';
+import { generateAnalystResponse } from './geminiService';
 
 // ============================================================
 // RSS SOURCES — matches SourceLibrary active RSS feeds
@@ -212,6 +213,32 @@ export function classifyArticle(title: string, content: string = ''): {
   };
 }
 
+export async function generateAISummary(
+  title: string,
+  content: string,
+  category: string
+): Promise<string | null> {
+  try {
+    const prompt = `You are a political intelligence analyst specializing in Tunisia.
+    
+Summarize this news article in exactly 2 sentences for an intelligence briefing.
+Be precise, factual, and highlight the political/security/economic significance.
+Do NOT start with "The article" or "This article".
+Write directly as an analyst would.
+
+Title: ${title}
+Content: ${content.slice(0, 400)}
+Category: ${category}
+
+Return only the 2-sentence summary, nothing else.`;
+
+    const summary = await generateAnalystResponse(prompt, {});
+    return summary?.slice(0, 300) || null;
+  } catch {
+    return null;
+  }
+}
+
 // ============================================================
 // RSS PARSER
 // ============================================================
@@ -328,6 +355,24 @@ export async function fetchAllFeeds(): Promise<{
           errors.push(`${source.name}: ${error.message}`);
         } else {
           newArticles += newOnes.length;
+          
+          // Generate AI summaries for high-severity ones
+          const highSeverityNew = newOnes.filter(a => a.severity >= 3);
+          for (const article of highSeverityNew.slice(0, 5)) {
+            // Rate limit — only 5 summaries per fetch cycle
+            const summary = await generateAISummary(
+              article.title,
+              article.content || '',
+              article.category || 'general'
+            );
+            if (summary) {
+              await supabase
+                .from('articles')
+                .update({ ai_summary: summary })
+                .eq('url', article.url);
+            }
+            await new Promise(r => setTimeout(r, 500)); // rate limit
+          }
         }
       }
 

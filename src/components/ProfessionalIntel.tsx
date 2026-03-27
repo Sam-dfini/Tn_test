@@ -31,7 +31,10 @@ import {
   Eye,
   Target,
   RotateCcw,
-  Calendar
+  Calendar,
+  Sparkles,
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { EconomyIntelligence } from './EconomyIntelligence';
@@ -46,6 +49,9 @@ import { PoliticalCalendar } from './PoliticalCalendar';
 import SimulationIntelligence from './SimulationIntelligence';
 import { CivilizationalAnalysis } from './CivilizationalAnalysis';
 import { NewsFeed } from './NewsFeed';
+import { useRSS } from '../context/RSSContext';
+import { generateAnalystResponse } from '../services/geminiService';
+import { Article } from '../lib/supabase';
 
 interface IntelReport {
   id: string;
@@ -139,11 +145,74 @@ import { usePipeline } from '../context/PipelineContext';
 
 export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const { data, rriState, auditLog } = usePipeline();
+  const { articles: rssArticles } = useRSS();
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'methodology' | 'civilizational' | 'calendar'>('overview');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
+
+  // Daily briefing state
+  const [briefingSummary, setBriefingSummary] = useState<string>('');
+  const [briefingLoading, setBriefingLoading] = useState(false);
+  const [spotlightIndex, setSpotlightIndex] = useState(
+    () => Math.floor(Math.random() * 7) // random 0-6 on each load
+  );
+
+  // Get today's lead story — highest severity article in last 24h
+  const leadStory = useMemo(() => {
+    const yesterday = Date.now() - 24 * 60 * 60 * 1000;
+    return rssArticles
+      .filter(a => new Date(a.published_at).getTime() > yesterday)
+      .sort((a, b) => b.severity - a.severity)[0] || null;
+  }, [rssArticles]);
+
+  // Recent articles strip — last 8
+  const recentArticles = useMemo(() =>
+    rssArticles.slice(0, 8),
+    [rssArticles]
+  );
+
+  // Generate daily briefing on load (once per day)
+  useEffect(() => {
+    const todayKey = `briefing_${new Date().toISOString().slice(0, 10)}`;
+    const cached = localStorage.getItem(todayKey);
+    if (cached) {
+      setBriefingSummary(cached);
+      return;
+    }
+
+    setBriefingLoading(true);
+    const prompt = `You are a senior political analyst for Tunisia.
+    
+Write a 3-sentence executive intelligence briefing for today.
+Focus on the most critical current situation.
+Current data: R(t)=${rriState.rri.toFixed(2)}, P_rev=${(rriState.p_rev*100).toFixed(1)}%,
+FX reserves=${data.economy.fx_reserves} days, UGTT=${data.social.ugtt_mobilisation_level},
+Protests=${data.social.protest_events_30d}/month, Water crisis=${data.social.water_crisis_govs} govs.
+${leadStory ? `Lead story: ${leadStory.title}` : ''}
+
+Write in the style of a classified intelligence brief. Be direct and specific.
+Return only the 3-sentence briefing.`;
+
+    generateAnalystResponse(prompt, {})
+      .then(summary => {
+        if (summary) {
+          setBriefingSummary(summary);
+          localStorage.setItem(todayKey, summary);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setBriefingLoading(false));
+  }, [rriState.rri, leadStory?.url]);
+
+  // Rotate spotlight every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSpotlightIndex(prev => (prev + 1) % 7);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -479,6 +548,547 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
         ))}
       </div>
     </div>
+
+    {/* ============================================
+        NEW ROW — DAILY BRIEFING + LEAD STORY
+    ============================================ */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {/* Daily AI Briefing */}
+      <div className="lg:col-span-2 glass p-6 rounded-2xl
+        border border-intel-border/50 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-4 h-4 text-intel-cyan" />
+            <span className="text-[10px] font-mono text-slate-500
+              uppercase tracking-widest">
+              Daily Intelligence Brief —{' '}
+              {new Date().toLocaleDateString('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric'
+              })}
+            </span>
+          </div>
+          <span className="text-[8px] font-mono text-slate-700">
+            Gemini-powered · Refreshes daily
+          </span>
+        </div>
+
+        {briefingLoading ? (
+          <div className="flex items-center space-x-3 py-4">
+            <RefreshCw className="w-4 h-4 text-intel-cyan animate-spin" />
+            <span className="text-[11px] font-mono text-slate-500">
+              Generating intelligence briefing...
+            </span>
+          </div>
+        ) : briefingSummary ? (
+          <p className="text-sm text-slate-300 leading-relaxed
+            font-light italic border-l-2 border-intel-cyan/30 pl-4">
+            "{briefingSummary}"
+          </p>
+        ) : (
+          <p className="text-[11px] text-slate-600 italic">
+            Briefing generation requires Gemini API key.
+            Current R(t) = {rriState.rri.toFixed(4)} —
+            P_rev = {(rriState.p_rev * 100).toFixed(1)}% —
+            {rriState.threshold_breaches?.length || 0} threshold
+            breaches active.
+          </p>
+        )}
+      </div>
+
+      {/* Lead Story */}
+      <div className={`glass p-5 rounded-2xl border space-y-3 ${
+        leadStory?.severity >= 4
+          ? 'border-intel-red/30 bg-intel-red/5'
+          : 'border-intel-border/50'
+      }`}>
+        <div className="flex items-center space-x-2">
+          <Radio className="w-3.5 h-3.5 text-intel-orange" />
+          <span className="text-[9px] font-mono text-slate-500
+            uppercase tracking-widest">Lead Story</span>
+          {leadStory && (
+            <span className={`text-[7px] font-mono px-1.5 py-0.5
+              rounded border ml-auto ${
+              leadStory.severity >= 4
+                ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+                : 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+            }`}>SEV {leadStory.severity}</span>
+          )}
+        </div>
+
+        {leadStory ? (
+          <div className="space-y-2">
+            <div className="text-[11px] font-bold text-white
+              leading-snug">{leadStory.title}</div>
+            <div className="text-[9px] text-slate-400 leading-snug">
+              {(leadStory as any).ai_summary || leadStory.summary?.slice(0, 120)}
+              {(leadStory.summary?.length || 0) > 120 ? '...' : ''}
+            </div>
+            <div className="flex items-center justify-between
+              text-[8px] font-mono">
+              <span className="text-slate-600">{leadStory.source_name}</span>
+              <span className="text-slate-700">
+                {new Date(leadStory.published_at)
+                  .toLocaleTimeString('en-GB', {
+                    hour: '2-digit', minute: '2-digit'
+                  })}
+              </span>
+            </div>
+            {leadStory.url && (
+              <a href={leadStory.url} target="_blank"
+                rel="noopener noreferrer"
+                className="text-[9px] font-mono text-intel-cyan
+                  hover:underline flex items-center space-x-1">
+                <ExternalLink className="w-3 h-3" />
+                <span>Read full article</span>
+              </a>
+            )}
+          </div>
+        ) : (
+          <div className="text-[11px] text-slate-600 italic py-4
+            text-center">
+            No articles in last 24 hours.
+            <br />
+            <button onClick={() => window.dispatchEvent(
+              new CustomEvent('navigate-main', { detail: { tab: 'newsfeed' }})
+            )} className="text-intel-cyan hover:underline mt-1 block">
+              Check News Feed →
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* ============================================
+        NEW ROW — ROTATING INTELLIGENCE SPOTLIGHT
+        Different module featured each load / every 30s
+    ============================================ */}
+    <div className="glass p-6 rounded-2xl border border-intel-border/50
+      space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Zap className="w-4 h-4 text-intel-orange" />
+          <span className="text-[10px] font-mono text-slate-500
+            uppercase tracking-widest">Intelligence Spotlight</span>
+          <span className="text-[8px] font-mono text-slate-700">
+            Rotates every 30s
+          </span>
+        </div>
+        <div className="flex items-center space-x-1">
+          {Array.from({length: 7}).map((_, i) => (
+            <button key={i} onClick={() => setSpotlightIndex(i)}
+              className={`w-1.5 h-1.5 rounded-full transition-all ${
+              spotlightIndex === i ? 'bg-intel-cyan' : 'bg-slate-700'
+            }`} />
+          ))}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={spotlightIndex}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3 }}
+        >
+          {spotlightIndex === 0 && (
+            /* UGTT Strike Risk */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  UGTT Strike Risk
+                </div>
+                <div className={`text-4xl font-bold font-mono ${
+                  data.social.ugtt_mobilisation_level === 'HIGH'
+                    ? 'text-intel-red'
+                    : 'text-intel-orange'
+                }`}>64%</div>
+                <div className="text-[10px] text-slate-500">
+                  General strike trigger probability.
+                  {data.social.ugtt_mobilisation_level === 'HIGH'
+                    ? ' UGTT at maximum mobilisation.'
+                    : ' UGTT pressure building.'}
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-to-pipeline', {
+                    detail: { tab: 'political', subTab: 'ugtt' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View UGTT Monitor →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { label: 'Strike count 2025', value: `${data.social.ugtt_strike_count_2025 || 847}`, color: 'text-intel-red' },
+                  { label: 'CPG wage arrears', value: '3 months unpaid', color: 'text-intel-orange' },
+                  { label: 'Last formal notice', value: '28 Jan 2026', color: 'text-white' },
+                  { label: 'Mobilisation level', value: data.social.ugtt_mobilisation_level, color: data.social.ugtt_mobilisation_level === 'HIGH' ? 'text-intel-red' : 'text-intel-orange' },
+                  { label: 'Strike impact on R(t)', value: '+0.14 if triggered', color: 'text-intel-red' },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between
+                    text-[10px] border-b border-intel-border/20 pb-1.5">
+                    <span className="text-slate-500">{item.label}</span>
+                    <span className={`font-mono font-bold ${item.color}`}>
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 1 && (
+            /* Water Crisis */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  Water Crisis
+                </div>
+                <div className="text-4xl font-bold font-mono text-intel-red">
+                  {data.social.water_crisis_govs}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  Governorates in critical water stress.
+                  Sfax: 6hrs/day supply.
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-to-pipeline', {
+                    detail: { tab: 'environment', subTab: 'water' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View Water Crisis →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { gov: 'Sfax', hours: '6 hrs/day', status: 'CRITICAL' },
+                  { gov: 'Kairouan', hours: '4 hrs/day', status: 'CRITICAL' },
+                  { gov: 'Kasserine', hours: '9 hrs/day', status: 'HIGH' },
+                  { gov: 'Gafsa', hours: '10 hrs/day', status: 'HIGH' },
+                  { gov: 'Sidi Bouzid', hours: '10 hrs/day', status: 'HIGH' },
+                ].map(item => (
+                  <div key={item.gov} className="flex items-center
+                    justify-between text-[10px] border-b
+                    border-intel-border/20 pb-1.5">
+                    <span className="text-slate-400">{item.gov}</span>
+                    <span className="text-slate-500 font-mono">
+                      {item.hours}
+                    </span>
+                    <span className={`text-[8px] font-mono px-1.5 py-0.5
+                      rounded border ${
+                      item.status === 'CRITICAL'
+                        ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+                        : 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+                    }`}>{item.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 2 && (
+            /* FX Reserves Countdown */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  FX Reserve Countdown
+                </div>
+                <div className={`text-4xl font-bold font-mono ${
+                  data.economy.fx_reserves < 90
+                    ? 'text-intel-orange'
+                    : 'text-intel-cyan'
+                }`}>{data.economy.fx_reserves}d</div>
+                <div className="text-[10px] text-slate-500">
+                  Days of import cover.
+                  Warning: 90d · Crisis: 60d
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-to-pipeline', {
+                    detail: { tab: 'economy', subTab: 'macro' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View Economy →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { label: 'Current', value: `${data.economy.fx_reserves} days`, color: data.economy.fx_reserves < 90 ? 'text-intel-orange' : 'text-intel-cyan' },
+                  { label: 'Warning threshold', value: '90 days', color: 'text-yellow-500' },
+                  { label: 'Crisis threshold', value: '60 days', color: 'text-intel-red' },
+                  { label: 'Depletion rate', value: '~0.8 days/week', color: 'text-intel-orange' },
+                  { label: 'Crisis ETA (projected)', value: `~${Math.round((data.economy.fx_reserves - 60) / 0.8)} weeks`, color: 'text-intel-red' },
+                  { label: 'IMF deal probability', value: `${data.geopolitical?.imf_deal_probability ?? 31}%`, color: 'text-intel-orange' },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between
+                    text-[10px] border-b border-intel-border/20 pb-1.5">
+                    <span className="text-slate-500">{item.label}</span>
+                    <span className={`font-mono font-bold ${item.color}`}>
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 3 && (
+            /* Political Prisoners */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  Political Prisoners
+                </div>
+                <div className="text-4xl font-bold font-mono text-intel-red">
+                  {data.social.decree54_charged}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  Decree 54 charges filed.
+                  12+ political prisoners detained.
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-to-pipeline', {
+                    detail: { tab: 'calendar' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View Persecution Tracker →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { name: 'Rached Ghannouchi', days: Math.floor((Date.now() - new Date('2023-04-17').getTime()) / 86400000), charge: 'Terrorism' },
+                  { name: 'Noureddine Bhiri', days: Math.floor((Date.now() - new Date('2022-01-03').getTime()) / 86400000), charge: 'Terrorism' },
+                  { name: 'Sonia Dahmani', days: Math.floor((Date.now() - new Date('2024-05-11').getTime()) / 86400000), charge: 'Decree 54' },
+                  { name: 'Ghazi Chaouachi', days: Math.floor((Date.now() - new Date('2023-02-11').getTime()) / 86400000), charge: 'Terrorism' },
+                ].map(item => (
+                  <div key={item.name} className="flex items-center
+                    justify-between text-[10px] border-b
+                    border-intel-border/20 pb-1.5">
+                    <span className="text-slate-300 font-bold">
+                      {item.name}
+                    </span>
+                    <span className="text-intel-red font-mono font-bold">
+                      {item.days}d
+                    </span>
+                    <span className="text-slate-600 text-[8px] font-mono">
+                      {item.charge}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 4 && (
+            /* Cascade Risk */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  Cascade Risk
+                </div>
+                <div className={`text-4xl font-bold font-mono ${
+                  rriState.cascade_probability > 0.6
+                    ? 'text-intel-red'
+                    : 'text-intel-orange'
+                }`}>
+                  {(rriState.cascade_probability * 100).toFixed(0)}%
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  P_cascade — EQ.17. Regional protest
+                  propagation probability.
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-main', {
+                    detail: { tab: 'risk' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View Risk Model →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { path: 'Sfax → Kasserine', prob: 71, active: true },
+                  { path: 'Sfax → Gafsa', prob: 58, active: true },
+                  { path: 'Kasserine → Sidi Bouzid', prob: 52, active: true },
+                  { path: 'Kairouan → Kasserine', prob: 44, active: false },
+                  { path: 'Gabes → Medenine', prob: 38, active: false },
+                ].map(item => (
+                  <div key={item.path} className="space-y-1">
+                    <div className="flex justify-between text-[9px] font-mono">
+                      <span className="text-slate-400">{item.path}</span>
+                      <span className={item.prob > 60
+                        ? 'text-intel-red font-bold'
+                        : 'text-intel-orange'
+                      }>{item.prob}%</span>
+                    </div>
+                    <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${
+                        item.prob > 60 ? 'bg-intel-red' : 'bg-intel-orange'
+                      }`} style={{ width: `${item.prob}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 5 && (
+            /* Migration Watch */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  Migration Watch
+                </div>
+                <div className="text-4xl font-bold font-mono text-intel-orange">
+                  36k
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  Annual crossing attempts.
+                  65% depart from Sfax.
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('navigate-to-pipeline', {
+                    detail: { tab: 'security' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View Security →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { label: 'Annual attempts', value: '36,000', color: 'text-intel-orange' },
+                  { label: 'Deaths per year', value: '~1,200', color: 'text-intel-red' },
+                  { label: 'EU deal interceptions', value: '23,000/yr', color: 'text-intel-cyan' },
+                  { label: 'Sfax departure share', value: '65%', color: 'text-intel-orange' },
+                  { label: 'EU deal funding', value: '€105M (Jun 2023)', color: 'text-white' },
+                  { label: 'Youth emigration aspiration', value: '65% want to leave', color: 'text-intel-red' },
+                ].map(item => (
+                  <div key={item.label} className="flex justify-between
+                    text-[10px] border-b border-intel-border/20 pb-1.5">
+                    <span className="text-slate-500">{item.label}</span>
+                    <span className={`font-mono font-bold ${item.color}`}>
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {spotlightIndex === 6 && (
+            /* Pattern Match */
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-3">
+                <div className="text-xs font-bold text-white uppercase">
+                  Historical Pattern
+                </div>
+                <div className={`text-4xl font-bold font-mono ${
+                  rriState.pattern_similarity > 0.65
+                    ? 'text-intel-red'
+                    : rriState.pattern_similarity > 0.5
+                    ? 'text-intel-orange'
+                    : 'text-slate-400'
+                }`}>
+                  {(rriState.pattern_similarity * 100).toFixed(0)}%
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {rriState.pattern_label || 'No active match'}
+                </div>
+                <button onClick={() => window.dispatchEvent(
+                  new CustomEvent('open-methodology', {
+                    detail: { equation: '20' }
+                  })
+                )} className="text-[9px] font-mono text-intel-cyan
+                  hover:underline">View EQ.20 →</button>
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                {[
+                  { ref: 'Tunisia 2010 Q3', similarity: 71, outcome: 'Revolution (Jan 2011)' },
+                  { ref: 'Tunisia 2021 Q1', similarity: 64, outcome: 'Coup (Jul 2021)' },
+                  { ref: 'Egypt 2011', similarity: 58, outcome: 'Revolution' },
+                  { ref: 'Algeria 2019 Hirak', similarity: 44, outcome: 'Regime concessions' },
+                ].map(item => (
+                  <div key={item.ref} className="flex items-center
+                    justify-between text-[10px] border-b
+                    border-intel-border/20 pb-1.5">
+                    <span className="text-slate-400 text-[9px]">
+                      {item.ref}
+                    </span>
+                    <span className={`font-mono font-bold ${
+                      item.similarity > 65 ? 'text-intel-red' :
+                      item.similarity > 50 ? 'text-intel-orange' :
+                      'text-slate-500'
+                    }`}>{item.similarity}%</span>
+                    <span className="text-slate-700 text-[8px]">
+                      {item.outcome}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+
+    {/* ============================================
+        NEW ROW — LIVE NEWS STRIP
+    ============================================ */}
+    {recentArticles.length > 0 && (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Radio className="w-3.5 h-3.5 text-intel-cyan" />
+            <span className="text-[9px] font-mono text-slate-500
+              uppercase tracking-widest">Live Feed</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-intel-green
+              animate-pulse" />
+          </div>
+          <button onClick={() => window.dispatchEvent(
+            new CustomEvent('navigate-main', { detail: { tab: 'newsfeed' }})
+          )} className="text-[9px] font-mono text-intel-cyan
+            hover:underline">View all →</button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2
+          lg:grid-cols-4 gap-3">
+          {recentArticles.slice(0, 4).map(article => (
+            <a
+              key={article.id}
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-xl border border-intel-border/30
+                bg-black/20 hover:border-intel-border/60
+                transition-all group space-y-2 block"
+            >
+              <div className="flex items-center
+                justify-between">
+                <span className={`text-[7px] font-mono px-1.5
+                  py-0.5 rounded border uppercase ${
+                  article.severity >= 4
+                    ? 'text-intel-red border-intel-red/30 bg-intel-red/10'
+                    : article.severity >= 3
+                    ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10'
+                    : 'text-slate-600 border-slate-700'
+                }`}>
+                  {article.category || 'news'}
+                </span>
+                <span className="text-[8px] font-mono text-slate-700">
+                  {new Date(article.published_at)
+                    .toLocaleTimeString('en-GB', {
+                      hour: '2-digit', minute: '2-digit'
+                    })}
+                </span>
+              </div>
+              <div className="text-[10px] text-slate-300
+                group-hover:text-white transition-colors
+                leading-snug line-clamp-2 font-medium">
+                {article.title}
+              </div>
+              <div className="text-[8px] font-mono text-slate-600">
+                {article.source_name}
+                {article.governorate && ` · ${article.governorate}`}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
 
     {/* ============================================
         ROW 2 — EXECUTIVE SUMMARY & STRATEGIC OUTLOOK
