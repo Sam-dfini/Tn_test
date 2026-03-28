@@ -1,9 +1,37 @@
 -- ============================================================
+-- EVENTS TABLE
+-- Groups related articles into a single intelligence event
+-- ============================================================
+create table if not exists events (
+  id uuid default gen_random_uuid() primary key,
+  event_key text not null unique, -- category + governorate + date
+  title text not null,
+  description text,
+  category text not null,
+  governorate text,
+  severity integer default 1,
+  status text default 'ACTIVE',   -- ACTIVE/RESOLVED/ARCHIVED
+  article_count integer default 0,
+  pro_gov_count integer default 0,
+  neutral_count integer default 0,
+  critical_count integer default 0,
+  alarmist_count integer default 0,
+  minimizing_count integer default 0,
+  last_updated timestamptz default now(),
+  created_at timestamptz default now()
+);
+
+create index events_key_idx on events(event_key);
+create index events_category_idx on events(category);
+create index events_governorate_idx on events(governorate);
+
+-- ============================================================
 -- ARTICLES TABLE
 -- Stores all RSS articles ingested from monitored sources
 -- ============================================================
 create table if not exists articles (
   id uuid default gen_random_uuid() primary key,
+  event_id uuid references events(id), -- link to event
   source_id text not null,        -- e.g. 'rss-nawaat'
   source_name text not null,      -- e.g. 'Nawaat'
   title text not null,
@@ -13,6 +41,7 @@ create table if not exists articles (
   fetched_at timestamptz default now(),
   content text,                   -- full article text if available
   summary text,                   -- extracted summary
+  ai_summary text,                -- AI generated summary
   language text default 'fr',    -- ar/fr/en
   -- Classification
   category text,                  -- protest/economic/arrest/political/water/migration
@@ -20,6 +49,9 @@ create table if not exists articles (
   governorate text,               -- detected governorate
   actors text[],                  -- detected actors
   keywords text[],                -- matched keywords
+  -- Bias & Narrative
+  bias_alignment text default 'NEUTRAL', -- PRO_GOV/NEUTRAL/CRITICAL
+  bias_tone text default 'NEUTRAL',      -- ALARMIST/NEUTRAL/MINIMIZING
   -- RRI impact
   rri_nudge float default 0,     -- calculated nudge to R(t)
   rri_variable text,              -- which RRI variable
@@ -131,6 +163,7 @@ alter table sources enable row level security;
 alter table price_reports enable row level security;
 alter table notifications enable row level security;
 alter table rri_snapshots enable row level security;
+alter table events enable row level security;
 
 -- Allow all operations for now (tighten when auth is added)
 create policy "Allow all" on articles for all using (true) with check (true);
@@ -138,3 +171,4 @@ create policy "Allow all" on sources for all using (true) with check (true);
 create policy "Allow all" on price_reports for all using (true) with check (true);
 create policy "Allow all" on notifications for all using (true) with check (true);
 create policy "Allow all" on rri_snapshots for all using (true) with check (true);
+create policy "Allow all" on events for all using (true) with check (true);

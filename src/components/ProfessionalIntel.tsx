@@ -46,9 +46,9 @@ import { StrategicModeling } from './StrategicModeling';
 import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { PoliticalIntelligence } from './PoliticalIntelligence';
 import { PoliticalCalendar } from './PoliticalCalendar';
-import SimulationIntelligence from './SimulationIntelligence';
 import { CivilizationalAnalysis } from './CivilizationalAnalysis';
 import { NewsFeed } from './NewsFeed';
+import { EventsIntelligence } from './EventsIntelligence';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
@@ -147,7 +147,8 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const { data, rriState, auditLog } = usePipeline();
   const { articles: rssArticles } = useRSS();
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'simulation' | 'methodology' | 'civilizational' | 'calendar'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'events' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'political' | 'methodology' | 'civilizational' | 'calendar'>('overview');
+  const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine'>('news');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -158,6 +159,18 @@ export const ProfessionalIntel: React.FC<{ context?: any }> = ({ context }) => {
   const [spotlightIndex, setSpotlightIndex] = useState(
     () => Math.floor(Math.random() * 7) // random 0-6 on each load
   );
+
+  const renderValue = (val: any) => {
+    if (val === null || val === undefined) return 'N/A';
+    if (typeof val === 'object') {
+      const keys = Object.keys(val);
+      if (keys.length > 0) {
+        return `{${keys.slice(0, 2).join(', ')}${keys.length > 2 ? '...' : ''}}`;
+      }
+      return JSON.stringify(val);
+    }
+    return String(val);
+  };
 
   // Get today's lead story — highest severity article in last 24h
   const leadStory = useMemo(() => {
@@ -216,6 +229,7 @@ Return only the 3-sentence briefing.`;
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'events', label: 'Events', icon: Radio },
     { id: 'economy', label: 'Economy', icon: TrendingUp },
     { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
     { id: 'political', label: 'Political', icon: Users },
@@ -225,7 +239,6 @@ Return only the 3-sentence briefing.`;
     { id: 'environment', label: 'Environment', icon: Sprout },
     { id: 'social', label: 'Social', icon: Users },
     { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
-    { id: 'simulation', label: 'Simulation', icon: Cpu },
     { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
     { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
   ];
@@ -425,6 +438,35 @@ Return only the 3-sentence briefing.`;
       </div>
 
       <div className="px-4 md:px-8 py-4 md:py-8">
+        {activeTab === 'events' && (
+          <div className="space-y-6">
+            <div className="flex items-center space-x-6 border-b border-intel-border/30 pb-4">
+              <button
+                onClick={() => setEventsSubTab('news')}
+                className={`text-[10px] font-mono uppercase tracking-widest pb-2 transition-all relative ${
+                  eventsSubTab === 'news' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                1 Real-time News Feed
+                {eventsSubTab === 'news' && (
+                  <motion.div layoutId="events-subtab" className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-intel-cyan" />
+                )}
+              </button>
+              <button
+                onClick={() => setEventsSubTab('engine')}
+                className={`text-[10px] font-mono uppercase tracking-widest pb-2 transition-all relative ${
+                  eventsSubTab === 'engine' ? 'text-intel-cyan' : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                2 Event Engine // Narrative Comparison
+                {eventsSubTab === 'engine' && (
+                  <motion.div layoutId="events-subtab" className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-intel-cyan" />
+                )}
+              </button>
+            </div>
+            {eventsSubTab === 'news' ? <NewsFeed /> : <EventsIntelligence />}
+          </div>
+        )}
         {activeTab === 'overview' ? (
   <div className="space-y-8 pb-8">
 
@@ -557,18 +599,18 @@ Return only the 3-sentence briefing.`;
       {/* Daily AI Briefing */}
       <div className="lg:col-span-2 glass p-6 rounded-2xl
         border border-intel-border/50 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col lg:flex-row items-center justify-between space-y-2 lg:space-y-0">
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-intel-cyan" />
             <span className="text-[10px] font-mono text-slate-500
-              uppercase tracking-widest">
+              uppercase tracking-widest text-center lg:text-left">
               Daily Intelligence Brief —{' '}
               {new Date().toLocaleDateString('en-GB', {
                 day: 'numeric', month: 'long', year: 'numeric'
               })}
             </span>
           </div>
-          <span className="text-[8px] font-mono text-slate-700">
+          <span className="text-[8px] font-mono text-slate-700 text-center lg:text-right">
             Gemini-powered · Refreshes daily
           </span>
         </div>
@@ -582,7 +624,7 @@ Return only the 3-sentence briefing.`;
           </div>
         ) : briefingSummary ? (
           <p className="text-sm text-slate-300 leading-relaxed
-            font-light italic border-l-2 border-intel-cyan/30 pl-4">
+            font-light italic border-l-0 lg:border-l-2 border-intel-cyan/30 pl-0 lg:pl-4 text-center lg:text-left">
             "{briefingSummary}"
           </p>
         ) : (
@@ -1725,7 +1767,7 @@ Return only the 3-sentence briefing.`;
                   {event.label} Updated
                 </div>
                 <div className="text-[8px] font-mono text-slate-600 truncate">
-                  {event.oldValue ?? 'N/A'} → {isNaN(Number(event.value)) ? '0' : event.value} // {event.source}
+                  {renderValue(event.oldValue)} → {renderValue(event.value)} // {event.source}
                 </div>
               </div>
               <span className={`text-[8px] font-mono ml-auto shrink-0 ${
@@ -1954,7 +1996,7 @@ Return only the 3-sentence briefing.`;
               }`}>{item.type}</span>
               <span className="text-slate-400 truncate flex-1">{item.label}</span>
               <span className="text-slate-500 font-mono text-[9px] shrink-0">
-                {item.oldValue ?? 'N/A'} → {isNaN(Number(item.value)) ? '0' : item.value}
+                {renderValue(item.oldValue)} → {renderValue(item.value)}
               </span>
               <span className="text-slate-700 text-[9px] shrink-0">
                 {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -2035,7 +2077,7 @@ Return only the 3-sentence briefing.`;
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: 'Intelligence Pipeline', icon: Database, action: () => window.dispatchEvent(new CustomEvent('navigate-to-pipeline')), color: 'text-intel-cyan border-intel-cyan/20 bg-intel-cyan/5' },
-          { label: 'Run Simulation', icon: Cpu, action: () => setActiveTab('simulation'), color: 'text-intel-purple border-intel-purple/20 bg-intel-purple/5' },
+          { label: 'Strategic Modeling', icon: BrainCircuit, action: () => setActiveTab('strategic'), color: 'text-intel-purple border-intel-purple/20 bg-intel-purple/5' },
           { label: 'Generate Report', icon: FileText, action: () => setSelectedReport(reports[0]), color: 'text-intel-green border-intel-green/20 bg-intel-green/5' },
           { label: 'Export Data', icon: Download, action: handleDownloadOutlook, color: 'text-slate-400 border-white/10 bg-white/5' },
         ].map(action => (
@@ -2113,7 +2155,12 @@ Return only the 3-sentence briefing.`;
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
       ) : (
-        <SimulationIntelligence context={context} variables={context?.variables || []} />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center space-y-4">
+            <LayoutDashboard className="w-12 h-12 text-intel-border mx-auto" />
+            <p className="text-xs font-mono text-slate-500 uppercase tracking-widest">Select a module to begin analysis</p>
+          </div>
+        </div>
       )}
       </div>
     </div>

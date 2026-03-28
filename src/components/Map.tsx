@@ -23,9 +23,10 @@ interface MapProps {
   events: IntelEvent[];
   activeLayer: string;
   heatmapPoints?: { lat: number; lon: number; intensity: number; label?: string; risk?: string }[];
+  onSelectGovernorate?: (gov: Governorate) => void;
 }
 
-export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, heatmapPoints }) => {
+export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, heatmapPoints, onSelectGovernorate }) => {
   const tunisiaCenter: [number, number] = [33.8869, 9.5375];
   const zoom = 6;
 
@@ -63,6 +64,69 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
           
+          {/* Governorate Markers Layer */}
+          {(governorates || []).filter(g => g.lat != null && g.lon != null).map(gov => (
+            <Marker 
+              key={`gov-${gov.id}`} 
+              position={[gov.lat!, gov.lon!]}
+              eventHandlers={{
+                click: () => onSelectGovernorate?.(gov)
+              }}
+              icon={L.divIcon({
+                className: 'gov-marker-icon',
+                html: `<div class="relative group">
+                        <div class="absolute inset-0 w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-black/40 backdrop-blur-sm"></div>
+                        <div class="w-2.5 h-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30 shadow-lg ${
+                          gov.risk_level === 'ALERT' ? 'bg-intel-red shadow-intel-red/50' : 
+                          gov.risk_level === 'HIGH' ? 'bg-intel-orange shadow-intel-orange/50' : 
+                          gov.risk_level === 'MEDIUM' ? 'bg-intel-purple shadow-intel-purple/50' : 
+                          'bg-intel-green shadow-intel-green/50'
+                        }"></div>
+                        <div class="absolute top-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 border border-white/10 px-2 py-1 rounded text-[8px] font-mono text-white whitespace-nowrap z-50 pointer-events-none">
+                          ${gov.name.en}
+                        </div>
+                      </div>`,
+                iconSize: [0, 0],
+              })}
+            >
+              <Popup className="intel-popup">
+                <div className="p-3 min-w-[180px] bg-intel-card text-slate-300 border border-intel-border rounded-lg shadow-2xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[8px] font-mono text-slate-500 uppercase">{gov.id}</span>
+                    <span className={cn(
+                      "text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border",
+                      gov.risk_level === 'ALERT' ? "bg-intel-red/10 text-intel-red border-intel-red/20" : 
+                      gov.risk_level === 'HIGH' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
+                      "bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20"
+                    )}>
+                      {gov.risk_level}
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white uppercase mb-1">{gov.name.en}</h4>
+                  <div className="text-[10px] font-mono text-slate-400 mb-3">{gov.name.ar}</div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="p-1.5 rounded bg-white/5 border border-white/5">
+                      <div className="text-[7px] text-slate-500 uppercase font-mono">RRI Score</div>
+                      <div className="text-xs font-bold text-white font-mono">{gov.rri_score.toFixed(2)}</div>
+                    </div>
+                    <div className="p-1.5 rounded bg-white/5 border border-white/5">
+                      <div className="text-[7px] text-slate-500 uppercase font-mono">Unemp</div>
+                      <div className="text-xs font-bold text-white font-mono">{gov.unemp}%</div>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => onSelectGovernorate?.(gov)}
+                    className="w-full py-1.5 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded text-[8px] font-mono text-intel-cyan font-bold transition-all uppercase"
+                  >
+                    Analyze Region →
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
           {/* Heatmap Layer Simulation */}
           {heatmapPoints?.map((point, i) => (
             <React.Fragment key={`heat-${i}`}>

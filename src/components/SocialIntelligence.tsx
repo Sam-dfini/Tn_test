@@ -1335,16 +1335,18 @@ export const SocialIntelligence: React.FC = () => {
                               { region: 'Tunis', val: 45 },
                               { region: 'Sfax', val: 52 },
                               { region: 'Sousse', val: 48 },
+                              { region: 'Kef', val: 68 },
                               { region: 'Gafsa', val: 78 },
                               { region: 'Kasserine', val: 82 },
-                              { region: 'Medenine', val: 74 }
+                              { region: 'Medenine', val: 74 },
+                              { region: 'Jendouba', val: 71 }
                             ]}>
                               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                               <XAxis dataKey="region" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
                               <YAxis hide domain={[0, 100]} />
                               <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px' }} />
                               <Bar dataKey="val" radius={[4, 4, 0, 0]}>
-                                {[45, 52, 48, 78, 82, 74].map((v, i) => (
+                                {[45, 52, 48, 68, 78, 82, 74, 71].map((v, i) => (
                                   <Cell key={i} fill={v > 70 ? '#ef4444' : v > 50 ? '#f97316' : '#00f2ff'} />
                                 ))}
                               </Bar>

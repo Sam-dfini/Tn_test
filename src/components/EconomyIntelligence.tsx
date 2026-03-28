@@ -161,15 +161,27 @@ const povertyByGovernorate = [
   { name: 'Kairouan', rate: 34.2, change: '+2.1', risk: 'CRITICAL', governance: 3.2, vulnerability: 8.5 },
   { name: 'Kasserine', rate: 32.8, change: '+1.8', risk: 'CRITICAL', governance: 2.8, vulnerability: 9.2 },
   { name: 'Sidi Bouzid', rate: 30.5, change: '+1.5', risk: 'CRITICAL', governance: 3.5, vulnerability: 8.8 },
-  { name: 'Beja', rate: 24.2, change: '+0.8', risk: 'HIGH', governance: 4.2, vulnerability: 7.5 },
-  { name: 'Jendouba', rate: 23.8, change: '+1.2', risk: 'HIGH', governance: 3.8, vulnerability: 7.9 },
-  { name: 'Siliana', rate: 22.5, change: '+0.5', risk: 'HIGH', governance: 4.0, vulnerability: 7.2 },
+  { name: 'Tataouine', rate: 30.4, change: '+2.2', risk: 'CRITICAL', governance: 3.1, vulnerability: 8.9 },
+  { name: 'Kef', rate: 28.4, change: '+1.2', risk: 'CRITICAL', governance: 3.8, vulnerability: 8.2 },
+  { name: 'Kebili', rate: 28.2, change: '+1.4', risk: 'HIGH', governance: 4.1, vulnerability: 7.8 },
+  { name: 'Siliana', rate: 26.4, change: '+0.5', risk: 'HIGH', governance: 4.0, vulnerability: 7.2 },
+  { name: 'Jendouba', rate: 24.8, change: '+1.2', risk: 'HIGH', governance: 3.8, vulnerability: 7.9 },
+  { name: 'Tozeur', rate: 24.8, change: '+1.1', risk: 'HIGH', governance: 4.3, vulnerability: 7.4 },
   { name: 'Gafsa', rate: 21.2, change: '+2.4', risk: 'HIGH', governance: 4.5, vulnerability: 8.1 },
-  { name: 'Kebili', rate: 18.4, change: '-0.2', risk: 'MEDIUM', governance: 5.8, vulnerability: 6.5 },
-  { name: 'Medenine', rate: 16.8, change: '-0.5', risk: 'MEDIUM', governance: 6.2, vulnerability: 6.0 },
+  { name: 'Beja', rate: 16.8, change: '+0.3', risk: 'MEDIUM', governance: 5.4, vulnerability: 5.8 },
+  { name: 'Mahdia', rate: 16.4, change: '+0.4', risk: 'MEDIUM', governance: 5.8, vulnerability: 5.5 },
+  { name: 'Zaghouan', rate: 14.8, change: '+0.2', risk: 'MEDIUM', governance: 6.1, vulnerability: 5.2 },
+  { name: 'Bizerte', rate: 14.2, change: '+0.5', risk: 'MEDIUM', governance: 6.4, vulnerability: 4.8 },
   { name: 'Sfax', rate: 12.4, change: '+0.4', risk: 'MEDIUM', governance: 7.1, vulnerability: 4.2 },
-  { name: 'Sousse', rate: 10.2, change: '+0.2', risk: 'LOW', border: 'MEDIUM', governance: 7.5, vulnerability: 3.8 },
-  { name: 'Tunis', rate: 8.4, change: '+0.1', risk: 'LOW', governance: 8.5, vulnerability: 2.5 }
+  { name: 'Manouba', rate: 11.8, change: '+0.2', risk: 'LOW', governance: 7.4, vulnerability: 3.5 },
+  { name: 'Ariana', rate: 11.4, change: '+0.1', risk: 'LOW', governance: 7.8, vulnerability: 3.2 },
+  { name: 'Tunis', rate: 8.4, change: '+0.1', risk: 'LOW', governance: 8.5, vulnerability: 2.5 },
+  { name: 'Ben Arous', rate: 10.8, change: '+0.1', risk: 'LOW', governance: 8.1, vulnerability: 3.0 },
+  { name: 'Sousse', rate: 10.2, change: '+0.2', risk: 'LOW', governance: 7.5, vulnerability: 3.8 },
+  { name: 'Monastir', rate: 9.8, change: '+0.1', risk: 'LOW', governance: 8.4, vulnerability: 2.8 },
+  { name: 'Nabeul', rate: 8.8, change: '+0.1', risk: 'LOW', governance: 8.2, vulnerability: 2.6 },
+  { name: 'Gabes', rate: 22.4, change: '+0.9', risk: 'HIGH', governance: 4.6, vulnerability: 7.1 },
+  { name: 'Medenine', rate: 18.8, change: '-0.5', risk: 'MEDIUM', governance: 6.2, vulnerability: 6.0 }
 ];
 
 const criticalMolecules = [
@@ -184,12 +196,39 @@ const criticalMolecules = [
 ];
 
 const foodBasketData = [
-  { month: 'OCT', cost: 145, change: 2.4 },
-  { month: 'NOV', cost: 152, change: 4.8 },
-  { month: 'DEC', cost: 158, change: 3.9 },
-  { month: 'JAN', cost: 165, change: 4.4 },
-  { month: 'FEB', cost: 172, change: 4.2 },
-  { month: 'MAR', cost: 185, change: 7.5 }
+  { month: 'OCT', essential: 145, luxury: 185, change: 2.4 },
+  { month: 'NOV', essential: 152, luxury: 198, change: 4.8 },
+  { month: 'DEC', essential: 158, luxury: 210, change: 3.9 },
+  { month: 'JAN', essential: 165, luxury: 225, change: 4.4 },
+  { month: 'FEB', essential: 172, luxury: 240, change: 4.2 },
+  { month: 'MAR', essential: 185, luxury: 265, change: 7.5 }
+];
+
+const foodBasketByGovernorate = [
+  { name: 'Tunis', essential: 145, luxury: 185, change: 2.4 },
+  { name: 'Sfax', essential: 152, luxury: 198, change: 4.8 },
+  { name: 'Gafsa', essential: 158, luxury: 210, change: 3.9 },
+  { name: 'Kasserine', essential: 165, luxury: 225, change: 4.4 },
+  { name: 'Sidi Bouzid', essential: 172, luxury: 240, change: 4.2 },
+  { name: 'Gabes', essential: 185, luxury: 265, change: 7.5 },
+  { name: 'Sousse', essential: 148, luxury: 190, change: 2.1 },
+  { name: 'Monastir', essential: 146, luxury: 188, change: 2.0 },
+  { name: 'Nabeul', essential: 144, luxury: 186, change: 1.9 },
+  { name: 'Bizerte', essential: 150, luxury: 195, change: 3.2 },
+  { name: 'Beja', essential: 155, luxury: 205, change: 4.1 },
+  { name: 'Jendouba', essential: 160, luxury: 215, change: 4.5 },
+  { name: 'Siliana', essential: 162, luxury: 220, change: 4.8 },
+  { name: 'Zaghouan', essential: 147, luxury: 192, change: 2.5 },
+  { name: 'Mahdia', essential: 149, luxury: 194, change: 2.8 },
+  { name: 'Kef', essential: 164, luxury: 222, change: 5.1 },
+  { name: 'Tozeur', essential: 168, luxury: 230, change: 5.5 },
+  { name: 'Kebili', essential: 170, luxury: 235, change: 5.8 },
+  { name: 'Tataouine', essential: 175, luxury: 245, change: 6.2 },
+  { name: 'Medenine', essential: 172, luxury: 242, change: 6.0 },
+  { name: 'Ariana', essential: 146, luxury: 187, change: 2.2 },
+  { name: 'Ben Arous', essential: 147, luxury: 189, change: 2.3 },
+  { name: 'Manouba', essential: 148, luxury: 191, change: 2.4 },
+  { name: 'Kairouan', essential: 166, luxury: 228, change: 5.4 }
 ];
 
 const povertyTrendData = [
@@ -2219,6 +2258,28 @@ export const EconomyIntelligence: React.FC = () => {
                 <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingTop: '20px' }} />
               </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="lg:col-span-3 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Food Basket Analysis</h3>
+              <p className="text-[10px] text-slate-500">Current cost by Governorates - TND</p>
+            </div>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={foodBasketByGovernorate} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} width={80} />
+                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingBottom: '20px' }} />
+                <Bar dataKey="essential" name="Essential" fill="#00f2ff" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="luxury" name="Full" fill="#bf00ff" radius={[0, 4, 4, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>

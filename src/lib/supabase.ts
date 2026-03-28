@@ -8,6 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Types matching our schema
 export interface Article {
   id: string;
+  event_id?: string;
   source_id: string;
   source_name: string;
   title: string;
@@ -17,20 +18,41 @@ export interface Article {
   fetched_at: string;
   content?: string;
   summary?: string;
+  ai_summary?: string;
   language: string;
   category?: string;
   severity: number;
   governorate?: string;
   actors?: string[];
   keywords?: string[];
+  bias_alignment: 'PRO_GOV' | 'NEUTRAL' | 'CRITICAL';
+  bias_tone: 'ALARMIST' | 'NEUTRAL' | 'MINIMIZING';
   rri_nudge: number;
   rri_variable?: string;
-  ai_summary?: string;
   confirm_count: number;
   dispute_count: number;
   context_count: number;
   processed: boolean;
   pipeline_pushed: boolean;
+}
+
+export interface Event {
+  id: string;
+  event_key: string;
+  title: string;
+  description?: string;
+  category: string;
+  governorate?: string;
+  severity: number;
+  status: 'ACTIVE' | 'RESOLVED' | 'ARCHIVED';
+  article_count: number;
+  pro_gov_count: number;
+  neutral_count: number;
+  critical_count: number;
+  alarmist_count: number;
+  minimizing_count: number;
+  last_updated: string;
+  created_at: string;
 }
 
 export interface PriceReport {

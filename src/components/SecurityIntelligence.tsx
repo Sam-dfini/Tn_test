@@ -88,6 +88,8 @@ const hotspots = [
   { id: 'HS-002', location: 'Ras Ajdir', threat: 'HIGH', type: 'Smuggling/Border', status: 'Reinforced' },
   { id: 'HS-003', location: 'Ben Guerdane', threat: 'HIGH', type: 'Insurgency Risk', status: 'High Alert' },
   { id: 'HS-004', location: 'Tunis Port', threat: 'MEDIUM', type: 'Cyber/Logistics', status: 'Monitoring' },
+  { id: 'HS-005', location: 'Mount Ouergha (Kef)', threat: 'HIGH', type: 'Counter-Terror', status: 'Active Monitoring' },
+  { id: 'HS-006', location: 'Gafsa Mining Basin', threat: 'MEDIUM', type: 'Civil Unrest', status: 'Strained' },
 ];
 
 const drugArrestsData = [

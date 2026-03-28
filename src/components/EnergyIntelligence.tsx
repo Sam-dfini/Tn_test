@@ -46,6 +46,7 @@ import {
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { Map } from './Map';
+import governoratesData from '../data/governorates.json';
 
 type EnergyTab = 'overview' | 'hydrocarbons' | 'renewables' | 'grid' | 'subsidies';
 
@@ -273,7 +274,7 @@ export const EnergyIntelligence: React.FC = () => {
         </div>
         <div className="h-[400px] w-full rounded-xl overflow-hidden border border-white/5 relative">
           <Map 
-            governorates={[]} 
+            governorates={governoratesData.governorates as any} 
             events={[]}
             heatmapPoints={vulnerabilityPoints.map(p => ({
               lat: p.lat,

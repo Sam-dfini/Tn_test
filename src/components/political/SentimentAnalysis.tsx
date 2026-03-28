@@ -62,6 +62,9 @@ const regionalSentiment = [
   { region: 'Sfax', score: 58, trend: 'down', pop: '1.2M' },
   { region: 'Gafsa', score: 41, trend: 'critical', pop: '0.4M' },
   { region: 'Sahel', score: 67, trend: 'up', pop: '1.8M' },
+  { region: 'Kef', score: 52, trend: 'stable', pop: '0.25M' },
+  { region: 'Bizerte', score: 61, trend: 'stable', pop: '0.6M' },
+  { region: 'Kairouan', score: 48, trend: 'down', pop: '0.6M' },
   { region: 'Interior', score: 45, trend: 'down', pop: '2.1M' },
 ];
 

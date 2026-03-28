@@ -73,17 +73,18 @@ import { NotificationToast } from './components/NotificationToast';
 import { useNotificationTriggers } from './hooks/useNotificationTriggers';
 
 // Components
-const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: boolean, onClose: () => void, context: any, variant?: 'sidebar' | 'floating' }) => {
+const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar', messages, setMessages }: { isOpen: boolean, onClose: () => void, context: any, variant?: 'sidebar' | 'floating', messages: { role: 'user' | 'ai', text: string }[], setMessages: React.Dispatch<React.SetStateAction<{ role: 'user' | 'ai', text: string }[]>> }) => {
   const [query, setQuery] = useState('');
-  const [messages, setMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const aiAnalystDefaultMessage = "TUNISIAINTEL v2.0 is ready. I specialize in public OSINT for Tunisia.\n\nTry asking about a specific company or person, recent news in a governorate, location intelligence, or economic developments.\n\nWhat would you like to investigate today?";
 
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([{ 
         role: 'ai', 
-        text: "TUNISIAINTEL v2.0 is ready. I specialize in public OSINT for Tunisia.\n\nTry asking about a specific company or person, recent news in a governorate, location intelligence, or economic developments.\n\nWhat would you like to investigate today?" 
+        text: aiAnalystDefaultMessage
       }]);
     }
   }, []);
@@ -91,7 +92,7 @@ const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: 
   const clearChat = () => {
     setMessages([{ 
       role: 'ai', 
-      text: "TUNISIAINTEL v2.0 is ready. I specialize in public OSINT for Tunisia.\n\nTry asking about a specific company or person, recent news in a governorate, location intelligence, or economic developments.\n\nWhat would you like to investigate today?" 
+      text: aiAnalystDefaultMessage
     }]);
   };
 
@@ -121,7 +122,7 @@ const AIAnalyst = ({ isOpen, onClose, context, variant = 'sidebar' }: { isOpen: 
 
   const containerClasses = variant === 'sidebar' 
     ? "fixed top-0 right-0 bottom-16 w-full sm:w-[400px] bg-intel-card border-l border-intel-border z-[60] flex flex-col shadow-2xl"
-    : "fixed bottom-24 right-6 w-[350px] h-[500px] bg-intel-card border border-intel-border rounded-2xl z-[60] flex flex-col shadow-2xl overflow-hidden";
+    : "fixed bottom-24 left-4 right-4 sm:left-auto sm:right-6 sm:w-[350px] h-[calc(100vh-160px)] sm:h-[500px] bg-intel-card border border-intel-border rounded-2xl z-[60] flex flex-col shadow-2xl overflow-hidden";
 
   return (
     <AnimatePresence>
@@ -517,6 +518,7 @@ export default function App() {
   const [warSuppressor, setWarSuppressor] = useState(1.0);
   const [regimeAge, setRegimeAge] = useState({ years: 5, age_pct: 0.29 });
   const [isAIAnalystOpen, setIsAIAnalystOpen] = useState(false);
+  const [aiMessages, setAiMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isPipelineOpen, setIsPipelineOpen] = useState(false);
   const [pipelineInitialTab, setPipelineInitialTab] = useState<'pipeline' | 'sources' | 'hub'>('pipeline');
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
@@ -881,6 +883,8 @@ export default function App() {
             onClose={() => setIsAIAnalystOpen(false)} 
             variant="floating"
             context={tacticalData}
+            messages={aiMessages}
+            setMessages={setAiMessages}
           />
 
           <NotificationToast />

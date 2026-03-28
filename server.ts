@@ -45,6 +45,8 @@ async function startServer() {
       'africanmanager.com',
       'realites.com.tn',
       'gnet.tn',
+      'google.com',
+      'news.google.com',
     ];
 
     try {
@@ -58,7 +60,12 @@ async function startServer() {
       }
 
       // Use insecure agent for Tunisian institutional sites which often have certificate chain issues
-      const problematicDomains = ['tap.info.tn', 'inkyfada.com', 'nawaat.org', 'businessnews.com.tn', 'kapitalis.com', 'reuters.com', 'feeds.reuters.com', 'france24.com', 'tafneed.org', 'africanmanager.com', 'realites.com.tn', 'gnet.tn'];
+      const problematicDomains = [
+        'tap.info.tn', 'inkyfada.com', 'nawaat.org', 'businessnews.com.tn', 
+        'kapitalis.com', 'reuters.com', 'france24.com', 'tafneed.org', 
+        'africanmanager.com', 'realites.com.tn', 'gnet.tn', 'middleeasteye.net',
+        'jeuneafrique.com'
+      ];
       const useInsecure = problematicDomains.some(d => parsedFeedUrl.hostname.includes(d));
 
       console.log(`Proxying RSS fetch for: ${feedUrl} (Insecure: ${useInsecure})`);

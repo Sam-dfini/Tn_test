@@ -1,119 +1,87 @@
-import { supabase, Article } from '../lib/supabase';
+import { supabase, Article, Event } from '../lib/supabase';
 import { generateAnalystResponse } from './geminiService';
 
 // ============================================================
-// RSS SOURCES — matches SourceLibrary active RSS feeds
+// RSS SOURCES — Enhanced per Blueprint
 // ============================================================
 export const RSS_SOURCES = [
   {
-    id: 'rss-nawaat',
+    id: 'nawaat',
     name: 'Nawaat',
     url: 'https://nawaat.org/feed/',
     language: 'ar/fr',
     reliability: 'A',
+    alignment: 'CRITICAL',
     keywords: ['Decree 54', 'décret', 'droits', 'UGTT', 'احتجاج', 'اعتقال'],
   },
   {
-    id: 'rss-inkyfada',
-    name: 'Inkyfada',
-    url: 'https://inkyfada.com/fr/feed/',
-    language: 'ar/fr',
-    reliability: 'A',
-    keywords: ['pollution', 'Gabes', 'water', 'eau', 'environment', 'migration'],
-  },
-  {
-    id: 'rss-businessnews',
+    id: 'businessnews',
     name: 'Business News Tunisia',
     url: 'https://www.businessnews.com.tn/rss',
     language: 'fr',
     reliability: 'B',
+    alignment: 'NEUTRAL',
     keywords: ['BCT', 'IMF', 'réserves', 'inflation', 'dinar', 'UGTT'],
   },
   {
-    id: 'rss-kapitalis',
-    name: 'Kapitalis',
-    url: 'https://kapitalis.com/tunisie/feed/',
-    language: 'fr',
-    reliability: 'B',
-    keywords: ['Saied', 'UGTT', 'grève', 'IMF', 'économie'],
-  },
-  {
-    id: 'rss-tap',
-    name: 'TAP Agency',
-    url: 'https://www.tap.info.tn/en/rss',
-    language: 'ar/fr/en',
-    reliability: 'C',
-    keywords: ['official', 'ministry', 'presidency'],
-  },
-  {
-    id: 'rss-france24-africa',
-    name: 'France 24 Africa',
-    url: 'https://www.france24.com/en/africa/rss',
-    language: 'en',
-    reliability: 'A',
-    keywords: ['Tunisia', 'Tunisie', 'IMF', 'protest'],
-  },
-  {
-    id: 'rss-mosaique',
+    id: 'mosaique',
     name: 'Mosaique FM',
     url: 'https://www.mosaiquefm.net/rss',
     language: 'ar/fr',
     reliability: 'B',
+    alignment: 'NEUTRAL',
     keywords: ['UGTT', 'grève', 'protest', 'Sfax', 'Gafsa'],
   },
   {
-    id: 'rss-tafneed',
-    name: 'Tafneed',
-    url: 'https://tafneed.org/feed/',
-    language: 'ar',
+    id: 'tap',
+    name: 'TAP Agency',
+    url: 'https://www.tap.info.tn/en/rss',
+    language: 'ar/fr/en',
+    reliability: 'C',
+    alignment: 'PRO_GOV',
+    keywords: ['official', 'ministry', 'presidency'],
+  },
+  {
+    id: 'france24',
+    name: 'France 24 English',
+    url: 'https://www.france24.com/en/rss',
+    language: 'en',
     reliability: 'A',
-    keywords: ['fact-check', 'verif', 'hoax', 'تفنيد', 'شائعة'],
+    alignment: 'NEUTRAL',
+    keywords: ['Tunisia', 'Tunisie', 'Saied', 'IMF'],
   },
   {
-    id: 'rss-africanmanager',
-    name: 'African Manager',
-    url: 'https://africanmanager.com/feed/',
-    language: 'fr/en',
+    id: 'middleeasteye',
+    name: 'Middle East Eye',
+    url: 'https://www.middleeasteye.net/rss',
+    language: 'en',
     reliability: 'B',
-    keywords: ['IMF', 'BCT', 'investment', 'economy', 'Tunisia'],
+    alignment: 'CRITICAL',
+    keywords: ['Tunisia', 'Saied', 'crackdown', 'IMF'],
   },
   {
-    id: 'rss-realites',
-    name: 'Réalités',
-    url: 'https://www.realites.com.tn/feed/',
+    id: 'jeuneafrique',
+    name: 'Jeune Afrique',
+    url: 'https://www.jeuneafrique.com/feed/',
     language: 'fr',
     reliability: 'B',
-    keywords: ['Tunisie', 'politique', 'société', 'actualité'],
+    alignment: 'NEUTRAL',
+    keywords: ['Tunisie', 'Saied', 'économie', 'politique'],
   },
   {
-    id: 'rss-gnet',
-    name: 'Gnet News',
-    url: 'https://www.gnet.tn/feed/',
-    language: 'fr',
+    id: 'google-news',
+    name: 'Google News Tunisia',
+    url: 'https://news.google.com/rss/search?q=Tunisia',
+    language: 'en/ar/fr',
     reliability: 'B',
-    keywords: ['Tunisie', 'actualité', 'économie'],
-  },
-  {
-    id: 'rss-webmanagercenter',
-    name: 'Webmanagercenter',
-    url: 'https://www.webmanagercenter.com/feed/',
-    language: 'fr',
-    reliability: 'B',
-    keywords: ['business', 'finance', 'Tunisie'],
-  },
-  {
-    id: 'rss-leaders',
-    name: 'Leaders',
-    url: 'https://www.leaders.com.tn/rss.xml',
-    language: 'fr',
-    reliability: 'A',
-    keywords: ['opinion', 'analysis', 'Tunisia', 'leaders'],
+    alignment: 'NEUTRAL',
+    keywords: ['Tunisia', 'Tunisie', 'Tunis'],
   },
 ];
 
 // ============================================================
 // NLP CLASSIFICATION
-// Determines category, severity, governorate, RRI impact
+// Determines category, severity, governorate, RRI impact, Bias
 // ============================================================
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
@@ -138,33 +106,34 @@ const GOVERNORATE_KEYWORDS: Record<string, string[]> = {
   'Sousse': ['Sousse', 'سوسة'],
   'Kairouan': ['Kairouan', 'القيروان'],
   'Jendouba': ['Jendouba', 'جندوبة'],
+  'Kef': ['Kef', 'الكاف', 'Le Kef'],
+  'Ariana': ['Ariana', 'أريانة'],
+  'Ben Arous': ['Ben Arous', 'بن عروس'],
+  'Manouba': ['Manouba', 'منوبة'],
+  'Nabeul': ['Nabeul', 'نابل', 'Hammamet', 'حمامات'],
+  'Zaghouan': ['Zaghouan', 'زغوان'],
+  'Monastir': ['Monastir', 'المنستير'],
+  'Mahdia': ['Mahdia', 'المهدية'],
+  'Siliana': ['Siliana', 'سليانة'],
+  'Beja': ['Beja', 'باجة'],
+  'Tozeur': ['Tozeur', 'توزر'],
+  'Kebili': ['Kebili', 'قبلي'],
+  'Tataouine': ['Tataouine', 'تطاوين'],
+  'Medenine': ['Medenine', 'مدنين', 'Djerba', 'جربة'],
 };
 
-const RRI_VARIABLE_MAP: Record<string, { variable: string; nudge: number }> = {
-  protest: { variable: 'E51', nudge: 0.015 },
-  arrest: { variable: 'D44', nudge: 0.012 },
-  economic: { variable: 'A01', nudge: 0.010 },
-  political: { variable: 'D41', nudge: 0.008 },
-  water: { variable: 'B21', nudge: 0.018 },
-  migration: { variable: 'F66', nudge: 0.010 },
-  labor: { variable: 'M_UGTT', nudge: 0.020 },
-  rights: { variable: 'D44', nudge: 0.012 },
-};
+const ALARMIST_KEYWORDS = ['crisis', 'collapse', 'chaos', 'danger', 'threat', 'warning', 'emergency', 'catastrophe', 'crise', 'effondrement', 'danger', 'menace', 'urgence', 'أزمة', 'انهيار', 'خطر', 'تهديد', 'طوارئ'];
+const MINIMIZING_KEYWORDS = ['stable', 'normal', 'control', 'routine', 'minor', 'calm', 'progress', 'stabilité', 'normalité', 'contrôle', 'routine', 'calme', 'progrès', 'استقرار', 'عادي', 'سيطرة', 'روتين', 'هدوء', 'تقدم'];
 
-const SEVERITY_KEYWORDS: Record<number, string[]> = {
-  5: ['terrorism', 'terrorisme', 'explosion', 'mort', 'killed', 'killed', 'coup', 'assassin'],
-  4: ['UGTT', 'general strike', 'grève générale', 'Decree 54', 'arrested', 'BCT', 'IMF', 'default'],
-  3: ['protest', 'manifestation', 'احتجاج', 'grève', 'pénurie', 'shortage'],
-  2: ['statement', 'communiqué', 'déclaration', 'réunion', 'meeting'],
-};
-
-export function classifyArticle(title: string, content: string = ''): {
+export function classifyArticle(title: string, content: string = '', sourceAlignment: string = 'NEUTRAL'): {
   category: string;
   severity: number;
   governorate: string | null;
   rri_nudge: number;
   rri_variable: string;
   keywords: string[];
+  bias_alignment: 'PRO_GOV' | 'NEUTRAL' | 'CRITICAL';
+  bias_tone: 'ALARMIST' | 'NEUTRAL' | 'MINIMIZING';
 } {
   const text = (title + ' ' + content).toLowerCase();
   const matchedKeywords: string[] = [];
@@ -182,6 +151,13 @@ export function classifyArticle(title: string, content: string = ''): {
   }
 
   // Detect severity
+  const SEVERITY_KEYWORDS: Record<number, string[]> = {
+    5: ['terrorism', 'terrorisme', 'explosion', 'mort', 'killed', 'coup', 'assassin'],
+    4: ['UGTT', 'general strike', 'grève générale', 'Decree 54', 'arrested', 'BCT', 'IMF', 'default'],
+    3: ['protest', 'manifestation', 'احتجاج', 'grève', 'pénurie', 'shortage'],
+    2: ['statement', 'communiqué', 'déclaration', 'réunion', 'meeting'],
+  };
+
   let severity = 1;
   for (const [sev, kws] of Object.entries(SEVERITY_KEYWORDS).reverse()) {
     if (kws.some(kw => text.includes(kw.toLowerCase()))) {
@@ -199,9 +175,27 @@ export function classifyArticle(title: string, content: string = ''): {
     }
   }
 
+  // Detect Tone
+  let bias_tone: 'ALARMIST' | 'NEUTRAL' | 'MINIMIZING' = 'NEUTRAL';
+  const alarmistMatches = ALARMIST_KEYWORDS.filter(kw => text.includes(kw));
+  const minimizingMatches = MINIMIZING_KEYWORDS.filter(kw => text.includes(kw));
+  
+  if (alarmistMatches.length > minimizingMatches.length) bias_tone = 'ALARMIST';
+  else if (minimizingMatches.length > alarmistMatches.length) bias_tone = 'MINIMIZING';
+
   // RRI impact
-  const rriMapping = RRI_VARIABLE_MAP[category] ||
-    { variable: 'O151', nudge: 0.005 };
+  const RRI_VARIABLE_MAP: Record<string, { variable: string; nudge: number }> = {
+    protest: { variable: 'E51', nudge: 0.015 },
+    arrest: { variable: 'D44', nudge: 0.012 },
+    economic: { variable: 'A01', nudge: 0.010 },
+    political: { variable: 'D41', nudge: 0.008 },
+    water: { variable: 'B21', nudge: 0.018 },
+    migration: { variable: 'F66', nudge: 0.010 },
+    labor: { variable: 'M_UGTT', nudge: 0.020 },
+    rights: { variable: 'D44', nudge: 0.012 },
+  };
+
+  const rriMapping = RRI_VARIABLE_MAP[category] || { variable: 'O151', nudge: 0.005 };
 
   return {
     category,
@@ -210,7 +204,87 @@ export function classifyArticle(title: string, content: string = ''): {
     rri_nudge: rriMapping.nudge * (severity / 3),
     rri_variable: rriMapping.variable,
     keywords: [...new Set(matchedKeywords)].slice(0, 10),
+    bias_alignment: sourceAlignment as any,
+    bias_tone,
   };
+}
+
+// ============================================================
+// EVENT ENGINE
+// Groups articles into events
+// ============================================================
+
+export async function processEvent(article: Omit<Article, 'id' | 'fetched_at' | 'created_at'>): Promise<string | null> {
+  const dateStr = article.published_at.split('T')[0];
+  const eventKey = `${article.category}-${article.governorate || 'national'}-${dateStr}`;
+
+  try {
+    // 1. Check for existing event
+    const { data: existingEvent, error: fetchError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('event_key', eventKey)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('Error fetching event:', fetchError);
+      return null;
+    }
+
+    if (existingEvent) {
+      // 2. Update existing event
+      const updates = {
+        article_count: existingEvent.article_count + 1,
+        severity: Math.max(existingEvent.severity, article.severity),
+        pro_gov_count: existingEvent.pro_gov_count + (article.bias_alignment === 'PRO_GOV' ? 1 : 0),
+        neutral_count: existingEvent.neutral_count + (article.bias_alignment === 'NEUTRAL' ? 1 : 0),
+        critical_count: existingEvent.critical_count + (article.bias_alignment === 'CRITICAL' ? 1 : 0),
+        alarmist_count: existingEvent.alarmist_count + (article.bias_tone === 'ALARMIST' ? 1 : 0),
+        minimizing_count: existingEvent.minimizing_count + (article.bias_tone === 'MINIMIZING' ? 1 : 0),
+        last_updated: new Date().toISOString(),
+      };
+
+      const { error: updateError } = await supabase
+        .from('events')
+        .update(updates)
+        .eq('id', existingEvent.id);
+
+      if (updateError) console.error('Error updating event:', updateError);
+      return existingEvent.id;
+    } else {
+      // 3. Create new event
+      const newEvent = {
+        event_key: eventKey,
+        title: article.title.slice(0, 100),
+        description: article.summary,
+        category: article.category,
+        governorate: article.governorate,
+        severity: article.severity,
+        status: 'ACTIVE',
+        article_count: 1,
+        pro_gov_count: article.bias_alignment === 'PRO_GOV' ? 1 : 0,
+        neutral_count: article.bias_alignment === 'NEUTRAL' ? 1 : 0,
+        critical_count: article.bias_alignment === 'CRITICAL' ? 1 : 0,
+        alarmist_count: article.bias_tone === 'ALARMIST' ? 1 : 0,
+        minimizing_count: article.bias_tone === 'MINIMIZING' ? 1 : 0,
+      };
+
+      const { data: createdEvent, error: createError } = await supabase
+        .from('events')
+        .insert(newEvent)
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Error creating event:', createError);
+        return null;
+      }
+      return createdEvent.id;
+    }
+  } catch (err) {
+    console.error('Event Engine Error:', err);
+    return null;
+  }
 }
 
 export async function generateAISummary(
@@ -243,7 +317,7 @@ Return only the 2-sentence summary, nothing else.`;
 // RSS PARSER
 // ============================================================
 
-export function parseRSS(xml: string, sourceId: string, sourceName: string): Omit<Article, 'id' | 'fetched_at' | 'created_at'>[] {
+export function parseRSS(xml: string, source: typeof RSS_SOURCES[0]): Omit<Article, 'id' | 'fetched_at' | 'created_at'>[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xml, 'text/xml');
   const items = doc.querySelectorAll('item, entry');
@@ -267,15 +341,15 @@ export function parseRSS(xml: string, sourceId: string, sourceName: string): Omi
     // Strip HTML from content
     const cleanContent = content.replace(/<[^>]*>/g, ' ').slice(0, 500);
 
-    const classification = classifyArticle(title, cleanContent);
+    const classification = classifyArticle(title, cleanContent, source.alignment);
 
     // Detect language
     const arabicPattern = /[\u0600-\u06FF]/;
     const language = arabicPattern.test(title) ? 'ar' : 'fr';
 
     articles.push({
-      source_id: sourceId,
-      source_name: sourceName,
+      source_id: source.id,
+      source_name: source.name,
       title,
       url,
       published_at: published ? new Date(published).toISOString() : new Date().toISOString(),
@@ -286,6 +360,8 @@ export function parseRSS(xml: string, sourceId: string, sourceName: string): Omi
       severity: classification.severity,
       governorate: classification.governorate || undefined,
       keywords: classification.keywords,
+      bias_alignment: classification.bias_alignment,
+      bias_tone: classification.bias_tone,
       rri_nudge: classification.rri_nudge,
       rri_variable: classification.rri_variable,
       confirm_count: 0,
@@ -305,14 +381,13 @@ export function parseRSS(xml: string, sourceId: string, sourceName: string): Omi
 
 export async function fetchRSSFeed(source: typeof RSS_SOURCES[0]): Promise<Omit<Article, 'id' | 'fetched_at' | 'created_at'>[]> {
   try {
-    // Use Vercel edge function as CORS proxy
     const proxyUrl = `/api/rss?url=${encodeURIComponent(source.url)}`;
     const response = await fetch(proxyUrl);
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const xml = await response.text();
-    return parseRSS(xml, source.id, source.name);
+    return parseRSS(xml, source);
   } catch (error) {
     console.error(`Failed to fetch ${source.name}:`, error);
     return [];
@@ -346,20 +421,23 @@ export async function fetchAllFeeds(): Promise<{
       // Filter out already-seen articles
       const newOnes = articles.filter(a => !existingUrls.has(a.url));
 
-      if (newOnes.length > 0) {
+      for (const article of newOnes) {
+        // 1. Process Event
+        const eventId = await processEvent(article);
+        const articleWithEvent = { ...article, event_id: eventId || undefined };
+
+        // 2. Insert Article
         const { error } = await supabase
           .from('articles')
-          .insert(newOnes);
+          .insert(articleWithEvent);
 
         if (error) {
           errors.push(`${source.name}: ${error.message}`);
         } else {
-          newArticles += newOnes.length;
+          newArticles++;
           
-          // Generate AI summaries for high-severity ones
-          const highSeverityNew = newOnes.filter(a => a.severity >= 3);
-          for (const article of highSeverityNew.slice(0, 5)) {
-            // Rate limit — only 5 summaries per fetch cycle
+          // 3. Generate AI summary for high-severity
+          if (article.severity >= 3) {
             const summary = await generateAISummary(
               article.title,
               article.content || '',
@@ -371,7 +449,6 @@ export async function fetchAllFeeds(): Promise<{
                 .update({ ai_summary: summary })
                 .eq('url', article.url);
             }
-            await new Promise(r => setTimeout(r, 500)); // rate limit
           }
         }
       }

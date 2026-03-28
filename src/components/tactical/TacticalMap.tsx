@@ -35,11 +35,11 @@ const GEOFENCES = [
 
 const REGION_GOVS: Record<string, string[]> = {
   'National': [],
-  'North': ['tunis','ariana','ben_arous','manouba','bizerte','beja','jendouba','siliana','zaghouan','nabeul'],
+  'North': ['tunis','ariana','ben_arous','manouba','bizerte','beja','jendouba','siliana','zaghouan','nabeul','kef'],
   'Sahel': ['sousse','monastir','mahdia','sfax'],
   'Central': ['kairouan','kasserine','sidi_bouzid'],
-  'South': ['gabes','medenine','tataouine','sfax_sud','tozeur','kebili','gafsa'],
-  'Borders': ['jendouba','beja','kasserine','gafsa','tozeur','kebili','tataouine'],
+  'South': ['gabes','medenine','tataouine','tozeur','kebili','gafsa'],
+  'Borders': ['jendouba','beja','kasserine','gafsa','tozeur','kebili','tataouine','kef'],
 };
 
 const MapController: React.FC<{ region: string }> = ({ region }) => {

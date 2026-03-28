@@ -144,6 +144,13 @@ const timelineEvents = [
     source: 'Amnesty International', actors: ['Government'],
     rri_impact: '+0.03', urgent: false
   },
+  {
+    id: 'T021', date: '2026-03-20', title: 'Kef Agriculture Strike',
+    summary: 'Farmers in Kef governorate announce general strike over delayed subsidies and water scarcity. Road blockades on GP17.',
+    type: 'labor', severity: 3, gov: 'Kef',
+    source: 'Local Media', actors: ['Farmers Union', 'UTAP'],
+    rri_impact: '+0.02', urgent: false
+  },
 ];
 
 const typeColors: Record<string, string> = {
@@ -159,7 +166,12 @@ const typeColors: Record<string, string> = {
   rights: 'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
 };
 
-const governorates = ['all', 'Tunis', 'Sfax', 'Gafsa', 'Kasserine', 'Gabes', 'Sidi Bouzid', 'National'];
+const governorates = [
+  'all', 'Tunis', 'Ariana', 'Ben Arous', 'Manouba', 'Bizerte', 'Nabeul', 'Zaghouan', 
+  'Beja', 'Jendouba', 'Kef', 'Siliana', 'Sousse', 'Monastir', 'Mahdia', 'Sfax', 
+  'Kairouan', 'Kasserine', 'Sidi Bouzid', 'Gafsa', 'Tozeur', 'Kebili', 'Gabes', 
+  'Medenine', 'Tataouine', 'National'
+];
 const eventTypes = ['all', 'protest', 'arrest', 'economic', 'political', 'labor', 'censorship', 'detention', 'infrastructure', 'rights'];
 
 export const Timeline: React.FC = () => {

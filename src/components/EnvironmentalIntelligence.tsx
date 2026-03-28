@@ -45,6 +45,7 @@ import {
   LineChart
 } from 'recharts';
 import { Map } from './Map';
+import governoratesData from '../data/governorates.json';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
 import { cn } from '../lib/utils';
@@ -80,14 +81,30 @@ const co2EmissionsData = [
 ];
 
 const waterCutData = [
-  { region: 'Grand Tunis', hours: 4.5 },
-  { region: 'Sfax', hours: 12.0 },
-  { region: 'Sousse', hours: 8.5 },
-  { region: 'Kairouan', hours: 18.2 },
-  { region: 'Zaghouan', hours: 15.5 },
-  { region: 'Nabeul', hours: 10.2 },
+  { region: 'Tunis', hours: 4.5 },
+  { region: 'Ariana', hours: 5.2 },
+  { region: 'Ben Arous', hours: 4.8 },
+  { region: 'Manouba', hours: 3.5 },
   { region: 'Bizerte', hours: 6.8 },
-  { region: 'Gafsa', hours: 22.4 }
+  { region: 'Nabeul', hours: 10.2 },
+  { region: 'Zaghouan', hours: 15.5 },
+  { region: 'Sousse', hours: 8.5 },
+  { region: 'Monastir', hours: 7.2 },
+  { region: 'Mahdia', hours: 9.8 },
+  { region: 'Sfax', hours: 12.0 },
+  { region: 'Kairouan', hours: 18.2 },
+  { region: 'Kasserine', hours: 14.5 },
+  { region: 'Sidi Bouzid', hours: 16.8 },
+  { region: 'Le Kef', hours: 12.5 },
+  { region: 'Siliana', hours: 13.2 },
+  { region: 'Beja', hours: 5.4 },
+  { region: 'Jendouba', hours: 7.8 },
+  { region: 'Gafsa', hours: 22.4 },
+  { region: 'Tozeur', hours: 19.5 },
+  { region: 'Kebili', hours: 20.2 },
+  { region: 'Gabes', hours: 17.8 },
+  { region: 'Medenine', hours: 14.2 },
+  { region: 'Tataouine', hours: 16.5 }
 ];
 
 const landUseData = [
@@ -123,9 +140,25 @@ const governorateWaterStress = [
   { name: 'Gafsa', stress: 95, trend: 'STABLE', status: 'CRITICAL' },
   { name: 'Sidi Bouzid', stress: 82, trend: 'UP', status: 'HIGH' },
   { name: 'Gabès', stress: 85, trend: 'UP', status: 'HIGH' },
+  { name: 'Le Kef', stress: 74, trend: 'UP', status: 'MEDIUM' },
   { name: 'Tataouine', stress: 75, trend: 'STABLE', status: 'HIGH' },
   { name: 'Zaghouan', stress: 72, trend: 'UP', status: 'MEDIUM' },
   { name: 'Kasserine', stress: 78, trend: 'UP', status: 'HIGH' },
+  { name: 'Tozeur', stress: 84, trend: 'UP', status: 'HIGH' },
+  { name: 'Kebili', stress: 86, trend: 'UP', status: 'HIGH' },
+  { name: 'Siliana', stress: 68, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Jendouba', stress: 55, trend: 'UP', status: 'LOW' },
+  { name: 'Beja', stress: 48, trend: 'STABLE', status: 'LOW' },
+  { name: 'Bizerte', stress: 52, trend: 'UP', status: 'LOW' },
+  { name: 'Nabeul', stress: 76, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Mahdia', stress: 79, trend: 'UP', status: 'HIGH' },
+  { name: 'Monastir', stress: 81, trend: 'UP', status: 'HIGH' },
+  { name: 'Sousse', stress: 83, trend: 'UP', status: 'HIGH' },
+  { name: 'Tunis', stress: 70, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Ariana', stress: 72, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Ben Arous', stress: 71, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Manouba', stress: 65, trend: 'UP', status: 'MEDIUM' },
+  { name: 'Medenine', stress: 87, trend: 'UP', status: 'HIGH' }
 ];
 
 const fireRiskHeatmapPoints = [
@@ -535,7 +568,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 h-[500px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/5 bg-black/20">
                       <Map 
-                        governorates={[]} 
+                        governorates={governoratesData.governorates as any} 
                         events={[]} 
                         activeLayer="Water Security" 
                         heatmapPoints={waterStressHeatmapPoints}

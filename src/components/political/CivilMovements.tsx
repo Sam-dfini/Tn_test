@@ -83,7 +83,11 @@ const governorateRisks = [
   { name: 'Kasserine', risk: 88, trend: 'stable', activeMovements: 6, primaryDriver: 'Economic' },
   { name: 'Gafsa', risk: 94, trend: 'up', activeMovements: 15, primaryDriver: 'Resource' },
   { name: 'Sfax', risk: 78, trend: 'up', activeMovements: 10, primaryDriver: 'Social' },
+  { name: 'Kef', risk: 72, trend: 'up', activeMovements: 5, primaryDriver: 'Economic' },
+  { name: 'Gabes', risk: 82, trend: 'up', activeMovements: 7, primaryDriver: 'Environmental' },
+  { name: 'Bizerte', risk: 68, trend: 'stable', activeMovements: 4, primaryDriver: 'Social' },
   { name: 'Sousse', risk: 62, trend: 'down', activeMovements: 4, primaryDriver: 'Political' },
+  { name: 'Jendouba', risk: 75, trend: 'up', activeMovements: 6, primaryDriver: 'Economic' },
 ];
 
 export const CivilMovements: React.FC = () => {
