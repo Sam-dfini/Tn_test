@@ -31,7 +31,7 @@ The platform is massive and highly modularized, split into various analytical "t
 
 ### 4. Specialized Intelligence Domains
 - **Economy**: Tracking macro-variables (GDP, Inflation), BCT Reserve trackers (import cover), Subsidy Reform Pressures, and Sovereign Debt distributions.
-- **Environmental**: Water stress metrics, agricultural deficits, and regional climate volatility maps.
+- **Environmental & Agricultural**: Water stress metrics, agricultural deficits, interactive multi-layer choropleth maps (Wheat Stress, Olive Health, Rainfall, Soil Moisture) with dynamic agricultural telemetry icons, and regional climate volatility tracking.
 - **Cognitive & Narrative**: Information warfare tracking. Measures disinformation velocity, media framing, and ideological divergence.
 - **Fire & Security**: Defense readiness, border security incidents, and conflict heatmap analytics.
 
