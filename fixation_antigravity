@@ -1,0 +1,32 @@
+# FIXATION LOG: Antigravity Assistant
+
+This file tracks all changes and fixes made to the Tn_test project.
+
+## [2026-04-22 17:04] Initial Setup
+- **ISSUE**: Repository required for workspace.
+- **FIX**: Cloned repository from GitHub using ZIP download (Git was unavailable) and extracted to project directory.
+- **STATUS**: Success.
+
+## [2026-04-22 17:12] Dependency Installation
+- **ISSUE**: Node.js and Python dependencies missing.
+- **FIX**: 
+  - Ran `npm install` (using `cmd /c` to bypass PowerShell execution policy).
+  - Ran `pip install -r backend/requirements.txt` to install FastAPI, Uvicorn, and other backend dependencies.
+- **STATUS**: Success.
+
+## [2026-04-22 17:34] Backend Startup & Env Configuration Fix
+- **ISSUE**: RSS feed not updating Supabase correctly due to pathing errors and disconnected orchestrator loop.
+- **FIX**: 
+    - Corrected `backend_sync.log` path in `rss_service.py`.
+    - Modified `rss_service.py` to return success articles.
+    - Updated `orchestrator.py` to pass new articles into the `IntelligenceLoop`.
+    - Expanded `schemaValidator.ts` to automatically create/heal `signals` and `rri_history` tables.
+- **STATUS**: Success.
+
+## [2026-04-22 19:44] Schema Constraint & Upsert Fix
+- **ISSUE**: `agri_readings` upsert failed due to missing unique constraint on `(governorate, fetched_at)`.
+- **FIX**: 
+    - Updated `schemaValidator.ts` to support auto-healing of unique constraints.
+    - Added `UNIQUE_CONSTRAINTS` map and logic to `checkAndFixSchema`.
+    - Applied `uq_agri_readings_governorate_fetched_at` and others on server restart.
+- **STATUS**: Success. Verified via manual `curl` sync.

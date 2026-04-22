@@ -1,0 +1,7 @@
+{
+  "name": "TUNISIAINTEL v2.0",
+  "description": "Production-grade political risk intelligence platform for Tunisia. Features a modular FastAPI backend, independent AI agents, a central mission orchestrator, and a real-time risk modeling engine.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
