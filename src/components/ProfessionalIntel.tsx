@@ -598,10 +598,10 @@ Return only the 3-sentence briefing.`;
   return (
     <div className="flex h-screen bg-background overflow-hidden relative font-sans">
       
-      {/* Mobile Sidebar Overlay */}
+      {/* Global Overlay Backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
