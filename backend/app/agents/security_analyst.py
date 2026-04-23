@@ -38,3 +38,33 @@ class SecurityAnalystAgent(BaseAgent):
             context["context_key"] = "security_analysis"
             
         return await super().run(data, context)
+
+    async def analyze_security(
+        self,
+        security_context: Dict[str, Any],
+        signals: List[Any]
+    ) -> Dict[str, Any]:
+        payload = {
+            "security_context": security_context,
+            "signals": [s.model_dump() if hasattr(s, "model_dump") else s for s in signals],
+            "task": "Assess institutional fragility, elite stability, and short-term regime security risks."
+        }
+        try:
+            response = await self.run(payload, {"context_key": "security_analysis"})
+            return {
+                "agent": "security_analyst",
+                "status": "ok",
+                "summary": response.content,
+                "confidence": response.confidence,
+                "tokens_used": response.tokens_used,
+                "structured_data": response.structured_data or {}
+            }
+        except Exception as e:
+            return {
+                "agent": "security_analyst",
+                "status": "error",
+                "summary": f"Security analysis failed: {str(e)}",
+                "confidence": 0.0,
+                "tokens_used": 0,
+                "structured_data": {}
+            }

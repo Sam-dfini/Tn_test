@@ -50,10 +50,14 @@ export async function fetchNDVIProxy(
   gov: GovCoord,
   days: number = 7
 ): Promise<{ ndvi: number; source: 'open-meteo-proxy'; raw: any } | null> {
+  const endDate = isoDate(new Date());
+  const startDate = isoDate(daysAgo(31));
+
   const params = new URLSearchParams({
     latitude:           gov.lat.toFixed(4),
     longitude:          gov.lon.toFixed(4),
-    past_days:          '31',  // Request recent data via Forecast
+    start_date:         startDate,
+    end_date:           endDate,
     daily:              [
       'leaf_area_index_high_vegetation',
       'leaf_area_index_low_vegetation',
@@ -62,7 +66,7 @@ export async function fetchNDVIProxy(
     timezone:           'Africa/Tunis',
   });
 
-  const url = `${OPEN_METEO_FORECAST}?${params}`;
+  const url = `${OPEN_METEO_ARCHIVE}?${params}`;
 
   try {
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });

@@ -38,3 +38,33 @@ class EconomicForecasterAgent(BaseAgent):
             context["context_key"] = "economic_forecasting"
             
         return await super().run(data, context)
+
+    async def forecast_economy(
+        self,
+        macro_context: Dict[str, Any],
+        signals: List[Any]
+    ) -> Dict[str, Any]:
+        payload = {
+            "macro_context": macro_context,
+            "signals": [s.model_dump() if hasattr(s, "model_dump") else s for s in signals],
+            "task": "Generate economic risk forecast scenarios and key stress indicators for Tunisia."
+        }
+        try:
+            response = await self.run(payload, {"context_key": "economic_forecasting"})
+            return {
+                "agent": "economic_forecaster",
+                "status": "ok",
+                "summary": response.content,
+                "confidence": response.confidence,
+                "tokens_used": response.tokens_used,
+                "structured_data": response.structured_data or {}
+            }
+        except Exception as e:
+            return {
+                "agent": "economic_forecaster",
+                "status": "error",
+                "summary": f"Economic forecasting failed: {str(e)}",
+                "confidence": 0.0,
+                "tokens_used": 0,
+                "structured_data": {}
+            }

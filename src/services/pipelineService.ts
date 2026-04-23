@@ -139,7 +139,7 @@ export const extractFieldsFromContent = async (
     const response = await fetch('/api/extract', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, schema })
+      body: JSON.stringify({ content, extraction_schema: schema })
     });
     
     if (!response.ok) throw new Error('Backend extraction failed');

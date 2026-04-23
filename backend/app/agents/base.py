@@ -2,9 +2,10 @@ import os
 import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from pydantic import BaseModel
-from ..core.database import db
+from app.core.database import db
 
 class AgentResponse(BaseModel):
     content: str
@@ -31,9 +32,8 @@ class BaseAgent:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY environment variable is required")
             
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(
-            model_name=self.model_name,
+        self.client = genai.Client(api_key=self.api_key)
+        self.model_config = types.GenerateContentConfig(
             system_instruction=self.system_instruction
         )
         
@@ -137,10 +137,14 @@ class BaseAgent:
             full_prompt = f"Context: {context}\n\nTask: {prompt}"
             
         try:
-            response = await self.model.generate_content_async(full_prompt)
+            response = await self.client.aio.models.generate_content(
+                model=self.model_name,
+                contents=full_prompt,
+                config=self.model_config
+            )
             return AgentResponse(
                 content=response.text,
-                tokens_used=response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
+                tokens_used=response.usage_metadata.total_token_count if response.usage_metadata else 0
             )
         except Exception as e:
             error_str = str(e)

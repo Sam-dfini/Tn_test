@@ -37,3 +37,38 @@ class ResourceScoutAgent(BaseAgent):
             context["context_key"] = "resource_scouting"
             
         return await super().run(data, context)
+
+    async def scout_resources(
+        self,
+        signals: List[Any],
+        news_items: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Orchestrator-facing API for resource scouting analysis.
+        Returns a structured result payload that can be consumed by downstream analysis.
+        """
+        payload = {
+            "signals": [s.model_dump() if hasattr(s, "model_dump") else s for s in signals],
+            "news_items": news_items,
+            "task": "Identify water, food, and energy resource shortages with location-specific severity."
+        }
+
+        try:
+            response = await self.run(payload, {"context_key": "resource_scouting"})
+            return {
+                "agent": "resource_scout",
+                "status": "ok",
+                "summary": response.content,
+                "confidence": response.confidence,
+                "tokens_used": response.tokens_used,
+                "structured_data": response.structured_data or {}
+            }
+        except Exception as e:
+            return {
+                "agent": "resource_scout",
+                "status": "error",
+                "summary": f"Resource scouting failed: {str(e)}",
+                "confidence": 0.0,
+                "tokens_used": 0,
+                "structured_data": {}
+            }

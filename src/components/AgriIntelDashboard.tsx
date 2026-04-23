@@ -293,7 +293,6 @@ export const AgriIntelDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-            </div>
           </div>
           <div className="flex-1 rounded border border-white/5 overflow-hidden h-[400px]">
             <Map 
@@ -366,7 +365,6 @@ export const AgriIntelDashboard: React.FC = () => {
             <p className="text-[9px] text-slate-500 leading-relaxed italic">
               * Sentinel-2 L2A composite data synced every 72 hours. Anomaly scores calculated against 10-year multi-temporal mean for the current phenological window.
             </p>
-          </div>
           </div>
         </div>
       </div>

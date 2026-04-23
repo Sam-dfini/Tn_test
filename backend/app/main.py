@@ -3,10 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
 from datetime import datetime
-from core.config import settings
-from api.routes import router as api_router
-from orchestrator import orchestrator
-from services.rss_service import rss_service
+from app.core.config import settings
+from app.api.routes import router as api_router
+from app.orchestrator import orchestrator
+from app.services.rss_service import rss_service
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

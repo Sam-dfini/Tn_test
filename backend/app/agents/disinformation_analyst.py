@@ -38,3 +38,33 @@ class DisinformationAnalystAgent(BaseAgent):
             context["context_key"] = "disinformation_analysis"
             
         return await super().run(data, context)
+
+    async def analyze_disinformation(
+        self,
+        news_items: List[Dict[str, Any]],
+        social_mentions: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        payload = {
+            "news_items": news_items,
+            "social_mentions": social_mentions,
+            "task": "Detect coordinated disinformation narratives, amplification vectors, and likely impact."
+        }
+        try:
+            response = await self.run(payload, {"context_key": "disinformation_analysis"})
+            return {
+                "agent": "disinformation_analyst",
+                "status": "ok",
+                "summary": response.content,
+                "confidence": response.confidence,
+                "tokens_used": response.tokens_used,
+                "structured_data": response.structured_data or {}
+            }
+        except Exception as e:
+            return {
+                "agent": "disinformation_analyst",
+                "status": "error",
+                "summary": f"Disinformation analysis failed: {str(e)}",
+                "confidence": 0.0,
+                "tokens_used": 0,
+                "structured_data": {}
+            }

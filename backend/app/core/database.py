@@ -25,3 +25,21 @@ def get_supabase() -> Client:
     This client uses the service_role key and bypasses RLS.
     """
     return supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
+
+# Create a global db instance for direct access
+db = supabase_client
