@@ -398,13 +398,8 @@ export const AgriIntelDashboard: React.FC = () => {
   );
 };
 
-<<<<<<< HEAD
 const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: string; trend?: string; nodeId?: string; live?: boolean }> = ({ 
   title, value, icon: Icon, color, trend, nodeId, live
-=======
-const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: string; trend?: string }> = ({ 
-  title, value, icon: Icon, color, trend 
->>>>>>> f517a83c7aecd1d6fbbc73c6a5b19cde59b10413
 }) => (
   <div className="bg-[#0a0a0a] border border-white/5 rounded-lg p-4 hover:border-emerald-500/30 transition-all duration-300 group">
     <div className="flex items-center justify-between mb-2">
