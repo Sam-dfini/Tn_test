@@ -50,8 +50,8 @@ export async function fetchNDVIProxy(
   gov: GovCoord,
   days: number = 7
 ): Promise<{ ndvi: number; source: 'open-meteo-proxy'; raw: any } | null> {
-  const endDate = isoDate(new Date());
-  const startDate = isoDate(daysAgo(31));
+  const endDate = isoDate(daysAgo(5)); // 5-day lag for Archive reliability
+  const startDate = isoDate(daysAgo(35));
 
   const params = new URLSearchParams({
     latitude:           gov.lat.toFixed(4),
@@ -71,11 +71,9 @@ export async function fetchNDVIProxy(
   try {
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) {
-      if (res.status === 401) {
-        // Silently skip if keys are invalid/placeholder
-        return null;
-      }
-      console.warn(`[NDVI] Open-Meteo failed for ${gov.id}: ${res.status}`);
+      if (res.status === 401) return null;
+      const errorText = await res.text();
+      console.warn(`[NDVI] Open-Meteo failed for ${gov.id}: ${res.status} - ${errorText.slice(0, 100)}`);
       return null;
     }
 
