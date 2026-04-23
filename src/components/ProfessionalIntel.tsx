@@ -580,19 +580,8 @@ Return only the 3-sentence briefing.`;
   ];
 
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setSidebarOpen(false);
-      } else {
-        setSidebarOpen(true);
-      }
-    };
-    
-    // Check initially
-    handleResize();
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    // Default to closed on all screens for overlay behavior
+    setSidebarOpen(false);
   }, []);
 
   return (
@@ -601,14 +590,14 @@ Return only the 3-sentence briefing.`;
       {/* Global Overlay Backdrop */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+          className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-md"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
-      <div className={`fixed md:relative z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-2xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] shrink-0 overflow-hidden ${
-        sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full md:translate-x-0 border-r-0"
+      <div className={`fixed z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-3xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
+        sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full border-r-0"
       }`}>
         <div className="w-64 h-full flex flex-col">
           {/* Sidebar Header */}
@@ -629,7 +618,10 @@ Return only the 3-sentence briefing.`;
               <div key={category.id} className="space-y-1">
                 {/* Category Header */}
                 <button 
-                  onClick={() => toggleCategory(category.id)}
+                  onClick={() => {
+                    toggleCategory(category.id);
+                    setSidebarOpen(false);
+                  }}
                   className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest hover:text-slate-300 transition-colors"
                   aria-expanded={expandedCategories[category.id]}
                 >
@@ -658,8 +650,8 @@ Return only the 3-sentence briefing.`;
                               } else {
                                 setActiveTab(item.id as any);
                               }
-                              // auto-close on mobile when a link is clicked
-                              if (window.innerWidth < 768) setSidebarOpen(false);
+                              // auto-close when a link is clicked (overlay behavior)
+                              setSidebarOpen(false);
                             }}
                             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs transition-all tracking-wide
                               ${isActive 
