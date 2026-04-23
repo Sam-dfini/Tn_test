@@ -33,8 +33,8 @@ class RRIEngine:
         # Fetch variables from Supabase if not provided
         if not variables:
             try:
-                from ..core.database import db
-                result = db.table("variables") \
+                from .supabase_client import db
+                result = db.table("rri_variables") \
                     .select("*").execute()
                 # Convert to Variable objects
                 for row in (result.data or []):

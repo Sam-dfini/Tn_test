@@ -14,7 +14,6 @@ try:
         settings.SUPABASE_URL,
         settings.SUPABASE_KEY
     )
-    db = supabase_client
     logger.info("Supabase client initialized successfully.")
 except Exception as e:
     logger.error(f"Failed to initialize Supabase client: {e}")

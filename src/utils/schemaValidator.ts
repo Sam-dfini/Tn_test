@@ -83,64 +83,6 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     coordinated_phrases: 'jsonb',
     narrative_shift: 'boolean'
   },
-  agent_memory: {
-    agent_id: 'text',
-    context_key: 'text',
-    context_value: 'jsonb',
-    created_at: 'timestamp',
-  },
-  signals: {
-    id: 'text',
-    type: 'text',
-    location: 'text',
-    timestamp: 'timestamp',
-    intensity: 'float8',
-    source_id: 'text',
-    confidence_score: 'float8',
-    metadata: 'jsonb',
-    raw_text: 'text'
-  },
-  rri_history: {
-    rri_score: 'float8',
-    narrative: 'text',
-    timestamp: 'timestamp'
-  },
-  sources: {
-    id: 'text',
-    name: 'text',
-    url: 'text',
-    reliability_score: 'float8',
-    historical_accuracy: 'float8',
-    bias_level: 'float8',
-    update_frequency_minutes: 'int8',
-    last_updated: 'timestamp'
-  },
-  variables: {
-    id: 'text',
-    code: 'text',
-    name: 'text',
-    value_2010: 'float8',
-    value_2026: 'float8',
-    unit: 'text',
-    description: 'text',
-    category: 'text'
-  },
-  human_validations: {
-    id: 'text',
-    target_id: 'text',
-    target_type: 'text',
-    adjusted_confidence: 'float8',
-    analyst_id: 'text',
-    created_at: 'timestamp'
-  }
-};
-
-export const UNIQUE_CONSTRAINTS: Record<string, string[][]> = {
-  agri_readings: [['governorate', 'fetched_at']],
-  articles: [['id'], ['fingerprint']],
-  events: [['id'], ['event_key']],
-  signals: [['id']],
-  variables: [['code']],
 };
 
 /**
@@ -163,30 +105,17 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
     let existingCols: string[] = [];
     
     if (queryError) {
-      // Table might be missing completely. Attempt to create it.
-      const colDefinitions = Object.entries(requiredFields)
-        .map(([col, type]) => `${col} ${type.toUpperCase()}${type === 'boolean' ? ' DEFAULT false' : ''}`)
-        .join(', ');
+      // Second attempt using direct select if permitted
+      const { data: infoData } = await supabase
+        .from('information_schema.columns' as any)
+        .select('column_name')
+        .eq('table_name', tableName);
       
-      const createSql = `CREATE TABLE IF NOT EXISTS ${tableName} (${colDefinitions}); NOTIFY pgrst, 'reload schema';`;
-      const { error: createError } = await supabase.rpc('exec_sql_admin', { sql_query: createSql });
-      
-      if (createError) {
-        // Second attempt using direct select if permitted (fallback for existing tables with missing RPC permissions)
-        const { data: infoData } = await supabase
-          .from('information_schema.columns' as any)
-          .select('column_name')
-          .eq('table_name', tableName);
-        
-        if (infoData) {
-          existingCols = infoData.map((c: any) => c.column_name);
-        } else {
-          console.warn(`[SCHEMA] Table ${tableName} missing and could not be created/verified. Skipping.`);
-          return;
-        }
+      if (infoData) {
+        existingCols = infoData.map((c: any) => c.column_name);
       } else {
-        console.log(`[SCHEMA] Created missing table: ${tableName}`);
-        return; // All columns created during table creation
+        console.warn(`[SCHEMA] Could not verify columns for ${tableName}, skipping auto-fix until RPC is available.`);
+        return;
       }
     } else {
       existingCols = cols as string[];
@@ -216,37 +145,6 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
         console.error(`[SCHEMA FIX FAILED] for ${tableName}.${col}:`, fixError.message);
       } else {
         console.log(`[SCHEMA FIX APPLIED] Added ${tableName}.${col} (${type})`);
-      }
-    }
-
-    // 4. Handle Unique Constraints
-    const constraints = UNIQUE_CONSTRAINTS[tableName];
-    if (constraints) {
-      for (const cols of constraints) {
-        const constraintName = `uq_${tableName}_${cols.join('_')}`;
-        const colsSql = cols.join(', ');
-        
-        // Postgres check if constraint exists
-        const checkSql = `
-          SELECT 1 FROM information_schema.table_constraints 
-          WHERE table_name='${tableName}' AND constraint_name='${constraintName}';
-        `;
-        
-        const { data: exists } = await supabase.rpc('exec_sql_admin', { sql_query: checkSql });
-        
-        if (!exists || (Array.isArray(exists) && exists.length === 0)) {
-          console.log(`[SCHEMA] Adding unique constraint ${constraintName} to ${tableName}…`);
-          const addSql = `
-            ALTER TABLE ${tableName} ADD CONSTRAINT ${constraintName} UNIQUE (${colsSql});
-            NOTIFY pgrst, 'reload schema';
-          `;
-          const { error: constraintError } = await supabase.rpc('exec_sql_admin', { sql_query: addSql });
-          if (constraintError) {
-            console.error(`[SCHEMA CONSTRAINT FAILED] ${constraintName}:`, constraintError.message);
-          } else {
-            console.log(`[SCHEMA CONSTRAINT APPLIED] ${constraintName}`);
-          }
-        }
       }
     }
 

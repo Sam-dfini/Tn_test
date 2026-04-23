@@ -484,15 +484,15 @@ const PhaseArc: React.FC<{
   const n = displayPhases.length;
 
   return (
-    <svg viewBox="0 0 400 300" className="w-full max-w-[450px] mx-auto overflow-visible">
+    <svg viewBox="0 0 400 240" className="w-full max-w-[320px] mx-auto overflow-visible">
       {displayPhases.map((phase, i) => {
         const isCurrent = phase.id === currentPhase.id;
         const isSelected = selectedPhase?.id === phase.id;
         const anglePer  = 360 / n;
         const startAngle = -90 + i * anglePer;
-        const endAngle   = startAngle + anglePer - 3;
+        const endAngle   = startAngle + anglePer - 4;
         const midAngle   = startAngle + anglePer / 2;
-        const r1 = 108, r2 = 78, cx = 200, cy = 150;
+        const r1 = 88, r2 = 64, cx = 200, cy = 120;
 
         const rad = (a: number) => (a * Math.PI) / 180;
         const x1o = cx + r1 * Math.cos(rad(startAngle));
@@ -506,13 +506,13 @@ const PhaseArc: React.FC<{
 
         const d = `M${x1i.toFixed(1)},${y1i.toFixed(1)} L${x1o.toFixed(1)},${y1o.toFixed(1)} A${r1},${r1} 0 0,1 ${x2o.toFixed(1)},${y2o.toFixed(1)} L${x2i.toFixed(1)},${y2i.toFixed(1)} A${r2},${r2} 0 0,0 ${x1i.toFixed(1)},${y1i.toFixed(1)} Z`;
 
-        const lx = cx + (r1 + 20) * Math.cos(rad(midAngle));
-        const ly = cy + (r1 + 20) * Math.sin(rad(midAngle));
+        const lx = cx + (r1 + 16) * Math.cos(rad(midAngle));
+        const ly = cy + (r1 + 16) * Math.sin(rad(midAngle));
 
         // Arrow position - placed outside the wheel
         const arrowAngle = midAngle;
-        const ax = cx + (r1 + 32) * Math.cos(rad(arrowAngle));
-        const ay = cy + (r1 + 32) * Math.sin(rad(arrowAngle));
+        const ax = cx + (r1 + 24) * Math.cos(rad(arrowAngle));
+        const ay = cy + (r1 + 24) * Math.sin(rad(arrowAngle));
 
         // Calculate probability for this phase
         const prob = isCurrent 
@@ -530,25 +530,25 @@ const PhaseArc: React.FC<{
               fill={phase.color}
               initial={false}
               animate={{
-                opacity: isCurrent ? 0.95 : isSelected ? 0.7 : 0.22,
-                scale: isSelected ? 1.08 : 1,
+                opacity: isCurrent ? 0.9 : isSelected ? 0.6 : 0.18,
+                scale: isSelected ? 1.05 : 1,
               }}
               stroke={THEME.bg}
-              strokeWidth={isCurrent || isSelected ? 2.5 : 1}
+              strokeWidth={isCurrent || isSelected ? 2 : 1}
               style={{ transformOrigin: 'center' }}
             />
             {(isCurrent || isSelected) && (
-              <path d={d} fill="none" stroke={phase.color} strokeWidth="3" opacity="0.8" />
+              <path d={d} fill="none" stroke={phase.color} strokeWidth="2.5" opacity="0.7" />
             )}
             <text
               x={lx.toFixed(1)}
-              y={(ly + 4).toFixed(1)}
+              y={(ly + 3).toFixed(1)}
               textAnchor="middle"
-              fontSize={isCurrent || isSelected ? '11' : '8.5'}
-              fill={isCurrent || isSelected ? phase.color : `${phase.color}aa`}
+              fontSize={isCurrent || isSelected ? '7.5' : '6'}
+              fill={isCurrent || isSelected ? phase.color : `${phase.color}88`}
               fontFamily="JetBrains Mono, monospace"
-              fontWeight={isCurrent || isSelected ? '800' : '500'}
-              className="pointer-events-none drop-shadow focus:outline-none"
+              fontWeight={isCurrent || isSelected ? '700' : '400'}
+              className="pointer-events-none"
             >
               {phase.number}
             </text>
@@ -557,21 +557,20 @@ const PhaseArc: React.FC<{
             {isCurrent && (
               <g transform={`translate(${ax}, ${ay}) rotate(${arrowAngle + 90})`}>
                 <motion.path
-                  d="M0,-8 L0,8 M-4,4 L0,8 L4,4"
+                  d="M0,-6 L0,6 M-3,3 L0,6 L3,3"
                   fill="none"
                   stroke={phase.color}
-                  strokeWidth="2.5"
-                  animate={{ y: [0, -6, 0] }}
+                  strokeWidth="2"
+                  animate={{ y: [0, -4, 0] }}
                   transition={{ repeat: Infinity, duration: 1.5 }}
                 />
                 <text
-                  y="24"
+                  y="18"
                   textAnchor="middle"
-                  fontSize="11"
+                  fontSize="8"
                   fill={phase.color}
                   fontFamily="JetBrains Mono, monospace"
                   fontWeight="bold"
-                  transform={`rotate(${-arrowAngle - 90})`}
                 >
                   {(prob * 100).toFixed(0)}%
                 </text>
@@ -582,20 +581,20 @@ const PhaseArc: React.FC<{
       })}
 
       {/* Center */}
-      <circle cx="200" cy="150" r="68" fill={THEME.bg} stroke={THEME.border} strokeWidth="1.5" />
-      <text x="200" y="135" textAnchor="middle" fontSize="10" fill={THEME.text}
-        fontFamily="JetBrains Mono, monospace" opacity="0.6">PHASE</text>
-      <text x="200" y="155" textAnchor="middle" fontSize="18" fill={currentPhase.color}
-        fontFamily="JetBrains Mono, monospace" fontWeight="900" className="drop-shadow-lg">
+      <circle cx="200" cy="120" r="54" fill={THEME.bg} stroke={THEME.border} strokeWidth="1" />
+      <text x="200" y="108" textAnchor="middle" fontSize="8" fill={THEME.text}
+        fontFamily="JetBrains Mono, monospace">PHASE</text>
+      <text x="200" y="122" textAnchor="middle" fontSize="12" fill={currentPhase.color}
+        fontFamily="JetBrains Mono, monospace" fontWeight="700">
         {currentPhase.number}
       </text>
-      <text x="200" y="172" textAnchor="middle" fontSize="10" fill={currentPhase.color}
-        fontFamily="JetBrains Mono, monospace" fontWeight="bold">
-        {currentPhase.label.toUpperCase().slice(0, 14)}
+      <text x="200" y="136" textAnchor="middle" fontSize="8" fill={currentPhase.color}
+        fontFamily="JetBrains Mono, monospace">
+        {currentPhase.label.toUpperCase().slice(0, 11)}
       </text>
 
       {/* Arrow showing direction */}
-      <path d="M258,150 L274,142 L274,158 Z" fill={THEME.arrow} opacity="0.4" />
+      <path d="M250,120 L264,114 L264,126 Z" fill={THEME.arrow} opacity="0.6" />
     </svg>
   );
 };

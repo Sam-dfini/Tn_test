@@ -464,9 +464,9 @@ export const DataPipeline: React.FC<{
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8 no-scrollbar relative z-10">
+      <div className="flex-1 overflow-hidden p-8 relative z-10">
         <BackgroundGrid />
-        <div className="max-w-[1600px] mx-auto h-full">
+        <div className="max-w-[1600px] mx-auto h-full overflow-y-auto no-scrollbar">
           {activeTab === 'health' ? (
             <ObservabilityDashboard />
           ) : activeTab === 'finance' ? (

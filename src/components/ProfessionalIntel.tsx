@@ -350,7 +350,7 @@ export const ProfessionalIntel: React.FC<{
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
@@ -581,8 +581,10 @@ Return only the 3-sentence briefing.`;
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) { // Only force close on small screens
+      if (window.innerWidth < 768) {
         setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
       }
     };
     
@@ -596,17 +598,17 @@ Return only the 3-sentence briefing.`;
   return (
     <div className="flex h-screen bg-background overflow-hidden relative font-sans">
       
-      {/* Sidebar Overlay (Backdrop) */}
+      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-[60] md:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar Navigation (Overlay) */}
-      <div className={`fixed z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-2xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] shrink-0 overflow-hidden ${
-        sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full border-r-0"
+      {/* Sidebar Navigation */}
+      <div className={`fixed md:relative z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-2xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] shrink-0 overflow-hidden ${
+        sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full md:translate-x-0 border-r-0"
       }`}>
         <div className="w-64 h-full flex flex-col">
           {/* Sidebar Header */}

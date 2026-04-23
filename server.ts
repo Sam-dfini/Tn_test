@@ -34,11 +34,9 @@ const genAI = process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes
   : null;
 
 // Start the Python FastAPI backend on port 8000
-async function startPythonBackend() {
-  console.log('Waiting 10 seconds for schema synchronization to complete...');
-  await new Promise(resolve => setTimeout(resolve, 10000));
+function startPythonBackend() {
   console.log('Starting Python backend intelligence engine...');
-  const pythonProcess = spawn('python', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: path.join(__dirname, 'backend'),
     stdio: 'inherit',
     env: { ...process.env, PYTHONPATH: path.join(__dirname, 'backend') }
@@ -96,7 +94,7 @@ async function startServer() {
       console.error('[Supabase] Failed to initialize client:', err);
     }
   } else {
-    console.error('[Supabase] URL or KEY missing! Please check your .env file.');
+    console.error('[Supabase] URL or KEY missing! SUPABASE_URL:', !!supabaseUrl, 'SUPABASE_SERVICE_KEY:', !!supabaseKey);
   }
 
   const PORT = 3000;

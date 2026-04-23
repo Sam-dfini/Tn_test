@@ -19,7 +19,6 @@ async def sync_rss_feeds(force: bool = False):
         return {
             "status": "success",
             "new_articles": result["new_articles"],
-            "articles": result.get("articles", []),
             "errors": result["errors"]
         }
     except Exception as e:

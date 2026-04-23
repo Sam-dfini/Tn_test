@@ -38,5 +38,3 @@ class EconomicForecasterAgent(BaseAgent):
             context["context_key"] = "economic_forecasting"
             
         return await super().run(data, context)
-
-    forecast_economy = run

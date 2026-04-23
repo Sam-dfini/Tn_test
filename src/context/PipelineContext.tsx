@@ -328,7 +328,6 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [actorNetwork, setActorNetwork] = useState<any>(null);
   const [temporalAnalysis, setTemporalAnalysis] = useState<any>(null);
   const [agriSummary, setAgriSummary] = useState<AgriNationalSummary | null>(null);
-  const [articleCache, setArticleCache] = useState<any[]>([]);
 
   const [rriState, setRriState] = useState(() => {
     try {
@@ -595,18 +594,21 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       const { insights } = generateAgentInsights(signals, clusters, alerts, null);
 
+      // 2. Parallel run analysis & forecast
       const [analysis, forecastResult, mii, actors] = await Promise.all([
         generateAIAnalysis(signals, clusters, alerts, situations, insights),
         generateForecast({ rri: rriState.rri, data }, []),
         computeMII(),
-        analyzeActorNetwork(articleCache, data.social.decree54_charged)
+        analyzeActorNetwork([]) // We could pass articles here if we had them in context
       ]);
 
       setAiAnalysis(analysis);
       setForecast(forecastResult);
       setMiiProfile(mii);
       setActorNetwork(actors);
+      // temporalAnalysis requires complex per-variable mapping, skipping for now or return empty
       setTemporalAnalysis({});
+
       addAuditEntry({
         type: 'EXTRACTED',
         field: 'AI_ANALYSIS',
@@ -620,14 +622,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } finally {
       setIsAIAnalysisLoading(false);
     }
-  }, [data, rriState, isAIAnalysisLoading, addAuditEntry, articleCache]);
-
-  // Auto-run analysis when articles are first cached
-  useEffect(() => {
-    if (articleCache.length > 0 && !actorNetwork && !isAIAnalysisLoading) {
-      runAIAnalysis();
-    }
-  }, [articleCache.length, actorNetwork, isAIAnalysisLoading, runAIAnalysis]);
+  }, [data, rriState, isAIAnalysisLoading, addAuditEntry]);
 
   return (
     <PipelineContext.Provider value={{
@@ -637,7 +632,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       aiAnalysis, forecast, isAIAnalysisLoading,
       miiProfile, actorNetwork, temporalAnalysis, agriSummary,
       runAIAnalysis,
-      updateArticleCache: (articles: any) => setArticleCache(articles)
+      updateArticleCache: (articles: any) => {}
     }}>
       {children}
     </PipelineContext.Provider>
