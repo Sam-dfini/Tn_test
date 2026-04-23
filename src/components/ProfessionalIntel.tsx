@@ -620,7 +620,6 @@ Return only the 3-sentence briefing.`;
                 <button 
                   onClick={() => {
                     toggleCategory(category.id);
-                    setSidebarOpen(false);
                   }}
                   className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest hover:text-slate-300 transition-colors"
                   aria-expanded={expandedCategories[category.id]}
