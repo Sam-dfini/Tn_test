@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { create } from 'zustand';
-import { Loader2 } from 'lucide-react';
-import HeaderBar from './HeaderBar';
+import { Loader2, Sprout } from 'lucide-react';
+import { ModuleHeader } from '../ProfessionalShared';
 import KpiRow from './KpiRow';
 import TacticalMap from './TacticalMap';
 import GovernoratePanel from './GovernoratePanel';
@@ -59,7 +59,15 @@ export default function TunisiaAgricultureDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0f1a] text-[#f1f5f9] font-sans selection:bg-[#3b82f6] selection:text-white pb-12">
-      <HeaderBar />
+      <div className="p-4 lg:p-6">
+        <ModuleHeader 
+          title="Agriculture & Food Intelligence" 
+          subtitle="National Food Security & Crop Stress Analysis" 
+          icon={Sprout}
+          nodeId="AGRI-INTEL-01"
+          statusLabel="ACTIVE"
+        />
+      </div>
       
       <main className="mx-auto max-w-[1600px] p-4 lg:p-6 flex flex-col gap-6">
         <KpiRow />

@@ -171,8 +171,15 @@ export const AgriIntelDashboard: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col space-y-4 overflow-y-auto p-4 custom-scrollbar">
+      <ModuleHeader 
+        title="Agriculture & Food Intelligence" 
+        subtitle="National Food Security & Crop Stress Analysis" 
+        icon={Sprout}
+        nodeId="AGRI-TECH-01"
+      />
+
       {/* Header Summary */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold text-white uppercase tracking-tight">National Summary</h2>
         <button 
           onClick={async () => {
