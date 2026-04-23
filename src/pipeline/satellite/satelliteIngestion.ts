@@ -22,7 +22,7 @@ import {
   CACHE_TTL_NDVI_MS, CACHE_TTL_RAIN_MS,
   SatelliteReading,
 } from './satelliteConfig.js';
-import { getNDVI } from './ndviProcessor.js';
+import { getNDVIBatch } from './ndviProcessor.js';
 import { getRainfallBatch } from './rainfallProcessor.js';
 import { getSoilMoistureBatch } from './soilMoistureProcessor.js';
 
@@ -107,39 +107,77 @@ export async function runSatelliteIngestion(
   };
 
   console.log(`[AgriIngestion] Starting for ${GOVERNORATE_COORDS.length} governorates…`);
+  
+  // ── 0. Check Supabase for fresh data (avoid 429s) ────────────────────────
+  if (supabase && !opts.force_refresh) {
+    const { data: latestRows, error } = await supabase
+      .from('agri_readings')
+      .select('*')
+      .order('fetched_at', { ascending: false })
+      .limit(24);
+    
+    if (!error && latestRows && latestRows.length >= 24) {
+      const mostRecent = new Date(latestRows[0].fetched_at).getTime();
+      const ageMs = Date.now() - mostRecent;
+      const FRESH_THRESHOLD = 6 * 60 * 60 * 1000; // 6 hours
+      
+      if (ageMs < FRESH_THRESHOLD) {
+        console.log(`[AgriIngestion] Fresh data found in Supabase (age: ${(ageMs / 1000 / 60).toFixed(1)}m). Skipping API fetch.`);
+        // Re-assemble summary from DB rows to emit via socket
+        const mockBundles: Record<string, Partial<AgriInputBundle>> = {};
+        latestRows.forEach(r => {
+          mockBundles[r.governorate] = {
+            ndvi: { value: r.ndvi ?? 0.35, timestamp: Date.now(), governorate: r.governorate, quality: 'INTERPOLATED' },
+            rainfall_anomaly: { value: r.rainfall_anomaly ?? 0, timestamp: Date.now(), governorate: r.governorate, quality: 'INTERPOLATED' },
+            soil_moisture: { value: r.soil_moisture ?? 0.25, timestamp: Date.now(), governorate: r.governorate, quality: 'INTERPOLATED' },
+          };
+        });
+        const cachedSummary = processAllGovernorates(mockBundles);
+        if (io) io.emit('intel_event', { type: 'agri_update', payload: cachedSummary });
+        return {
+          success: true,
+          govs_processed: latestRows.length,
+          critical_govs: cachedSummary.critical_govs,
+          high_risk_govs: cachedSummary.high_risk_govs,
+          national_wheat_stress: cachedSummary.national_wheat_stress,
+          national_olive_health: cachedSummary.national_olive_health,
+          aggregate_shock: cachedSummary.aggregate_shock,
+          elapsed_ms: Date.now() - t0,
+          timestamp: new Date().toISOString(),
+          errors: [],
+        };
+      }
+    }
+  }
 
-  // ── 1. Fetch NDVI for all govs (with cache) ───────────────────────────
+  // ── 1. Fetch NDVI for all govs (with cache and batching) ────────────────
   const ndviMap: Record<string, number> = {};
-
-  const ndviFetches = GOVERNORATE_COORDS.map(async (gov) => {
+  const govsToFetchNDVI = GOVERNORATE_COORDS.filter(gov => {
     if (!opts.force_refresh) {
       const cached = getCached(ndviKey(gov.id));
-      if (cached) { ndviMap[gov.id] = cached.ndvi; return; }
+      if (cached) { ndviMap[gov.id] = cached.ndvi; return false; }
     }
-
-    const result = await getNDVI(gov, opts.ndvi_days);
-    if (result) {
-      ndviMap[gov.id] = result.ndvi;
-    } else {
-      const fb = FALLBACK[gov.id];
-      ndviMap[gov.id] = fb?.ndvi ?? 0.35;
-      errors.push(`NDVI fallback used for ${gov.id}`);
-    }
+    return true;
   });
 
-  // Process NDVI in batches (rate limiting)
-  for (let i = 0; i < GOVERNORATE_COORDS.length; i += opts.concurrency) {
-    const batch = ndviFetches.slice(i, i + opts.concurrency);
-    await Promise.all(batch);
-    if (i + opts.concurrency < GOVERNORATE_COORDS.length) {
-      await new Promise(r => setTimeout(r, 500));
+  if (govsToFetchNDVI.length > 0) {
+    const ndviResults = await getNDVIBatch(govsToFetchNDVI, opts.ndvi_days);
+    for (const govId of Object.keys(ndviResults)) {
+      ndviMap[govId] = ndviResults[govId].ndvi;
+    }
+  }
+
+  // Fallback for NDVI missing govs
+  for (const gov of GOVERNORATE_COORDS) {
+    if (ndviMap[gov.id] === undefined) {
+      ndviMap[gov.id] = FALLBACK[gov.id]?.ndvi ?? 0.35;
+      errors.push(`NDVI fallback used for ${gov.id}`);
     }
   }
 
   // ── 2. Fetch rainfall anomaly (batch) ─────────────────────────────────
   const rainfallMap: Record<string, number> = {};
-
-  const rainResults = await getRainfallBatch(GOVERNORATE_COORDS, opts.concurrency);
+  const rainResults = await getRainfallBatch(GOVERNORATE_COORDS);
   for (const r of rainResults) {
     rainfallMap[r.governorate] = r.anomaly;
   }
@@ -154,8 +192,7 @@ export async function runSatelliteIngestion(
 
   // ── 3. Fetch soil moisture (batch) ────────────────────────────────────
   const soilMap: Record<string, number> = {};
-
-  const soilResults = await getSoilMoistureBatch(GOVERNORATE_COORDS, opts.ndvi_days, opts.concurrency);
+  const soilResults = await getSoilMoistureBatch(GOVERNORATE_COORDS, opts.ndvi_days);
   for (const r of soilResults) {
     soilMap[r.governorate] = r.combined;
   }

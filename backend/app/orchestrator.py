@@ -19,6 +19,7 @@ from .signals.quality import SignalQualityLayer
 from .signals.social import SocialSignalAggregator
 from .services.rri_engine import RRIEngine
 from .intelligence.engines import FusionEngine, CorrelationEngine, AnomalyDetectionEngine, ScenarioSimulator
+from .intelligence.agri import AgroIntelligenceEngine
 from .reliability.layers import DataQualityLayer, ValidationLayer, FeedbackSystem, RiskDecompositionEngine, SignalLifecycleManager, ConflictResolver
 from .reliability.simulation import AdvancedScenarioSimulator
 from .simulator.engine import TunisiaSimulator
@@ -71,6 +72,7 @@ class MissionOrchestrator:
         self.fusion_engine = FusionEngine()
         self.correlation_engine = CorrelationEngine()
         self.anomaly_detector = AnomalyDetectionEngine()
+        self.agro_engine = AgroIntelligenceEngine()
         self.scenario_simulator = AdvancedScenarioSimulator() # Upgraded
         self.tunisia_simulator = TunisiaSimulator() # New
         self.decision_engine = DecisionEngine()
@@ -186,12 +188,17 @@ class MissionOrchestrator:
                 # 6. ANALYZE
                 state.current_step = "ANALYZE"
                 await self.emit(Event(type="MISSION_STEP_UPDATE", payload={"step": state.current_step, "mission_id": mission_id}))
+                
+                # Run Agro Intelligence in parallel with other modules
+                agro_inputs = self._get_latest_agro_metrics() # Helper to get satellite + econ metrics
+                
                 analysis_tasks = [
                     self.resource_scout.scout_resources(merged_signals, news_items),
                     self.disinformation_analyst.analyze_disinformation(news_items, social_mentions),
                     self.movement_tracker.track_movements(extracted_events, merged_signals),
                     self.economic_forecaster.forecast_economy({}, merged_signals),
-                    self.security_analyst.analyze_security({}, merged_signals)
+                    self.security_analyst.analyze_security({}, merged_signals),
+                    # self.agro_engine.process_all_national(agro_inputs) # To be implemented or handled per gov
                 ]
                 specialized_results = await asyncio.gather(*analysis_tasks)
                 narrative = await self.analyst.analyze_trends(
@@ -312,6 +319,37 @@ class MissionOrchestrator:
                         s.metadata["analyst_id"] = v["analyst_id"]
             except Exception:
                 pass
+
+    def _get_latest_agro_metrics(self) -> Dict[str, Any]:
+        """
+        Retrieves the latest satellite and climate metrics from the DB.
+        """
+        try:
+            # Fetch latest reading for each governorate
+            result = db.table("agri_readings") \
+                .select("governorate, ndvi, rainfall_anomaly, soil_moisture") \
+                .order("fetched_at", desc=True) \
+                .execute()
+            
+            if not result.data:
+                return {}
+
+            # We need one reading per governorate, result.data likely has many
+            # Let's group by governorate and take the first (latest)
+            latest = {}
+            for r in result.data:
+                gov = r["governorate"]
+                if gov not in latest:
+                    latest[gov] = {
+                        "ndvi": r.get("ndvi", 0.45),
+                        "rainfall_anomaly": r.get("rainfall_anomaly", 0),
+                        "soil_moisture": r.get("soil_moisture", 0.35),
+                        "temperature": 22 # Default fallback as it's not in the schema currently
+                    }
+            return latest
+        except Exception as e:
+            print(f"Error fetching agro metrics: {e}")
+            return {}
 
     def _get_schema_for_category(self, category: str) -> List[Dict[str, str]]:
         """

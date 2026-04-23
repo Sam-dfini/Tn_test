@@ -28,6 +28,8 @@ import { AIAnalystPanel } from './components/AIAnalystPanel';
 
 import { TestMode } from './components/TestMode';
 
+import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
+
 // Data imports
 import govData from './data/governorates.json';
 import eventData from './data/events.json';
@@ -39,14 +41,14 @@ import { seedInitialEvents } from './lib/ingestionEngine';
 import PipelineDebugger from './components/PipelineDebugger';
 
 const AppContent: React.FC = () => {
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal'>(() => {
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture'>(() => {
     const saved = localStorage.getItem('ti_app_mode');
     return (saved as any) || 'selection';
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [pendingMode, setPendingMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | null>(null);
+  const [pendingMode, setPendingMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAIAnalyst, setShowAIAnalyst] = useState(false);
   const [showPipeline, setShowPipeline] = useState(false);
@@ -99,7 +101,7 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(true);
   };
 
-  const handleModeSelect = (selected: 'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal') => {
+  const handleModeSelect = (selected: 'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture') => {
     if (selected === 'selection') {
       setMode('selection');
       setPendingMode(null);
@@ -264,6 +266,10 @@ const AppContent: React.FC = () => {
             />
           </motion.div>
         );
+      case 'agriculture':
+        return (
+          <TunisiaAgricultureDashboard />
+        );
       default:
         return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); localStorage.removeItem('ti_authenticated'); setMode('selection'); }} />;
     }
@@ -349,19 +355,43 @@ const AppContent: React.FC = () => {
   );
 };
 
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{color: 'red', padding: '20px', backgroundColor: '#fff', height: '100vh'}}>
+          <h2>Runtime Error</h2>
+          <pre>{this.state.error?.toString()}</pre>
+          <pre>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const App: React.FC = () => {
   return (
-    <ObservabilityProvider>
-      <AIProvider_>
-        <PipelineProvider>
-          <NotificationProviderWrapper>
-            <RSSProviderWrapper>
-              <AppContent />
-            </RSSProviderWrapper>
-          </NotificationProviderWrapper>
-        </PipelineProvider>
-      </AIProvider_>
-    </ObservabilityProvider>
+    <ErrorBoundary>
+      <ObservabilityProvider>
+        <AIProvider_>
+          <PipelineProvider>
+            <NotificationProviderWrapper>
+              <RSSProviderWrapper>
+                <AppContent />
+              </RSSProviderWrapper>
+            </NotificationProviderWrapper>
+          </PipelineProvider>
+        </AIProvider_>
+      </ObservabilityProvider>
+    </ErrorBoundary>
   );
 };
 

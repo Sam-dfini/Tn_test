@@ -13,7 +13,11 @@ import {
   CornerDownRight,
   ShieldAlert,
   Info,
-  Wheat
+  Wheat,
+  Users,
+  Cpu,
+  Zap,
+  ArrowRight
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -35,6 +39,10 @@ import governoratesData from '../data/governorates.json';
 import { ModuleHeader } from './ProfessionalShared';
 import { cn } from '../utils/cn';
 import { usePipeline } from '../context/PipelineContext';
+import { AgroCrisisModel } from './AgroCrisisModel';
+import { WaterIntelligenceHub } from './WaterIntelligenceHub';
+
+import { AgroScenarioSimulator } from './AgroScenarioSimulator';
 
 interface AgriReading {
   governorate: string;
@@ -244,6 +252,16 @@ export const AgriIntelDashboard: React.FC = () => {
         />
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <AgroCrisisModel data={agroSummary?.bci || null} />
+        <WaterIntelligenceHub 
+          data={agroSummary ? { 
+            national_water_stress: agroSummary.national_water_stress,
+            water_crisis_govs: agroSummary.water_crisis_govs
+          } : null} 
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard 
           title="National Wheat Stress" 
@@ -287,8 +305,8 @@ export const AgriIntelDashboard: React.FC = () => {
                 { label: 'High', color: 'bg-[#ff9f0a]' },
                 { label: 'Moderate', color: 'bg-[#ffd60a]' },
                 { label: 'Stable', color: 'bg-[#00f2ff]' }
-              ].map(tag => (
-                <div key={tag.label} className="flex items-center space-x-1.5">
+              ].map((tag, tIdx) => (
+                <div key={`map-legend-${tag.label}-${tIdx}`} className="flex items-center space-x-1.5">
                   <div className={cn("w-1.5 h-1.5 rounded-full", tag.color)} />
                   <span className="text-[8px] font-mono text-slate-500 uppercase">{tag.label}</span>
                 </div>
@@ -394,9 +412,77 @@ export const AgriIntelDashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+      {/* Advanced Predictive & AI Agents */}
+      <div className="mt-12 space-y-12 pb-12">
+        <section>
+          <div className="flex items-center space-x-3 mb-6">
+            <Zap className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-xl font-bold text-white uppercase tracking-tight">Predictive Simulation & Causality</h2>
+          </div>
+          <AgroScenarioSimulator />
+        </section>
+
+        <section>
+          <div className="flex items-center space-x-3 mb-6">
+            <Users className="w-5 h-5 text-intel-cyan" />
+            <h2 className="text-xl font-bold text-white uppercase tracking-tight">Specialized Intelligence Agents</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AgentPanel 
+              name="Agro-Linguist Agent" 
+              role="Vernacular Sentinel" 
+              status="ACTIVE"
+              finding="Detected 18% increase in 'Farine' related frustration keywords in Sfax and Ben Arous governorates."
+              recommendation="Monitor local distribution hubs for bottleneck verification."
+            />
+            <AgentPanel 
+              name="Climate-Response Agent" 
+              role="Strategic Trend Analyst" 
+              status="SCANNING"
+              finding="High-resolution soil moisture telemetry shows sub-surface deficit accelerating in semi-arid zones."
+              recommendation="Initiate early irrigation rationing protocols for non-essential crops."
+            />
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
+
+const AgentPanel: React.FC<{ name: string; role: string; status: string; finding: string; recommendation: string }> = ({ name, role, status, finding, recommendation }) => (
+  <div className="glass rounded-xl border border-intel-border/30 p-6 bg-[#0a0a0a]/60 flex flex-col space-y-4">
+    <div className="flex justify-between items-start">
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 rounded-full bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/20">
+          <Cpu className="w-5 h-5 text-intel-cyan" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-white tracking-tight">{name}</span>
+          <span className="text-[10px] text-slate-500 font-mono uppercase">{role}</span>
+        </div>
+      </div>
+      <span className={cn(
+        "text-[8px] font-mono px-1.5 py-0.5 rounded border flex items-center space-x-1",
+        status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+      )}>
+        <div className={cn("w-1 h-1 rounded-full", status === 'ACTIVE' ? 'bg-emerald-400' : 'bg-blue-400')} />
+        <span>{status}</span>
+      </span>
+    </div>
+    
+    <div className="space-y-3">
+      <div className="p-3 bg-white/5 rounded-lg border border-white/5">
+        <div className="text-[8px] text-slate-500 uppercase font-bold mb-1">Current Finding</div>
+        <p className="text-[10px] text-slate-300 leading-relaxed italic">{finding}</p>
+      </div>
+      <div className="flex items-center space-x-2 text-intel-cyan">
+        <ArrowRight className="w-3 h-3" />
+        <span className="text-[9px] font-mono uppercase tracking-widest font-bold">Recommendation: {recommendation}</span>
+      </div>
+    </div>
+  </div>
+);
 
 const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: string; trend?: string; nodeId?: string; live?: boolean }> = ({ 
   title, value, icon: Icon, color, trend, nodeId, live
@@ -429,9 +515,9 @@ const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: st
   </div>
 );
 
-const MetricBox: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+const MetricBox: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div className="p-3 bg-white/5 rounded border border-white/5 flex flex-col">
     <span className="text-[10px] text-white/30 uppercase tracking-widest mb-1">{label}</span>
-    <span className="text-sm font-mono text-white font-semibold">{value}</span>
+    <span className={cn("text-sm font-mono font-semibold", color || "text-white")}>{value}</span>
   </div>
 );

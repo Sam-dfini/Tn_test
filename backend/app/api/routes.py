@@ -1,7 +1,6 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 from pydantic import BaseModel
 from ..orchestrator import orchestrator, MissionState
 from ..core.database import db
@@ -27,7 +26,7 @@ async def sync_rss_feeds(force: bool = False):
 
 class ExtractionRequest(BaseModel):
     content: str
-    extraction_schema: List[Dict[str, str]]
+    schema: List[Dict[str, str]]
 
 class DailySyncRequest(BaseModel):
     news_items: List[Dict[str, Any]]
@@ -39,14 +38,13 @@ async def handle_extraction(payload: ExtractionRequest):
     """
     try:
         # Using the new act() method for extraction
-        perception = await orchestrator.extractor.perceive(payload.content, {"schema": payload.extraction_schema})
+        perception = await orchestrator.extractor.perceive(payload.content, {"schema": payload.schema})
         thought = await orchestrator.extractor.think(perception)
         return await orchestrator.extractor.act(thought, perception)
     except Exception as e:
         if "AI_RATE_LIMIT_EXCEEDED" in str(e):
             raise HTTPException(status_code=429, detail="AI Service is currently rate-limited. Please try again soon.")
         raise HTTPException(status_code=500, detail=str(e))
-@router.post("/intelligence/daily")
 async def handle_daily_sync(payload: DailySyncRequest):
     """
     API endpoint for the daily synchronization mission.
@@ -68,7 +66,7 @@ class IntelligenceRequest(BaseModel):
 
 @router.post("/intelligence")
 async def run_intelligence(request: IntelligenceRequest):
-    news_dicts = [item.model_dump() for item in request.news_items]
+    news_dicts = [item.dict() for item in request.news_items]
     state = await orchestrator.run_intelligence_loop(news_dicts)
     return {
         "mission_id": state.mission_id,
@@ -168,6 +166,37 @@ async def get_observability_status():
     API endpoint for retrieving system health and metrics.
     """
     return orchestrator.observability.get_health_status()
+
+@router.get("/agri/summary")
+async def get_agri_summary():
+    """
+    API endpoint for retrieving the latest consolidated agricultural intelligence summary.
+    """
+    try:
+        # 1. Get latest metrics (Placeholder: in real system we'd get this from DB/cache)
+        agro_inputs = orchestrator._get_latest_agro_metrics()
+        
+        # 2. Get latest pipeline data from DB to feed BCI
+        pipeline_result = db.table("variables").select("*").execute()
+        pipeline_data = {v["code"]: v["value"] for v in pipeline_result.data} if pipeline_result.data else {}
+        
+        # 3. Build BCI inputs from pipeline data
+        # Mapping frontend buildBCEWMInputs logic
+        bci_inputs = {
+            "inflation": pipeline_data.get("economy.inflation", 7.1),
+            "food_subsidy_cost": pipeline_data.get("economy.food_subsidies", 2.0),
+            "parallel_premium": pipeline_data.get("economy.parallel_market_premium", 18),
+            "protest_events_30d": pipeline_data.get("social.protest_events_30d", 23),
+            "fx_reserves": pipeline_data.get("economy.fx_reserves", 84),
+            "groundwater_stress": pipeline_data.get("environment.groundwater", 0.55),
+            "dam_level_pct": pipeline_data.get("environment.dam_levels", 35) * 100,
+        }
+
+        # 4. Generate summary
+        summary = orchestrator.agro_engine.process_all_national(agro_inputs, bci_inputs)
+        return summary
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/variables")
 async def get_variables():

@@ -535,7 +535,7 @@ export const IntelligenceBriefPanel: React.FC<{
               </p>
               <div className="space-y-2">
                 {brief.primaryDrivers.map((driver, i) => (
-                  <div key={`driver-full-${i}-${driver.substring(0,10)}-${brief.generatedAt}`}
+                  <div key={`driver-brief-${i}-${brief.generatedAt}`}
                     className="glass p-4 rounded-xl border border-intel-border/30
                       flex items-center space-x-3">
                     <div className={`w-7 h-7 rounded-full border flex items-center
@@ -556,7 +556,7 @@ export const IntelligenceBriefPanel: React.FC<{
                     All Signal Sources
                   </div>
                   {brief.keyDevelopments.map((dev, i) => (
-                    <div key={`dev-source-all-${i}-${dev.signal.substring(0,10)}-${brief.generatedAt}`} className="flex items-center justify-between
+                    <div key={`dev-brief-all-${i}-${brief.generatedAt}`} className="flex items-center justify-between
                       py-1.5 border-b border-white/5 last:border-0">
                       <div className="text-[9px] text-slate-400 flex-1 min-w-0 truncate pr-3">
                         {dev.signal}

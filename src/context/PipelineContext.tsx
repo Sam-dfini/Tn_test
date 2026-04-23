@@ -567,75 +567,84 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [recalculateRRI]);
 
   useEffect(() => {
-    const handler = (e: any) => {
-      const { results: satResults, rri_overrides: satOverrides } = e.detail;
+    const handler = async (e: any) => {
+      try {
+        const { results: satResults, rri_overrides: satOverrides } = e.detail;
 
-      // Build agro inputs from satellite + pipeline
-      const agroInputs: Record<string, any> = {};
-      const wheatStress: Record<string, number> = {};
+        // Fetch consolidated summary from the new Python-backed API
+        const response = await fetch('/api/agri/summary');
+        if (response.ok) {
+          const summary = await response.json();
+          setAgroSummary(summary);
 
-      for (const r of satResults) {
-        agroInputs[r.governorate] = buildAgroInput(
-          r.governorate,
-          r.ndvi ?? 0.35,
-          r.rainfall_anomaly ?? 0,
-          r.soil_moisture ?? 0.25,
-          r.temperature ?? 22,
-          data  // PipelineContext data
-        );
-        wheatStress[r.governorate] = r.wheat_stress ?? 0.35;
-      }
+          // Apply RRI overrides from the summary
+          Object.entries(summary.rri_overrides).forEach(([field, value]) => {
+            if (!field.startsWith('_')) {
+              updateField(field, value as number, 'AgroIntelligence Engine (Backend)');
+            }
+          });
 
-      // Calculate media_bread_score from latest articles
-      const media_bread_score = detectShortagesInArticles(articleCache)
-        .shortages.find(s => s.type === 'flour')?.severity ?? 0;
+          // Notify if BCI crisis
+          if (summary.bci.crisis_imminent) {
+            addNotification({
+              type: 'ALERT',
+              priority: 'CRITICAL',
+              title: `Bread Crisis Index: ${(summary.bci.BCI * 100).toFixed(0)}% — ${summary.bci.level}`,
+              message: `Supply: ${(summary.bci.supply_stress*100).toFixed(0)}% · Price: ${(summary.bci.price_pressure*100).toFixed(0)}% · Public: ${(summary.bci.public_signal*100).toFixed(0)}%`,
+              action_label: 'View AgriIntel',
+              action_event: 'navigate-main',
+              action_detail: { tab: 'agri' },
+            });
+          }
 
-      // Build BCI inputs from current pipeline state + SEI
-      const bciInputs = buildBCEWMInputs(
-        satOverrides?.national_wheat_stress ?? 0.35,
-        data,
-        seiResult?.score ?? 0,     // flour_sei_score
-        media_bread_score,         // media_bread_score
-        0,                         // queue_reports
-        agroSummary?.bci?.BCI ?? 0 // previous BCI for velocity
-      );
+          if (summary.bci.early_warning) {
+            addNotification({
+              type: 'ALERT',
+              priority: 'HIGH',
+              title: `BCI Velocity Alert: +${(summary.bci.velocity * 100).toFixed(0)}% in 7 days`,
+              message: 'Bread Crisis Index accelerating. Early warning threshold exceeded.',
+              action_label: 'View AgriIntel',
+              action_event: 'navigate-main',
+              action_detail: { tab: 'agri' },
+            });
+          }
+        } else {
+          // Fallback to local calculation if backend fails
+          console.warn('Backend agro summary failed, falling back to local calculation');
+          const agroInputs: Record<string, any> = {};
+          const wheatStress: Record<string, number> = {};
 
-      const summary = processAgroNational(agroInputs, bciInputs, wheatStress);
-      setAgroSummary(summary);
+          for (const r of satResults) {
+            agroInputs[r.governorate] = buildAgroInput(
+              r.governorate,
+              r.ndvi ?? 0.35,
+              r.rainfall_anomaly ?? 0,
+              r.soil_moisture ?? 0.25,
+              r.temperature ?? 22,
+              data
+            );
+            wheatStress[r.governorate] = r.wheat_stress ?? 0.35;
+          }
 
-      // Apply RRI overrides
-      Object.entries(summary.rri_overrides).forEach(([field, value]) => {
-        if (!field.startsWith('_')) {
-          updateField(field, value as number, 'AgroSystem Engine');
+          const media_bread_score = detectShortagesInArticles(articleCache)
+            .shortages.find(s => s.type === 'flour')?.severity ?? 0;
+
+          const bciInputs = buildBCEWMInputs(
+            satOverrides?.national_wheat_stress ?? 0.35,
+            data,
+            seiResult?.score ?? 0,
+            media_bread_score,
+            0,
+            agroSummary?.bci?.BCI ?? 0
+          );
+
+          const summary = processAgroNational(agroInputs, bciInputs, wheatStress);
+          setAgroSummary(summary);
         }
-      });
-
-      // Trigger recalculation with shock
-      setTimeout(() => recalculateRRI(), 200);
-
-      // Notify if BCI crisis
-      if (summary.bci.crisis_imminent) {
-        addNotification({
-          type: 'ALERT',
-          priority: 'CRITICAL',
-          title: `Bread Crisis Index: ${(summary.bci.BCI * 100).toFixed(0)}% — ${summary.bci.level}`,
-          message: `Supply: ${(summary.bci.supply_stress*100).toFixed(0)}% · Price: ${(summary.bci.price_pressure*100).toFixed(0)}% · Public: ${(summary.bci.public_signal*100).toFixed(0)}%`,
-          action_label: 'View AgriIntel',
-          action_event: 'navigate-main',
-          action_detail: { tab: 'agri' },
-        });
-      }
-
-      if (summary.bci.early_warning) {
-        addNotification({
-          type: 'ALERT',
-          priority: 'HIGH',
-          title: `BCI Velocity Alert: +${(summary.bci.velocity * 100).toFixed(0)}% in 7 days`,
-          message: 'Bread Crisis Index accelerating. Early warning threshold exceeded.',
-          action_label: 'View AgriIntel',
-          action_event: 'navigate-main',
-          action_detail: { tab: 'agri' },
-        });
+      } catch (err) {
+        console.error('Failed to update agro summary:', err);
+      } finally {
+        setTimeout(() => recalculateRRI(), 200);
       }
     };
 

@@ -46,11 +46,13 @@ const DEFAULT_CLIMATOLOGY_MM = 15.0;
 
 // ── Current 30-day precipitation fetch ───────────────────────────────────
 
-async function fetchCurrent30d(gov: GovCoord): Promise<number | null> {
-  // Use Forecast API with past_days — it has 0 lag for recent history
+async function fetchCurrent30dBatch(govs: GovCoord[]): Promise<Record<string, number>> {
+  const lats = govs.map(g => g.lat.toFixed(4)).join(',');
+  const lons = govs.map(g => g.lon.toFixed(4)).join(',');
+  
   const params = new URLSearchParams({
-    latitude:   gov.lat.toFixed(4),
-    longitude:  gov.lon.toFixed(4),
+    latitude:   lats,
+    longitude:  lons,
     past_days:  '31',
     daily:      'precipitation_sum',
     timezone:   'Africa/Tunis',
@@ -59,27 +61,43 @@ async function fetchCurrent30d(gov: GovCoord): Promise<number | null> {
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
     if (!res.ok) {
-      console.warn(`[Rainfall] Open-Meteo failed for ${gov.id}: ${res.status}`);
-      return null;
+      console.warn(`[Rainfall] Batch Open-Meteo failed: ${res.status}`);
+      return {};
     }
 
     const data = await res.json() as any;
-    const precip: (number | null)[] = data?.daily?.precipitation_sum ?? [];
-    const valid = precip.filter((v): v is number => v !== null && isFinite(v) && v >= 0);
-    return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) : 0;
-
-  } catch { return null; }
+    const results: Record<string, number> = {};
+    
+    // Open-Meteo returns an array of objects if multiple locations requested
+    const dataList = Array.isArray(data) ? data : [data];
+    
+    dataList.forEach((item: any, idx: number) => {
+      const precip: (number | null)[] = item?.daily?.precipitation_sum ?? [];
+      const valid = precip.filter((v): v is number => v !== null && isFinite(v) && v >= 0);
+      const sum = valid.length > 0 ? valid.reduce((a, b) => a + b, 0) : 0;
+      results[govs[idx].id] = sum;
+    });
+    
+    return results;
+  } catch (err) {
+    console.error('[Rainfall] Batch fetch error:', err);
+    return {};
+  }
 }
 
 // ── Historical 30-day average (same calendar period, prior 5 years) ───────
 
-async function fetchHistorical30dAvg(gov: GovCoord): Promise<number | null> {
+async function fetchHistorical30dAvgBatch(govs: GovCoord[]): Promise<Record<string, number>> {
   const today = new Date();
   const year  = today.getFullYear();
-  const totals: number[] = [];
+  const historicalTotals: Record<string, number[]> = {};
+  govs.forEach(g => historicalTotals[g.id] = []);
+
+  const lats = govs.map(g => g.lat.toFixed(4)).join(',');
+  const lons = govs.map(g => g.lon.toFixed(4)).join(',');
 
   // Fetch same 30-day window for years Y-1 through Y-5
-  const yearFetches = [1, 2, 3, 4, 5].map(async (offset) => {
+  for (const offset of [1, 2, 3, 4, 5]) {
     const hy     = year - offset;
     const end    = new Date(today);
     end.setFullYear(hy);
@@ -87,8 +105,8 @@ async function fetchHistorical30dAvg(gov: GovCoord): Promise<number | null> {
     start.setDate(end.getDate() - 30);
 
     const params = new URLSearchParams({
-      latitude:   gov.lat.toFixed(4),
-      longitude:  gov.lon.toFixed(4),
+      latitude:   lats,
+      longitude:  lons,
       start_date: isoDate(start),
       end_date:   isoDate(end),
       daily:      'precipitation_sum',
@@ -97,94 +115,74 @@ async function fetchHistorical30dAvg(gov: GovCoord): Promise<number | null> {
 
     try {
       const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
-      if (!res.ok) return null;
-      const d = await res.json() as any;
-      const precip: (number | null)[] = d?.daily?.precipitation_sum ?? [];
-      const valid = precip.filter((v): v is number => v !== null && isFinite(v) && v >= 0);
-      return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) : null;
-    } catch { return null; }
+      if (!res.ok) continue;
+      const data = await res.json() as any;
+      const dataList = Array.isArray(data) ? data : [data];
+      
+      dataList.forEach((item: any, idx: number) => {
+        const precip: (number | null)[] = item?.daily?.precipitation_sum ?? [];
+        const valid = precip.filter((v): v is number => v !== null && isFinite(v) && v >= 0);
+        if (valid.length > 0) {
+          const sum = valid.reduce((a, b) => a + b, 0);
+          historicalTotals[govs[idx].id].push(sum);
+        }
+      });
+      // Small pause between historical years to be polite
+      await new Promise(r => setTimeout(r, 200));
+    } catch { continue; }
+  }
+
+  const results: Record<string, number> = {};
+  govs.forEach(g => {
+    const valid = historicalTotals[g.id];
+    if (valid.length >= 2) {
+      results[g.id] = valid.reduce((a, b) => a + b, 0) / valid.length;
+    }
   });
 
-  const results = await Promise.all(yearFetches);
-  const valid = results.filter((v): v is number => v !== null);
-
-  return valid.length >= 2
-    ? valid.reduce((a, b) => a + b, 0) / valid.length
-    : null;
+  return results;
 }
 
 // ── Main rainfall processor ───────────────────────────────────────────────
 
 /**
- * getRainfallAnomaly()
- *
- * Returns the rainfall anomaly for a governorate.
- *
- * anomaly > 0  = above average (surplus)
- * anomaly < 0  = below average (deficit, drought signal)
- * anomaly = -1 = complete drought (no rainfall vs normal)
- *
- * Clamped to [-1.0, +1.0] for pipeline compatibility.
- */
-export async function getRainfallAnomaly(
-  gov: GovCoord
-): Promise<RainfallResult> {
-  // Run current and historical fetch in parallel
-  const [current, historical] = await Promise.all([
-    fetchCurrent30d(gov),
-    fetchHistorical30dAvg(gov),
-  ]);
-
-  const current_30d = current ?? 0;
-
-  // Use live historical if available, else climatology baseline
-  const hist_avg = historical
-    ?? RAINFALL_CLIMATOLOGY_MAY[gov.id]
-    ?? DEFAULT_CLIMATOLOGY_MM;
-
-  // Anomaly calculation — avoid division by zero in desert govs
-  let anomaly: number;
-  if (hist_avg < 1.0) {
-    // Near-zero historical baseline (Tozeur, Kebili, Tataouine)
-    anomaly = current_30d > 5 ? 1.0 : 0.0;
-  } else {
-    anomaly = (current_30d - hist_avg) / hist_avg;
-  }
-
-  // Clamp to [-1, +1]
-  anomaly = Math.max(-1, Math.min(1, anomaly));
-
-  return {
-    governorate:       gov.id,
-    current_30d_mm:    parseFloat(current_30d.toFixed(2)),
-    historical_avg_mm: parseFloat(hist_avg.toFixed(2)),
-    anomaly:           parseFloat(anomaly.toFixed(4)),
-    source:            historical ? 'open-meteo-era5-live' : 'open-meteo-era5+climatology',
-  };
-}
-
-/**
  * getRainfallBatch()
- *
- * Process all governorates with rate limiting.
- * Open-Meteo allows ~10k daily requests — batch safely.
+ * 
+ * Process all governorates using batched API calls for efficiency.
+ * Reduces 24 govs * 6 calls = 144 requests to just 6 requests.
  */
 export async function getRainfallBatch(
   govs: GovCoord[],
   concurrency: number = 4
 ): Promise<RainfallResult[]> {
-  const results: RainfallResult[] = [];
+  console.log(`[Rainfall] Starting batched fetch for ${govs.length} governorates...`);
+  
+  const [currentMap, historicalMap] = await Promise.all([
+    fetchCurrent30dBatch(govs),
+    fetchHistorical30dAvgBatch(govs),
+  ]);
 
-  for (let i = 0; i < govs.length; i += concurrency) {
-    const batch  = govs.slice(i, i + concurrency);
-    const chunk  = await Promise.all(batch.map(g => getRainfallAnomaly(g)));
-    results.push(...chunk);
+  return govs.map(gov => {
+    const current_30d = currentMap[gov.id] ?? 0;
+    const hist_avg = historicalMap[gov.id]
+      ?? RAINFALL_CLIMATOLOGY_MAY[gov.id]
+      ?? DEFAULT_CLIMATOLOGY_MM;
 
-    // Polite delay between batches (Open-Meteo rate limit: ~600/min)
-    if (i + concurrency < govs.length) {
-      await new Promise(r => setTimeout(r, 300));
+    let anomaly: number;
+    if (hist_avg < 1.0) {
+      anomaly = current_30d > 5 ? 1.0 : 0.0;
+    } else {
+      anomaly = (current_30d - hist_avg) / hist_avg;
     }
-  }
 
-  return results;
+    anomaly = Math.max(-1, Math.min(1, anomaly));
+
+    return {
+      governorate:       gov.id,
+      current_30d_mm:    parseFloat(current_30d.toFixed(2)),
+      historical_avg_mm: parseFloat(hist_avg.toFixed(2)),
+      anomaly:           parseFloat(anomaly.toFixed(4)),
+      source:            historicalMap[gov.id] ? 'open-meteo-era5-live' : 'open-meteo-era5+climatology',
+    };
+  });
 }

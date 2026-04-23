@@ -140,24 +140,79 @@ export async function getSoilMoisture(
 
 /**
  * getSoilMoistureBatch()
- * Process all governorates with rate limiting.
+ * Process all governorates using batched API calls for efficiency.
  */
 export async function getSoilMoistureBatch(
   govs:        GovCoord[],
   days:        number = 7,
   concurrency: number = 4
 ): Promise<SoilMoistureResult[]> {
-  const results: SoilMoistureResult[] = [];
+  console.log(`[SoilMoisture] Starting batched fetch for ${govs.length} governorates...`);
+  
+  const endDate   = isoDate(daysAgo(7));   // 7-day lag for Archive safety
+  const startDate = isoDate(daysAgo(days + 7));
 
-  for (let i = 0; i < govs.length; i += concurrency) {
-    const batch = govs.slice(i, i + concurrency);
-    const chunk = await Promise.all(batch.map(g => getSoilMoisture(g, days)));
-    results.push(...chunk.filter((r): r is SoilMoistureResult => r !== null));
+  const lats = govs.map(g => g.lat.toFixed(4)).join(',');
+  const lons = govs.map(g => g.lon.toFixed(4)).join(',');
 
-    if (i + concurrency < govs.length) {
-      await new Promise(r => setTimeout(r, 300));
+  const params = new URLSearchParams({
+    latitude:   lats,
+    longitude:  lons,
+    start_date: startDate,
+    end_date:   endDate,
+    hourly:     [
+      'soil_moisture_0_to_7cm',
+      'soil_moisture_7_to_28cm',
+    ].join(','),
+    timezone:   'Africa/Tunis',
+  });
+
+  try {
+    const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
+    if (!res.ok) {
+      console.warn(`[SoilMoisture] Batch Open-Meteo failed: ${res.status}`);
+      return [];
     }
-  }
 
-  return results;
+    const data = await res.json() as any;
+    const dataList = Array.isArray(data) ? data : [data];
+    
+    // Mean over valid (non-null) hourly readings helper
+    const mean = (arr: (number|null)[]): number => {
+      const valid = arr?.filter((v): v is number =>
+        v !== null && isFinite(v) && v > 0
+      ) ?? [];
+      return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : 0;
+    };
+
+    return dataList.map((item: any, idx: number) => {
+      const gov = govs[idx];
+      const hourly = item.hourly;
+      
+      if (!hourly?.soil_moisture_0_to_7cm?.length) return null as any;
+
+      const raw_surface  = mean(hourly.soil_moisture_0_to_7cm);
+      const raw_rootzone = mean(hourly.soil_moisture_7_to_28cm);
+
+      const surface_norm  = normalizeVWC(raw_surface,  gov.id);
+      const rootzone_norm = normalizeVWC(raw_rootzone, gov.id);
+
+      // Weighted: surface matters more for evaporation, root zone for crops
+      const combined = surface_norm * 0.35 + rootzone_norm * 0.65;
+
+      return {
+        governorate:   gov.id,
+        surface_norm:  parseFloat(surface_norm.toFixed(4)),
+        rootzone_norm: parseFloat(rootzone_norm.toFixed(4)),
+        combined:      parseFloat(combined.toFixed(4)),
+        raw_surface:   parseFloat(raw_surface.toFixed(4)),
+        raw_rootzone:  parseFloat(raw_rootzone.toFixed(4)),
+        source:        'open-meteo-era5-land',
+      };
+    }).filter(r => r !== null);
+
+  } catch (err) {
+    console.error('[SoilMoisture] Batch fetch error:', err);
+    return [];
+  }
 }

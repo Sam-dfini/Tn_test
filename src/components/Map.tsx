@@ -330,7 +330,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
 
           {/* Red glowing dots for heatmap points */}
           {heatmapPoints && heatmapPoints.map((point, index) => (
-            <React.Fragment key={`${point.id || 'point'}-${point.lat}-${point.lon}-${index}`}>
+            <React.Fragment key={`heatmap-${point.id || 'point'}-${index}`}>
               {/* Outer Glow */}
               <CircleMarker
                 center={[point.lat, point.lon]}
@@ -488,8 +488,8 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
 
 const LegendItems: React.FC<{ items: { label: string, color: string }[] }> = ({ items }) => (
   <div className="flex items-center space-x-6">
-    {items.map(item => (
-      <div key={item.label} className="flex items-center space-x-2">
+    {items.map((item, idx) => (
+      <div key={`map-legend-item-${item.label}-${idx}`} className="flex items-center space-x-2">
         <div className={cn("w-2 h-2 rounded-full", item.color)}></div>
         <span className="text-[10px] font-mono text-slate-400 uppercase">{item.label}</span>
       </div>

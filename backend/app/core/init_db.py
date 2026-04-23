@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from app.core.database import supabase_client
+from core.database import supabase_client
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)

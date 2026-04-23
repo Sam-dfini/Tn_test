@@ -72,16 +72,17 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
     const rawItems = viewMode === 'raw' ? [...articles] : [manualArticle, ...articles];
     
     return rawItems
-      .map((a: any) => {
+      .map((a: any, idx: number) => {
         // Fallback ID structure: use URL if available, otherwise title hash, otherwise index as last resort
-        const fallbackId = a.url ? `url-${a.url}` : `title-${a.title?.substring(0, 20)}`;
+        const fallbackId = a.url ? `url-${a.url}` : `title-${a.title?.substring(0, 30)}`;
+        const baseId = a.id || fallbackId || `msg-${idx}`;
         return {
           ...a,
-          id: a.id || fallbackId || `msg-${Math.random()}`
+          id: baseId
         };
       })
       .filter((a: any) => {
-        if (seenIds.has(a.id)) return false;
+        if (!a.id || seenIds.has(a.id)) return false;
         seenIds.add(a.id);
         return true;
       })
@@ -320,9 +321,9 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
           )}
 
           <AnimatePresence mode="popLayout">
-            {filteredItems.map((article: any) => (
+            {filteredItems.map((article: any, index: number) => (
               <motion.div 
-                key={article.id}
+                key={`news-article-${article.id}-${index}`}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98 }}
@@ -438,11 +439,11 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                                 <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-4">
                                   <div className="space-y-1">
                                      <span className="text-[7px] font-mono text-slate-600 block uppercase">Original Keywords</span>
-                                     <div className="flex flex-wrap gap-1">
-                                       {(article.keywords || []).map((k: string) => (
-                                         <span key={k} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500 text-slate-500">{k}</span>
-                                       ))}
-                                     </div>
+                                      <div className="flex flex-wrap gap-1">
+                                        {(article.keywords || []).map((k: string, kidx: number) => (
+                                          <span key={`${article.id}-${k}-${kidx}`} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k}</span>
+                                        ))}
+                                      </div>
                                   </div>
                                   <div className="space-y-1">
                                      <span className="text-[7px] font-mono text-slate-600 block uppercase">Category</span>

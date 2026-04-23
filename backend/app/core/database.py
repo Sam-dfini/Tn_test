@@ -15,6 +15,7 @@ try:
         settings.SUPABASE_KEY
     )
     logger.info("Supabase client initialized successfully.")
+    db = supabase_client
 except Exception as e:
     logger.error(f"Failed to initialize Supabase client: {e}")
     raise e
@@ -25,21 +26,3 @@ def get_supabase() -> Client:
     This client uses the service_role key and bypasses RLS.
     """
     return supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client
-
-# Create a global db instance for direct access
-db = supabase_client

@@ -38,33 +38,3 @@ class SocialMovementTrackerAgent(BaseAgent):
             context["context_key"] = "movement_tracking"
             
         return await super().run(data, context)
-
-    async def track_movements(
-        self,
-        extracted_events: List[Any],
-        signals: List[Any]
-    ) -> Dict[str, Any]:
-        payload = {
-            "events": [e.model_dump() if hasattr(e, "model_dump") else e for e in extracted_events],
-            "signals": [s.model_dump() if hasattr(s, "model_dump") else s for s in signals],
-            "task": "Assess mobilization trends, protest escalation risks, and geographic spread."
-        }
-        try:
-            response = await self.run(payload, {"context_key": "movement_tracking"})
-            return {
-                "agent": "social_movement_tracker",
-                "status": "ok",
-                "summary": response.content,
-                "confidence": response.confidence,
-                "tokens_used": response.tokens_used,
-                "structured_data": response.structured_data or {}
-            }
-        except Exception as e:
-            return {
-                "agent": "social_movement_tracker",
-                "status": "error",
-                "summary": f"Movement tracking failed: {str(e)}",
-                "confidence": 0.0,
-                "tokens_used": 0,
-                "structured_data": {}
-            }

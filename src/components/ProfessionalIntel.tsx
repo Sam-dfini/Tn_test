@@ -30,6 +30,8 @@ import {
   Activity,
   Radio,
   Eye,
+  Box,
+  ShoppingBag,
   Target,
   RotateCcw,
   Flame,
@@ -79,6 +81,9 @@ import { Map } from './Map';
 import { InvestmentIntelligenceReportGenerator } from './InvestmentIntelligenceReportGenerator';
 import { CognitiveWarfare } from './CognitiveWarfare';
 import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
+import { IndustrialIntelligencePanel } from './IndustrialIntelligencePanel';
+import { StrategicEnergyIntelligencePanel } from './StrategicEnergyIntelligencePanel';
+import { BlackMarketIntelligencePanel } from './BlackMarketIntelligencePanel';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
@@ -102,6 +107,9 @@ const SIDEBAR_CATEGORIES = [
     items: [
       { id: 'reports', label: 'Investment Reports', icon: FileText },
       { id: 'economy', label: 'Economy', icon: TrendingUp },
+      { id: 'industry', label: 'Industry', icon: Box },
+      { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
+      { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
       { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     ]
   },
@@ -345,7 +353,7 @@ export const ProfessionalIntel: React.FC<{
 }> = ({ context, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onToggleDebug }) => {
   const { data, rriState, miiProfile, actorNetwork, auditLog, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = usePipeline();
   const { articles: rssArticles, isFetching } = useRSS();
-  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry'>('overview');
   const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine' | 'timeline' | 'signal' | 'temporal' | 'rtee'>('news');
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -499,6 +507,7 @@ Return only the 3-sentence briefing.`;
     { id: 'govagent', label: 'Gov. Agent', icon: Brain },
     { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
     { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
+    { id: 'industry', label: 'Industry', icon: Box },
   ];
 
   useEffect(() => {
@@ -789,6 +798,12 @@ Return only the 3-sentence briefing.`;
           <ActorNetworkIntelligence />
         ) : activeTab === 'reports' ? (
           <InvestmentIntelligenceReportGenerator />
+        ) : activeTab === 'industry' ? (
+          <IndustrialIntelligencePanel />
+        ) : activeTab === 'strategic-energy' ? (
+          <StrategicEnergyIntelligencePanel />
+        ) : activeTab === 'black-market' ? (
+          <BlackMarketIntelligencePanel />
         ) : activeTab === 'cognitive' ? (
           <CognitiveWarfare />
         ) : activeTab === 'clusters' ? (

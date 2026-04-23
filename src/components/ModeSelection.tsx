@@ -4,7 +4,7 @@ import { ChevronRight, AlertCircle, Box, Eye, ShieldAlert } from 'lucide-react';
 import { ModePageLayout } from './ModePageLayout';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal') => void;
+  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture') => void;
   onLogoff: () => void;
 }
 
@@ -133,6 +133,23 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect, onLogoff
               onClick={() => onSelect('terminal')}
               aria-label="Initiate Tunisia Terminal mode"
               className="border border-intel-cyan text-intel-cyan px-4 py-2 font-mono text-xs hover:bg-intel-cyan/10"
+            >
+              [ INITIATE ]
+            </button>
+          </div>
+
+          {/* Agriculture Dashboard */}
+          <div className="border border-slate-700 p-6 space-y-4 bg-[#0a0f1a]">
+            <div className="flex justify-between items-start">
+              <div className="text-xs font-mono text-[#3b82f6]">AGRI_NODE_07</div>
+              <Eye className="w-5 h-5 text-[#3b82f6]" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">AGRICULTURE ASIL</h2>
+            <p className="text-sm text-slate-400">Agro-Climate Intelligence System (ASIL). Integrate satellite-derived crop health, economic stress, protein markets, and price forecasting.</p>
+            <button 
+              onClick={() => onSelect('agriculture')}
+              aria-label="Initiate Agriculture ASIL mode"
+              className="border border-[#3b82f6] text-[#3b82f6] px-4 py-2 font-mono text-xs hover:bg-[#3b82f6]/10"
             >
               [ INITIATE ]
             </button>
