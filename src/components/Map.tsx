@@ -64,6 +64,14 @@ const getChoroplethColor = (score: number, activeLayer: string) => {
     return '#78350f'; // Parched
   }
 
+  if (activeLayer === 'Date Palm Health') {
+    if (score >= 2.4) return '#14532d'; // Excellent — dark green
+    if (score >= 1.8) return '#16a34a'; // Good — green
+    if (score >= 1.2) return '#ca8a04'; // Stressed — amber
+    if (score >= 0.6) return '#ea580c'; // Critical — orange
+    return '#991b1b'; // Collapse risk — red
+  }
+
   // Default RRI colors
   if (score >= 2.6) return '#991b1b';
   if (score >= 2.3) return '#ef4444';
@@ -175,8 +183,9 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
       const metrics = (gov as any).agri_metrics;
       if (activeLayer === 'Wheat Stress') score = metrics.wheat_stress * 3;
       if (activeLayer === 'Olive Health') score = metrics.olive_health * 3;
-      if (activeLayer === 'Rainfall Anomaly') score = (metrics.rainfall_anomaly + 0.5) * 2; // Scale -0.5..0.5 to 0..2
+      if (activeLayer === 'Rainfall Anomaly') score = (metrics.rainfall_anomaly + 0.5) * 2;
       if (activeLayer === 'Soil Moisture') score = metrics.soil_moisture * 3;
+      if (activeLayer === 'Date Palm Health') score = (metrics.date_palm_health ?? 0.5) * 3;
     }
     
     return {
@@ -323,6 +332,10 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
             } else if (internalLayer === 'Rainfall Anomaly') {
               type = 'rain';
               color = metrics.rainfall_anomaly < -0.2 ? '#991b1b' : metrics.rainfall_anomaly < 0 ? '#f97316' : '#0ea5e9';
+            } else if (internalLayer === 'Date Palm Health') {
+              type = 'olive';
+              const dph = metrics.date_palm_health ?? 0.5;
+              color = dph > 0.7 ? '#16a34a' : dph > 0.4 ? '#ca8a04' : '#991b1b';
             } else {
               type = 'soil';
               color = metrics.soil_moisture < 0.3 ? '#78350f' : metrics.soil_moisture < 0.6 ? '#fbbf24' : '#3b82f6';
@@ -400,7 +413,8 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
                   { id: 'Wheat Stress', icon: Sprout, color: 'text-intel-red' },
                   { id: 'Olive Health', icon: Leaf, color: 'text-intel-green' },
                   { id: 'Rainfall Anomaly', icon: CloudRain, color: 'text-intel-blue' },
-                  { id: 'Soil Moisture', icon: Droplets, color: 'text-intel-cyan' }
+                  { id: 'Soil Moisture', icon: Droplets, color: 'text-intel-cyan' },
+                  { id: 'Date Palm Health', icon: Thermometer, color: 'text-amber-400' },
                 ].map(layer => (
                   <button
                     key={layer.id}
@@ -487,6 +501,14 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
             { label: 'Moist', color: 'bg-[#3b82f6]' },
             { label: 'Dry', color: 'bg-[#fbbf24]' },
             { label: 'Parched', color: 'bg-[#78350f]' },
+          ]} />
+        ) : activeLayer === 'Date Palm Health' ? (
+          <LegendItems items={[
+            { label: 'Excellent (>80%)', color: 'bg-[#14532d]' },
+            { label: 'Good (60–80%)', color: 'bg-[#16a34a]' },
+            { label: 'Stressed (40–60%)', color: 'bg-[#ca8a04]' },
+            { label: 'Critical (20–40%)', color: 'bg-[#ea580c]' },
+            { label: 'Collapse Risk (<20%)', color: 'bg-[#991b1b]' },
           ]} />
         ) : (
           <LegendItems items={[

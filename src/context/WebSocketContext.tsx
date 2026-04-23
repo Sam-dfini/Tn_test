@@ -23,6 +23,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     const ws = connectBackendWebSocket((type, payload) => {
       setLastMessage({ type, payload });
+      window.dispatchEvent(new CustomEvent(`ti:${type}`, { detail: payload }));
     });
 
     if (ws) {
