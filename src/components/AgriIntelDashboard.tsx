@@ -283,9 +283,10 @@ export const AgriIntelDashboard: React.FC = () => {
             </div>
             <div className="flex items-center space-x-3">
               {[
-                { label: 'Low', color: 'bg-intel-cyan' },
-                { label: 'Med', color: 'bg-intel-orange' },
-                { label: 'High', color: 'bg-intel-red' }
+                { label: 'Critical', color: 'bg-[#ff453a]' },
+                { label: 'High', color: 'bg-[#ff9f0a]' },
+                { label: 'Moderate', color: 'bg-[#ffd60a]' },
+                { label: 'Stable', color: 'bg-[#00f2ff]' }
               ].map(tag => (
                 <div key={tag.label} className="flex items-center space-x-1.5">
                   <div className={cn("w-1.5 h-1.5 rounded-full", tag.color)} />
@@ -298,7 +299,8 @@ export const AgriIntelDashboard: React.FC = () => {
             <Map 
               governorates={mappedGovernorates} 
               events={[]}
-              activeLayer="Agricultural Stress"
+              activeLayer="Wheat Stress"
+              externalActiveLayer="Agricultural Stress"
               onSelectGovernorate={(gov) => setSelectedGov(gov.id)}
             />
           </div>
