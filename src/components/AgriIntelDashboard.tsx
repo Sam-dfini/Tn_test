@@ -305,7 +305,6 @@ export const AgriIntelDashboard: React.FC = () => {
           </div>
         </div>
 
-<<<<<<< HEAD
       {/* Regional Ranking + Sentinel-2 Index — side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Regional Stress Ranking */}
@@ -315,16 +314,6 @@ export const AgriIntelDashboard: React.FC = () => {
             <h3 className="text-[9px] font-mono text-white uppercase tracking-widest">Regional Stress Ranking</h3>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-3">
-=======
-
-        {/* Regional Drilldown */}
-        <div className="bg-[#0a0a0a] border border-white/5 rounded-lg p-4 flex flex-col">
-          <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-emerald-400" />
-            Regional Stress Ranking
-          </h3>
-          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-2">
->>>>>>> f517a83c7aecd1d6fbbc73c6a5b19cde59b10413
             {chartData.map((d, i) => (
               <div 
                 key={`${d.name}-${i}`}
