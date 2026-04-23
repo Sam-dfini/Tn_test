@@ -1,6 +1,7 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 from pydantic import BaseModel
 from ..orchestrator import orchestrator, MissionState
 from ..core.database import db
@@ -45,6 +46,7 @@ async def handle_extraction(payload: ExtractionRequest):
         if "AI_RATE_LIMIT_EXCEEDED" in str(e):
             raise HTTPException(status_code=429, detail="AI Service is currently rate-limited. Please try again soon.")
         raise HTTPException(status_code=500, detail=str(e))
+@router.post("/intelligence/daily")
 async def handle_daily_sync(payload: DailySyncRequest):
     """
     API endpoint for the daily synchronization mission.
@@ -66,7 +68,7 @@ class IntelligenceRequest(BaseModel):
 
 @router.post("/intelligence")
 async def run_intelligence(request: IntelligenceRequest):
-    news_dicts = [item.dict() for item in request.news_items]
+    news_dicts = [item.model_dump() for item in request.news_items]
     state = await orchestrator.run_intelligence_loop(news_dicts)
     return {
         "mission_id": state.mission_id,

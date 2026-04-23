@@ -160,11 +160,12 @@ class RSSService:
 
     async def process_articles(self, articles: List[Dict[str, Any]]) -> int:
         from pathlib import Path
-        log_dir = Path(__file__).parent.parent.parent.parent / "backend"
+        # backend/app/services/rss_service.py -> backend/logs/
+        log_dir = Path(__file__).resolve().parent.parent.parent.parent / "backend" / "logs"
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / "backend_sync.log"
         
-        with open(log_file, "a") as f:
+        with open(log_file, "a", encoding="utf-8") as f:
             f.write(f"\n--- Sync started at {datetime.now().isoformat()} ---\n")
             f.write(f"Processing {len(articles)} articles\n")
             
