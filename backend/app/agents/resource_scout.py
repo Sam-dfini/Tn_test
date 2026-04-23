@@ -37,5 +37,3 @@ class ResourceScoutAgent(BaseAgent):
             context["context_key"] = "resource_scouting"
             
         return await super().run(data, context)
-
-    scout_resources = run

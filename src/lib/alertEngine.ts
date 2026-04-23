@@ -39,9 +39,8 @@ export class AlertEngine {
     const now = Date.now();
 
     // Rule: Ingestion Failure
-    // Only alert if we got feeds but 0 news were created AND the duplication rate wasn't 100%
-    if (metrics.feedCount > 0 && metrics.newsCount === 0 && metrics.duplicateRate < 1.0) {
-      newAlerts.push({ type: "CRITICAL", message: "INGESTION FAILURE: Feeds received but no news created (Check API/DB)", timestamp: now });
+    if (metrics.feedCount > 0 && metrics.newsCount === 0) {
+      newAlerts.push({ type: "CRITICAL", message: "INGESTION FAILURE: Feeds received but no news created", timestamp: now });
     }
 
     // Rule: High Error Rate

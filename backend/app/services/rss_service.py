@@ -10,7 +10,7 @@ import numpy as np
 import google.generativeai as genai
 
 from ..core.database import db
-from ..core.config import settings
+from core.config import settings
 
 RSS_SOURCES = [
     {
@@ -37,14 +37,26 @@ class RSSService:
 
     def generate_id(self, title: str, source: str) -> str:
         """
-        Generate a deterministic UUID based on title and source.
-        This ensures compatibility with Supabase UUID columns and prevents duplicates.
+        Match the JS dual-hash 64-bit implementation exactly.
         """
-        import uuid as uuid_lib
         base = f"{(title or '').strip().lower()}|{(source or 'unknown').strip().lower()}"
-        # Use a fixed namespace (DNS) for consistency
-        namespace = uuid_lib.NAMESPACE_DNS
-        return str(uuid_lib.uuid5(namespace, base))
+        
+        # 32-bit integer overflow simulation
+        def imul(a, b):
+            return (a * b) & 0xFFFFFFFF
+
+        h1 = 0xdeadbeef
+        h2 = 0x41c6ce57
+        
+        for ch in base:
+            c = ord(ch)
+            h1 = (imul(h1 ^ c, 2654435761)) & 0xFFFFFFFF
+            h2 = (imul(h2 ^ c, 1597334677)) & 0xFFFFFFFF
+            
+        h1_final = (imul(h1 ^ (h1 >> 16), 2246822519) ^ imul(h2 ^ (h2 >> 13), 3266489917)) & 0xFFFFFFFF
+        h2_final = (imul(h2 ^ (h2 >> 16), 2246822519) ^ imul(h1 ^ (h1 >> 13), 3266489917)) & 0xFFFFFFFF
+        
+        return f"art_{h1_final:08x}{h2_final:08x}"
 
     async def fetch_all(self, force: bool = False) -> Dict[str, Any]:
         async with self.sync_lock:
@@ -61,26 +73,23 @@ class RSSService:
             total_items = 0
             errors = []
             
-            all_articles = []
             for i, res in enumerate(results):
                 if isinstance(res, Exception):
                     errors.append(f"{RSS_SOURCES[i]['name']}: {str(res)}")
                 elif isinstance(res, dict):
-                    new_count += res.get("new_articles", 0)
+                    new_count += res.get("new", 0)
                     total_items += res.get("total", 0)
-                    all_articles.extend(res.get("articles", []))
                 else:
                     new_count += res # Fallback for old return type
                     
             return {
                 "new_articles": new_count, 
                 "total_discovered": total_items,
-                "articles": all_articles,
                 "feeds_processed": len(RSS_SOURCES),
                 "errors": errors
             }
 
-    async def fetch_source(self, source: Dict[str, str]) -> Dict[str, Any]:
+    async def fetch_source(self, source: Dict[str, str]) -> Dict[str, int]:
         try:
             # Add cache buster to URL
             sep = "&" if "?" in source["url"] else "?"
@@ -92,11 +101,11 @@ class RSSService:
             
             articles = self.parse_rss(response.text, source)
             print(f"[RSS] Parsed {len(articles)} items from {source['name']}")
-            new_articles = await self.process_articles(articles)
-            return {"new_articles": len(new_articles), "total": len(articles), "articles": new_articles}
+            new_added = await self.process_articles(articles)
+            return {"new": new_added, "total": len(articles)}
         except Exception as e:
             print(f"Error fetching {source['name']}: {e}")
-            return {"new_articles": 0, "total": 0, "articles": []}
+            return {"new": 0, "total": 0}
 
     def parse_rss(self, xml_content: str, source: Dict[str, str]) -> List[Dict[str, Any]]:
         try:
@@ -150,16 +159,16 @@ class RSSService:
             print(f"Parsing error for {source['name']}: {e}")
             return []
 
-    async def process_articles(self, articles: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        log_file = "backend_sync.log"
+    async def process_articles(self, articles: List[Dict[str, Any]]) -> int:
+        log_file = "./backend/backend_sync.log"
         with open(log_file, "a") as f:
             f.write(f"\n--- Sync started at {datetime.now().isoformat()} ---\n")
             f.write(f"Processing {len(articles)} articles\n")
             
         if not articles:
-            return []
+            return 0
             
-        processed_articles = []
+        new_count = 0
         for article in articles:
             try:
                 # 1. Deterministic ID generation for article
@@ -223,16 +232,16 @@ class RSSService:
 
                 # 5. Insert article
                 db.table("articles").insert(article).execute()
-                processed_articles.append(article)
+                new_count += 1
 
             except Exception as e:
                 with open(log_file, "a") as f:
                     f.write(f"Article processing error: {e}\n")
                 
         with open(log_file, "a") as f:
-            f.write(f"Sync finished. New: {len(processed_articles)}\n")
+            f.write(f"Sync finished. New: {new_count}\n")
             
-        return processed_articles
+        return new_count
 
     def _detect_severity(self, text: str) -> int:
         text = text.lower()

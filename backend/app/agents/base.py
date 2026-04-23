@@ -25,7 +25,7 @@ class BaseAgent:
     ):
         self.role = role
         self.system_instruction = system_instruction
-        self.model_name = "gemini-2.0-flash"
+        self.model_name = "gemini-1.5-flash"
         self.api_key = os.getenv("GEMINI_API_KEY")
         
         if not self.api_key:
@@ -130,36 +130,25 @@ class BaseAgent:
 
     async def _call_llm(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
         """
-        Low-level execution of an AI model call with automatic retry on rate limits.
+        Low-level execution of an AI model call.
         """
-        import asyncio
         full_prompt = prompt
         if context:
             full_prompt = f"Context: {context}\n\nTask: {prompt}"
             
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                response = await self.model.generate_content_async(full_prompt)
-                return AgentResponse(
-                    content=response.text,
-                    tokens_used=response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
-                )
-            except Exception as e:
-                error_str = str(e)
-                print(f"Agent {self.role} attempt {attempt+1} failed: {error_str}")
-                
-                if ("429" in error_str or "quota" in error_str.lower()) and attempt < max_retries - 1:
-                    wait_time = (attempt + 1) * 10 # 10s, 20s
-                    print(f"Rate limit hit. Waiting {wait_time}s before retry...")
-                    await asyncio.sleep(wait_time)
-                    continue
-                    
-                if "429" in error_str or "quota" in error_str.lower():
-                    raise Exception("AI_RATE_LIMIT_EXCEEDED")
-                raise e
-        
-        raise Exception("AI_MAX_RETRIES_EXCEEDED")
+        try:
+            response = await self.model.generate_content_async(full_prompt)
+            return AgentResponse(
+                content=response.text,
+                tokens_used=response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
+            )
+        except Exception as e:
+            error_str = str(e)
+            print(f"Agent {self.role} failed: {error_str}")
+            if "429" in error_str or "quota" in error_str.lower():
+                # Re-raise with specific message so API can catch it
+                raise Exception("AI_RATE_LIMIT_EXCEEDED")
+            raise e
 
     async def _get_memory(self, context_key: str) -> List[Dict[str, Any]]:
         """

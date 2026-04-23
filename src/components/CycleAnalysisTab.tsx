@@ -361,19 +361,18 @@ export const CycleAnalysisTab: React.FC = () => {
 const OverviewTab = ({ cycle, accel, uplift, p_rev }: any) => {
   const cpiCol = cycle.CPI >= 0.75 ? '#ff2d55' : cycle.CPI >= 0.60 ? '#ff9f0a' : '#ffd60a';
   const rows = [
-    { label:'1-Year Seasonal',    val:cycle.C1t,   phase:cycle.currentPhase1.label,   color:'#00d4ff' }, // Tech Blue
-    { label:'30-Year Leadership', val:cycle.C30t,  phase:cycle.currentPhase30.label,  color:'#ff9f0a' }, // Alert Orange
-    { label:'120-Year Regime',    val:cycle.C120t, phase:cycle.currentPhase120.label, color:'#bf5af2' }, // Purple
-    { label:'500-Year Civiliz.',  val:cycle.C500t, phase:'Transition / Crisis',       color:'#ffd60a' }, // Yellow/Gold
+    { label:'1-Year Seasonal',    val:cycle.C1t,   phase:cycle.currentPhase1.label,   color:cycle.currentPhase1.color },
+    { label:'30-Year Leadership', val:cycle.C30t,  phase:cycle.currentPhase30.label,  color:cycle.currentPhase30.color },
+    { label:'120-Year Regime',    val:cycle.C120t, phase:cycle.currentPhase120.label, color:cycle.currentPhase120.color },
+    { label:'500-Year Civiliz.',  val:cycle.C500t, phase:'Transition / Crisis',       color:'#ff9f0a' },
   ];
 
-  const W=800, H=420, pad={t:60,b:60,l:220,r:60};
+  const W=600, H=360, pad={t:50,b:60,l:180,r:40};
   const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
   const rowH = Math.floor(cH/4);
 
   return (
     <div className="space-y-8">
-      {/* ... previous content ... */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <EquationCard 
           number="22"
@@ -395,74 +394,35 @@ const OverviewTab = ({ cycle, accel, uplift, p_rev }: any) => {
       </div>
 
       <div className="bg-black/40 border border-white/5 rounded-2xl p-8 md:p-10">
-        <div className="text-sm font-mono text-slate-500 uppercase tracking-[0.4em] mb-12 text-center">Cycle Risk Pressure — All Scales (Normalized)</div>
-        <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="block font-mono overflow-visible">
-          <rect x={pad.l} y={pad.t} width={cW} height={cH} fill="#030d1a" rx="8"/>
+        <div className="text-sm font-mono text-slate-500 uppercase tracking-widest mb-10 text-center">Cycle Risk Pressure — All Scales (Normalized)</div>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="block font-mono">
+          <rect x={pad.l} y={pad.t} width={cW} height={cH} fill="#030d1a" rx="6"/>
           {[0,25,50,75,100].map(v => (
             <React.Fragment key={v}>
-              <line x1={pad.l+v/100*cW} y1={pad.t} x2={pad.l+v/100*cW} y2={pad.t+cH} stroke="#1e293b" strokeWidth="1" strokeDasharray="4,4"/>
-              <text x={pad.l+v/100*cW} y={H-24} textAnchor="middle" fontSize="12" fill="#475569" fontWeight="700">{v}%</text>
+              <line x1={pad.l+v/100*cW} y1={pad.t} x2={pad.l+v/100*cW} y2={pad.t+cH} stroke="#0d1e36" strokeWidth="2"/>
+              <text x={pad.l+v/100*cW} y={H-24} textAnchor="middle" fontSize="14" fill="#475569" fontWeight="bold">{v}%</text>
             </React.Fragment>
           ))}
           {rows.map((r, i) => {
             const y = pad.t + i*rowH + rowH*0.15;
-            const bH = rowH*0.6;
+            const bH = rowH*0.7;
             const fillW = r.val * cW;
             return (
               <React.Fragment key={r.label}>
-                {/* Left Label */}
-                <text x={pad.l-25} y={y+bH*0.6} textAnchor="end" fontSize="14" fill="#94a3b8" fontWeight="700">{r.label}</text>
-                
-                {/* Track */}
+                <text x={pad.l-20} y={y+bH*0.6} textAnchor="end" fontSize="14" fill="#94a3b8" fontWeight="700">{r.label}</text>
                 <rect x={pad.l} y={y} width={cW} height={bH} fill="#0c1830" rx="4"/>
-                
-                {/* Bar */}
-                <motion.rect 
-                  initial={{ width: 0 }}
-                  animate={{ width: fillW }}
-                  transition={{ duration: 1.5, ease: "easeOut", delay: i * 0.1 }}
-                  x={pad.l} y={y} height={bH} fill={r.color} opacity="0.9" rx="4"
-                />
-                
-                {/* Value at start of bar if small, at end if large */}
-                <text 
-                  x={pad.l + fillW + 12} 
-                  y={y+bH*0.65} 
-                  fontSize="16" 
-                  fill={r.color} 
-                  fontWeight="900"
-                >
-                  {Math.round(r.val*100)}%
-                </text>
-                
-                {/* Phase label — Shifted upwards to avoid "scrambling" with the bar/percentage */}
-                <text 
-                  x={pad.l + 5} 
-                  y={y - 8} 
-                  fontSize="11" 
-                  fill={`${r.color}cc`} 
-                  fontWeight="bold"
-                  className="uppercase tracking-widest"
-                >
-                  {r.phase}
-                </text>
+                <rect x={pad.l} y={y} width={fillW} height={bH} fill={r.color} opacity="0.85" rx="4">
+                  <animate attributeName="width" from="0" to={fillW} dur="1.5s" fill="freeze" />
+                </rect>
+                <text x={pad.l + fillW + 10} y={y+bH*0.65} fontSize="16" fill={r.color} fontWeight="900">{Math.round(r.val*100)}%</text>
+                <text x={pad.l + cW - 8} y={y+bH*0.65} textAnchor="end" fontSize="11" fill={`${r.color}cc`} fontWeight="600">{r.phase}</text>
               </React.Fragment>
             );
           })}
-          
-          {/* Thresholds */}
-          <line x1={pad.l+cW*0.70} y1={pad.t-10} x2={pad.l+cW*0.70} y2={pad.t+cH+10} stroke="#ff2d55" strokeWidth="1.5" strokeDasharray="8,4" opacity="0.5"/>
-          <text x={pad.l+cW*0.70+8} y={pad.t-12} fontSize="10" fill="#ff2d55" fontWeight="bold">70% CRITICAL</text>
-          
-          {/* CPI Indicator */}
-          <motion.g
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.8 }}
-          >
-            <line x1={pad.l + cycle.CPI*cW} y1={pad.t-25} x2={pad.l + cycle.CPI*cW} y2={pad.t+cH+25} stroke={cpiCol} strokeWidth="4" strokeLinecap="round" />
-            <text x={pad.l + cycle.CPI*cW} y={pad.t-32} textAnchor="middle" fontSize="18" fill={cpiCol} fontWeight="900" className="drop-shadow-lg">CPI = {cycle.CPI.toFixed(3)}</text>
-          </motion.g>
+          <line x1={pad.l+cW*0.70} y1={pad.t-10} x2={pad.l+cW*0.70} y2={pad.t+cH+10} stroke="#ffd60a" strokeWidth="2" strokeDasharray="6,6" opacity="0.6"/>
+          <text x={pad.l+cW*0.70+8} y={pad.t-15} fontSize="12" fill="#ffd60a" fontWeight="bold">70% CRITICAL THRESHOLD</text>
+          <line x1={pad.l + cycle.CPI*cW} y1={pad.t-20} x2={pad.l + cycle.CPI*cW} y2={pad.t+cH+20} stroke={cpiCol} strokeWidth="5" opacity="1"/>
+          <text x={pad.l + cycle.CPI*cW} y={pad.t-25} textAnchor="middle" fontSize="16" fill={cpiCol} fontWeight="900">CPI = {cycle.CPI.toFixed(3)}</text>
         </svg>
       </div>
 

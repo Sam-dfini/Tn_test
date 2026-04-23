@@ -8,7 +8,7 @@ import { checkAndFixSchema } from './schemaValidator.js';
 export function sanitizeData(tableName: string, data: any): any {
   if (tableName === 'articles') {
     return {
-      id: data.id || globalThis.crypto?.randomUUID?.() || '00000000-0000-0000-0000-000000000000',
+      id: data.id || `art_${Math.random().toString(36).slice(2, 11)}`,
       fingerprint: data.fingerprint || `fp_${Date.now()}_${Math.random()}`,
       title: data.title || "NO_TITLE",
       source: data.source || "UNKNOWN",

@@ -32,5 +32,3 @@ class AnalystAgent(BaseAgent):
             context["context_key"] = "trend_analysis"
             
         return await super().run(data, context)
-
-    analyze_trends = run

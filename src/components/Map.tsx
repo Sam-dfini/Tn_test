@@ -4,20 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Governorate, IntelEvent } from '../types/intel';
 import { cn } from '../utils/cn';
-import { 
-  Sprout, 
-  Droplets, 
-  CloudRain, 
-  Leaf, 
-  Wind, 
-  Thermometer, 
-  ShieldAlert,
-  ChevronDown,
-  Layers,
-  Activity,
-  Zap,
-  CheckCircle2
-} from 'lucide-react';
+import { Sprout, Leaf, CloudRain, Droplets, Globe, Activity, Thermometer } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 // Helper to normalize names for matching GeoJSON properties to data keys
@@ -118,6 +105,7 @@ interface MapProps {
   onSelectGovernorate?: (gov: Governorate) => void;
   onSimulate?: (id: string, name: string) => void;
   focusedGovId?: string | null;
+  externalActiveLayer?: string;
 }
 
 const MapController = ({ governorates, focusedGovId }: { governorates: Governorate[], focusedGovId?: string | null }) => {
@@ -138,15 +126,13 @@ const MapController = ({ governorates, focusedGovId }: { governorates: Governora
   return null;
 };
 
-export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: externalActiveLayer, heatmapPoints, onSelectGovernorate, onSimulate, focusedGovId }) => {
-  const tunisiaCenter: [number, number] = [34.0, 9.0]; 
+export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, heatmapPoints, onSelectGovernorate, onSimulate, focusedGovId, externalActiveLayer }) => {
+  const tunisiaCenter: [number, number] = [34.0, 9.0]; // Centered as requested
   const zoom = 6;
   const [geoData, setGeoData] = useState<any>(null);
   const [showChoropleth, setShowChoropleth] = useState(true);
-  const [internalLayer, setInternalLayer] = useState<string>('Wheat Stress');
+  const [internalLayer, setInternalLayer] = useState('Wheat Stress');
   const [showIcons, setShowIcons] = useState(true);
-
-  const activeLayer = externalActiveLayer === 'Agricultural Stress' ? internalLayer : externalActiveLayer;
 
   // Fetch Tunisia ADM1 GeoJSON
   useEffect(() => {
@@ -170,6 +156,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
     const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
     const normalized = normalizeName(name);
     
+    // Match by normalized ID or English name
     const gov = governorates.find(g => 
       g.id === normalized || 
       normalizeName(g.name.en) === normalized ||
@@ -190,10 +177,10 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
     
     return {
       fillColor: getChoroplethColor(score, activeLayer),
-      weight: 1,
+      weight: 1, // Thin stroke as requested
       opacity: 1,
-      color: 'white',
-      fillOpacity: 0.4,
+      color: 'white', // White stroke as requested
+      fillOpacity: 0.5,
     };
   }, [governorates, activeLayer]);
 
@@ -227,66 +214,51 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
 
     if (gov) {
       const govEvents = events.filter(e => e.gov === gov.id).slice(0, 3);
-      const metrics = (gov as any).agri_metrics;
       
       layer.bindPopup(`
-        <div class="p-4 min-w-[260px] bg-intel-card text-slate-300 border border-intel-border rounded-xl shadow-2xl font-mono animate-in fade-in zoom-in duration-200">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-[8px] text-slate-500 uppercase tracking-tighter">${gov.id} // AGRI_SEC_01</span>
-            <div class="flex items-center space-x-2">
-              <span class="text-[8px] font-bold uppercase px-2 py-0.5 rounded border ${
-                gov.risk_level === 'ALERT' ? "bg-intel-red/20 text-intel-red border-intel-red/30" : 
-                gov.risk_level === 'HIGH' ? "bg-intel-orange/20 text-intel-orange border-intel-orange/30" :
-                "bg-intel-cyan/20 text-intel-cyan border-intel-cyan/30"
-              }">
-                ${gov.risk_level}
-              </span>
-            </div>
+        <div class="p-3 min-w-[200px] bg-intel-card text-slate-300 border border-intel-border rounded-lg shadow-2xl font-mono">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[8px] text-slate-500 uppercase">${gov.id}</span>
+            <span class="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border ${
+              gov.risk_level === 'ALERT' ? "bg-intel-red/10 text-intel-red border-intel-red/20" : 
+              gov.risk_level === 'HIGH' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
+              "bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20"
+            }">
+              ${gov.risk_level}
+            </span>
           </div>
+          <h4 class="text-sm font-bold text-white uppercase mb-1">${gov.name.en}</h4>
+          <div class="text-[10px] text-slate-400 mb-3">${gov.name.ar}</div>
           
-          <div class="mb-4">
-            <h4 class="text-lg font-black text-white uppercase tracking-tight">${gov.name.en}</h4>
-            <div class="text-[9px] text-intel-cyan flex items-center mt-0.5">
-              <Activity size={8} class="mr-1" />
-              SATELLITE TELEMETRY ACTIVE
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="p-1.5 rounded bg-white/5 border border-white/5 text-center">
+              <div class="text-[7px] text-slate-500 uppercase">RRI Score</div>
+              <div class="text-xs font-bold text-white">${gov.rri_score.toFixed(2)}</div>
+            </div>
+            <div class="p-1.5 rounded bg-white/5 border border-white/5 text-center">
+              <div class="text-[7px] text-slate-500 uppercase">Unemp</div>
+              <div class="text-xs font-bold text-white">${gov.unemp}%</div>
             </div>
           </div>
 
-          ${metrics ? `
-            <div class="grid grid-cols-2 gap-2 mb-4">
-              <div class="p-2 rounded-lg bg-white/5 border border-white/10">
-                <div class="text-[7px] text-slate-500 uppercase mb-1">Wheat Stress</div>
-                <div class="flex items-center justify-between">
-                  <div class="text-sm font-bold ${metrics.wheat_stress > 0.7 ? 'text-intel-red' : 'text-white'}">${(metrics.wheat_stress * 100).toFixed(1)}%</div>
-                  <div class="w-1 h-1 rounded-full ${metrics.wheat_stress > 0.7 ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}"></div>
+          ${govEvents.length > 0 ? `
+            <div class="mb-3 space-y-1">
+              <div class="text-[7px] text-slate-500 uppercase mb-1">Recent Events</div>
+              ${govEvents.map(e => `
+                <div class="text-[8px] p-1 bg-white/5 rounded border border-white/5 truncate">
+                  <span class="${e.urgent ? 'text-intel-red' : 'text-intel-cyan'}">●</span> ${e.title}
                 </div>
-              </div>
-              <div class="p-2 rounded-lg bg-white/5 border border-white/10">
-                <div class="text-[7px] text-slate-500 uppercase mb-1">Soil Moisture</div>
-                <div class="text-sm font-bold text-white">${(metrics.soil_moisture * 100).toFixed(1)}%</div>
-              </div>
-              <div class="p-2 rounded-lg bg-white/5 border border-white/10">
-                <div class="text-[7px] text-slate-500 uppercase mb-1">Rainfall Dev</div>
-                <div class="text-sm font-bold ${metrics.rainfall_anomaly < 0 ? 'text-intel-orange' : 'text-intel-cyan'}">${(metrics.rainfall_anomaly * 100).toFixed(1)}%</div>
-              </div>
-              <div class="p-2 rounded-lg bg-white/5 border border-white/10">
-                <div class="text-[7px] text-slate-500 uppercase mb-1">NDVI Index</div>
-                <div class="text-sm font-bold text-white">${metrics.ndvi.toFixed(3)}</div>
-              </div>
+              `).join('')}
             </div>
-          ` : `
-            <div class="p-3 rounded-lg bg-white/5 border border-white/10 text-center text-[10px] text-slate-500 italic mb-4">
-              No agricultural telemetry available for this region
-            </div>
-          `}
+          ` : ''}
 
           <div class="flex flex-col gap-2">
-            <button class="w-full py-2 bg-intel-cyan text-intel-bg hover:bg-white transition-all rounded font-bold text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(0,242,255,0.3)]">
-              Full Intelligence Dossier →
+            <button class="w-full py-1.5 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded text-[8px] font-bold text-intel-cyan transition-all uppercase">
+              Analyze Region →
             </button>
           </div>
         </div>
-      `, { className: 'intel-popup', maxWidth: 300 });
+      `, { className: 'intel-popup' });
     }
   }, [governorates, events, getGovStyle, onSelectGovernorate]);
 
@@ -400,11 +372,11 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
         </MapContainer>
 
         {/* Overlay UI */}
-        <div className="absolute top-6 left-6 z-[1000] flex flex-col space-y-3">
-          <div className="glass px-4 py-3 rounded-xl flex flex-col space-y-2 border border-intel-border/50 shadow-2xl">
-            <div className="flex items-center space-x-2 mb-1">
-              <Layers className="w-3.5 h-3.5 text-intel-cyan" />
-              <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Intel Layer Controller</span>
+        <div className="absolute top-6 left-6 z-[1000] hidden md:flex flex-col space-y-2">
+          <div className="glass px-4 py-2 rounded-lg flex items-center space-x-3">
+            <div className="flex flex-col">
+              <span className="text-[8px] font-mono text-slate-500 uppercase">Active Layer</span>
+              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{activeLayer} Choropleth</span>
             </div>
             
             {externalActiveLayer === 'Agricultural Stress' ? (
@@ -441,29 +413,19 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
             )}
           </div>
           
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => setShowChoropleth(!showChoropleth)}
-              className={cn(
-                "glass px-4 py-2 rounded-lg flex items-center transition-all border",
-                showChoropleth ? "border-intel-cyan/50 text-intel-cyan" : "border-white/10 text-slate-500"
-              )}
-            >
-              <Activity className="w-3 h-3 mr-2" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Heatmap</span>
-            </button>
-
-            <button 
-              onClick={() => setShowIcons(!showIcons)}
-              className={cn(
-                "glass px-4 py-2 rounded-lg flex items-center transition-all border",
-                showIcons ? "border-intel-cyan/50 text-intel-cyan" : "border-white/10 text-slate-500"
-              )}
-            >
-              <Zap className="w-3 h-3 mr-2" />
-              <span className="text-[8px] font-bold uppercase tracking-widest">Telemetry Icons</span>
-            </button>
-          </div>
+          <button 
+            onClick={() => setShowChoropleth(!showChoropleth)}
+            className={cn(
+              "glass px-4 py-2 rounded-lg flex items-center justify-between transition-all border",
+              showChoropleth ? "border-intel-cyan/50 text-intel-cyan" : "border-white/10 text-slate-500"
+            )}
+          >
+            <span className="text-[8px] font-mono uppercase tracking-widest">Choropleth</span>
+            <div className={cn(
+              "w-2 h-2 rounded-full ml-3",
+              showChoropleth ? "bg-intel-cyan animate-pulse" : "bg-slate-700"
+            )}></div>
+          </button>
         </div>
       </div>
 
@@ -524,12 +486,12 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer: ext
   );
 };
 
-const LegendItems = ({ items }: { items: { label: string; color: string }[] }) => (
+const LegendItems: React.FC<{ items: { label: string, color: string }[] }> = ({ items }) => (
   <div className="flex items-center space-x-6">
     {items.map(item => (
       <div key={item.label} className="flex items-center space-x-2">
-        <div className={cn("w-2 h-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]", item.color)}></div>
-        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{item.label}</span>
+        <div className={cn("w-2 h-2 rounded-full", item.color)}></div>
+        <span className="text-[10px] font-mono text-slate-400 uppercase">{item.label}</span>
       </div>
     ))}
   </div>

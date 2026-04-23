@@ -24,66 +24,25 @@ export interface IntelligenceEvent {
 export function generateEventId(event: { title?: string; source?: string }): string {
   const t = (event.title || "").trim().toLowerCase();
   const s = (event.source || "unknown").trim().toLowerCase();
-  if (!t) return "";
-
-  const name = `${t}|${s}`;
   
-  // Standard UUIDv5 Implementation (matching Python's uuid.uuid5)
-  // Namespace DNS: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
-  const NAMESPACE_DNS_BYTES = new Uint8Array([
-    0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 
-    0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8
-  ]);
+  if (!t) return ""; // Title is mandatory for identity
 
-  // Minimal SHA-1 implementation for deterministic ID generation
-  function sha1(bytes: Uint8Array): Uint8Array {
-    let h0 = 0x67452301, h1 = 0xEFCDAB89, h2 = 0x98BADCFE, h3 = 0x10325476, h4 = 0xC3D2E1F0;
-    const len = bytes.length;
-    const totalLen = len * 8;
-    const padding = new Uint8Array(64 * Math.ceil((len + 9) / 64));
-    padding.set(bytes);
-    padding[len] = 0x80;
-    const view = new DataView(padding.buffer);
-    view.setUint32(padding.length - 4, totalLen);
-
-    for (let i = 0; i < padding.length; i += 64) {
-      const w = new Uint32Array(80);
-      for (let j = 0; j < 16; j++) w[j] = view.getUint32(i + j * 4);
-      for (let j = 16; j < 80; j++) {
-        const val = w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16];
-        w[j] = (val << 1) | (val >>> 31);
-      }
-      let a = h0, b = h1, c = h2, d = h3, e = h4;
-      for (let j = 0; j < 80; j++) {
-        let f, k;
-        if (j < 20) { f = (b & c) | ((~b) & d); k = 0x5A827999; }
-        else if (j < 40) { f = b ^ c ^ d; k = 0x6ED9EBA1; }
-        else if (j < 60) { f = (b & c) | (b & d) | (c & d); k = 0x8F1BBCDC; }
-        else { f = b ^ c ^ d; k = 0xCA62C1D6; }
-        const temp = (((a << 5) | (a >>> 27)) + f + e + k + w[j]) >>> 0;
-        e = d; d = c; c = (b << 30) | (b >>> 2); b = a; a = temp;
-      }
-      h0 = (h0 + a) >>> 0; h1 = (h1 + b) >>> 0; h2 = (h2 + c) >>> 0; h3 = (h3 + d) >>> 0; h4 = (h4 + e) >>> 0;
-    }
-    const res = new Uint8Array(20);
-    const resView = new DataView(res.buffer);
-    resView.setUint32(0, h0); resView.setUint32(4, h1); resView.setUint32(8, h2); resView.setUint32(12, h3); resView.setUint32(16, h4);
-    return res;
+  const base = `${t}|${s}`;
+  
+  // Dual-hash for 64-bit collision space
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  
+  for (let i = 0; i < base.length; i++) {
+    const ch = base.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
   }
-
-  const nameBytes = new TextEncoder().encode(name);
-  const combined = new Uint8Array(NAMESPACE_DNS_BYTES.length + nameBytes.length);
-  combined.set(NAMESPACE_DNS_BYTES);
-  combined.set(nameBytes, NAMESPACE_DNS_BYTES.length);
   
-  const hash = sha1(combined);
-  // Set version to 5 (bits 4-7 of byte 6)
-  hash[6] = (hash[6] & 0x0f) | 0x50;
-  // Set variant to RFC 4122 (bits 6-7 of byte 8)
-  hash[8] = (hash[8] & 0x3f) | 0x80;
-
-  const hexLines = Array.from(hash.slice(0, 16)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return `${hexLines.slice(0, 8)}-${hexLines.slice(8, 12)}-${hexLines.slice(12, 16)}-${hexLines.slice(16, 20)}-${hexLines.slice(20, 32)}`;
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822519) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489917);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822519) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489917);
+  
+  return `art_${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}`;
 }
 
 /**

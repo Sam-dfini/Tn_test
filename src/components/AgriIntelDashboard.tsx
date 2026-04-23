@@ -149,7 +149,7 @@ export const AgriIntelDashboard: React.FC = () => {
         } : null,
         rri_score: reading ? reading.wheat_stress * 3 : 1.5,
         risk_level: reading ? (reading.wheat_stress > 0.7 ? 'ALERT' : reading.wheat_stress > 0.4 ? 'HIGH' : 'MEDIUM') : g.risk_level
-      };
+      } as Governorate;
     });
   }, [readings, agroSummary]);
 
@@ -162,20 +162,10 @@ export const AgriIntelDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 pb-6 animate-in fade-in duration-500">
-      <ModuleHeader 
-        title="Agricultural Intelligence"
-        subtitle="Real-time monitoring of crop stress, vegetation indices, and rural stability metrics"
-        icon={Leaf}
-        nodeId="AGRI-NODE-01"
-      />
-
+    <div className="h-full flex flex-col space-y-4 overflow-y-auto p-4 custom-scrollbar">
       {/* Header Summary */}
       <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center space-x-2">
-          <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
-          <h2 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-bold">National Sovereignty Summary</h2>
-        </div>
+        <h2 className="text-lg font-bold text-white uppercase tracking-tight">National Summary</h2>
         <button 
           onClick={async () => {
             setSyncing(true);
@@ -196,7 +186,6 @@ export const AgriIntelDashboard: React.FC = () => {
           {syncing ? 'Syncing...' : 'Sync Live Data'}
         </button>
       </div>
-
       {/* Advanced System Metrics — always visible, pipeline data when available, fallback from readings */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <SummaryCard
@@ -260,31 +249,27 @@ export const AgriIntelDashboard: React.FC = () => {
           title="National Wheat Stress" 
           value={`${(nationalAverages.wheat * 100).toFixed(1)}%`}
           icon={ShieldAlert}
-          color="text-intel-red"
+          color="text-red-400"
           trend={nationalAverages.wheat > 0.6 ? 'critical' : 'stable'}
-          nodeId="WHEAT-STRESS"
         />
         <SummaryCard 
           title="Olive Health Index" 
           value={`${(nationalAverages.olive * 100).toFixed(1)}%`}
           icon={Leaf}
-          color="text-intel-green"
+          color="text-emerald-400"
           trend="optimal"
-          nodeId="OLIVE-HEALTH"
         />
         <SummaryCard 
           title="Avg NDVI (Vegetation)" 
           value={nationalAverages.ndvi.toFixed(3)}
           icon={Sprout}
-          color="text-intel-cyan"
-          nodeId="VEG-INDEX"
+          color="text-green-400"
         />
         <SummaryCard 
           title="Rainfall Anomaly" 
           value={`${(nationalAverages.rain * 100).toFixed(1)}%`}
           icon={CloudRain}
-          color={nationalAverages.rain < 0 ? "text-intel-orange" : "text-intel-cyan"}
-          nodeId="RAIN-ANOMALY"
+          color={nationalAverages.rain < 0 ? "text-amber-400" : "text-blue-400"}
         />
       </div>
 
@@ -308,8 +293,9 @@ export const AgriIntelDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
+            </div>
           </div>
-          <div className="flex-1 w-full relative">
+          <div className="flex-1 rounded border border-white/5 overflow-hidden h-[400px]">
             <Map 
               governorates={mappedGovernorates} 
               events={[]}
@@ -319,6 +305,7 @@ export const AgriIntelDashboard: React.FC = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
       {/* Regional Ranking + Sentinel-2 Index — side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Regional Stress Ranking */}
@@ -328,34 +315,34 @@ export const AgriIntelDashboard: React.FC = () => {
             <h3 className="text-[9px] font-mono text-white uppercase tracking-widest">Regional Stress Ranking</h3>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-3">
+=======
+
+        {/* Regional Drilldown */}
+        <div className="bg-[#0a0a0a] border border-white/5 rounded-lg p-4 flex flex-col">
+          <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-emerald-400" />
+            Regional Stress Ranking
+          </h3>
+          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+>>>>>>> f517a83c7aecd1d6fbbc73c6a5b19cde59b10413
             {chartData.map((d, i) => (
               <div 
                 key={`${d.name}-${i}`}
                 onClick={() => setSelectedGov(d.name)}
-                className={cn(
-                  "p-3 rounded-xl border transition-all cursor-pointer",
-                  selectedGov === d.name 
-                    ? 'bg-intel-cyan/10 border-intel-cyan/40 shadow-[0_0_15px_rgba(0,242,255,0.05)]' 
-                    : 'bg-white/5 border-white/5 hover:bg-white/10'
-                )}
+                className={`p-2 rounded border border-white/5 transition-colors cursor-pointer ${
+                  selectedGov === d.name ? 'bg-emerald-500/10 border-emerald-500/30' : 'hover:bg-white/5'
+                }`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider">{d.name}</span>
-                  <span className={cn(
-                    "text-[10px] font-mono font-bold",
-                    d.wheat > 70 ? 'text-intel-red' : d.wheat > 40 ? 'text-intel-orange' : 'text-intel-cyan'
-                  )}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-white/80">{d.name.toUpperCase()}</span>
+                  <span className={`text-[10px] font-mono ${d.wheat > 70 ? 'text-red-400' : d.wheat > 40 ? 'text-amber-400' : 'text-emerald-400'}`}>
                     {d.wheat.toFixed(1)}%
                   </span>
                 </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${d.wheat}%` }}
-                    className={cn(
-                      "h-full rounded-full",
-                      d.wheat > 70 ? 'bg-intel-red' : d.wheat > 40 ? 'bg-intel-orange' : 'bg-intel-cyan'
-                    )}
+                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full ${d.wheat > 70 ? 'bg-red-500' : d.wheat > 40 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                    style={{ width: `${d.wheat}%` }}
                   />
                 </div>
               </div>
@@ -371,8 +358,8 @@ export const AgriIntelDashboard: React.FC = () => {
               <h3 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest font-bold">Governorate Sentinel-2 Index</h3>
             </div>
             {selectedGov && (
-              <span className="text-[9px] bg-intel-cyan/10 text-intel-cyan px-2 py-0.5 rounded border border-intel-cyan/20 font-mono font-bold uppercase tracking-tighter">
-                DRILLDOWN: {selectedGov}
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30 font-mono">
+                DRILLDOWN: {selectedGov.toUpperCase()}
               </span>
             )}
           </div>
@@ -390,6 +377,7 @@ export const AgriIntelDashboard: React.FC = () => {
             <p className="text-[9px] text-slate-500 leading-relaxed italic">
               * Sentinel-2 L2A composite data synced every 72 hours. Anomaly scores calculated against 10-year multi-temporal mean for the current phenological window.
             </p>
+          </div>
           </div>
         </div>
       </div>
@@ -421,19 +409,18 @@ export const AgriIntelDashboard: React.FC = () => {
   );
 };
 
+<<<<<<< HEAD
 const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: string; trend?: string; nodeId?: string; live?: boolean }> = ({ 
   title, value, icon: Icon, color, trend, nodeId, live
+=======
+const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: string; trend?: string }> = ({ 
+  title, value, icon: Icon, color, trend 
+>>>>>>> f517a83c7aecd1d6fbbc73c6a5b19cde59b10413
 }) => (
-  <div className="glass rounded-xl p-4 border border-intel-border hover:border-intel-cyan/30 transition-all duration-300 group relative overflow-hidden">
-    <div className="absolute top-0 right-0 p-2 opacity-[0.03]">
-      <Icon className="w-12 h-12" />
-    </div>
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center space-x-2">
-        <div className={cn("p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors", color.replace('text-', 'bg-') + '/10')}>
-          <Icon className={cn("w-4 h-4", color)} />
-        </div>
-        {nodeId && <span className="text-[7px] font-mono text-slate-600 uppercase tracking-tighter">{nodeId}</span>}
+  <div className="bg-[#0a0a0a] border border-white/5 rounded-lg p-4 hover:border-emerald-500/30 transition-all duration-300 group">
+    <div className="flex items-center justify-between mb-2">
+      <div className={`p-2 rounded-lg bg-white/5 group-hover:bg-emerald-500/10 transition-colors`}>
+        <Icon className={`w-4 h-4 ${color}`} />
       </div>
       <div className="flex flex-col items-end gap-1">
         {live !== undefined && (
@@ -453,16 +440,14 @@ const SummaryCard: React.FC<{ title: string; value: string; icon: any; color: st
         )}
       </div>
     </div>
-    <div className="space-y-1">
-      <div className="text-2xl font-bold text-white font-mono tracking-tighter">{value}</div>
-      <div className="text-[9px] text-slate-500 uppercase tracking-widest font-medium">{title}</div>
-    </div>
+    <div className="text-xl font-bold text-white mb-1 font-mono tracking-tighter">{value}</div>
+    <div className="text-[10px] text-white/40 uppercase tracking-widest">{title}</div>
   </div>
 );
 
-const MetricBox: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color = "text-white" }) => (
-  <div className="p-3 bg-white/5 rounded-xl border border-white/5 flex flex-col space-y-1 hover:bg-white/10 transition-colors">
-    <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">{label}</span>
-    <span className={cn("text-sm font-mono font-bold", color)}>{value}</span>
+const MetricBox: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="p-3 bg-white/5 rounded border border-white/5 flex flex-col">
+    <span className="text-[10px] text-white/30 uppercase tracking-widest mb-1">{label}</span>
+    <span className="text-sm font-mono text-white font-semibold">{value}</span>
   </div>
 );

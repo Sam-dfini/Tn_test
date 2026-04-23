@@ -38,5 +38,3 @@ class SecurityAnalystAgent(BaseAgent):
             context["context_key"] = "security_analysis"
             
         return await super().run(data, context)
-
-    analyze_security = run

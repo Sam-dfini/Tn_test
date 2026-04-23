@@ -186,32 +186,14 @@ class MissionOrchestrator:
                 # 6. ANALYZE
                 state.current_step = "ANALYZE"
                 await self.emit(Event(type="MISSION_STEP_UPDATE", payload={"step": state.current_step, "mission_id": mission_id}))
-                
-                specialized_results = []
-                # Execute agents sequentially to respect Free Tier rate limits
-                for task_fn in [
-                    self.resource_scout.scout_resources,
-                    self.disinformation_analyst.analyze_disinformation,
-                    self.movement_tracker.track_movements,
-                    self.economic_forecaster.forecast_economy,
-                    self.security_analyst.analyze_security
-                ]:
-                    try:
-                        # Pass appropriate args based on function signature
-                        if task_fn == self.resource_scout.scout_resources:
-                            res = await task_fn(merged_signals, news_items)
-                        elif task_fn == self.disinformation_analyst.analyze_disinformation:
-                            res = await task_fn(news_items, social_mentions)
-                        elif task_fn == self.movement_tracker.track_movements:
-                            res = await task_fn(extracted_events, merged_signals)
-                        else:
-                            res = await task_fn({}, merged_signals)
-                        specialized_results.append(res)
-                        await asyncio.sleep(5) # Greater breathing room for free tier
-                    except Exception as e:
-                        print(f"Sub-agent execution failed: {e}")
-                        specialized_results.append(None)
-
+                analysis_tasks = [
+                    self.resource_scout.scout_resources(merged_signals, news_items),
+                    self.disinformation_analyst.analyze_disinformation(news_items, social_mentions),
+                    self.movement_tracker.track_movements(extracted_events, merged_signals),
+                    self.economic_forecaster.forecast_economy({}, merged_signals),
+                    self.security_analyst.analyze_security({}, merged_signals)
+                ]
+                specialized_results = await asyncio.gather(*analysis_tasks)
                 narrative = await self.analyst.analyze_trends(
                     [s.model_dump() for s in merged_signals], 
                     [], 
@@ -265,27 +247,18 @@ class MissionOrchestrator:
         """
         from .services.rss_service import rss_service
         self.is_running_continuously = True
-        print(f"[TUNISIAINTEL] Continuous Loop Active. Interval: {interval_seconds}s")
-        
         while self.is_running_continuously:
             try:
                 # 1. Sync RSS feeds to get latest news
-                sync_results = await rss_service.fetch_all()
-                new_articles = sync_results.get("articles", [])
-                new_count = sync_results.get("new_articles", 0)
+                await rss_service.fetch_all()
                 
-                if new_count > 0:
-                    print(f"[TUNISIAINTEL] New articles found ({new_count}). Starting Intelligence Loop...")
-                    # 2. Run the internal deep analysis loop
-                    await self.run_intelligence_loop(new_articles, []) 
-                else:
-                    print(f"[TUNISIAINTEL] No new articles. Skipping analysis to preserve rate limits.")
+                # 2. Run the internal deep analysis loop (Placeholder for now)
+                await self.run_intelligence_loop([], []) 
                 
                 await asyncio.sleep(interval_seconds)
             except Exception as e:
                 self.observability.log_event("CONTINUOUS_LOOP_ERROR", {"error": str(e)}, level="ERROR")
-                print(f"[TUNISIAINTEL] Loop error: {e}")
-                await asyncio.sleep(60) # Wait a minute before retrying on error
+                await asyncio.sleep(10)
 
     def stop_continuous_intelligence(self):
         """Stops the loop."""

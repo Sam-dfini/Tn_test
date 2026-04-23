@@ -38,5 +38,3 @@ class SocialMovementTrackerAgent(BaseAgent):
             context["context_key"] = "movement_tracking"
             
         return await super().run(data, context)
-
-    track_movements = run

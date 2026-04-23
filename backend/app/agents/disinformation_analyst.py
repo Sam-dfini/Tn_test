@@ -38,5 +38,3 @@ class DisinformationAnalystAgent(BaseAgent):
             context["context_key"] = "disinformation_analysis"
             
         return await super().run(data, context)
-
-    analyze_disinformation = run
