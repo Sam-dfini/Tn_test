@@ -309,6 +309,8 @@ interface PipelineContextType {
   agroSummary?: AgroNationalSummary | null;
   agriSummary?: AgriNationalSummary | null;
   temporalAnalysis?: any;
+  isPaused: boolean;
+  togglePause: () => void;
 }
 
 export const PipelineContext = createContext<PipelineContextType>(
@@ -340,6 +342,22 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [agriSummary, setAgriSummary] = useState<AgriNationalSummary | null>(null);
   const [agroSummary, setAgroSummary] = useState<AgroNationalSummary | null>(null);
   const [articleCache, setArticleCache] = useState<any[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const togglePause = useCallback(async () => {
+    const nextPaused = !isPaused;
+    setIsPaused(nextPaused);
+
+    try {
+      if (nextPaused) {
+        await fetch('/api/intelligence/continuous/stop', { method: 'POST' });
+      } else {
+        await fetch('/api/intelligence/continuous/start', { method: 'POST' });
+      }
+    } catch (e) {
+      console.error('Failed to sync pause state with backend:', e);
+    }
+  }, [isPaused]);
 
   const [rriState, setRriState] = useState(() => {
     try {
@@ -557,6 +575,14 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [addAuditEntry, recalculateRRI]);
 
   useEffect(() => {
+    const syncPause = async () => {
+      const { setRSSPaused } = await import('../services/rssService');
+      setRSSPaused(isPaused);
+    };
+    syncPause();
+  }, [isPaused]);
+
+  useEffect(() => {
     recalculateRRI();
   }, []);
 
@@ -730,6 +756,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       aiAnalysis, forecast, isAIAnalysisLoading,
       miiProfile, actorNetwork, temporalAnalysis, agriSummary, agroSummary, seiResult,
       runAIAnalysis,
+      isPaused,
+      togglePause,
       updateArticleCache: (articles: any) => {}
     }}>
       {children}

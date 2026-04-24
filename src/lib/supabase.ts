@@ -3,9 +3,68 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false
+  }
+});
+
+// Observation System for DB Traffic
+export const dbMetrics = {
+  writes: 0,
+  reads: 0,
+  errors: 0,
+  lastOp: null as { table: string, op: string, timestamp: number } | null
+};
+
+// Proxy to intercept calls for monitoring
+export const supabase = new Proxy(supabaseClient, {
+  get(target, prop, receiver) {
+    const original = Reflect.get(target, prop, receiver);
+    if (prop === 'from') {
+      return (table: string) => {
+        const queryBuilder = original.call(target, table);
+        const originalInsert = queryBuilder.insert;
+        const originalUpsert = queryBuilder.upsert;
+        const originalSelect = queryBuilder.select;
+        const originalUpdate = queryBuilder.update;
+        const originalDelete = queryBuilder.delete;
+
+        queryBuilder.insert = (...args: any[]) => {
+          dbMetrics.writes++;
+          dbMetrics.lastOp = { table, op: 'INSERT', timestamp: Date.now() };
+          window.dispatchEvent(new CustomEvent('supabase_op', { detail: dbMetrics.lastOp }));
+          return originalInsert.apply(queryBuilder, args);
+        };
+        queryBuilder.upsert = (...args: any[]) => {
+          dbMetrics.writes++;
+          dbMetrics.lastOp = { table, op: 'UPSERT', timestamp: Date.now() };
+          window.dispatchEvent(new CustomEvent('supabase_op', { detail: dbMetrics.lastOp }));
+          return originalUpsert.apply(queryBuilder, args);
+        };
+        queryBuilder.update = (...args: any[]) => {
+          dbMetrics.writes++;
+          dbMetrics.lastOp = { table, op: 'UPDATE', timestamp: Date.now() };
+          window.dispatchEvent(new CustomEvent('supabase_op', { detail: dbMetrics.lastOp }));
+          return originalUpdate.apply(queryBuilder, args);
+        };
+        queryBuilder.delete = (...args: any[]) => {
+          dbMetrics.writes++;
+          dbMetrics.lastOp = { table, op: 'DELETE', timestamp: Date.now() };
+          window.dispatchEvent(new CustomEvent('supabase_op', { detail: dbMetrics.lastOp }));
+          return originalDelete.apply(queryBuilder, args);
+        };
+        queryBuilder.select = (...args: any[]) => {
+          dbMetrics.reads++;
+          dbMetrics.lastOp = { table, op: 'SELECT', timestamp: Date.now() };
+          window.dispatchEvent(new CustomEvent('supabase_op', { detail: dbMetrics.lastOp }));
+          return originalSelect.apply(queryBuilder, args);
+        };
+
+        return queryBuilder;
+      };
+    }
+    return original;
   }
 });
 

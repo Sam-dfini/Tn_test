@@ -282,8 +282,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 {rssArticles
                   .slice(0, 10)
                   .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                  .map((article) => (
-                  <div key={`ticker-1-${article.id}`} className="flex items-center space-x-3">
+                  .map((article, idx) => (
+                  <div key={`ticker-1-${article.id}-${idx}`} className="flex items-center space-x-3">
                     <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
                       {article.source_name}
@@ -298,8 +298,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 {rssArticles
                   .slice(0, 10)
                   .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                  .map((article) => (
-                  <div key={`ticker-2-${article.id}`} className="flex items-center space-x-3">
+                  .map((article, idx) => (
+                  <div key={`ticker-2-${article.id}-${idx}`} className="flex items-center space-x-3">
                     <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
                       {article.source_name}
@@ -492,8 +492,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
           >
             {events
               .filter(e => typeof e?.id === "string" && e.id.trim() !== "")
-              .map((event) => (
-              <div key={`footer-event-1-${event.id}`} className="flex items-center space-x-2">
+              .map((event, idx) => (
+              <div key={`footer-event-1-${event.id}-${idx}`} className="flex items-center space-x-2">
                 <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
                 <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
                   {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}
@@ -503,8 +503,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
             {/* Duplicate for seamless loop */}
             {events
               .filter(e => typeof e?.id === "string" && e.id.trim() !== "")
-              .map((event) => (
-              <div key={`footer-event-2-${event.id}`} className="flex items-center space-x-2">
+              .map((event, idx) => (
+              <div key={`footer-event-2-${event.id}-${idx}`} className="flex items-center space-x-2">
                 <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
                 <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
                   {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}

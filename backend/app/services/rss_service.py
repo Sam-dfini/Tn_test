@@ -11,6 +11,11 @@ import google.generativeai as genai
 
 from ..core.database import db
 from ..core.config import settings
+from .intelligence_stream import intelligence_stream
+# We skip importing manager directly to avoid circular imports if any, 
+# or we just use a callback/signal if needed.
+# However, ws.py is quite isolated.
+from ..api.ws import manager
 
 RSS_SOURCES = [
     {
@@ -19,6 +24,42 @@ RSS_SOURCES = [
         "url": "https://www.france24.com/en/rss",
         "alignment": "NEUTRAL"
     },
+    {
+        "id": "tap-en",
+        "name": "TAP News Agency",
+        "url": "https://www.tap.info.tn/en/rss_en.xml",
+        "alignment": "PRO_GOV"
+    },
+    {
+        "id": "mosaique-fr",
+        "name": "Mosaique FM",
+        "url": "https://www.mosaiquefm.net/fr/rss",
+        "alignment": "NEUTRAL"
+    },
+    {
+        "id": "business-news-fr",
+        "name": "Business News",
+        "url": "https://www.businessnews.com.tn/rss",
+        "alignment": "CRITICAL"
+    },
+    {
+        "id": "jawhara-fm",
+        "name": "Jawhara FM",
+        "url": "https://www.jawharafm.net/fr/rss",
+        "alignment": "NEUTRAL"
+    },
+    {
+        "id": "leaders-com",
+        "name": "Leaders Tunisia",
+        "url": "https://www.leaders.com.tn/rss",
+        "alignment": "NEUTRAL"
+    },
+    {
+        "id": "kapitalis",
+        "name": "Kapitalis",
+        "url": "https://kapitalis.com/tunisie/feed/",
+        "alignment": "CRITICAL"
+    }
 ]
 
 class RSSService:
@@ -35,11 +76,12 @@ class RSSService:
         self.last_sync_time = None
         self.sync_lock = asyncio.Lock()
 
-    def generate_id(self, title: str, source: str) -> str:
+    def generate_id(self, title: str, source: str, link: str = "", guid: str = "", pub_date: str = "") -> str:
         """
-        Match the JS dual-hash 64-bit implementation exactly.
+        Generates a deterministic ID. GUID > Link > Title+Date.
         """
-        base = f"{(title or '').strip().lower()}|{(source or 'unknown').strip().lower()}"
+        seed = guid or link or f"{title}|{pub_date}"
+        unique_string = f"{seed}|{source}".strip().lower()
         
         # 32-bit integer overflow simulation
         def imul(a, b):
@@ -48,7 +90,7 @@ class RSSService:
         h1 = 0xdeadbeef
         h2 = 0x41c6ce57
         
-        for ch in base:
+        for ch in unique_string:
             c = ord(ch)
             h1 = (imul(h1 ^ c, 2654435761)) & 0xFFFFFFFF
             h2 = (imul(h2 ^ c, 1597334677)) & 0xFFFFFFFF
@@ -163,81 +205,131 @@ class RSSService:
         log_file = "backend_sync.log"
         with open(log_file, "a") as f:
             f.write(f"\n--- Sync started at {datetime.now().isoformat()} ---\n")
-            f.write(f"Processing {len(articles)} articles\n")
+            f.write(f"Processing {len(articles)} potential articles in batch\n")
             
         if not articles:
             return 0
-            
-        new_count = 0
+
+        # 1. Generate IDs and Deduplicate locally
+        processed_articles = []
+        article_ids = []
         for article in articles:
-            try:
-                # 1. Deterministic ID generation for article
-                article_id = self.generate_id(article["title"], article["source_name"])
-                article["id"] = article_id
-                article["fingerprint"] = article_id
+            article_id = self.generate_id(
+                article["title"], 
+                article["source_name"],
+                link=article.get("link", ""),
+                guid=article.get("guid", ""),
+                pub_date=article.get("published_at", "")
+            )
+            article["id"] = article_id
+            article["fingerprint"] = article_id
+            article["severity"] = self._detect_severity(article["title"])
+            article["category"] = self._detect_category(article["title"])
+            
+            # Grouping keys
+            date_str = article["published_at"].split("T")[0]
+            article["event_key"] = f"{article['category']}-national-{date_str}"
+            
+            processed_articles.append(article)
+            article_ids.append(article_id)
 
-                # 2. Check duplication
-                exists = db.table("articles").select("id").eq("id", article_id).execute()
-                if exists.data:
-                    continue
+        # 2. Bulk check existing articles
+        try:
+            existing_resp = db.table("articles").select("id").in_("id", article_ids).execute()
+            existing_ids = {item["id"] for item in existing_resp.data} if existing_resp.data else set()
+        except Exception as e:
+            print(f"Error in batch check: {e}")
+            existing_ids = set()
 
-                # 3. Enrich
-                article["severity"] = self._detect_severity(article["title"])
-                article["category"] = self._detect_category(article["title"])
-                
-                # 4. Handle Event grouping (Match JS eventKey)
-                date_str = article["published_at"].split("T")[0]
-                category = article["category"]
-                gov = "national" # Default for now
-                event_key = f"{category}-{gov}-{date_str}"
-                
-                # Try to find existing event
-                existing_event = db.table("events").select("*").eq("event_key", event_key).execute()
-                
-                event_id = None
-                if existing_event.data:
-                    event_id = existing_event.data[0]["id"]
-                    # Update article_count
-                    db.table("events").update({
-                        "article_count": existing_event.data[0]["article_count"] + 1,
-                        "last_updated": datetime.now().isoformat()
-                    }).eq("id", event_id).execute()
-                else:
-                    # Create new event
-                    event_id = str(uuid.uuid4())
-                    event_data = {
-                        "id": event_id,
-                        "event_key": event_key,
-                        "title": article["title"][:100],
-                        "description": article["summary"] or article["title"],
-                        "category": category,
-                        "severity": article["severity"],
-                        "status": "ACTIVE",
-                        "article_count": 1,
-                        "governorate": "National",
-                        "is_critical": False,
-                        "last_updated": datetime.now().isoformat(),
-                        "priority_score": 0.0,
-                        "velocity_score": 0.0,
-                        "trend": "stable",
-                        "pro_gov_count": 0,
-                        "neutral_count": 0,
-                        "critical_count": 0,
-                        "alarmist_count": 0,
-                        "minimizing_count": 0
-                    }
-                    db.table("events").insert(event_data).execute()
+        # 3. Filter New Articles only
+        new_articles = [a for a in processed_articles if a["id"] not in existing_ids]
+        if not new_articles:
+            with open(log_file, "a") as f:
+                f.write("No new articles to process.\n")
+            return 0
 
-                article["event_id"] = event_id
+        with open(log_file, "a") as f:
+            f.write(f"Found {len(new_articles)} fresh articles. Grouping into events...\n")
 
-                # 5. Insert article
-                db.table("articles").insert(article).execute()
-                new_count += 1
+        # 4. Handle Events in Batch
+        event_groups = {}
+        for a in new_articles:
+            key = a["event_key"]
+            if key not in event_groups: event_groups[key] = []
+            event_groups[key].append(a)
 
-            except Exception as e:
-                with open(log_file, "a") as f:
-                    f.write(f"Article processing error: {e}\n")
-                
+        event_keys = list(event_groups.keys())
+        try:
+            existing_events_resp = db.table("events").select("*").in_("event_key", event_keys).execute()
+            existing_events = {e["event_key"]: e for e in existing_events_resp.data} if existing_events_resp.data else {}
+        except Exception as e:
+            print(f"Error fetching events: {e}")
+            existing_events = {}
+
+        events_to_upsert = []
+        articles_to_insert = []
+
+        for key, group in event_groups.items():
+            first_art = group[0]
+            if key in existing_events:
+                evt = existing_events[key]
+                evt["article_count"] += len(group)
+                evt["last_updated"] = datetime.now().isoformat()
+                events_to_upsert.append(evt)
+                event_id = evt["id"]
+            else:
+                event_id = str(uuid.uuid4())
+                evt_data = {
+                    "id": event_id,
+                    "event_key": key,
+                    "title": first_art["title"][:100],
+                    "description": first_art["summary"] or first_art["title"],
+                    "category": first_art["category"],
+                    "severity": first_art["severity"],
+                    "status": "ACTIVE",
+                    "article_count": len(group),
+                    "governorate": "National",
+                    "is_critical": False,
+                    "last_updated": datetime.now().isoformat(),
+                    "priority_score": 0.0,
+                    "velocity_score": 0.0,
+                    "trend": "stable",
+                    "pro_gov_count": 0,
+                    "neutral_count": 0,
+                    "critical_count": 0,
+                    "alarmist_count": 0,
+                    "minimizing_count": 0
+                }
+                events_to_upsert.append(evt_data)
+            
+            for a in group:
+                a["event_id"] = event_id
+                a.pop("event_key", None)
+                articles_to_insert.append(a)
+
+        # 5. Execute Batch Operations
+        try:
+            if articles_to_insert:
+                db.table("articles").insert(articles_to_insert).execute()
+                # Broadcast to all connected clients
+                await manager.broadcast({
+                    "type": "NEW_ARTICLES",
+                    "payload": articles_to_insert
+                })
+            
+            if events_to_upsert:
+                db.table("events").upsert(events_to_upsert).execute()
+                # Also broadcast events
+                await manager.broadcast({
+                    "type": "EVENTS_UPDATED",
+                    "payload": events_to_upsert
+                })
+            new_count = len(articles_to_insert)
+        except Exception as e:
+            with open(log_file, "a") as f:
+                f.write(f"Batch execution error: {e}\n")
+            new_count = 0
+
         with open(log_file, "a") as f:
             f.write(f"Sync finished. New: {new_count}\n")
             

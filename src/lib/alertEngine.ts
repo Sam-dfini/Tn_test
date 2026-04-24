@@ -18,7 +18,13 @@ export interface PipelineMetrics {
   errorRate: number;
   duplicateRate: number;
   lastIngestionTime: number;
+  lastFetch: number;
   latencyMs: number;
+  dbWriteCount?: number;
+  dbReadCount?: number;
+  successCount: number;
+  failureCount: number;
+  isFetching: boolean;
 }
 
 export class AlertEngine {

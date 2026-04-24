@@ -28,21 +28,51 @@ export default function TacticalMap() {
   const [activeTab, setActiveTab] = useState<'map' | 'satellite'>('map');
 
   useEffect(() => {
-    // Dynamic import to avoid SSR issues if any, and load geojson
-    fetch('https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/regions/bzh/communes-bzh.geojson') // REPLACE WITH TUNISIA GEOJSON IN PROD
-      .then(res => res.json())
-      .then(data => {
-         // using dummy data for compilation sake until tunisia_governorates.geojson is available
-         setGeoData(data);
-      })
-      .catch(console.error);
+    const loadGeoJSON = async () => {
+      try {
+        const targetUrl = 'https://raw.githubusercontent.com/sammmeeeh/tunisia-immigration-analytics-dashboard/main/TN-gouvernorat.geojson';
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('GeoJSON fetch failed');
+        const data = await response.json();
+        setGeoData(data);
+      } catch (error) {
+        console.error('Error loading GeoJSON:', error);
+      }
+    };
+    loadGeoJSON();
   }, []);
+
+  const onEachFeature = (feature: any, layer: any) => {
+    const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || '';
+    layer.on({
+      click: () => {
+        setSelectedGovernorate(name.toUpperCase());
+      },
+      mouseover: (e: any) => {
+        const l = e.target;
+        l.setStyle({
+          fillOpacity: 0.4,
+          weight: 2,
+          color: activeTab === 'map' ? '#3b82f6' : '#10b981'
+        });
+      },
+      mouseout: (e: any) => {
+        const l = e.target;
+        l.setStyle({
+          color: activeTab === 'map' ? '#1e3a5f' : '#10b981',
+          weight: activeTab === 'map' ? 1 : 2,
+          fillOpacity: 0.1
+        });
+      }
+    });
+  };
 
   return (
     <div className="relative flex h-full min-h-[500px] w-full flex-col overflow-hidden rounded-lg border border-[#1e3a5f] bg-[#111827]">
       {/* Map Header & Tabs */}
-      <div className="absolute left-0 top-0 z-10 flex w-full items-center justify-between bg-gradient-to-b from-[#111827]/90 to-transparent p-4">
-        <div className="flex items-center gap-4 text-sm font-semibold tracking-wider text-[#f1f5f9]">
+      <div className="absolute left-0 top-0 z-[1000] flex w-full items-center justify-between bg-gradient-to-b from-[#111827]/90 to-transparent p-4 pointer-events-none">
+        <div className="flex items-center gap-4 text-sm font-semibold tracking-wider text-[#f1f5f9] pointer-events-auto">
           <div className="flex items-center gap-2">
             <MapIcon className="h-4 w-4 text-[#3b82f6]" />
             <span>TACTICAL MAP</span>
@@ -78,42 +108,40 @@ export default function TacticalMap() {
       </div>
 
       {/* Map Container */}
-      <div className="flex-1 bg-[#0a0f1a]">
-        {activeTab === 'map' ? (
-          <MapContainer 
-            bounds={TUNISIA_BOUNDS as any} 
-            zoomControl={false}
-            className="h-full w-full z-0"
-          >
+      <div className="flex-1 bg-[#0a0f1a] relative">
+        <MapContainer 
+          bounds={TUNISIA_BOUNDS as any} 
+          zoomControl={false}
+          className="h-full w-full z-0"
+        >
+          {activeTab === 'map' ? (
             <TileLayer
               url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              attribution='&copy; CARTO'
             />
-            {geoData && (
-               <GeoJSON data={geoData} style={{ color: '#1e3a5f', weight: 1, fillOpacity: 0.1 }} />
-            )}
-            <MapUpdater selectedGov={selectedGovernorate} />
-          </MapContainer>
-        ) : (
-          <MapContainer 
-            bounds={TUNISIA_BOUNDS as any} 
-            zoomControl={false}
-            className="h-full w-full z-0"
-          >
+          ) : (
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              attribution='Tiles &copy; Esri'
             />
-            {geoData && (
-               <GeoJSON data={geoData} style={{ color: '#10b981', weight: 2, fillOpacity: 0.1 }} />
-            )}
-            <MapUpdater selectedGov={selectedGovernorate} />
-          </MapContainer>
-        )}
+          )}
+          {geoData && (
+             <GeoJSON 
+               data={geoData} 
+               onEachFeature={onEachFeature}
+               style={{ 
+                 color: activeTab === 'map' ? '#1e3a5f' : '#10b981', 
+                 weight: activeTab === 'map' ? 1 : 2, 
+                 fillOpacity: 0.1 
+               }} 
+             />
+          )}
+          <MapUpdater selectedGov={selectedGovernorate} />
+        </MapContainer>
       </div>
 
       {/* Map Controls */}
-      <div className="absolute bottom-4 left-4 z-10 flex flex-col gap-2">
+      <div className="absolute bottom-4 left-4 z-[1000] flex flex-col gap-2">
         <div className="flex flex-col gap-1 rounded-lg border border-[#1e3a5f] bg-[#111827]/90 p-2 backdrop-blur-md">
           <div className="mb-1 border-b border-[#1e3a5f] pb-1 text-[10px] font-bold uppercase tracking-wider text-[#94a3b8]">
             Layers

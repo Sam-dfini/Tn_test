@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Zap, 
   TrendingDown, 
@@ -202,7 +202,7 @@ export const AgroScenarioSimulator: React.FC = () => {
                <div className="space-y-4 relative pl-4 border-l border-white/5">
                  {causalityChain.map((step, i) => (
                    <motion.div 
-                    key={`${step}-${i}`}
+                    key={step}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}

@@ -206,12 +206,12 @@ export const LiveSignalFeed: React.FC<{
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((c, idx) => {
+          {filtered.map((c) => {
             const article = articleMap.get(c.articleId);
             if (!article) return null;
             return (
               <SignalIntelCard
-                key={`signal-${c.articleId}-${c.tier}-${idx}-${article.published_at}`}
+                key={`signal-${c.articleId}-${c.tier}`}
                 classification={c}
                 article={article}
                 compact={compact}

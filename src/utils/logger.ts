@@ -56,6 +56,7 @@ class PipelineLogger {
 export const logger = PipelineLogger.getInstance();
 
 export const pipelineErrors: any[] = [];
+const MAX_ERRORS = 500;
 
 export function logPipelineError(error: any) {
   console.error("[PIPELINE ERROR]", error);
@@ -65,7 +66,10 @@ export function logPipelineError(error: any) {
     time: Date.now(),
     id: Math.random().toString(36).substr(2, 9)
   };
-  pipelineErrors.push(errorObj);
+  pipelineErrors.unshift(errorObj);
+  if (pipelineErrors.length > MAX_ERRORS) {
+    pipelineErrors.pop();
+  }
   
   // also log via the standard logger
   logger.log({

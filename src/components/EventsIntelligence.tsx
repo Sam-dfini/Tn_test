@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Radio, AlertTriangle, MapPin, Clock, BarChart3,
@@ -19,10 +19,11 @@ import { usePipeline } from '../context/PipelineContext';
 import { getSeverityLabel } from '../services/rssService';
 import { SignalClassification } from '../services/signalClassifier';
 
+import { useRSS } from '../context/RSSContext';
+
 export const EventsIntelligence: React.FC = () => {
   const { rriState, data } = usePipeline();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { events: contextEvents, isFetching: eventsFetching, fetchNow } = useRSS();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [eventArticles, setEventArticles] = useState<Article[]>([]);
   const [aiAnalysis, setAiAnalysis] = useState<string>('');
@@ -79,33 +80,18 @@ export const EventsIntelligence: React.FC = () => {
     );
   };
 
-  // ── Fetch events ─────────────────────────────────────────
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from('events')
-        .select('*')
-        .order('priority_score', { ascending: false })
-        .order('last_updated', { ascending: false })
-        .limit(50);
-
-      if (filterCategory !== 'all') {
-        query = query.eq('category', filterCategory);
-      }
-
-      const { data: eventsData, error } = await query;
-      if (error) throw error;
-      
-      setEvents(eventsData || []);
-    } catch (err) {
-      console.error('Error fetching events:', err);
-    } finally {
-      setLoading(false);
+  // Use events from context with filtering
+  const events = useMemo(() => {
+    let list = contextEvents || [];
+    if (filterCategory !== 'all') {
+      list = list.filter(e => e.category === filterCategory);
     }
-  }, [filterCategory]);
+    return list;
+  }, [contextEvents, filterCategory]);
 
-  // ── Fetch articles for selected event ────────────────────
+  const loading = eventsFetching && events.length === 0;
+
+  // Fetch articles for selected event
   const fetchEventArticles = useCallback(async (eventId: string) => {
     try {
       const { data: articles, error } = await supabase
@@ -128,7 +114,7 @@ export const EventsIntelligence: React.FC = () => {
     }
   }, []);
 
-  // ── Generate AI analysis for selected event ───────────────
+  // Generate AI analysis for selected event
   const generateEventAnalysis = useCallback(async (
     event: Event,
     articles: Article[]
@@ -201,45 +187,13 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
     }
   }, [rriState, data]);
 
-  useEffect(() => { fetchEvents(); }, [fetchEvents]);
-
-  // Real-time subscription for events
-  useEffect(() => {
-    const subscription = supabase
-      .channel('public_events_changes')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'events',
-      }, (payload) => {
-        const newEvent = payload.new as Event;
-        setEvents(prev => {
-          // Check if it already exists
-          if (prev.some(e => e.id === newEvent.id)) return prev;
-          return [newEvent, ...prev].slice(0, 50);
-        });
-      })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'events',
-      }, (payload) => {
-        const updatedEvent = payload.new as Event;
-        setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
-      })
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   useEffect(() => {
     if (selectedEvent) {
       fetchEventArticles(selectedEvent.id).then(articles => {
         generateEventAnalysis(selectedEvent, articles);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEvent?.id]);
 
   // ── Helpers ───────────────────────────────────────────────
@@ -372,13 +326,13 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
 
           {/* Refresh */}
           <button
-            onClick={fetchEvents}
+            onClick={() => fetchNow(true)}
             className="p-2 rounded-xl border border-intel-border
               hover:border-intel-cyan/30 hover:bg-white/5
               transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${
-              loading ? 'animate-spin text-intel-cyan' : ''
+              eventsFetching ? 'animate-spin text-intel-cyan' : ''
             }`} />
           </button>
         </div>

@@ -15,6 +15,7 @@ interface ObservabilityContextType {
   history: MetricPoint[];
   logs: LogEvent[];
   alerts: Alert[];
+  dbOps: { table: string, op: string, timestamp: number }[];
   healthScore: number;
   updateMetrics: (newMetrics: Partial<PipelineMetrics>) => void;
   trackTrace: (traceId: string, stage: any, message: string, payload?: any) => void;
@@ -31,13 +32,20 @@ const INITIAL_METRICS: PipelineMetrics = {
   errorRate: 0,
   duplicateRate: 0,
   lastIngestionTime: 0,
+  lastFetch: 0,
   latencyMs: 0,
+  dbWriteCount: 0,
+  dbReadCount: 0,
+  successCount: 0,
+  failureCount: 0,
+  isFetching: false,
 };
 export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [metrics, setMetrics] = useState<PipelineMetrics>(INITIAL_METRICS);
   const [history, setHistory] = useState<MetricPoint[]>([]);
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [dbOps, setDbOps] = useState<{ table: string, op: string, timestamp: number }[]>([]);
 
   // Health Score Calculation
   const healthScore = Math.max(0, Math.min(100, 
@@ -45,6 +53,7 @@ export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({
     - (metrics.errorRate * 50) 
     - (metrics.latencyMs / 100) 
     - (metrics.duplicateRate * 30)
+    - ((metrics.dbWriteCount || 0) > 1000 ? 20 : 0) // Penalty for extremely high writes
   ));
 
   const updateMetrics = useCallback((newMetrics: Partial<PipelineMetrics>) => {
@@ -92,13 +101,29 @@ export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({
       setAlerts(prev => [e.detail, ...prev].slice(0, 50));
     };
 
+    const handleSupabaseOp = (e: any) => {
+      const op = e.detail;
+      setDbOps(prev => [op, ...prev].slice(0, 20));
+      
+      // Update global metrics
+      setMetrics(prev => {
+        if (op.op === 'SELECT') {
+          return { ...prev, dbReadCount: (prev.dbReadCount || 0) + 1 };
+        } else {
+          return { ...prev, dbWriteCount: (prev.dbWriteCount || 0) + 1 };
+        }
+      });
+    };
+
     window.addEventListener('pipeline_log', handleLog);
     window.addEventListener('pipeline_alert', handleAlert);
+    window.addEventListener('supabase_op', handleSupabaseOp);
     window.addEventListener('pipeline_metric_update', (e: any) => updateMetrics(e.detail));
 
     return () => {
       window.removeEventListener('pipeline_log', handleLog);
       window.removeEventListener('pipeline_alert', handleAlert);
+      window.removeEventListener('supabase_op', handleSupabaseOp);
       window.removeEventListener('pipeline_metric_update', (e: any) => updateMetrics(e.detail));
     };
   }, []);
@@ -109,6 +134,7 @@ export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({
       history,
       logs, 
       alerts, 
+      dbOps,
       healthScore, 
       updateMetrics,
       trackTrace

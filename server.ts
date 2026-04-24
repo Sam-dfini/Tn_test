@@ -18,17 +18,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { spawn } from 'child_process';
 
-// Initialize OpenRouter API
-const apiKey = process.env.OPENROUTER_API_KEY;
-if (!apiKey) {
-  console.warn('WARNING: API key is not defined in the environment.');
-  console.log('Available env keys:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY') || k.includes('OPEN')));
+// Initialize Gemini API
+if (!process.env.GEMINI_API_KEY) {
+  console.warn('WARNING: GEMINI_API_KEY is not defined in the environment.');
+  console.log('Available env keys:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY') || k.includes('GEMINI')));
 } else {
-  console.log('OPENROUTER_API_KEY is defined. Length:', apiKey.length);
-  if (apiKey.includes('MY_')) {
-    console.error('ERROR: API key contains placeholder value.');
+  console.log('GEMINI_API_KEY is defined. Length:', process.env.GEMINI_API_KEY.length);
+  if (process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY')) {
+    console.error('ERROR: GEMINI_API_KEY contains placeholder value "MY_GEMINI_API_KEY".');
   }
 }
+
+const genAI = process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') 
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
+  : null;
 
 // Start the Python FastAPI backend on port 8000
 function startPythonBackend() {

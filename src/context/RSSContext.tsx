@@ -1,6 +1,6 @@
 import React, {
   createContext, useContext, useState,
-  useEffect, useCallback, useRef
+  useEffect, useCallback, useRef, useMemo
 } from 'react';
 import { Article, supabase } from '../lib/supabase';
 import {
@@ -39,7 +39,8 @@ export const RSSProvider: React.FC<{
 }> = ({ children, rriState }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [events, setEvents] = useState<any[]>([]);
-  const { updateArticleCache } = usePipeline();
+  const [isHydrated, setIsHydrated] = useState(false);
+  const { updateArticleCache, isPaused } = usePipeline();
   const [totalArticles, setTotalArticles] = useState(0);
   const [lastFetch, setLastFetch] = useState<Date | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -74,6 +75,7 @@ export const RSSProvider: React.FC<{
       setArticles(deduplicateById(recent));
       setEvents(deduplicateById(liveEvents));
       setTotalArticles(recent.length);
+      setIsHydrated(true);
     } catch (err) {
       console.error('Failed to load intelligence data:', err);
     }
@@ -93,6 +95,11 @@ export const RSSProvider: React.FC<{
 
   // Fetch all RSS feeds
   const fetchNow = useCallback(async (force?: boolean) => {
+    if (isPaused) {
+      console.warn("[RSS] Ingestion blocked: System is PAUSED");
+      return;
+    }
+
     const { isIngestionBusy } = await import('../lib/ingestionEngine');
     
     // STRICT CONCURRENCY LOCK
@@ -201,58 +208,77 @@ export const RSSProvider: React.FC<{
     loadNotifications();
 
     // Trigger an initial fetch immediately if not busy (checks backend)
+    // We use a local flag to ensure this only runs once per mount even if dependencies change
     fetchNow();
 
-    // REMOVED: Automated background fetch interval from frontend.
-    // The Python backend now handles continuous ingestion every 10 minutes.
-    // Real-time subscriptions will keep the frontend state updated when the backend pushes data.
+  }, []); // Only run once on mount
 
-    return () => {
-      if (fetchIntervalRef.current) {
-        console.log("[PIPELINE] Clearing RSS interval");
-        clearInterval(fetchIntervalRef.current);
-        fetchIntervalRef.current = null;
-      }
-    };
-  }, [fetchNow, loadData, loadNotifications]);
-
-  // Realtime subscription
+  // Realtime subscription via WebSocket
   useEffect(() => {
-    const articlesSubscription = supabase
-      .channel('articles-realtime')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'articles' }, (payload) => {
-        const newArt = payload.new as Article;
-        if (newArt && newArt.id && typeof newArt.id === 'string' && newArt.id.length > 0) {
-          setArticles(prev => {
-            if (prev.some(a => a.id === newArt.id)) return prev;
-            return [newArt, ...prev].slice(0, 500);
-          });
-          setTotalArticles(v => v + 1);
-        }
-      })
-      .subscribe();
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: any = null;
 
-    const eventsSubscription = supabase
-      .channel('events-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const newEvent = payload.new as any;
-          setEvents(prev => {
-            if (prev.some(e => e.id === newEvent.id)) return prev;
-            return [newEvent, ...prev].slice(0, 50);
-          });
-        } else if (payload.eventType === 'UPDATE') {
-          const updatedEvent = payload.new as any;
-          setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
-        } else if (payload.eventType === 'DELETE') {
-          setEvents(prev => prev.filter(e => e.id !== payload.old.id));
+    const connect = () => {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      ws = new WebSocket(`${protocol}//${host}/ws/intel`);
+
+      ws.onmessage = (event) => {
+        if (!isHydrated) return;
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'NEW_ARTICLES') {
+            const newArts = msg.payload as Article[];
+            setArticles(prev => {
+              const map = new Map();
+              // Incoming items priority (newest first in batch)
+              newArts.forEach(item => {
+                if (item && item.id) map.set(item.id, item);
+              });
+              // Existing items fallback
+              prev.forEach(item => {
+                if (item && item.id && !map.has(item.id)) {
+                  map.set(item.id, item);
+                }
+              });
+              return Array.from(map.values())
+                .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+                .slice(0, 500);
+            });
+            setTotalArticles(v => v + newArts.length);
+            setNewArticlesCount(v => v + newArts.length);
+          } else if (msg.type === 'EVENTS_UPDATED') {
+            const updatedEvents = msg.payload as any[];
+            setEvents(prev => {
+              const map = new Map();
+              updatedEvents.forEach(item => {
+                if (item && item.id) map.set(item.id, item);
+              });
+              prev.forEach(item => {
+                if (item && item.id && !map.has(item.id)) {
+                  map.set(item.id, item);
+                }
+              });
+              return Array.from(map.values())
+                .sort((a, b) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime())
+                .slice(0, 100);
+            });
+          }
+        } catch (e) {
+          console.error("WS parse error:", e);
         }
-      })
-      .subscribe();
+      };
+
+      ws.onclose = () => {
+        reconnectTimeout = setTimeout(connect, 3000);
+      };
+    };
+
+    connect();
 
     return () => {
-      articlesSubscription.unsubscribe();
-      eventsSubscription.unsubscribe();
+      if (ws) ws.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
   }, []);
 

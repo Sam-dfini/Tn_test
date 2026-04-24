@@ -55,15 +55,16 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
   const feedItems = useMemo(() => {
     if (cleared) return [];
     
-    // Add manual article
+    // Add manual article for context
+    const manualArticleId = "manual-article-polling-security-tunisia";
     const manualArticle = {
-        id: "manual-article-1",
+        id: manualArticleId,
         title: "Elections in Tunisia: Security concerns rise as polling stations open.",
         source_name: "BBC",
         published_at: "2026-04-18T10:00:00Z",
         severity: 5,
         category: "POLITICAL",
-        url: "#",
+        url: "https://www.bbc.com/news/world-africa-tunisia-manual",
         summary: "Polling stations are open amid heightened security concerns.",
     };
 
@@ -72,10 +73,11 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
     const rawItems = viewMode === 'raw' ? [...articles] : [manualArticle, ...articles];
     
     return rawItems
-      .map((a: any, idx: number) => {
-        // Fallback ID structure: use URL if available, otherwise title hash, otherwise index as last resort
-        const fallbackId = a.url ? `url-${a.url}` : `title-${a.title?.substring(0, 30)}`;
-        const baseId = a.id || fallbackId || `msg-${idx}`;
+      .map((a: any) => {
+        // Fallback ID structure: use URL if available, otherwise title hash
+        // In full-stack mode, the backend now provides robust IDs, so this is just safety.
+        const fallbackId = a.url ? `url-hash-${a.url.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)}` : `title-${a.title?.substring(0, 30)}`;
+        const baseId = a.id || fallbackId;
         return {
           ...a,
           id: baseId
@@ -321,9 +323,9 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
           )}
 
           <AnimatePresence mode="popLayout">
-            {filteredItems.map((article: any, index: number) => (
+            {filteredItems.map((article: any) => (
               <motion.div 
-                key={`news-article-${article.id}-${index}`}
+                key={article.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98 }}

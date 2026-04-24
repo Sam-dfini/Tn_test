@@ -77,8 +77,11 @@ The core of the unstructured text extraction relies on sending raw payloads thro
 3.  **Backend (`server.ts`)**: `genAI.getGenerativeModel({ model: "gemini-1.5-flash" }).generateContent(prompt)`.
 4.  **Error Handling**: If the key is invalid or "MY_GEMINI_API_KEY", it returns a `400 Bad Request` parsed cleanly by the client.
 
-### Supabase Integration (Optional/Offline)
-Stored in `/supabase` (schema definitions) and integrated via standard generic fetchers if connected for long-term intelligence persistence.
+### Supabase Integration (Mandatory Core)
+Supabase is deeply integrated to handle:
+- **Persistent Data Storage**: Archiving AI analysis, events, and articles.
+- **Real-Time Data Sync**: Utilizing Supabase Realtime Channels (PostgreSQL listen/notify) to stream new intelligent signals and articles seamlessly to the client.
+- **Authentication**: JWT-based auth via Supabase Auth services.
 
 ---
 

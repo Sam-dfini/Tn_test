@@ -320,8 +320,8 @@ const ForecastPanel: React.FC = () => {
               <span>Precursor Signals</span>
             </h4>
             <div className="space-y-2">
-              {forecast.precursorSignals.map((signal, idx) => (
-                <div key={`${idx}-${signal.substring(0, 10)}`} className="flex items-start space-x-2 text-[11px] text-slate-300 leading-relaxed">
+              {forecast.precursorSignals.map((signal) => (
+                <div key={signal} className="flex items-start space-x-2 text-[11px] text-slate-300 leading-relaxed">
                   <span className="text-intel-cyan mt-1">•</span>
                   <span>{signal}</span>
                 </div>
@@ -1085,8 +1085,8 @@ Return only the 3-sentence briefing.`;
                   {aiAnalysis.summary}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {aiAnalysis.keyDrivers.map((driver, idx) => (
-                    <span key={idx} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
+                  {aiAnalysis.keyDrivers.map((driver) => (
+                    <span key={driver} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
                       {driver}
                     </span>
                   ))}
@@ -1109,8 +1109,8 @@ Return only the 3-sentence briefing.`;
               <div className="space-y-1">
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Variable Adjustments</div>
                 <div className="space-y-1 max-h-20 overflow-y-auto scrollbar-hide">
-                  {aiAnalysis.variableUpdates.slice(0, 3).map((update, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-[9px] font-mono">
+                  {aiAnalysis.variableUpdates.slice(0, 3).map((update) => (
+                    <div key={update.variable} className="flex items-center justify-between text-[9px] font-mono">
                       <span className="text-slate-400 truncate mr-2">{update.variable}</span>
                       <span className="text-intel-cyan">{update.newValue}</span>
                     </div>

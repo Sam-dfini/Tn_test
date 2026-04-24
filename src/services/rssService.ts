@@ -500,6 +500,12 @@ export async function fetchRSSFeed(source: typeof RSS_SOURCES[0], retries = 2): 
 // ============================================================
 
 const GLOBAL_FETCH_LOCK = { active: false };
+let isPaused = false;
+
+export function setRSSPaused(paused: boolean) {
+  isPaused = paused;
+  pipelineDebugger.log('PIPELINE', 'valid', `Ingestion system ${paused ? 'PAUSED' : 'RESUMED'}`, { paused });
+}
 
 export async function fetchAllFeeds(options?: { force?: boolean }): Promise<{
   newArticles: number;
@@ -507,106 +513,31 @@ export async function fetchAllFeeds(options?: { force?: boolean }): Promise<{
   totalArticlesHandled: number;
   errors: string[];
 }> {
-  if (GLOBAL_FETCH_LOCK.active) {
-    console.warn("[PIPELINE] fetchAllFeeds blocked: Lock active");
+  if (isPaused && !options?.force) {
     return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
   }
 
   ingestionMetrics.isFetching = true;
-  GLOBAL_FETCH_LOCK.active = true;
-  let feedsProcessed = 0;
-  let totalArticlesHandled = 0;
-  let duplicatesFoundSize = 0;
-
   try {
-    // Prefer backend sync if available
-    try {
-      const response = await fetch(`/api/rss/sync${options?.force ? '?force=true' : ''}`, { method: 'POST' });
-      if (response.ok) {
-        const result = await response.json();
-        return { 
-          newArticles: result.new_articles, 
-          feedsProcessed: result.feeds_processed || RSS_SOURCES.length,
-          totalArticlesHandled: result.total_discovered || result.new_articles,
-          errors: result.errors || []
-        };
-      }
-    } catch (err) {
-      console.warn('Backend RSS sync failed, falling back to client-side:', err);
-    }
-
-    const errors: string[] = [];
-    let newArticlesTotal = 0;
-
-    // Parallel fetch strategy
-    const fetchTasks = RSS_SOURCES.map(async (source) => {
-      try {
-        const articles = await fetchRSSFeed(source);
-        return articles;
-      } catch (err) {
-        logPipelineError(err);
-        errors.push(`${source.name}: ${String(err)}`);
-        return [];
-      }
-    });
-
-    const results = await Promise.all(fetchTasks);
-    feedsProcessed = RSS_SOURCES.length;
+    const response = await fetch(`/api/rss/sync${options?.force ? '?force=true' : ''}`, { method: 'POST' });
+    if (!response.ok) throw new Error(`Sync failed: ${response.statusText}`);
     
-    // Flatten and deduplicate by ID in memory before DB operations
-    const allArticlesRaw = results.flat();
-    totalArticlesHandled = allArticlesRaw.length;
-    
-    const uniqueArticlesMap = new Map<string, any>();
-    allArticlesRaw.forEach(art => {
-      if (!uniqueArticlesMap.has(art.id)) {
-        uniqueArticlesMap.set(art.id, art);
-      }
-    });
-    
-    const uniqueArticles = Array.from(uniqueArticlesMap.values());
-    
-    // Batch process events and insertions
-    for (const article of uniqueArticles) {
-      try {
-        const eventId = await processEvent(article as any);
-        
-        // Upsert article with event relationship
-        const { error: insertErr } = await supabase
-          .from('articles')
-          .upsert({ 
-            ...article, 
-            event_id: eventId || undefined,
-            fetched_at: new Date().toISOString() 
-          }, { 
-            onConflict: 'id' 
-          });
-
-        if (insertErr) {
-          logPipelineError(insertErr);
-          ingestionMetrics.failureCount++;
-          errors.push(`Insert failed for ${article.id}: ${insertErr.message}`);
-        } else {
-          ingestionMetrics.successCount++;
-          newArticlesTotal++;
-          pipelineDebugger.log('NEWS', 'valid', `Article upserted`, article);
-        }
-      } catch (procErr) {
-        console.error(`Error processing article ${article.id}:`, procErr);
-        errors.push(`Process failed for ${article.id}: ${String(procErr)}`);
-      }
-    }
+    const result = await response.json();
+    ingestionMetrics.successCount += result.new_articles;
+    ingestionMetrics.lastFetch = Date.now();
 
     return { 
-      newArticles: newArticlesTotal, 
-      feedsProcessed,
-      totalArticlesHandled,
-      errors 
+      newArticles: result.new_articles, 
+      feedsProcessed: result.feeds_processed || 0,
+      totalArticlesHandled: result.total_discovered || 0,
+      errors: result.errors || []
     };
+  } catch (err: any) {
+    console.error('Backend sync failed:', err);
+    ingestionMetrics.failureCount++;
+    return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [err.message] };
   } finally {
     ingestionMetrics.isFetching = false;
-    ingestionMetrics.lastFetch = Date.now();
-    GLOBAL_FETCH_LOCK.active = false;
   }
 }
 
@@ -633,6 +564,17 @@ export async function getRecentArticles(options: {
   source?: string;
   since?: Date;
 } = {}): Promise<Article[]> {
+  const params = new URLSearchParams();
+  if (options.limit) params.set('limit', options.limit.toString());
+  if (options.category) params.set('category', options.category);
+  
+  try {
+    const response = await fetch(`/api/articles?${params.toString()}`);
+    if (response.ok) return await response.json();
+  } catch (err) {
+    console.warn('Backend articles fetch failed, using Supabase fallback:', err);
+  }
+
   let query = supabase
     .from('articles')
     .select('*')
@@ -648,9 +590,7 @@ export async function getRecentArticles(options: {
   const { data, error } = await query;
   if (error) throw error;
   
-  const articles = data || [];
-  
-  return articles;
+  return data || [];
 }
 
 // ============================================================
@@ -675,6 +615,27 @@ export async function saveRRISnapshot(rriState: any, trigger: string) {
 }
 
 export async function getLiveEvents(limit: number = 20): Promise<any[]> {
+  try {
+    const response = await fetch(`/api/events?limit=${limit}`);
+    if (response.ok) {
+        const events = await response.json();
+        return events.map((e: any) => ({
+            id: e.id,
+            date: e.last_updated?.split('T')[0] || new Date().toISOString().split('T')[0],
+            type: e.category?.toLowerCase() || 'general',
+            title: e.title,
+            summary: e.description || e.title,
+            gov: e.governorate?.toLowerCase() || 'national',
+            severity: e.severity || 1,
+            status: e.status || 'ACTIVE',
+            articleCount: e.article_count || 1,
+            source: 'TunisiaIntel Engine'
+        }));
+    }
+  } catch (err) {
+    console.warn('Backend events fetch failed, using Supabase fallback:', err);
+  }
+
   const { data, error } = await supabase
     .from('events')
     .select('*')

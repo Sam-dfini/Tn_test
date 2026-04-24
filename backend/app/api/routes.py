@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
@@ -11,18 +12,43 @@ router = APIRouter()
 
 @router.post("/rss/sync")
 async def sync_rss_feeds(force: bool = False):
-    """
-    Triggers the parallel RSS fetch and processing loop in the backend.
-    """
+    # ... (existing docstring)
     try:
         result = await rss_service.fetch_all(force=force)
         return {
             "status": "success",
             "new_articles": result["new_articles"],
+            "feeds_processed": result["feeds_processed"],
+            "total_discovered": result["total_discovered"],
             "errors": result["errors"]
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/articles")
+async def get_articles(limit: int = 50, category: Optional[str] = None):
+    query = db.table("articles").select("*").order("published_at", desc=True).limit(limit)
+    if category:
+        query = query.eq("category", category)
+    res = query.execute()
+    return res.data
+
+@router.get("/events")
+async def get_events(limit: int = 50):
+    res = db.table("events").select("*").order("last_updated", desc=True).limit(limit).execute()
+    return res.data
+
+@router.get("/rss")
+async def proxy_rss(url: str):
+    """
+    Proxies RSS feeds to bypass CORS and handle SSL issues.
+    """
+    try:
+        response = await rss_service.client.get(url)
+        response.raise_for_status()
+        return response.text
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Proxy error: {str(e)}")
 
 class ExtractionRequest(BaseModel):
     content: str

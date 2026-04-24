@@ -10,9 +10,13 @@ import {
   Database,
   ArrowLeft,
   ChevronRight,
-  ShieldAlert
+  ShieldAlert,
+  Zap,
+  Pause,
+  Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { usePipeline } from '../context/PipelineContext';
 
 // Panels
 import { FeedPanel } from '../components/observability/FeedPanel';
@@ -20,89 +24,43 @@ import { NewsPanel } from '../components/observability/NewsPanel';
 import { SignalsPanel } from '../components/observability/SignalsPanel';
 import { EventsPanel } from '../components/observability/EventsPanel';
 import { ErrorsPanel } from '../components/observability/ErrorsPanel';
+import { AgentPanel } from '../components/observability/AgentPanel';
+
+import { useObservability } from '../context/ObservabilityContext';
+import { useRSS } from '../context/RSSContext';
 
 export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
-  const [metrics, setMetrics] = useState(ingestionMetrics);
-  const [errors, setErrors] = useState([...pipelineErrors]);
-  const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const { metrics, dbOps, healthScore, logs, alerts } = useObservability();
+  const { articles, events, fetchNow } = useRSS();
+  const { isPaused, togglePause } = usePipeline();
+  const [agents, setAgents] = useState<any[]>([]);
   const [isResetting, setIsResetting] = useState(false);
-
-  // Buffer state
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [invalidArticlesCount, setInvalidArticlesCount] = useState(0);
   const [duplicateArticleCount, setDuplicateArticleCount] = useState(0);
-  const seenArticleIds = React.useRef(new Set<string>());
 
   useEffect(() => {
-    // 1. Initial Data Load
-    const loadData = async () => {
-      const { data: artData } = await supabase.from('articles').select('*').order('created_at', { ascending: false }).limit(200);
-      const { data: evtData } = await supabase.from('events').select('*').order('last_updated', { ascending: false }).limit(100);
-      
-      if (artData) {
-        const valid = artData.filter(a => a && typeof a.id === 'string' && a.id.length > 10);
-        setArticles(valid);
-        valid.forEach(a => seenArticleIds.current.add(a.id));
-      }
-      if (evtData) {
-        const valid = evtData.filter(e => e && typeof e.id === 'string' && e.id.length > 10);
-        setEvents(valid);
+    const fetchAgents = async () => {
+      try {
+        const resp = await fetch('/api/observability/agents');
+        const data = await resp.json();
+        setAgents(data.agents || []);
+      } catch (e) {
+        console.error("Failed to fetch agents", e);
       }
     };
-
-    loadData();
-
-    // 2. Realtime Subscriptions
-    const artChannel = supabase
-      .channel('articles-observe')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'articles' }, payload => {
-        const item = payload.new;
-        // Validation
-        if (!item || !item.id || item.id.length <= 10 || !item.fingerprint) {
-          setInvalidArticlesCount(c => c + 1);
-          return;
-        }
-        // Duplicate Check
-        if (seenArticleIds.current.has(item.id)) {
-          setDuplicateArticleCount(c => c + 1);
-          return;
-        }
-        
-        seenArticleIds.current.add(item.id);
-        setArticles(prev => [item, ...prev].slice(0, 500));
-      })
-      .subscribe();
-
-    const evtChannel = supabase
-      .channel('events-observe')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, payload => {
-        if (payload.eventType === 'INSERT') {
-          setEvents(prev => [payload.new, ...prev].slice(0, 200));
-        } else if (payload.eventType === 'UPDATE') {
-          setEvents(prev => prev.map(e => e.id === payload.new.id ? payload.new : e));
-        }
-      })
-      .subscribe();
-
-    // 3. Polling for internal metrics & logs
-    const interval = setInterval(() => {
-      setMetrics({ ...ingestionMetrics });
-      setErrors([...pipelineErrors]);
+    fetchAgents();
+    const timer = setInterval(() => {
       setLastUpdate(Date.now());
-    }, 2000);
-
-    return () => {
-      supabase.removeChannel(artChannel);
-      supabase.removeChannel(evtChannel);
-      clearInterval(interval);
-    };
+      fetchAgents();
+    }, 5000);
+    return () => clearInterval(timer);
   }, []);
 
   const handleResetPipeline = async () => {
     setIsResetting(true);
     try {
-      await fetchAllFeeds();
+      await fetchNow(true);
     } catch (err) {
       logPipelineError(err);
     } finally {
@@ -111,20 +69,19 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
   };
 
   // Alert Logic
-  const activeAlerts: string[] = [];
+  const activeAlerts: string[] = alerts.slice(0, 3).map(a => a.message);
   if (articles.length === 0 && metrics.lastFetch > 0) activeAlerts.push("🚨 PIPELINE EMPTY: NO ARTICLES LOADED");
-  if (metrics.failureCount > 50) activeAlerts.push("🔥 CRITICAL FAILURE OVERFLOW (50+)");
-  if (metrics.lastFetch > 0 && (Date.now() - metrics.lastFetch) > 10 * 60 * 1000) activeAlerts.push("⚠️ STALE PIPELINE: NO FETCH IN 10m");
+  if (healthScore < 50) activeAlerts.push("🔥 CRITICAL HEALTH DROP: CHECK DB TRAFFIC");
 
   const schemaCheck = {
-    missingCritical: events.filter(e => e.is_critical === undefined || e.is_critical === null).length,
-    invalidIds: events.filter(e => !e.id || e.id.length <= 10).length
+    missingCritical: events.filter((e: any) => e.is_critical === undefined || e.is_critical === null).length,
+    invalidIds: events.filter((e: any) => !e.id || e.id.length <= 10).length
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white/90 selection:bg-intel-cyan selection:text-black">
+    <div className="h-screen overflow-hidden bg-[#050505] text-white/90 selection:bg-intel-cyan selection:text-black flex flex-col">
       {/* Header */}
-      <div className="h-16 border-b border-white/5 bg-black/60 backdrop-blur-xl flex items-center justify-between px-8 sticky top-0 z-[100]">
+      <div className="h-16 border-b border-white/5 bg-black/60 backdrop-blur-xl flex items-center justify-between px-8 shrink-0 z-[100]">
         <div className="flex items-center gap-6">
           <button onClick={onBack} className="p-2 hover:bg-white/5 rounded-full transition-colors">
             <ArrowLeft className="w-5 h-5 text-white/40 hover:text-white" />
@@ -142,9 +99,22 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
 
         <div className="flex items-center gap-4">
            <div className="text-[10px] font-mono text-white/20 uppercase">Update: {new Date(lastUpdate).toLocaleTimeString()}</div>
+           
+           <button 
+             onClick={togglePause}
+             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-[10px] transition-all uppercase ${
+               isPaused 
+                 ? 'bg-amber-500 text-black animate-pulse' 
+                 : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+             }`}
+           >
+             {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+             {isPaused ? 'RESUME PIPELINE' : 'PAUSE SYSTEM'}
+           </button>
+
            <button 
              onClick={handleResetPipeline}
-             disabled={isResetting || metrics.isFetching}
+             disabled={isResetting || metrics.isFetching || isPaused}
              className="px-6 py-2 bg-intel-cyan text-black rounded-lg text-[10px] font-bold uppercase hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
            >
              {isResetting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
@@ -153,17 +123,17 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
         </div>
       </div>
 
-      <div className="p-8 max-w-[1800px] mx-auto space-y-8">
+      <div className="flex-1 p-6 max-w-[1920px] mx-auto w-full flex flex-col min-h-0 space-y-4">
         {/* Alerts Strip */}
         <AnimatePresence>
           {activeAlerts.length > 0 && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-              className="space-y-2"
+              className="space-y-1 shrink-0"
             >
                {activeAlerts.map((alert, i) => (
-                 <div key={i} className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex items-center gap-3 text-red-400 font-bold text-xs uppercase animate-pulse">
-                    <AlertCircle className="w-4 h-4" />
+                 <div key={i} className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg flex items-center gap-3 text-red-400 font-bold text-[10px] uppercase animate-pulse">
+                    <AlertCircle className="w-3 h-3" />
                     {alert}
                  </div>
                ))}
@@ -171,57 +141,128 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
           )}
         </AnimatePresence>
 
-        {/* 5-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-           <FeedPanel metrics={metrics} />
-           <NewsPanel articles={articles} invalidCount={invalidArticlesCount} duplicateCount={duplicateArticleCount} />
-           <SignalsPanel signalCount={articles.length > 0 ? Math.floor(articles.length * 1.5) : 0} avgIntensity={0.15 + (Math.random() * 0.1)} />
-           <EventsPanel events={events} schemaCheck={schemaCheck} />
-           <ErrorsPanel errors={errors} />
-        </div>
-
-        {/* Secondary View */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-           {/* Line Chart Placeholder Area */}
-           <div className="xl:col-span-3 bg-[#0a0a0a] border border-white/5 rounded-xl p-6 min-h-[300px]">
-              <div className="flex items-center justify-between mb-6">
-                 <h3 className="text-xs font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
-                    <Activity className="w-4 h-4" />
-                    Article Flow Trend (Ingestion Volume)
+        {/* Symmetric Intelligence Matrix */}
+        <div className="flex-1 min-h-0 p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-hidden">
+           
+           {/* Column 1: Pipeline & Status */}
+           <div className="flex flex-col gap-6 min-h-0">
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl shadow-xl">
+                 <FeedPanel metrics={metrics} />
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 flex flex-col shadow-xl">
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-4 flex items-center gap-2 shrink-0">
+                    <Database className="w-3 h-3 text-intel-cyan" />
+                    Status Matrix
                  </h3>
-              </div>
-              <div className="h-[200px] flex items-end gap-1 px-4">
-                 {[...Array(60)].map((_, i) => (
-                   <div 
-                      key={i} 
-                      className="flex-1 bg-intel-cyan/20 rounded-t-sm" 
-                      style={{ height: `${10 + Math.random() * 80}%` }} 
-                   />
-                 ))}
-              </div>
-              <div className="flex justify-between mt-4 text-[10px] uppercase font-mono text-white/20 px-4">
-                 <span>-1 hour</span>
-                 <span>Now</span>
+                 <div className="flex-1 flex flex-col justify-center space-y-4">
+                    <DiagnosticItem label="RSS Stream" status={metrics.lastIngestionTime > 0 && (Date.now() - metrics.lastIngestionTime < 300000) ? 'OK' : 'ERROR'} />
+                    <DiagnosticItem label="Supabase" status="OK" />
+                    <DiagnosticItem label="Agent Net" status={agents.length > 0 ? 'OK' : 'WAIT'} />
+                    <DiagnosticItem label="DB Traffic" status={(metrics.dbWriteCount || 0) > 1000 ? 'ERROR' : 'OK'} />
+                 </div>
               </div>
            </div>
 
-           {/* Quick Diagnostic */}
-           <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-6 space-y-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-white/40">Quick Diagnostic</h3>
-              <div className="space-y-4">
-                 <DiagnosticItem label="RSS Stream" status={metrics.lastFetch > 0 && (Date.now() - metrics.lastFetch < 300000) ? 'OK' : 'ERROR'} />
-                 <DiagnosticItem label="Supabase Auth" status="OK" />
-                 <DiagnosticItem label="Realtime Sync" status="OK" />
-                 <DiagnosticItem label="NLP Engine" status={articles.length > 0 ? 'OK' : 'WAIT'} />
-                 <DiagnosticItem label="DB Write" status={metrics.successCount > 0 ? 'OK' : 'WAIT'} />
+           {/* Column 2: News & Signals */}
+           <div className="flex flex-col gap-6 min-h-0">
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl shadow-xl">
+                 <NewsPanel articles={articles} invalidCount={invalidArticlesCount} duplicateCount={duplicateArticleCount} />
               </div>
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl shadow-xl">
+                 <SignalsPanel signalCount={articles.length > 0 ? Math.floor(articles.length * 1.5) : 0} avgIntensity={0.15 + (Math.random() * 0.1)} />
+              </div>
+           </div>
 
-              <div className="pt-6 border-t border-white/5">
-                 <div className="flex items-center gap-3 text-white/40 text-[10px] uppercase font-mono">
-                    <Database className="w-4 h-4" />
-                    Connected: tunnel-tunisia-01
+           {/* Column 3: Events & Agents */}
+           <div className="flex flex-col gap-6 min-h-0">
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl shadow-xl">
+                 <EventsPanel events={events} schemaCheck={schemaCheck} />
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] border border-white/5 rounded-2xl shadow-xl">
+                 <AgentPanel agents={agents} />
+              </div>
+           </div>
+
+           {/* Column 4: Traffic & Alerts */}
+           <div className="flex flex-col gap-6 min-h-0">
+              {/* DB Traffic Panel */}
+              <div className="flex-1 min-h-0 bg-[#0a0a0a] border border-white/5 rounded-2xl p-5 flex flex-col gap-5 overflow-hidden shadow-xl">
+                 <div className="flex items-center justify-between shrink-0">
+                    <h3 className="text-[10px] uppercase font-bold text-white/40 tracking-widest flex items-center gap-2">
+                       <Zap className="w-3 h-3 text-intel-cyan" />
+                       Traffic Load
+                    </h3>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${healthScore > 70 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-red-500/20 text-red-500'}`}>
+                       {healthScore}%
+                    </span>
+                 </div>
+                 <div className="grid grid-cols-2 gap-3 shrink-0">
+                    <div className="bg-white/5 p-3 rounded-xl text-center border border-white/5">
+                       <div className="text-[8px] text-white/20 uppercase font-bold mb-1">Writes</div>
+                       <div className="text-xl font-bold font-mono text-intel-cyan">{metrics.dbWriteCount || 0}</div>
+                    </div>
+                    <div className="bg-white/5 p-3 rounded-xl text-center border border-white/5">
+                       <div className="text-[8px] text-white/20 uppercase font-bold mb-1">Reads</div>
+                       <div className="text-xl font-bold font-mono text-white/80">{metrics.dbReadCount || 0}</div>
+                    </div>
+                 </div>
+                 <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+                    <div className="text-[8px] uppercase font-mono text-white/20 mb-3 flex items-center justify-between">
+                       <span>Live Database Ops</span>
+                       <span className="animate-pulse text-intel-cyan">●</span>
+                    </div>
+                    <div className="flex-1 overflow-y-auto no-scrollbar font-mono text-[9px] space-y-1.5">
+                       {dbOps.length === 0 && <div className="text-white/10 italic text-center py-4">Awaiting transactions...</div>}
+                       {dbOps.slice(-20).reverse().map((op, i) => (
+                         <div key={`${op.timestamp}-${i}`} className="flex justify-between items-center bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/[0.02]">
+                            <span className={op.op === 'SELECT' ? 'text-blue-400 font-bold' : 'text-intel-cyan font-bold'}>{op.op}</span>
+                            <span className="text-white/40 truncate max-w-[80px]">{op.table}</span>
+                            <span className="text-white/20 text-[8px]">{new Date(op.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                         </div>
+                       ))}
+                    </div>
                  </div>
               </div>
+              
+              <div className="flex-1 min-h-0 bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+                 <ErrorsPanel errors={alerts.map(a => ({ id: a.id, message: a.message, timestamp: a.timestamp }))} />
+              </div>
+           </div>
+        </div>
+
+        {/* Global Trend Overlay (Bottom Strip) */}
+        <div className="h-40 bg-[#0a0a0a] border-t border-white/5 p-6 flex flex-col shrink-0">
+           <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
+                 <Activity className="w-3 h-3 text-intel-cyan" />
+                 Article Flow Trend (Global Ingestion Pulse)
+              </h3>
+              <div className="flex items-center gap-6 text-[9px] font-mono">
+                 <div className="flex items-center gap-2">
+                    <span className="text-white/20 uppercase tracking-tighter">Rate:</span>
+                    <span className="text-intel-cyan font-bold">{(articles.length / 60).toFixed(2)} EPS</span>
+                 </div>
+                 <div className="flex items-center gap-2 border-l border-white/10 pl-6">
+                    <span className="text-white/20 uppercase tracking-tighter">Stability:</span>
+                    <span className={`${healthScore > 80 ? 'text-emerald-400' : 'text-amber-400'} font-bold`}>{healthScore}%</span>
+                 </div>
+              </div>
+           </div>
+           <div className="flex-1 flex items-end gap-1 min-h-0 px-2 overflow-hidden">
+              {[...Array(120)].map((_, i) => (
+                <motion.div 
+                   key={i} 
+                   initial={{ height: "5%" }}
+                   animate={{ height: `${10 + (Math.sin(i / 10 + Date.now() / 1000) * 15 + 35) + Math.random() * 20}%` }}
+                   transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                   className="flex-1 bg-gradient-to-t from-intel-cyan/10 to-intel-cyan/40 rounded-t-[2px] hover:bg-intel-cyan transition-colors" 
+                />
+              ))}
+           </div>
+           <div className="flex justify-between mt-4 text-[8px] uppercase font-mono text-white/20 tracking-tighter">
+              <span className="flex items-center gap-1"><Zap className="w-2 h-2" /> T-60m INFRASTRUCTURE LINK</span>
+              <span className="animate-pulse">BUFFERED STREAMING MODE : SYNCHRONIZED</span>
+              <span className="flex items-center gap-1">REALTIME VECTOR T-0m <Activity className="w-2 h-2" /></span>
            </div>
         </div>
       </div>

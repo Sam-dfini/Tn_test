@@ -82,9 +82,9 @@ Create a `.env` file at the root. The AI Studio environment normally injects the
 # REQUIRED: Google Gemini API Key for Intelligence Briefs & AI functions
 GEMINI_API_KEY="your_api_key_here"
 
-# OPTIONAL: Supabase connection for persistent storage
+# REQUIRED: Supabase connection for persistent storage and real-time streaming
 SUPABASE_URL="your_supabase_url"
-SUPABASE_ANON_KEY="your_supabase_anon_key"
+VITE_SUPABASE_ANON_KEY="your_supabase_anon_key"
 ```
 
 ### 4. Running the Development Server
@@ -109,3 +109,4 @@ To understand the specific interplay of Contexts (`PipelineContext`, `RSSContext
 
 *   **[ARCHITECTURE.md](./ARCHITECTURE.md)**: Details the folder structure, data flow, API proxy, and React Context architecture.
 *   **[METHODOLOGY.md](./METHODOLOGY.md)**: Explains the math behind the Risk/Resilience Index (RRI) and the Coupled Oscillator Civilizational Engine.
+*   **[CHANGELOG.md](./CHANGELOG.md)**: Tracks latest bug fixes (including deduplication, realtime web sockets, and loop corrections).

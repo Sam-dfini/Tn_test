@@ -22,10 +22,14 @@ export interface IntelligenceEvent {
  * NO timestamps, NO random components.
  */
 export function generateEventId(event: { title?: string; source?: string }): string {
-  const t = (event.title || "").trim().toLowerCase();
+  let t = (event.title || "").trim().toLowerCase();
   const s = (event.source || "unknown").trim().toLowerCase();
   
-  if (!t) return ""; // Title is mandatory for identity
+  if (!t) {
+    // If title is missing, fallback to using a portion of the source and a timestamp/random
+    // but try to stay deterministic if possible.
+    t = "untitled-intel-" + Math.random().toString(36).substring(7);
+  }
 
   const base = `${t}|${s}`;
   
@@ -42,7 +46,8 @@ export function generateEventId(event: { title?: string; source?: string }): str
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822519) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489917);
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822519) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489917);
   
-  return `art_${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}`;
+  const idValue = `${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}`;
+  return idValue ? `art_${idValue}` : `art_fallback_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 }
 
 /**

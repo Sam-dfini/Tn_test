@@ -19,7 +19,7 @@ export const FeedPanel: React.FC<FeedPanelProps> = ({ metrics }) => {
   const ratio = total > 0 ? (metrics.successCount / total) * 100 : 100;
 
   return (
-    <div className="bg-[#1a1a1a] border border-white/10 rounded-lg p-5 flex flex-col space-y-4">
+    <div className="h-full p-4 flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold uppercase tracking-widest text-white/60 flex items-center gap-2">
           <Globe className="w-4 h-4 text-intel-cyan" />
