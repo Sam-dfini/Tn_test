@@ -28,6 +28,12 @@ class SocialMovementTrackerAgent(BaseAgent):
             model_name=model_name
         )
 
+    async def track_movements(self, events: List[Any], signals: List[Any]) -> AgentResponse:
+        """
+        Orchestrator-compatible entry point.
+        """
+        return await self.run(events, context={"signals": signals})
+
     async def run(self, data: Any, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
         """
         Specialized run for social movement tracking.

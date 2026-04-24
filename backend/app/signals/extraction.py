@@ -10,7 +10,7 @@ class EventExtractionEngine(BaseAgent):
     """
     Upgraded ExtractorAgent for structured geopolitical/economic event extraction.
     """
-    def __init__(self, model_name: str = "gemini-1.5-flash"):
+    def __init__(self, model_name: str = "google/gemini-2.0-flash"):
         system_instruction = """
         You are a Senior Political and Economic Analyst for TunisiaIntel.
         Your goal is to convert raw text into structured geopolitical or economic events.

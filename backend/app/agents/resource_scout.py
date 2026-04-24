@@ -27,6 +27,12 @@ class ResourceScoutAgent(BaseAgent):
             model_name=model_name
         )
 
+    async def scout_resources(self, signals: List[Any], news_items: List[Dict[str, Any]]) -> AgentResponse:
+        """
+        Orchestrator-compatible entry point.
+        """
+        return await self.run(signals, context={"news_items": news_items})
+
     async def run(self, data: Any, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
         """
         Specialized run for resource scouting.

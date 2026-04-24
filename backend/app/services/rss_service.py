@@ -10,7 +10,7 @@ import numpy as np
 import google.generativeai as genai
 
 from ..core.database import db
-from core.config import settings
+from ..core.config import settings
 
 RSS_SOURCES = [
     {
@@ -160,7 +160,7 @@ class RSSService:
             return []
 
     async def process_articles(self, articles: List[Dict[str, Any]]) -> int:
-        log_file = "./backend/backend_sync.log"
+        log_file = "backend_sync.log"
         with open(log_file, "a") as f:
             f.write(f"\n--- Sync started at {datetime.now().isoformat()} ---\n")
             f.write(f"Processing {len(articles)} articles\n")

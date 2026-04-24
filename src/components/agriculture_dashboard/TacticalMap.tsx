@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDashboardStore } from './index';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Layers, Map as MapIcon, RotateCcw } from 'lucide-react';
+import { Layers, Map as MapIcon, RotateCcw, Satellite } from 'lucide-react';
 import clsx from 'clsx';
 
 // Example geojson just for rendering, in a real app this would be loaded
@@ -25,6 +25,7 @@ function MapUpdater({ selectedGov }: { selectedGov: string | null }) {
 export default function TacticalMap() {
   const { selectedGovernorate, setSelectedGovernorate, activeLayers, toggleLayer } = useDashboardStore();
   const [geoData, setGeoData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'map' | 'satellite'>('map');
 
   useEffect(() => {
     // Dynamic import to avoid SSR issues if any, and load geojson
@@ -39,30 +40,76 @@ export default function TacticalMap() {
 
   return (
     <div className="relative flex h-full min-h-[500px] w-full flex-col overflow-hidden rounded-lg border border-[#1e3a5f] bg-[#111827]">
-      {/* Map Header */}
+      {/* Map Header & Tabs */}
       <div className="absolute left-0 top-0 z-10 flex w-full items-center justify-between bg-gradient-to-b from-[#111827]/90 to-transparent p-4">
-        <div className="flex items-center gap-2 text-sm font-semibold tracking-wider text-[#f1f5f9]">
-          <MapIcon className="h-4 w-4 text-[#3b82f6]" />
-          <span>TACTICAL MAP</span>
+        <div className="flex items-center gap-4 text-sm font-semibold tracking-wider text-[#f1f5f9]">
+          <div className="flex items-center gap-2">
+            <MapIcon className="h-4 w-4 text-[#3b82f6]" />
+            <span>TACTICAL MAP</span>
+          </div>
+          
+          <div className="flex rounded-md bg-[#1a2332] p-1 border border-[#1e3a5f]">
+            <button
+              onClick={() => setActiveTab('map')}
+              className={clsx(
+                "flex items-center gap-2 rounded px-3 py-1 text-xs transition-all",
+                activeTab === 'map' 
+                  ? "bg-[#3b82f6]/20 text-[#3b82f6] font-bold" 
+                  : "text-[#94a3b8] hover:text-[#f1f5f9]"
+              )}
+            >
+              <MapIcon className="h-3 w-3" />
+              Standard
+            </button>
+            <button
+              onClick={() => setActiveTab('satellite')}
+              className={clsx(
+                "flex items-center gap-2 rounded px-3 py-1 text-xs transition-all",
+                activeTab === 'satellite' 
+                  ? "bg-[#10b981]/20 text-[#10b981] font-bold" 
+                  : "text-[#94a3b8] hover:text-[#f1f5f9]"
+              )}
+            >
+              <Satellite className="h-3 w-3" />
+              Satellite
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Map Container */}
       <div className="flex-1 bg-[#0a0f1a]">
-        <MapContainer 
-          bounds={TUNISIA_BOUNDS as any} 
-          zoomControl={false}
-          className="h-full w-full z-0"
-        >
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          />
-          {geoData && (
-             <GeoJSON data={geoData} style={{ color: '#1e3a5f', weight: 1, fillOpacity: 0.1 }} />
-          )}
-          <MapUpdater selectedGov={selectedGovernorate} />
-        </MapContainer>
+        {activeTab === 'map' ? (
+          <MapContainer 
+            bounds={TUNISIA_BOUNDS as any} 
+            zoomControl={false}
+            className="h-full w-full z-0"
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            />
+            {geoData && (
+               <GeoJSON data={geoData} style={{ color: '#1e3a5f', weight: 1, fillOpacity: 0.1 }} />
+            )}
+            <MapUpdater selectedGov={selectedGovernorate} />
+          </MapContainer>
+        ) : (
+          <MapContainer 
+            bounds={TUNISIA_BOUNDS as any} 
+            zoomControl={false}
+            className="h-full w-full z-0"
+          >
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            />
+            {geoData && (
+               <GeoJSON data={geoData} style={{ color: '#10b981', weight: 2, fillOpacity: 0.1 }} />
+            )}
+            <MapUpdater selectedGov={selectedGovernorate} />
+          </MapContainer>
+        )}
       </div>
 
       {/* Map Controls */}

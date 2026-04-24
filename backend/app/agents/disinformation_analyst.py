@@ -28,6 +28,12 @@ class DisinformationAnalystAgent(BaseAgent):
             model_name=model_name
         )
 
+    async def analyze_disinformation(self, news_items: List[Dict[str, Any]], social_mentions: List[Dict[str, Any]]) -> AgentResponse:
+        """
+        Orchestrator-compatible entry point.
+        """
+        return await self.run(news_items, context={"social_mentions": social_mentions})
+
     async def run(self, data: Any, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
         """
         Specialized run for disinformation analysis.

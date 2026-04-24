@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-import google.generativeai as genai
+from openai import OpenAI
 from pydantic import BaseModel
 from ..core.database import db
 
@@ -21,20 +21,25 @@ class BaseAgent:
         self, 
         role: str, 
         system_instruction: str,
-        model_name: str = "gemini-3-flash-preview"
+        model_name: str = "google/gemini-2.0-flash"
     ):
         self.role = role
         self.system_instruction = system_instruction
-        self.model_name = "gemini-1.5-flash"
-        self.api_key = os.getenv("GEMINI_API_KEY")
+        # OpenRouter uses provider/model format
+        self.model_name = model_name
+        self.api_key = os.getenv("OPENROUTER_API_KEY")
         
         if not self.api_key:
-            raise ValueError("GEMINI_API_KEY environment variable is required")
-            
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(
-            model_name=self.model_name,
-            system_instruction=self.system_instruction
+            raise ValueError("OPENROUTER_API_KEY environment variable is required")
+        
+        # Initialize OpenAI client with OpenRouter's base URL
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.api_key,
+            default_headers={
+                "HTTP-Referer": "https://tunisia-intel.local",
+                "X-Title": "TunisiaIntel"
+            }
         )
         
         # Agent's unique ID for memory
@@ -137,15 +142,21 @@ class BaseAgent:
             full_prompt = f"Context: {context}\n\nTask: {prompt}"
             
         try:
-            response = await self.model.generate_content_async(full_prompt)
+            response = await self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": self.system_instruction},
+                    {"role": "user", "content": full_prompt}
+                ]
+            )
             return AgentResponse(
-                content=response.text,
-                tokens_used=response.usage_metadata.total_token_count if hasattr(response, 'usage_metadata') else 0
+                content=response.choices[0].message.content,
+                tokens_used=response.usage.total_tokens if response.usage else 0
             )
         except Exception as e:
             error_str = str(e)
             print(f"Agent {self.role} failed: {error_str}")
-            if "429" in error_str or "quota" in error_str.lower():
+            if "429" in error_str or "quota" in error_str.lower() or "rate_limit" in error_str.lower():
                 # Re-raise with specific message so API can catch it
                 raise Exception("AI_RATE_LIMIT_EXCEEDED")
             raise e

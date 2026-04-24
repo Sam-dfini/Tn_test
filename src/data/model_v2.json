@@ -1,0 +1,46 @@
+{
+  "model_metadata": {
+    "name": "Tunisia Revolutionary Risk Model",
+    "version": "2.0",
+    "last_updated": "2026-04-03",
+    "target_period": "2025-2026",
+    "baseline_r_t": 2.8,
+    "baseline_p_rev": "90-92%"
+  },
+  "equations_registry": {
+    "EQ1_RRI": "R(t) = sum(w_ij * F_ij) + epsilon(t)",
+    "EQ2_Salience": "S(t) = (alpha * (1 + 0.12Cp + 0.08Dp)) / (1 + 0.7W * (1 + 0.3P + 0.1Dd))",
+    "EQ4_SIR": {
+      "beta": 0.4,
+      "gamma": 0.15,
+      "description": "Epidemic-style protest spread"
+    },
+    "EQ12_Logistic_Prob": "P_rev(t) = 1 / (1 + exp(-(0.8 * R(t) - 2.1)))"
+  },
+  "variables_framework": {
+    "A_ECONOMIC": {
+      "A1_Inflation": { "value": 5.9, "weight": 0.15, "unit": "percent" },
+      "A2_Youth_Unemployment": { "value": 16.0, "weight": 0.20, "unit": "percent" },
+      "A14_Remittances": { "value": 2.3, "weight": 0.10, "unit": "billion_usd" }
+    },
+    "C_DIGITAL": {
+      "C24_Internet_Penetration": { "value": 63.0, "weight": 0.05, "unit": "percent" },
+      "C31_Rural_Connectivity": { "value": 30.0, "weight": 0.08, "unit": "percent" },
+      "C40_Digital_Divide_Dd": { "value": 0.65, "weight": 0.12, "description": "Urban 95% vs Rural 30%" }
+    },
+    "D_POLITICAL": {
+      "D51_Protest_Frequency": { "value": 12, "weight": 0.18, "unit": "per_month" },
+      "D41_Executive_Approval": { "value": 0.45, "weight": 0.10, "unit": "score" }
+    },
+    "J_WAR_EXTERNAL": {
+      "J104_War_Intensity_W": { "value": 0.5, "weight": 0.25, "range": "0.2-0.8" }
+    }
+  },
+  "state_modifiers": {
+    "remittance_multiplier": {
+      "urban_protester_per_1m": 250,
+      "rural_protester_per_1m": 50
+    },
+    "stochastic_shocks": []
+  }
+}

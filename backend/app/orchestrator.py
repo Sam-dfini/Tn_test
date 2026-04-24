@@ -193,12 +193,12 @@ class MissionOrchestrator:
                 agro_inputs = self._get_latest_agro_metrics() # Helper to get satellite + econ metrics
                 
                 analysis_tasks = [
-                    self.resource_scout.scout_resources(merged_signals, news_items),
-                    self.disinformation_analyst.analyze_disinformation(news_items, social_mentions),
-                    self.movement_tracker.track_movements(extracted_events, merged_signals),
-                    self.economic_forecaster.forecast_economy({}, merged_signals),
-                    self.security_analyst.analyze_security({}, merged_signals),
-                    # self.agro_engine.process_all_national(agro_inputs) # To be implemented or handled per gov
+                    self.resource_scout.run(merged_signals, context={"news_items": news_items}),
+                    self.disinformation_analyst.run(news_items, context={"social_mentions": social_mentions}),
+                    self.movement_tracker.run(extracted_events, context={"merged_signals": merged_signals}),
+                    self.economic_forecaster.run({}, context={"merged_signals": merged_signals}),
+                    self.security_analyst.run({}, context={"merged_signals": merged_signals}),
+                    # self.agro_engine.process_all_national(agro_inputs) 
                 ]
                 specialized_results = await asyncio.gather(*analysis_tasks)
                 narrative = await self.analyst.analyze_trends(

@@ -28,6 +28,12 @@ class SecurityAnalystAgent(BaseAgent):
             model_name=model_name
         )
 
+    async def analyze_security(self, data: Any, signals: List[Any]) -> AgentResponse:
+        """
+        Orchestrator-compatible entry point.
+        """
+        return await self.run(data, context={"signals": signals})
+
     async def run(self, data: Any, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
         """
         Specialized run for security analysis.
