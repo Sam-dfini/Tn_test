@@ -30,6 +30,8 @@ import { TestMode } from './components/TestMode';
 
 import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
 
+import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
+
 // Data imports
 import govData from './data/governorates.json';
 import eventData from './data/events.json';
@@ -265,6 +267,10 @@ const AppContent: React.FC = () => {
               governorates={govData.governorates as any}
             />
           </motion.div>
+        );
+      case 'agriculture':
+        return (
+          <TunisiaAgricultureDashboard />
         );
       case 'agriculture':
         return (
