@@ -58,9 +58,7 @@ function startPythonBackend() {
 }
 
 // Start backend immediately
-if (process.env.CORE_NODE_ENV !== 'production') {
-  startPythonBackend();
-}
+startPythonBackend();
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({

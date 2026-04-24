@@ -1,0 +1,20 @@
+src/components/AgroScenarioSimulator.tsx:238:                      { [0, 1, 2].map(i => <Cell key={i} fill={ i === 0 ? '#10b981' : i === 1 ? '#f59e0b' : '#3b82f6'} />) }
+src/components/CitizenEdition.tsx:362:              {topKeywords.map(k => <KeywordItem key={k.id} keyword={k} />)}
+src/components/CitizenEdition.tsx:469:                  {marketIndices.map((m, i) => <MarketRow key={`market-${m.name}-${i}`} item={m} />)}
+src/components/CitizenEdition.tsx:479:                  {commodities.map((c, i) => <MarketRow key={`commodity-${c.name}-${i}`} item={c} />)}
+src/components/CitizenEdition.tsx:489:                  {foodPrices.map((f, i) => <MarketRow key={`food-${f.name}-${i}`} item={f} />)}
+src/components/CitizenEdition.tsx:530:              {predictions.map(p => <PredictionCard key={p.id} item={p} />)}
+src/components/CognitiveWarfare.tsx:520:                ].map(v => <VectorBar key={v.label} {...v} />)}
+src/components/CycleAnalysisTab.tsx:813:                  {series.map((d:any,i:number)=>d.note && <circle key={`shock-${i}`} cx={xS(i)} cy={yR(d.rri)} r="3.5" fill="none" stroke="#ffd60a" strokeWidth="1.2" opacity="0.9"/>)}
+src/components/CycleAnalysisTab.tsx:815:                  {series.map((d:any,i:number)=>i%2===0 && <text key={`month-${i}`} x={xS(i)} y={H-6} textAnchor="middle" fontSize="6" fill="#1e3d55">{d.month.slice(5)}</text>)}
+src/components/EconomicReality.tsx:268:                    {PRODUCTS.map((p, index) => <option key={`product-opt-${p.id}-${index}`} value={p.id}>{p.name.toUpperCase()}</option>)}
+src/components/EconomicReality.tsx:279:                    {GOVERNORATES.map((g, index) => <option key={`gov-opt-${g}-${index}`} value={g}>{g.toUpperCase()}</option>)}
+src/components/EconomicReality.tsx:534:                        {PRODUCTS.map((p, index) => <option key={`form-product-${p.id}-${index}`} value={p.id}>{p.name}</option>)}
+src/components/EconomicReality.tsx:560:                        {GOVERNORATES.map((g, index) => <option key={`form-gov-${g}-${index}`} value={g}>{g}</option>)}
+src/components/EconomicReality.tsx:570:                        {MARKET_TYPES.map((m, index) => <option key={`form-market-${m.id}-${index}`} value={m.id}>{m.name}</option>)}
+src/components/EntrepreneurIntelligence.tsx:630:          {activeRules.map(r => <RuleBanner key={r.id} rule={r} />)}
+src/components/FireIntelligencePanel.tsx:216:      {!loading && <div className="space-y-2">{filtered.map(s => <FireCard key={s.id} s={s} />)}</div>}
+src/components/Timeline.tsx:183:              {governorates.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+src/components/political/ActorNetwork.tsx:716:                            {actors.filter(a => a.id !== selectedActor.id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+src/components/political/PoliticalOverview.tsx:559:                {ideologies.map((id, index) => <option key={`ideology-${id}-${index}`} value={id} className="bg-intel-bg">{id}</option>)}
+src/components/political/PoliticalOverview.tsx:569:                {stances.map((st, index) => <option key={`stance-${st}-${index}`} value={st} className="bg-intel-bg">{st}</option>)}

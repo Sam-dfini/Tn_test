@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { useState } from 'react';
 import { Lock, User, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -18,7 +19,7 @@ export const Authentication: React.FC<AuthenticationProps> = ({ onAuthenticate }
     setLoading(true);
 
     if (!isSignUp && email === 'operator' && password === 'pass') {
-      localStorage.setItem('ti_authenticated', 'true');
+      safeStorage.setItem('ti_authenticated', 'true');
       onAuthenticate();
       setLoading(false);
       return;

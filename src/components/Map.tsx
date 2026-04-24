@@ -134,6 +134,8 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
   const [internalLayer, setInternalLayer] = useState('Wheat Stress');
   const [showIcons, setShowIcons] = useState(true);
 
+  const renderLayer = externalActiveLayer === 'Agricultural Stress' ? internalLayer : activeLayer;
+
   // Fetch Tunisia ADM1 GeoJSON
   useEffect(() => {
     const loadGeoJSON = async () => {
@@ -168,21 +170,21 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
     // Override score based on active agricultural layer
     if (gov && (gov as any).agri_metrics) {
       const metrics = (gov as any).agri_metrics;
-      if (activeLayer === 'Wheat Stress') score = metrics.wheat_stress * 3;
-      if (activeLayer === 'Olive Health') score = metrics.olive_health * 3;
-      if (activeLayer === 'Rainfall Anomaly') score = (metrics.rainfall_anomaly + 0.5) * 2;
-      if (activeLayer === 'Soil Moisture') score = metrics.soil_moisture * 3;
-      if (activeLayer === 'Date Palm Health') score = (metrics.date_palm_health ?? 0.5) * 3;
+      if (renderLayer === 'Wheat Stress') score = metrics.wheat_stress * 3;
+      if (renderLayer === 'Olive Health') score = metrics.olive_health * 3;
+      if (renderLayer === 'Rainfall Anomaly') score = (metrics.rainfall_anomaly + 0.5) * 2;
+      if (renderLayer === 'Soil Moisture') score = metrics.soil_moisture * 3;
+      if (renderLayer === 'Date Palm Health') score = (metrics.date_palm_health ?? 0.5) * 3;
     }
     
     return {
-      fillColor: getChoroplethColor(score, activeLayer),
+      fillColor: getChoroplethColor(score, renderLayer),
       weight: 1, // Thin stroke as requested
       opacity: 1,
       color: 'white', // White stroke as requested
       fillOpacity: 0.5,
     };
-  }, [governorates, activeLayer]);
+  }, [governorates, renderLayer]);
 
   const onEachFeature = useCallback((feature: any, layer: L.Layer) => {
     const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
@@ -280,6 +282,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           {/* Choropleth Layer */}
           {geoData && showChoropleth && (
             <GeoJSON 
+              key={`geojson-layer-${renderLayer}`}
               data={geoData} 
               style={getGovStyle} 
               onEachFeature={onEachFeature}
@@ -295,16 +298,16 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
             let type = 'wheat';
             let color = '#ff453a';
             
-            if (internalLayer === 'Wheat Stress') {
+            if (renderLayer === 'Wheat Stress') {
               type = 'wheat';
               color = metrics.wheat_stress > 0.7 ? '#ff453a' : metrics.wheat_stress > 0.4 ? '#ff9f0a' : '#00f2ff';
-            } else if (internalLayer === 'Olive Health') {
+            } else if (renderLayer === 'Olive Health') {
               type = 'olive';
               color = metrics.olive_health > 0.7 ? '#059669' : metrics.olive_health > 0.4 ? '#fbbf24' : '#ef4444';
-            } else if (internalLayer === 'Rainfall Anomaly') {
+            } else if (renderLayer === 'Rainfall Anomaly') {
               type = 'rain';
               color = metrics.rainfall_anomaly < -0.2 ? '#991b1b' : metrics.rainfall_anomaly < 0 ? '#f97316' : '#0ea5e9';
-            } else if (internalLayer === 'Date Palm Health') {
+            } else if (renderLayer === 'Date Palm Health') {
               type = 'olive';
               const dph = metrics.date_palm_health ?? 0.5;
               color = dph > 0.7 ? '#16a34a' : dph > 0.4 ? '#ca8a04' : '#991b1b';
@@ -321,7 +324,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
               >
                 <Popup>
                   <div className="font-mono text-[10px] text-white uppercase font-bold p-1">
-                    {gov.name.en} - {internalLayer}
+                    {gov.name.en} - {renderLayer}
                   </div>
                 </Popup>
               </Marker>
@@ -435,14 +438,14 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           Sovereign Risk Scale
         </div>
         
-        {activeLayer === 'Wheat Stress' ? (
+        {renderLayer === 'Wheat Stress' ? (
           <LegendItems items={[
             { label: 'Critical (>70%)', color: 'bg-[#ff453a]' },
             { label: 'High (50-70%)', color: 'bg-[#ff9f0a]' },
             { label: 'Moderate (30-50%)', color: 'bg-[#ffd60a]' },
             { label: 'Optimal (<30%)', color: 'bg-[#00f2ff]' },
           ]} />
-        ) : activeLayer === 'Olive Health' ? (
+        ) : renderLayer === 'Olive Health' ? (
           <LegendItems items={[
             { label: 'Excellent', color: 'bg-[#064e3b]' },
             { label: 'Good', color: 'bg-[#059669]' },
@@ -450,21 +453,21 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
             { label: 'Stressed', color: 'bg-[#fbbf24]' },
             { label: 'Dying', color: 'bg-[#ef4444]' },
           ]} />
-        ) : activeLayer === 'Rainfall Anomaly' ? (
+        ) : renderLayer === 'Rainfall Anomaly' ? (
           <LegendItems items={[
             { label: 'Surplus', color: 'bg-[#0284c7]' },
             { label: 'Normal', color: 'bg-[#0ea5e9]' },
             { label: 'Deficit', color: 'bg-[#f97316]' },
             { label: 'Severe Drought', color: 'bg-[#991b1b]' },
           ]} />
-        ) : activeLayer === 'Soil Moisture' ? (
+        ) : renderLayer === 'Soil Moisture' ? (
           <LegendItems items={[
             { label: 'Saturated', color: 'bg-[#1e3a8a]' },
             { label: 'Moist', color: 'bg-[#3b82f6]' },
             { label: 'Dry', color: 'bg-[#fbbf24]' },
             { label: 'Parched', color: 'bg-[#78350f]' },
           ]} />
-        ) : activeLayer === 'Date Palm Health' ? (
+        ) : renderLayer === 'Date Palm Health' ? (
           <LegendItems items={[
             { label: 'Excellent (>80%)', color: 'bg-[#14532d]' },
             { label: 'Good (60–80%)', color: 'bg-[#16a34a]' },

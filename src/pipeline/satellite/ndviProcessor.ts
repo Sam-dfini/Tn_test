@@ -313,72 +313,25 @@ export async function getNDVIBatch(
     }
   }
 
-  // Fallback for missing ones (or all if not configured) to Open-Meteo Batch
+  // Fallback for missing ones (or all if not configured) to Open-Meteo
   const missingGovs = govs.filter(g => !results[g.id]);
   if (missingGovs.length > 0) {
-    const lats = missingGovs.map(g => g.lat.toFixed(4)).join(',');
-    const lons = missingGovs.map(g => g.lon.toFixed(4)).join(',');
-    
-    const endDate = isoDate(daysAgo(5)); 
-    const startDate = isoDate(daysAgo(35));
-
-    const params = new URLSearchParams({
-      latitude:           lats,
-      longitude:          lons,
-      start_date:         startDate,
-      end_date:           endDate,
-      daily:              [
-        'leaf_area_index_high_vegetation',
-        'leaf_area_index_low_vegetation',
-        'et0_fao_evapotranspiration',
-      ].join(','),
-      timezone:           'Africa/Tunis',
-    });
-
-    try {
-      const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
-      if (!res.ok) {
-        if (res.status === 429) {
-          console.warn(`[NDVI] Open-Meteo Rate Limit (429) hit during batch fetch. Falling back to baseline.`);
-          return results;
-        }
-        const text = await res.text();
-        console.warn(`[NDVI] Batch fetch failed: ${res.status} - ${text.slice(0, 100)}`);
-        return results;
-      }
-      const data = await res.json() as any;
-        const dataList = Array.isArray(data) ? data : [data];
-        
-        const mean = (arr: (number|null)[]): number => {
-          const valid = arr?.filter((v): v is number => v !== null && isFinite(v)) ?? [];
-          return valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : 0;
-        };
-
-        dataList.forEach((item: any, idx: number) => {
-          const gov = missingGovs[idx];
-          const daily = item.daily;
-          if (!daily?.leaf_area_index_high_vegetation?.length) return;
-
-          const lai_hv = mean(daily.leaf_area_index_high_vegetation);
-          const lai_lv = mean(daily.leaf_area_index_low_vegetation);
-          const et0    = mean(daily.et0_fao_evapotranspiration);
-
-          const lai_combined = (lai_hv + lai_lv) / 2;
-          const ndvi_proxy   = 0.1 + Math.min(lai_combined * 0.075, 0.55);
-          const et_factor    = Math.max(0, Math.min(1, et0 / 6));
-          const ndvi_final   = Math.max(0.05, Math.min(0.95,
-            ndvi_proxy * 0.70 + et_factor * 0.30
-          ));
-
+    console.log(`[NDVI] Fetching ${missingGovs.length} missing governorates via Open-Meteo...`);
+    const CONCURRENCY = 3;
+    for (let i = 0; i < missingGovs.length; i += CONCURRENCY) {
+      const batch = missingGovs.slice(i, i + CONCURRENCY);
+      
+      await Promise.all(batch.map(async (gov) => {
+        const proxyData = await fetchNDVIProxy(gov, days);
+        if (proxyData) {
           results[gov.id] = {
-            ndvi:   parseFloat(ndvi_final.toFixed(4)),
+            ndvi:   proxyData.ndvi,
             source: 'open-meteo-proxy'
           };
-        });
-    } catch (err) {
-      console.error('[NDVI] Batch fetch error:', err);
+        }
+      }));
     }
   }
-
+  
   return results;
 }

@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, {
   createContext, useContext, useState,
   useEffect, useCallback
@@ -72,7 +73,7 @@ export const NotificationProvider: React.FC<{
 
   const [notifications, setNotifications] = useState<Notification[]>(() => {
     try {
-      const saved = localStorage.getItem('ti_notifications');
+      const saved = safeStorage.getItem('ti_notifications');
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
@@ -90,7 +91,7 @@ export const NotificationProvider: React.FC<{
       return; // effect will re-run with new notifications
     }
 
-    localStorage.setItem(
+    safeStorage.setItem(
       'ti_notifications',
       JSON.stringify(notifications.slice(0, 100))
     );

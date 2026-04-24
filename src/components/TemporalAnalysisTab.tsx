@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { 
@@ -53,7 +54,7 @@ export const TemporalAnalysisTab: React.FC = () => {
   // Mock history for visualization if real history is too short
   const generateChartData = () => {
     const historyKey = `ti_history_${selectedVar}`;
-    const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+    const history = JSON.parse(safeStorage.getItem(historyKey) || '[]');
     
     if (history.length < 5) {
       // Generate some mock historical data for the chart if we don't have enough

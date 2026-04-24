@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, {
   createContext, useContext, useState,
   useEffect, useCallback, useRef
@@ -60,35 +61,35 @@ export const AIProvider_: React.FC<{
   // Load persisted config
   const [provider, setProviderState] = useState<AIProvider>(() => {
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
+      const s = safeStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s).provider || 'GEMINI' : 'GEMINI';
     } catch { return 'GEMINI'; }
   });
 
   const [mode, setModeState] = useState<AIMode>(() => {
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
+      const s = safeStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s).mode || 'ADVANCED' : 'ADVANCED';
     } catch { return 'ADVANCED'; }
   });
 
   const [apiKey, setApiKeyState] = useState<string>(() => {
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
+      const s = safeStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s).apiKey || '' : '';
     } catch { return ''; }
   });
 
   const [dailyBudget, setDailyBudgetState] = useState<number>(() => {
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
+      const s = safeStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s).dailyBudget || 50 : 50;
     } catch { return 50; }
   });
 
   const [isPaused, setIsPausedState] = useState(() => {
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
+      const s = safeStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s).isPaused || false : false;
     } catch { return false; }
   });
@@ -96,7 +97,7 @@ export const AIProvider_: React.FC<{
   // Load today's call count
   const [dailyCalls, setDailyCalls] = useState<number>(() => {
     try {
-      const s = localStorage.getItem(CALLS_KEY);
+      const s = safeStorage.getItem(CALLS_KEY);
       if (!s) return 0;
       const stored: StoredCalls = JSON.parse(s);
       const today = new Date().toISOString().slice(0, 10);
@@ -121,7 +122,7 @@ export const AIProvider_: React.FC<{
 
   // Persist config on change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    safeStorage.setItem(STORAGE_KEY, JSON.stringify({
       provider, mode, apiKey, dailyBudget, isPaused
     }));
   }, [provider, mode, apiKey, dailyBudget, isPaused]);
@@ -129,7 +130,7 @@ export const AIProvider_: React.FC<{
   // Persist call count
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
-    localStorage.setItem(CALLS_KEY, JSON.stringify({
+    safeStorage.setItem(CALLS_KEY, JSON.stringify({
       date: today,
       count: dailyCalls
     }));
@@ -139,7 +140,7 @@ export const AIProvider_: React.FC<{
   useEffect(() => {
     const checkMidnight = () => {
       try {
-        const s = localStorage.getItem(CALLS_KEY);
+        const s = safeStorage.getItem(CALLS_KEY);
         if (!s) return;
         const stored: StoredCalls = JSON.parse(s);
         const today = new Date().toISOString().slice(0, 10);

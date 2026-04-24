@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import calculateRRI, {
   updateVariableFromPipeline
@@ -320,14 +321,14 @@ export const PipelineContext = createContext<PipelineContextType>(
 export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [data, setData] = useState<PlatformData>(() => {
     try {
-      const saved = localStorage.getItem('ti_platform_data');
+      const saved = safeStorage.getItem('ti_platform_data');
       return saved ? { ...DEFAULT_DATA, ...JSON.parse(saved) } : DEFAULT_DATA;
     } catch { return DEFAULT_DATA; }
   });
 
   const [auditLog, setAuditLog] = useState<AuditEntry[]>(() => {
     try {
-      const saved = localStorage.getItem('ti_audit_log');
+      const saved = safeStorage.getItem('ti_audit_log');
       return saved ? JSON.parse(saved) : [];
     } catch { return []; }
   });
@@ -398,13 +399,13 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     try {
-      localStorage.setItem('ti_platform_data', JSON.stringify(data));
+      safeStorage.setItem('ti_platform_data', JSON.stringify(data));
     } catch {}
   }, [data]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('ti_audit_log', JSON.stringify(auditLog.slice(0, 200)));
+      safeStorage.setItem('ti_audit_log', JSON.stringify(auditLog.slice(0, 200)));
     } catch {}
   }, [auditLog]);
 

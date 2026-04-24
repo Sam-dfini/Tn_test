@@ -1,3 +1,4 @@
+import { safeStorage } from './utils/storage';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
@@ -40,9 +41,13 @@ import { seedInitialEvents } from './lib/ingestionEngine';
 
 import PipelineDebugger from './components/PipelineDebugger';
 
+const safeGetItem = (key: string) => {
+  try { return safeStorage.getItem(key); } catch (e) { return null; }
+};
+
 const AppContent: React.FC = () => {
   const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture'>(() => {
-    const saved = localStorage.getItem('ti_app_mode');
+    const saved = safeGetItem('ti_app_mode');
     return (saved as any) || 'selection';
   });
 
@@ -56,7 +61,7 @@ const AppContent: React.FC = () => {
   const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>();
   const [pipelineTab, setPipelineTab] = useState<'pipeline' | 'sources' | 'finance' | 'ai-api'>('pipeline');
   const [showReport, setShowReport] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem('ti_onboarding_done'));
+  const [showOnboarding, setShowOnboarding] = useState(() => !safeGetItem('ti_onboarding_done'));
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
   const [showObservability, setShowObservability] = useState(false);
@@ -83,13 +88,13 @@ const AppContent: React.FC = () => {
     initialized.current = true;
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session || !!localStorage.getItem('ti_authenticated'));
+      setIsAuthenticated(!!session || !!safeGetItem('ti_authenticated'));
       setIsLoadingAuth(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        localStorage.removeItem('ti_authenticated');
+        try { safeStorage.removeItem('ti_authenticated'); } catch(e) {}
       }
       setIsAuthenticated(!!session);
     });
@@ -271,7 +276,7 @@ const AppContent: React.FC = () => {
           <TunisiaAgricultureDashboard />
         );
       default:
-        return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); localStorage.removeItem('ti_authenticated'); setMode('selection'); }} />;
+        return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); try { safeStorage.removeItem('ti_authenticated'); } catch(e) {} setMode('selection'); }} />;
     }
   };
 
@@ -308,7 +313,7 @@ const AppContent: React.FC = () => {
         {showOnboarding && (
           <Onboarding onComplete={() => {
             setShowOnboarding(false);
-            localStorage.setItem('ti_onboarding_done', 'true');
+            try { safeStorage.setItem('ti_onboarding_done', 'true'); } catch(e) {}
           }} />
         )}
         <NotificationPanel 

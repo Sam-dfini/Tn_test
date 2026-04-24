@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -136,7 +137,7 @@ export const StrategicModeling: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'crisis' | 'coalition' | 'predictive' | 'gametheory' | 'multiframework'>('crisis');
   const [activeEvents, setActiveEvents] = useState<string[]>([]);
   const [eventProbabilities, setEventProbabilities] = useState<Record<string, number>>(() => {
-    const saved = localStorage.getItem('ti_scenario_probs');
+    const saved = safeStorage.getItem('ti_scenario_probs');
     return saved ? JSON.parse(saved) : {};
   });
 
@@ -186,7 +187,7 @@ export const StrategicModeling: React.FC = () => {
   const baseRRI = rriState.p_rev * 100;
 
   useEffect(() => {
-    localStorage.setItem('ti_scenario_probs', JSON.stringify(eventProbabilities));
+    safeStorage.setItem('ti_scenario_probs', JSON.stringify(eventProbabilities));
   }, [eventProbabilities]);
 
   const compositeRisk = useMemo(() => {

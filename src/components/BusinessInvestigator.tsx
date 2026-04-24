@@ -45,6 +45,7 @@ interface BusinessInvestigatorProps {
   onGoHome: () => void;
   onOpenReport: () => void;
   context: any;
+  inline?: boolean;
 }
 
 // ── User mode ──────────────────────────────────────────────────────────────
@@ -963,7 +964,7 @@ const MarketOverview: React.FC<{ econ: any; social: any; rriState: any }> = ({
 import { exportToPDF } from '../utils/pdfGenerator';
 
 export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
-  onGoHome, context,
+  onGoHome, context, inline = false
 }) => {
   const { rriState, data } = usePipeline();
   const econ   = data?.economy  ?? context?.economy  ?? {};
@@ -996,12 +997,12 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
     setIsExporting(false);
   };
 
-  return (
-    <ModePageLayout>
-      <div className="flex-1 overflow-y-auto" id="business-investigator-dossier">
-        <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+  const content = (
+    <div className={`flex-1 overflow-y-auto ${inline ? 'h-full bg-[#0a0c10]' : ''}`} id="business-investigator-dossier">
+      <div className={`mx-auto ${inline ? 'px-2 py-4 max-w-full' : 'max-w-5xl px-4 py-6'} space-y-6`}>
 
-          {/* Back to home */}
+        {/* Back to home */}
+        {!inline && (
           <div className="flex items-center justify-between">
             <button onClick={onGoHome}
               className="flex items-center space-x-2 text-[9px] font-mono text-slate-600
@@ -1021,8 +1022,22 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
               </button>
             )}
           </div>
+        )}
 
-          {/* ── TOP LEVEL TABS ── */}
+        {inline && userMode !== 'select' && (
+          <div className="flex justify-end mb-4">
+             <button 
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                className="flex items-center space-x-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded hover:bg-blue-500/20 transition-colors text-[9px] font-mono uppercase tracking-widest pdf-export-ignore"
+              >
+                {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                <span>{isExporting ? 'Generating PDF...' : 'Export Dossier'}</span>
+              </button>
+          </div>
+        )}
+
+        {/* ── TOP LEVEL TABS ── */}
           <div className="flex gap-4 border-b border-white/5 mb-8">
             {MAIN_TABS.map(tab => (
               <button
@@ -1204,6 +1219,15 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
 
         </div>
       </div>
+  );
+
+  if (inline) {
+    return content;
+  }
+
+  return (
+    <ModePageLayout>
+      {content}
     </ModePageLayout>
   );
 };

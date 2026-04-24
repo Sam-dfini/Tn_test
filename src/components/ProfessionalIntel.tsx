@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -45,7 +46,8 @@ import {
   Info,
   Loader2,
   ShieldAlert,
-  Rocket
+  Rocket,
+  Compass
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
 import { NarrativeIntelligence } from './NarrativeIntelligence';
@@ -57,6 +59,7 @@ import { EnergyIntelligence } from './EnergyIntelligence';
 import { EnvironmentalIntelligence } from './EnvironmentalIntelligence';
 import { SocialIntelligence } from './SocialIntelligence';
 import { SecurityIntelligence } from './SecurityIntelligence';
+import { BusinessInvestigator } from './BusinessInvestigator';
 import { StrategicModeling } from './StrategicModeling';
 import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
 import { ClusterIntelligence } from './ClusterIntelligence';
@@ -110,6 +113,7 @@ const SIDEBAR_CATEGORIES = [
       { id: 'industry', label: 'Industry', icon: Box },
       { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
       { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
+      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: Compass },
       { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     ]
   },
@@ -363,6 +367,7 @@ export const ProfessionalIntel: React.FC<{
   
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     command: true,
+    economical: true,
     threat: false,
     socio: false,
     env: false,
@@ -428,7 +433,7 @@ export const ProfessionalIntel: React.FC<{
   useEffect(() => {
     /*
     const todayKey = `briefing_${new Date().toISOString().slice(0, 10)}`;
-    const cached = localStorage.getItem(todayKey);
+    const cached = safeStorage.getItem(todayKey);
     if (cached) {
       setBriefingSummary(cached);
       return;
@@ -451,7 +456,7 @@ Return only the 3-sentence briefing.`;
       .then(summary => {
         if (summary) {
           setBriefingSummary(summary);
-          localStorage.setItem(todayKey, summary);
+          safeStorage.setItem(todayKey, summary);
         }
       })
       .catch(() => {})
@@ -1484,6 +1489,8 @@ Return only the 3-sentence briefing.`;
         </div>
       ) : activeTab === 'entrepreneur' ? (
         <EntrepreneurIntelligence />
+      ) : activeTab === 'strategic-explorer' ? (
+        <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} />
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
       ) : (

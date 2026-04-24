@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -1105,7 +1106,7 @@ export const SourceLibrary: React.FC<{
   const { articles, fetchNow, isFetching } = useRSS();
   const [sources, setSources] = useState<Source[]>(() => {
     try {
-      const saved = localStorage.getItem('ti_sources');
+      const saved = safeStorage.getItem('ti_sources');
       if (saved) {
         const parsed = JSON.parse(saved);
         // Merge with built-in sources (add any new built-ins)
@@ -1124,7 +1125,7 @@ export const SourceLibrary: React.FC<{
 
   // Persist to localStorage
   useEffect(() => {
-    localStorage.setItem('ti_sources', JSON.stringify(sources));
+    safeStorage.setItem('ti_sources', JSON.stringify(sources));
   }, [sources]);
 
   // Test single source

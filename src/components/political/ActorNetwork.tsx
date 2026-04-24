@@ -1,3 +1,4 @@
+import { safeStorage } from '../../utils/storage';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -220,9 +221,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
 
   // Load Data
   useEffect(() => {
-    const savedActors = localStorage.getItem('ti_actors');
-    const savedRels = localStorage.getItem('ti_relationships');
-    const savedScan = localStorage.getItem('ti_last_actor_scan');
+    const savedActors = safeStorage.getItem('ti_actors');
+    const savedRels = safeStorage.getItem('ti_relationships');
+    const savedScan = safeStorage.getItem('ti_last_actor_scan');
 
     let finalActors = [...INITIAL_ACTOR_DATA.actors];
     if (savedActors) {
@@ -252,7 +253,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
         const initial = INITIAL_ACTOR_DATA.actors.find(ia => ia.id === a.id);
         return !initial || JSON.stringify(a) !== JSON.stringify(initial);
       });
-      localStorage.setItem('ti_actors', JSON.stringify(customActors));
+      safeStorage.setItem('ti_actors', JSON.stringify(customActors));
       
       // Dispatch event for tab badge
       window.dispatchEvent(new CustomEvent('ti_actors_updated', { detail: { count: actors.length } }));
@@ -262,7 +263,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
   useEffect(() => {
     if (relationships.length > 0) {
       const customRels = relationships.filter(r => !INITIAL_ACTOR_DATA.relationships.find(ir => ir.from === r.from && ir.to === r.to && ir.type === r.type));
-      localStorage.setItem('ti_relationships', JSON.stringify(customRels));
+      safeStorage.setItem('ti_relationships', JSON.stringify(customRels));
     }
   }, [relationships]);
 
@@ -430,7 +431,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
       
       const now = new Date().toLocaleString();
       setLastScan(now);
-      localStorage.setItem('ti_last_actor_scan', now);
+      safeStorage.setItem('ti_last_actor_scan', now);
     } catch (err) {
       console.error('Scan failed:', err);
     } finally {

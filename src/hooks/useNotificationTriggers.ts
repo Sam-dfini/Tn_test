@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 import { useEffect, useRef } from 'react';
 import { usePipeline } from '../context/PipelineContext';
 import { useNotifications } from '../context/NotificationContext';
@@ -20,7 +21,7 @@ export const useNotificationTriggers = () => {
 
   // One-time: seed notifications reflecting current state
   useEffect(() => {
-    const hasSeeded = localStorage.getItem('ti_notifications_seeded');
+    const hasSeeded = safeStorage.getItem('ti_notifications_seeded');
     if (hasSeeded) return;
 
     setTimeout(() => {
@@ -67,7 +68,7 @@ export const useNotificationTriggers = () => {
         });
       }
 
-      localStorage.setItem('ti_notifications_seeded', 'true');
+      safeStorage.setItem('ti_notifications_seeded', 'true');
     }, 1000); // wait 1s for RRI to calculate
 
   }, []); // run once on mount
@@ -75,7 +76,7 @@ export const useNotificationTriggers = () => {
   // Seasonal shortage warning — fires once per week
   useEffect(() => {
     const weekKey = `shortage_seasonal_${new Date().toISOString().slice(0, 7)}`;
-    if (localStorage.getItem(weekKey)) return;
+    if (safeStorage.getItem(weekKey)) return;
 
     const forecasts = getSeasonalForecast();
     const highPriority = forecasts.filter(f => f.priority === 'high');
@@ -93,7 +94,7 @@ export const useNotificationTriggers = () => {
         },
         rriVariable: 'B22',
       });
-      localStorage.setItem(weekKey, '1');
+      safeStorage.setItem(weekKey, '1');
     }
   }, [addNotification]); // run once on mount (or when addNotification changes)
 
@@ -132,7 +133,7 @@ export const useNotificationTriggers = () => {
     if (rriState.threshold_breaches && rriState.threshold_breaches.length > 0) {
       const lastBreach = rriState.threshold_breaches[rriState.threshold_breaches.length - 1];
       const breachKey = `breach_${lastBreach.variable}_${lastBreach.value}`;
-      if (!localStorage.getItem(breachKey)) {
+      if (!safeStorage.getItem(breachKey)) {
         addNotification({
           type: 'ALERT',
           priority: 'HIGH',
@@ -145,7 +146,7 @@ export const useNotificationTriggers = () => {
           },
           rriVariable: lastBreach.variable,
         });
-        localStorage.setItem(breachKey, 'true');
+        safeStorage.setItem(breachKey, 'true');
       }
     }
 

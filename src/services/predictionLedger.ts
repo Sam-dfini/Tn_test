@@ -1,3 +1,4 @@
+import { safeStorage } from '../utils/storage';
 /**
  * TunisiaIntel — Prediction Ledger
  *
@@ -771,15 +772,15 @@ export function storePredictionLocal(
       predictions,
     };
 
-    const existing = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    const existing = JSON.parse(safeStorage.getItem(LS_KEY) || '[]');
     existing.unshift(record);
-    localStorage.setItem(LS_KEY, JSON.stringify(existing.slice(0, 100)));
+    safeStorage.setItem(LS_KEY, JSON.stringify(existing.slice(0, 100)));
   } catch {}
 }
 
 export function loadLocalPredictions(): PredictionRecord[] {
   try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    return JSON.parse(safeStorage.getItem(LS_KEY) || '[]');
   } catch {
     return [];
   }

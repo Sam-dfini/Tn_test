@@ -5,6 +5,7 @@ import { useRSS } from '../context/RSSContext';
 import { usePipeline } from '../context/PipelineContext';
 import { processArticleForRRI } from '../utils/rriEngine';
 import { BackgroundGrid } from './ProfessionalShared';
+import { getUniqueKey, prepareList, assertUnique } from '../lib/keyUtils';
 
 interface RealTimeNewsFeedProps {
   hideBackground?: boolean;
@@ -62,6 +63,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
         title: "Elections in Tunisia: Security concerns rise as polling stations open.",
         source_name: "BBC",
         published_at: "2026-04-18T10:00:00Z",
+        pubDate: new Date("2026-04-18T10:00:00Z").getTime(),
         severity: 5,
         category: "POLITICAL",
         url: "https://www.bbc.com/news/world-africa-tunisia-manual",
@@ -69,35 +71,28 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
     };
 
     // Deduplicate and process items with stable IDs
-    const seenIds = new Set();
     const rawItems = viewMode === 'raw' ? [...articles] : [manualArticle, ...articles];
     
-    return rawItems
-      .map((a: any) => {
-        // Fallback ID structure: use URL if available, otherwise title hash
-        // In full-stack mode, the backend now provides robust IDs, so this is just safety.
-        const fallbackId = a.url ? `url-hash-${a.url.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)}` : `title-${a.title?.substring(0, 30)}`;
-        const baseId = a.id || fallbackId;
+    const processed = rawItems.map((a: any, idx: number) => {
+        const fallbackId = a.url ? `url-hash-${a.url.split('').reduce((acc: number,char: string)=>{acc=((acc<<5)-acc)+char.charCodeAt(0);return acc&acc},0)}` : `title-${a.title?.substring(0, 30)}`;
+        const baseId = a.id || fallbackId || `msg-${idx}`;
         return {
           ...a,
-          id: baseId
+          id: baseId,
+          pubDate: new Date(a.published_at).getTime()
         };
-      })
-      .filter((a: any) => {
-        if (!a.id || seenIds.has(a.id)) return false;
-        seenIds.add(a.id);
-        return true;
       })
       .map((a: any) => ({
         ...a,
         relevance: Math.min(100, 50 + ((a.severity || 1) * 10) + ((a.rri_nudge || 0) * 1000)),
         moduleTag: (a.category?.toLowerCase() || 'general').includes('economy') ? 'ECONOMIC' : 'POLITICAL',
       }));
+
+    return prepareList(processed);
   }, [articles, cleared, viewMode]);
 
   // Apply filter and group by event_id
   const filteredItems = useMemo(() => {
-    // In RAW mode, we return more items (200 instead of default pool) and bypass logic
     let items = feedItems;
     
     if (viewMode === 'raw') {
@@ -115,7 +110,9 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
       });
     }
 
-    return items.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+    const sorted =  items.sort((a, b) => b.pubDate - a.pubDate);
+    assertUnique(sorted, 'RealTimeNewsFeed-Filtered');
+    return sorted;
   }, [feedItems, severityFilter, searchQuery, viewMode]);
 
   return (
@@ -233,7 +230,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
               <div className={`flex items-center space-x-1.5 bg-black/50 rounded-xl border border-white/10 p-1 w-fit transition-opacity ${viewMode === 'raw' ? 'opacity-40 pointer-events-none' : ''}`}>
                 {(['ALL', 'CRITICAL', 'HIGH', 'MEDIUM'] as const).map((sev) => (
                   <button
-                    key={sev}
+                    key={getUniqueKey('sev', sev)}
                     onClick={() => setSeverityFilter(sev)}
                     className={`px-3 py-1.5 rounded-lg text-[9px] font-mono font-bold transition-all ${
                       severityFilter === sev 
@@ -272,7 +269,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                     <p className="text-[9px] font-mono text-intel-green">No issues reported in current lifecycle.</p>
                   ) : (
                     syncErrors.map((err, i) => (
-                      <div key={i} className="flex items-center space-x-2 text-[9px] font-mono text-intel-red/80 px-2 py-1 bg-intel-red/5 rounded">
+                      <div key={getUniqueKey('sync-error', i)} className="flex items-center space-x-2 text-[9px] font-mono text-intel-red/80 px-2 py-1 bg-intel-red/5 rounded">
                         <AlertTriangle className="w-2.5 h-2.5" />
                         <span>{err}</span>
                       </div>
@@ -289,7 +286,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
           <div className="mb-6 bg-intel-red/5 border-y border-intel-red/20 py-2 relative overflow-hidden">
             <div className="flex items-center space-x-4 animate-ticker whitespace-nowrap">
               {filteredItems.filter(item => item.severity >= 4).slice(0, 10).map((item, idx) => (
-                <div key={`ticker-crit-${item.id}-${idx}-${item.published_at}`} className="flex items-center space-x-2 px-4 border-r border-intel-red/10">
+                <div key={getUniqueKey('ticker-crit', `${item.id}-${idx}`)} className="flex items-center space-x-2 px-4 border-r border-intel-red/10">
                   <span className="text-[8px] font-mono font-bold text-intel-red uppercase tracking-widest bg-intel-red/10 px-1.5 py-0.5 rounded">CRITICAL</span>
                   <span className="text-[10px] font-medium text-slate-200">{item.title}</span>
                   <span className="text-[8px] font-mono text-slate-500">{item.source_name}</span>
@@ -325,7 +322,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
           <AnimatePresence mode="popLayout">
             {filteredItems.map((article: any) => (
               <motion.div 
-                key={article.id}
+                key={getUniqueKey('article', article.id)}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98 }}
@@ -443,7 +440,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                                      <span className="text-[7px] font-mono text-slate-600 block uppercase">Original Keywords</span>
                                       <div className="flex flex-wrap gap-1">
                                         {(article.keywords || []).map((k: string, kidx: number) => (
-                                          <span key={`${article.id}-${k}-${kidx}`} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k}</span>
+                                          <span key={getUniqueKey('keyword', `${article.id}-${k}-${kidx}`)} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k}</span>
                                         ))}
                                       </div>
                                   </div>
