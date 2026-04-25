@@ -15,10 +15,11 @@ interface ProfessionalHeaderProps {
   onToggleDebug: () => void;
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({ 
-  onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onOpenCalendar, onOpenTerminal, onToggleDebug, onToggleSidebar, sidebarOpen = true
+  onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onOpenCalendar, onOpenTerminal, onToggleDebug, onToggleSidebar, sidebarOpen = true, children
 }) => {
   const { rriState, data } = usePipeline();
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -129,6 +130,7 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
 
         {/* Actions */}
         <div className="flex items-center space-x-1 sm:space-x-3">
+          {children}
           <div className="flex items-center bg-white/5 border border-intel-border rounded-xl p-0.5 sm:p-1 relative" ref={mobileMenuRef}>
             <button 
               onClick={onGoHome}

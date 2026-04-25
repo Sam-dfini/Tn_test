@@ -9,6 +9,7 @@ interface PalantirDashboardProps {
   onOpenPipeline: () => void;
   onGoHome: () => void;
   onOpenReport: () => void;
+  onOpenObservability: () => void;
   context?: any;
 }
 
@@ -54,6 +55,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
   onOpenPipeline,
   onGoHome,
   onOpenReport,
+  onOpenObservability,
   context
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -255,6 +257,10 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
             className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={onOpenObservability} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors text-xs font-bold uppercase tracking-widest">
+            <Activity className="w-4 h-4" />
+            Mission Control
           </button>
           <button onClick={onOpenPipeline} className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors">
             <Database className="w-5 h-5" />

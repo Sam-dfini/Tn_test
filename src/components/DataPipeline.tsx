@@ -45,9 +45,31 @@ import {
 import { BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { FinanceLawPanel } from './FinanceLawPanel';
 import { ObservabilityDashboard } from './ObservabilityDashboard';
+import { ObservabilityPanel } from './ObservabilityPanel';
 
 const AIAPITab: React.FC = () => {
   const { provider, setProvider, apiKey, setApiKey, isPaused, setIsPaused } = useAI();
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{success: boolean, message: string} | null>(null);
+
+  const testApiKey = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'Ping', config: { model: provider === 'OPENAI' ? 'gpt-4o' : undefined } })
+      });
+      if (!response.ok) throw new Error('API request failed');
+      const data = await response.json();
+      setTestResult({ success: true, message: 'API Key Verified: ' + data.text.substring(0, 20) + '...' });
+    } catch (e) {
+      setTestResult({ success: false, message: 'Invalid API Key or Proxy Error' });
+    } finally {
+      setIsTesting(false);
+    }
+  };
   
   return (
     <div className="flex flex-col items-center justify-center max-w-4xl mx-auto space-y-8 h-full">
@@ -108,6 +130,20 @@ const AIAPITab: React.FC = () => {
               placeholder="sk-..."
               className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-white focus:border-intel-cyan/50 focus:outline-none"
             />
+            <div className="flex gap-2 items-center mt-2">
+              <button 
+                onClick={testApiKey}
+                disabled={isTesting || !apiKey}
+                className="px-4 py-2 bg-slate-800 text-white text-xs font-mono rounded hover:bg-slate-700 disabled:opacity-50"
+              >
+                {isTesting ? 'Testing...' : 'Test API Key'}
+              </button>
+              {testResult && (
+                <span className={`text-[10px] font-mono ${testResult.success ? 'text-emerald-500' : 'text-intel-red'}`}>
+                  {testResult.message}
+                </span>
+              )}
+            </div>
             <p className="text-[10px] items-center text-slate-500 mt-2 font-mono flex">
                <AlertCircle className="w-3 h-3 mr-1" /> Google GenAI built-in token securely handles native Gemini routes.
             </p>
@@ -150,7 +186,7 @@ export const DataPipeline: React.FC<{
   const { articles } = useRSS();
   const { canCallAI, recordCall, recordError, provider, setProvider, apiKey, setApiKey, isPaused, setIsPaused } = useAI();
   
-  const [activeTab, setActiveTab] = useState<'pipeline' | 'sources' | 'ai-api' | 'finance' | 'health'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'pipeline' | 'sources' | 'ai-api' | 'finance' | 'health' | 'pipeline-control'>(initialTab);
   
   const [messages, setMessages] = useState<Message[]>([{
     id: '1',
@@ -452,6 +488,16 @@ export const DataPipeline: React.FC<{
             >
               Health
             </button>
+            <button
+              onClick={() => setActiveTab('pipeline-control' as any)}
+              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+                activeTab === 'pipeline-control' 
+                  ? 'bg-intel-cyan text-black font-bold' 
+                  : 'text-slate-500 hover:text-white'
+              }`}
+            >
+              System Monitor
+            </button>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -467,8 +513,10 @@ export const DataPipeline: React.FC<{
       <div className="flex-1 overflow-hidden p-8 relative z-10">
         <BackgroundGrid />
         <div className="max-w-[1600px] mx-auto h-full overflow-y-auto no-scrollbar">
-          {activeTab === 'health' ? (
+          {activeTab === 'pipeline-control' ? (
             <ObservabilityDashboard />
+          ) : activeTab === 'health' ? (
+            <ObservabilityPanel />
           ) : activeTab === 'finance' ? (
             <div className="space-y-6 pb-12">
               <FinanceLawPanel />

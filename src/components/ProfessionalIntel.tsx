@@ -69,6 +69,7 @@ import { PoliticalStabilityIntelligence } from './PoliticalStabilityIntelligence
 import { PoliticalCalendar } from './PoliticalCalendar';
 import { CivilizationalAnalysis } from './CivilizationalAnalysis';
 import { FireIntelligencePanel } from './FireIntelligencePanel';
+import { ObservabilityDashboard } from '../pages/ObservabilityDashboard';
 import { AgriIntelDashboard } from './AgriIntelDashboard';
 import ActorNetworkIntelligence from './ActorNetworkIntelligence';
 import SimulationIntelligence from './SimulationIntelligence';
@@ -99,6 +100,7 @@ const SIDEBAR_CATEGORIES = [
     label: 'Command Center',
     items: [
       { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+      { id: 'pipeline-control', label: 'System Monitor', icon: Activity },
       { id: 'calendar', label: 'Calendar', icon: Calendar },
       { id: 'govagent', label: 'Gov. Agent', icon: Brain },
       { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
@@ -357,7 +359,7 @@ export const ProfessionalIntel: React.FC<{
 }> = ({ context, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onToggleDebug }) => {
   const { data, rriState, miiProfile, actorNetwork, auditLog, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = usePipeline();
   const { articles: rssArticles, isFetching } = useRSS();
-  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry' | 'strategic-explorer' | 'pipeline-control'>('overview');
   const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine' | 'timeline' | 'signal' | 'temporal' | 'rtee'>('news');
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -699,11 +701,25 @@ Return only the 3-sentence briefing.`;
           onToggleDebug={onToggleDebug}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
-        />
+        >
+          <button
+            onClick={() => setActiveTab('pipeline-control')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all ${
+              activeTab === 'pipeline-control'
+                ? 'bg-intel-cyan/20 text-intel-cyan'
+                : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            <Activity className="w-3 h-3" />
+            SYSTEM MONITOR
+          </button>
+        </ProfessionalHeader>
         
         {/* Dynamic View Container */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6" id="professional-intel-dossier">
-        {activeTab === 'govagent' ? (
+        {activeTab === 'pipeline-control' ? (
+          <ObservabilityDashboard onBack={() => setActiveTab('overview')} />
+        ) : activeTab === 'govagent' ? (
           <GovernmentAgentPanel />
         ) : activeTab === 'events' ? (
           <div className="space-y-6">
@@ -1490,7 +1506,7 @@ Return only the 3-sentence briefing.`;
       ) : activeTab === 'entrepreneur' ? (
         <EntrepreneurIntelligence />
       ) : activeTab === 'strategic-explorer' ? (
-        <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} />
+        <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} onOpenAI={() => {}} onOpenPipeline={() => {}} onOpenReport={() => {}} />
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
       ) : (

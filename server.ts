@@ -192,6 +192,39 @@ async function startServer() {
   // AI Proxy Endpoint
   app.post('/api/ai', async (req, res) => {
     console.log('Received request to /api/ai');
+    const { prompt, config } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (openRouterApiKey && !openRouterApiKey.includes('MY_OPENROUTER_API_KEY')) {
+      try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openRouterApiKey}`,
+            'HTTP-Referer': process.env.APP_URL || 'https://ais.studio',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: config?.model || 'google/gemini-2.0-flash-lite',
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`OpenRouter Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return res.json({ text: data.choices[0].message.content });
+      } catch (error: any) {
+        console.error('OpenRouter Error:', error);
+        // Fallback to Gemini if OpenRouter fails
+      }
+    }
+
     if (!genAI) {
       const isPlaceholder = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY');
       if (isPlaceholder) {
@@ -199,15 +232,9 @@ async function startServer() {
       } else {
         console.error('AI Proxy Error: GEMINI_API_KEY environment variable is not defined.');
       }
-      // Return a graceful 200 mock response so the UI doesn't crash from an unhandled error
       return res.status(200).json({ 
-        text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API key.'} Please provide a valid GEMINI_API_KEY in Settings.]`
+        text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API key.'} Please provide a valid GEMINI_API_KEY or OPENROUTER_API_KEY in Settings.]`
       });
-    }
-
-    const { prompt, config } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
     }
 
     try {

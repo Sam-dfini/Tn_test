@@ -3,8 +3,34 @@
  * Prevents key collision by namespacing entities.
  */
 
-export const getUniqueKey = (namespace: string, id: string | number): string => {
+export const stableHash = (str: string) => {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h << 5) - h + str.charCodeAt(i);
+    h |= 0;
+  }
+  return `h${Math.abs(h)}`;
+};
+
+export const generateStableId = (a: any) => {
+  if (a.id) return a.id;
+  return stableHash(
+    `${a.source_name || 'src'}|${a.title || 'title'}|${a.published_at || 'time'}|${a.url || 'url'}`
+  );
+};
+
+export const getUniqueKey = (namespace: string, id: string | number | undefined | null): string => {
+  if (id === undefined || id === null || id === "") {
+    return `${namespace}-fallback-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+  }
   return `${namespace}-${id}`;
+};
+
+export const assertKey = (key: string): string => {
+  if (!key || key === "") {
+    throw new Error("EMPTY KEY GENERATED");
+  }
+  return key;
 };
 
 /**

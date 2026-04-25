@@ -16,6 +16,7 @@ import {
   Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { getUniqueKey, stableHash, assertKey } from '../lib/keyUtils';
 import { usePipeline } from '../context/PipelineContext';
 
 // Panels
@@ -132,7 +133,7 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
               className="space-y-1 shrink-0"
             >
                {activeAlerts.map((alert, i) => (
-                 <div key={i} className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg flex items-center gap-3 text-red-400 font-bold text-[10px] uppercase animate-pulse">
+                 <div key={assertKey(getUniqueKey('alert', i))} className="bg-red-500/10 border border-red-500/20 p-2 rounded-lg flex items-center gap-3 text-red-400 font-bold text-[10px] uppercase animate-pulse">
                     <AlertCircle className="w-3 h-3" />
                     {alert}
                  </div>
@@ -214,7 +215,7 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
                     <div className="flex-1 overflow-y-auto no-scrollbar font-mono text-[9px] space-y-1.5">
                        {dbOps.length === 0 && <div className="text-white/10 italic text-center py-4">Awaiting transactions...</div>}
                        {dbOps.slice(-20).reverse().map((op, i) => (
-                         <div key={`${op.timestamp}-${i}`} className="flex justify-between items-center bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/[0.02]">
+                         <div key={assertKey(getUniqueKey('dbop', stableHash(JSON.stringify(op))))} className="flex justify-between items-center bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/[0.02]">
                             <span className={op.op === 'SELECT' ? 'text-blue-400 font-bold' : 'text-intel-cyan font-bold'}>{op.op}</span>
                             <span className="text-white/40 truncate max-w-[80px]">{op.table}</span>
                             <span className="text-white/20 text-[8px]">{new Date(op.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
@@ -251,7 +252,7 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
            <div className="flex-1 flex items-end gap-1 min-h-0 px-2 overflow-hidden">
               {[...Array(120)].map((_, i) => (
                 <motion.div 
-                   key={i} 
+                   key={assertKey(getUniqueKey('trend', i))} 
                    initial={{ height: "5%" }}
                    animate={{ height: `${10 + (Math.sin(i / 10 + Date.now() / 1000) * 15 + 35) + Math.random() * 20}%` }}
                    transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}

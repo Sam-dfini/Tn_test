@@ -218,6 +218,7 @@ const AppContent: React.FC = () => {
             onOpenPipeline={handleOpenPipeline}
             onGoHome={() => handleModeSelect('selection')}
             onOpenReport={() => setShowReport(true)}
+            onOpenObservability={() => setShowObservability(true)}
             context={{
               governorates: govData.governorates,
               events: eventData.events
