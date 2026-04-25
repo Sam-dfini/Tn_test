@@ -36,13 +36,13 @@ export const ObservabilityDashboard: React.FC = () => {
   const health = getHealthColor(healthScore);
 
   return (
-    <div className="h-full bg-[#050505] text-white/80 font-sans flex flex-col p-4 space-y-4 overflow-y-auto no-scrollbar">
-      {/* Grafana Header */}
-      <div className="flex items-center justify-between bg-[#0a0a0a] border border-white/5 p-4 rounded-xl">
+    <div className="h-full bg-transparent text-white/80 font-sans flex flex-col space-y-4 overflow-y-auto custom-scrollbar pr-2 pb-12">
+      {/* PMC Header */}
+      <div className="flex flex-col md:flex-row items-center justify-between bg-black/40 backdrop-blur-xl border border-white/5 p-4 rounded-2xl gap-4">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <Layers className="w-6 h-6 text-emerald-500" />
-            <h1 className="text-xl font-bold tracking-tighter uppercase text-white">System Monitor / <span className="text-white/40">Intel Pipeline</span></h1>
+            <h1 className="text-xl font-bold tracking-tighter uppercase text-white">Pipeline Mission Control / <span className="text-white/40">Intel Pipeline</span></h1>
           </div>
           
           <div className="h-8 w-px bg-white/10" />
@@ -102,15 +102,15 @@ export const ObservabilityDashboard: React.FC = () => {
             className="space-y-4"
           >
             {/* Metric Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-              <MiniMetric label="Feed Rate" value={`${Math.round(metrics.ingestionRate)}`} unit="/min" icon={BarChart3} color="text-emerald-400" />
-              <MiniMetric label="Successful" value={metrics.newsCount} icon={Database} color="text-blue-400" />
-              <MiniMetric label="Failures" value={Math.round(metrics.errorRate * metrics.feedCount)} icon={AlertTriangle} color="text-red-400" />
-              <MiniMetric label="Signals" value={metrics.signalCount} icon={Activity} color="text-purple-400" />
-              <MiniMetric label="Events" value={metrics.eventCount} icon={Target} color="text-amber-400" />
-              <MiniMetric label="Error %" value={(metrics.errorRate * 100).toFixed(1)} unit="%" icon={Cpu} color="text-red-500" />
-              <MiniMetric label="Dups %" value={(metrics.duplicateRate * 100).toFixed(1)} unit="%" icon={RefreshCcw} color="text-amber-500" />
-              <MiniMetric label="Latency" value={Math.round(metrics.latencyMs)} unit="ms" icon={TrendingUp} color="text-indigo-400" />
+            <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
+              <MiniMetric label="Feed Rate" value={`${Math.round(metrics.ingestionRate)}`} unit="/min" icon={BarChart3} color="text-emerald-400" key="metric-feed" />
+              <MiniMetric label="Successful" value={metrics.newsCount} icon={Database} color="text-blue-400" key="metric-success" />
+              <MiniMetric label="Failures" value={Math.round(metrics.errorRate * metrics.feedCount)} icon={AlertTriangle} color="text-red-400" key="metric-fail" />
+              <MiniMetric label="Signals" value={metrics.signalCount} icon={Activity} color="text-purple-400" key="metric-sig" />
+              <MiniMetric label="Events" value={metrics.eventCount} icon={Target} color="text-amber-400" key="metric-ev" />
+              <MiniMetric label="Error %" value={(metrics.errorRate * 100).toFixed(1)} unit="%" icon={Cpu} color="text-red-500" key="metric-errp" />
+              <MiniMetric label="Dups %" value={(metrics.duplicateRate * 100).toFixed(1)} unit="%" icon={RefreshCcw} color="text-amber-500" key="metric-dup" />
+              <MiniMetric label="Latency" value={Math.round(metrics.latencyMs)} unit="ms" icon={TrendingUp} color="text-indigo-400" key="metric-lat" />
             </div>
 
             {/* Main Graphs Section */}
@@ -175,7 +175,7 @@ export const ObservabilityDashboard: React.FC = () => {
              </div>
              <div className="flex-1 overflow-y-auto font-mono text-[11px] space-y-1 pr-2 no-scrollbar">
                 {logs.map((log, i) => (
-                  <div key={i} className="flex gap-4 border-b border-white/[0.02] py-1 hover:bg-white/[0.02]">
+                  <div key={`log-${log.timestamp}-${i}`} className="flex gap-4 border-b border-white/[0.02] py-1 hover:bg-white/[0.02]">
                     <span className="text-white/20 shrink-0">{log.timestamp.split('T')[1].slice(0, 8)}</span>
                     <span className={`w-20 shrink-0 font-bold ${log.level === 'ERROR' ? 'text-red-500' : log.level === 'WARN' ? 'text-amber-500' : 'text-emerald-500'}`}>[{log.stage}]</span>
                     <span className="text-white/60">{log.message}</span>

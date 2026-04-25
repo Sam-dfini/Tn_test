@@ -33,9 +33,9 @@ import { WeatherWidget } from './WeatherWidget';
 import { FireIncidentsWidget, WaterCutsWidget, RoadAccidentsWidget, SuicidesWidget, ViolenceWidget } from './IncidentWidgets';
 
 import { Governorate, IntelEvent } from '../../types/intel';
-
 import { usePipeline } from '../../context/PipelineContext';
 import { useRSS } from '../../context/RSSContext';
+import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 interface TacticalDashboardProps {
   governorates: Governorate[];
@@ -134,7 +134,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
               {leftCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
             </button>
 
-            {leftTabs.map(tab => (
+            {prepareList(leftTabs).map((tab: any) => (
               <button
                 key={tab.id}
                 onClick={() => {
@@ -172,12 +172,12 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
 
             {/* Status Indicators in Rail */}
             <div className="flex flex-col items-center space-y-4 pb-4">
-              {[
+              {prepareList([
                 { color: pipelineData.social.protest_events_30d > 20 ? 'bg-intel-red' : 'bg-intel-orange', label: 'SOC' },
                 { color: pipelineData.economy.fx_reserves < 90 ? 'bg-intel-orange' : 'bg-intel-cyan', label: 'ECO' },
                 { color: rriState.rri >= 2.625 ? 'bg-intel-red animate-pulse' : 'bg-intel-orange', label: 'RRI' },
-              ].map(item => (
-                <div key={item.label} className="flex flex-col items-center space-y-1 group relative">
+              ]).map((item: any) => (
+                <div key={item.id} className="flex flex-col items-center space-y-1 group relative">
                   <div className={`w-2 h-2 rounded-full ${item.color} shadow-[0_0_8px_currentColor]`} />
                   <div className="absolute left-8 px-2 py-1 bg-black border border-intel-border rounded text-[8px] font-mono text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                     {item.label} STATUS
@@ -279,12 +279,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
                 className="flex items-center h-full space-x-12 whitespace-nowrap pl-32"
               >
-                {rssArticles
-                  .slice(0, 10)
-                  .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                  .map((article, idx) => (
-                  <div key={`ticker-1-${article.id}-${idx}`} className="flex items-center space-x-3">
-                    <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any) => (
+                  <div key={article.id} className="flex items-center space-x-3">
+                      <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
                       {article.source_name}
                     </span>
@@ -295,12 +292,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                   </div>
                 ))}
                 {/* Duplicate for seamless loop */}
-                {rssArticles
-                  .slice(0, 10)
-                  .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                  .map((article, idx) => (
-                  <div key={`ticker-2-${article.id}-${idx}`} className="flex items-center space-x-3">
-                    <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any, idx: number) => (
+                    <div key={assertKey(getRenderKey(article, idx, 'tac-t2-article'))} className="flex items-center space-x-3">
+                      <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
                       {article.source_name}
                     </span>
@@ -335,9 +329,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
 
           {/* Right Sidebar Tabs */}
           <div className="w-12 shrink-0 border-l border-intel-border/30 bg-black/40 flex flex-col">
-            {rightTabs.map(tab => (
+            {prepareList(rightTabs).map((tab: any) => (
               <button
-                key={`right-tab-${tab.id}`}
+                key={tab.id}
                 onClick={() => setRightTab(tab.id as any)}
                 aria-label={tab.label}
                 aria-selected={rightTab === tab.id}
@@ -385,8 +379,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
             <div className="space-y-3">
               <h5 className="text-[10px] font-mono text-intel-red font-bold uppercase mb-2">Active Threshold Breaches</h5>
               <div className="space-y-2">
-                {rriState.threshold_breaches?.map((breach: any, idx: number) => (
-                  <div key={`breach-${breach.variable || idx}-${idx}`} className="bg-intel-red/5 border border-intel-red/20 p-2 rounded flex items-center justify-between">
+                {prepareList(rriState.threshold_breaches || []).map((breach: any) => (
+                  <div key={breach.id} className="bg-intel-red/5 border border-intel-red/20 p-2 rounded flex items-center justify-between">
                     <div>
                       <div className="text-[10px] font-bold text-white">{breach.label || breach.variable}</div>
                       <div className="text-[8px] font-mono text-slate-500 uppercase">Value: {breach.value} (Limit: {breach.threshold})</div>
@@ -411,22 +405,22 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 )}
                 
                 <div className="grid grid-cols-1 gap-2">
-                  {aiAnalysis?.keyDrivers?.slice(0, 3).map((driver: string, idx: number) => (
-                    <div key={`driver-${driver}-${idx}`} className="bg-intel-cyan/5 border border-intel-cyan/20 p-2 rounded">
+                  {prepareList(aiAnalysis?.keyDrivers?.slice(0, 3) || []).map((driver: any) => (
+                    <div key={driver.id} className="bg-intel-cyan/5 border border-intel-cyan/20 p-2 rounded">
                       <div className="text-[10px] font-bold text-intel-cyan mb-1 flex items-center">
                         <Target className="w-3 h-3 mr-1" />
                         Key Driver
                       </div>
-                      <p className="text-[9px] text-slate-400 leading-relaxed">{driver}</p>
+                      <p className="text-[9px] text-slate-400 leading-relaxed">{driver.value}</p>
                     </div>
                   ))}
-                  {aiAnalysis?.recommendations?.slice(0, 2).map((rec: string, idx: number) => (
-                    <div key={`rec-${rec}-${idx}`} className="bg-white/5 border border-white/10 p-2 rounded">
+                  {prepareList(aiAnalysis?.recommendations?.slice(0, 2) || []).map((rec: any) => (
+                    <div key={rec.id} className="bg-white/5 border border-white/10 p-2 rounded">
                       <div className="text-[10px] font-bold text-white mb-1 flex items-center">
                         <Zap className="w-3 h-3 mr-1 text-intel-orange" />
                         Recommendation
                       </div>
-                      <p className="text-[9px] text-slate-400 leading-relaxed">{rec}</p>
+                      <p className="text-[9px] text-slate-400 leading-relaxed">{rec.value}</p>
                     </div>
                   ))}
                 </div>
@@ -490,27 +484,23 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
               ease: 'linear' }}
             className="flex items-center space-x-12 px-4"
           >
-            {events
-              .filter(e => typeof e?.id === "string" && e.id.trim() !== "")
-              .map((event, idx) => (
-              <div key={`footer-event-1-${event.id}-${idx}`} className="flex items-center space-x-2">
-                <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
-                <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
-                  {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}
-                </span>
-              </div>
-            ))}
-            {/* Duplicate for seamless loop */}
-            {events
-              .filter(e => typeof e?.id === "string" && e.id.trim() !== "")
-              .map((event, idx) => (
-              <div key={`footer-event-2-${event.id}-${idx}`} className="flex items-center space-x-2">
-                <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
-                <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
-                  {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}
-                </span>
-              </div>
-            ))}
+            {prepareList(events.filter(e => typeof e?.id === "string" && e.id.trim() !== "")).map((event: any, idx: number) => (
+                <div key={assertKey(getRenderKey(event, idx, 'tac-fe-1'))} className="flex items-center space-x-2">
+                  <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
+                  <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
+                    {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}
+                  </span>
+                </div>
+              ))}
+              {/* Duplicate for seamless loop */}
+              {prepareList(events.filter(e => typeof e?.id === "string" && e.id.trim() !== "")).map((event: any, idx: number) => (
+                <div key={assertKey(getRenderKey(event, idx, 'tac-fe-2'))} className="flex items-center space-x-2">
+                  <div className={`w-1 h-1 rounded-full shrink-0 ${event.urgent ? 'bg-intel-red animate-pulse' : 'bg-intel-cyan'}`} />
+                  <span className={`text-[10px] font-mono uppercase tracking-widest ${event.urgent ? 'text-intel-red' : 'text-intel-cyan'}`}>
+                    {event.date} — {event.title || 'No Title'}: {(event as any).summary || (event as any).description || ''}
+                  </span>
+                </div>
+              ))}
           </motion.div>
         </div>
         <div className="bg-black/60 px-4 h-full flex items-center

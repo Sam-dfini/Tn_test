@@ -20,6 +20,7 @@ import { getSeverityLabel } from '../services/rssService';
 import { SignalClassification } from '../services/signalClassifier';
 
 import { useRSS } from '../context/RSSContext';
+import { generateStableKey, assertKey, getUniqueKey, getRenderKey, prepareList } from '../lib/keyUtils';
 
 export const EventsIntelligence: React.FC = () => {
   const { rriState, data } = usePipeline();
@@ -410,9 +411,8 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
               </p>
             </div>
           ) : (
-            filteredEvents
-              .filter(e => typeof e?.id === "string" && e.id.trim() !== "")
-              .map((event) => {
+            prepareList(filteredEvents)
+              .map((event, eventIdx) => {
               const riskScore = getRiskScore(event);
               const divergence = getDivergenceScore(event);
               const CatIcon = getCategoryIcon(event.category);
@@ -431,7 +431,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
 
               return (
                 <motion.div
-                  key={event.id}
+                  key={generateStableKey(event)}
                   layout
                   className={`w-full rounded-2xl border transition-all overflow-hidden ${
                     isSelected
@@ -627,11 +627,9 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                       border-intel-border/50 space-y-3">
                       <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Source Grounding</div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {eventArticles
-                          .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                          .map(article => (
+                        {prepareList(eventArticles).map((article, aIdx) => (
                           <a 
-                            key={article.id}
+                            key={assertKey(getRenderKey(article, aIdx, 'art'))}
                             href={article.url}
                             target="_blank"
                             rel="noopener noreferrer"

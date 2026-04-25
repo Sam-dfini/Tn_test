@@ -2,6 +2,8 @@ import React from 'react';
 import { Zap, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { DebugLog } from '../../services/debugService';
 
+import { assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';
+
 interface ColProps {
   items: DebugLog[];
   selectedId: string | null;
@@ -19,9 +21,9 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500/80">{items.length}</span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
-        {items.map(item => (
+        {prepareList(items).map((item, idx) => (
           <div 
-            key={item.id}
+            key={assertKey(getRenderKey(item, idx, 'sig'))}
             onClick={() => onSelect(item.data.eventId)}
             className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
               selectedId === item.data.eventId

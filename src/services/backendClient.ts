@@ -10,10 +10,22 @@ export const checkBackendHealth = async () => {
 };
 
 export const connectBackendWebSocket = (onEvent: (type: string, payload: any) => void) => {
-  const socket: Socket = io(window.location.origin);
+  const socket: Socket = io(window.location.origin, {
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 2000,
+  });
 
   socket.on('intel_event', (data: any) => {
     onEvent(data.type, data.payload);
+  });
+
+  socket.on('disconnect', () => {
+    setTimeout(() => {
+      if (!socket.connected) {
+        socket.connect();
+      }
+    }, 2000);
   });
 
   return {

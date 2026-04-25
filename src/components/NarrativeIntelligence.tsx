@@ -22,6 +22,7 @@ import {
 } from '../services/narrativeEngine';
 import { BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
+import { assertKey, getRenderKey, prepareList, generateStableKey } from '../lib/keyUtils';
 
 export const NarrativeIntelligence: React.FC = () => {
   const { rriState } = usePipeline();
@@ -380,7 +381,7 @@ export const NarrativeIntelligence: React.FC = () => {
                       detected yet.
                     </div>
                   ) : (
-                    highDivergenceEvents.map(event => {
+                    prepareList(highDivergenceEvents).map((event, idx) => {
                       const divergence = event.article_count > 0
                         ? Math.round(((event.critical_count +
                             event.alarmist_count) /
@@ -388,7 +389,7 @@ export const NarrativeIntelligence: React.FC = () => {
                         : 0;
                       return (
                         <motion.button
-                          key={event.id}
+                          key={assertKey(getRenderKey(event, idx, 'ni'))}
                           onClick={() => {
                             setSelectedEvent(event);
                             setActiveSection('omissions');

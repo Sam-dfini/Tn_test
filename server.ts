@@ -33,10 +33,14 @@ const genAI = process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
   : null;
 
+if (!genAI) {
+  console.warn("AI disabled");
+}
+
 // Start the Python FastAPI backend on port 8000
 function startPythonBackend() {
   console.log('Starting Python backend intelligence engine...');
-  const pythonProcess = spawn('python', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: path.join(__dirname, 'backend'),
     stdio: 'inherit',
     env: { ...process.env, PYTHONPATH: path.join(__dirname, 'backend') }
@@ -195,6 +199,62 @@ async function startServer() {
     const { prompt, config } = req.body;
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    // PREFER GEMINI as requested
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey && !geminiKey.includes('MY_GEMINI_API_KEY')) {
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      try {
+        const model = genAI.getGenerativeModel({ 
+          model: config?.model || 'gemini-1.5-flash',
+          generationConfig: {
+            temperature: config?.temperature ?? 0.1,
+            topP: config?.topP ?? 0.8,
+            topK: config?.topK ?? 40,
+            responseMimeType: config?.responseMimeType || 'text/plain',
+          }
+        });
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        return res.json({ text });
+      } catch (error: any) {
+        console.error('Gemini Error:', error);
+        // Fallback to other providers if Gemini fails
+      }
+    }
+
+    // OpenAI Fallback
+    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    if (openAIApiKey && !openAIApiKey.includes('MY_OPENAI_API_KEY')) {
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: config?.temperature ?? 0.1,
+            top_p: config?.topP ?? 0.8,
+          })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`OpenAI Error ${response.status}: ${errorData}`);
+        }
+        
+        const data = await response.json();
+        return res.json({ text: data.choices[0].message.content });
+      } catch (error: any) {
+        console.error('OpenAI Error:', error);
+        return res.status(500).json({ error: 'OpenAI Generation Failed', details: error.message });
+      }
     }
 
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
@@ -482,12 +542,15 @@ async function startServer() {
     }
   });
 
-  // 2. Generic Proxy API - Catch-all for other /api requests to FastAPI backend
-  app.use('/api', createProxyMiddleware({
+  // 2. Generic Proxy API - Catch-all for /api and /ws requests to FastAPI backend
+  const apiProxy = createProxyMiddleware({
     target: 'http://localhost:8000',
     changeOrigin: true,
     ws: true, // proxy websockets
-  }));
+  });
+  
+  app.use('/api', apiProxy);
+  app.use('/ws', apiProxy);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
@@ -503,6 +566,13 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+  // Handle WebSocket upgrades for proxied routes
+  httpServer.on('upgrade', (req, socket, head) => {
+    if (req.url?.startsWith('/ws') || req.url?.startsWith('/api')) {
+      apiProxy.upgrade(req, socket as any, head);
+    }
+  });
 
   // ── AgriIntel Satellite Ingestion Schedule ─────────────────────
   // Run once on startup, then every 6 hours for rainfall

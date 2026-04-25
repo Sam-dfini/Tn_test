@@ -1,6 +1,7 @@
 import React from 'react';
 import { Radio, Clock } from 'lucide-react';
 import { DebugLog } from '../../services/debugService';
+import { assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';
 
 interface ColProps {
   items: DebugLog[];
@@ -19,9 +20,9 @@ export function FeedColumn({ items, selectedId, onSelect }: ColProps) {
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500/80">{items.length}</span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
-        {items.map(item => (
+        {prepareList(items).map((item, idx) => (
           <div 
-            key={item.id}
+            key={assertKey(getRenderKey(item, idx, 'feed'))}
             onClick={() => item.data?.id && onSelect(item.data.id)}
             className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
               selectedId === item.data?.id 

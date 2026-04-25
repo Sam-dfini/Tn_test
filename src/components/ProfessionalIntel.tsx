@@ -100,7 +100,6 @@ const SIDEBAR_CATEGORIES = [
     label: 'Command Center',
     items: [
       { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'pipeline-control', label: 'System Monitor', icon: Activity },
       { id: 'calendar', label: 'Calendar', icon: Calendar },
       { id: 'govagent', label: 'Gov. Agent', icon: Brain },
       { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
@@ -258,6 +257,7 @@ import { usePipeline } from '../context/PipelineContext';
 import { SmartAlert, Situation } from '../services/smartAlerts';
 import { AgentInsight } from '../services/agents';
 import { ProfessionalHeader } from './ProfessionalHeader';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 const SpotlightCard: React.FC<{
   title: string;
@@ -282,8 +282,8 @@ const SpotlightCard: React.FC<{
 
     {/* Metrics */}
     <div className="md:col-span-3 space-y-2">
-      {metrics.map((m, i) => (
-        <div key={`${m.label}-${i}`}
+      {prepareList(metrics).map((m: any) => (
+        <div key={m.id}
           className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
           <span className="text-[9px] font-mono text-slate-500">{m.label}</span>
           <span className={`text-[10px] font-mono font-bold ${
@@ -326,10 +326,10 @@ const ForecastPanel: React.FC = () => {
               <span>Precursor Signals</span>
             </h4>
             <div className="space-y-2">
-              {forecast.precursorSignals.map((signal) => (
-                <div key={signal} className="flex items-start space-x-2 text-[11px] text-slate-300 leading-relaxed">
+              {prepareList(forecast.precursorSignals).map((signal: any) => (
+                <div key={signal.id} className="flex items-start space-x-2 text-[11px] text-slate-300 leading-relaxed">
                   <span className="text-intel-cyan mt-1">•</span>
-                  <span>{signal}</span>
+                  <span>{signal.value}</span>
                 </div>
               ))}
             </div>
@@ -630,7 +630,7 @@ Return only the 3-sentence briefing.`;
 
           {/* Sidebar Categories */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
-            {SIDEBAR_CATEGORIES.map(category => (
+            {prepareList(SIDEBAR_CATEGORIES).map((category: any) => (
               <div key={category.id} className="space-y-1">
                 {/* Category Header */}
                 <button 
@@ -654,7 +654,7 @@ Return only the 3-sentence briefing.`;
                       transition={{ duration: 0.2 }}
                       className="space-y-0.5 overflow-hidden border-l border-white/10 pl-2 ml-2 mt-1"
                     >
-                      {category.items.map(item => {
+                      {prepareList(category.items).map((item: any) => {
                         const isActive = activeTab === item.id;
                         return (
                           <button
@@ -702,17 +702,6 @@ Return only the 3-sentence briefing.`;
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
         >
-          <button
-            onClick={() => setActiveTab('pipeline-control')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-mono font-bold transition-all ${
-              activeTab === 'pipeline-control'
-                ? 'bg-intel-cyan/20 text-intel-cyan'
-                : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
-            }`}
-          >
-            <Activity className="w-3 h-3" />
-            SYSTEM MONITOR
-          </button>
         </ProfessionalHeader>
         
         {/* Dynamic View Container */}
@@ -891,7 +880,7 @@ Return only the 3-sentence briefing.`;
 
       {/* Center — Key metrics as accelerometers */}
       <div className="md:col-span-6 grid grid-cols-3 gap-4">
-        {[
+        {prepareList([
           {
             label: 'P(Revolution)',
             value: (rriState.p_rev * 100).toFixed(1) + '%',
@@ -914,8 +903,8 @@ Return only the 3-sentence briefing.`;
                    rriState.pattern_similarity > 0.5 ? '#ff9f0a' : '#64748b',
             fill: rriState.pattern_similarity,
           },
-        ].map((m, idx) => (
-          <div key={`${m.label}-${idx}`} className="space-y-2 flex flex-col items-center">
+        ]).map((m: any) => (
+          <div key={m.id} className="space-y-2 flex flex-col items-center">
             <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider text-center">
               {m.label}
             </div>
@@ -965,7 +954,7 @@ Return only the 3-sentence briefing.`;
 
       {/* Right — Live signal column */}
       <div className="md:col-span-3 space-y-2">
-        {[
+        {prepareList([
           {
             label: 'FX Reserves',
             value: data.economy.fx_reserves + 'd',
@@ -1002,8 +991,8 @@ Return only the 3-sentence briefing.`;
             warn: rriState.velocity > 0.15,
             sub: rriState.velocity_label,
           },
-        ].map(sig => (
-          <div key={sig.label} className="grid grid-cols-12 items-center py-2 border-b border-white/5 last:border-0 gap-2">
+        ]).map((sig: any) => (
+          <div key={sig.id} className="grid grid-cols-12 items-center py-2 border-b border-white/5 last:border-0 gap-2">
             <span className="col-span-5 text-[11px] font-mono text-slate-500 uppercase tracking-tight">{sig.label}</span>
             <div className="col-span-4 text-right pr-2">
               <span className={`text-[13px] font-mono font-bold ${
@@ -1106,9 +1095,9 @@ Return only the 3-sentence briefing.`;
                   {aiAnalysis.summary}
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {aiAnalysis.keyDrivers.map((driver) => (
-                    <span key={driver} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
-                      {driver}
+                  {prepareList(aiAnalysis.keyDrivers).map((driver: any) => (
+                    <span key={driver.id} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
+                      {driver.value}
                     </span>
                   ))}
                 </div>
@@ -1130,8 +1119,8 @@ Return only the 3-sentence briefing.`;
               <div className="space-y-1">
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Variable Adjustments</div>
                 <div className="space-y-1 max-h-20 overflow-y-auto scrollbar-hide">
-                  {aiAnalysis.variableUpdates.slice(0, 3).map((update) => (
-                    <div key={update.variable} className="flex items-center justify-between text-[9px] font-mono">
+                  {prepareList(aiAnalysis.variableUpdates.slice(0, 3)).map((update: any) => (
+                    <div key={update.id} className="flex items-center justify-between text-[9px] font-mono">
                       <span className="text-slate-400 truncate mr-2">{update.variable}</span>
                       <span className="text-intel-cyan">{update.newValue}</span>
                     </div>
@@ -1169,7 +1158,7 @@ Return only the 3-sentence briefing.`;
         </div>
         <div className="flex items-center space-x-1.5">
           {Array.from({ length: 7 }).map((_, i) => (
-            <button key={i} onClick={() => setSpotlightIndex(i)}
+            <button key={assertKey(getRenderKey(null, i, 'prof-sp-dot'))} onClick={() => setSpotlightIndex(i)}
               className={`transition-all rounded-full ${
               spotlightIndex === i
                 ? 'w-4 h-1.5 bg-intel-cyan'

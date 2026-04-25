@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
+import { assertKey, getRenderKey, prepareList } from '../lib/keyUtils';
 
 type EventType =
   | 'protest'
@@ -685,7 +686,7 @@ export const PoliticalCalendar: React.FC = () => {
                   {calendarEvents.filter(e => e.date === selectedDay).length === 0 ? (
                     <div className="text-[11px] text-slate-600 text-center py-8">No events recorded for this date.</div>
                   ) : (
-                    calendarEvents.filter(e => e.date === selectedDay).map(event => (
+                    prepareList(calendarEvents.filter(e => e.date === selectedDay)).map((event) => (
                       <div key={event.id} className={`p-4 rounded-xl border space-y-3 ${event.upcoming ? 'border-intel-cyan/20 bg-intel-cyan/5' : event.type === 'arrest' || event.type === 'decree' ? 'border-intel-red/20 bg-intel-red/5' : event.type === 'trial' ? 'border-intel-purple/20 bg-intel-purple/5' : 'border-intel-border/30 bg-black/20'}`}>
                         <div className="flex items-start justify-between gap-2">
                           <div className="space-y-1">
@@ -703,8 +704,8 @@ export const PoliticalCalendar: React.FC = () => {
               ) : (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                   <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">Recent Prisoners</div>
-                  {detainedPrisoners.slice(0, 6).map(p => (
-                    <PrisonerCard key={p.id} prisoner={p} compact onClick={() => { setSelectedPrisoner(p); setView('prisoners'); }} />
+                  {prepareList(detainedPrisoners.slice(0, 6)).map((p) => (
+                    <PrisonerCard key={p.id} prisoner={p as any} compact onClick={() => { setSelectedPrisoner(p as any); setView('prisoners'); }} />
                   ))}
                 </motion.div>
               )}
@@ -721,7 +722,7 @@ export const PoliticalCalendar: React.FC = () => {
           </div>
           <div className="space-y-6">
             <AnimatePresence>
-              {(selectedPrisoner ? [selectedPrisoner] : filteredPrisoners).map(prisoner => (
+              {prepareList(selectedPrisoner ? [selectedPrisoner] : filteredPrisoners).map((prisoner) => (
                 <div key={prisoner.id}>
                   {selectedPrisoner && (
                     <button onClick={() => setSelectedPrisoner(null)} className="flex items-center space-x-2 text-[10px] font-mono text-slate-500 hover:text-intel-cyan mb-4 transition-all">
@@ -729,7 +730,7 @@ export const PoliticalCalendar: React.FC = () => {
                       <span>All prisoners</span>
                     </button>
                   )}
-                  <PrisonerCard prisoner={prisoner} />
+                  <PrisonerCard prisoner={prisoner as any} />
                 </div>
               ))}
             </AnimatePresence>
@@ -748,7 +749,7 @@ export const PoliticalCalendar: React.FC = () => {
               </div>
             </div>
             <div className="space-y-3">
-              {prisoners.filter(p => p.nextHearing || p.lastHearing).map(prisoner => (
+              {prepareList(prisoners.filter(p => p.nextHearing || p.lastHearing)).map((prisoner) => (
                 <div key={prisoner.id} className="flex items-start justify-between p-4 rounded-xl border border-intel-border/30 bg-black/20 gap-4">
                   <div className="min-w-0 space-y-1">
                     <div className="text-[11px] font-bold text-white truncate">{prisoner.name}</div>

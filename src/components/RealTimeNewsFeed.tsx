@@ -261,10 +261,10 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                   {syncErrors.length === 0 ? (
                     <p className="text-[9px] font-mono text-intel-green">No issues reported in current lifecycle.</p>
                   ) : (
-                    syncErrors.map((err, i) => (
-                      <div key={assertKey(getUniqueKey('sync-error', i))} className="flex items-center space-x-2 text-[9px] font-mono text-intel-red/80 px-2 py-1 bg-intel-red/5 rounded">
+                    prepareList(syncErrors).map((err: any, i: number) => (
+                      <div key={err.id} className="flex items-center space-x-2 text-[9px] font-mono text-intel-red/80 px-2 py-1 bg-intel-red/5 rounded">
                         <AlertTriangle className="w-2.5 h-2.5" />
-                        <span>{err}</span>
+                        <span>{err.value}</span>
                       </div>
                     ))
                   )}
@@ -278,8 +278,8 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
         {filteredItems.some(item => item.severity >= 4) && (
           <div className="mb-6 bg-intel-red/5 border-y border-intel-red/20 py-2 relative overflow-hidden">
             <div className="flex items-center space-x-4 animate-ticker whitespace-nowrap">
-              {filteredItems.filter(item => item.severity >= 4).slice(0, 10).map((item, idx) => (
-                <div key={assertKey(getUniqueKey('ticker-crit', `${item.id}-${idx}`))} className="flex items-center space-x-2 px-4 border-r border-intel-red/10">
+              {prepareList(filteredItems.filter(item => item.severity >= 4).slice(0, 10)).map((item: any, idx: number) => (
+                <div key={item.id} className="flex items-center space-x-2 px-4 border-r border-intel-red/10">
                   <span className="text-[8px] font-mono font-bold text-intel-red uppercase tracking-widest bg-intel-red/10 px-1.5 py-0.5 rounded">CRITICAL</span>
                   <span className="text-[10px] font-medium text-slate-200">{item.title}</span>
                   <span className="text-[8px] font-mono text-slate-500">{item.source_name}</span>
@@ -313,9 +313,9 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
           )}
 
           <AnimatePresence mode="popLayout">
-            {filteredItems.map((article: any) => (
+            {prepareList(filteredItems).map((article: any, i: number) => (
               <motion.div 
-                key={assertKey(getUniqueKey('article', article.id))}
+                key={article.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98 }}
@@ -432,8 +432,8 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                                   <div className="space-y-1">
                                      <span className="text-[7px] font-mono text-slate-600 block uppercase">Original Keywords</span>
                                       <div className="flex flex-wrap gap-1">
-                                        {(article.keywords || []).map((k: string, kidx: number) => (
-                                          <span key={assertKey(getUniqueKey('keyword', `${article.id}-${k}-${kidx}`))} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k}</span>
+                                        {prepareList(article.keywords || []).map((k: any) => (
+                                          <span key={k.id} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k.value}</span>
                                         ))}
                                       </div>
                                   </div>

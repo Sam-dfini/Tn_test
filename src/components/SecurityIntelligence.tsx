@@ -56,6 +56,7 @@ import {
   Legend
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 const securityAlerts = [
   { code: 'SEC-BORDER-01', title: 'Increased Activity at Western Border', impact: 'CRITICAL' },
@@ -237,7 +238,7 @@ export const SecurityIntelligence: React.FC = () => {
 
       {/* CATEGORY SELECTOR */}
       <div className="flex flex-wrap items-center gap-2 border-b border-intel-border/30 pb-4 sticky top-0 bg-black/50 backdrop-blur-md z-50 py-2">
-        {categories.map((cat) => (
+        {prepareList(categories).map((cat: any) => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id as any)}
@@ -272,13 +273,13 @@ export const SecurityIntelligence: React.FC = () => {
         
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
+          {prepareList([
             { label: 'National Threat Level', value: 'Level 4', status: 'CRITICAL', icon: ShieldAlert },
             { label: 'Ongoing Operations', value: '12', status: 'ACTIVE', icon: Target },
             { label: 'Surveillance Nodes', value: '842', status: 'STABLE', icon: Eye },
             { label: 'Border Integrity', value: '94%', status: 'STABLE', icon: ShieldCheck },
-          ].map((metric, i) => (
-            <div key={i} className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
+          ]).map((metric: any, i: number) => (
+            <div key={metric.id} className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
               <CornerAccent position="tl" />
               <CornerAccent position="br" />
               <div className="flex items-center justify-between mb-4">
@@ -453,8 +454,8 @@ export const SecurityIntelligence: React.FC = () => {
               <div className="space-y-6">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Maritime Readiness</h4>
                 <div className="space-y-4">
-                  {maritimeSecurityMetrics.map((metric, i) => (
-                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between group hover:border-intel-cyan/30 transition-all">
+                  {prepareList(maritimeSecurityMetrics).map((metric: any, i: number) => (
+                    <div key={metric.id} className="p-4 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between group hover:border-intel-cyan/30 transition-all">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.category}</span>
                         <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
@@ -482,8 +483,8 @@ export const SecurityIntelligence: React.FC = () => {
                   <span>Migration Hotspots</span>
                 </h4>
                 <div className="space-y-3">
-                  {migrationHotspots.map((hotspot, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white/5 border border-intel-border">
+                  {prepareList(migrationHotspots).map((hotspot: any, i: number) => (
+                    <div key={hotspot.id} className="p-3 rounded-xl bg-white/5 border border-intel-border">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-[10px] font-bold text-white uppercase">{hotspot.name}</span>
                         <span className={`text-[8px] font-mono font-bold ${hotspot.risk === 'CRITICAL' ? 'text-intel-red' : hotspot.risk === 'HIGH' ? 'text-intel-orange' : 'text-intel-cyan'}`}>{hotspot.risk}</span>
@@ -602,8 +603,8 @@ export const SecurityIntelligence: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              {drugSeizures.map((item, i) => (
-                <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
+              {prepareList(drugSeizures).map((item: any, i: number) => (
+                <div key={item.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
                   <div className="flex items-center space-x-3">
                     <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <div>
@@ -629,8 +630,8 @@ export const SecurityIntelligence: React.FC = () => {
                     paddingAngle={5}
                     dataKey="value"
                   >
-                    {drugSeizures.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {prepareList(drugSeizures).map((entry: any, index: number) => (
+                      <Cell key={entry.id} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip 
@@ -658,8 +659,8 @@ export const SecurityIntelligence: React.FC = () => {
             <Pill className="w-5 h-5 text-intel-cyan" />
           </div>
           <div className="space-y-6">
-            {drugConsumptionData.map((drug, i) => (
-              <div key={i} className="space-y-2">
+            {prepareList(drugConsumptionData).map((drug: any, i: number) => (
+              <div key={drug.id} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-mono text-slate-400 uppercase">{drug.name}</span>
                   <span className="text-xs font-bold text-white">{drug.value}%</span>
@@ -691,8 +692,8 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {traffickingRoutes.map((route, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3 relative overflow-hidden group">
+            {prepareList(traffickingRoutes).map((route: any, i: number) => (
+              <div key={route.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3 relative overflow-hidden group">
                 <div className={`absolute top-0 right-0 w-16 h-16 opacity-5 -mr-4 -mt-4 transition-transform group-hover:scale-110 ${route.risk === 'CRITICAL' ? 'text-intel-red' : 'text-intel-cyan'}`}>
                   <Navigation className="w-full h-full" />
                 </div>
@@ -805,8 +806,8 @@ export const SecurityIntelligence: React.FC = () => {
               <div className="space-y-6">
                 <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Primary Causes</h4>
                 <div className="space-y-4">
-                  {accidentCauses.map((cause, i) => (
-                    <div key={i} className="space-y-2">
+                  {prepareList(accidentCauses).map((cause: any, i: number) => (
+                    <div key={assertKey(getRenderKey(cause, i, 'seccau'))} className="space-y-2">
                       <div className="flex justify-between items-center text-[10px] font-mono uppercase">
                         <span className="text-slate-400">{cause.name}</span>
                         <span className="text-white font-bold">{cause.value}%</span>
@@ -831,12 +832,12 @@ export const SecurityIntelligence: React.FC = () => {
                   <span>High-Risk Corridors</span>
                 </h4>
                 <div className="space-y-3">
-                  {[
+                  {prepareList([
                     { route: 'GP1: Tunis - Sousse', risk: 'EXTREME', trend: 'High speed / Heavy traffic' },
                     { route: 'GP3: Kairouan - Gafsa', risk: 'HIGH', trend: 'Poor lighting / Infrastructure' },
                     { route: 'GP11: Bizerte - Menzel Bourguiba', risk: 'HIGH', trend: 'Urban congestion' },
-                  ].map((route, i) => (
-                    <div key={i} className="p-3 rounded-xl bg-white/5 border border-intel-border">
+                  ]).map((route: any, i: number) => (
+                    <div key={assertKey(getRenderKey(route, i, 'seccor'))} className="p-3 rounded-xl bg-white/5 border border-intel-border">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-[10px] font-bold text-white uppercase">{route.route}</span>
                         <span className="text-[8px] font-mono text-intel-red font-bold">{route.risk}</span>
@@ -873,8 +874,8 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {hotspots.map((spot, index) => (
-              <div key={`${spot.id}-${index}`} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
+            {prepareList(hotspots).map((spot: any, index: number) => (
+              <div key={assertKey(getRenderKey(spot, index, 'sechot'))} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
                 <div className="flex items-center space-x-4">
                   <div className={`w-2 h-2 rounded-full ${spot.threat === 'CRITICAL' ? 'bg-intel-red shadow-[0_0_10px_rgba(255,78,0,0.5)]' : spot.threat === 'HIGH' ? 'bg-intel-orange' : 'bg-intel-cyan'}`}></div>
                   <div>

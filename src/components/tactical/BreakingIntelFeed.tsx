@@ -4,6 +4,8 @@ import { Radio, AlertCircle } from 'lucide-react';
 import { useEventsStore } from '../../store/useEventsStore';
 import { DEBUG_EVENTS } from '../../utils/eventUtils';
 
+import { generateStableKey, assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';
+
 interface BreakingIntelFeedProps {
   externalAlerts?: any[];
 }
@@ -55,13 +57,12 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-4 pr-2 scrollbar-thin scrollbar-thumb-intel-cyan/20">
-        {events
-          .filter(e => typeof e?.id === "string" && e.id.length > 0)
-          .map((update) => (
+        {prepareList(events)
+          .map((update: any, idx) => (
             <motion.div 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              key={update.id} 
+              key={generateStableKey(update)} 
               className={`p-2 border-l-2 ${update.urgent ? 'border-intel-red bg-intel-red/5' : 'border-intel-cyan/30 bg-white/5'} space-y-1`}
             >
               <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Database, AlertCircle } from 'lucide-react';
 import { DebugLog } from '../../services/debugService';
+import { assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';
 
 interface NewsProps {
   items: DebugLog[];
@@ -22,13 +23,13 @@ export function NewsColumn({ items, selectedId, onSelect, highlightDuplicates }:
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500/80">{items.length}</span>
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
-        {items.filter(i => i.data && i.data.id).map(item => {
+        {prepareList(items.filter(i => i.data && i.data.id)).map((item: any, idx) => {
           const isDup = seenIds.has(item.data.id);
           seenIds.add(item.data.id);
 
           return (
             <div 
-              key={item.id}
+              key={assertKey(getRenderKey(item, idx, 'newsdbg'))}
               onClick={() => onSelect(item.data.id)}
               className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
                 selectedId === item.data.id 

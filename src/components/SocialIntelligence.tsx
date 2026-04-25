@@ -47,6 +47,7 @@ import {
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
+import { assertKey, getRenderKey, prepareList, generateStableKey } from '../lib/keyUtils';
 
 type SubTab = 'cohesion' | 'migration' | 'family' | 'narcotics';
 
@@ -320,7 +321,7 @@ export const SocialIntelligence: React.FC = () => {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-3 md:p-4 rounded-xl border border-white/5 shadow-2xl">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar max-w-full">
-          {categories.map((cat) => (
+          {prepareList(categories).map((cat: any) => (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
@@ -364,10 +365,10 @@ export const SocialIntelligence: React.FC = () => {
               </div>
 
         {/* Key Indicators Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {socialIndicators.filter(ind => ['Happiness Index', 'Youth Rage Index', 'Street Signal S(t)', 'Social Cohesion'].includes(ind.label)).map((ind, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {prepareList(socialIndicators.filter(ind => ['Happiness Index', 'Youth Rage Index', 'Street Signal S(t)', 'Social Cohesion'].includes(ind.label))).map((ind: any, i: number) => (
             <motion.div 
-              key={`indicator-${ind.label}`} 
+              key={ind.id} 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -442,7 +443,7 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Risk Dossiers */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {[
+          {prepareList([
             { 
               id: 'dossier-youth-rage',
               title: 'Youth Rage & Radicalization', 
@@ -457,8 +458,8 @@ export const SocialIntelligence: React.FC = () => {
               color: 'text-intel-orange', 
               desc: 'Trust in public institutions has reached an all-time low (< 15%). Polarization between urban coastal elites and rural interior populations is widening, creating fertile ground for populist movements and civil disobedience.' 
             }
-          ].map((dossier, dossierIdx) => (
-            <div key={`${dossier.id}-${dossierIdx}`} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
+          ]).map((dossier: any) => (
+            <div key={dossier.id} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <ShieldAlert className={`w-5 h-5 ${dossier.color}`} />
@@ -577,9 +578,9 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Key Indicators Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {socialIndicators.filter(ind => ['Population Pressure'].includes(ind.label)).map((ind, i) => (
+          {prepareList(socialIndicators.filter(ind => ['Population Pressure'].includes(ind.label))).map((ind: any, i: number) => (
             <motion.div 
-              key={`indicator-single-${ind.label}`} 
+              key={ind.id} 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -666,8 +667,8 @@ export const SocialIntelligence: React.FC = () => {
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Regional Breakdown</h4>
               <div className="space-y-4">
-                {divorceByRegion.map((region) => (
-                  <div key={`region-${region.region}`} className="space-y-2">
+                {prepareList(divorceByRegion).map((region: any) => (
+                  <div key={region.id} className="space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-mono uppercase">
                       <span className="text-slate-400">{region.region}</span>
                       <span className="text-white font-bold">{region.rate}%</span>
@@ -687,8 +688,8 @@ export const SocialIntelligence: React.FC = () => {
                 <span>Family Dynamics</span>
               </h4>
               <div className="grid grid-cols-2 gap-3">
-                {familyDynamicsData.map((stat) => (
-                  <div key={`stat-${stat.category}`} className="p-3 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between">
+                {prepareList(familyDynamicsData).map((stat: any) => (
+                  <div key={stat.id} className="p-3 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between">
                     <span className="text-[8px] font-mono text-slate-500 uppercase mb-1">{stat.category}</span>
                     <div className="flex items-end justify-between">
                       <span className="text-sm font-bold text-white">{stat.value}%</span>
@@ -725,9 +726,9 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Key Indicators Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {socialIndicators.filter(ind => ['Suicide Rate', 'Mental Health Stress', 'Chronic Disease %'].includes(ind.label)).map((ind, i) => (
+          {prepareList(socialIndicators.filter(ind => ['Suicide Rate', 'Mental Health Stress', 'Chronic Disease %'].includes(ind.label))).map((ind: any, i: number) => (
             <motion.div 
-              key={`indicator-health-${ind.label}`} 
+              key={ind.id} 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -793,8 +794,8 @@ export const SocialIntelligence: React.FC = () => {
                     contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
-                    {chronicDiseaseBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {prepareList(chronicDiseaseBreakdown).map((entry: any) => (
+                      <Cell key={entry.id} fill={entry.color} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -806,8 +807,8 @@ export const SocialIntelligence: React.FC = () => {
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Health Risk Analysis</h4>
               <div className="space-y-4">
-                {chronicDiseaseBreakdown.map((disease, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-intel-border">
+                {prepareList(chronicDiseaseBreakdown).map((disease: any) => (
+                  <div key={disease.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-intel-border">
                     <div className="flex items-center space-x-3">
                       <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: disease.color }}></div>
                       <span className="text-[10px] font-mono text-slate-300 uppercase">{disease.name}</span>
@@ -874,8 +875,8 @@ export const SocialIntelligence: React.FC = () => {
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Fund Intelligence</h4>
             <div className="space-y-4">
-              {healthcareFundsData.map((fund, i) => (
-                <div key={i} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-3">
+              {prepareList(healthcareFundsData).map((fund: any) => (
+                <div key={fund.id} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-white uppercase">{fund.name}</span>
                     <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
@@ -942,8 +943,8 @@ export const SocialIntelligence: React.FC = () => {
                     contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
                   />
                   <Bar dataKey="percentage" radius={[4, 4, 0, 0]} barSize={40}>
-                    {drugAddictionAgeData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    {prepareList(drugAddictionAgeData).map((entry: any) => (
+                      <Cell key={entry.id} fill={entry.color} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -955,8 +956,8 @@ export const SocialIntelligence: React.FC = () => {
             <div className="space-y-6">
               <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Addiction Metrics</h4>
               <div className="space-y-4">
-                {addictionStats.map((stat, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-2">
+                {prepareList(addictionStats).map((stat: any) => (
+                  <div key={stat.id} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-[8px] font-mono text-slate-500 uppercase">{stat.label}</span>
                       <span className="text-[8px] font-mono text-intel-red uppercase">{stat.status}</span>
@@ -983,8 +984,8 @@ export const SocialIntelligence: React.FC = () => {
 
         {/* Rehab Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {rehabMetrics.map((metric, i) => (
-            <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-3">
+          {prepareList(rehabMetrics).map((metric: any) => (
+            <div key={metric.id} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.category}</span>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
@@ -1020,12 +1021,12 @@ export const SocialIntelligence: React.FC = () => {
               </div>
               
               <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                {[
+                {prepareList([
                   { id: 'diaspora', label: 'Diaspora', icon: Users },
                   { id: 'braindrain', label: 'Brain Drain', icon: GraduationCap },
                   { id: 'workers', label: 'Labor', icon: HardHat },
                   { id: 'policy', label: 'Policy', icon: FileText }
-                ].map((t) => (
+                ]).map((t: any) => (
                   <button
                     key={t.id}
                     onClick={() => setMigrationTab(t.id as any)}
@@ -1079,14 +1080,14 @@ export const SocialIntelligence: React.FC = () => {
                         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
                           <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Geographic Concentration</h4>
                           <div className="space-y-4">
-                            {[
+                            {prepareList([
                               { country: 'France', pct: 54, count: '756K', color: '#ef4444' },
                               { country: 'Italy', pct: 15, count: '210K', color: '#22c55e' },
                               { country: 'Germany', pct: 8, count: '112K', color: '#f59e0b' },
                               { country: 'Gulf States', pct: 7, count: '98K', color: '#0ea5e9' },
                               { country: 'North America', pct: 4, count: '56K', color: '#6366f1' }
-                            ].map((c, i) => (
-                              <div key={i} className="space-y-1.5">
+                            ]).map((c: any) => (
+                              <div key={c.id} className="space-y-1.5">
                                 <div className="flex justify-between text-[10px] font-mono uppercase">
                                   <span className="text-slate-400">{c.country}</span>
                                   <span className="text-white font-bold">{c.count} ({c.pct}%)</span>
@@ -1348,8 +1349,8 @@ export const SocialIntelligence: React.FC = () => {
                               <YAxis hide domain={[0, 100]} />
                               <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px' }} />
                               <Bar dataKey="val" radius={[4, 4, 0, 0]}>
-                                {[45, 52, 48, 68, 78, 82, 74, 71].map((v, i) => (
-                                  <Cell key={i} fill={v > 70 ? '#ef4444' : v > 50 ? '#f97316' : '#00f2ff'} />
+                                {prepareList([45, 52, 48, 68, 78, 82, 74, 71]).map((v: any) => (
+                                  <Cell key={v.id} fill={v.value > 70 ? '#ef4444' : v.value > 50 ? '#f97316' : '#00f2ff'} />
                                 ))}
                               </Bar>
                             </BarChart>
@@ -1448,15 +1449,15 @@ export const SocialIntelligence: React.FC = () => {
                             <div className="space-y-2">
                               <h5 className="text-[10px] font-bold text-white uppercase tracking-widest">Key Policy Challenges</h5>
                               <ul className="space-y-3">
-                                {[
+                                {prepareList([
                                   'Visa Liberalization Stagnation',
                                   'Readmission Agreement Friction',
                                   'Brain Drain Mitigation Lack',
                                   'Transit Migrant Legal Status'
-                                ].map((item, i) => (
-                                  <li key={i} className="flex items-center space-x-2 text-[10px] text-slate-400">
+                                ]).map((item) => (
+                                  <li key={item.id} className="flex items-center space-x-2 text-[10px] text-slate-400">
                                     <div className="w-1 h-1 rounded-full bg-intel-cyan" />
-                                    <span>{item}</span>
+                                    <span>{item.value}</span>
                                   </li>
                                 ))}
                               </ul>

@@ -13,6 +13,7 @@ import {
 import { saveRRISnapshot } from '../services/rssService';
 import { usePipeline } from './PipelineContext';
 import { useObservability } from './ObservabilityContext';
+import { prepareList } from '../lib/keyUtils';
 
 interface RSSContextType {
   articles: Article[];
@@ -55,13 +56,8 @@ export const RSSProvider: React.FC<{
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper to deduplicate arrays of items with an id
-  const deduplicateById = <T extends { id: string }>(items: T[]): T[] => {
-    const seen = new Set<string>();
-    return items.filter(item => {
-      if (seen.has(item.id)) return false;
-      seen.add(item.id);
-      return true;
-    });
+  const deduplicateById = <T extends Record<string, any>>(items: T[]): T[] => {
+    return prepareList(items) as unknown as T[];
   };
 
   // Load recent intelligence from Supabase
@@ -230,18 +226,8 @@ export const RSSProvider: React.FC<{
           if (msg.type === 'NEW_ARTICLES') {
             const newArts = msg.payload as Article[];
             setArticles(prev => {
-              const map = new Map();
-              // Incoming items priority (newest first in batch)
-              newArts.forEach(item => {
-                if (item && item.id) map.set(item.id, item);
-              });
-              // Existing items fallback
-              prev.forEach(item => {
-                if (item && item.id && !map.has(item.id)) {
-                  map.set(item.id, item);
-                }
-              });
-              return Array.from(map.values())
+              const safeArts = deduplicateById([...newArts, ...prev]);
+              return safeArts
                 .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
                 .slice(0, 500);
             });
@@ -250,17 +236,9 @@ export const RSSProvider: React.FC<{
           } else if (msg.type === 'EVENTS_UPDATED') {
             const updatedEvents = msg.payload as any[];
             setEvents(prev => {
-              const map = new Map();
-              updatedEvents.forEach(item => {
-                if (item && item.id) map.set(item.id, item);
-              });
-              prev.forEach(item => {
-                if (item && item.id && !map.has(item.id)) {
-                  map.set(item.id, item);
-                }
-              });
-              return Array.from(map.values())
-                .sort((a, b) => new Date(b.last_updated).getTime() - new Date(a.last_updated).getTime())
+              const safeEvents = deduplicateById([...updatedEvents, ...prev]);
+              return safeEvents
+                .sort((a, b) => new Date(b.last_updated || Date.now()).getTime() - new Date(a.last_updated || Date.now()).getTime())
                 .slice(0, 100);
             });
           }
@@ -270,7 +248,7 @@ export const RSSProvider: React.FC<{
       };
 
       ws.onclose = () => {
-        reconnectTimeout = setTimeout(connect, 3000);
+        reconnectTimeout = setTimeout(connect, 2000);
       };
     };
 

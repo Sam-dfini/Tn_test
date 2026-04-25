@@ -20,6 +20,8 @@ interface TimeSeriesChartProps {
 }
 
 export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, dataKey, label, color, unit }) => {
+  if (!data || data.length === 0) return null;
+
   return (
     <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-4 flex flex-col h-[200px]">
       <div className="flex items-center justify-between mb-2">

@@ -19,46 +19,10 @@ from ..api.ws import manager
 
 RSS_SOURCES = [
     {
-        "id": "france24",
-        "name": "France 24",
-        "url": "https://www.france24.com/en/rss",
+        "id": "google-news-tunisia",
+        "name": "Google News Tunisia",
+        "url": "https://news.google.com/rss/search?q=tunisia&hl=en-US&gl=US&ceid=US:en",
         "alignment": "NEUTRAL"
-    },
-    {
-        "id": "tap-en",
-        "name": "TAP News Agency",
-        "url": "https://www.tap.info.tn/en/rss_en.xml",
-        "alignment": "PRO_GOV"
-    },
-    {
-        "id": "mosaique-fr",
-        "name": "Mosaique FM",
-        "url": "https://www.mosaiquefm.net/fr/rss",
-        "alignment": "NEUTRAL"
-    },
-    {
-        "id": "business-news-fr",
-        "name": "Business News",
-        "url": "https://www.businessnews.com.tn/rss",
-        "alignment": "CRITICAL"
-    },
-    {
-        "id": "jawhara-fm",
-        "name": "Jawhara FM",
-        "url": "https://www.jawharafm.net/fr/rss",
-        "alignment": "NEUTRAL"
-    },
-    {
-        "id": "leaders-com",
-        "name": "Leaders Tunisia",
-        "url": "https://www.leaders.com.tn/rss",
-        "alignment": "NEUTRAL"
-    },
-    {
-        "id": "kapitalis",
-        "name": "Kapitalis",
-        "url": "https://kapitalis.com/tunisie/feed/",
-        "alignment": "CRITICAL"
     }
 ]
 
@@ -70,7 +34,10 @@ class RSSService:
             verify=False, 
             follow_redirects=True,
             headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "application/rss+xml, application/atom+xml, text/xml, */*",
+                "Accept-Language": "en-US,en;q=0.9,fr;q=0.8,ar;q=0.7",
+                "Cache-Control": "no-cache",
             }
         )
         self.last_sync_time = None

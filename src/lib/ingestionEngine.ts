@@ -5,15 +5,32 @@
 
 import { normalizeEvent } from '../utils/eventUtils';
 import { logPipelineError } from '../utils/logger';
+import { RSS_SOURCES } from '../config/rssSources';
+import { pauseRSSPipeline } from '../services/rssService';
+import { isAIAvailable } from './aiGuard';
 
 // GLOBAL SINGLETON LOCK
 let isFetchingGlobal = false;
+
+function activateSafeMode() {
+  console.warn("SYSTEM IN SAFE MODE");
+  // stopIngestion() is not defined, will call pauseRSSPipeline
+  pauseRSSPipeline();
+}
 
 /**
  * Returns true if the ingestion engine is currently busy.
  */
 export function isIngestionBusy() {
   return isFetchingGlobal;
+}
+
+/**
+ * Mock for rule-based processing as a fallback
+ */
+function runRuleBasedProcessing(data: any) {
+    console.log("Running rule-based processing fallback...");
+    return [];
 }
 
 /**
@@ -48,6 +65,22 @@ export async function fetchSystemEvents(rriState: any, data: any, ingestData: (r
   if (isFetchingGlobal) {
     console.warn("[INGESTION BLOCKED] Global hook active");
     return;
+  }
+
+  // 1. GLOBAL FAILURE CONTROL
+  const total = RSS_SOURCES.length;
+  const failing = RSS_SOURCES.filter(f => f.status === "failing" || f.status === "paused").length;
+  const failureRate = total > 0 ? (failing / total) : 0;
+  
+  if (failureRate > 0.6) {
+    pauseRSSPipeline();
+    return;
+  }
+
+  // 2. AI EXECUTION GUARD
+  if (!isAIAvailable()) {
+    console.warn("AI disabled → fallback mode");
+    runRuleBasedProcessing(data);
   }
 
   console.log("[PIPELINE] Ingestion started: SYSTEM");

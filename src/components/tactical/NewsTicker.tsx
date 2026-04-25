@@ -1,6 +1,7 @@
 import React from 'react';
 import { Radio, Clock } from 'lucide-react';
 import { useRSS } from '../../context/RSSContext';
+import { assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';
 
 export const NewsTicker: React.FC = () => {
   const { articles, isFetching } = useRSS();
@@ -58,9 +59,9 @@ export const NewsTicker: React.FC = () => {
             RSS feeds will populate<br/>after first fetch
           </div>
         ) : (
-          items.map((item, index) => (
+          prepareList(items).map((item, index) => (
             <a
-              key={`${item.id}-${index}`}
+              key={assertKey(getRenderKey(item, index, 'ntk'))}
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"

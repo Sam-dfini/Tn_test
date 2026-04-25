@@ -1,2 +1,2 @@
-export const AI_ENABLED = false;
-export const AI_TIMEOUT = 3000;
+export const AI_ENABLED = true;
+export const AI_TIMEOUT = 30000;

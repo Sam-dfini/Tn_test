@@ -12,6 +12,7 @@
 import React, { useState } from 'react';
 import { usePipeline } from '../context/PipelineContext';
 import { useRSS } from '../context/RSSContext';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 // ── Design System ──────────────────────────────────────────────────────────
 const C = {
@@ -82,8 +83,8 @@ const Ticker = ({ rriState, econ }: any) => {
   return (
     <div style={{ height: '2.8vh', minHeight: 22, background: '#050505', borderBottom: `1px solid ${C.border}`, overflow: 'hidden', flexShrink: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', height: '100%', whiteSpace: 'nowrap', animation: 'tick-scroll 30s linear infinite' }}>
-        {[...items, ...items, ...items].map((it, i) => (
-          <span key={`ticker-it-${i}`} style={{ padding: '0 15px', borderRight: `1px solid ${C.border}`, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        {prepareList([...items, ...items, ...items]).map((it: any, i: number) => (
+          <span key={assertKey(getRenderKey(it, i, 'term-tick'))} style={{ padding: '0 15px', borderRight: `1px solid ${C.border}`, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <span style={{ fontSize: '0.9vh', color: C.dim }}>{it.n}</span>
             <span style={{ color: it.c, fontWeight: 700, fontSize: '1vh' }}>{it.v}</span>
           </span>
@@ -107,14 +108,14 @@ const RRIEnginePanel: React.FC<{ rriState: any }> = ({ rriState }) => {
         <div style={{ fontSize: 9, color: rri > 2.3 ? C.neg : C.pos, marginTop: 4 }}>[ {rri > 2.3 ? 'CRITICAL ALERT' : 'SYSTEM STABLE'} ]</div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {[
+        {prepareList([
           { lbl: 'SAL(S) SALIENCE', val: (rriState?.salience ?? 0.412).toFixed(4), c: C.cyan },
           { lbl: 'WAR(W) DISTRAC', val: (rriState?.w_t ?? 0.72).toFixed(4), c: C.warn },
           { lbl: 'VEL(V) VELOCITY', val: (rriState?.velocity ?? 0.18).toFixed(4), c: C.neg },
           { lbl: 'AMP(A) INFOAMP', val: (rriState?.info_amplification ?? 0.35).toFixed(4), c: C.pos },
           { lbl: 'COH(K) ELIDYN.', val: (rriState?.elite_cohesion ?? 0.55).toFixed(4), c: C.pos },
-        ].map((r, i) => (
-          <div key={i} style={{ ...S.tableRow, gridTemplateColumns: '1fr 65px' }}>
+        ]).map((r: any, i: number) => (
+          <div key={assertKey(getRenderKey(r, i, 'term-rrimet'))} style={{ ...S.tableRow, gridTemplateColumns: '1fr 65px' }}>
             <span style={{ color: C.muted }}>{r.lbl}</span>
             <span style={{ textAlign: 'right', color: r.c, fontWeight: 700 }}>{r.val}</span>
           </div>
@@ -128,7 +129,7 @@ const BourseTracker: React.FC = () => (
   <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
     <div style={S.sectionTitle}>| TUNINDEX & BOURSE FLOW</div>
     <div style={{ flex: 1, overflowY: 'auto' }}>
-       {[
+       {prepareList([
          { ticker: 'TUNINDEX', val: '9120.40', chg: '+0.12%', c: C.pos },
          { ticker: 'SFBT', val: '12.420', chg: '+0.05%', c: C.pos },
          { ticker: 'BIAT', val: '104.500', chg: '-0.12%', c: C.neg },
@@ -136,8 +137,8 @@ const BourseTracker: React.FC = () => (
          { ticker: 'POULINA GP', val: '7.200', chg: '-0.33%', c: C.neg },
          { ticker: 'CARTHAGE CEM.', val: '1.920', chg: '+1.05%', c: C.pos },
          { ticker: 'SAH LILAS', val: '8.400', chg: '-0.12%', c: C.neg },
-       ].map((r, i) => (
-         <div key={i} style={{ ...S.tableRow, gridTemplateColumns: '1fr 60px 50px' }}>
+       ]).map((r: any, i: number) => (
+         <div key={assertKey(getRenderKey(r, i, 'term-bt'))} style={{ ...S.tableRow, gridTemplateColumns: '1fr 60px 50px' }}>
            <span style={{ fontWeight: 700 }}>{r.ticker}</span>
            <span style={{ textAlign: 'right' }}>{r.val}</span>
            <span style={{ textAlign: 'right', color: r.c, fontSize: 9 }}>{r.chg}</span>
@@ -151,10 +152,10 @@ const CascadeMonitor: React.FC<{ governorates: any[] }> = ({ governorates }) => 
   <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
     <div style={S.sectionTitle}>| CASCADE MONITOR (EQ.17)</div>
     <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, padding: 2, background: C.border }}>
-                  {governorates.slice(0, 24).map((g, gi) => {
+                  {prepareList(governorates.slice(0, 24)).map((g: any, gi: number) => {
                     const score = g.rri_score ?? 0.5;
                     return (
-                      <div key={`governorate-tile-${gi}-${g.id}`} style={{ background: riskBg(score), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '6px 2px' }}>
+                      <div key={assertKey(getRenderKey(g, gi, 'term-gtile'))} style={{ background: riskBg(score), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '6px 2px' }}>
                         <div style={{ fontSize: 8, color: riskFg(score), opacity: 0.8 }}>{typeof g.name === 'object' ? g.name.en?.slice(0,4) : g.name?.slice(0,4)}</div>
                         <div style={{ fontSize: 13, fontWeight: 900, color: riskFg(score) }}>{(score * 100).toFixed(0)}</div>
                       </div>
@@ -169,11 +170,11 @@ const IntelFeed: React.FC<{ title: string; articles: any[]; isShock?: boolean }>
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={S.sectionTitle}>{title}</div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        {articles.slice(0, 15).map((a, i) => {
+        {prepareList(articles.slice(0, 15)).map((a: any, i: number) => {
           const shock = (0.01 + Math.random() * 0.04).toFixed(3);
           const tag = ['A.1', 'P.2', 'G.4', 'S.1'][Math.floor(Math.random()*4)];
           return (
-            <div key={`intel-art-${i}-${a.id || a.published_at || i}`} style={{ padding: '6px 10px', borderBottom: `1px solid ${C.border}` }}>
+            <div key={assertKey(getRenderKey(a, i, 'term-if'))} style={{ padding: '6px 10px', borderBottom: `1px solid ${C.border}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                 {isShock && <span style={{ fontSize: 9, color: C.accent }}>[{tag}] ε(t) +{shock}</span>}
                 <span style={{ fontSize: 8, color: C.dim }}>{a.source_name}</span>

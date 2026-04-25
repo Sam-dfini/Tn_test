@@ -26,6 +26,7 @@ import { CornerAccent } from './ProfessionalShared';
 import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
 import { usePipeline } from '../context/PipelineContext';
 import { processArticleForRRI } from '../utils/rriEngine';
+import { generateStableKey, assertKey, getRenderKey, prepareList } from '../lib/keyUtils';
 
 import { useRSS } from '../context/RSSContext';
 import { Article } from '../lib/supabase';
@@ -362,13 +363,12 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
 
       <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
         <AnimatePresence mode="popLayout">
-          {cleared ? null : filteredAndSortedNews
-            .filter(article => article && typeof article.id === "string" && article.id.length > 0)
-            .map((article) => {
-            const moduleTag = getModuleTag(article);
+          {cleared ? null : prepareList(filteredAndSortedNews)
+            .map((article, aIdx) => {
+            const moduleTag = getModuleTag(article as any);
             return (
               <motion.div 
-                key={article.id}
+                key={generateStableKey(article)}
                 layout
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

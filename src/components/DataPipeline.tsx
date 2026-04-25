@@ -180,7 +180,7 @@ interface Message {
 
 export const DataPipeline: React.FC<{ 
   onClose: () => void, 
-  initialTab?: 'pipeline' | 'sources' | 'ai-api' | 'finance' | 'health'
+  initialTab?: 'pipeline' | 'sources' | 'ai-api' | 'finance' | 'health' | 'pipeline-control'
 }> = ({ onClose, initialTab = 'pipeline' }) => {
   const { data, pushApprovedChanges, rriState } = usePipeline();
   const { articles } = useRSS();
@@ -419,28 +419,37 @@ export const DataPipeline: React.FC<{
       className="fixed inset-0 z-[200] bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"
     >
       {/* Overlay Header */}
-      <div className="h-16 border-b border-white/10 flex items-center justify-between px-8 bg-black/40 relative z-20">
-        <div className="flex items-center space-x-12">
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-intel-cyan/10 rounded-xl flex items-center justify-center border border-intel-cyan/20">
-              <Database className="w-5 h-5 text-intel-cyan" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-white tracking-tight">
-                {activeTab === 'ai-api' ? 'AI Engine' : activeTab === 'sources' ? 'Source Library' : activeTab === 'finance' ? 'Finance Law 2026' : 'Intelligence Pipeline'}
-              </h2>
-              <div className="flex items-center space-x-2">
-                <span className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest">Analyst Access</span>
-                <span className="text-slate-700">•</span>
-                <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Grounding Engine</span>
+      <div className="h-auto md:h-16 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-4 md:px-8 py-3 md:py-0 bg-black/40 relative z-20">
+        <div className="flex flex-col md:flex-row items-center w-full md:w-auto space-y-3 md:space-y-0 md:space-x-12">
+          <div className="flex items-center w-full md:w-auto justify-between space-x-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-intel-cyan/10 rounded-xl flex items-center justify-center border border-intel-cyan/20">
+                <Database className="w-5 h-5 text-intel-cyan" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white tracking-tight">
+                  {activeTab === 'ai-api' ? 'AI Engine' : activeTab === 'sources' ? 'Source Library' : activeTab === 'finance' ? 'Finance Law 2026' : activeTab === 'pipeline-control' ? 'Pipeline Mission Control' : 'Intelligence Pipeline'}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest">Analyst Access</span>
+                  <span className="text-slate-700">•</span>
+                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Grounding Engine</span>
+                </div>
               </div>
             </div>
+            {/* Close button for mobile, moved here for better accessibility */}
+            <button 
+              onClick={onClose}
+              className="md:hidden p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X className="w-6 h-6 text-slate-500" />
+            </button>
           </div>
 
-          <div className="flex items-center space-x-1 bg-black/40 p-1 rounded-xl border border-white/5">
+          <div className="flex flex-wrap items-center justify-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
             <button
               onClick={() => setActiveTab('ai-api')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-[9px] md:text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'ai-api' 
                   ? 'bg-intel-cyan text-black font-bold' 
                   : 'text-slate-500 hover:text-white'
@@ -450,7 +459,7 @@ export const DataPipeline: React.FC<{
             </button>
             <button
               onClick={() => setActiveTab('pipeline')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-[9px] md:text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'pipeline' 
                   ? 'bg-intel-cyan text-black font-bold' 
                   : 'text-slate-500 hover:text-white'
@@ -460,7 +469,7 @@ export const DataPipeline: React.FC<{
             </button>
             <button
               onClick={() => setActiveTab('sources')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-[9px] md:text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'sources' 
                   ? 'bg-intel-cyan text-black font-bold' 
                   : 'text-slate-500 hover:text-white'
@@ -470,7 +479,7 @@ export const DataPipeline: React.FC<{
             </button>
             <button
               onClick={() => setActiveTab('finance')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-[9px] md:text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'finance' 
                   ? 'bg-intel-orange text-black font-bold' 
                   : 'text-slate-500 hover:text-white'
@@ -479,28 +488,18 @@ export const DataPipeline: React.FC<{
               Finance Law
             </button>
             <button
-              onClick={() => setActiveTab('health')}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
-                activeTab === 'health' 
-                  ? 'bg-emerald-500 text-black font-bold' 
-                  : 'text-slate-500 hover:text-white'
-              }`}
-            >
-              Health
-            </button>
-            <button
-              onClick={() => setActiveTab('pipeline-control' as any)}
-              className={`px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-all ${
+              onClick={() => setActiveTab('pipeline-control')}
+              className={`px-3 py-1.5 rounded-lg text-[9px] md:text-[10px] font-mono uppercase tracking-widest transition-all ${
                 activeTab === 'pipeline-control' 
                   ? 'bg-intel-cyan text-black font-bold' 
                   : 'text-slate-500 hover:text-white'
               }`}
             >
-              System Monitor
+              P.M.C
             </button>
           </div>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4">
           <button 
             onClick={onClose}
             className="p-2 hover:bg-white/10 rounded-full transition-colors group"
@@ -510,9 +509,9 @@ export const DataPipeline: React.FC<{
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden p-8 relative z-10">
+      <div className="flex-1 overflow-hidden p-4 md:p-8 relative z-10">
         <BackgroundGrid />
-        <div className="max-w-[1600px] mx-auto h-full overflow-y-auto no-scrollbar">
+        <div className={`max-w-[1600px] mx-auto h-full ${activeTab === 'pipeline-control' ? '' : 'overflow-y-auto no-scrollbar'}`}>
           {activeTab === 'pipeline-control' ? (
             <ObservabilityDashboard />
           ) : activeTab === 'health' ? (

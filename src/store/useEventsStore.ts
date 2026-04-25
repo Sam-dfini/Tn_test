@@ -88,13 +88,11 @@ export const useEventsStore = create<EventsStore>((set, get) => ({
   },
 
   setEvents: (rawEvents) => {
-    // Force cleaning even on direct sets
-    const cleaned = deduplicateEvents(rawEvents || [], 'SET_EVENTS');
-    
     // Final duplicate key rescue
     const uniqueMap = new Map();
-    cleaned.forEach(e => {
-        if (e && e.id) uniqueMap.set(e.id, e);
+    rawEvents.forEach(e => {
+      const key = (e.id || e.event_key || e.fingerprint || `${e.title || "item"}-${e.published_at || Date.now()}`);
+      if (!uniqueMap.has(key)) uniqueMap.set(key, e);
     });
 
     const finalEvents = Array.from(uniqueMap.values());

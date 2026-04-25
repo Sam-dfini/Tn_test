@@ -44,7 +44,9 @@ export const Economy: React.FC = () => {
               </div>
             </div>
 
-            <div className="h-10 w-full mt-2 opacity-30 group-hover:opacity-60 transition-opacity">
+            <div className="h-10 w-full mt-2 opacity-30 group-hover:opacity-60 transition-opacity" style={{ minWidth: 50, minHeight: 40 }}>
+              {ind.history && ind.history.length > 0 && (
+                <div style={{ width: "100%", height: 30 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={ind.history.map((v, idx) => ({ v, idx }))}>
                   <Line 
@@ -56,6 +58,7 @@ export const Economy: React.FC = () => {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              </div>)}
             </div>
           </motion.div>
         ))}

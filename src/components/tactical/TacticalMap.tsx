@@ -17,6 +17,7 @@ import { usePipeline } from '../../context/PipelineContext';
 import { cn } from '../../utils/cn';
 import { FireLayer } from './FireLayer';
 import { getMockFires, filterFires } from '../../services/firmsService';
+import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 // Helper to normalize governorate names for matching
 const normalizeName = (name: string) => {
@@ -549,7 +550,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           ))}
           
           {/* Event Markers */}
-          {layers.events && (filteredEvents || []).filter(e => e && e.id && e.lat != null && e.lon != null).map((event, index) => {
+          {layers.events && prepareList(filteredEvents || []).filter(e => e && e.lat != null && e.lon != null).map((event, index) => {
             if (!event || !event.title) return null;
             const isAccident = event.title.toLowerCase().includes('accident') || 
                                event.title.toLowerCase().includes('suicide') || 
@@ -559,7 +560,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
             return (
               <Marker 
-                key={`map-${event.id}-${index}`} 
+                key={event.id}
                 position={[event.lat!, event.lon!]}
                 icon={L.divIcon({
                   className: 'tactical-icon',

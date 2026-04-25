@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Radio, Zap, Filter, RefreshCw, Brain } from 'lucide-react';
 import { useRSS } from '../context/RSSContext';
 import { usePipeline } from '../context/PipelineContext';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 import { classifySignals, buildSignalSummary, SignalClassification } from '../services/signalClassifier';
 import { assessGovernmentAgent } from '../services/govAgent';
 import { SignalIntelCard } from './SignalIntelCard';
@@ -154,17 +155,17 @@ export const LiveSignalFeed: React.FC<{
 
         {showFilter && (
           <div className="flex items-center space-x-1">
-            {(['ALL', 'SYSTEM_SHOCK', 'SIGNAL', 'CONFIRMED'] as FeedFilter[]).map(f => (
-              <button key={f}
-                onClick={() => setFilter(f)}
+            {prepareList(['ALL', 'SYSTEM_SHOCK', 'SIGNAL', 'CONFIRMED'] as FeedFilter[]).map((f: any) => (
+              <button key={f.id}
+                onClick={() => setFilter(f.value)}
                 className={`text-[7px] font-mono uppercase px-2 py-1 rounded
                   transition-all ${
-                  filter === f
+                  filter === f.value
                     ? 'bg-intel-orange/10 text-intel-orange border border-intel-orange/20'
                     : 'text-slate-700 hover:text-slate-400'
                 }`}
               >
-                {f === 'CONFIRMED' ? 'PREDICTED' : f}
+                {f.value === 'CONFIRMED' ? 'PREDICTED' : f.value}
               </button>
             ))}
           </div>
@@ -206,12 +207,12 @@ export const LiveSignalFeed: React.FC<{
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((c) => {
+          {prepareList(filtered).map((c: any, i: number) => {
             const article = articleMap.get(c.articleId);
             if (!article) return null;
             return (
               <SignalIntelCard
-                key={`signal-${c.articleId}-${c.tier}`}
+                key={c.id}
                 classification={c}
                 article={article}
                 compact={compact}

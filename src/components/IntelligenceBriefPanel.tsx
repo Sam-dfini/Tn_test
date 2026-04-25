@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { usePipeline } from '../context/PipelineContext';
 import { useRSS } from '../context/RSSContext';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 import {
   generateIntelligenceBrief, IntelligenceBrief,
   BriefClassification, ActionPriority,
@@ -242,11 +243,11 @@ export const IntelligenceBriefPanel: React.FC<{
                   📍 Trigger zones
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {brief.triggerZones.map((z, idx) => (
-                    <span key={`trigger-${z}-${idx}-${brief.generatedAt}`}
+                  {prepareList(brief.triggerZones).map((z: any) => (
+                    <span key={z.id}
                       className={`text-[8px] font-mono px-1.5 py-0.5
                         rounded border ${cfg.color} ${cfg.border}`}>
-                      {z}
+                      {z.value}
                     </span>
                   ))}
                 </div>
@@ -258,10 +259,10 @@ export const IntelligenceBriefPanel: React.FC<{
                   🎯 Primary drivers
                 </div>
                 <div className="space-y-0.5">
-                  {brief.primaryDrivers.slice(0, 2).map((d, i) => (
-                    <div key={`driver-compact-${i}-${brief.generatedAt}`}
+                  {prepareList(brief.primaryDrivers.slice(0, 2)).map((d: any, i: number) => (
+                    <div key={d.id}
                       className="text-[8px] text-slate-500 truncate">
-                      {i + 1}. {d}
+                      {i + 1}. {d.value}
                     </div>
                   ))}
                 </div>
@@ -274,21 +275,21 @@ export const IntelligenceBriefPanel: React.FC<{
       {/* Section nav */}
       <div className="flex items-center space-x-1 bg-black/40 border
         border-intel-border rounded-xl p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
-        {(['brief', 'watch', 'actions', 'drivers'] as BriefSection[]).map(s => (
-          <button key={s}
-            onClick={() => setActiveSection(s)}
+        {prepareList(['brief', 'watch', 'actions', 'drivers'] as BriefSection[]).map((s: any, i: number) => (
+          <button key={s.id}
+            onClick={() => setActiveSection(s.value as BriefSection)}
             className={`flex items-center space-x-2 px-3 py-2 rounded-lg
               text-[9px] font-mono uppercase tracking-wider transition-all ${
-              activeSection === s
+              activeSection === s.value
                 ? `${cfg.bg} ${cfg.color} border ${cfg.border}`
                 : 'text-slate-600 hover:text-slate-300'
             }`}
           >
-            {s === 'brief' && <BookOpen className="w-3 h-3" />}
-            {s === 'watch' && <Eye className="w-3 h-3" />}
-            {s === 'actions' && <Target className="w-3 h-3" />}
-            {s === 'drivers' && <Radio className="w-3 h-3" />}
-            <span>{SECTION_LABELS[s]}</span>
+            {s.value === 'brief' && <BookOpen className="w-3 h-3" />}
+            {s.value === 'watch' && <Eye className="w-3 h-3" />}
+            {s.value === 'actions' && <Target className="w-3 h-3" />}
+            {s.value === 'drivers' && <Radio className="w-3 h-3" />}
+            <span>{SECTION_LABELS[s.value as BriefSection]}</span>
           </button>
         ))}
       </div>
@@ -322,8 +323,8 @@ export const IntelligenceBriefPanel: React.FC<{
                     Key Developments
                   </div>
                   <div className="space-y-2">
-                    {brief.keyDevelopments.map((dev, i) => (
-                      <div key={`dev-brief-${i}-${dev.signal.substring(0,10)}-${brief.generatedAt}`} className="flex items-start space-x-3">
+                    {prepareList(brief.keyDevelopments).map((dev: any, i: number) => (
+                      <div key={dev.id} className="flex items-start space-x-3">
                         <div className={`mt-0.5 shrink-0 w-4 h-4 rounded-full
                           border flex items-center justify-center text-[7px]
                           font-bold ${
@@ -392,10 +393,10 @@ export const IntelligenceBriefPanel: React.FC<{
                   <div className="text-[9px] font-mono text-intel-purple uppercase">
                     Framework Contradictions
                   </div>
-                  {brief.contradictions.map((c, i) => (
-                    <div key={`contradiction-${i}-${brief.generatedAt}`} className="flex items-start space-x-2 text-[9px]">
+                  {prepareList(brief.contradictions).map((c: any) => (
+                    <div key={c.id} className="flex items-start space-x-2 text-[9px]">
                       <span className="text-intel-purple shrink-0">◆</span>
-                      <span className="text-slate-400">{c}</span>
+                      <span className="text-slate-400">{c.value}</span>
                     </div>
                   ))}
                 </div>
@@ -429,10 +430,10 @@ export const IntelligenceBriefPanel: React.FC<{
                 Specific falsifiable observables. If any of these cross their
                 threshold, the classification upgrades and the brief regenerates.
               </p>
-              {brief.watchIndicators.map((ind, i) => {
+              {prepareList(brief.watchIndicators).map((ind: any, i: number) => {
                 const probPct = Math.round(ind.probability * 100);
                 return (
-                  <div key={`watch-ind-${i}-${ind.indicator.substring(0,10)}-${brief.generatedAt}`}
+                  <div key={ind.id}
                     className={`glass p-5 rounded-2xl border space-y-3 ${
                     probPct >= 65 ? 'border-intel-red/20' :
                     probPct >= 45 ? 'border-intel-orange/20' :
@@ -492,10 +493,10 @@ export const IntelligenceBriefPanel: React.FC<{
                 Priority-ordered actions based on current classification
                 and active signal configuration.
               </p>
-              {brief.recommendedActions.map((action, i) => {
+              {prepareList(brief.recommendedActions).map((action: any, i: number) => {
                 const pcfg = PRIORITY_CONFIG[action.priority];
                 return (
-                  <div key={`recommended-action-${i}-${action.priority}-${brief.generatedAt}`}
+                  <div key={action.id}
                     className={`glass p-5 rounded-2xl border space-y-2 ${
                     action.priority === 'IMMEDIATE'
                       ? 'border-intel-red/30 bg-intel-red/5'
@@ -534,8 +535,8 @@ export const IntelligenceBriefPanel: React.FC<{
                 signal weight across all analytical layers.
               </p>
               <div className="space-y-2">
-                {brief.primaryDrivers.map((driver, i) => (
-                  <div key={`driver-brief-${i}-${brief.generatedAt}`}
+                {prepareList(brief.primaryDrivers).map((driver: any, i: number) => (
+                  <div key={driver.id}
                     className="glass p-4 rounded-xl border border-intel-border/30
                       flex items-center space-x-3">
                     <div className={`w-7 h-7 rounded-full border flex items-center
@@ -544,7 +545,7 @@ export const IntelligenceBriefPanel: React.FC<{
                       i === 1 ? 'border-intel-orange/40 text-intel-orange' :
                       'border-yellow-500/30 text-yellow-500'
                     }`}>{i + 1}</div>
-                    <span className="text-[10px] text-slate-300">{driver}</span>
+                    <span className="text-[10px] text-slate-300">{driver.value}</span>
                   </div>
                 ))}
               </div>
@@ -555,8 +556,8 @@ export const IntelligenceBriefPanel: React.FC<{
                   <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
                     All Signal Sources
                   </div>
-                  {brief.keyDevelopments.map((dev, i) => (
-                    <div key={`dev-brief-all-${i}-${brief.generatedAt}`} className="flex items-center justify-between
+                  {prepareList(brief.keyDevelopments).map((dev: any, i: number) => (
+                    <div key={dev.id} className="flex items-center justify-between
                       py-1.5 border-b border-white/5 last:border-0">
                       <div className="text-[9px] text-slate-400 flex-1 min-w-0 truncate pr-3">
                         {dev.signal}

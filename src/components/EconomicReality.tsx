@@ -32,6 +32,7 @@ import {
 import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
 import { supabase, PriceReport } from '../lib/supabase';
 import { CornerAccent } from './ProfessionalShared';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 const PRODUCTS = [
   { id: 'bread', name: 'Bread (Baguette)', unit: 'piece', basePrice: 0.200 },
@@ -265,7 +266,7 @@ export const EconomicReality: React.FC = () => {
                     className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
                   >
                     <option value="ALL">ALL PRODUCTS</option>
-                    {PRODUCTS.map((p, index) => <option key={`product-opt-${p.id}-${index}`} value={p.id}>{p.name.toUpperCase()}</option>)}
+                    {prepareList(PRODUCTS).map((p: any) => <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>)}
                   </select>
                 </div>
                 <div className="relative">
@@ -276,7 +277,7 @@ export const EconomicReality: React.FC = () => {
                     className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
                   >
                     <option value="ALL">ALL GOVERNORATES</option>
-                    {GOVERNORATES.map((g, index) => <option key={`gov-opt-${g}-${index}`} value={g}>{g.toUpperCase()}</option>)}
+                    {prepareList(GOVERNORATES).map((g: any) => <option key={g.id} value={g.value}>{String(g.value).toUpperCase()}</option>)}
                   </select>
                 </div>
               </div>
@@ -297,14 +298,14 @@ export const EconomicReality: React.FC = () => {
                   <span className="text-[10px] font-mono text-slate-500 uppercase animate-pulse">Syncing with Economic Grid...</span>
                 </div>
               ) : filteredReports.length > 0 ? (
-                filteredReports.map((report, index) => {
+                prepareList(filteredReports).map((report: any) => {
                   const product = PRODUCTS.find(p => p.id === report.product);
                   const market = MARKET_TYPES.find(m => m.id === report.market_type);
                   const deviation = product ? (report.price_tnd / product.basePrice - 1) * 100 : 0;
                   
                   return (
                     <motion.div 
-                      key={`report-${report.id}-${index}`}
+                      key={report.id}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       className="p-4 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-all group"
@@ -430,12 +431,12 @@ export const EconomicReality: React.FC = () => {
               Shortage Alerts
             </h3>
             <div className="space-y-3">
-              {[
+              {prepareList([
                 { item: 'Subsidized Flour', region: 'Sfax', risk: 'CRITICAL' },
                 { item: 'Vegetable Oil', region: 'Kairouan', risk: 'HIGH' },
                 { item: 'Sugar', region: 'Tunis', risk: 'ELEVATED' },
-              ].map((alert, i) => (
-                <div key={`${alert.item}-${alert.region}`} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+              ]).map((alert: any) => (
+                <div key={alert.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
                   <div>
                     <div className="text-[10px] font-bold text-white uppercase">{alert.item}</div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase">{alert.region}</div>
