@@ -60,6 +60,49 @@ export const assertKey = (key: string): string => {
 };
 
 /**
+ * NEW: Deduplicates articles by ID, URL, or content fingerprint
+ * Keeps first occurrence, removes duplicates
+ */
+export function deduplicateArticles<T extends {id?: string; url?: string; title?: string; source_name?: string}>(
+  items: T[]
+): T[] {
+  if (!items || !Array.isArray(items)) return [];
+
+  const seenIds = new Set<string>();
+  const seenUrls = new Set<string>();
+  const seenFingerprints = new Set<string>();
+
+  return items.filter((item) => {
+    // Primary: by ID
+    if (isValidId(item.id)) {
+      const id = String(item.id).trim();
+      if (seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    }
+
+    // Secondary: by URL
+    if (isValidId(item.url)) {
+      const url = String(item.url).trim();
+      if (seenUrls.has(url)) return false;
+      seenUrls.add(url);
+      return true;
+    }
+
+    // Tertiary: by content fingerprint (title + source)
+    if (isValidId(item.title) && isValidId(item.source_name)) {
+      const fingerprint = `${String(item.title).trim()}|${String(item.source_name).trim()}`;
+      if (seenFingerprints.has(fingerprint)) return false;
+      seenFingerprints.add(fingerprint);
+      return true;
+    }
+
+    // If no valid identifier, keep it
+    return true;
+  });
+}
+
+/**
  * Task 2 & 4: Harden Data Before Render
  * Processes an incoming array of data, guarantees highly unique, non-empty, collision-free IDs.
  * Now handles primitives (strings, numbers) by wrapping them in { value, id }.
@@ -72,7 +115,10 @@ export function prepareList<T>(
 
   const seenKeys = new Set<string>();
 
-  return items
+  // First deduplicate
+  const deduplicated = deduplicateArticles(items as any);
+
+  return deduplicated
     .map((item, index) => {
       // Handle null/undefined gracefully
       if (item === null || item === undefined) {
