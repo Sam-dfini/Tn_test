@@ -27,7 +27,16 @@ import {
   LayoutGrid,
   Search,
   Eye,
-  EyeOff
+  EyeOff,
+  Mountain,
+  TreePine,
+  Fish,
+  Anchor,
+  Sun,
+  Zap,
+  TrendingDown as TrendDown,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -44,7 +53,15 @@ import {
   Pie,
   ComposedChart,
   Line,
-  LineChart
+  LineChart,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ScatterChart,
+  Scatter,
+  ZAxis,
 } from 'recharts';
 import { Map } from './Map';
 import governoratesData from '../data/governorates.json';
@@ -55,11 +72,12 @@ import { fetchFireIntelligence, FireSignal } from '../services/firmsService';
 import { Governorate } from '../types/intel';
 
 const environmentalAlerts = [
-  { code: 'ENV-WATER-02', title: 'Aquifer Depletion Rate: CRITICAL', impact: 'CRITICAL' },
-  { code: 'ENV-HEAT-05', title: 'Heatwave Warning: Central Regions', impact: 'HIGH' },
-  { code: 'ENV-SOIL-01', title: 'Erosion Risk: Northern Highlands', impact: 'HIGH' },
-  { code: 'ENV-COAST-04', title: 'Sea Level Rise: Djerba Vulnerability', impact: 'HIGH' },
-  { code: 'ENV-AGRI-09', title: 'Crop Yield Forecast: -15% vs Average', impact: 'HIGH' }
+  { code: 'ENV-WATER-02', title: 'Aquifer Depletion Rate: CRITICAL — Gafsa Basin', impact: 'CRITICAL' },
+  { code: 'ENV-HEAT-05', title: 'Heatwave Warning: Central Regions +42°C forecast', impact: 'HIGH' },
+  { code: 'ENV-SOIL-01', title: 'Erosion Risk: Northern Highlands — 3.2t/ha/yr', impact: 'HIGH' },
+  { code: 'ENV-COAST-04', title: 'Sea Level Rise: Djerba Vulnerability Index 0.87', impact: 'HIGH' },
+  { code: 'ENV-AGRI-09', title: 'Crop Yield Forecast: -15% vs Average — Drought Driver', impact: 'HIGH' },
+  { code: 'ENV-DEFOR-03', title: 'Forest Cover Loss: 2,400ha since Jan 2025', impact: 'MEDIUM' },
 ];
 
 const damReservesData = [
@@ -124,7 +142,37 @@ const forestFireData = [
   { month: 'JUL', incidents: 85, hectares: 4800 },
   { month: 'AUG', incidents: 112, hectares: 7200 },
   { month: 'SEP', incidents: 45, hectares: 2100 },
-  { month: 'OCT', incidents: 18, hectares: 650 }
+  { month: 'OCT', incidents: 18, hectares: 650 },
+];
+
+// ─── NEW: WATER HUB DATA ────────────────────────────────────────────────────
+
+const desalinationData = [
+  { time: '06:00', capacity: 120, production: 98 },
+  { time: '08:00', capacity: 120, production: 110 },
+  { time: '10:00', capacity: 120, production: 118 },
+  { time: '12:00', capacity: 120, production: 115 },
+  { time: '14:00', capacity: 120, production: 119 },
+  { time: '16:00', capacity: 120, production: 112 },
+  { time: '18:00', capacity: 120, production: 105 },
+  { time: '20:00', capacity: 120, production: 95 },
+];
+
+const aquiferDepletionData = [
+  { year: '2015', north: 82, center: 54, south: 31 },
+  { year: '2017', north: 78, center: 49, south: 27 },
+  { year: '2019', north: 74, center: 44, south: 22 },
+  { year: '2021', north: 69, center: 38, south: 17 },
+  { year: '2023', north: 63, center: 31, south: 12 },
+  { year: '2025', north: 57, center: 24, south: 8 },
+];
+
+const waterSourceMix = [
+  { name: 'Surface Water', value: 42, color: '#0ea5e9' },
+  { name: 'Groundwater', value: 35, color: '#38bdf8' },
+  { name: 'Desalination', value: 12, color: '#00f2ff' },
+  { name: 'Treated Wastewater', value: 8, color: '#64748b' },
+  { name: 'Rainwater Harvest', value: 3, color: '#334155' },
 ];
 
 const waterStressHeatmapPoints = [
@@ -182,6 +230,84 @@ const fireHotspots = [
   { id: 'FF-04', location: 'Bizerte North', risk: 'MEDIUM', status: 'Dormant', hectares: 12 }
 ];
 
+// ─── SHARED SUB-COMPONENTS ──────────────────────────────────────────────────
+
+const StatCard: React.FC<{
+  label: string;
+  value: string;
+  sub?: string;
+  icon: React.ElementType;
+  color?: string;
+  warn?: boolean;
+  trend?: 'up' | 'down' | 'stable';
+}> = ({ label, value, sub, icon: Icon, color = 'text-intel-cyan', warn, trend }) => (
+  <div className={cn(
+    'glass rounded-xl border p-4 space-y-2 transition-all hover:border-white/20',
+    warn ? 'border-intel-red/30 bg-intel-red/5' : 'border-intel-border'
+  )}>
+    <div className="flex items-center justify-between">
+      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{label}</span>
+      <Icon className={cn('w-3.5 h-3.5', warn ? 'text-intel-red' : color)} />
+    </div>
+    <div className="flex items-end justify-between">
+      <div>
+        <div className={cn('text-xl font-bold font-mono tracking-tighter', warn ? 'text-white' : 'text-white')}>
+          {value}
+        </div>
+        {sub && <div className="text-[8px] font-mono text-slate-500 mt-0.5">{sub}</div>}
+      </div>
+      {trend && (
+        <div className={cn(
+          'text-[8px] font-mono font-bold px-1 rounded flex items-center',
+          trend === 'up' && warn ? 'text-intel-red' : (trend === 'up' ? 'text-intel-cyan' : 'text-intel-red')
+        )}>
+          {trend === 'up' ? <TrendingUp className="w-2 h-2 mr-0.5" /> : trend === 'down' ? <TrendingDown className="w-2 h-2 mr-0.5" /> : null}
+          {trend === 'up' ? '+%' : trend === 'down' ? '-%' : 'STABLE'}
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const SectionHeader: React.FC<{
+  icon: React.ElementType;
+  title: string;
+  badge?: string;
+  badgeColor?: string;
+}> = ({ icon: Icon, title, badge, badgeColor = 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' }) => (
+  <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center space-x-3">
+      <div className="p-2 rounded-lg bg-white/5 border border-white/5">
+        <Icon className="w-4 h-4 text-intel-cyan" />
+      </div>
+      <h3 className="text-xs font-bold text-white uppercase tracking-[0.2em]">{title}</h3>
+    </div>
+    {badge && (
+      <div className={cn('px-2 py-0.5 rounded border text-[8px] font-black tracking-widest', badgeColor)}>
+        {badge}
+      </div>
+    )}
+  </div>
+);
+
+const RiskBadge: React.FC<{ level: string }> = ({ level }) => {
+  const getStyles = () => {
+    switch (level.toUpperCase()) {
+      case 'CRITICAL': case 'EXTREME': return 'text-intel-red border-intel-red/30 bg-intel-red/5';
+      case 'HIGH': case 'SEVERE': return 'text-intel-orange border-intel-orange/30 bg-intel-orange/5';
+      case 'MEDIUM': case 'MODERATE': return 'text-yellow-500 border-yellow-500/30 bg-yellow-500/5';
+      default: return 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5';
+    }
+  };
+  return (
+    <span className={cn('px-1.5 py-0.5 rounded border text-[7px] font-black uppercase tracking-tighter', getStyles())}>
+      {level}
+    </span>
+  );
+};
+
+// ─── MAIN COMPONENT ─────────────────────────────────────────────────────────
+
 export const EnvironmentalIntelligence: React.FC = () => {
   const { data } = usePipeline();
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -205,22 +331,18 @@ export const EnvironmentalIntelligence: React.FC = () => {
   }, []);
 
   // Filter governorates for fire risk choropleth
-  // High (2.3-2.6), Elevated (2.0-2.3), Moderate (1.7-2.0)
   const fireRiskGovernorates = useMemo(() => {
     if (!showFireChoropleth) return [];
     
     return (governoratesData.governorates as unknown as Governorate[]).map(gov => {
-      let riskScore = 1.2; // Default stable
-      
-      // Categorize based on North-West/Forest regions risk level
+      let riskScore = 1.2; 
       if (['Jendouba', 'Béja', 'Kasserine', 'Siliana'].includes(gov.name.en)) {
-        riskScore = 2.45; // High
+        riskScore = 2.45; 
       } else if (['Le Kef', 'Bizerte', 'Zaghouan'].includes(gov.name.en)) {
-        riskScore = 2.15; // Elevated
+        riskScore = 2.15; 
       } else if (['Nabeul', 'Kairouan', 'Sidi Bouzid'].includes(gov.name.en)) {
-        riskScore = 1.85; // Moderate
+        riskScore = 1.85; 
       }
-      
       return { ...gov, rri_score: riskScore };
     });
   }, [showFireChoropleth]);
@@ -247,23 +369,44 @@ export const EnvironmentalIntelligence: React.FC = () => {
   }, [showThermalDots, showActualFires, actualFirePoints]);
 
   const categories = [
-    { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
+    { id: 'ALL', label: 'All intelligence map', icon: MapIcon },
     { id: 'WATER', label: 'Water Security', icon: Droplets },
     { id: 'ECOLOGY', label: 'Ecological Stability', icon: Sprout },
-    { id: 'CLIMATE', label: 'Climate Risks', icon: Flame },
+    { id: 'CLIMATE', label: 'Climate Risks', icon: Thermometer },
   ];
 
+  const show = (id: string) => activeCategory === id;
+
+  const [activeMapLayer, setActiveMapLayer] = useState('Water Stress');
+
+  const mappedGovernorates = useMemo(() => {
+    return (governoratesData.governorates as unknown as Governorate[]).map(gov => {
+      let rri = 1.0;
+      if (activeMapLayer === 'Water Stress') {
+        const stressData = governorateWaterStress.find(s => s.name === gov.name.en);
+        rri = stressData ? stressData.stress / 30 : 1.5;
+      } else if (activeMapLayer === 'Fire Risk') {
+        if (['Jendouba', 'Béja', 'Kasserine', 'Siliana'].includes(gov.name.en)) rri = 2.8;
+        else if (['Le Kef', 'Bizerte'].includes(gov.name.en)) rri = 2.2;
+        else rri = 1.2;
+      }
+      return { ...gov, rri_score: rri };
+    });
+  }, [activeMapLayer]);
+
+  // ─── RENDER ───────────────────────────────────────────────────────────────
   return (
     <div className="p-3 md:p-4 space-y-8 animate-in fade-in duration-700 relative">
       <BackgroundGrid />
-      
-      <ModuleHeader 
+
+      <ModuleHeader
         title="Environmental Intelligence"
-        subtitle="Monitoring hydric stress, desertification, and climate-driven stability risks"
+        subtitle="Hydric stress, desertification indices, climate-driven instability risk — unified environmental threat picture"
         icon={Leaf}
         nodeId="ENV-NODE-07"
       />
 
+      {/* Tab Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-50 bg-black/40 backdrop-blur-xl p-3 md:p-4 rounded-xl border border-white/5 shadow-2xl">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
           {categories.map((cat) => (
@@ -271,7 +414,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
               className={cn(
-                "flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all whitespace-nowrap",
+                'flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all whitespace-nowrap',
                 activeCategory === cat.id
                   ? 'bg-intel-cyan text-black shadow-[0_0_20px_rgba(0,242,255,0.3)]'
                   : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/5'
@@ -282,12 +425,11 @@ export const EnvironmentalIntelligence: React.FC = () => {
             </button>
           ))}
         </div>
-        
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 group-focus-within:text-intel-cyan transition-colors" />
-          <input 
-            type="text" 
-            placeholder="SEARCH ENVIRONMENTAL DATABASE..." 
+          <input
+            type="text"
+            placeholder="SEARCH ENVIRONMENTAL DATABASE..."
             className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 focus:ring-1 focus:ring-intel-cyan/20 w-full md:w-64 transition-all"
           />
         </div>
@@ -296,647 +438,450 @@ export const EnvironmentalIntelligence: React.FC = () => {
       <LiveTicker items={environmentalAlerts} />
 
       <AnimatePresence mode="wait">
-        {activeCategory === 'WATER' ? (
-          <motion.div
-            key="water-tab"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-8"
-          >
-            {/* Header Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Governorates in Crisis', value: data.social.water_crisis_govs, icon: AlertTriangle, color: 'text-intel-red' },
-                { label: 'Daily Cut Average', value: '14.2 hrs', icon: Droplets, color: 'text-intel-orange' },
-                { label: 'Aquifer Depletion Rate', value: '1.8m/yr', icon: TrendingDown, color: 'text-intel-red' },
-                { label: 'Dam Fill Level', value: '28.4%', icon: Waves, color: 'text-intel-orange' }
-              ].map((stat, i) => (
-                <div key={i} className="intel-card p-4 rounded-xl border border-white/10 flex items-center space-x-4">
-                  <div className={cn("p-2 rounded-lg bg-white/5", stat.color)}>
-                    <stat.icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{stat.label}</div>
-                    <div className={cn("text-xl font-bold font-mono", stat.color)}>{stat.value}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Water Stress Table */}
-              <div className="lg:col-span-8 intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
-                <div className="flex justify-between items-center mb-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center">
-                      <Droplets className="w-5 h-5 mr-2 text-intel-cyan" />
-                      Governorate Water Stress Matrix
-                    </h3>
-                    <p className="text-xs text-slate-500 font-mono">Real-time supply/demand deficit monitoring — March 2026</p>
-                  </div>
-                  <div className="px-3 py-1 bg-intel-red/20 border border-intel-red/30 rounded text-[10px] font-mono text-intel-red font-bold">
-                    SYSTEMIC DEFICIT
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto scrollbar-hide">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
-                    <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Governorate</th>
-                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Supply (m³/d)</th>
-                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Status</th>
-                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Trend</th>
-                        <th className="py-3 px-4 text-[10px] font-mono text-slate-500 uppercase">Pop. Affected</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-xs font-mono">
-                      {[
-                        { name: 'Sfax', supply: '124k', status: 'CRITICAL', trend: 'UP', pop: '1.2M' },
-                        { name: 'Kairouan', supply: '42k', status: 'CRITICAL', trend: 'UP', pop: '620k' },
-                        { name: 'Gafsa', supply: '38k', status: 'HIGH', trend: 'STABLE', pop: '350k' },
-                        { name: 'Sidi Bouzid', supply: '45k', status: 'HIGH', trend: 'UP', pop: '480k' },
-                        { name: 'Gabès', supply: '52k', status: 'MODERATE', trend: 'UP', pop: '410k' },
-                        { name: 'Zaghouan', supply: '28k', status: 'HIGH', trend: 'UP', pop: '190k' },
-                        { name: 'Grand Tunis', supply: '480k', status: 'LOW', trend: 'UP', pop: '2.8M' },
-                        { name: 'Bizerte', supply: '95k', status: 'NOMINAL', trend: 'STABLE', pop: '580k' }
-                      ].map((gov, i) => (
-                        <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                          <td className="py-3 px-4 font-bold text-white">{gov.name}</td>
-                          <td className="py-3 px-4 text-slate-400">{gov.supply}</td>
-                          <td className="py-3 px-4">
-                            <span className={cn(
-                              "px-2 py-0.5 rounded text-[9px] font-bold",
-                              gov.status === 'CRITICAL' ? "bg-intel-red/20 text-intel-red" :
-                              gov.status === 'HIGH' ? "bg-intel-orange/20 text-intel-orange" :
-                              gov.status === 'MODERATE' ? "bg-yellow-500/20 text-yellow-500" :
-                              "bg-intel-green/20 text-intel-green"
-                            )}>
-                              {gov.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            {gov.trend === 'UP' ? <TrendingUp className="w-3 h-3 text-intel-red" /> : <TrendingDown className="w-3 h-3 text-intel-green" />}
-                          </td>
-                          <td className="py-3 px-4 text-slate-400">{gov.pop}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Dam Levels Chart */}
-              <div className="lg:col-span-4 intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
-                <h3 className="text-lg font-bold text-white mb-1 flex items-center">
-                  <Waves className="w-5 h-5 mr-2 text-intel-cyan" />
-                  Dam Reservoir Levels
-                </h3>
-                <p className="text-[10px] font-mono text-slate-500 mb-6 uppercase tracking-widest">Current vs 10-Year Average (%)</p>
-                
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={[
-                      { name: 'Sidi Salem', current: 22, avg: 68 },
-                      { name: 'Bou Heurtma', current: 35, avg: 72 },
-                      { name: 'Joumine', current: 18, avg: 55 },
-                      { name: 'Sejnane', current: 42, avg: 78 },
-                      { name: 'Bir Mcherga', current: 15, avg: 45 }
-                    ]}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                      <XAxis dataKey="name" stroke="#64748b" fontSize={8} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#64748b" fontSize={8} tickLine={false} axisLine={false} unit="%" />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                        itemStyle={{ fontSize: '10px', fontFamily: 'monospace' }}
-                      />
-                      <Bar dataKey="avg" fill="#ffffff10" radius={[4, 4, 0, 0]} name="10yr Avg" />
-                      <Bar dataKey="current" radius={[4, 4, 0, 0]} name="Current Level">
-                        {damReservesData.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={entry.level < 25 ? '#ef4444' : '#f97316'} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="mt-4 p-4 rounded-xl bg-intel-red/5 border border-intel-red/20">
-                  <div className="flex items-center space-x-2 text-intel-red mb-1">
-                    <AlertTriangle className="w-4 h-4" />
-                    <span className="text-[10px] font-mono font-bold uppercase">Critical Threshold Alert</span>
-                  </div>
-                  <p className="text-[9px] font-mono text-slate-400 leading-relaxed">
-                    Sidi Salem (largest reservoir) is at 22% capacity. Dead storage level estimated at 12%. 
-                    Without significant rainfall, irrigation cuts will expand to 100% of northern governorates.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Aquifer & Correlation */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10">
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center">
-                  <Activity className="w-5 h-5 mr-2 text-intel-cyan" />
-                  Aquifer Depletion Monitoring
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { name: 'Northern Aquifer (Ghardimaou)', depletion: '1.2m/yr', salt: 'Low', remaining: '45 yrs' },
-                    { name: 'Central Aquifer (Kairouan)', depletion: '2.4m/yr', salt: 'Medium', remaining: '12 yrs' },
-                    { name: 'Southern Aquifer (Chott)', depletion: '0.8m/yr', salt: 'High', remaining: '8 yrs' }
-                  ].map((aq, i) => (
-                    <div key={i} className="p-4 rounded-xl md:rounded-2xl bg-white/5 border border-white/10 flex justify-between items-center">
-                      <div>
-                        <div className="text-sm font-bold text-white">{aq.name}</div>
-                        <div className="text-[10px] font-mono text-slate-500 uppercase">Depletion: {aq.depletion}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className={cn(
-                          "text-xs font-mono font-bold",
-                          parseInt(aq.remaining) < 15 ? "text-intel-red" : "text-intel-orange"
-                        )}>
-                          {aq.remaining} Est. Remaining
-                        </div>
-                        <div className="text-[9px] font-mono text-slate-600 uppercase">Salt Intrusion: {aq.salt}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="intel-card p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 bg-gradient-to-br from-intel-red/5 to-transparent">
-                <h3 className="text-lg font-bold text-white mb-2 flex items-center">
-                  <AlertTriangle className="w-5 h-5 mr-2 text-intel-red" />
-                  Water-Protest Correlation
-                </h3>
-                <p className="text-[10px] font-mono text-slate-500 mb-6 uppercase tracking-widest">Social Instability Linkage (RRI Index)</p>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-6">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase">
-                        <span>Water Scarcity Index</span>
-                        <span className="text-intel-red">88%</span>
-                      </div>
-                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-intel-red w-[88%]" />
-                      </div>
-                    </div>
-                    <div className="w-px h-12 bg-white/10" />
-                    <div className="flex-1 space-y-2">
-                      <div className="flex justify-between text-[10px] font-mono text-slate-400 uppercase">
-                        <span>Social Unrest Probability</span>
-                        <span className="text-intel-orange">74%</span>
-                      </div>
-                      <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-intel-orange w-[74%]" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-xl md:rounded-2xl bg-black/40 border border-white/5">
-                    <p className="text-xs text-slate-400 leading-relaxed italic">
-                      "Historical data shows a 0.82 correlation coefficient between water cuts exceeding 12 hours and 
-                      unspontaneous civil movements in central governorates. Current RRI spikes in Kairouan are 
-                      directly linked to the 18-hour daily cut average."
-                    </p>
-                    <div className="mt-4 flex justify-end">
-                      <button 
-                        onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: 'political', subTab: 'movements' }}))}
-                        className="px-4 py-2 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded-xl text-[10px] font-mono text-intel-cyan font-bold transition-all"
-                      >
-                        View Civil Movements →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={activeCategory}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="space-y-12"
-          >
-            {/* CATEGORY 1: WATER SECURITY & HYDRIC STRESS */}
-            {(activeCategory === 'ALL' || activeCategory === 'WATER') && (
-              <div className="space-y-6 relative z-20">
-                <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
-                  <Droplets className="w-4 h-4 text-intel-cyan" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Water Security & Hydric Stress</h3>
-                </div>
-
-                {/* Key Indicators Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {[
-                    { label: 'Dam Reserves', value: '28%', status: 'CRITICAL', icon: Waves },
-                    { label: 'Potable Water Coverage', value: '94.2%', status: 'WARNING', icon: Droplets },
-                    { label: 'Aquifer Depletion', value: '82%', status: 'CRITICAL', icon: Activity },
-                    { label: 'Avg Temp Anomaly', value: '+2.1°C', status: 'CRITICAL', icon: Thermometer },
-                  ].map((metric, i) => (
-                    <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
-                      <CornerAccent position="tl" />
-                      <CornerAccent position="br" />
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-intel-cyan group-hover:scale-110 transition-transform duration-300">
-                          <metric.icon className="w-5 h-5" />
-                        </div>
-                        <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                          metric.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/5' : 'text-intel-orange border-intel-orange/30 bg-intel-orange/5'
-                        }`}>
-                          {metric.status}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{metric.label}</div>
-                        <div className="text-2xl font-bold text-white tracking-tight">{metric.value}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Dam Reserves Decline */}
-                  <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-                    <div className="flex items-center justify-between mb-8">
-                      <div>
-                        <h3 className="text-lg font-bold text-white uppercase tracking-tight">Dam Reserve Levels</h3>
-                        <p className="text-xs text-slate-500 mt-1 uppercase font-mono">2026 Hydric Stress Trend Analysis</p>
-                      </div>
-                      <Waves className="w-5 h-5 text-intel-cyan" />
-                    </div>
-                    <div className="h-[300px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={damReservesData}>
-                          <defs>
-                            <linearGradient id="colorWater" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.2}/>
-                              <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                          <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                          <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                          <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                          <Area type="monotone" dataKey="level" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2} />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-
-                  {/* Water Cut Impact */}
-                  <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-                    <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-lg font-bold text-white uppercase tracking-tight">Regional Water Cuts</h3>
-                      <Activity className="w-5 h-5 text-intel-cyan" />
-                    </div>
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {waterCutData.map((item) => (
-                        <div key={item.region} className="space-y-1">
-                          <div className="flex justify-between text-[10px] font-mono uppercase">
-                            <span className="text-slate-400">{item.region}</span>
-                            <span className="text-white font-bold">{item.hours}h/day</span>
-                          </div>
-                          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-intel-cyan" style={{ width: `${(item.hours / 24) * 100}%` }} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Water Crisis Heatmap & Regional Stress Analysis */}
-                <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
-                  <CornerAccent position="tl" />
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <h3 className="text-lg font-bold text-white uppercase tracking-tight">Water Crisis Heatmap & Regional Stress Analysis</h3>
-                      <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Governorate-level hydric stress & aquifer depletion monitoring</p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-intel-cyan animate-pulse"></div>
-                        <span className="text-[10px] font-mono text-intel-cyan uppercase font-bold">Hydric Stress Indicators</span>
-                      </div>
-                      <Droplets className="w-5 h-5 text-intel-cyan" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 h-[500px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/5 bg-black/20">
-                      <Map 
-                        governorates={governoratesData.governorates as any} 
-                        events={[]} 
-                        activeLayer="Water Security" 
-                        heatmapPoints={waterStressHeatmapPoints}
-                      />
-                    </div>
-                    
-                    <div className="lg:col-span-1 space-y-4">
-                      <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest border-b border-intel-border pb-2">Governorate Stress Index</div>
-                      <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-                        {governorateWaterStress.map((gov, index) => (
-                          <div key={`${gov.name}-${index}`} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-bold text-white uppercase tracking-tight">{gov.name}</span>
-                              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
-                                gov.status === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
-                              }`}>
-                                {gov.status}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1 mr-4">
-                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                  <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${gov.stress}%` }}
-                                    transition={{ duration: 1, delay: 0.5 }}
-                                    className={`h-full ${gov.stress > 90 ? 'bg-intel-red' : 'bg-intel-orange'}`}
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-xs font-bold text-white font-mono">{gov.stress}%</span>
-                                {gov.trend === 'UP' ? (
-                                  <TrendingUp className="w-3 h-3 text-intel-red" />
-                                ) : (
-                                  <Activity className="w-3 h-3 text-intel-cyan" />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="p-4 rounded-xl bg-intel-cyan/5 border border-intel-cyan/20">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <AlertTriangle className="w-4 h-4 text-intel-cyan" />
-                          <span className="text-[10px] font-bold text-intel-cyan uppercase">Security Implication</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400 font-mono leading-relaxed">
-                          Stress levels exceeding 80% in agricultural hubs (Sidi Bouzid, Kairouan) correlate with increased risk of localized social unrest and rural-to-urban migration.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-          {/* CATEGORY 2: ECOLOGICAL STABILITY & LAND USE */}
-          {(activeCategory === 'ALL' || activeCategory === 'ECOLOGY') && (
-            <div className="space-y-6 relative z-20">
-              <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
-                <Sprout className="w-4 h-4 text-intel-cyan" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Ecological Stability & Land Use</h3>
-              </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Land Classification */}
-          <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Land Classification</h3>
-              <PieChartIcon className="w-5 h-5 text-intel-cyan" />
-            </div>
-            <div className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={landUseData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
+        <motion.div
+          key={activeCategory}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.25 }}
+          className="space-y-10"
+        >
+          {/* ═══════════════════════════════════════════════════════════
+              ALL INTELLIGENCE MAP
+          ═══════════════════════════════════════════════════════════ */}
+          {activeCategory === 'ALL' && (
+            <div className="space-y-6">
+              <SectionHeader icon={MapIcon} title="Sovereign Environmental Risk Map" badge="DYNAMIC LAYERS" />
+              
+              <div className="flex flex-wrap items-center gap-2">
+                {['Water Stress', 'Fire Risk', 'Erosion Index', 'Aquifer Depletion'].map(layer => (
+                  <button
+                    key={layer}
+                    onClick={() => setActiveMapLayer(layer)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase tracking-widest transition-all',
+                      activeMapLayer === layer 
+                        ? 'bg-intel-cyan/20 border-intel-cyan/50 text-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.1)]' 
+                        : 'bg-white/5 border-white/5 text-slate-500 hover:text-slate-300'
+                    )}
                   >
-                    {landUseData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              {landUseData.map(item => (
-                <div key={item.name} className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-[10px] text-slate-500 uppercase font-mono">{item.name} {item.value}%</span>
+                    {layer}
+                  </button>
+                ))}
+              </div>
+
+              <div className="glass rounded-xl border border-intel-border overflow-hidden h-[600px] relative">
+                <Map 
+                  governorates={mappedGovernorates}
+                  events={[]}
+                  activeLayer="Environmental"
+                  externalActiveLayer={activeMapLayer}
+                />
+                
+                <div className="absolute bottom-6 right-6 glass p-4 rounded-xl border border-white/10 z-10 max-w-[200px] space-y-3">
+                  <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Layer Legend: {activeMapLayer}</div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded bg-intel-red" />
+                      <span className="text-[8px] font-mono text-slate-400">CRITICAL RISK</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded bg-intel-orange" />
+                      <span className="text-[8px] font-mono text-slate-400">HIGH STRESS</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded bg-yellow-500" />
+                      <span className="text-[8px] font-mono text-slate-400">MODERATE</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded bg-intel-cyan" />
+                      <span className="text-[8px] font-mono text-slate-400">STABLE / OPTIMAL</span>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CO2 Emissions */}
-          <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">CO2 Emissions Trend</h3>
-                <p className="text-xs text-slate-500 mt-1 uppercase font-mono">National Carbon Footprint Analysis</p>
               </div>
-              <Cloud className="w-5 h-5 text-intel-cyan" />
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <StatCard label="Active Hotspots" value="12" sub="Across 4 categories" icon={Flame} warn />
+                <StatCard label="Regional Anomalies" value=" +2.4σ" sub="Std dev from 10yr mean" icon={Activity} color="text-intel-orange" />
+                <StatCard label="Map Confidence" value="98.2%" sub="Verified Sentinel Feed" icon={ShieldAlert} color="text-emerald-400" />
+              </div>
             </div>
-            <div className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={co2EmissionsData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                  <Line type="monotone" dataKey="val" stroke="#00f2ff" strokeWidth={3} dot={{ fill: '#00f2ff', r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
+          )}
 
-          {/* CATEGORY 3: CLIMATE RISKS & FOREST FIRES */}
-          {(activeCategory === 'ALL' || activeCategory === 'CLIMATE') && (
-            <div className="space-y-6 relative z-20">
-              <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
-                <Flame className="w-4 h-4 text-intel-red" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Climate Risks & Forest Fires</h3>
+          {/* ═══════════════════════════════════════════════════════════
+              WATER SECURITY
+          ═══════════════════════════════════════════════════════════ */}
+          {show('WATER') && (
+            <div className="space-y-6">
+              <SectionHeader icon={Droplets} title="Water Security & Hydric Stress" badge="CRITICAL" badgeColor="text-intel-red border-intel-red/30 bg-intel-red/5" />
+
+              {/* KPI Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard label="Governorates in Crisis" value={String(data?.social?.water_crisis_govs ?? 7)} sub="Critical water stress" icon={AlertTriangle} warn trend="up" />
+                <StatCard label="National Water Stress" value="74%" sub="Above scarcity threshold" icon={Droplets} warn trend="up" />
+                <StatCard label="Dam Reserve Level" value="12%" sub="vs 35% Jan baseline" icon={Waves} warn trend="down" />
+                <StatCard label="Potable Coverage" value="94.2%" sub="Urban — Rural: 78%" icon={CheckCircle2} color="text-intel-cyan" trend="down" />
               </div>
 
-      {/* Forest Fire Intelligence */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-20">
-        <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Forest Fire Dynamics</h3>
-              <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Incidents vs. Hectares Burned (2025)</p>
-            </div>
-            <Flame className="w-5 h-5 text-intel-red" />
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={forestFireData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                <Bar dataKey="incidents" fill="#f97316" fillOpacity={0.6} radius={[4, 4, 0, 0]} name="Total Incidents" />
-                <Line type="monotone" dataKey="hectares" stroke="#ef4444" strokeWidth={3} dot={{ fill: '#ef4444', r: 4 }} name="Hectares Burned" />
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="lg:col-span-1 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border">
-          <div className="flex items-center justify-between mb-8 border-b border-intel-border pb-4">
-            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Active Hotspots</h3>
-            <MapIcon className="w-4 h-4 text-intel-cyan" />
-          </div>
-          <div className="space-y-4">
-            {fireHotspots.map((spot, spotIdx) => (
-              <div key={`${spot.id}-${spotIdx}`} className="p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
-                <div className="flex justify-between items-start mb-2">
+              {/* Aquifer Depletion + Water Source Mix */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div className="lg:col-span-2 glass rounded-xl border border-intel-border p-5 space-y-4">
                   <div>
-                    <div className="text-sm font-bold text-white uppercase tracking-tight">{spot.location}</div>
-                    <div className="text-[8px] font-mono text-slate-500 uppercase">{spot.id}</div>
+                    <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">Aquifer Reserve Levels — by Region</div>
+                    <div className="text-[9px] font-mono text-slate-600 text-xs">% of estimated total capacity (2015 baseline)</div>
                   </div>
-                  <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
-                    spot.risk === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
-                  }`}>
-                    {spot.risk}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center space-x-2">
-                    <Activity className="w-3 h-3 text-slate-500" />
-                    <span className="text-[10px] font-mono text-slate-400 uppercase">{spot.status}</span>
+                  <div className="h-[220px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={aquiferDepletionData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                        <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} domain={[0, 100]} unit="%" />
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                        <Line type="monotone" dataKey="north" stroke="#00f2ff" strokeWidth={2} dot={false} name="North" />
+                        <Line type="monotone" dataKey="center" stroke="#f97316" strokeWidth={2} dot={false} name="Centre" />
+                        <Line type="monotone" dataKey="south" stroke="#ef4444" strokeWidth={2} dot={false} name="South" />
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
-                  <div className="text-[10px] font-mono text-intel-cyan">{spot.hectares} Ha</div>
+                  <div className="flex items-center space-x-6 text-[9px] font-mono">
+                    <span className="flex items-center space-x-1.5"><span className="w-3 h-0.5 bg-intel-cyan inline-block" /><span className="text-slate-400">North</span></span>
+                    <span className="flex items-center space-x-1.5"><span className="w-3 h-0.5 bg-intel-orange inline-block" /><span className="text-slate-400">Centre</span></span>
+                    <span className="flex items-center space-x-1.5"><span className="w-3 h-0.5 bg-intel-red inline-block" /><span className="text-slate-400">South — Critical</span></span>
+                  </div>
                 </div>
+
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Water Source Mix</div>
+                  <div className="h-[180px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={waterSourceMix} cx="50%" cy="50%" innerRadius={48} outerRadius={72} paddingAngle={3} dataKey="value">
+                          {waterSourceMix.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-1.5">
+                    {waterSourceMix.map(item => (
+                      <div key={item.name} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                          <span className="text-[9px] font-mono text-slate-500">{item.name}</span>
+                        </div>
+                        <span className="text-[9px] font-mono text-white">{item.value}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desalination + Stress Table */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <SectionHeader icon={Sun} title="Desalination Lifecycle" badge="Active" />
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={desalinationData}>
+                        <defs>
+                          <linearGradient id="desalColor" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                        <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                        <Area type="monotone" dataKey="production" stroke="#0ea5e9" fillOpacity={1} fill="url(#desalColor)" strokeWidth={2} name="Production (m³/d)" />
+                        <Area type="monotone" dataKey="capacity" stroke="#ffffff20" fill="transparent" strokeDasharray="5 5" name="Design Capacity" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4 overflow-hidden">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Regional Supply Deficit Matrix</div>
+                  <div className="h-[200px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+                    {governorateWaterStress.slice(0, 10).map(gov => (
+                      <div key={gov.name} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-intel-cyan/30 transition-all">
+                        <div className="flex items-center space-x-3">
+                          <RiskBadge level={gov.status} />
+                          <span className="text-[10px] font-bold text-white uppercase">{gov.name}</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden hidden md:block">
+                            <div className="h-full bg-intel-cyan" style={{ width: `${gov.stress}%` }} />
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400">{gov.stress}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════════
+              ECOLOGICAL STABILITY
+          ═══════════════════════════════════════════════════════════ */}
+          {show('ECOLOGY') && (
+            <div className="space-y-6">
+              <SectionHeader icon={Sprout} title="Ecological Stability & Land Use" badge="MONITORING" />
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard label="Desertification Risk" value="62%" sub="Arid transition zone" icon={TrendingUp} warn trend="up" />
+                <StatCard label="Forest Cover Loss" value="2.4k ha" sub="Since Jan 2025" icon={TreePine} warn trend="up" />
+                <StatCard label="Soil Erosion" value="3.2 t/ha" sub="Annual average loss" icon={Mountain} warn trend="stable" />
+                <StatCard label="Protected Areas" value="8.4%" sub="of National Territory" icon={ShieldAlert} color="text-intel-green" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Biodiversity Health Radar</div>
+                  <div className="h-[240px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
+                        { subject: 'Forest Integrity', A: 45, fullMark: 100 },
+                        { subject: 'Species Variance', A: 32, fullMark: 100 },
+                        { subject: 'Habitat Continuity', A: 28, fullMark: 100 },
+                        { subject: 'Soil Quality', A: 42, fullMark: 100 },
+                        { subject: 'Hydric Balance', A: 18, fullMark: 100 },
+                        { subject: 'Air Quality', A: 65, fullMark: 100 },
+                      ]}>
+                        <PolarGrid stroke="#ffffff10" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 8 }} />
+                        <Radar name="North Region" dataKey="A" stroke="#00f2ff" fill="#00f2ff" fillOpacity={0.2} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Desertification Index Migration (2018–2026)</div>
+                  <div className="h-[240px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { year: '2018', arid: 48, semiArid: 32, fertile: 20 },
+                        { year: '2020', arid: 52, semiArid: 30, fertile: 18 },
+                        { year: '2022', arid: 55, semiArid: 29, fertile: 16 },
+                        { year: '2024', arid: 58, semiArid: 28, fertile: 14 },
+                        { year: '2026', arid: 62, semiArid: 26, fertile: 12 },
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                        <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} />
+                        <YAxis hide />
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                        <Bar dataKey="arid" stackId="a" fill="#f59e0b" name="Arid/Desert" />
+                        <Bar dataKey="semiArid" stackId="a" fill="#78350f" name="Semi-Arid" />
+                        <Bar dataKey="fertile" stackId="a" fill="#15803d" name="Fertile/Arable" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex justify-center space-x-6 text-[9px] font-mono">
+                    <span className="flex items-center space-x-2"><div className="w-2 h-2 rounded-full bg-[#f59e0b]" /> <span className="text-slate-400">Arid Transit</span></span>
+                    <span className="flex items-center space-x-2"><div className="w-2 h-2 rounded-full bg-[#15803d]" /> <span className="text-slate-400">Total Fertile Yield</span></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Two-Column Soil & Coast */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center">
+                    <Mountain className="w-3 h-3 mr-2" /> Soil Erosion Hotspots
+                  </div>
+                  <div className="space-y-2 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
+                    {[
+                      { region: 'Northern Highlands', rate: '3.2 t/ha/yr', risk: 'HIGH' },
+                      { region: 'Medjerda Basin', rate: '2.8 t/ha/yr', risk: 'MEDIUM' },
+                      { region: 'Central Steppes', rate: '1.9 t/ha/yr', risk: 'MEDIUM' },
+                      { region: 'Cap Bon Slopes', rate: '4.5 t/ha/yr', risk: 'CRITICAL' },
+                    ].map(row => (
+                      <div key={row.region} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
+                        <span className="text-[10px] font-bold text-white uppercase">{row.region}</span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-[10px] font-mono text-slate-400">{row.rate}</span>
+                          <RiskBadge level={row.risk} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest flex items-center">
+                    <Waves className="w-3 h-3 mr-2 text-intel-cyan" /> Coastal Vulnerability Matrix
+                  </div>
+                  <div className="space-y-2 overflow-y-auto max-h-[160px] pr-2 custom-scrollbar">
+                    {[
+                      { site: 'Djerba Island', slr: '+1.2mm/yr', risk: 'Extreme' },
+                      { site: 'Kerkennah Archipelago', slr: '+1.5mm/yr', risk: 'Extreme' },
+                      { site: 'Gulf of Gabès', slr: '+0.8mm/yr', risk: 'Severe' },
+                      { site: 'Tunis North Bay', slr: '+0.6mm/yr', risk: 'Moderate' },
+                    ].map(row => (
+                      <div key={row.site} className="flex items-center justify-between p-2 rounded-lg bg-intel-cyan/5 border border-intel-cyan/10">
+                        <span className="text-[10px] font-bold text-intel-cyan uppercase">{row.site}</span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-[10px] font-mono text-slate-400">{row.slr}</span>
+                          <RiskBadge level={row.risk} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════════
+              CLIMATE RISKS
+          ═══════════════════════════════════════════════════════════ */}
+          {show('CLIMATE') && (
+            <div className="space-y-6">
+              <SectionHeader icon={Thermometer} title="Climate Hazards & Thermal Extremes" badge="HIGH RISK" />
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard label="Avg Temp Anomaly" value="+2.1°C" sub="vs 1990-2020 base" icon={Thermometer} warn trend="up" />
+                <StatCard label="Heatwave Frequency" value="+45%" sub="Increased vs 5yr average" icon={Zap} warn trend="up" />
+                <StatCard label="Rainfall Deficit" value="-38%" sub="Cumulative deficit" icon={CloudRain} warn trend="down" />
+                <StatCard label="Fire Risk Index" value="8.4/10" sub="Extreme fuel load north" icon={Flame} warn trend="up" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div className="lg:col-span-2 glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Temperature Anomaly Map (2020–2026)</div>
+                  <div className="h-[240px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" />
+                        <XAxis type="number" dataKey="month" name="month" unit="" hide />
+                        <YAxis type="number" dataKey="temp" name="temp" unit="°C" hide />
+                        <ZAxis type="number" dataKey="anomaly" range={[50, 400]} />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                        <Scatter name="Anomalies" data={[
+                          { month: 1, temp: 18, anomaly: 1.2 },
+                          { month: 2, temp: 20, anomaly: 1.5 },
+                          { month: 4, temp: 28, anomaly: 2.4 },
+                          { month: 6, temp: 38, anomaly: 3.8 },
+                          { month: 8, temp: 42, anomaly: 4.5 },
+                          { month: 10, temp: 30, anomaly: 2.1 },
+                          { month: 12, temp: 22, anomaly: 1.8 },
+                        ]} fill="#ef4444" />
+                      </ScatterChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="p-3 rounded-lg bg-intel-red/5 border border-intel-red/20 text-[10px] font-mono text-slate-400">
+                    <span className="text-intel-red font-bold">INSIGHT:</span> Summer peak temperatures in 2025 exceeded local historical records in 8 governorates, accelerating evaporation from Sidi Salem reservoir.
+                  </div>
+                </div>
+
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Drought Index: SPEI Matrix</div>
+                  <div className="space-y-4">
+                    {[
+                      { period: '90-Day Accum', val: -2.4, status: 'EXCESSIVE' },
+                      { period: '180-Day Accum', val: -1.8, status: 'SEVERE' },
+                      { period: '12-Month Accum', val: -1.5, status: 'MODERATE' },
+                      { period: '3-Year Trend', val: -2.1, status: 'SEVERE' },
+                    ].map(row => (
+                      <div key={row.period} className="space-y-1.5">
+                        <div className="flex justify-between text-[10px] font-mono uppercase">
+                          <span className="text-slate-400">{row.period}</span>
+                          <span className={cn('font-bold', row.val < -2 ? 'text-intel-red' : 'text-intel-orange')}>{row.val} index</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                          <div className={cn('h-full', row.val < -2 ? 'bg-intel-red' : 'bg-intel-orange')} style={{ width: `${Math.abs(row.val) * 25}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Fire Risks & Sea Level Rise */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <SectionHeader icon={Flame} title="Active Forest Fire Hotspots" />
+                  <div className="space-y-3 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+                    {fireHotspots.map(spot => (
+                      <div key={spot.id} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-red/30 transition-all flex items-center justify-between group">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-1.5 rounded-lg bg-intel-red/10 text-intel-red group-hover:scale-110 transition-transform"><Flame className="w-4 h-4" /></div>
+                          <div>
+                            <div className="text-[10px] font-bold text-white uppercase">{spot.location}</div>
+                            <div className="text-[9px] font-mono text-slate-500 italic">{spot.status}</div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <RiskBadge level={spot.risk} />
+                          <div className="text-[9px] font-mono text-slate-400 mt-1">{spot.hectares} ha burned</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                  <SectionHeader icon={Waves} title="Sea Level Rise Impact Projection" />
+                  <div className="h-[180px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={[
+                        { year: '2020', level: 0 },
+                        { year: '2025', level: 4.5 },
+                        { year: '2030', level: 12.8 },
+                        { year: '2035', level: 25.2 },
+                        { year: '2040', level: 48.5 },
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                        <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                        <Area type="step" dataKey="level" stroke="#00f2ff" fill="#00f2ff10" strokeWidth={2} name="Mean Delta (mm)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="text-[9px] font-mono text-slate-500 leading-relaxed italic">
+                    Projection models indicate accelerated coastal erosion in Sfax industrial zones and Djerba tourism infrastructure by 2035.
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Environmental Risk Dossiers */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-20">
+            {[
+              {
+                title: 'Hydric Stress & Social Unrest',
+                risk: 'CRITICAL',
+                desc: 'Tunisia is below the absolute water scarcity threshold (500m³/capita/year). Rationing in interior regions like Gafsa and Kairouan is triggering localized protests. Water security is now a primary national security concern.'
+              },
+              {
+                title: 'Forest Fire Proliferation',
+                risk: 'CRITICAL',
+                desc: 'Rising summer temperatures and prolonged droughts have increased wildfire frequency by 40% since 2020. The Kroumirie and Mogods forests are at extreme risk. Human activity (both accidental and arson) accounts for 90% of ignitions.'
+              },
+            ].map((dossier, i) => (
+              <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
+                <CornerAccent position="tl" />
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <ShieldAlert className="w-5 h-5 text-intel-red" />
+                    <h4 className="text-sm font-bold text-white uppercase tracking-widest">{dossier.title}</h4>
+                  </div>
+                  <RiskBadge level={dossier.risk} />
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed font-sans uppercase tracking-tight">
+                  {dossier.desc}
+                </p>
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Forest Fire Risk & Ecological Heatmap */}
-      <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6 relative z-20">
-        <CornerAccent position="tr" />
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Forest Fire Risk & Ecological Heatmap</h3>
-            <p className="text-[10px] text-slate-500 uppercase font-mono tracking-wider">Satellite-derived thermal anomalies & fuel load analysis</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setShowFireChoropleth(!showFireChoropleth)}
-              className={cn(
-                "flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all text-[9px] font-mono uppercase font-bold",
-                showFireChoropleth 
-                  ? "bg-intel-cyan/10 border-intel-cyan/30 text-intel-cyan shadow-[0_0_15px_rgba(0,242,255,0.1)]" 
-                  : "bg-white/5 border-white/10 text-slate-500 hover:text-slate-400"
-              )}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span> {showFireChoropleth ? 'Static Map' : 'Dynamic Risk'}</span>
-            </button>
-            <button
-              onClick={() => setShowThermalDots(!showThermalDots)}
-              className={cn(
-                "flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all text-[9px] font-mono uppercase font-bold",
-                showThermalDots 
-                  ? "bg-intel-red/10 border-intel-red/30 text-intel-red shadow-[0_0_15px_rgba(239,68,68,0.1)]" 
-                  : "bg-white/5 border-white/10 text-slate-500 hover:text-slate-400"
-              )}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Thermal Dots</span>
-            </button>
-            <button
-              onClick={() => setShowActualFires(!showActualFires)}
-              className={cn(
-                "flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all text-[9px] font-mono uppercase font-bold",
-                showActualFires 
-                  ? "bg-orange-500/20 border-orange-500/30 text-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.1)]" 
-                  : "bg-white/5 border-white/10 text-slate-500 hover:text-slate-400"
-              )}
-            >
-              <Flame className="w-3.5 h-3.5" />
-              <span>Actual Fires</span>
-            </button>
-            <FireExtinguisher className="w-5 h-5 text-intel-red ml-2 hidden sm:block" />
-          </div>
-        </div>
-        <div className="h-[500px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/5 bg-black/20">
-          <Map 
-            governorates={fireRiskGovernorates} 
-            events={[]} 
-            activeLayer="Environmental" 
-            heatmapPoints={combinedHeatmapPoints}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-          {[
-            { title: 'Fuel Load Density', color: 'text-intel-green', desc: 'High biomass accumulation in North-West forests increasing ignition potential.' },
-            { title: 'Thermal Anomalies', color: 'text-intel-red', desc: 'Real-time satellite detection of surface temperature spikes > 45°C.' },
-            { title: 'Ecological Vulnerability', color: 'text-intel-cyan', desc: 'Endemic species habitats at risk of permanent degradation from fire cycles.' }
-          ].map((item, i) => (
-            <div key={i} className="p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/10 space-y-2 group hover:border-white/20 transition-all">
-              <div className={`text-[10px] font-bold ${item.color} uppercase tracking-widest flex items-center space-x-2`}>
-                <div className={`w-1 h-1 rounded-full bg-current`}></div>
-                <span>{item.title}</span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed font-mono">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-    )}
-
-          {/* Environmental Risk Dossiers */}
-          {(activeCategory === 'ALL' || activeCategory === 'CLIMATE' || activeCategory === 'WATER') && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-20">
-              {[
-                { 
-                  title: 'Hydric Stress & Social Unrest', 
-                  risk: 'CRITICAL', 
-                  desc: 'Tunisia is below the absolute water scarcity threshold (500m³/capita/year). Rationing in interior regions like Gafsa and Kairouan is triggering localized protests. Water security is now a primary national security concern.' 
-                },
-                { 
-                  title: 'Forest Fire Proliferation', 
-                  risk: 'CRITICAL', 
-                  desc: 'Rising summer temperatures and prolonged droughts have increased wildfire frequency by 40% since 2020. The Kroumirie and Mogods forests are at extreme risk. Human activity (both accidental and arson) accounts for 90% of ignitions.' 
-                },
-              ].map((dossier, i) => (
-                <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
-                  <CornerAccent position="tl" />
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-3">
-                      <ShieldAlert className="w-5 h-5 text-intel-red" />
-                      <h4 className="text-sm font-bold text-white uppercase tracking-widest">{dossier.title}</h4>
-                    </div>
-                    <span className="text-[8px] font-mono px-2 py-0.5 rounded border border-intel-red/30 bg-intel-red/5 text-intel-red uppercase">
-                      {dossier.risk}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400 leading-relaxed font-sans uppercase tracking-tight">
-                    {dossier.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
         </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-);
+      </AnimatePresence>
+    </div>
+  );
 };

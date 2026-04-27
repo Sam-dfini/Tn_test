@@ -1,3 +1,4 @@
+import variablesJSON from '../data/rri_variables.json';
 import { safeStorage } from '../utils/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import calculateRRI, {
@@ -160,6 +161,7 @@ interface PlatformData {
   geopolitical: GeopoliticalData;
   social: SocialData;
   last_pipeline_push: string | null;
+  variables: any[];
 }
 
 const DEFAULT_DATA: PlatformData = {
@@ -265,7 +267,8 @@ const DEFAULT_DATA: PlatformData = {
     last_updated: '2026-03-14',
     source: 'UGTT / RSF / TAP'
   },
-  last_pipeline_push: null
+  last_pipeline_push: null,
+  variables: variablesJSON.variables
 };
 
 interface ApprovedChange {

@@ -181,7 +181,7 @@ const strategicRisks = [
 ];
 
 export const GeopoliticalIntelligence: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'diplomacy'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'diplomacy' | 'regional'>('overview');
   const [selectedActor, setSelectedActor] = useState(actors[0]);
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
   const { data, updateField } = usePipeline();
@@ -260,6 +260,21 @@ export const GeopoliticalIntelligence: React.FC = () => {
         >
           Diplomatic Relations
           {activeTab === 'diplomacy' && (
+            <motion.div 
+              layoutId="activeGeopolTab" 
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.5)]" 
+            />
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('regional')}
+          className={cn(
+            "pb-4 px-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative",
+            activeTab === 'regional' ? "text-intel-cyan" : "text-slate-500 hover:text-white"
+          )}
+        >
+          Regional Powers
+          {activeTab === 'regional' && (
             <motion.div 
               layoutId="activeGeopolTab" 
               className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.5)]" 
@@ -859,6 +874,183 @@ export const GeopoliticalIntelligence: React.FC = () => {
               </div>
             </motion.div>
           </AnimatePresence>
+        </div>
+      </div>
+    </motion.div>
+  ) : activeTab === 'regional' ? (
+    <motion.div
+      key="regional"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-8"
+    >
+      {/* Regional Powers Influence Matrix */}
+      <div className="glass p-6 rounded-2xl border border-intel-border relative overflow-hidden z-20">
+        <CornerAccent position="tl" />
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+              <Globe className="w-5 h-5 text-intel-cyan" />
+              <span className="uppercase tracking-tight">Regional Power Influence Vectors</span>
+            </h3>
+            <p className="text-[10px] text-slate-500 uppercase font-mono mt-1">Influence magnitude, posture, and strategic leverage on Tunisia</p>
+          </div>
+          <span className="text-[8px] font-mono px-2 py-1 rounded border text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5 uppercase">Live Assessment</span>
+        </div>
+
+        <div className="space-y-5">
+          {[
+            {
+              power: 'Algeria', flag: '🇩🇿', color: '#10b981',
+              influence: 88, posture: 'STRATEGIC ALLY', trend: '→ STABLE',
+              vectors: { energy: 95, security: 92, trade: 78, political: 82 },
+              leverage: 'Gas supply (35% of Tunisian energy). Border security cooperation. Diplomatic cover at Arab League.',
+              risk: 'LOW',
+              note: 'Algeria is Tunisia\'s most reliable regional partner. Shared interest in preventing Libyan spillover and Sahelian jihadist expansion.'
+            },
+            {
+              power: 'Saudi Arabia', flag: '🇸🇦', color: '#f59e0b',
+              influence: 72, posture: 'SELECTIVE ENGAGEMENT', trend: '↑ DEEPENING',
+              vectors: { energy: 45, security: 65, trade: 58, political: 88 },
+              leverage: 'Emergency liquidity deposits ($500M+). Soft power via religious networks. Potential OPEC+ coordination.',
+              risk: 'MEDIUM',
+              note: 'KSA provides political cover and selective liquidity but conditions support on counter-Iran alignment and Islamist suppression.'
+            },
+            {
+              power: 'Turkey', flag: '🇹🇷', color: '#ef4444',
+              influence: 54, posture: 'COMPETITIVE PRESSURE', trend: '↑ RISING',
+              vectors: { energy: 18, security: 42, trade: 68, political: 65 },
+              leverage: 'Growing trade ties. Drone technology exports. Soft power through MB-aligned networks. Libya proxy connection.',
+              risk: 'HIGH',
+              note: 'Turkey and Saied regime have ideological friction. Ankara maintains ties with suppressed Ennahda networks — this is a persistent tension vector.'
+            },
+            {
+              power: 'UAE', flag: '🇦🇪', color: '#3b82f6',
+              influence: 68, posture: 'SUPPORTIVE', trend: '→ STABLE',
+              vectors: { energy: 38, security: 55, trade: 72, political: 82 },
+              leverage: 'FDI in real estate and hospitality. Intelligence sharing on Islamist networks. Diplomatic backing at Arab League.',
+              risk: 'LOW',
+              note: 'UAE strongly backs Saied\'s anti-MB stance. Provides strategic intelligence cooperation and selective investment. Aligned on Libya.'
+            },
+            {
+              power: 'China', flag: '🇨🇳', color: '#8b5cf6',
+              influence: 48, posture: 'INFRASTRUCTURE', trend: '↑ EXPANDING',
+              vectors: { energy: 28, security: 22, trade: 75, political: 45 },
+              leverage: 'BRI infrastructure deals. Phosphate processing investment. Debt restructuring leverage. UN veto cover.',
+              risk: 'MEDIUM',
+              note: 'China is expanding footprint through non-conditional investment. No democracy conditionality = attractive to Saied. Debt dependency risk growing.'
+            },
+            {
+              power: 'Libya', flag: '🇱🇾', color: '#f97316',
+              influence: 62, posture: 'INSTABILITY VECTOR', trend: '↑ WORSENING',
+              vectors: { energy: 15, security: 88, trade: 45, political: 38 },
+              leverage: 'Direct border spillover risk. Smuggling corridor. Arms trafficking. Refugee pressure. Militia influence on southern Tunisia.',
+              risk: 'CRITICAL',
+              note: 'Libya is not a power but a threat multiplier. Eastern Libya (Haftar) provides covert support to certain Tunisian factions. Instability is direct national security risk.'
+            },
+          ].map((p, i) => (
+            <div key={i} className={`p-5 rounded-xl border space-y-4 ${p.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.risk === 'HIGH' ? 'border-intel-orange/20' : 'border-intel-border'}`}>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{p.flag}</span>
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-white uppercase tracking-tight">{p.power}</span>
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${p.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : p.risk === 'MEDIUM' ? 'text-yellow-400 border-yellow-400/30' : 'text-intel-cyan border-intel-cyan/30'}`}>{p.risk}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[9px] font-mono font-bold" style={{ color: p.color }}>{p.posture}</span>
+                      <span className={`text-[9px] font-mono ${p.trend.startsWith('↑') ? 'text-intel-red' : 'text-slate-500'}`}>{p.trend}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-2xl font-bold font-mono" style={{ color: p.color }}>{p.influence}</div>
+                  <div className="text-[8px] font-mono text-slate-600">Influence Index</div>
+                </div>
+              </div>
+
+              {/* 4 dimension bars */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.entries(p.vectors).map(([key, val]) => (
+                  <div key={key} className="space-y-1">
+                    <div className="flex justify-between text-[8px] font-mono text-slate-600 uppercase">
+                      <span>{key}</span><span style={{ color: p.color }}>{val}</span>
+                    </div>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${val}%`, backgroundColor: p.color, opacity: 0.8 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-white/5">
+                <div>
+                  <div className="text-[8px] font-mono text-slate-600 uppercase mb-1">Leverage Vectors</div>
+                  <p className="text-[9px] font-mono text-slate-400 leading-relaxed">{p.leverage}</p>
+                </div>
+                <div>
+                  <div className="text-[8px] font-mono text-slate-600 uppercase mb-1">Analyst Assessment</div>
+                  <p className="text-[9px] font-mono text-slate-400 leading-relaxed italic">{p.note}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Regional Influence Radar */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glass p-6 rounded-2xl border border-intel-border">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-4">Influence Radar — All Regional Powers</div>
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart data={[
+                { subject: 'Energy', ALG: 95, KSA: 45, TUR: 18, UAE: 38, CHN: 28, LIB: 15 },
+                { subject: 'Security', ALG: 92, KSA: 65, TUR: 42, UAE: 55, CHN: 22, LIB: 88 },
+                { subject: 'Trade', ALG: 78, KSA: 58, TUR: 68, UAE: 72, CHN: 75, LIB: 45 },
+                { subject: 'Political', ALG: 82, KSA: 88, TUR: 65, UAE: 82, CHN: 45, LIB: 38 },
+                { subject: 'Financial', ALG: 55, KSA: 85, TUR: 32, UAE: 78, CHN: 65, LIB: 12 },
+              ]}>
+                <PolarGrid stroke="rgba(255,255,255,0.06)" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 9, fontFamily: 'monospace' }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
+                <Radar name="Algeria" dataKey="ALG" stroke="#10b981" fill="#10b981" fillOpacity={0.1} strokeWidth={1.5} />
+                <Radar name="Saudi Arabia" dataKey="KSA" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} strokeWidth={1.5} />
+                <Radar name="Turkey" dataKey="TUR" stroke="#ef4444" fill="#ef4444" fillOpacity={0.1} strokeWidth={1.5} />
+                <Radar name="China" dataKey="CHN" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.1} strokeWidth={1.5} />
+                <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="glass p-6 rounded-2xl border border-intel-border space-y-4">
+          <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Overall Influence Ranking</div>
+          <div className="space-y-3">
+            {[
+              { power: 'Algeria', flag: '🇩🇿', score: 88, color: '#10b981' },
+              { power: 'Saudi Arabia', flag: '🇸🇦', score: 72, color: '#f59e0b' },
+              { power: 'Libya (threat)', flag: '🇱🇾', score: 62, color: '#ef4444' },
+              { power: 'UAE', flag: '🇦🇪', score: 68, color: '#3b82f6' },
+              { power: 'Turkey', flag: '🇹🇷', score: 54, color: '#f97316' },
+              { power: 'China', flag: '🇨🇳', score: 48, color: '#8b5cf6' },
+            ].sort((a, b) => b.score - a.score).map((p, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-sm w-6 shrink-0">{p.flag}</span>
+                <span className="text-[10px] font-mono text-slate-400 w-28 shrink-0">{p.power}</span>
+                <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${p.score}%`, backgroundColor: p.color }} />
+                </div>
+                <span className="text-[10px] font-mono font-bold shrink-0" style={{ color: p.color }}>{p.score}</span>
+              </div>
+            ))}
+          </div>
+          <div className="pt-3 border-t border-white/5 space-y-2">
+            <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">Key RRI Linkages</div>
+            <p className="text-[9px] font-mono text-slate-500 leading-relaxed">Libya instability (EQ.17 cascade) and Turkey-Ennahda alignment (EQ.7 elite defection utility) are the two highest-risk regional vectors feeding directly into R(t).</p>
+          </div>
         </div>
       </div>
     </motion.div>

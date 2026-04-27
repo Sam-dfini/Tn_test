@@ -134,6 +134,15 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
   const [internalLayer, setInternalLayer] = useState('Wheat Stress');
   const [showIcons, setShowIcons] = useState(true);
 
+  // Sync internal layer with parent when provided
+  useEffect(() => {
+    if (externalActiveLayer === 'Agricultural Stress' && activeLayer) {
+      if (['Wheat Stress', 'Olive Health', 'Rainfall Anomaly', 'Soil Moisture', 'Date Palm Health'].includes(activeLayer)) {
+        setInternalLayer(activeLayer);
+      }
+    }
+  }, [activeLayer, externalActiveLayer]);
+
   const renderLayer = externalActiveLayer === 'Agricultural Stress' ? internalLayer : activeLayer;
 
   // Fetch Tunisia ADM1 GeoJSON

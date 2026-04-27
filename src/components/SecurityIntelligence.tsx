@@ -171,8 +171,88 @@ const accidentCauses = [
   { name: 'Other', value: 10, color: '#94a3b8' }
 ];
 
+const cyberIncidentData = [
+  { month: 'Oct', ddos: 3, phishing: 18, intrusion: 2, defacement: 1 },
+  { month: 'Nov', ddos: 5, phishing: 22, intrusion: 4, defacement: 2 },
+  { month: 'Dec', ddos: 4, phishing: 28, intrusion: 3, defacement: 1 },
+  { month: 'Jan', ddos: 8, phishing: 31, intrusion: 6, defacement: 3 },
+  { month: 'Feb', ddos: 6, phishing: 25, intrusion: 5, defacement: 2 },
+  { month: 'Mar', ddos: 12, phishing: 38, intrusion: 9, defacement: 4 },
+];
+
+const cyberTargets = [
+  { target: 'Energy Grid (STEG)', threat: 'CRITICAL', lastAttempt: '2h ago', vector: 'DDoS + Credential Stuffing', status: 'DEFENDED' },
+  { target: 'Central Bank (BCT)', threat: 'HIGH', lastAttempt: '6h ago', vector: 'Phishing Campaign', status: 'MONITORING' },
+  { target: 'Interior Ministry', threat: 'HIGH', lastAttempt: '14h ago', vector: 'APT Lateral Movement', status: 'DEFENDED' },
+  { target: 'Tunis-Carthage Airport', threat: 'HIGH', lastAttempt: '1d ago', vector: 'SCADA Probe', status: 'PATCHED' },
+  { target: 'ATB Banking Network', threat: 'MEDIUM', lastAttempt: '2d ago', vector: 'SQL Injection', status: 'BLOCKED' },
+  { target: 'TAP News Agency', threat: 'MEDIUM', lastAttempt: '3d ago', vector: 'Defacement Attempt', status: 'BLOCKED' },
+];
+
+const cyberThreatActors = [
+  { name: 'Anonymous Arab', origin: 'Regional', motivation: 'Hacktivist', capability: 'MEDIUM', activity: 'ELEVATED' },
+  { name: 'Tunisian Cyber Army', origin: 'Domestic', motivation: 'Nationalist', capability: 'LOW', activity: 'MODERATE' },
+  { name: 'APT-Regional-07', origin: 'State-Sponsored', motivation: 'Espionage', capability: 'HIGH', activity: 'LOW' },
+  { name: 'Criminal Syndicate', origin: 'Unknown', motivation: 'Financial', capability: 'MEDIUM', activity: 'ELEVATED' },
+];
+
+const prisonData = [
+  { facility: 'Mornaguia Prison', capacity: 1500, population: 3200, occupancy: 213, risk: 'CRITICAL' },
+  { facility: 'La Manouba', capacity: 800, population: 1650, occupancy: 206, risk: 'CRITICAL' },
+  { facility: 'Sfax Prison', capacity: 600, population: 1180, occupancy: 197, risk: 'HIGH' },
+  { facility: 'Sousse Prison', capacity: 500, population: 920, occupancy: 184, risk: 'HIGH' },
+  { facility: 'Bizerte Prison', capacity: 400, population: 680, occupancy: 170, risk: 'HIGH' },
+  { facility: 'Gabes Prison', capacity: 350, population: 540, occupancy: 154, risk: 'MEDIUM' },
+];
+
+const radicalizationInPrisonData = [
+  { year: '2020', salafi: 12, political: 8, criminal: 45 },
+  { year: '2021', salafi: 18, political: 11, criminal: 42 },
+  { year: '2022', salafi: 24, political: 15, criminal: 38 },
+  { year: '2023', salafi: 31, political: 19, criminal: 35 },
+  { year: '2024', salafi: 38, political: 24, criminal: 31 },
+  { year: '2025', salafi: 44, political: 28, criminal: 29 },
+];
+
+const prisonIncidentData = [
+  { month: 'Oct', riots: 1, hunger_strikes: 3, assaults: 12 },
+  { month: 'Nov', riots: 0, hunger_strikes: 5, assaults: 9 },
+  { month: 'Dec', riots: 2, hunger_strikes: 4, assaults: 14 },
+  { month: 'Jan', riots: 1, hunger_strikes: 7, assaults: 11 },
+  { month: 'Feb', riots: 3, hunger_strikes: 6, assaults: 18 },
+  { month: 'Mar', riots: 2, hunger_strikes: 9, assaults: 22 },
+];
+
+const policeOpsData = [
+  { month: 'Oct', raids: 45, arrests: 128, seizures: 32 },
+  { month: 'Nov', raids: 52, arrests: 147, seizures: 38 },
+  { month: 'Dec', raids: 38, arrests: 112, seizures: 28 },
+  { month: 'Jan', raids: 61, arrests: 183, seizures: 44 },
+  { month: 'Feb', raids: 55, arrests: 162, seizures: 41 },
+  { month: 'Mar', raids: 68, arrests: 197, seizures: 52 },
+];
+
+const policeDeploymentData = [
+  { region: 'Grand Tunis', units: 42, status: 'REINFORCED', incidents_30d: 156 },
+  { region: 'Sfax', units: 18, status: 'NORMAL', incidents_30d: 89 },
+  { region: 'Sousse', units: 14, status: 'NORMAL', incidents_30d: 67 },
+  { region: 'Kasserine', units: 12, status: 'ELEVATED', incidents_30d: 94 },
+  { region: 'Sidi Bouzid', units: 10, status: 'ELEVATED', incidents_30d: 78 },
+  { region: 'Gafsa', units: 16, status: 'REINFORCED', incidents_30d: 112 },
+  { region: 'Jendouba', units: 8, status: 'NORMAL', incidents_30d: 34 },
+  { region: 'Tataouine', units: 9, status: 'NORMAL', incidents_30d: 28 },
+];
+
+const policeUseOfForce = [
+  { type: 'Tear Gas', incidents: 28, trend: '+12%', status: 'ELEVATED' },
+  { type: 'Baton / Crowd Control', incidents: 45, trend: '+8%', status: 'ELEVATED' },
+  { type: 'Rubber Bullets', incidents: 12, trend: '+22%', status: 'HIGH' },
+  { type: 'Live Ammunition', incidents: 2, trend: 'STABLE', status: 'CRITICAL' },
+  { type: 'Water Cannon', incidents: 8, trend: '+5%', status: 'NORMAL' },
+];
+
 export const SecurityIntelligence: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<'ALL' | 'STRATEGIC' | 'BORDER' | 'CRIME' | 'SAFETY' | 'TACTICAL'>('ALL');
+  const [activeCategory, setActiveCategory] = useState<'ALL' | 'STRATEGIC' | 'BORDER' | 'CRIME' | 'SAFETY' | 'TACTICAL' | 'CYBER' | 'PRISON' | 'POLICE'>('ALL');
 
   const categories = [
     { id: 'ALL', label: 'All Intelligence', icon: LayoutGrid },
@@ -180,6 +260,9 @@ export const SecurityIntelligence: React.FC = () => {
     { id: 'BORDER', label: 'Border & Migration', icon: Navigation },
     { id: 'CRIME', label: 'Narcotics & Crime', icon: FlaskConical },
     { id: 'SAFETY', label: 'Public Safety', icon: Siren },
+    { id: 'CYBER', label: 'Cyber Warfare', icon: Wifi },
+    { id: 'PRISON', label: 'Prison System', icon: Lock },
+    { id: 'POLICE', label: 'Police Operations', icon: ShieldAlert },
     { id: 'TACTICAL', label: 'Tactical Briefing', icon: Crosshair },
   ];
 
@@ -854,7 +937,283 @@ export const SecurityIntelligence: React.FC = () => {
 
     )}
       {/* Illegal Immigration & Maritime Security Section REMOVED FROM HERE - MOVED TO CATEGORY 2 */}
-      
+
+      {/* CATEGORY 6: CYBER WARFARE & DIGITAL THREATS */}
+      {(activeCategory === 'ALL' || activeCategory === 'CYBER') && (
+        <div className="space-y-6 relative z-20">
+          <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
+            <Wifi className="w-4 h-4 text-intel-cyan" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Cyber Warfare & Digital Threats</h3>
+            <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-red border-intel-red/30 bg-intel-red/5 ml-auto uppercase">Level 2 Alert Active</span>
+          </div>
+
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Active Threat Actors', value: '4', color: 'text-intel-red', sub: '1 state-sponsored' },
+              { label: 'Incidents MTD', value: '78', color: 'text-intel-orange', sub: '+31% vs last month' },
+              { label: 'Critical Infra Targeted', value: '6', color: 'text-intel-red', sub: 'Energy, Finance, Gov' },
+              { label: 'Cyber Defense Score', value: '65/100', color: 'text-intel-orange', sub: 'Below threshold' },
+            ].map((k, i) => (
+              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{k.label}</div>
+                <div className={`text-2xl font-bold font-mono ${k.color}`}>{k.value}</div>
+                <div className="text-[9px] font-mono text-slate-600">{k.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Incident trend + target matrix */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Cyber Incident Trend — by Attack Vector</div>
+              <div className="h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={cyberIncidentData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                    <Bar dataKey="ddos" stackId="a" fill="#ef4444" name="DDoS" />
+                    <Bar dataKey="phishing" stackId="a" fill="#f97316" name="Phishing" />
+                    <Bar dataKey="intrusion" stackId="a" fill="#8b5cf6" name="Intrusion" />
+                    <Bar dataKey="defacement" stackId="a" fill="#64748b" radius={[2,2,0,0]} name="Defacement" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="glass rounded-xl border border-intel-border p-5 space-y-3">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Critical Infrastructure Target Matrix</div>
+              <div className="space-y-2">
+                {cyberTargets.map((t, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+                    <div>
+                      <div className="text-[10px] font-mono text-white">{t.target}</div>
+                      <div className="text-[8px] font-mono text-slate-600">{t.vector} · {t.lastAttempt}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${t.threat === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : t.threat === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'}`}>{t.threat}</span>
+                      <span className={`text-[8px] font-mono font-bold ${t.status === 'DEFENDED' || t.status === 'BLOCKED' || t.status === 'PATCHED' ? 'text-intel-cyan' : 'text-intel-orange'}`}>{t.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Threat actors */}
+          <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+            <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Known Threat Actor Profiles</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {cyberThreatActors.map((a, i) => (
+                <div key={i} className={`p-4 rounded-xl border space-y-2 ${a.activity === 'ELEVATED' ? 'border-intel-orange/30 bg-intel-orange/5' : 'border-intel-border bg-white/[0.02]'}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-white">{a.name}</span>
+                    <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${a.activity === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30' : 'text-slate-500 border-slate-700'}`}>{a.activity}</span>
+                  </div>
+                  <div className="space-y-1 text-[9px] font-mono">
+                    <div><span className="text-slate-600">Origin: </span><span className="text-slate-400">{a.origin}</span></div>
+                    <div><span className="text-slate-600">Motive: </span><span className="text-slate-400">{a.motivation}</span></div>
+                    <div><span className="text-slate-600">Capability: </span><span className={a.capability === 'HIGH' ? 'text-intel-red' : a.capability === 'MEDIUM' ? 'text-intel-orange' : 'text-intel-cyan'}>{a.capability}</span></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CATEGORY 7: PRISON SYSTEM */}
+      {(activeCategory === 'ALL' || activeCategory === 'PRISON') && (
+        <div className="space-y-6 relative z-20">
+          <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
+            <Lock className="w-4 h-4 text-intel-red" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Prison System Intelligence</h3>
+            <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-red border-intel-red/30 bg-intel-red/5 ml-auto uppercase">Overcrowding: Critical</span>
+          </div>
+
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'System Occupancy', value: '196%', color: 'text-intel-red', sub: 'National average' },
+              { label: 'Total Prisoners', value: '24,800', color: 'text-intel-orange', sub: 'Capacity: 12,600' },
+              { label: 'Radicalization Cases', value: '44%', color: 'text-intel-red', sub: 'Salafi — Mornaguia' },
+              { label: 'Incidents MTD', value: '47', color: 'text-intel-orange', sub: 'Riots, strikes, assaults' },
+            ].map((k, i) => (
+              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{k.label}</div>
+                <div className={`text-2xl font-bold font-mono ${k.color}`}>{k.value}</div>
+                <div className="text-[9px] font-mono text-slate-600">{k.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Overcrowding table + incidents */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="glass rounded-xl border border-intel-border p-5 space-y-3">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Facility Occupancy Matrix</div>
+              <div className="space-y-2">
+                {prisonData.map((p, i) => (
+                  <div key={i} className="space-y-1.5 py-2 border-b border-white/5 last:border-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-white">{p.facility}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold font-mono ${p.risk === 'CRITICAL' ? 'text-intel-red' : p.risk === 'HIGH' ? 'text-intel-orange' : 'text-yellow-400'}`}>{p.occupancy}%</span>
+                        <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${p.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{p.risk}</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${p.risk === 'CRITICAL' ? 'bg-intel-red' : p.risk === 'HIGH' ? 'bg-intel-orange' : 'bg-yellow-500'}`} style={{ width: `${Math.min(100, p.occupancy / 2.5)}%` }} />
+                    </div>
+                    <div className="text-[8px] font-mono text-slate-600">{p.population.toLocaleString()} / {p.capacity.toLocaleString()} capacity</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Prison Incidents — Monthly Trend</div>
+                <div className="h-[180px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={prisonIncidentData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                      <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                      <Bar dataKey="assaults" stackId="a" fill="#64748b" name="Assaults" />
+                      <Bar dataKey="hunger_strikes" stackId="a" fill="#f59e0b" name="Hunger Strikes" />
+                      <Bar dataKey="riots" stackId="a" fill="#ef4444" radius={[2,2,0,0]} name="Riots" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Radicalization Profile Trend (Mornaguia)</div>
+                <div className="h-[160px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={radicalizationInPrisonData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                      <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} unit="%" />
+                      <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                      <Line type="monotone" dataKey="salafi" stroke="#ef4444" strokeWidth={2} dot={false} name="Salafi Radicalization %" />
+                      <Line type="monotone" dataKey="political" stroke="#f97316" strokeWidth={2} dot={false} name="Political Extremism %" />
+                      <Line type="monotone" dataKey="criminal" stroke="#64748b" strokeWidth={2} dot={false} name="Criminal Networks %" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-3 p-4 rounded-xl bg-intel-red/5 border border-intel-red/20">
+            <AlertTriangle className="w-4 h-4 text-intel-red shrink-0 mt-0.5" />
+            <p className="text-[10px] font-mono text-slate-400 leading-relaxed">
+              <span className="text-intel-red font-bold">RRI LINKAGE:</span> Prison overcrowding (EQ.21 MII modifier) at 196% national average creates a radicalization accelerant. Mornaguia's salafi network exposure has risen from 12% to 44% since 2020. Release cycles feed directly into tracked extremist networks. This is a structural instability multiplier on EQ.7 elite defection dynamics.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* CATEGORY 8: POLICE OPERATIONS */}
+      {(activeCategory === 'ALL' || activeCategory === 'POLICE') && (
+        <div className="space-y-6 relative z-20">
+          <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
+            <ShieldAlert className="w-4 h-4 text-intel-cyan" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Police Operations & Force Posture</h3>
+          </div>
+
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Raids MTD', value: '68', color: 'text-intel-cyan', sub: '+24% vs last month' },
+              { label: 'Arrests MTD', value: '197', color: 'text-intel-orange', sub: '62% pre-trial detention' },
+              { label: 'Decree 54 Charges', value: '67', color: 'text-intel-red', sub: 'Active prosecutions' },
+              { label: 'Force Incidents', value: '93', color: 'text-intel-orange', sub: '+18% trend' },
+            ].map((k, i) => (
+              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{k.label}</div>
+                <div className={`text-2xl font-bold font-mono ${k.color}`}>{k.value}</div>
+                <div className="text-[9px] font-mono text-slate-600">{k.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Ops trend + deployment */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Police Operations — Monthly Trend</div>
+              <div className="h-[220px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={policeOpsData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
+                    <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
+                    <Bar dataKey="raids" fill="rgba(0,242,255,0.3)" radius={[2,2,0,0]} name="Raids" />
+                    <Line type="monotone" dataKey="arrests" stroke="#f97316" strokeWidth={2.5} dot={{ fill: '#f97316', r: 3 }} name="Arrests" />
+                    <Line type="monotone" dataKey="seizures" stroke="#8b5cf6" strokeWidth={2} dot={false} name="Seizures" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="glass rounded-xl border border-intel-border p-5 space-y-3">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Regional Deployment Matrix</div>
+              <div className="space-y-2">
+                {policeDeploymentData.map((r, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                    <div>
+                      <div className="text-[10px] font-mono text-white">{r.region}</div>
+                      <div className="text-[8px] font-mono text-slate-600">{r.units} units · {r.incidents_30d} incidents/30d</div>
+                    </div>
+                    <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${r.status === 'REINFORCED' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : r.status === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-slate-500 border-slate-700'}`}>{r.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Use of force table */}
+          <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Use of Force Register — MTD</div>
+              <span className="text-[8px] font-mono text-intel-orange px-2 py-0.5 border border-intel-orange/30 rounded uppercase">Trend: Escalating</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[400px]">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    {['Force Type', 'Incidents', 'Trend', 'Status'].map(h => (
+                      <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {policeUseOfForce.map((f, i) => (
+                    <tr key={i} className="hover:bg-white/[0.02]">
+                      <td className="py-2 text-[10px] font-mono text-white pr-4">{f.type}</td>
+                      <td className="py-2 text-[11px] font-bold font-mono text-intel-cyan pr-4">{f.incidents}</td>
+                      <td className="py-2 text-[10px] font-mono text-intel-orange pr-4">{f.trend}</td>
+                      <td className="py-2">
+                        <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${f.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : f.status === 'HIGH' || f.status === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30' : 'text-slate-500 border-slate-700'}`}>{f.status}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-start space-x-3 p-3 rounded-lg bg-intel-orange/5 border border-intel-orange/20">
+              <AlertCircle className="w-3.5 h-3.5 text-intel-orange shrink-0 mt-0.5" />
+              <p className="text-[9px] font-mono text-slate-400 leading-relaxed">2 live ammunition incidents recorded MTD. Social media monitoring shows civilian documentation of 3 additional unregistered incidents in Sidi Bouzid. RRI social input elevated: S.1 Protest Activity rising.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* CATEGORY 5: HOTSPOTS & TACTICAL BRIEFING */}
       {(activeCategory === 'ALL' || activeCategory === 'TACTICAL') && (
         <div className="space-y-6 relative z-20">

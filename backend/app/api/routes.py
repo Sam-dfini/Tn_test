@@ -6,24 +6,26 @@ from pydantic import BaseModel
 from ..orchestrator import orchestrator, MissionState
 from ..core.database import db
 
-from ..services.rss_service import rss_service
+# from ..services.rss_service import rss_service
+
 
 router = APIRouter()
 
 @router.post("/rss/sync")
 async def sync_rss_feeds(force: bool = False):
-    # ... (existing docstring)
-    try:
-        result = await rss_service.fetch_all(force=force)
-        return {
-            "status": "success",
-            "new_articles": result["new_articles"],
-            "feeds_processed": result["feeds_processed"],
-            "total_discovered": result["total_discovered"],
-            "errors": result["errors"]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    # RSS service disabled
+    return {"status": "disabled"}
+    # try:
+    #     result = await rss_service.fetch_all(force=force)
+    #     return {
+    #         "status": "success",
+    #         "new_articles": result["new_articles"],
+    #         "feeds_processed": result["feeds_processed"],
+    #         "total_discovered": result["total_discovered"],
+    #         "errors": result["errors"]
+    #     }
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/articles")
 async def get_articles(limit: int = 50, category: Optional[str] = None):
@@ -43,12 +45,14 @@ async def proxy_rss(url: str):
     """
     Proxies RSS feeds to bypass CORS and handle SSL issues.
     """
-    try:
-        response = await rss_service.client.get(url)
-        response.raise_for_status()
-        return response.text
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Proxy error: {str(e)}")
+    # RSS service disabled
+    raise HTTPException(status_code=503, detail="RSS service disabled")
+    # try:
+    #     response = await rss_service.client.get(url)
+    #     response.raise_for_status()
+    #     return response.text
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Proxy error: {str(e)}")
 
 class ExtractionRequest(BaseModel):
     content: str

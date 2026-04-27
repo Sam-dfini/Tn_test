@@ -1,21 +1,35 @@
 import { safeStorage } from './utils/storage';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { ModeSelection } from './components/ModeSelection';
-import { TunisiaTerminal } from './components/TunisiaTerminal';
 import { Authentication } from './components/Authentication';
-import { CitizenEdition } from './components/CitizenEdition';
-import { ProfessionalIntel } from './components/ProfessionalIntel';
-import { TacticalDashboard } from './components/tactical/TacticalDashboard';
-import { PalantirDashboard } from './components/PalantirDashboard';
-import { BloombergTerminal } from './components/BloombergTerminal';
-import { BusinessInvestigator } from './components/BusinessInvestigator';
-import { DataPipeline } from './components/DataPipeline';
-import { ObservabilityDashboard } from './pages/ObservabilityDashboard';
-import { RRIMethodology } from './components/RRIMethodology';
+
+// Lazy load major modes
+const TunisiaTerminal = lazy(() => import('./components/TunisiaTerminal').then(m => ({ default: m.TunisiaTerminal })));
+const CitizenEdition = lazy(() => import('./components/CitizenEdition').then(m => ({ default: m.CitizenEdition })));
+const ProfessionalIntel = lazy(() => import('./components/ProfessionalIntel').then(m => ({ default: m.ProfessionalIntel })));
+const TacticalDashboard = lazy(() => import('./components/tactical/TacticalDashboard').then(m => ({ default: m.TacticalDashboard })));
+const PalantirDashboard = lazy(() => import('./components/PalantirDashboard').then(m => ({ default: m.PalantirDashboard })));
+const BloombergTerminal = lazy(() => import('./components/BloombergTerminal').then(m => ({ default: m.BloombergTerminal })));
+const BusinessInvestigator = lazy(() => import('./components/BusinessInvestigator').then(m => ({ default: m.BusinessInvestigator })));
+const DataPipeline = lazy(() => import('./components/DataPipeline').then(m => ({ default: m.DataPipeline })));
+const ObservabilityDashboard = lazy(() => import('./pages/ObservabilityDashboard').then(m => ({ default: m.ObservabilityDashboard })));
+const RRIMethodology = lazy(() => import('./components/RRIMethodology').then(m => ({ default: m.RRIMethodology })));
+const Onboarding = lazy(() => import('./components/Onboarding').then(m => ({ default: m.Onboarding })));
+const AgriIntelDashboard = lazy(() => import('./components/AgriIntelDashboard').then(m => ({ default: m.AgriIntelDashboard })));
+const TestMode = lazy(() => import('./components/TestMode').then(m => ({ default: m.TestMode })));
+const SystemCommandCenter = lazy(() => import('./components/SystemCommandCenter').then(m => ({ default: m.SystemCommandCenter })));
+const PyramidHierarchy = lazy(() => import('./components/PyramidHierarchy').then(m => ({ default: m.PyramidHierarchy })));
+
+// Data imports
+import govData from './data/governorates.json';
+import eventData from './data/events.json';
+
+import { initializeVariables } from './services/pipelineService';
+import { useEventsStore } from './store/useEventsStore';
+import { seedInitialEvents } from './lib/ingestionEngine';
 import { IntelligenceDossierExporterModal } from './components/IntelligenceDossierExporterModal';
-import { Onboarding } from './components/Onboarding';
 import { NotificationProvider } from './context/NotificationContext';
 import { PipelineProvider, usePipeline } from './context/PipelineContext';
 import { RSSProvider, useRSS } from './context/RSSContext';
@@ -27,33 +41,19 @@ import { NotificationPanel } from './components/NotificationPanel';
 import { TacticalLoading } from './components/TacticalLoading';
 import { AIAnalystPanel } from './components/AIAnalystPanel';
 
-import { TestMode } from './components/TestMode';
-
-import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
-
-// Data imports
-import govData from './data/governorates.json';
-import eventData from './data/events.json';
-
-import { initializeVariables } from './services/pipelineService';
-import { useEventsStore } from './store/useEventsStore';
-import { seedInitialEvents } from './lib/ingestionEngine';
-
-import PipelineDebugger from './components/PipelineDebugger';
-
 const safeGetItem = (key: string) => {
   try { return safeStorage.getItem(key); } catch (e) { return null; }
 };
 
 const AppContent: React.FC = () => {
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture'>(() => {
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid'>(() => {
     const saved = safeGetItem('ti_app_mode');
     return (saved as any) || 'selection';
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [pendingMode, setPendingMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | null>(null);
+  const [pendingMode, setPendingMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showAIAnalyst, setShowAIAnalyst] = useState(false);
   const [showPipeline, setShowPipeline] = useState(false);
@@ -106,7 +106,7 @@ const AppContent: React.FC = () => {
     setIsAuthenticated(true);
   };
 
-  const handleModeSelect = (selected: 'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture') => {
+  const handleModeSelect = (selected: 'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid') => {
     if (selected === 'selection') {
       setMode('selection');
       setPendingMode(null);
@@ -170,115 +170,125 @@ const AppContent: React.FC = () => {
     if (!isAuthenticated) {
       return <Authentication onAuthenticate={handleAuthenticate} />;
     }
-    switch (mode) {
-      case 'simplified':
-        return (
-          <CitizenEdition 
-            governorates={govData.governorates as any}
-            events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
-            rri={rriState.rri}
-            pRev={rriState.p_rev}
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            data={pipelineData}
-          />
-        );
-      case 'professional':
-        return (
-          <ProfessionalIntel 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            onToggleDebug={() => setShowDebug(prev => !prev)}
-            context={{
-              governorates: govData.governorates,
-              events: liveEvents.length > 0 ? liveEvents : eventData.events
-            }}
-          />
-        );
-      case 'advanced':
-        return (
-          <TacticalDashboard 
-            governorates={govData.governorates as any}
-            events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            data={pipelineData}
-          />
-        );
-      case 'palantir':
-        return (
-          <PalantirDashboard 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            onOpenObservability={() => setShowObservability(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
-        );
-      case 'bloomberg':
-        return (
-          <BloombergTerminal 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
-        );
-      case 'business_investigator':
-        return (
-          <BusinessInvestigator 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
-        );
-      case 'test':
-        return (
-          <TestMode 
-            onGoHome={() => handleModeSelect('selection')}
-          />
-        );
-      case 'terminal':
-        return (
-          <motion.div
-            key="terminal-app"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="h-full w-full"
-          >
-            <TunisiaTerminal
-              onGoHome={() => handleModeSelect('selection')}
-              governorates={govData.governorates as any}
-            />
-          </motion.div>
-        );
-      case 'agriculture':
-        return (
-          <TunisiaAgricultureDashboard />
-        );
-      default:
-        return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); try { safeStorage.removeItem('ti_authenticated'); } catch(e) {} setMode('selection'); }} />;
-    }
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-intel-bg flex items-center justify-center"><div className="w-8 h-8 border-2 border-intel-cyan border-t-transparent rounded-full animate-spin"></div></div>}>
+        {(() => {
+          switch (mode) {
+            case 'simplified':
+              return (
+                <CitizenEdition 
+                  governorates={govData.governorates as any}
+                  events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
+                  rri={rriState.rri}
+                  pRev={rriState.p_rev}
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  data={pipelineData}
+                />
+              );
+            case 'professional':
+              return (
+                <ProfessionalIntel 
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  onToggleDebug={() => setShowDebug(prev => !prev)}
+                  context={{
+                    governorates: govData.governorates,
+                    events: liveEvents.length > 0 ? liveEvents : eventData.events
+                  }}
+                />
+              );
+            case 'advanced':
+              return (
+                <TacticalDashboard 
+                  governorates={govData.governorates as any}
+                  events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  data={pipelineData}
+                />
+              );
+            case 'palantir':
+              return (
+                <PalantirDashboard 
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  onOpenObservability={() => setShowObservability(true)}
+                  context={{
+                    governorates: govData.governorates,
+                    events: eventData.events
+                  }}
+                />
+              );
+            case 'bloomberg':
+              return (
+                <BloombergTerminal 
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  context={{
+                    governorates: govData.governorates,
+                    events: eventData.events
+                  }}
+                />
+              );
+            case 'business_investigator':
+              return (
+                <BusinessInvestigator 
+                  onOpenAI={() => setShowAIAnalyst(true)} 
+                  onOpenPipeline={handleOpenPipeline}
+                  onGoHome={() => handleModeSelect('selection')}
+                  onOpenReport={() => setShowReport(true)}
+                  context={{
+                    governorates: govData.governorates,
+                    events: eventData.events
+                  }}
+                />
+              );
+            case 'test':
+              return (
+                <TestMode 
+                  onGoHome={() => handleModeSelect('selection')}
+                />
+              );
+            case 'terminal':
+              return (
+                <motion.div
+                  key="terminal-app"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="h-full w-full"
+                >
+                  <TunisiaTerminal
+                    onGoHome={() => handleModeSelect('selection')}
+                    governorates={govData.governorates as any}
+                  />
+                </motion.div>
+              );
+            case 'agriculture':
+              return (
+                <AgriIntelDashboard />
+              );
+            case 'pyramid':
+              return (
+                <PyramidHierarchy />
+              );
+            default:
+              return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); try { safeStorage.removeItem('ti_authenticated'); } catch(e) {} setMode('selection'); }} />;
+          }
+        })()}
+      </Suspense>
+    );
   };
 
   return (
@@ -294,29 +304,33 @@ const AppContent: React.FC = () => {
             mode={pendingMode || mode as any} 
           />
         )}
-        {showMethodology && (
-          <RRIMethodology 
-            onClose={() => setShowMethodology(false)} 
-            jumpToEquation={methodologyEquation}
-            onNavigateToPipeline={(tab) => handleOpenPipeline(tab as any)}
-          />
-        )}
-        {showPipeline && (
-          <DataPipeline 
-            initialTab={pipelineTab} 
-            onClose={() => setShowPipeline(false)} 
-          />
-        )}
+        <Suspense fallback={<div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm" />}>
+          {showMethodology && (
+            <RRIMethodology 
+              onClose={() => setShowMethodology(false)} 
+              jumpToEquation={methodologyEquation}
+              onNavigateToPipeline={(tab) => handleOpenPipeline(tab as any)}
+            />
+          )}
+          {showPipeline && (
+            <DataPipeline 
+              initialTab={pipelineTab} 
+              onClose={() => setShowPipeline(false)} 
+            />
+          )}
+        </Suspense>
         <IntelligenceDossierExporterModal 
           isOpen={showReport}
           onClose={() => setShowReport(false)}
         />
-        {showOnboarding && (
-          <Onboarding onComplete={() => {
-            setShowOnboarding(false);
-            try { safeStorage.setItem('ti_onboarding_done', 'true'); } catch(e) {}
-          }} />
-        )}
+        <Suspense fallback={null}>
+          {showOnboarding && (
+            <Onboarding onComplete={() => {
+              setShowOnboarding(false);
+              try { safeStorage.setItem('ti_onboarding_done', 'true'); } catch(e) {}
+            }} />
+          )}
+        </Suspense>
         <NotificationPanel 
           isOpen={showNotifications}
           onClose={() => setShowNotifications(false)} 
@@ -325,11 +339,13 @@ const AppContent: React.FC = () => {
           isOpen={showAIAnalyst}
           onClose={() => setShowAIAnalyst(false)}
         />
-        {showObservability && (
-          <div className="fixed inset-0 z-[10000]">
-             <ObservabilityDashboard onBack={() => setShowObservability(false)} />
-          </div>
-        )}
+        <Suspense fallback={null}>
+          {showObservability && (
+            <div className="fixed inset-0 z-[10000]">
+               <ObservabilityDashboard onBack={() => setShowObservability(false)} />
+            </div>
+          )}
+        </Suspense>
       </AnimatePresence>
 
       {/* Global Toast */}
@@ -352,7 +368,9 @@ const AppContent: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative z-10 w-full max-w-[1400px] h-full max-h-[85vh]"
             >
-              <PipelineDebugger onClose={() => setShowDebug(false)} />
+              <Suspense fallback={<div className="w-full h-full bg-slate-900 animate-pulse rounded-2xl" />}>
+                <SystemCommandCenter onClose={() => setShowDebug(false)} />
+              </Suspense>
             </motion.div>
           </div>
         )}

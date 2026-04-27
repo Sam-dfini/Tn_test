@@ -47,51 +47,52 @@ import {
   Loader2,
   ShieldAlert,
   Rocket,
-  Compass
+  Compass,
+  MapPin
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
-import { NarrativeIntelligence } from './NarrativeIntelligence';
-import { RadicalisationIntelligence } from './RadicalisationIntelligence';
-import { CognitiveSecurityIntelligence } from './CognitiveSecurityIntelligence';
-import { EconomyIntelligence } from './EconomyIntelligence';
-import { IntelligenceBriefPanel } from './IntelligenceBriefPanel';
-import { EnergyIntelligence } from './EnergyIntelligence';
-import { EnvironmentalIntelligence } from './EnvironmentalIntelligence';
-import { SocialIntelligence } from './SocialIntelligence';
-import { SecurityIntelligence } from './SecurityIntelligence';
-import { BusinessInvestigator } from './BusinessInvestigator';
-import { StrategicModeling } from './StrategicModeling';
-import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
-import { ClusterIntelligence } from './ClusterIntelligence';
-import { PoliticalIntelligence } from './PoliticalIntelligence';
-import { Terminal } from './terminal/Terminal';
-import { PoliticalStabilityIntelligence } from './PoliticalStabilityIntelligence';
-import { PoliticalCalendar } from './PoliticalCalendar';
-import { CivilizationalAnalysis } from './CivilizationalAnalysis';
-import { FireIntelligencePanel } from './FireIntelligencePanel';
-import { ObservabilityDashboard } from '../pages/ObservabilityDashboard';
-import { AgriIntelDashboard } from './AgriIntelDashboard';
-import ActorNetworkIntelligence from './ActorNetworkIntelligence';
-import SimulationIntelligence from './SimulationIntelligence';
-import { NewsFeed } from './NewsFeed';
-import { RealTimeNewsFeed } from './RealTimeNewsFeed';
-import { LiveSignalFeed } from './LiveSignalFeed';
-import { EventsIntelligence } from './EventsIntelligence';
-import { RTEE } from './RTEE';
-import { TemporalAnalysisTab } from './TemporalAnalysisTab';
-import { Timeline } from './Timeline';
-import { GovernmentAgentPanel } from './GovernmentAgentPanel';
-import { Map } from './Map';
-import { InvestmentIntelligenceReportGenerator } from './InvestmentIntelligenceReportGenerator';
-import { CognitiveWarfare } from './CognitiveWarfare';
-import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
-import { IndustrialIntelligencePanel } from './IndustrialIntelligencePanel';
-import { StrategicEnergyIntelligencePanel } from './StrategicEnergyIntelligencePanel';
-import { BlackMarketIntelligencePanel } from './BlackMarketIntelligencePanel';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
 import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
+
+const NarrativeIntelligence = React.lazy(() => import('./NarrativeIntelligence').then(m => ({ default: m.NarrativeIntelligence })));
+const RadicalisationIntelligence = React.lazy(() => import('./RadicalisationIntelligence').then(m => ({ default: m.RadicalisationIntelligence })));
+const CognitiveSecurityIntelligence = React.lazy(() => import('./CognitiveSecurityIntelligence').then(m => ({ default: m.CognitiveSecurityIntelligence })));
+const EconomyIntelligence = React.lazy(() => import('./EconomyIntelligence').then(m => ({ default: m.EconomyIntelligence })));
+const IntelligenceBriefPanel = React.lazy(() => import('./IntelligenceBriefPanel').then(m => ({ default: m.IntelligenceBriefPanel })));
+const EnergyIntelligence = React.lazy(() => import('./EnergyIntelligence').then(m => ({ default: m.EnergyIntelligence })));
+const EnvironmentalIntelligence = React.lazy(() => import('./EnvironmentalIntelligence').then(m => ({ default: m.EnvironmentalIntelligence })));
+const SocialIntelligence = React.lazy(() => import('./SocialIntelligence').then(m => ({ default: m.SocialIntelligence })));
+const SecurityIntelligence = React.lazy(() => import('./SecurityIntelligence').then(m => ({ default: m.SecurityIntelligence })));
+const BusinessInvestigator = React.lazy(() => import('./BusinessInvestigator').then(m => ({ default: m.BusinessInvestigator })));
+const StrategicModeling = React.lazy(() => import('./StrategicModeling').then(m => ({ default: m.StrategicModeling })));
+const GeopoliticalIntelligence = React.lazy(() => import('./GeopoliticalIntelligence').then(m => ({ default: m.GeopoliticalIntelligence })));
+const ClusterIntelligence = React.lazy(() => import('./ClusterIntelligence').then(m => ({ default: m.ClusterIntelligence })));
+const PoliticalIntelligence = React.lazy(() => import('./PoliticalIntelligence').then(m => ({ default: m.PoliticalIntelligence })));
+const Terminal = React.lazy(() => import('./terminal/Terminal').then(m => ({ default: m.Terminal })));
+const PoliticalStabilityIntelligence = React.lazy(() => import('./PoliticalStabilityIntelligence').then(m => ({ default: m.PoliticalStabilityIntelligence })));
+const PoliticalCalendar = React.lazy(() => import('./PoliticalCalendar').then(m => ({ default: m.PoliticalCalendar })));
+const CivilizationalAnalysis = React.lazy(() => import('./CivilizationalAnalysis').then(m => ({ default: m.CivilizationalAnalysis })));
+const FireIntelligencePanel = React.lazy(() => import('./FireIntelligencePanel').then(m => ({ default: m.FireIntelligencePanel })));
+const AgriIntelDashboard = React.lazy(() => import('./AgriIntelDashboard').then(m => ({ default: m.AgriIntelDashboard })));
+const ActorNetworkIntelligence = React.lazy(() => import('./ActorNetworkIntelligence'));
+const SimulationIntelligence = React.lazy(() => import('./SimulationIntelligence'));
+const NewsFeed = React.lazy(() => import('./NewsFeed').then(m => ({ default: m.NewsFeed })));
+const RealTimeNewsFeed = React.lazy(() => import('./RealTimeNewsFeed').then(m => ({ default: m.RealTimeNewsFeed })));
+const LiveSignalFeed = React.lazy(() => import('./LiveSignalFeed').then(m => ({ default: m.LiveSignalFeed })));
+const EventsIntelligence = React.lazy(() => import('./EventsIntelligence').then(m => ({ default: m.EventsIntelligence })));
+const RTEE = React.lazy(() => import('./RTEE').then(m => ({ default: m.RTEE })));
+const TemporalAnalysisTab = React.lazy(() => import('./TemporalAnalysisTab').then(m => ({ default: m.TemporalAnalysisTab })));
+const Timeline = React.lazy(() => import('./Timeline').then(m => ({ default: m.Timeline })));
+const GovernmentAgentPanel = React.lazy(() => import('./GovernmentAgentPanel').then(m => ({ default: m.GovernmentAgentPanel })));
+const Map = React.lazy(() => import('./Map').then(m => ({ default: m.Map })));
+const InvestmentIntelligenceReportGenerator = React.lazy(() => import('./InvestmentIntelligenceReportGenerator').then(m => ({ default: m.InvestmentIntelligenceReportGenerator })));
+const CognitiveWarfare = React.lazy(() => import('./CognitiveWarfare').then(m => ({ default: m.CognitiveWarfare })));
+const EntrepreneurIntelligence = React.lazy(() => import('./EntrepreneurIntelligence').then(m => ({ default: m.EntrepreneurIntelligence })));
+const IndustrialIntelligencePanel = React.lazy(() => import('./IndustrialIntelligencePanel').then(m => ({ default: m.IndustrialIntelligencePanel })));
+const StrategicEnergyIntelligencePanel = React.lazy(() => import('./StrategicEnergyIntelligencePanel').then(m => ({ default: m.StrategicEnergyIntelligencePanel })));
+const BlackMarketIntelligencePanel = React.lazy(() => import('./BlackMarketIntelligencePanel').then(m => ({ default: m.BlackMarketIntelligencePanel })));
 
 // Categories for sidebar grouping
 const SIDEBAR_CATEGORIES = [
@@ -252,7 +253,8 @@ const reports: IntelReport[] = [
 ];
 
 import { generateAIAnalysis, AIAnalysis, ForecastResult } from '../services/ai';
-import { ModelPerformance } from './ModelPerformance';
+const ModelPerformance = React.lazy(() => import('./ModelPerformance').then(m => ({ default: m.ModelPerformance })));
+const ObservabilityDashboard = React.lazy(() => import('../pages/ObservabilityDashboard').then(m => ({ default: m.ObservabilityDashboard })));
 import { usePipeline } from '../context/PipelineContext';
 import { SmartAlert, Situation } from '../services/smartAlerts';
 import { AgentInsight } from '../services/agents';
@@ -706,6 +708,7 @@ Return only the 3-sentence briefing.`;
         
         {/* Dynamic View Container */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6" id="professional-intel-dossier">
+        <React.Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-2 border-intel-cyan border-t-transparent rounded-full animate-spin"></div></div>}>
         {activeTab === 'pipeline-control' ? (
           <ObservabilityDashboard onBack={() => setActiveTab('overview')} />
         ) : activeTab === 'govagent' ? (
@@ -1444,6 +1447,135 @@ Return only the 3-sentence briefing.`;
       Was: simple news strip.
       Now: classified signal feed with model traceability.
   ══════════════════════════════════════════════════════ */}
+  {/* STRATEGIC OUTLOOK */}
+  <div className="mt-8 glass rounded-xl border border-intel-border p-5 relative overflow-hidden">
+    <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-intel-cyan/40" />
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center space-x-2">
+        <Activity className="w-4 h-4 text-intel-cyan" />
+        <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold"> Strategic Outlook</span>
+      </div>
+      <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5 uppercase">Analyst Assessment</span>
+    </div>
+    <p className="text-[11px] font-mono text-slate-300 leading-relaxed pl-3">{strategicOutlook}</p>
+  </div>
+
+  {/* KEY INTELLIGENCE QUESTIONS */}
+  <div className="mt-6 space-y-3">
+    <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
+      <ShieldAlert className="w-4 h-4 text-intel-cyan" />
+      <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold">Key Intelligence Questions</span>
+      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border text-slate-500 border-slate-700 uppercase ml-auto">{kiqs.length} Active</span>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {kiqs.map((kiq) => (
+        <div key={kiq.id} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${kiq.status === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : 'border-intel-border'}`}>
+          <div className="flex items-start justify-between gap-2">
+            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase shrink-0 ${kiq.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : kiq.status === 'INVESTIGATING' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5'}`}>{kiq.status}</span>
+            <span className="text-[8px] font-mono text-slate-600">{kiq.id}</span>
+          </div>
+          <p className="text-[10px] font-mono text-slate-300 leading-relaxed">{kiq.question}</p>
+          <div className="flex items-center justify-between pt-1 border-t border-white/5">
+            <div className="flex items-center space-x-1">
+              <span className="text-[8px] font-mono text-slate-600 uppercase">Confidence</span>
+              <span className={`text-[8px] font-mono font-bold ${kiq.confidence === 'HIGH' ? 'text-intel-cyan' : kiq.confidence === 'MEDIUM' ? 'text-intel-orange' : 'text-slate-500'}`}>{kiq.confidence}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span className="text-[8px] font-mono text-slate-600 uppercase">Impact</span>
+              <span className={`text-[8px] font-mono font-bold ${kiq.impact === 'HIGH' ? 'text-intel-red' : 'text-intel-orange'}`}>{kiq.impact}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* REGIONAL HOTSPOTS */}
+  <div className="mt-6 space-y-3">
+    <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
+      <MapPin className="w-4 h-4 text-intel-red" />
+      <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold">Regional Hotspots</span>
+      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border text-intel-red border-intel-red/30 uppercase ml-auto">Active Monitoring</span>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {hotspots.map((h, i) => (
+        <div key={i} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${h.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : h.risk === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
+          <div className="flex items-center justify-between">
+            <span className="text-base font-bold font-mono text-white">{h.region}</span>
+            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${h.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : h.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'}`}>{h.risk}</span>
+          </div>
+          <p className="text-[10px] font-mono text-slate-400 leading-relaxed">{h.reason}</p>
+          <div className="flex items-center space-x-2 pt-1 border-t border-white/5">
+            <span className="text-[8px] font-mono text-slate-600 uppercase">Trend</span>
+            <span className={`text-[9px] font-mono font-bold ${h.trend === 'WORSENING' ? 'text-intel-red' : 'text-intel-cyan'}`}>
+              {h.trend === 'WORSENING' ? '↑ ' : '→ '}{h.trend}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* SCENARIOS */}
+  <div className="mt-6 space-y-3">
+    <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
+      <TrendingUp className="w-4 h-4 text-intel-cyan" />
+      <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold">Scenario Probability Distribution</span>
+      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border text-slate-500 border-slate-700 uppercase ml-auto">30-Day Horizon</span>
+    </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {scenarios.map((s, i) => (
+        <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
+          <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${s.impact === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.impact === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : s.impact === 'LOW' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : 'text-slate-400 border-slate-700 bg-slate-800/50'}`}>{s.impact}</span>
+          <div className={`text-3xl font-bold font-mono ${s.color}`}>{s.prob}%</div>
+          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full ${s.impact === 'CRITICAL' ? 'bg-intel-red' : s.impact === 'HIGH' ? 'bg-intel-orange' : s.impact === 'LOW' ? 'bg-intel-cyan' : 'bg-slate-500'}`} style={{ width: `${s.prob}%` }} />
+          </div>
+          <div className="text-[9px] font-mono text-slate-400 leading-snug">{s.title}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* ACTOR POSTURE MATRIX */}
+  <div className="mt-6 space-y-3">
+    <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
+      <Network className="w-4 h-4 text-intel-cyan" />
+      <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold">Actor Posture Matrix</span>
+      <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border text-slate-500 border-slate-700 uppercase ml-auto">{actors.length} Tracked</span>
+    </div>
+    <div className="glass rounded-xl border border-intel-border overflow-hidden">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-white/10 bg-white/[0.02]">
+            {['Actor', 'Posture', 'Influence', 'Sentiment', 'Trend'].map(h => (
+              <th key={h} className="px-4 py-2.5 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/5">
+          {actors.map((actor, i) => (
+            <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+              <td className="px-4 py-3 text-[11px] font-mono font-bold text-white">{actor.name}</td>
+              <td className="px-4 py-3">
+                <span className={`text-[9px] font-mono font-bold ${actor.posture === 'MOBILIZING' ? 'text-intel-red' : actor.posture === 'CONSOLIDATING' ? 'text-intel-orange' : actor.posture === 'FRAGMENTED' ? 'text-slate-500' : actor.posture === 'DISAFFECTED' ? 'text-yellow-400' : 'text-intel-cyan'}`}>{actor.posture}</span>
+              </td>
+              <td className="px-4 py-3">
+                <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${actor.influence === 'HIGH' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : actor.influence === 'MEDIUM' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-slate-500 border-slate-700 bg-slate-800/50'}`}>{actor.influence}</span>
+              </td>
+              <td className="px-4 py-3 text-[9px] font-mono text-slate-400">{actor.sentiment}</td>
+              <td className="px-4 py-3">
+                <span className={`text-[9px] font-mono font-bold ${actor.trend === 'WORSENING' ? 'text-intel-red' : 'text-slate-500'}`}>
+                  {actor.trend === 'WORSENING' ? '↑ ' : '→ '}{actor.trend}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <LiveSignalFeed
     maxItems={6}
     showFilter={true}
@@ -1501,12 +1633,15 @@ Return only the 3-sentence briefing.`;
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}
+      </React.Suspense>
       </div>
       </div>
-      <Terminal 
-        isOpen={isTerminalOpen} 
-        onClose={() => setIsTerminalOpen(false)} 
-      />
+      <React.Suspense fallback={null}>
+        <Terminal 
+          isOpen={isTerminalOpen} 
+          onClose={() => setIsTerminalOpen(false)} 
+        />
+      </React.Suspense>
     </div>
   );
 };

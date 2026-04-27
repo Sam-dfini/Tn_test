@@ -4,7 +4,7 @@ import { ChevronRight, AlertCircle, Box, Eye, ShieldAlert } from 'lucide-react';
 import { ModePageLayout } from './ModePageLayout';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture') => void;
+  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid') => void;
   onLogoff: () => void;
 }
 
@@ -150,6 +150,23 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect, onLogoff
               onClick={() => onSelect('agriculture')}
               aria-label="Initiate Agriculture ASIL mode"
               className="border border-[#3b82f6] text-[#3b82f6] px-4 py-2 font-mono text-xs hover:bg-[#3b82f6]/10"
+            >
+              [ INITIATE ]
+            </button>
+          </div>
+
+          {/* Pyramid Hierarchy */}
+          <div className="border border-slate-700 p-6 space-y-4 bg-[#0f141a]">
+            <div className="flex justify-between items-start">
+              <div className="text-xs font-mono text-intel-cyan">INTEL_NODE_08</div>
+              <Box className="w-5 h-5 text-intel-cyan" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">PYRAMID HIERARCHY</h2>
+            <p className="text-sm text-slate-400">Strategic Command Visualization. Experimental hierarchical flow distribution showing the cascade of intelligence from strategic to data tiers.</p>
+            <button 
+              onClick={() => onSelect('pyramid')}
+              aria-label="Initiate Pyramid mode"
+              className="border border-intel-cyan text-intel-cyan px-4 py-2 font-mono text-xs hover:bg-intel-cyan/10"
             >
               [ INITIATE ]
             </button>

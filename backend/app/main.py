@@ -7,7 +7,8 @@ from .core.config import settings
 from .api.routes import router as api_router
 from .api.ws import router as ws_router
 from .orchestrator import orchestrator
-from .services.rss_service import rss_service
+# from .services.rss_service import rss_service
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

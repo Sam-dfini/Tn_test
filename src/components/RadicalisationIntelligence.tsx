@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   AlertTriangle, Zap, Users, Brain, Shield,
   TrendingUp, Activity, Radio, ChevronRight,
-  Target, Layers, Eye, Lock, AlertCircle
+  Target, Layers, Eye, Lock, AlertCircle, MapPin
 } from 'lucide-react';
 import { usePipeline } from '../context/PipelineContext';
 import { useRSS } from '../context/RSSContext';
@@ -113,7 +113,7 @@ export const RadicalisationIntelligence: React.FC = () => {
   const { rriState, rpiProfile } = usePipeline();
   const { articles } = useRSS();
   const [activeSection, setActiveSection] =
-    useState<'gradient' | 'poles' | 'pipeline' | 'equations' | 'intervention'>('gradient');
+    useState<'gradient' | 'poles' | 'pipeline' | 'equations' | 'intervention' | 'geographic'>('gradient');
 
   // Use pipeline profile or compute live
   const profile: RadicalisationProfile = useMemo(() => {
@@ -243,6 +243,7 @@ export const RadicalisationIntelligence: React.FC = () => {
           { id: 'pipeline', label: 'Pipeline', icon: Activity },
           { id: 'equations', label: 'EQ. Impact', icon: Zap },
           { id: 'intervention', label: 'Intervention', icon: Shield },
+          { id: 'geographic', label: 'Geographic', icon: MapPin },
         ].map(s => {
           const Icon = s.icon;
           return (
@@ -685,90 +686,34 @@ export const RadicalisationIntelligence: React.FC = () => {
                   }`}>
                     {profile.interventionWindow
                       ? 'Intervention window is open'
-                      : 'Intervention window is closed — strategy shift required'}
+                      : 'Intervention window is closed — structural strategy required.'
+                    }
                   </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                  <p className='text-[10px] text-slate-500 leading-relaxed mt-2'>
                     {levelCfg.intervention}
                   </p>
                 </div>
               </div>
-
-              {/* Level-specific guidance */}
-              <div className="glass p-5 rounded-2xl border border-intel-border/50 space-y-4">
-                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
-                  Current Level {profile.escalationLevel} — Recommended Strategy
-                </div>
-                {profile.escalationLevel <= 2 && (
-                  <div className="space-y-2 text-[10px] text-slate-400">
-                    <div className="font-bold text-intel-green">Pre-emptive window (Levels 0-2)</div>
-                    <ul className="space-y-1.5 pl-3">
-                      {[
-                        'Address the underlying grievance — the anger is legitimate even if the narrative is engineered',
-                        'Provide emotional closure: explain what is happening and why, with credible evidence',
-                        'Use voices from within the affected community, not institutional sources',
-                        'Do not attack the narrative directly — introduce an alternative framing',
-                        'Monitor W(t) — if war intensity increases, all signals will escalate rapidly',
-                      ].map((s, i) => (
-                        <li key={i} className="flex items-start space-x-2">
-                          <span className="text-intel-green shrink-0">→</span>
-                          <span>{s}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {profile.escalationLevel === 3 && (
-                  <div className="space-y-2 text-[10px] text-slate-400">
-                    <div className="font-bold text-intel-orange">Competitive window (Level 3) — URGENT</div>
-                    <ul className="space-y-1.5 pl-3">
-                      {[
-                        'Inoculation strategy: expose the ETM structure ("they want you to see these as connected")',
-                        'Peer-based counter-messaging using trusted voices within each pole\'s community',
-                        'Identify the "reluctant truth-teller" accounts driving peer normalization',
-                        'Do NOT issue direct rebuttals — they amplify via the closure mechanism',
-                        'Prepare for Level 4 transition — strategy must change rapidly if rigidity increases',
-                        'Monitor 72h delta — if RPI increases >0.15 in one cycle, escalate response immediately',
-                      ].map((s, i) => (
-                        <li key={i} className="flex items-start space-x-2">
-                          <span className="text-intel-orange shrink-0">→</span>
-                          <span>{s}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {profile.escalationLevel >= 4 && (
-                  <div className="space-y-2 text-[10px] text-slate-400">
-                    <div className="font-bold text-intel-red">
-                      Critical — Level {profile.escalationLevel} (no standard counter-narrative)
-                    </div>
-                    <ul className="space-y-1.5 pl-3">
-                      {[
-                        'ABANDON direct refutation — it amplifies the closure mechanism',
-                        'Narrative substitution: introduce alternative story addressing the same grievance',
-                        'Target the anxiety and the grievance, not the ideology or belief content',
-                        'Identify the 15-20% who are at Level 3-4 boundary (persuadable)',
-                        'Do not engage true believers — focus resources on the persuadable periphery',
-                        profile.escalationLevel >= 5
-                          ? 'Level 5 detected: intelligence product only. Security and community response required.'
-                          : 'Wait for the narrative to produce a visible false prediction, then act on the disappointment',
-                      ].map((s, i) => (
-                        <li key={i} className={`flex items-start space-x-2 ${
-                          i === 5 && profile.escalationLevel >= 5 ? 'text-intel-red font-bold' : ''
-                        }`}>
-                          <span className="text-intel-red shrink-0">→</span>
-                          <span>{s}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
             </div>
           )}
 
+          {/* ═══ GEOGRAPHIC ═══════════════════════════════════ */}
+          {activeSection === 'geographic' && (
+            <div className='space-y-4'>
+              <p className='text-[11px] text-slate-500 leading-relaxed max-w-2xl'>
+                Radicalisation pressure heatmap by governorate. 
+                Higher RPI scores correlate with historical anti-systemic hotspots.
+              </p>
+              <div className='glass p-6 rounded-2xl border border-intel-border/50 text-center py-20'>
+                <MapPin className='w-8 h-8 text-slate-700 mx-auto mb-4' />
+                <div className='text-[10px] font-mono text-slate-500 uppercase'>Geographic distribution data pending next ingestion cycle</div>
+              </div>
+            </div>
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
   );
 };
+
+export default RadicalisationIntelligence;

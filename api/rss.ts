@@ -28,6 +28,7 @@ export default async function handler(req: Request) {
     'middleeasteye.net',
     'google.com',
     'news.google.com',
+    'africanmanager.com',
   ];
 
   const parsedFeedUrl = new URL(feedUrl);

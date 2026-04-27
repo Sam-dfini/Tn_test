@@ -252,12 +252,13 @@ class MissionOrchestrator:
         """
         Runs the intelligence loop continuously in the background.
         """
-        from .services.rss_service import rss_service
+        # from .services.rss_service import rss_service
         self.is_running_continuously = True
         while self.is_running_continuously:
             try:
                 # 1. Sync RSS feeds to get latest news
-                await rss_service.fetch_all()
+                # await rss_service.fetch_all()
+                pass
                 
                 # 2. Run the internal deep analysis loop (Placeholder for now)
                 await self.run_intelligence_loop([], []) 

@@ -568,25 +568,21 @@ export async function fetchAllFeeds(options?: { force?: boolean }): Promise<{
   }
 
   try {
-    const response = await fetch(`/api/rss/sync${options?.force ? '?force=true' : ''}`, { method: 'POST' });
-    if (!response.ok) {
-        // Silently fail if backend is offline in preview mode
-        return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
-    }
-    
-    const result = await response.json();
-    ingestionMetrics.successCount += result.new_articles;
+    const { fetchNewsData, syncNewsDataToSupabase } = await import('./newsService');
+    const newsDataArticles = await fetchNewsData('Tunisia');
+    const newArticles = await syncNewsDataToSupabase(newsDataArticles);
+
+    ingestionMetrics.successCount += newArticles;
     ingestionMetrics.lastFetch = Date.now();
 
     return { 
-      newArticles: result.new_articles, 
-      feedsProcessed: result.feeds_processed || 0,
-      totalArticlesHandled: result.total_discovered || 0,
-      errors: result.errors || []
+      newArticles: newArticles, 
+      feedsProcessed: 1, // NewsData is one big feed
+      totalArticlesHandled: newsDataArticles.length,
+      errors: []
     };
   } catch (err: any) {
-    // Console log as warning instead of terrorizing the user
-    console.warn('Backend sync unavailable, using cached/realtime data instead.', err.message);
+    console.error('NewsData sync failed:', err.message);
     ingestionMetrics.failureCount++;
     return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
   } finally {

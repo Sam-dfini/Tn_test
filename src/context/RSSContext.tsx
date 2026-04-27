@@ -120,6 +120,11 @@ export const RSSProvider: React.FC<{
       const endTime = Date.now();
       const latency = endTime - startTime;
 
+      if (result.newArticles > 0) {
+        await loadData();
+        await loadNotifications();
+      }
+
       setNewArticlesCount(result.newArticles);
       setSyncErrors(result.errors || []);
       setLastFetch(new Date());
@@ -204,9 +209,18 @@ export const RSSProvider: React.FC<{
     loadNotifications();
 
     // Trigger an initial fetch immediately if not busy (checks backend)
-    // We use a local flag to ensure this only runs once per mount even if dependencies change
     fetchNow();
 
+    // Set up polling interval (15 minutes)
+    fetchIntervalRef.current = setInterval(() => {
+      fetchNow();
+    }, 15 * 60 * 1000);
+
+    return () => {
+      if (fetchIntervalRef.current) {
+        clearInterval(fetchIntervalRef.current);
+      }
+    };
   }, []); // Only run once on mount
 
   // Realtime subscription via WebSocket

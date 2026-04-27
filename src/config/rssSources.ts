@@ -14,13 +14,13 @@ export interface RSSSource {
 
 export const RSS_SOURCES: RSSSource[] = [
   {
-    id: 'google-news-tunisia',
-    name: 'Google News Tunisia',
-    url: 'https://news.google.com/rss/search?q=tunisia&hl=en-US&gl=US&ceid=US:en',
-    language: 'en',
-    reliability: 'A',
+    id: 'african-manager',
+    name: 'African Manager',
+    url: 'https://africanmanager.com/feed/',
+    language: 'fr',
+    reliability: 'B',
     alignment: 'NEUTRAL',
-    keywords: ['Tunisia', 'Tunisie', 'Economy', 'Politics'],
+    keywords: ['IMF', 'BCT', 'investment', 'economy', 'Tunisia'],
     status: 'healthy'
   }
 ];

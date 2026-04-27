@@ -10,9 +10,9 @@ import { createServer } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import 'dotenv/config';
-import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.js';
+import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
 import { createClient } from '@supabase/supabase-js';
-import { initializeAllSchemas } from './src/utils/schemaValidator.js';
+import { initializeAllSchemas } from './src/utils/schemaValidator.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,9 +41,9 @@ if (!genAI) {
 function startPythonBackend() {
   console.log('Starting Python backend intelligence engine...');
   const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
-    cwd: path.join(__dirname, 'backend'),
+    cwd: path.join(process.cwd(), 'backend'),
     stdio: 'inherit',
-    env: { ...process.env, PYTHONPATH: path.join(__dirname, 'backend') }
+    env: { ...process.env, PYTHONPATH: path.join(process.cwd(), 'backend') }
   });
 
   pythonProcess.on('error', (err) => {
@@ -172,15 +172,17 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({ 
       status: 'ok', 
-      key_exists: !!process.env.GEMINI_API_KEY, 
-      key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
+      gemini: {
+        key_exists: !!process.env.GEMINI_API_KEY, 
+        key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
+      }
     });
   });
 
   // Intelligence Variables Endpoint (Node implementation fallback)
   app.get('/api/variables', (req, res) => {
     try {
-      const dataPath = path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json');
+      const dataPath = path.join(process.cwd(), 'backend', 'app', 'data', 'rri_variables.json');
       if (fs.existsSync(dataPath)) {
         const raw = fs.readFileSync(dataPath, 'utf8');
         const data = JSON.parse(raw);
@@ -482,6 +484,7 @@ async function startServer() {
       'inkyfada.com',
       'alkatiba.com',
       'api.open-meteo.com',
+      'newsdata.io',
       'raw.githubusercontent.com',
     ];
 
