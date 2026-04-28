@@ -70,6 +70,7 @@ import {
   getSeasonalForecast 
 } from '../services/shortageDetector';
 import { SEI_PHASE_CONFIG } from '../services/seiEngine';
+import { generateStableKey, assertKey, getRenderKey, prepareList } from '../lib/keyUtils';
 
 type SubTab = 'macro' | 'sector' | 'market' | 'regional' | 'poverty' | 'pharmacy' | 'business';
 
@@ -566,8 +567,8 @@ export const EconomyIntelligence: React.FC = () => {
                       { name: 'Global Competitiveness', score: 48, rank: '87/141' },
                       { name: 'Doing Business (Proxy)', score: 100 - (data.economy.doing_business_rank || 0), rank: `${data.economy.doing_business_rank || 0}/190` },
                       { name: 'Economic Freedom (Fraser)', score: 42, rank: '128/165' }
-                    ].map((idx) => (
-                      <tr key={`climate-${idx.name}`} className="hover:bg-white/5 transition-colors">
+                    ].map((idx, i) => (
+                      <tr key={generateStableKey(idx, i, 'climate-idx')} className="hover:bg-white/5 transition-colors">
                         <td className="py-3 text-[10px] font-bold text-white uppercase">{idx.name}</td>
                         <td className={`py-3 text-[10px] font-mono font-bold text-right ${getScoreColor(idx.score)}`}>{idx.score.toString()}</td>
                         <td className="py-3 text-[10px] font-mono text-slate-400 text-right">{idx.rank}</td>
@@ -625,7 +626,7 @@ export const EconomyIntelligence: React.FC = () => {
                   <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                   <Bar dataKey="val" radius={[4, 4, 0, 0]}>
                     { [37.3, 49.7, 57.0, 44.3].map((entry, index) => (
-                      <Cell key={`cell-heritage-${index}`} fill={entry < 50 ? '#ef4444' : entry < 60 ? '#f97316' : '#00f2ff'} />
+                      <Cell key={generateStableKey(entry, index, 'heritage-bar')} fill={entry < 50 ? '#ef4444' : entry < 60 ? '#f97316' : '#00f2ff'} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -709,14 +710,14 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-4">
               <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">FDI by Sector (%)</h4>
               <div className="space-y-3">
-                {[
-                  { name: 'Manufacturing', val: 42, color: 'bg-intel-cyan' },
-                  { name: 'Energy', val: 28, color: 'bg-intel-orange' },
-                  { name: 'Services', val: 18, color: 'bg-intel-green' },
-                  { name: 'Agriculture', val: 7, color: 'bg-slate-600' },
-                  { name: 'Tourism', val: 5, color: 'bg-intel-red' }
-                ].map((s) => (
-                  <div key={`sector-${s.name}`} className="space-y-1">
+                  { [
+                    { name: 'Manufacturing', val: 42, color: 'bg-intel-cyan' },
+                    { name: 'Energy', val: 28, color: 'bg-intel-orange' },
+                    { name: 'Services', val: 18, color: 'bg-intel-green' },
+                    { name: 'Agriculture', val: 7, color: 'bg-slate-600' },
+                    { name: 'Tourism', val: 5, color: 'bg-intel-red' }
+                  ].map((s, index) => (
+                    <div key={generateStableKey(s, index, 'fdi-sector')} className="space-y-1">
                     <div className="flex justify-between text-[8px] font-mono uppercase">
                       <span className="text-slate-500">{s.name}</span>
                       <span className="text-white font-bold">{s.val}%</span>
@@ -821,7 +822,7 @@ export const EconomyIntelligence: React.FC = () => {
               { label: 'Enforcing Contracts', val: '565 days', cost: '27% claim', status: 'CRITICAL' },
               { label: 'Resolving Insolvency', val: '1.3 years', cost: '7% estate', status: 'GOOD' }
             ].map((op, i) => (
-              <div key={`compl-op-${i}-${op.label}`} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div key={generateStableKey(op, i, 'compl-op')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
                 <div className="flex justify-between items-start">
                   <span className="text-[9px] font-bold text-white uppercase tracking-tight leading-tight w-2/3">{op.label}</span>
                   <div className={`w-1.5 h-1.5 rounded-full ${
@@ -953,7 +954,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { label: 'Forex Rationing', risk: 'CRITICAL', desc: 'BCT restrictions on corporate FX transfers driving firms to parallel markets.' },
                   { label: 'Political Instability', risk: 'HIGH', desc: 'Uncertainty regarding property rights and future tax regimes.' }
                 ].map((d, i) => (
-                  <div key={`capital-driver-${i}-${d.label}`} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
+                  <div key={generateStableKey(d, i, 'capital-driver')} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-bold text-white uppercase">{d.label}</span>
                       <span className="text-[8px] font-mono text-intel-red font-bold">{d.risk}</span>
@@ -994,7 +995,7 @@ export const EconomyIntelligence: React.FC = () => {
                     { name: 'Algeria', freedom: 42, rri: 58, pop: 180, color: '#f59e0b' },
                     { name: 'Jordan', freedom: 62, rri: 38, pop: 120, color: '#00f2ff' }
                   ].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={generateStableKey(entry, index, 'scatter-rri')} fill={entry.color} />
                   ))}
                 </Scatter>
               </ScatterChart>
@@ -1046,7 +1047,7 @@ export const EconomyIntelligence: React.FC = () => {
           { label: 'France Share', value: `${data.economy.remittances_france_pct}%`, trend: 'High Concentration', status: 'WARNING', desc: 'Percentage of total remittances originating from France.' },
           { label: 'Avg Transfer Cost', value: '6.2%', trend: 'SDG Target: 3%', status: 'CRITICAL', desc: 'Average cost of sending $200 to Tunisia.' }
         ].map((stat, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-intel-border space-y-2">
+          <div key={generateStableKey(stat, i, 'rem-stat')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{stat.label}</span>
             <div className="text-2xl font-bold text-white font-mono">{stat.value}</div>
             <div className="flex items-center justify-between">
@@ -1100,9 +1101,9 @@ export const EconomyIntelligence: React.FC = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-          {remittanceDistribution.map((entry, index) => (
-            <Cell key={`rem-dist-cell-${index}-${entry.name}`} fill={entry.color} />
-          ))}
+                  {remittanceDistribution.map((entry, index) => (
+                    <Cell key={generateStableKey(entry, index, 'rem-dist')} fill={entry.color} />
+                  ))}
                 </Pie>
                 <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '8px', fontFamily: 'monospace', textTransform: 'uppercase', paddingTop: '20px' }} />
@@ -1171,7 +1172,7 @@ export const EconomyIntelligence: React.FC = () => {
             { title: 'Investment Incentives', desc: 'New "Diaspora Bond" proposal to channel remittances into infrastructure and green energy projects.', impact: 'MEDIUM', color: 'text-intel-green' },
             { title: 'Informal Channel Risk', desc: 'Estimated 25% of total flows bypass official banking system via informal "hand-to-hand" networks.', impact: 'CRITICAL', color: 'text-intel-red' }
           ].map((item, i) => (
-            <div key={`rem-policy-${i}-${item.title}`} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+            <div key={generateStableKey(item, i, 'rem-policy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
               <div className="text-[10px] font-bold text-white uppercase tracking-tight">{item.title}</div>
               <p className="text-[10px] text-slate-500 leading-relaxed">{item.desc}</p>
               <div className={`text-[8px] font-mono font-bold uppercase ${item.color}`}>{item.impact} IMPACT</div>
@@ -1188,7 +1189,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {isLoading && macroIndicators.length === 0 ? (
           Array(12).fill(0).map((_, i) => (
-            <div key={`skeleton-macro-${i}`} className="glass p-4 rounded-xl border border-intel-border h-40 animate-pulse bg-white/5"></div>
+            <div key={generateStableKey(i, i, 'skeleton-macro')} className="glass p-4 rounded-xl border border-intel-border h-40 animate-pulse bg-white/5"></div>
           ))
         ) : (
           (macroIndicators.length > 0 ? macroIndicators : [
@@ -1217,7 +1218,7 @@ export const EconomyIntelligence: React.FC = () => {
             { label: 'Tourism Revenue', value: '1.4B', trend: '-24 vs Q1 2025', status: 'CRITICAL', desc: 'Tourist revenue Q1 2026. Bookings down 42% amid political instability and visa issues.', source: 'Ministry of Tourism', history: [2.1, 1.9, 1.7, 1.5, 1.4] },
             { label: 'Phosphate Output', value: '3.1Mt', trend: '-28 vs 2025', status: 'CRITICAL', desc: 'Phosphate production 2025. Strikes, equipment failure, water shortage. Peak was 8Mt (2010).', source: 'CPG / GCT', history: [4.2, 3.8, 3.5, 3.3, 3.1] }]).map((ind, i) => (
                         <motion.div 
-              key={ind.label} 
+              key={generateStableKey(ind, i, 'macro-ind')} 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -1273,7 +1274,7 @@ export const EconomyIntelligence: React.FC = () => {
                     <div className="flex flex-col gap-1 mt-2">
                       {ind.links.map((link: any, lIdx: number) => (
                         <button 
-                          key={`macro-link-${lIdx}-${link.label}`}
+                          key={generateStableKey(link, lIdx, 'macro-link')}
                           onClick={(e) => {
                             e.stopPropagation();
                             window.dispatchEvent(new CustomEvent('navigate-to-pipeline', { detail: { tab: link.tab, subTab: link.subTab } }));
@@ -1443,7 +1444,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Bar dataKey="val" radius={[0, 4, 4, 0]} barSize={12}>
                   { [9.3, 8.5, 7.2, 6.1, 5.8, 4.2, 3.5, 2.1].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#f43f5e', '#f97316', '#fbbf24', '#22d3ee', '#0ea5e9', '#38bdf8', '#7dd3fc', '#94a3b8'][index]} />
+                    <Cell key={generateStableKey(entry, index, 'cpi-bar')} fill={['#f43f5e', '#f97316', '#fbbf24', '#22d3ee', '#0ea5e9', '#38bdf8', '#7dd3fc', '#94a3b8'][index]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1546,7 +1547,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Bar dataKey="val" radius={[2, 2, 0, 0]}>
                   { [850, 1100, 450, 600, 780, 1250].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#f97316', '#ef4444', '#22d3ee', '#38bdf8', '#f59e0b', '#dc2626'][index]} />
+                    <Cell key={generateStableKey(entry, index, 'debt-cal')} fill={['#f97316', '#ef4444', '#22d3ee', '#38bdf8', '#f59e0b', '#dc2626'][index]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -1573,7 +1574,7 @@ export const EconomyIntelligence: React.FC = () => {
                     dataKey="value"
                   >
                     {debtBreakdownData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                      <Cell key={generateStableKey(entry, index, 'debt-pie')} fill={entry.color} stroke="none" />
                     ))}
                   </Pie>
                   <Tooltip 
@@ -1585,7 +1586,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 gap-2">
               {debtBreakdownData.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+                <div key={generateStableKey(item, i, 'debt-list')} className="flex items-center justify-between text-[10px] font-mono">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-slate-500 uppercase">{item.name}</span>
@@ -1609,7 +1610,7 @@ export const EconomyIntelligence: React.FC = () => {
                 { label: 'BCT Policy Rate', value: '8.0% (unchanged)', color: 'text-intel-orange' },
                 { label: 'Diaspora Confidence', value: 'STABLE', color: 'text-intel-green' }
               ].map((signal: any, i) => (
-                <div key={i} className="flex flex-col space-y-1">
+                <div key={generateStableKey(signal, i, 'macro-signal')} className="flex flex-col space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-slate-500 uppercase tracking-tighter">{signal.label}</span>
                     <span className={`text-[10px] font-mono font-bold ${signal.color}`}>{signal.value}</span>
@@ -1724,7 +1725,7 @@ export const EconomyIntelligence: React.FC = () => {
                 />
                 <Bar dataKey="growth" name="Growth Rate %" radius={[0, 2, 2, 0]} barSize={10}>
                   { sortedSectorData.map((entry, index) => (
-                    <Cell key={`cell-growth-${index}`} fill={entry.growth > 0 ? '#22c55e' : '#ef4444'} />
+                    <Cell key={generateStableKey(entry, index, 'sector-growth')} fill={entry.growth > 0 ? '#22c55e' : '#ef4444'} />
                   ))}
                 </Bar>
                 <Bar dataKey="contribution" name="GDP Contribution %" fill="#06b6d4" radius={[0, 2, 2, 0]} barSize={10} />
@@ -1742,7 +1743,7 @@ export const EconomyIntelligence: React.FC = () => {
             {sectorData.map((sector, i) => {
               const health = getSectorHealth(sector);
               return (
-                <div key={i} className="space-y-2">
+                <div key={generateStableKey(sector, i, 'sector-health')} className="space-y-2">
                   <div className="flex justify-between items-end">
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${
@@ -1823,7 +1824,7 @@ export const EconomyIntelligence: React.FC = () => {
           { icon: Wheat, label: 'Agriculture', status: 'STRESSED', color: 'text-intel-orange', desc: 'Drought hitting northern crops. Olive oil export strong but subsidized grain import costs rising.', stats: [{ l: 'GDP share', v: '10.2%' }, { l: 'Avg Salary', v: '650 TND' }, { l: 'Min Wage', v: '450 TND' }, { l: 'Wage Growth', v: '+2.1%' }] },
           { icon: Zap, label: 'Energy', status: 'WARNING', color: 'text-intel-orange', desc: 'Net energy importer. Petrol subsidies cost 2.8B TND. STEG power cuts in interior regions.', stats: [{ l: 'Import dependency', v: '62%' }, { l: 'Avg Salary', v: '1,850 TND' }, { l: 'Min Wage', v: '700 TND' }, { l: 'Wage Growth', v: '+4.8%' }] }
         ].map((sector, i) => (
-          <div key={i} className="glass p-5 rounded-2xl border border-intel-border space-y-4">
+          <div key={generateStableKey(sector, i, 'sector-detail')} className="glass p-5 rounded-2xl border border-intel-border space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <sector.icon className={`w-5 h-5 ${sector.color}`} />
@@ -1841,7 +1842,7 @@ export const EconomyIntelligence: React.FC = () => {
             </p>
             <div className="space-y-1.5 pt-2">
               {sector.stats.map((s, j) => (
-                <div key={j} className="flex justify-between text-[8px] font-mono uppercase">
+                <div key={generateStableKey(s, j, 'sector-detail-stat')} className="flex justify-between text-[8px] font-mono uppercase">
                   <span className="text-slate-600">{s.l}</span>
                   <span className="text-white font-bold">{s.v}</span>
                 </div>
@@ -1910,7 +1911,7 @@ export const EconomyIntelligence: React.FC = () => {
                 </thead>
                 <tbody>
                   {ministryWorkforceData.map((m, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <tr key={generateStableKey(m, i, 'ministry-row')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                       <td className="py-3 text-[10px] font-bold text-white group-hover:text-intel-cyan transition-colors">{m.name}</td>
                       <td className="py-3 text-[10px] font-mono text-slate-300">{m.avgSalary.toLocaleString()} TND</td>
                       <td className="py-3">
@@ -1990,7 +1991,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { t: 'Gafsa Strikes', d: 'CPG workers union demanding safety equipment and bonus payments.' },
                   { t: 'Transport Bottlenecks', d: 'SNCFT rail capacity down 60% due to lack of locomotive maintenance.' }
                 ].map((item, i) => (
-                  <li key={i} className="space-y-1">
+                  <li key={generateStableKey(item, i, 'labor-dispute')} className="space-y-1">
                     <div className="text-[10px] font-bold text-white">{item.t}</div>
                     <div className="text-[9px] text-slate-500 leading-tight">{item.d}</div>
                   </li>
@@ -2007,9 +2008,9 @@ export const EconomyIntelligence: React.FC = () => {
                 {[
                   { t: 'Restructuring Plan', d: 'Gov proposal to split CPG and GCT to isolate debt; union resistance high.' },
                   { t: 'Chinese Investment', d: 'Negotiations for $200M infrastructure loan for Mdhilla 2 plant.' },
-                  { t: 'Water Management', d: 'New desalination mandate for washing units to preserve local aquifers.' }
+                  { t: 'Water Management', d: 'Desalination mandate for washing units.' }
                 ].map((item, i) => (
-                  <li key={i} className="space-y-1">
+                  <li key={generateStableKey(item, i, 'policy-impact')} className="space-y-1">
                     <div className="text-[10px] font-bold text-white">{item.t}</div>
                     <div className="text-[9px] text-slate-500 leading-tight">{item.d}</div>
                   </li>
@@ -2028,7 +2029,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {criticalGoodsAlerts.map((alert, i) => (
           <motion.div
-            key={`critical-alert-${i}`}
+            key={generateStableKey(alert, i, 'critical-alert')}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
@@ -2056,7 +2057,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {marketIndicators.map((ind, i) => (
           <motion.div 
-            key={`market-indicator-${i}`}
+            key={generateStableKey(ind, i, 'market-indicator')}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
@@ -2177,7 +2178,7 @@ export const EconomyIntelligence: React.FC = () => {
               </thead>
               <tbody>
                 {essentialGoodsPrices.map((item, i) => (
-                  <tr key={`essential-good-${i}`} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                  <tr key={generateStableKey(item, i, 'essential-good')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                     <td className="py-3 text-[10px] font-bold text-white group-hover:text-intel-cyan transition-colors">{item.item}</td>
                     <td className="py-3 text-[10px] font-mono text-slate-300">{item.price}</td>
                     <td className="py-3 text-[10px] font-mono text-slate-500">{item.unit}</td>
@@ -2295,7 +2296,7 @@ export const EconomyIntelligence: React.FC = () => {
               { title: 'BCT Rate Hike Speculation', desc: 'Analysts expect 50bps hike in next MPC meeting to curb dinar slide.', time: '5h ago', impact: 'MEDIUM' },
               { title: 'Eurobond Repayment', desc: 'Tunisia successfully repays €850M bond; reserves drop to 88 days.', time: '1d ago', impact: 'CRITICAL' }
             ].map((news, i) => (
-              <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-start justify-between group hover:bg-white/10 transition-all cursor-pointer">
+              <div key={`market-news-stable-${i}-${news.title}`} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-start justify-between group hover:bg-white/10 transition-all cursor-pointer">
                 <div className="space-y-1">
                   <div className="text-[10px] font-bold text-white uppercase tracking-tight group-hover:text-intel-cyan transition-colors">{news.title}</div>
                   <p className="text-[10px] text-slate-500 leading-relaxed">{news.desc}</p>
@@ -2338,7 +2339,7 @@ export const EconomyIntelligence: React.FC = () => {
                     { name: 'Consumer', color: '#f97316' },
                     { name: 'Other', color: '#475569' }
                   ].map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-market-comp-${index}-${entry.name}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
@@ -2393,7 +2394,7 @@ export const EconomyIntelligence: React.FC = () => {
             <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Regional Vulnerability Heatmap</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
               {povertyByGovernorate.map((gov, i) => (
-                <div key={i} className="p-2 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-between h-16">
+                <div key={generateStableKey(gov, i, 'poverty-gov-heatmap')} className="p-2 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-between h-16">
                   <div className="flex justify-between items-start">
                     <span className="text-[8px] font-mono text-slate-500 uppercase truncate">{gov.name}</span>
                     <div className={`w-1.5 h-1.5 rounded-full ${
@@ -2461,7 +2462,7 @@ export const EconomyIntelligence: React.FC = () => {
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Social Safety Net Performance</h3>
             <div className="space-y-4">
               {socialSafetyNetData.map((item, i) => (
-                <div key={i} className="space-y-2">
+                <div key={generateStableKey(item, i, 'safety-net-item')} className="space-y-2">
                   <div className="flex justify-between items-center text-[10px] font-mono">
                     <span className="text-slate-400 uppercase tracking-tighter">{item.category}</span>
                     <span className={`font-bold ${
@@ -2499,7 +2500,7 @@ export const EconomyIntelligence: React.FC = () => {
           { label: 'Energy Poverty', value: '12.5%', trend: '+1.8 vs 2024', status: 'WARNING', desc: 'Households spending >10% of income on basic utility bills.' },
           { label: 'Child Poverty', value: '26.4%', trend: '+1.2 vs 2024', status: 'CRITICAL', desc: 'Children under 15 living in households below the poverty line.' }
         ].map((ind, i) => (
-          <div key={i} className="glass p-4 rounded-xl border border-intel-border space-y-2">
+          <div key={generateStableKey(ind, i, 'poverty-risk-ind')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-400 uppercase">{ind.label}</span>
               <div className={`w-2 h-2 rounded-full ${ind.status === 'CRITICAL' ? 'bg-intel-red animate-pulse' : 'bg-intel-orange'}`}></div>
@@ -2588,7 +2589,7 @@ export const EconomyIntelligence: React.FC = () => {
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Critical Molecule Shortages</h3>
             <div className="space-y-3">
               {criticalMolecules.map((mol, i) => (
-                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
+                <div key={generateStableKey(mol, i, 'critical-mol')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
                   <div className="space-y-0.5">
                     <div className="text-[10px] font-bold text-white uppercase">{mol.name}</div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase">{mol.category}</div>
@@ -2641,7 +2642,7 @@ export const EconomyIntelligence: React.FC = () => {
                     dataKey="value"
                   >
                     {importDependencyData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={generateStableKey(entry, index, 'import-dep-pie')} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
@@ -2650,7 +2651,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
             <div className="space-y-2">
               {importDependencyData.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-[9px] font-mono">
+                <div key={generateStableKey(item, i, 'import-dep-item')} className="flex items-center justify-between text-[9px] font-mono">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-slate-500 uppercase">{item.name}</span>
@@ -2666,7 +2667,7 @@ export const EconomyIntelligence: React.FC = () => {
       {/* Essential Meds Status Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {essentialMedsStatus.map((med, i) => (
-          <div key={i} className="glass p-5 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group">
+          <div key={generateStableKey(med, i, 'essential-med-status')} className="glass p-5 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group">
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-3">
                 <div className={`p-2 rounded-lg ${
@@ -2728,7 +2729,7 @@ export const EconomyIntelligence: React.FC = () => {
               { label: 'Private Sector Inventory', value: 55, target: 120, unit: 'days', status: 'WARNING' },
               { label: 'Raw Material Buffer', value: 28, target: 180, unit: 'days', status: 'CRITICAL' }
             ].map((stock, i) => (
-              <div key={i} className="space-y-2">
+              <div key={generateStableKey(stock, i, 'strategic-stock')} className="space-y-2">
                 <div className="flex justify-between items-center text-[10px] font-mono">
                   <span className="text-slate-400 uppercase tracking-tighter">{stock.label}</span>
                   <span className={`font-bold ${stock.status === 'CRITICAL' ? 'text-intel-red' : 'text-intel-orange'}`}>
@@ -2755,7 +2756,7 @@ export const EconomyIntelligence: React.FC = () => {
               { label: 'Local Production', risk: 'STRESSED', color: 'text-intel-orange', desc: 'Raw material costs up 35% due to TND depreciation.' },
               { label: 'Distribution', risk: 'MODERATE', color: 'text-intel-cyan', desc: 'Fuel costs impacting regional delivery frequency.' }
             ].map((risk, i) => (
-              <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+              <div key={generateStableKey(risk, i, 'procurement-risk')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[9px] font-mono text-slate-500 uppercase">{risk.label}</span>
                   <span className={`text-[9px] font-bold font-mono ${risk.color}`}>{risk.risk}</span>
@@ -2784,7 +2785,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {startupEcosystemMetrics.map((ind, i) => (
           <motion.div 
-            key={i}
+            key={generateStableKey(ind, i, 'startup-metric')}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.05 }}
@@ -2868,7 +2869,7 @@ export const EconomyIntelligence: React.FC = () => {
                   dataKey="value"
                 >
                   {startupSectors.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={generateStableKey(entry, index, 'startup-sector-cell')} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
@@ -2888,10 +2889,10 @@ export const EconomyIntelligence: React.FC = () => {
             { title: 'AgriTech Innovation', desc: 'New IoT solution for water management adopted by 50+ farms in the interior.', impact: 'MEDIUM', color: 'text-intel-green' },
             { title: 'Global Accelerator Entry', desc: 'Three Tunisian startups selected for Y Combinator Summer 2026 batch.', impact: 'HIGH', color: 'text-intel-cyan' },
             { title: 'Regulatory Sandbox', desc: 'BCT expands regulatory sandbox to include blockchain-based remittance startups.', impact: 'MEDIUM', color: 'text-intel-cyan' },
-            { title: 'Startup Act 2.0', desc: 'Government announces tax incentives for angel investors and R&D grants.', impact: 'HIGH', color: 'text-intel-green' },
-            { title: 'Exit Potential', desc: 'Major EU tech firm in talks to acquire local AI-driven logistics platform.', impact: 'CRITICAL', color: 'text-intel-red' }
+            {title: 'Startup Act 2.0', desc: 'Government announces tax incentives for angel investors and R&D grants.', impact: 'HIGH', color: 'text-intel-green'},
+            {title: 'Exit Potential', desc: 'Major EU tech firm in talks to acquire local AI-driven logistics platform.', impact: 'CRITICAL', color: 'text-intel-red'}
           ].map((item, i) => (
-            <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3 hover:bg-white/10 transition-all cursor-pointer group">
+            <div key={generateStableKey(item, i, 'startup-intel-item')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3 hover:bg-white/10 transition-all cursor-pointer group">
               <div className="flex justify-between items-start">
                 <div className={`text-[10px] font-bold uppercase tracking-tight group-hover:${item.color} transition-colors`}>{item.title}</div>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
@@ -2931,7 +2932,7 @@ export const EconomyIntelligence: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-intel-border/30">
             {regionalData.map((peer, i) => (
-              <tr key={i} className={`hover:bg-white/5 transition-all ${peer.isTarget ? 'bg-intel-cyan/5' : ''}`}>
+              <tr key={generateStableKey(peer, i, 'regional-comparison-row')} className={`hover:bg-white/5 transition-all ${peer.isTarget ? 'bg-intel-cyan/5' : ''}`}>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
                     <span className={`text-sm font-bold ${peer.isTarget ? 'text-intel-cyan' : 'text-white'}`}>
@@ -2991,7 +2992,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Bar dataKey="gdp" radius={[4, 4, 0, 0]}>
                   { regionalData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.isTarget ? '#ef4444' : '#22d3ee'} />
+                    <Cell key={generateStableKey(entry, index, 'gdp-comp-cell')} fill={entry.isTarget ? '#ef4444' : '#22d3ee'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -3010,7 +3011,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Bar dataKey="reserves" radius={[4, 4, 0, 0]}>
                   { regionalData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={
+                    <Cell key={generateStableKey(entry, index, 'forex-comp-cell')} fill={
                       entry.reserves < 100 ? '#ef4444' :
                       entry.reserves < 120 ? '#f97316' :
                       '#22d3ee'
@@ -3186,7 +3187,7 @@ export const EconomyIntelligence: React.FC = () => {
                       {seiResult.commodities.map((c, i) => {
                         const phaseCfg = SEI_PHASE_CONFIG[c.phase as keyof typeof SEI_PHASE_CONFIG];
                         return (
-                          <div key={i} className="glass p-5 rounded-2xl border border-intel-border/30 space-y-4 relative overflow-hidden group">
+                          <div key={generateStableKey(c, i, 'sei-commodity')} className="glass p-5 rounded-2xl border border-intel-border/30 space-y-4 relative overflow-hidden group">
                             {/* Phase indicator bar */}
                             <div className="absolute top-0 left-0 w-full h-1 bg-white/5">
                               <div 
@@ -3256,7 +3257,7 @@ export const EconomyIntelligence: React.FC = () => {
                     <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Global Energy Shocks Detected</div>
                     <div className="grid grid-cols-1 gap-4">
                       {energyShocks.map((shock, i) => (
-                        <div key={i}
+                        <div key={generateStableKey(shock, i, 'energy-shock')}
                           className={`p-6 rounded-2xl border space-y-4 ${
                           shock.severity === 3
                             ? 'border-intel-red/30 bg-intel-red/5'
@@ -3311,7 +3312,7 @@ export const EconomyIntelligence: React.FC = () => {
                           s.severity >= 3 ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' :
                           'text-yellow-500 border-yellow-500/30 bg-yellow-500/10';
                         return (
-                          <div key={i}
+                          <div key={generateStableKey(s, i, 'shortage-item')}
                             className={`p-5 rounded-2xl border space-y-3 transition-all hover:scale-[1.02] ${severityColor}`}>
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-bold uppercase tracking-wider">
@@ -3350,7 +3351,7 @@ export const EconomyIntelligence: React.FC = () => {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {seasonalForecast.slice(0, 6).map((f, i) => (
-                        <div key={i} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                        <div key={generateStableKey(f, i, 'seasonal-forecast')} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                           f.priority === 'high'
                             ? 'border-intel-red/20 bg-intel-red/5'
                             : 'border-intel-orange/20 bg-intel-orange/5'

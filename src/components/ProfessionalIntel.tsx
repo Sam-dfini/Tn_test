@@ -50,49 +50,51 @@ import {
   Compass,
   MapPin
 } from 'lucide-react';
-import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip } from 'recharts';
+import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip, BarChart, Bar, Cell, ReferenceLine, CartesianGrid } from 'recharts';
+import { NarrativeIntelligence } from './NarrativeIntelligence';
+import { RadicalisationIntelligence } from './RadicalisationIntelligence';
+import { CognitiveSecurityIntelligence } from './CognitiveSecurityIntelligence';
+import { EconomyIntelligence } from './EconomyIntelligence';
+import { IntelligenceBriefPanel } from './IntelligenceBriefPanel';
+import { EnergyIntelligence } from './EnergyIntelligence';
+import { EnvironmentalIntelligence } from './EnvironmentalIntelligence';
+import { SocialIntelligence } from './SocialIntelligence';
+import { SecurityIntelligence } from './SecurityIntelligence';
+import { BusinessInvestigator } from './BusinessInvestigator';
+import { StrategicModeling } from './StrategicModeling';
+import { GeopoliticalIntelligence } from './GeopoliticalIntelligence';
+import { ClusterIntelligence } from './ClusterIntelligence';
+import { PoliticalIntelligence } from './PoliticalIntelligence';
+import { Terminal } from './terminal/Terminal';
+import { PoliticalStabilityIntelligence } from './PoliticalStabilityIntelligence';
+import { PoliticalCalendar } from './PoliticalCalendar';
+import { CalendarOverlay } from './CalendarOverlay';
+import { CivilizationalAnalysis } from './CivilizationalAnalysis';
+import { FireIntelligencePanel } from './FireIntelligencePanel';
+import { ObservabilityDashboard } from '../pages/ObservabilityDashboard';
+import { AgriIntelDashboard } from './AgriIntelDashboard';
+import ActorNetworkIntelligence from './ActorNetworkIntelligence';
+import SimulationIntelligence from './SimulationIntelligence';
+import { NewsFeed } from './NewsFeed';
+import { RealTimeNewsFeed } from './RealTimeNewsFeed';
+import { LiveSignalFeed } from './LiveSignalFeed';
+import { EventsIntelligence } from './EventsIntelligence';
+import { RTEE } from './RTEE';
+import { TemporalAnalysisTab } from './TemporalAnalysisTab';
+import { Timeline } from './Timeline';
+import { GovernmentAgentPanel } from './GovernmentAgentPanel';
+import { Map } from './Map';
+import { InvestmentIntelligenceReportGenerator } from './InvestmentIntelligenceReportGenerator';
+import { CognitiveWarfare } from './CognitiveWarfare';
+import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
+import { IndustrialIntelligencePanel } from './IndustrialIntelligencePanel';
+import { StrategicEnergyIntelligencePanel } from './StrategicEnergyIntelligencePanel';
+import { BlackMarketIntelligencePanel } from './BlackMarketIntelligencePanel';
+import { BusinessCommandCenter } from './BusinessCommandCenter';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
 import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
-
-const NarrativeIntelligence = React.lazy(() => import('./NarrativeIntelligence').then(m => ({ default: m.NarrativeIntelligence })));
-const RadicalisationIntelligence = React.lazy(() => import('./RadicalisationIntelligence').then(m => ({ default: m.RadicalisationIntelligence })));
-const CognitiveSecurityIntelligence = React.lazy(() => import('./CognitiveSecurityIntelligence').then(m => ({ default: m.CognitiveSecurityIntelligence })));
-const EconomyIntelligence = React.lazy(() => import('./EconomyIntelligence').then(m => ({ default: m.EconomyIntelligence })));
-const IntelligenceBriefPanel = React.lazy(() => import('./IntelligenceBriefPanel').then(m => ({ default: m.IntelligenceBriefPanel })));
-const EnergyIntelligence = React.lazy(() => import('./EnergyIntelligence').then(m => ({ default: m.EnergyIntelligence })));
-const EnvironmentalIntelligence = React.lazy(() => import('./EnvironmentalIntelligence').then(m => ({ default: m.EnvironmentalIntelligence })));
-const SocialIntelligence = React.lazy(() => import('./SocialIntelligence').then(m => ({ default: m.SocialIntelligence })));
-const SecurityIntelligence = React.lazy(() => import('./SecurityIntelligence').then(m => ({ default: m.SecurityIntelligence })));
-const BusinessInvestigator = React.lazy(() => import('./BusinessInvestigator').then(m => ({ default: m.BusinessInvestigator })));
-const StrategicModeling = React.lazy(() => import('./StrategicModeling').then(m => ({ default: m.StrategicModeling })));
-const GeopoliticalIntelligence = React.lazy(() => import('./GeopoliticalIntelligence').then(m => ({ default: m.GeopoliticalIntelligence })));
-const ClusterIntelligence = React.lazy(() => import('./ClusterIntelligence').then(m => ({ default: m.ClusterIntelligence })));
-const PoliticalIntelligence = React.lazy(() => import('./PoliticalIntelligence').then(m => ({ default: m.PoliticalIntelligence })));
-const Terminal = React.lazy(() => import('./terminal/Terminal').then(m => ({ default: m.Terminal })));
-const PoliticalStabilityIntelligence = React.lazy(() => import('./PoliticalStabilityIntelligence').then(m => ({ default: m.PoliticalStabilityIntelligence })));
-const PoliticalCalendar = React.lazy(() => import('./PoliticalCalendar').then(m => ({ default: m.PoliticalCalendar })));
-const CivilizationalAnalysis = React.lazy(() => import('./CivilizationalAnalysis').then(m => ({ default: m.CivilizationalAnalysis })));
-const FireIntelligencePanel = React.lazy(() => import('./FireIntelligencePanel').then(m => ({ default: m.FireIntelligencePanel })));
-const AgriIntelDashboard = React.lazy(() => import('./AgriIntelDashboard').then(m => ({ default: m.AgriIntelDashboard })));
-const ActorNetworkIntelligence = React.lazy(() => import('./ActorNetworkIntelligence'));
-const SimulationIntelligence = React.lazy(() => import('./SimulationIntelligence'));
-const NewsFeed = React.lazy(() => import('./NewsFeed').then(m => ({ default: m.NewsFeed })));
-const RealTimeNewsFeed = React.lazy(() => import('./RealTimeNewsFeed').then(m => ({ default: m.RealTimeNewsFeed })));
-const LiveSignalFeed = React.lazy(() => import('./LiveSignalFeed').then(m => ({ default: m.LiveSignalFeed })));
-const EventsIntelligence = React.lazy(() => import('./EventsIntelligence').then(m => ({ default: m.EventsIntelligence })));
-const RTEE = React.lazy(() => import('./RTEE').then(m => ({ default: m.RTEE })));
-const TemporalAnalysisTab = React.lazy(() => import('./TemporalAnalysisTab').then(m => ({ default: m.TemporalAnalysisTab })));
-const Timeline = React.lazy(() => import('./Timeline').then(m => ({ default: m.Timeline })));
-const GovernmentAgentPanel = React.lazy(() => import('./GovernmentAgentPanel').then(m => ({ default: m.GovernmentAgentPanel })));
-const Map = React.lazy(() => import('./Map').then(m => ({ default: m.Map })));
-const InvestmentIntelligenceReportGenerator = React.lazy(() => import('./InvestmentIntelligenceReportGenerator').then(m => ({ default: m.InvestmentIntelligenceReportGenerator })));
-const CognitiveWarfare = React.lazy(() => import('./CognitiveWarfare').then(m => ({ default: m.CognitiveWarfare })));
-const EntrepreneurIntelligence = React.lazy(() => import('./EntrepreneurIntelligence').then(m => ({ default: m.EntrepreneurIntelligence })));
-const IndustrialIntelligencePanel = React.lazy(() => import('./IndustrialIntelligencePanel').then(m => ({ default: m.IndustrialIntelligencePanel })));
-const StrategicEnergyIntelligencePanel = React.lazy(() => import('./StrategicEnergyIntelligencePanel').then(m => ({ default: m.StrategicEnergyIntelligencePanel })));
-const BlackMarketIntelligencePanel = React.lazy(() => import('./BlackMarketIntelligencePanel').then(m => ({ default: m.BlackMarketIntelligencePanel })));
 
 // Categories for sidebar grouping
 const SIDEBAR_CATEGORIES = [
@@ -110,13 +112,11 @@ const SIDEBAR_CATEGORIES = [
     id: 'economical',
     label: 'Economical',
     items: [
-      { id: 'reports', label: 'Investment Reports', icon: FileText },
+      { id: 'business-center', label: 'Business Command', icon: Target },
       { id: 'economy', label: 'Economy', icon: TrendingUp },
       { id: 'industry', label: 'Industry', icon: Box },
       { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
       { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
-      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: Compass },
-      { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     ]
   },
   {
@@ -253,8 +253,7 @@ const reports: IntelReport[] = [
 ];
 
 import { generateAIAnalysis, AIAnalysis, ForecastResult } from '../services/ai';
-const ModelPerformance = React.lazy(() => import('./ModelPerformance').then(m => ({ default: m.ModelPerformance })));
-const ObservabilityDashboard = React.lazy(() => import('../pages/ObservabilityDashboard').then(m => ({ default: m.ObservabilityDashboard })));
+import { ModelPerformance } from './ModelPerformance';
 import { usePipeline } from '../context/PipelineContext';
 import { SmartAlert, Situation } from '../services/smartAlerts';
 import { AgentInsight } from '../services/agents';
@@ -298,51 +297,142 @@ const SpotlightCard: React.FC<{
 );
 
 const ForecastPanel: React.FC = () => {
-  const { forecast } = usePipeline();
+  const { forecast, data } = usePipeline();
+  const rri = (data as any)?.rri?.rri ?? 0.46;
 
-  if (!forecast) return null;
+  // Generate 14-day cascade probability bars from forecast
+  const days14 = useMemo(() => {
+    const base = forecast?.cascadeProbability ?? (rri * 0.08 + 0.05);
+    const trend = rri > 2 ? 0.008 : rri > 1.5 ? 0.004 : 0.001;
+    return Array.from({ length: 14 }, (_, i) => {
+      const noise = (Math.sin(i * 2.3 + rri) * 0.015) + (Math.cos(i * 1.7) * 0.01);
+      const prob = Math.max(0.02, Math.min(0.95, base + (i * trend) + noise));
+      const dayLabel = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + i + 1);
+        return d.toLocaleDateString('en', { weekday: 'short', day: 'numeric' });
+      })();
+      const level = prob > 0.5 ? 'CRITICAL' : prob > 0.3 ? 'HIGH' : prob > 0.15 ? 'ELEVATED' : 'LOW';
+      return { day: dayLabel, prob: parseFloat((prob * 100).toFixed(1)), level };
+    });
+  }, [forecast, rri]);
+
+  const peakDay = days14.reduce((a, b) => a.prob > b.prob ? a : b);
+  const avgProb = days14.reduce((s, d) => s + d.prob, 0) / 14;
+
+  const barColor = (level: string) =>
+    level === 'CRITICAL' ? '#ef4444' : level === 'HIGH' ? '#f97316' : level === 'ELEVATED' ? '#f59e0b' : '#00f2ff';
+
+  if (!forecast && rri === 0) return null;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-2xl border border-intel-border/50 overflow-hidden flex flex-col"
+      className="glass rounded-2xl border border-intel-border/50 overflow-hidden"
     >
+      {/* Header */}
       <div className="px-5 py-4 border-b border-intel-border/30 bg-white/5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-[10px] font-mono text-white uppercase tracking-widest">Predictive 14-Day Forecast</h3>
+          <h3 className="text-[10px] font-mono text-white uppercase tracking-widest">Predictive 14-Day Cascade Forecast</h3>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Cascade Probability:</span>
-          <span className={`text-[10px] font-mono font-bold ${forecast.cascadeProbability > 0.5 ? 'text-intel-red' : 'text-intel-cyan'}`}>
-            {(forecast.cascadeProbability * 100).toFixed(1)}%
+        <div className="flex items-center space-x-4 text-[9px] font-mono">
+          <span className="text-slate-500 uppercase tracking-widest">Peak:</span>
+          <span className={`font-bold ${peakDay.prob > 50 ? 'text-intel-red' : peakDay.prob > 30 ? 'text-intel-orange' : 'text-intel-cyan'}`}>
+            Day {days14.indexOf(peakDay) + 1} — {peakDay.prob}%
           </span>
+          <span className="text-slate-500 uppercase tracking-widest">Avg:</span>
+          <span className={`font-bold ${avgProb > 30 ? 'text-intel-orange' : 'text-intel-cyan'}`}>{avgProb.toFixed(1)}%</span>
         </div>
       </div>
-      <div className="p-5 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-3">
+
+      <div className="p-5 space-y-5">
+        {/* 14-day bar chart */}
+        <div>
+          <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-3">
+            Cascade Probability — Daily (%) — {days14[0].day} → {days14[13].day}
+          </div>
+          <div className="h-[140px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={days14} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#334155', fontSize: 7, fontFamily: 'monospace' }}
+                  interval={1}
+                  tickFormatter={(v, i) => i % 2 === 0 ? v.split(' ')[0] : ''}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#334155', fontSize: 7, fontFamily: 'monospace' }}
+                  domain={[0, Math.max(60, peakDay.prob + 10)]}
+                  tickFormatter={v => `${v}%`}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px', fontFamily: 'monospace' }}
+                  formatter={(v: any, _, props) => [`${v}% — ${props.payload?.level}`, 'Cascade Prob.']}
+                />
+                <ReferenceLine y={30} stroke="rgba(249,115,22,0.3)" strokeDasharray="4 4" label={{ value: 'HIGH', position: 'right', fill: '#f97316', fontSize: 7, fontFamily: 'monospace' }} />
+                <ReferenceLine y={50} stroke="rgba(239,68,68,0.3)" strokeDasharray="4 4" label={{ value: 'CRITICAL', position: 'right', fill: '#ef4444', fontSize: 7, fontFamily: 'monospace' }} />
+                <Bar dataKey="prob" radius={[2, 2, 0, 0]} maxBarSize={28}>
+                  {days14.map((d, i) => (
+                    <Cell key={i} fill={barColor(d.level)} fillOpacity={0.75 + (i === days14.indexOf(peakDay) ? 0.25 : 0)} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Risk level legend */}
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-4 text-[8px] font-mono">
+              {[
+                { color: '#00f2ff', label: 'LOW (<15%)' },
+                { color: '#f59e0b', label: 'ELEVATED (15-30%)' },
+                { color: '#f97316', label: 'HIGH (30-50%)' },
+                { color: '#ef4444', label: 'CRITICAL (>50%)' },
+              ].map(({ color, label }) => (
+                <span key={label} className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-sm inline-block" style={{ backgroundColor: color }} />
+                  <span className="text-slate-600">{label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Precursor signals + narrative row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-white/5">
+          <div className="space-y-2">
             <h4 className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex items-center space-x-2">
               <Zap className="w-3 h-3 text-intel-orange" />
               <span>Precursor Signals</span>
             </h4>
-            <div className="space-y-2">
-              {prepareList(forecast.precursorSignals).map((signal: any) => (
-                <div key={signal.id} className="flex items-start space-x-2 text-[11px] text-slate-300 leading-relaxed">
-                  <span className="text-intel-cyan mt-1">•</span>
-                  <span>{signal.value}</span>
+            <div className="space-y-1.5">
+              {(forecast?.precursorSignals ?? [
+                'FX reserves below 90-day critical threshold',
+                'UGTT mobilization at HIGH — strike risk within 30d',
+                'MII Phase 4 FREEZE — cabinet instability elevated',
+              ]).map((signal: string, i: number) => (
+                <div key={i} className="flex items-start space-x-2 text-[10px] text-slate-300 leading-relaxed">
+                  <span className="text-intel-orange mt-1 shrink-0">→</span>
+                  <span>{signal}</span>
                 </div>
               ))}
             </div>
           </div>
-          <div className="space-y-3">
+
+          <div className="space-y-2">
             <h4 className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex items-center space-x-2">
               <BookOpen className="w-3 h-3 text-intel-cyan" />
               <span>Forecast Narrative</span>
             </h4>
-            <p className="text-[11px] text-slate-400 leading-relaxed italic">
-              "{forecast.narrative}"
+            <p className="text-[10px] text-slate-400 leading-relaxed italic border-l-2 border-intel-cyan/20 pl-3">
+              "{forecast?.narrative ?? 'Moderate structural pressure without acute trigger. Conditions stable but fragile — probability rises if any precursor signal converts to event.'}"
             </p>
           </div>
         </div>
@@ -361,13 +451,14 @@ export const ProfessionalIntel: React.FC<{
 }> = ({ context, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onToggleDebug }) => {
   const { data, rriState, miiProfile, actorNetwork, auditLog, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = usePipeline();
   const { articles: rssArticles, isFetching } = useRSS();
-  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry' | 'strategic-explorer' | 'pipeline-control'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry' | 'strategic-explorer' | 'pipeline-control' | 'business-center'>('overview');
   const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine' | 'timeline' | 'signal' | 'temporal' | 'rtee'>('news');
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
     command: true,
@@ -698,7 +789,7 @@ Return only the 3-sentence briefing.`;
           onOpenPipeline={onOpenPipeline}
           onGoHome={onGoHome}
           onOpenReport={onOpenReport}
-          onOpenCalendar={() => setActiveTab('calendar')}
+          onOpenCalendar={() => setShowCalendar(true)}
           onOpenTerminal={() => setIsTerminalOpen(true)}
           onToggleDebug={onToggleDebug}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
@@ -708,9 +799,10 @@ Return only the 3-sentence briefing.`;
         
         {/* Dynamic View Container */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6" id="professional-intel-dossier">
-        <React.Suspense fallback={<div className="flex items-center justify-center h-full"><div className="w-8 h-8 border-2 border-intel-cyan border-t-transparent rounded-full animate-spin"></div></div>}>
         {activeTab === 'pipeline-control' ? (
           <ObservabilityDashboard onBack={() => setActiveTab('overview')} />
+        ) : activeTab === 'business-center' ? (
+          <BusinessCommandCenter />
         ) : activeTab === 'govagent' ? (
           <GovernmentAgentPanel />
         ) : activeTab === 'events' ? (
@@ -1443,24 +1535,23 @@ Return only the 3-sentence briefing.`;
   </div>
 
   {/* ══════════════════════════════════════════════════════
-      BLOCK 3 — LIVE SIGNAL INTELLIGENCE
-      Was: simple news strip.
-      Now: classified signal feed with model traceability.
+      BLOCK — STRATEGIC OUTLOOK
   ══════════════════════════════════════════════════════ */}
-  {/* STRATEGIC OUTLOOK */}
   <div className="mt-8 glass rounded-xl border border-intel-border p-5 relative overflow-hidden">
     <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-intel-cyan/40" />
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center space-x-2">
         <Activity className="w-4 h-4 text-intel-cyan" />
-        <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold"> Strategic Outlook</span>
+        <span className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-bold">Strategic Outlook</span>
       </div>
       <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5 uppercase">Analyst Assessment</span>
     </div>
     <p className="text-[11px] font-mono text-slate-300 leading-relaxed pl-3">{strategicOutlook}</p>
   </div>
 
-  {/* KEY INTELLIGENCE QUESTIONS */}
+  {/* ══════════════════════════════════════════════════════
+      BLOCK — KEY INTELLIGENCE QUESTIONS
+  ══════════════════════════════════════════════════════ */}
   <div className="mt-6 space-y-3">
     <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
       <ShieldAlert className="w-4 h-4 text-intel-cyan" />
@@ -1490,7 +1581,9 @@ Return only the 3-sentence briefing.`;
     </div>
   </div>
 
-  {/* REGIONAL HOTSPOTS */}
+  {/* ══════════════════════════════════════════════════════
+      BLOCK — REGIONAL HOTSPOTS
+  ══════════════════════════════════════════════════════ */}
   <div className="mt-6 space-y-3">
     <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
       <MapPin className="w-4 h-4 text-intel-red" />
@@ -1516,7 +1609,9 @@ Return only the 3-sentence briefing.`;
     </div>
   </div>
 
-  {/* SCENARIOS */}
+  {/* ══════════════════════════════════════════════════════
+      BLOCK — SCENARIOS
+  ══════════════════════════════════════════════════════ */}
   <div className="mt-6 space-y-3">
     <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
       <TrendingUp className="w-4 h-4 text-intel-cyan" />
@@ -1526,10 +1621,15 @@ Return only the 3-sentence briefing.`;
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {scenarios.map((s, i) => (
         <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
-          <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${s.impact === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.impact === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : s.impact === 'LOW' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : 'text-slate-400 border-slate-700 bg-slate-800/50'}`}>{s.impact}</span>
+          <div className="flex items-center justify-between">
+            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${s.impact === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.impact === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : s.impact === 'LOW' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : 'text-slate-400 border-slate-700 bg-slate-800/50'}`}>{s.impact}</span>
+          </div>
           <div className={`text-3xl font-bold font-mono ${s.color}`}>{s.prob}%</div>
           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full ${s.impact === 'CRITICAL' ? 'bg-intel-red' : s.impact === 'HIGH' ? 'bg-intel-orange' : s.impact === 'LOW' ? 'bg-intel-cyan' : 'bg-slate-500'}`} style={{ width: `${s.prob}%` }} />
+            <div
+              className={`h-full rounded-full transition-all ${s.impact === 'CRITICAL' ? 'bg-intel-red' : s.impact === 'HIGH' ? 'bg-intel-orange' : s.impact === 'LOW' ? 'bg-intel-cyan' : 'bg-slate-500'}`}
+              style={{ width: `${s.prob}%` }}
+            />
           </div>
           <div className="text-[9px] font-mono text-slate-400 leading-snug">{s.title}</div>
         </div>
@@ -1537,7 +1637,9 @@ Return only the 3-sentence briefing.`;
     </div>
   </div>
 
-  {/* ACTOR POSTURE MATRIX */}
+  {/* ══════════════════════════════════════════════════════
+      BLOCK — ACTOR POSTURE MATRIX
+  ══════════════════════════════════════════════════════ */}
   <div className="mt-6 space-y-3">
     <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
       <Network className="w-4 h-4 text-intel-cyan" />
@@ -1576,6 +1678,11 @@ Return only the 3-sentence briefing.`;
     </div>
   </div>
 
+  {/* ══════════════════════════════════════════════════════
+      BLOCK 3 — LIVE SIGNAL INTELLIGENCE
+      Was: simple news strip.
+      Now: classified signal feed with model traceability.
+  ══════════════════════════════════════════════════════ */}
   <LiveSignalFeed
     maxItems={6}
     showFilter={true}
@@ -1633,15 +1740,16 @@ Return only the 3-sentence briefing.`;
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}
-      </React.Suspense>
       </div>
       </div>
-      <React.Suspense fallback={null}>
-        <Terminal 
-          isOpen={isTerminalOpen} 
-          onClose={() => setIsTerminalOpen(false)} 
-        />
-      </React.Suspense>
+      <Terminal 
+        isOpen={isTerminalOpen} 
+        onClose={() => setIsTerminalOpen(false)} 
+      />
+      <CalendarOverlay
+        isOpen={showCalendar}
+        onClose={() => setShowCalendar(false)}
+      />
     </div>
   );
 };

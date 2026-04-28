@@ -41,6 +41,7 @@ import { useRSS } from '../context/RSSContext';
 import { generateInvestmentReport } from '../services/InvestmentIntelligenceEngine';
 import { assessGovernmentAgent } from '../services/govAgent';
 import { cn } from '../utils/cn';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 interface CitizenEditionProps {
   governorates: Governorate[];
@@ -359,7 +360,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
             <div className="glass rounded-3xl border border-intel-border overflow-hidden">
-              {topKeywords.map(k => <KeywordItem key={k.id} keyword={k} />)}
+              {prepareList(topKeywords).map((k: any) => <KeywordItem key={k.id} keyword={k} />)}
             </div>
           </div>
         );
@@ -375,8 +376,8 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             </div>
 
             <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-               {['HIGH', 'MEDIUM', '24H', 'ESCALATION', 'DE-ESCALATION'].map(f => (
-                 <button key={f} className="px-4 py-1.5 rounded-lg border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap hover:border-intel-cyan/40 transition-all">
+               {['HIGH', 'MEDIUM', '24H', 'ESCALATION', 'DE-ESCALATION'].map((f, i) => (
+                 <button key={assertKey(getRenderKey(f, i, 'cit-feed-filter'))} className="px-4 py-1.5 rounded-lg border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap hover:border-intel-cyan/40 transition-all">
                    {f}
                  </button>
                ))}
@@ -413,9 +414,9 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   </button>
                 </div>
               </div>
-              {displayedEvents.filter(e => e && e.id).map((evt, idx) => (
+              {prepareList(displayedEvents.filter(e => e && (e.id || (e as any).event_id))).map((evt: any, idx: number) => (
                 <FeedCard 
-                  key={`feed-${evt.id}-${idx}`} 
+                  key={assertKey(getRenderKey(evt, idx, 'cit-feed'))} 
                   item={{
                     id: evt.id,
                     title: evt.title,
@@ -445,9 +446,9 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             {/* Economic News Banner */}
             <div className="bg-intel-red/10 border-y border-intel-red/20 py-2 overflow-hidden">
               <div className="flex animate-marquee whitespace-nowrap">
-                {[...economicNews, ...economicNews].map((news, i) => (
-                  <div key={`econ-news-${i}`} className="flex items-center mx-8">
-                    <span className="text-[10px] font-bold text-intel-red uppercase tracking-widest">{news}</span>
+                {prepareList([...economicNews, ...economicNews]).map((news: any, i: number) => (
+                  <div key={assertKey(getRenderKey(news, i, 'cit-econ-marquee'))} className="flex items-center mx-8">
+                    <span className="text-[10px] font-bold text-intel-red uppercase tracking-widest">{news.value}</span>
                     <div className="w-1 h-1 bg-intel-red rounded-full mx-4" />
                   </div>
                 ))}
@@ -466,7 +467,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   </button>
                 </div>
                 <div className="glass rounded-3xl border border-intel-border overflow-hidden">
-                  {marketIndices.map((m, i) => <MarketRow key={`market-${m.name}-${i}`} item={m} />)}
+                  {prepareList(marketIndices).map((m: any, i: number) => <MarketRow key={assertKey(getRenderKey(m, i, 'cit-market'))} item={m} />)}
                 </div>
               </div>
 
@@ -476,7 +477,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <span className="text-[10px] font-bold uppercase tracking-widest">Commodities</span>
                 </div>
                 <div className="glass rounded-3xl border border-intel-border overflow-hidden">
-                  {commodities.map((c, i) => <MarketRow key={`commodity-${c.name}-${i}`} item={c} />)}
+                  {prepareList(commodities).map((c: any, i: number) => <MarketRow key={assertKey(getRenderKey(c, i, 'cit-commodity'))} item={c} />)}
                 </div>
               </div>
 
@@ -486,7 +487,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <span className="text-[10px] font-bold uppercase tracking-widest">Essential Food Prices (TND)</span>
                 </div>
                 <div className="glass rounded-3xl border border-intel-border overflow-hidden">
-                  {foodPrices.map((f, i) => <MarketRow key={`food-${f.name}-${i}`} item={f} />)}
+                  {prepareList(foodPrices).map((f: any, i: number) => <MarketRow key={assertKey(getRenderKey(f, i, 'cit-food'))} item={f} />)}
                 </div>
               </div>
             </div>
@@ -527,7 +528,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <ChevronRight className="w-3 h-3" />
                 </button>
               </div>
-              {predictions.map(p => <PredictionCard key={p.id} item={p} />)}
+              {prepareList(predictions).map((p: any) => <PredictionCard key={p.id} item={p} />)}
             </div>
           </div>
         );
@@ -674,8 +675,8 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                 <button onClick={() => setActiveTab('feed')} className="text-[10px] font-bold text-intel-cyan uppercase tracking-widest">View Feed</button>
               </div>
               <div className="space-y-3">
-                {feedItems.slice(0, 2).map((item, idx) => (
-                  <div key={`${item.id}-${idx}`} className="glass p-4 rounded-2xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/30 transition-all" onClick={() => setActiveTab('feed')}>
+                {prepareList(feedItems.slice(0, 2)).map((item: any, idx: number) => (
+                  <div key={assertKey(getRenderKey(item, idx, 'cit-recent'))} className="glass p-4 rounded-2xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/30 transition-all" onClick={() => setActiveTab('feed')}>
                     <div className="flex items-center space-x-4">
                       <div className={`w-1.5 h-1.5 rounded-full ${item.impact === 'CRITICAL' ? 'bg-intel-red' : 'bg-intel-orange'} animate-pulse`} />
                       <div className="space-y-0.5">
@@ -738,13 +739,13 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-intel-bg/90 backdrop-blur-xl border-t border-intel-border px-4 py-3 z-[100]">
         <div className="max-w-md mx-auto flex items-center justify-between">
-          {navItems.map((item, idx) => {
+          {prepareList(navItems).map((item: any, idx: number) => {
             const isActive = activeTab === item.id;
             const isOperator = item.id === 'operator';
             
             return (
               <button
-                key={`${item.id}-${idx}`}
+                key={assertKey(getRenderKey(item, idx, 'cit-nav'))}
                 onClick={() => {
                   if (item.id === 'home') {
                     onGoHome();

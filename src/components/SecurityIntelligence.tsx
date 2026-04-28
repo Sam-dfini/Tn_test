@@ -331,7 +331,10 @@ export const SecurityIntelligence: React.FC = () => {
                 : 'bg-white/5 border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
             }`}
           >
-            <cat.icon className={`w-4 h-4 ${activeCategory === cat.id ? 'text-intel-cyan' : 'text-slate-500'}`} />
+            {(() => {
+              const Icon = cat.icon;
+              return <Icon className={`w-4 h-4 ${activeCategory === cat.id ? 'text-intel-cyan' : 'text-slate-500'}`} />;
+            })()}
             <span className="text-[10px] font-mono font-bold uppercase tracking-widest">{cat.label}</span>
           </button>
         ))}
@@ -367,7 +370,10 @@ export const SecurityIntelligence: React.FC = () => {
               <CornerAccent position="br" />
               <div className="flex items-center justify-between mb-4">
                 <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-intel-cyan group-hover:scale-110 transition-transform duration-300">
-                  <metric.icon className="w-5 h-5" />
+                  {(() => {
+                    const MetricIcon = metric.icon;
+                    return <MetricIcon className="w-5 h-5" />;
+                  })()}
                 </div>
                 <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                   metric.status === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/5' :

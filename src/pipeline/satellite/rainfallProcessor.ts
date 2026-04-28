@@ -15,7 +15,7 @@
 import fetch from 'node-fetch';
 import {
   GovCoord, isoDate, daysAgo, OPEN_METEO_ARCHIVE,
-} from './satelliteConfig.js';
+} from './satelliteConfig.ts';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 

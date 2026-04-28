@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { usePipeline } from '../../context/PipelineContext';
 import { generateAnalystResponse } from '../../services/ai';
 import { RRIVariable } from '../../types/intel';
+import { generateStableKey } from '../../lib/keyUtils';
 import './ScenarioCompare.css';
 
 interface Scenario {
@@ -361,7 +362,7 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
                   <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Generating analysis…</span>
                 ) : aiSynthesis ? (
                   aiSynthesis.split('\n\n').filter(Boolean).map((p, i) => (
-                    <p key={i} className="sc-ai-para">{p.replace(/\*\*/g, '').replace(/\*/g, '')}</p>
+                    <p key={generateStableKey(p, i, 'ai-para')} className="sc-ai-para">{p.replace(/\*\*/g, '').replace(/\*/g, '')}</p>
                   ))
                 ) : null}
               </div>

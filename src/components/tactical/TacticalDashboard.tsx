@@ -279,8 +279,8 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
                 className="flex items-center h-full space-x-12 whitespace-nowrap pl-32"
               >
-                {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any) => (
-                  <div key={article.id} className="flex items-center space-x-3">
+                {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any, idx: number) => (
+                  <div key={assertKey(getRenderKey(article, idx, 'tac-t1-article'))} className="flex items-center space-x-3">
                       <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
                       {article.source_name}

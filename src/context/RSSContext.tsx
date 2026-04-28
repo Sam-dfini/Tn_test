@@ -56,9 +56,15 @@ export const RSSProvider: React.FC<{
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper to deduplicate arrays of items with an id
-  const deduplicateById = <T extends Record<string, any>>(items: T[]): T[] => {
-    return prepareList(items) as unknown as T[];
-  };
+  const deduplicateById = useCallback(<T extends Record<string, any>>(items: T[]): T[] => {
+    const seen = new Set<string>();
+    return items.filter(item => {
+      const id = String(item.id || item.event_id || '').trim();
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, []);
 
   // Load recent intelligence from Supabase
   const loadData = useCallback(async () => {
@@ -208,13 +214,13 @@ export const RSSProvider: React.FC<{
     loadData();
     loadNotifications();
 
-    // Trigger an initial fetch immediately if not busy (checks backend)
+    // POLLED INGESTION DISABLED - Manual Trigger Only
+    /*
     fetchNow();
-
-    // Set up polling interval (15 minutes)
     fetchIntervalRef.current = setInterval(() => {
       fetchNow();
     }, 15 * 60 * 1000);
+    */
 
     return () => {
       if (fetchIntervalRef.current) {

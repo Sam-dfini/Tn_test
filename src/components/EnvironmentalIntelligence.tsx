@@ -70,6 +70,7 @@ import { usePipeline } from '../context/PipelineContext';
 import { cn } from '../lib/utils';
 import { fetchFireIntelligence, FireSignal } from '../services/firmsService';
 import { Governorate } from '../types/intel';
+import { assertKey, getRenderKey, prepareList } from '../lib/keyUtils';
 
 const environmentalAlerts = [
   { code: 'ENV-WATER-02', title: 'Aquifer Depletion Rate: CRITICAL — Gafsa Basin', impact: 'CRITICAL' },
@@ -174,6 +175,8 @@ const waterSourceMix = [
   { name: 'Treated Wastewater', value: 8, color: '#64748b' },
   { name: 'Rainwater Harvest', value: 3, color: '#334155' },
 ];
+
+const waterSourceMixPrepared = prepareList(waterSourceMix, 'name');
 
 const waterStressHeatmapPoints = [
   { lat: 34.74, lon: 10.76, intensity: 0.92, label: 'Sfax - Industrial/Urban Stress', risk: 'CRITICAL' },
@@ -411,7 +414,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
           {categories.map((cat) => (
             <button
-              key={cat.id}
+              key={`env-cat-stable-${cat.id}`}
               onClick={() => setActiveCategory(cat.id)}
               className={cn(
                 'flex items-center space-x-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all whitespace-nowrap',
@@ -456,7 +459,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2">
                 {['Water Stress', 'Fire Risk', 'Erosion Index', 'Aquifer Depletion'].map(layer => (
                   <button
-                    key={layer}
+                    key={`map-layer-stable-${layer}`}
                     onClick={() => setActiveMapLayer(layer)}
                     className={cn(
                       'px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase tracking-widest transition-all',
@@ -557,15 +560,15 @@ export const EnvironmentalIntelligence: React.FC = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie data={waterSourceMix} cx="50%" cy="50%" innerRadius={48} outerRadius={72} paddingAngle={3} dataKey="value">
-                          {waterSourceMix.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                          {waterSourceMix.map((entry, i) => <Cell key={assertKey(getRenderKey(entry, i, 'water-source'))} fill={entry.color} />)}
                         </Pie>
                         <Tooltip contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="space-y-1.5">
-                    {waterSourceMix.map(item => (
-                      <div key={item.name} className="flex items-center justify-between">
+                    {waterSourceMixPrepared.map(item => (
+                      <div key={item.id} className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
                           <span className="text-[9px] font-mono text-slate-500">{item.name}</span>
@@ -604,8 +607,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 <div className="glass rounded-xl border border-intel-border p-5 space-y-4 overflow-hidden">
                   <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Regional Supply Deficit Matrix</div>
                   <div className="h-[200px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
-                    {governorateWaterStress.slice(0, 10).map(gov => (
-                      <div key={gov.name} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-intel-cyan/30 transition-all">
+                    {governorateWaterStress.slice(0, 15).map((gov, i) => (
+                      <div key={`water-stress-gov-stable-${i}-${gov.name}`} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-intel-cyan/30 transition-all">
                         <div className="flex items-center space-x-3">
                           <RiskBadge level={gov.status} />
                           <span className="text-[10px] font-bold text-white uppercase">{gov.name}</span>
@@ -700,8 +703,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
                       { region: 'Medjerda Basin', rate: '2.8 t/ha/yr', risk: 'MEDIUM' },
                       { region: 'Central Steppes', rate: '1.9 t/ha/yr', risk: 'MEDIUM' },
                       { region: 'Cap Bon Slopes', rate: '4.5 t/ha/yr', risk: 'CRITICAL' },
-                    ].map(row => (
-                      <div key={row.region} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
+                    ].map((row, i) => (
+                      <div key={`soil-erosion-stable-${i}-${row.region}`} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
                         <span className="text-[10px] font-bold text-white uppercase">{row.region}</span>
                         <div className="flex items-center space-x-3">
                           <span className="text-[10px] font-mono text-slate-400">{row.rate}</span>
@@ -722,8 +725,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
                       { site: 'Kerkennah Archipelago', slr: '+1.5mm/yr', risk: 'Extreme' },
                       { site: 'Gulf of Gabès', slr: '+0.8mm/yr', risk: 'Severe' },
                       { site: 'Tunis North Bay', slr: '+0.6mm/yr', risk: 'Moderate' },
-                    ].map(row => (
-                      <div key={row.site} className="flex items-center justify-between p-2 rounded-lg bg-intel-cyan/5 border border-intel-cyan/10">
+                    ].map((row, i) => (
+                      <div key={`coast-vuln-stable-${i}-${row.site}`} className="flex items-center justify-between p-2 rounded-lg bg-intel-cyan/5 border border-intel-cyan/10">
                         <span className="text-[10px] font-bold text-intel-cyan uppercase">{row.site}</span>
                         <div className="flex items-center space-x-3">
                           <span className="text-[10px] font-mono text-slate-400">{row.slr}</span>
@@ -787,8 +790,8 @@ export const EnvironmentalIntelligence: React.FC = () => {
                       { period: '180-Day Accum', val: -1.8, status: 'SEVERE' },
                       { period: '12-Month Accum', val: -1.5, status: 'MODERATE' },
                       { period: '3-Year Trend', val: -2.1, status: 'SEVERE' },
-                    ].map(row => (
-                      <div key={row.period} className="space-y-1.5">
+                    ].map((row, i) => (
+                      <div key={`spei-stable-${i}-${row.period}`} className="space-y-1.5">
                         <div className="flex justify-between text-[10px] font-mono uppercase">
                           <span className="text-slate-400">{row.period}</span>
                           <span className={cn('font-bold', row.val < -2 ? 'text-intel-red' : 'text-intel-orange')}>{row.val} index</span>
@@ -808,7 +811,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                   <SectionHeader icon={Flame} title="Active Forest Fire Hotspots" />
                   <div className="space-y-3 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
                     {fireHotspots.map(spot => (
-                      <div key={spot.id} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-red/30 transition-all flex items-center justify-between group">
+                      <div key={`fire-spot-stable-${spot.id}`} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-red/30 transition-all flex items-center justify-between group">
                         <div className="flex items-center space-x-3">
                           <div className="p-1.5 rounded-lg bg-intel-red/10 text-intel-red group-hover:scale-110 transition-transform"><Flame className="w-4 h-4" /></div>
                           <div>
@@ -865,7 +868,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 desc: 'Rising summer temperatures and prolonged droughts have increased wildfire frequency by 40% since 2020. The Kroumirie and Mogods forests are at extreme risk. Human activity (both accidental and arson) accounts for 90% of ignitions.'
               },
             ].map((dossier, i) => (
-              <div key={i} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
+              <div key={`env-dossier-stable-${i}-${dossier.title}`} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
                 <CornerAccent position="tl" />
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">

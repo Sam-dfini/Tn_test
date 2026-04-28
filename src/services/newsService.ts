@@ -49,7 +49,7 @@ export async function fetchNewsData(query: string = 'Tunisia'): Promise<Article[
       if (lowerTitle.includes('revolution') || lowerTitle.includes('curfew')) severity = 5;
 
       return {
-        id: crypto.randomUUID(),
+        id: `nd-${btoa(item.link).substring(0, 32)}`,
         fingerprint: btoa(item.link).substring(0, 32),
         source_id: item.source_id,
         source_name: item.source_id.toUpperCase(),

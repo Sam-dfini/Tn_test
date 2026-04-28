@@ -53,6 +53,7 @@ import {
   Legend
 } from 'recharts';
 import { cn } from '../lib/utils';
+import { generateStableKey } from '../lib/keyUtils';
 import { 
   CornerAccent, 
   BackgroundGrid, 
@@ -458,7 +459,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                 />
                 <Bar dataKey="score" radius={[0, 4, 4, 0]} barSize={20}>
                   {actors.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={generateStableKey(entry, index, 'nato-actor')} fill={entry.color} />
                   ))}
                 </Bar>
               </BarChart>
@@ -468,7 +469,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
           {/* Inputs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {actors.map((actor, idx) => (
-              <div key={`${actor.id}-${idx}`} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 hover:border-intel-cyan/30 transition-all group">
+              <div key={generateStableKey(actor, idx, 'nato-input')} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 hover:border-intel-cyan/30 transition-all group">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <actor.icon className="w-4 h-4 transition-transform group-hover:scale-110" style={{ color: actor.color }} />
@@ -496,7 +497,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
       {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 relative z-20">
         {stats.map((stat, i) => (
-          <div key={i} className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden group hover:border-intel-cyan/30 transition-all">
+          <div key={generateStableKey(stat, i, 'geopol-kpi')} className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden group hover:border-intel-cyan/30 transition-all">
             <CornerAccent position="tl" />
             <CornerAccent position="br" />
             <div className="flex items-center justify-between mb-4">
@@ -546,7 +547,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               <div className="flex flex-wrap gap-2 justify-end overflow-x-auto scrollbar-hide pb-2 md:pb-0">
                 {actors.map((actor, idx) => (
                   <button
-                    key={`${actor.id}-${idx}`}
+                    key={generateStableKey(actor, idx, 'actor-btn')}
                     onClick={() => setSelectedActor(actor)}
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl border text-[9px] md:text-[10px] font-bold transition-all flex items-center space-x-2 group flex-shrink-0 ${
                       selectedActor.id === actor.id 
@@ -696,7 +697,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                     {alignmentData.filter(d => d.weight >= 0.9).map((dim, index) => {
                       const val = (dim as any)[selectedActor.id];
                       return (
-                        <div key={`${dim.subject}-${index}`} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-intel-cyan/20 hover:bg-white/10 transition-all group cursor-default">
+                        <div key={generateStableKey(dim, index, 'align-dim')} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-intel-cyan/20 hover:bg-white/10 transition-all group cursor-default">
                           <span className="text-[11px] text-slate-300 group-hover:text-white transition-colors uppercase font-mono tracking-tight">{dim.subject}</span>
                           <div className="flex items-center space-x-4">
                             <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -728,7 +729,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   { label: 'Energy Supply Chain', value: 65, color: '#f59e0b' },
                   { label: 'Trade Volume', value: 74, color: '#06b6d4' }
                 ].map((item, i) => (
-                  <div key={i} className="space-y-2">
+                  <div key={generateStableKey(item, i, 'depend-vec')} className="space-y-2">
                     <div className="flex justify-between text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       <span>{item.label}</span>
                       <span className="text-white font-mono">{item.value}%</span>
@@ -950,7 +951,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               note: 'Libya is not a power but a threat multiplier. Eastern Libya (Haftar) provides covert support to certain Tunisian factions. Instability is direct national security risk.'
             },
           ].map((p, i) => (
-            <div key={i} className={`p-5 rounded-xl border space-y-4 ${p.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.risk === 'HIGH' ? 'border-intel-orange/20' : 'border-intel-border'}`}>
+            <div key={generateStableKey(p, i, 'regional-power')} className={`p-5 rounded-xl border space-y-4 ${p.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.risk === 'HIGH' ? 'border-intel-orange/20' : 'border-intel-border'}`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{p.flag}</span>
@@ -1037,7 +1038,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               { power: 'Turkey', flag: '🇹🇷', score: 54, color: '#f97316' },
               { power: 'China', flag: '🇨🇳', score: 48, color: '#8b5cf6' },
             ].sort((a, b) => b.score - a.score).map((p, i) => (
-              <div key={i} className="flex items-center gap-3">
+              <div key={generateStableKey(p, i, 'region-influence-row')} className="flex items-center gap-3">
                 <span className="text-sm w-6 shrink-0">{p.flag}</span>
                 <span className="text-[10px] font-mono text-slate-400 w-28 shrink-0">{p.power}</span>
                 <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -1141,7 +1142,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
               </button>
             </div>
           ) : data.geopolitical.diplomatic_relations.map((rel, idx) => (
-            <div key={idx} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-intel-cyan/30 transition-all group relative overflow-hidden">
+            <div key={generateStableKey(rel, idx, 'diplomatic-rel')} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-intel-cyan/30 transition-all group relative overflow-hidden">
               <div className={cn(
                 "absolute top-0 right-0 px-3 py-1 text-[8px] font-mono font-bold uppercase tracking-widest rounded-bl-xl border-l border-b",
                 rel.regime_alignment === 'SUPPORTIVE' ? "bg-intel-green/20 border-intel-green/30 text-intel-green" :

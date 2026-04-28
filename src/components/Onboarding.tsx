@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, X, Zap, Map, ShieldAlert, BarChart3, Users } from 'lucide-react';
+import { generateStableKey } from '../lib/keyUtils';
 
 interface OnboardingStep {
   title: string;
@@ -97,9 +98,9 @@ export const Onboarding: React.FC<{ onComplete: () => void }> = ({ onComplete })
           </AnimatePresence>
 
           <div className="flex items-center justify-center space-x-2">
-            {steps.map((_, i) => (
+            {steps.map((step, i) => (
               <div 
-                key={i} 
+                key={generateStableKey(step, i, 'onboarding-step')} 
                 className={`h-1 rounded-full transition-all duration-300 ${
                   i === currentStep ? 'w-8 bg-intel-cyan' : 'w-2 bg-intel-border'
                 }`}

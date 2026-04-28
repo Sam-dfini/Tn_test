@@ -2,13 +2,8 @@
  * Task 1: Safe Key Generation
  * Generates a purely unique ID without relying on empty values.
  */
-export function generateStableKey(item: any): string {
-  return (
-    item.id ||
-    item.event_id ||
-    item.fingerprint ||
-    `${item.title || "item"}-${item.published_at || Date.now()}`
-  );
+export function generateStableKey(item: any, index?: number, prefix: string = 'item'): string {
+  return getRenderKey(item, index ?? 0, prefix);
 }
 
 export const generateSafeId = (): string => {
@@ -152,7 +147,7 @@ export function assertNoEmptyKeys(items: any[], scope: string): void {
 export const getRenderKey = (item: any, index: number, prefix: string = 'item'): string => {
   if (isValidId(item?.id)) return String(item.id).trim();
   if (isValidId(item?._id)) return String(item._id).trim();
-  return `${prefix}_fallback_${index}_${generateSafeId()}`;
+  return `${prefix}_idx_${index}`;
 };
 
 export function assertUnique<T extends { id: any }>(list: T[], label: string) {

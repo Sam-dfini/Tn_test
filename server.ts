@@ -175,6 +175,10 @@ async function startServer() {
       gemini: {
         key_exists: !!process.env.GEMINI_API_KEY, 
         key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
+      },
+      telegram: {
+        token_exists: !!process.env.TELEGRAM_BOT_TOKEN,
+        chat_id_exists: !!process.env.TELEGRAM_CHAT_ID
       }
     });
   });

@@ -131,6 +131,12 @@ export const ClusterIntelligence: React.FC = () => {
     { id: 'STABLE', label: 'Stable', color: '#10b981', govs: ['Sousse', 'Monastir', 'Béja', 'Bizerte'], desc: 'Below cascade threshold. Coastal tourism economy creates buffer. Monitor in drought season.' },
   ];
 
+  const TABS = [
+    { id: 'PROFILE', label: 'Cluster Profiles', icon: Activity },
+    { id: 'GEOGRAPHIC', label: 'Geographic Distribution', icon: MapPin },
+    { id: 'TEMPORAL', label: 'Temporal Wave Analysis', icon: Clock },
+  ] as const;
+
   return (
     <div className="space-y-12 animate-in fade-in duration-700 relative">
       <BackgroundGrid />
@@ -142,6 +148,25 @@ export const ClusterIntelligence: React.FC = () => {
         nodeId="CLUSTER-NODE-11"
       />
 
+      {/* ── TAB SELECTOR ── */}
+      <div className="flex items-center gap-2 border-b border-white/5 pb-4 relative z-20">
+      {TABS.map(tab => {
+        const Icon = tab.icon;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-intel-cyan/10 text-intel-cyan border-intel-cyan/30' : 'bg-white/5 text-slate-500 border-white/5 hover:text-white'}`}
+          >
+            <Icon className="w-3 h-3" />
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+
+    {activeTab === 'PROFILE' && (
+      <>
       {/* Main Visualization Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-20">
         {/* Radar Chart */}
@@ -189,7 +214,9 @@ export const ClusterIntelligence: React.FC = () => {
 
         {/* Cluster Breakdown List */}
         <div className="space-y-3">
-          {clusterDetails.map((cluster, idx) => (
+          {clusterDetails.map((cluster, idx) => {
+            const ClusterIcon = cluster.icon;
+            return (
             <motion.div
               key={cluster.id}
               initial={{ opacity: 0, x: 20 }}
@@ -200,7 +227,7 @@ export const ClusterIntelligence: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 rounded-lg bg-black/40 border border-intel-border group-hover:border-intel-cyan/20 transition-colors">
-                    <cluster.icon className="w-4 h-4" style={{ color: cluster.color }} />
+                    <ClusterIcon className="w-4 h-4" style={{ color: cluster.color }} />
                   </div>
                   <div>
                     <div className="text-[11px] font-bold text-white uppercase tracking-wider">{cluster.label}</div>
@@ -223,7 +250,8 @@ export const ClusterIntelligence: React.FC = () => {
                 />
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -241,10 +269,11 @@ export const ClusterIntelligence: React.FC = () => {
               <div className="p-3 rounded-xl bg-black/40 border border-intel-border">
                 {(() => {
                   const maxCluster = [...clusterDetails].sort((a, b) => b.value - a.value)[0];
+                  const MaxClusterIcon = maxCluster.icon;
                   return (
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <maxCluster.icon className="w-3.5 h-3.5" style={{ color: maxCluster.color }} />
+                        <MaxClusterIcon className="w-3.5 h-3.5" style={{ color: maxCluster.color }} />
                         <span className="text-[10px] font-bold text-white uppercase">{maxCluster.label}</span>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-relaxed">
@@ -316,27 +345,8 @@ export const ClusterIntelligence: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* ── TAB SELECTOR ── */}
-      <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-      {([
-        { id: 'PROFILE', label: 'Cluster Profiles', icon: Activity },
-        { id: 'GEOGRAPHIC', label: 'Geographic Distribution', icon: MapPin },
-        { id: 'TEMPORAL', label: 'Temporal Wave Analysis', icon: Clock },
-      ] as const).map(tab => {
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-widest transition-all border ${activeTab === tab.id ? 'bg-intel-cyan/10 text-intel-cyan border-intel-cyan/30' : 'bg-white/5 text-slate-500 border-white/5 hover:text-white'}`}
-          >
-            <Icon className="w-3 h-3" />
-            {tab.label}
-          </button>
-        );
-      })}
-    </div>
+      </>
+    )}
 
     {/* ── GEOGRAPHIC DISTRIBUTION ── */}
     {activeTab === 'GEOGRAPHIC' && (

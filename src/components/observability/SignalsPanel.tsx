@@ -1,5 +1,6 @@
 import React from 'react';
 import { Activity, Zap, TrendingUp } from 'lucide-react';
+import { generateStableKey } from '../../lib/keyUtils';
 
 interface SignalsPanelProps {
   signalCount: number;
@@ -36,7 +37,7 @@ export const SignalsPanel: React.FC<SignalsPanelProps> = ({ signalCount, avgInte
       <div className="flex gap-1 h-8 items-end">
         {[...Array(12)].map((_, i) => (
           <div 
-            key={i}
+            key={generateStableKey('pulse-bar', i, 'signals-panel')}
             className="flex-1 rounded-t-sm transition-all"
             style={{ 
               backgroundColor: 'rgb(168, 85, 247, 0.4)',

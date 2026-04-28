@@ -606,8 +606,8 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
 
                       {aiLoading ? (
                         <div className="space-y-2">
-                          {[80, 60, 70].map((w, i) => (
-                            <div key={i} className={`h-3 bg-slate-800
+                          {prepareList([80, 60, 70]).map((w: any, i: number) => (
+                            <div key={assertKey(getRenderKey(w, i, 'ai-shimmer'))} className={`h-3 bg-slate-800
                               rounded animate-pulse`}
                               style={{ width: `${w}%` }} />
                           ))}
@@ -929,10 +929,9 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                                 {alignmentArticles.length > 1 ? 's' : ''}
                               </div>
 
-                              {alignmentArticles
-                                .filter(a => typeof a?.id === "string" && a.id.trim() !== "")
-                                .map((article) => (
-                                <div key={`article-${article.id}`}
+                              {prepareList(alignmentArticles)
+                                .map((article: any, aIdx: number) => (
+                                <div key={assertKey(getRenderKey(article, aIdx, 'ev-art'))}
                                   className="p-4 rounded-xl border
                                     border-intel-border/30 bg-black/20
                                     hover:bg-black/40 transition-colors

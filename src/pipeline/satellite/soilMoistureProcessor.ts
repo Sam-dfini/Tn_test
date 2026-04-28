@@ -18,7 +18,7 @@
 import fetch from 'node-fetch';
 import {
   GovCoord, isoDate, daysAgo, OPEN_METEO_ARCHIVE,
-} from './satelliteConfig.js';
+} from './satelliteConfig.ts';
 
 // ── Tunisia soil capacity ranges (m³/m³) by soil type ────────────────────
 // Sandy soils (south) have lower capacity; clay soils (north) higher.

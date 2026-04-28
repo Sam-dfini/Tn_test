@@ -24,7 +24,7 @@ import {
   OPEN_METEO_ARCHIVE,
   OPEN_METEO_FORECAST,
   COPERNICUS_TOKEN_URL, COPERNICUS_STATS_URL,
-} from './satelliteConfig.js';
+} from './satelliteConfig.ts';
 
 // ── Open-Meteo NDVI proxy ─────────────────────────────────────────────────
 

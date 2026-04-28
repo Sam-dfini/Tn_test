@@ -244,6 +244,13 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
                       <span>Intelligence Terminal</span>
                     </button>
                     <button 
+                      onClick={() => { onToggleDebug(); setMobileMenuOpen(false); }}
+                      className="flex items-center space-x-3 px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-left"
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5" />
+                      <span>Command Center</span>
+                    </button>
+                    <button 
                       onClick={() => { window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} })); setMobileMenuOpen(false); }}
                       className="flex items-center space-x-3 px-3 py-2 text-xs text-on-surface hover:bg-white/5 rounded-lg transition-colors text-left"
                     >

@@ -613,7 +613,7 @@ export const NarrativeIntelligence: React.FC = () => {
                       ) : (
                         crossSourceReport.omission_gaps.map(
                           (gap: any, i: number) => (
-                            <div key={i}
+                            <div key={assertKey(getRenderKey(gap, i, 'om-gap'))}
                               className={`p-4 rounded-xl border
                                 space-y-2 ${
                               gap.significance === 'HIGH'
@@ -643,8 +643,8 @@ export const NarrativeIntelligence: React.FC = () => {
                                     <CheckCircle className="w-3 h-3" />
                                     <span>Reported by:</span>
                                   </div>
-                                  {gap.present_in.map((s: string, index: number) => (
-                                    <div key={`${s}-${index}`}
+                                  {gap.present_in.map((s: string, sIdx: number) => (
+                                    <div key={assertKey(getRenderKey(s, sIdx, 'pres'))}
                                       className="text-slate-400 pl-4">
                                       {s}
                                     </div>
@@ -656,8 +656,8 @@ export const NarrativeIntelligence: React.FC = () => {
                                     <XCircle className="w-3 h-3" />
                                     <span>Omitted by:</span>
                                   </div>
-                                  {gap.absent_from.map((s: string, index: number) => (
-                                    <div key={`${s}-${index}`}
+                                  {gap.absent_from.map((s: string, aIdx: number) => (
+                                    <div key={assertKey(getRenderKey(s, aIdx, 'abs'))}
                                       className="text-slate-400 pl-4">
                                       {s}
                                     </div>
@@ -854,13 +854,13 @@ export const NarrativeIntelligence: React.FC = () => {
 
               {/* KPI strip */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
+                {prepareList([
                   { label: 'Active Campaigns', value: '7', color: 'text-intel-red', sub: '3 state-linked' },
                   { label: 'Bot Network Reach', value: '2.4M', color: 'text-intel-orange', sub: 'Estimated accounts' },
                   { label: 'Viral False Claims', value: '14', color: 'text-intel-red', sub: 'MTD — unverified' },
                   { label: 'Debunk Success Rate', value: '28%', color: 'text-intel-orange', sub: 'Low effectiveness' },
-                ].map((k, i) => (
-                  <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+                ]).map((k: any, i: number) => (
+                  <div key={assertKey(getRenderKey(k, i, 'di-kpi'))} className="glass rounded-xl border border-intel-border p-4 space-y-2">
                     <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{k.label}</div>
                     <div className={`text-2xl font-bold font-mono ${k.color}`}>{k.value}</div>
                     <div className="text-[9px] font-mono text-slate-600">{k.sub}</div>
@@ -871,7 +871,7 @@ export const NarrativeIntelligence: React.FC = () => {
               {/* Active campaigns */}
               <div className="space-y-3">
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest border-b border-intel-border/30 pb-2">Active Disinformation Campaigns</div>
-                {[
+                {prepareList([
                   {
                     id: 'DIS-01', title: 'IMF Deal "Imminent" False Narrative',
                     origin: 'State Media (TAP)', confidence: 88, objective: 'Suppress protest mobilization',
@@ -900,8 +900,8 @@ export const NarrativeIntelligence: React.FC = () => {
                     platforms: ['Facebook'], color: 'yellow-400',
                     detail: 'Claims UGTT leadership is coordinating with opposition parties and Western embassies — aims to discredit upcoming strike action.',
                   },
-                ].map((c, i) => (
-                  <div key={i} className={`glass p-5 rounded-xl border space-y-3 border-${c.color}/20 bg-${c.color === 'intel-red' ? 'intel-red' : c.color === 'intel-orange' ? 'intel-orange' : 'yellow'}/5`}>
+                ]).map((c: any, i: number) => (
+                  <div key={assertKey(getRenderKey(c, i, 'di-camp'))} className={`glass p-5 rounded-xl border space-y-3 border-${c.color}/20 bg-${c.color === 'intel-red' ? 'intel-red' : c.color === 'intel-orange' ? 'intel-orange' : 'yellow'}/5`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
                         <span className="text-[8px] font-mono text-slate-600 shrink-0 pt-0.5">{c.id}</span>
@@ -990,7 +990,7 @@ export const NarrativeIntelligence: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {[
+                      {prepareList([
                         { outlet: 'TAP (State Wire)', type: 'Wire', owner: 'State', align: 'PRO-REGIME', reach: '8M+', status: 'ACTIVE' },
                         { outlet: 'Watania TV', type: 'TV', owner: 'State', align: 'PRO-REGIME', reach: '6M', status: 'ACTIVE' },
                         { outlet: 'Mosaique FM', type: 'Radio', owner: 'Nessim Ben Hamida', align: 'CAUTIOUS', reach: '4.2M', status: 'ACTIVE' },
@@ -999,8 +999,8 @@ export const NarrativeIntelligence: React.FC = () => {
                         { outlet: 'Inkyfada', type: 'Online', owner: 'Editorial Coop', align: 'INDEPENDENT', reach: '420K', status: 'ACTIVE' },
                         { outlet: 'Nawaat', type: 'Online', owner: 'Activist Network', align: 'OPPOSITION', reach: '380K', status: 'RESTRICTED' },
                         { outlet: 'Al Hiwar Ettounsi', type: 'TV', owner: 'Tahar Ben Hassine', align: 'OPPOSITION', reach: '2.8M', status: 'SUSPENDED' },
-                      ].map((r, i) => (
-                        <tr key={i} className="hover:bg-white/[0.02]">
+                      ]).map((r: any, i: number) => (
+                        <tr key={assertKey(getRenderKey(r, i, 'media-reg'))} className="hover:bg-white/[0.02]">
                           <td className="py-2 text-[10px] font-mono font-bold text-white pr-4">{r.outlet}</td>
                           <td className="py-2 text-[9px] font-mono text-slate-500 pr-4">{r.type}</td>
                           <td className="py-2 text-[9px] font-mono text-slate-400 pr-4">{r.owner}</td>

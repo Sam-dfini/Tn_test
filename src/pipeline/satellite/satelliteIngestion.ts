@@ -21,18 +21,18 @@ import {
   getCached, setCache,
   CACHE_TTL_NDVI_MS, CACHE_TTL_RAIN_MS,
   SatelliteReading,
-} from './satelliteConfig.js';
-import { getNDVIBatch } from './ndviProcessor.js';
-import { getRainfallBatch } from './rainfallProcessor.js';
-import { getSoilMoistureBatch } from './soilMoistureProcessor.js';
+} from './satelliteConfig.ts';
+import { getNDVIBatch } from './ndviProcessor.ts';
+import { getRainfallBatch } from './rainfallProcessor.ts';
+import { getSoilMoistureBatch } from './soilMoistureProcessor.ts';
 
 // ── Import AgriIntelEngine (pure computation layer) ───────────────────────
 import {
   processAllGovernorates,
   AgriInputBundle,
   AgriNationalSummary,
-} from '../../services/AgriIntelEngine.js';
-import { safeUpsert } from '../../utils/safeDatabase.js';
+} from '../../services/AgriIntelEngine.ts';
+import { safeUpsert } from '../../utils/safeDatabase.ts';
 
 // ── Result type emitted to pipeline ──────────────────────────────────────
 

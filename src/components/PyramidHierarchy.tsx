@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
+import { generateStableKey } from "../lib/keyUtils";
 import { 
   Activity, 
   Shield, 
@@ -159,7 +160,7 @@ export const PyramidHierarchy: React.FC = () => {
               <h2 className="text-xs font-bold tracking-widest text-[#71b1c6]">TRIANGLES HIERARCHY</h2>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className={cn("w-2 h-1", i < 4 ? "bg-[#71b1c6]" : "bg-[#71b1c6]/20")} />
+                  <div key={generateStableKey('hierarchy-indicator', i, 'pyramid')} className={cn("w-2 h-1", i < 4 ? "bg-[#71b1c6]" : "bg-[#71b1c6]/20")} />
                 ))}
               </div>
             </div>
