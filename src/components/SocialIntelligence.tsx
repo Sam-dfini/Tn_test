@@ -390,15 +390,16 @@ export const SocialIntelligence: React.FC = () => {
                 </div>
               </div>
 
-              <div className="h-10 w-full mt-2 opacity-30 group-hover:opacity-60 transition-opacity">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={ind.history.map((v, idx) => ({ v, idx }))}>
+              <div className="h-10 w-full mt-2 opacity-30 group-hover:opacity-60 transition-opacity overflow-hidden">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <LineChart data={ind.history.map((v: any, idx: number) => ({ v, idx }))}>
                     <Line 
                       type="monotone" 
                       dataKey="v" 
                       stroke={ind.status === 'CRITICAL' ? '#ef4444' : '#f97316'} 
                       strokeWidth={2} 
                       dot={false} 
+                      isAnimationActive={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>

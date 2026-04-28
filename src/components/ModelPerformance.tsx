@@ -999,8 +999,8 @@ export const ModelPerformance: React.FC = () => {
                   <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">2011 Revolution Backtest — R(t) vs Historical Events</div>
                   <div className="text-[9px] font-mono text-slate-600">Model reconstruction using known variables. Dashed = rupture threshold (2.625)</div>
                 </div>
-                <div className="h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
+                <div className="h-[280px] w-full overflow-hidden">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <AreaChart data={[
                       { month: 'Jul 10', rri: 1.42, event: null },
                       { month: 'Aug 10', rri: 1.58, event: null },
@@ -1047,8 +1047,8 @@ export const ModelPerformance: React.FC = () => {
                     <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Calibration Curve</div>
                     <div className="text-[9px] font-mono text-slate-600">Predicted probability vs actual outcome frequency</div>
                   </div>
-                  <div className="h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="h-[220px] w-full overflow-hidden">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                       <ScatterChart>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                         <XAxis type="number" dataKey="predicted" name="Predicted" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} unit="%" label={{ value: 'Predicted %', position: 'bottom', fill: '#475569', fontSize: 8 }} />
@@ -1081,8 +1081,8 @@ export const ModelPerformance: React.FC = () => {
 
                 <div className="glass rounded-xl border border-intel-border p-5 space-y-4">
                   <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Historical Event Detection — By Category</div>
-                  <div className="h-[220px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="h-[220px] w-full overflow-hidden">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                       <BarChart data={[
                         { category: 'Social Unrest', detected: 84, missed: 16 },
                         { category: 'Political Crisis', detected: 76, missed: 24 },

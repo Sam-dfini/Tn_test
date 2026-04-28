@@ -33,8 +33,8 @@ export const TimeSeriesChart: React.FC<TimeSeriesChartProps> = ({ data, dataKey,
         )}
       </div>
       
-      <div className="flex-1 w-full opacity-80">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="flex-1 w-full opacity-80 overflow-hidden">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <AreaChart data={data}>
             <defs>
               <linearGradient id={`gradient-${dataKey}`} x1="0" y1="0" x2="0" y2="1">

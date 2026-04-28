@@ -4,7 +4,7 @@ import {
   Compass, Rocket, BarChart3, TrendingUp, TrendingDown,
   AlertTriangle, MapPin, Zap, Shield, Target,
   DollarSign, Building2, Users, Globe, ChevronRight,
-  Activity, Star, AlertCircle,
+  Activity, Star, AlertCircle, RefreshCw,
 } from 'lucide-react';
 import { BusinessInvestigator } from './BusinessInvestigator';
 import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
@@ -266,7 +266,19 @@ const SectorSnapshot: React.FC = () => (
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
-export const BusinessCommandCenter: React.FC = () => {
+interface BusinessCommandCenterProps {
+  onOpenAI: () => void;
+  onOpenPipeline: (tab?: any) => void;
+  onGoHome: () => void;
+  onOpenReport: () => void;
+}
+
+export const BusinessCommandCenter: React.FC<BusinessCommandCenterProps> = ({
+  onOpenAI,
+  onOpenPipeline,
+  onGoHome,
+  onOpenReport
+}) => {
   const { data } = usePipeline();
   const [activeTab, setActiveTab] = useState<MainTab>('STRATEGIC');
   const [persona, setPersona] = useState<Persona>('NONE');
@@ -299,12 +311,14 @@ export const BusinessCommandCenter: React.FC = () => {
               Executive ecosystem hub — See · Decide · Build · Invest
             </p>
           </div>
-          <button
-            onClick={() => setShowPersona(!showPersona)}
-            className="px-3 py-2 rounded-xl border border-white/5 bg-white/[0.03] text-[9px] font-mono text-white/30 hover:text-white transition-all uppercase shrink-0"
-          >
-            {showPersona ? '− Hide Persona' : '+ Who am I?'}
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setShowPersona(!showPersona)}
+              className="px-3 py-2 rounded-xl border border-white/5 bg-white/[0.03] text-[9px] font-mono text-white/30 hover:text-white transition-all uppercase"
+            >
+              {showPersona ? '− Hide Persona' : '+ Who am I?'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -405,9 +419,9 @@ export const BusinessCommandCenter: React.FC = () => {
           {/* Strategic Explorer */}
           {activeTab === 'STRATEGIC' && (
             <BusinessInvestigator
-              onGoHome={() => {}}
-              onOpenAI={() => {}}
-              onOpenPipeline={() => {}}
+              onGoHome={onGoHome}
+              onOpenAI={onOpenAI}
+              onOpenPipeline={onOpenPipeline}
               onOpenReport={() => setActiveTab('INVESTMENT')}
               context={data}
               inline={true}

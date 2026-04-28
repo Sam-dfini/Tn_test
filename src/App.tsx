@@ -40,7 +40,7 @@ import { initializeVariables } from './services/pipelineService';
 import { useEventsStore } from './store/useEventsStore';
 import { seedInitialEvents } from './lib/ingestionEngine';
 
-import PipelineDebugger from './components/PipelineDebugger';
+import { SystemCommandCenter } from './components/SystemCommandCenter';
 
 const safeGetItem = (key: string) => {
   try { return safeStorage.getItem(key); } catch (e) { return null; }
@@ -358,7 +358,7 @@ const AppContent: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative z-10 w-full max-w-[1400px] h-full max-h-[85vh]"
             >
-              <PipelineDebugger onClose={() => setShowDebug(false)} />
+              <SystemCommandCenter onClose={() => setShowDebug(false)} />
             </motion.div>
           </div>
         )}

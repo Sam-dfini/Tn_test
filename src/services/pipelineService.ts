@@ -64,7 +64,7 @@ export const DOCUMENT_TYPES = [
 /**
  * Initializes variables from the backend database.
  */
-export const initializeVariables = async (retries = 3, delay = 2000) => {
+export const initializeVariables = async (retries = 8, delay = 3000) => {
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch('/api/variables');

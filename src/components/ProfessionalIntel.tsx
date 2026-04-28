@@ -590,6 +590,7 @@ Return only the 3-sentence briefing.`;
     { id: 'political', label: 'Political', icon: Users },
     { id: 'radicalisation', label: 'Radicalisation', icon: AlertTriangle },
     { id: 'cognitive', label: 'Cognitive Warfare', icon: ShieldAlert },
+    { id: 'business-center', label: 'Business Command', icon: Target },
     { id: 'economy', label: 'Economy', icon: TrendingUp },
     { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -599,14 +600,12 @@ Return only the 3-sentence briefing.`;
     { id: 'social', label: 'Social', icon: Users },
     { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
     { id: 'simulation', label: 'Simulation', icon: Cpu },
-    { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
     { id: 'fire', label: 'Fire Intel', icon: Flame },
     { id: 'ne', label: 'NE', icon: Newspaper },
     { id: 'performance', label: 'Model Performance', icon: ShieldCheck },
     { id: 'govagent', label: 'Gov. Agent', icon: Brain },
     { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
-    { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     { id: 'industry', label: 'Industry', icon: Box },
   ];
 
@@ -802,7 +801,12 @@ Return only the 3-sentence briefing.`;
         {activeTab === 'pipeline-control' ? (
           <ObservabilityDashboard onBack={() => setActiveTab('overview')} />
         ) : activeTab === 'business-center' ? (
-          <BusinessCommandCenter />
+          <BusinessCommandCenter 
+            onOpenAI={onOpenAI}
+            onOpenPipeline={onOpenPipeline}
+            onGoHome={onGoHome}
+            onOpenReport={onOpenReport}
+          />
         ) : activeTab === 'govagent' ? (
           <GovernmentAgentPanel />
         ) : activeTab === 'events' ? (
@@ -901,8 +905,6 @@ Return only the 3-sentence briefing.`;
           <RadicalisationIntelligence />
         ) : activeTab === 'actor-network' ? (
           <ActorNetworkIntelligence />
-        ) : activeTab === 'reports' ? (
-          <InvestmentIntelligenceReportGenerator />
         ) : activeTab === 'industry' ? (
           <IndustrialIntelligencePanel />
         ) : activeTab === 'strategic-energy' ? (
@@ -1592,7 +1594,7 @@ Return only the 3-sentence briefing.`;
     </div>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {hotspots.map((h, i) => (
-        <div key={i} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${h.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : h.risk === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
+        <div key={`hotspot-${i}`} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${h.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : h.risk === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
           <div className="flex items-center justify-between">
             <span className="text-base font-bold font-mono text-white">{h.region}</span>
             <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${h.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : h.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'}`}>{h.risk}</span>
@@ -1620,7 +1622,7 @@ Return only the 3-sentence briefing.`;
     </div>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {scenarios.map((s, i) => (
-        <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
+        <div key={`scenario-${i}`} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between">
             <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${s.impact === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.impact === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : s.impact === 'LOW' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : 'text-slate-400 border-slate-700 bg-slate-800/50'}`}>{s.impact}</span>
           </div>
@@ -1731,10 +1733,6 @@ Return only the 3-sentence briefing.`;
           />
           <NewsFeed hideBackground={true} />
         </div>
-      ) : activeTab === 'entrepreneur' ? (
-        <EntrepreneurIntelligence />
-      ) : activeTab === 'strategic-explorer' ? (
-        <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} onOpenAI={() => {}} onOpenPipeline={() => {}} onOpenReport={() => {}} />
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
       ) : (

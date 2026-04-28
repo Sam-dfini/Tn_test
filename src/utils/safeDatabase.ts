@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { checkAndFixSchema } from './schemaValidator.js';
+import { checkAndFixSchema } from './schemaValidator.ts';
 
 /**
  * sanitizeData

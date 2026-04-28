@@ -27,6 +27,13 @@ export const ObservabilityDashboard: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'traces' | 'logs'>('overview');
 
+  const handleResetSystem = () => {
+    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
+      window.localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   const getHealthColor = (score: number) => {
     if (score > 80) return { text: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', label: 'HEALTHY' };
     if (score > 50) return { text: 'text-amber-400', border: 'border-amber-500/30', bg: 'bg-amber-500/10', label: 'DEGRADED' };
@@ -67,6 +74,13 @@ export const ObservabilityDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
+          <button 
+            onClick={handleResetSystem}
+            className="px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all text-red-400 bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 mr-2"
+            title="Reset All System State"
+          >
+            Reset System
+          </button>
           <button 
             onClick={() => setActiveTab('overview')}
             className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'overview' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}

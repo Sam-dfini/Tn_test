@@ -352,8 +352,34 @@ const SectionHeader = ({ icon: Icon, title, subtitle }: any) => (
 // ─── MISSION CONTROL TAB ────────────────────────────────────────────────────
 
 const MissionControl: React.FC<{ metrics: any }> = ({ metrics }) => {
+  const { data, rriState } = usePipeline();
+  const handleResetSystem = () => {
+    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
+      window.localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* MAINTENANCE SECTION */}
+      <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <SectionHeader icon={RotateCcw} title="System Command" subtitle="Operational maintenance & state reset" />
+          <button 
+            onClick={handleResetSystem}
+            className="px-4 py-2 border border-red-500/30 bg-red-500/10 text-red-100 rounded-xl text-[10px] font-bold uppercase hover:bg-red-500/20 transition-all flex items-center gap-2"
+            title="Factory Reset - Clear all local cache and reload"
+          >
+            <RefreshCw className="w-3 h-3" />
+            Reset System
+          </button>
+        </div>
+        <p className="text-[10px] font-mono text-white/30 leading-relaxed max-w-2xl">
+          Use this function if the dashboard becomes unresponsive or exhibits stale data. This will clear the browser's localStorage and indexedDB cache, then trigger a full page reload.
+        </p>
+      </div>
+      
       {/* KPI GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard label="Total Intelligence Units" value={metrics.newsCount || 0} unit="RECORDS" icon={Database} color="blue" trend={12} />
@@ -610,8 +636,8 @@ const DatabaseTab: React.FC = () => {
               </div>
             </div>
             
-            <div className="h-24 w-full">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-24 w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={timeSeries.slice(-10)}>
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
@@ -649,8 +675,8 @@ const DatabaseTab: React.FC = () => {
             ))}
           </div>
           
-          <div className="h-64 w-full">
-             <ResponsiveContainer width="100%" height="100%">
+          <div className="h-64 w-full overflow-hidden">
+             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={timeSeries}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis 
@@ -939,6 +965,13 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
     }
   };
 
+  const handleResetSystem = () => {
+    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
+      window.localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   const handleTelegramSync = async () => {
     setIsTelegramFetching(true);
     try {
@@ -1032,14 +1065,16 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
             })}
           </div>
           
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-2.5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors rounded-xl border border-white/10 bg-white/5 hover:border-red-500/50"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="p-2.5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors rounded-xl border border-white/10 bg-white/5 hover:border-red-500/50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

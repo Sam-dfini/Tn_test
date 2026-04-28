@@ -468,11 +468,9 @@ export const EconomyIntelligence: React.FC = () => {
     { id: 'REMITTANCES', label: 'Remittances', icon: Globe },
     { id: 'SECTOR', label: 'Sector Dynamics', icon: Layers },
     { id: 'MARKET', label: 'Market & Price Monitoring', icon: BarChart3 },
-    { id: 'STARTUP', label: 'Startup Ecosystem', icon: Rocket },
     { id: 'SOCIAL', label: 'Social Economy', icon: Users },
     { id: 'SHORTAGES', label: 'Commodity Stress', icon: AlertTriangle },
     { id: 'REGIONAL', label: 'Regional Analysis', icon: Globe },
-    { id: 'BUSINESS', label: 'Business Climate', icon: Briefcase },
   ];
 
   const [macroIndicators, setMacroIndicators] = useState<MacroIndicator[]>([]);
@@ -579,8 +577,8 @@ export const EconomyIntelligence: React.FC = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-6 h-[450px] w-full flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="lg:col-span-6 h-[450px] w-full flex items-center justify-center overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={[
                   { subject: 'Property Rights', A: 42, full: 100 },
                   { subject: 'Gov Integrity', A: data.economy.cpi_score, full: 100 },

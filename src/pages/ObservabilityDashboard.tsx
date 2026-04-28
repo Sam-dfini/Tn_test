@@ -40,6 +40,13 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
   const [invalidArticlesCount, setInvalidArticlesCount] = useState(0);
   const [duplicateArticleCount, setDuplicateArticleCount] = useState(0);
 
+  const handleResetSystem = () => {
+    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
+      window.localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   useEffect(() => {
     const fetchAgents = async () => {
       try {
@@ -111,6 +118,15 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
            >
              {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
              {isPaused ? 'RESUME PIPELINE' : 'PAUSE SYSTEM'}
+           </button>
+
+           <button 
+             onClick={handleResetSystem}
+             className="px-4 py-2 border border-red-500/30 bg-red-500/10 text-red-400 rounded-lg text-[10px] font-bold uppercase hover:bg-red-500/20 transition-all flex items-center gap-2"
+             title="Factory Reset - Clear all cache"
+           >
+             <RefreshCw className="w-3 h-3" />
+             Reset System
            </button>
 
            <button 
