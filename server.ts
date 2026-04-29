@@ -10,13 +10,13 @@ import { createServer } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import 'dotenv/config';
-import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
+import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.js';
 import { createClient } from '@supabase/supabase-js';
-import { initializeAllSchemas } from './src/utils/schemaValidator.ts';
-import { spawn } from 'child_process';
+import { initializeAllSchemas } from './src/utils/schemaValidator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+import { spawn } from 'child_process';
 
 // Initialize Gemini API
 if (!process.env.GEMINI_API_KEY) {
@@ -37,14 +37,13 @@ if (!genAI) {
   console.warn("AI disabled");
 }
 
-// Start the Python FastAPI backend on port 8000 (DISABLED for this environment)
-/*
+// Start the Python FastAPI backend on port 8000
 function startPythonBackend() {
   console.log('Starting Python backend intelligence engine...');
   const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
-    cwd: path.join(process.cwd(), 'backend'),
+    cwd: path.join(__dirname, 'backend'),
     stdio: 'inherit',
-    env: { ...process.env, PYTHONPATH: path.join(process.cwd(), 'backend') }
+    env: { ...process.env, PYTHONPATH: path.join(__dirname, 'backend') }
   });
 
   pythonProcess.on('error', (err) => {
@@ -64,7 +63,6 @@ function startPythonBackend() {
 
 // Start backend immediately
 startPythonBackend();
-*/
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({
@@ -174,14 +172,8 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({ 
       status: 'ok', 
-      gemini: {
-        key_exists: !!process.env.GEMINI_API_KEY, 
-        key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
-      },
-      telegram: {
-        token_exists: !!process.env.TELEGRAM_BOT_TOKEN,
-        chat_id_exists: !!process.env.TELEGRAM_CHAT_ID
-      }
+      key_exists: !!process.env.GEMINI_API_KEY, 
+      key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
     });
   });
 
@@ -190,12 +182,10 @@ async function startServer() {
     try {
       const dataPath = path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json');
       if (fs.existsSync(dataPath)) {
-        console.log(`[SERVER] Serving variables from: ${dataPath}`);
         const raw = fs.readFileSync(dataPath, 'utf8');
         const data = JSON.parse(raw);
         return res.json(data.variables || []);
       }
-      console.warn(`[SERVER] Variables file not found at: ${dataPath}`);
       res.status(404).json({ error: 'Variables data not found' });
     } catch (error) {
       console.error('Error serving variables:', error);
@@ -492,8 +482,14 @@ async function startServer() {
       'inkyfada.com',
       'alkatiba.com',
       'api.open-meteo.com',
-      'newsdata.io',
       'raw.githubusercontent.com',
+      // ── News API providers (Phase 3 pipeline) ──────────────────────────
+      'newsapi.org',
+      'newsdata.io',
+      'gnews.io',
+      // ── Telegram RSS bridges ───────────────────────────────────────────
+      'tg.i-c-a.ru',
+      'rsshub.app',
     ];
 
     try {
@@ -553,93 +549,15 @@ async function startServer() {
     }
   });
 
-  // 2. Direct Supabase Query Routes (replacing the Python backend)
-  app.get('/api/articles', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const limit = parseInt(req.query.limit as string) || 50;
-    const category = req.query.category as string;
-    
-    let query = supabaseServer.from('articles').select('*').order('published_at', { ascending: false }).limit(limit);
-    if (category) query = query.eq('category', category);
-    
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
+  // 2. Generic Proxy API - Catch-all for /api and /ws requests to FastAPI backend
+  const apiProxy = createProxyMiddleware({
+    target: 'http://localhost:8000',
+    changeOrigin: true,
+    ws: true, // proxy websockets
   });
-
-  app.get('/api/events', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const limit = parseInt(req.query.limit as string) || 50;
-    
-    const { data, error } = await supabaseServer.from('events').select('*').order('last_updated', { ascending: false }).limit(limit);
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
-  });
-
-  app.get('/api/rri', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const { data, error } = await supabaseServer.from('rri_history').select('rri_score, timestamp').order('timestamp', { ascending: false }).limit(1);
-    if (error) return res.status(500).json({ error: error.message });
-    
-    if (data && data.length > 0) {
-      res.json({ rri: data[0].rri_score, timestamp: data[0].timestamp });
-    } else {
-      res.json({ rri: 0.64, timestamp: new Date().toISOString() });
-    }
-  });
-
-  app.get('/api/signals/:id', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const { data, error } = await supabaseServer.from('signals').select('*').eq('id', req.params.id).single();
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
-  });
-
-  app.get('/api/correlations/:eventId', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const { data: event, error: eventError } = await supabaseServer.from('events').select('*').eq('id', req.params.eventId).single();
-    if (eventError) return res.status(500).json({ error: eventError.message });
-    
-    const relatedIds = event.related_signal_ids || [];
-    let signals: any[] = [];
-    if (relatedIds.length > 0) {
-      const { data: signalData } = await supabaseServer.from('signals').select('*').in('id', relatedIds);
-      signals = signalData || [];
-    }
-    
-    res.json({ event, related_signals: signals });
-  });
-
-  app.get('/api/anomalies', async (req, res) => {
-    if (!supabaseServer) return res.status(503).json({ error: 'Database unavailable' });
-    const { data, error } = await supabaseServer.from('anomalies').select('*');
-    if (error) return res.status(500).json({ error: error.message });
-    res.json(data);
-  });
-
-  app.get('/api/observability/status', (req, res) => {
-    res.json({
-      status: 'HEALTHY',
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-      services: {
-        database: !!supabaseServer,
-        ai: !!genAI,
-        satellite: true
-      }
-    });
-  });
-
-  app.get('/api/observability/agents', (req, res) => {
-    res.json({
-      agents: [
-        {id: "extractor", name: "Data Extractor", type: "Extraction", status: "IDLE"},
-        {id: "analyst", name: "Trend Analyst", type: "Analysis", status: "IDLE"},
-        {id: "predictor", name: "Risk Predictor", type: "Prediction", status: "IDLE"}
-      ],
-      timestamp: new Date().toISOString()
-    });
-  });
+  
+  app.use('/api', apiProxy);
+  app.use('/ws', apiProxy);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
@@ -656,6 +574,12 @@ async function startServer() {
     });
   }
 
+  // Handle WebSocket upgrades for proxied routes
+  httpServer.on('upgrade', (req, socket, head) => {
+    if (req.url?.startsWith('/ws') || req.url?.startsWith('/api')) {
+      apiProxy.upgrade(req, socket as any, head);
+    }
+  });
 
   // ── AgriIntel Satellite Ingestion Schedule ─────────────────────
   // Run once on startup, then every 6 hours for rainfall

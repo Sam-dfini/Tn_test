@@ -109,9 +109,21 @@ export interface SignalClassification {
 function resolveTier(
   severity: number,
   shockEvent: ShockEvent | null,
-  category: string
+  category: string,
+  geoRelevanceScore: number = 100,
 ): { tier: SignalTier; reason: string } {
-  // Tier 1: System Shock — direct ε(t) impact, model-changing
+
+  // ── GEO-RELEVANCE GATE ──────────────────────────────────────────────────
+  // Prevents non-Tunisia events from becoming SYSTEM_SHOCK.
+  if (geoRelevanceScore < 35) {
+    return { tier: 'NOISE', reason: `Geo-relevance too low (score=${geoRelevanceScore})` };
+  }
+  if (geoRelevanceScore < 60 && severity >= 4) {
+    return { tier: 'SIGNAL', reason: `Geo-downgraded: score=${geoRelevanceScore}, capped at SIGNAL` };
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
+  // Tier 1: System Shock
   if (severity >= 4 && shockEvent && shockEvent.epsilon_magnitude >= 0.10) {
     return {
       tier: 'SYSTEM_SHOCK',
@@ -128,7 +140,7 @@ function resolveTier(
     return { tier: 'SYSTEM_SHOCK', reason: 'Maximum severity event' };
   }
 
-  // Tier 2: Signal — affects salience, amplification, narrative
+  // Tier 2: Signal
   if (severity >= 3 || (shockEvent && shockEvent.epsilon_magnitude >= 0.05)) {
     return {
       tier: 'SIGNAL',
@@ -489,7 +501,8 @@ export function classifySignal(
 
   // 2. Tier classification
   const { tier, reason: tierReason } = resolveTier(
-    article.severity, shockEvent, category
+    article.severity, shockEvent, category,
+    (article as any).geo_relevance_score ?? 100
   );
 
   // 3. Actor attribution

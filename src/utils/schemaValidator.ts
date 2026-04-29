@@ -54,7 +54,8 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     unnamed_source_count: 'int8',
     techniques_detected: 'jsonb',
     narrative_explanation: 'text',
-    event_id: 'text'
+    event_id: 'text',
+    geo_relevance_score: 'int8'
   },
   events: {
     id: 'text',

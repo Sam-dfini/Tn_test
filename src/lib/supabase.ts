@@ -117,6 +117,7 @@ export interface Article {
   unnamed_source_count?: number;
   techniques_detected?: string[];
   narrative_explanation?: string;
+  geo_relevance_score?: number;
 }
 
 export interface Event {

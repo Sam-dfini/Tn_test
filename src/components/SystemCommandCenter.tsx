@@ -1,26 +1,20 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, Activity, Database, Radio, Zap, Layers, Terminal,
   Trash2, Pause, Play, Filter, AlertTriangle, ArrowRight,
-  RefreshCw, ShieldAlert, CheckCircle2, XCircle,
-  Cpu, Globe, FileText, FlaskConical, Server, Send,
-  BarChart3, RotateCcw, Loader2, Maximize2, Minimize2,
-  ExternalLink, Settings, History, Info, ChevronRight,
-  ArrowUpRight, ArrowDownRight, Gauge,
-  Map as MapIcon,
+  RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
+  Cpu, Globe, FileText, FlaskConical, Wifi, Server,
+  BarChart3, TrendingUp, AlertCircle, Info, ChevronRight,
+  RotateCcw, Send, Eye, Loader2,
 } from 'lucide-react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  AreaChart, Area, PieChart, Pie, Cell,
-} from 'recharts';
+import { motion as m } from 'motion/react';
 import { supabase } from '../lib/supabase';
-import { pipelineDebugger, DebugLog, PipelineStage } from '../services/debugService';
+import { pipelineDebugger, DebugLog } from '../services/debugService';
 import { useObservability } from '../context/ObservabilityContext';
 import { useRSS } from '../context/RSSContext';
 import { usePipeline } from '../context/PipelineContext';
-import { ingestionMetrics, ingestTelegramManually } from '../services/rssService';
-import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
+import { fetchAllFeeds, ingestionMetrics } from '../services/rssService';
 import { FeedColumn } from './debug/FeedColumn';
 import { NewsColumn } from './debug/NewsColumn';
 import { SignalsColumn } from './debug/SignalsColumn';
@@ -29,7 +23,7 @@ import { PipelineLogColumn } from './debug/PipelineLogColumn';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'FLOW' | 'DEBUGGER' | 'DATABASE' | 'TESTS';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS';
 
 interface TestResult {
   id: string;
@@ -41,7 +35,11 @@ interface TestResult {
   ts?: number;
 }
 
-// ─── STYLES ─────────────────────────────────────────────────────────────────
+// ─── PIPELINE FLOW DIAGRAM ───────────────────────────────────────────────────
+
+
+
+// ─── FLOW DIAGRAM STYLES (injected once) ────────────────────────────────────
 
 const FLOW_STYLE = `
 @keyframes flowDash {
@@ -66,6 +64,7 @@ const FLOW_STYLE = `
 .led-warn  { animation: ledPulseWarn 1s ease-in-out infinite; }
 `;
 
+// Inject styles once
 if (typeof document !== 'undefined' && !document.getElementById('scc-flow-styles')) {
   const s = document.createElement('style');
   s.id = 'scc-flow-styles';
@@ -73,7 +72,7 @@ if (typeof document !== 'undefined' && !document.getElementById('scc-flow-styles
   document.head.appendChild(s);
 }
 
-// ─── FLOW DIAGRAM LOGIC ─────────────────────────────────────────────────────
+// ─── NODE STATUS LOGIC ───────────────────────────────────────────────────────
 
 type NodeStatus = 'OK' | 'WARN' | 'FAIL' | 'IDLE';
 type ConnStatus = 'FLOWING' | 'SLOW' | 'BLOCKED' | 'IDLE';
@@ -109,9 +108,9 @@ function nodeStatus(id: string, m: any): NodeStatus {
       if (m.signalCount > 0) return 'WARN';
       return 'IDLE';
     case 'rri':
-      return 'OK'; 
+      return 'OK'; // always running in memory
     case 'ui':
-      return 'OK'; 
+      return 'OK'; // if we're rendering, it's OK
     default:
       return 'IDLE';
   }
@@ -126,45 +125,68 @@ function connStatus(from: string, to: string, m: any): ConnStatus {
     'signals-events':  () => m.signalCount > 0 && m.eventCount > 0 ? 'FLOWING' : m.signalCount > 0 ? 'SLOW' : 'BLOCKED',
     'events-rri':      () => m.eventCount > 0 ? 'FLOWING' : 'SLOW',
     'rri-ui':          () => 'FLOWING',
+    // vertical: supabase → signals (same as supabase-signals)
     'supabase-vert':   () => m.dbWriteCount > 0 ? 'FLOWING' : 'SLOW',
   };
   const key = `${from}-${to}`;
   return pairs[key] ? pairs[key]() : 'IDLE';
 }
 
-const NS_COLOR: Record<NodeStatus, string> = { OK: '#10b981', WARN: '#f59e0b', FAIL: '#ef4444', IDLE: '#334155' };
-const NS_GLOW: Record<NodeStatus, string> = { OK: 'rgba(16,185,129,0.4)', WARN: 'rgba(245,158,11,0.4)', FAIL: 'rgba(239,68,68,0.4)', IDLE: 'rgba(0,0,0,0)' };
-const CS_COLOR: Record<ConnStatus, string> = { FLOWING: '#10b981', SLOW: '#f59e0b', BLOCKED: '#ef4444', IDLE: '#1e293b' };
-const CS_CLASS: Record<ConnStatus, string> = { FLOWING: 'flow-ok', SLOW: 'flow-warn', BLOCKED: 'flow-fail', IDLE: 'flow-fail' };
-const LED_CLASS: Record<NodeStatus, string> = { OK: 'led-ok', WARN: 'led-warn', FAIL: '', IDLE: '' };
+const NS_COLOR: Record<NodeStatus, string> = {
+  OK: '#10b981', WARN: '#f59e0b', FAIL: '#ef4444', IDLE: '#334155',
+};
+const NS_GLOW: Record<NodeStatus, string> = {
+  OK: 'rgba(16,185,129,0.4)', WARN: 'rgba(245,158,11,0.4)', FAIL: 'rgba(239,68,68,0.4)', IDLE: 'rgba(0,0,0,0)',
+};
+const CS_COLOR: Record<ConnStatus, string> = {
+  FLOWING: '#10b981', SLOW: '#f59e0b', BLOCKED: '#ef4444', IDLE: '#1e293b',
+};
+const CS_CLASS: Record<ConnStatus, string> = {
+  FLOWING: 'flow-ok', SLOW: 'flow-warn', BLOCKED: 'flow-fail', IDLE: 'flow-fail',
+};
+const LED_CLASS: Record<NodeStatus, string> = {
+  OK: 'led-ok', WARN: 'led-warn', FAIL: '', IDLE: '',
+};
 
-// ─── FLOW DIAGRAM COMPONENT ─────────────────────────────────────────────────
+// ─── SVG PIPELINE FLOW DIAGRAM ───────────────────────────────────────────────
 
-const FlowDiagram: React.FC<{ metrics: any; onNodeClick: (stage: string) => void }> = ({ metrics, onNodeClick }) => {
+const FlowDiagram: React.FC<{
+  metrics: any;
+  onNodeClick: (stage: string) => void;
+}> = ({ metrics, onNodeClick }) => {
+
+  // SVG canvas dimensions
   const W = 900;
   const H = 340;
+
+  // Node positions — top row y=80, bottom row y=240, x spread evenly
   const NODE_W = 130;
   const NODE_H = 90;
   const TOP_Y = 40;
   const BOT_Y = 210;
-  const xs = [40, 220, 400, 580, 760];
+  const xs = [40, 220, 400, 580, 760]; // x centers for 5 columns (we use 4 in each row)
+
+  // Top row: RSS(0) Parser(1) Classifier(2) Supabase(3)
+  // Bot row (left→right = signal flow right→left visually): Signals(0) Events(1) RRI(2) Dashboard(3)
+  // But we draw bottom left→right as: Signals Events RRI Dashboard
+  // Arrow direction: top goes →, bottom goes ← (flow returns left)
 
   const topDefs = [
-    { id: 'rss',        label: 'RSS Sources',  sub: 'Google News',    icon: '🌐', color: '#3b82f6', stage: 'FEED',     xi: 0 },
-    { id: 'parser',     label: 'Parser',        sub: 'XML → JSON',     icon: '📄', color: '#8b5cf6', stage: 'FEED',     xi: 1 },
-    { id: 'classifier', label: 'Classifier',    sub: 'AI tagging',     icon: '🧠', color: '#f59e0b', stage: 'NEWS',     xi: 2 },
-    { id: 'supabase',   label: 'Supabase DB',   sub: 'articles+events',icon: '🗄', color: '#10b981', stage: 'NEWS',     xi: 3 },
+    { id: 'rss', label: 'RSS+TG+API', sub: '18 RSS·9 TG·3 APIs', icon: '📡', color: '#3b82f6', stage: 'FEED', xi: 0 },
+    { id: 'parser', label: 'Parser+Norm.', sub: 'XML/JSON→RSSContext', icon: '📄', color: '#8b5cf6', stage: 'FEED', xi: 1 },
+    { id: 'classifier', label: 'Classifier+Geo', sub: 'Entities·Sev·🌍Filter', icon: '🧠', color: '#f59e0b', stage: 'NEWS', xi: 2 },
+    { id: 'supabase', label: 'Supabase DB', sub: 'articles+events+vec', icon: '🗄', color: '#10b981', stage: 'NEWS', xi: 3 },
   ];
   const botDefs = [
-    { id: 'signals',    label: 'Signal Engine', sub: 'priority score', icon: '⚡', color: '#f97316', stage: 'SIGNALS',  xi: 0 },
-    { id: 'events',     label: 'Event Engine',  sub: 'clustering',     icon: '📡', color: '#a78bfa', stage: 'EVENTS',   xi: 1 },
-    { id: 'rri',        label: 'RRI Engine',    sub: '250 variables',  icon: '📊', color: '#ef4444', stage: 'PIPELINE', xi: 2 },
-    { id: 'ui',         label: 'Dashboard',     sub: 'live render',    icon: '🖥', color: '#00f2ff', stage: 'PIPELINE', xi: 3 },
+    { id: 'signals',    label: 'Signal Engine', sub: 'Atomic Signal Gen.',  icon: '⚡', color: '#f97316', stage: 'SIGNALS',  xi: 0 },
+    { id: 'events',     label: 'Event Engine',  sub: 'Who·What·Where·Impact', icon: '📡', color: '#a78bfa', stage: 'EVENTS',  xi: 1 },
+    { id: 'rri',        label: 'RRI Engine',    sub: 'Escalation·Poles·RPI', icon: '📊', color: '#ef4444', stage: 'PIPELINE', xi: 2 },
+    { id: 'ui',         label: 'Dashboard',     sub: 'Intel·Tactical·Live',  icon: '🖥', color: '#00f2ff', stage: 'PIPELINE', xi: 3 },
   ];
 
   const getCount = (id: string) => {
     switch (id) {
-      case 'rss': return metrics.feedCount || 0;
+      case 'rss': return 18 + 9 + 3; // 18 RSS + 9 Telegram + 3 News APIs
       case 'parser': return metrics.feedCount || 0;
       case 'classifier': return metrics.newsCount || 0;
       case 'supabase': return metrics.newsCount || 0;
@@ -176,7 +198,12 @@ const FlowDiagram: React.FC<{ metrics: any; onNodeClick: (stage: string) => void
     }
   };
 
-  const NodeBox = ({ def, x, y }: { def: any; x: number; y: number }) => {
+  // Node box component inside SVG
+  const NodeBox: React.FC<{
+    def: typeof topDefs[0];
+    x: number; y: number;
+    flipped?: boolean;
+  }> = ({ def, x, y, flipped }) => {
     const status = nodeStatus(def.id, metrics);
     const sc = NS_COLOR[status];
     const glow = NS_GLOW[status];
@@ -184,922 +211,953 @@ const FlowDiagram: React.FC<{ metrics: any; onNodeClick: (stage: string) => void
     const ledClass = LED_CLASS[status];
 
     return (
-      <g onClick={() => onNodeClick(def.stage)} style={{ cursor: 'pointer' }}>
-        <rect x={x} y={y} width={NODE_W} height={NODE_H} rx={10} fill="none" stroke={sc} strokeWidth={1.5} strokeOpacity={0.25} style={{ filter: `drop-shadow(0 0 8px ${glow})` }} />
-        <rect x={x+1} y={y+1} width={NODE_W-2} height={NODE_H-2} rx={9} fill="#0d0d12" />
-        <rect x={x+1} y={y+1} width={NODE_W-2} height={3} rx={9} fill={def.color} opacity={0.7} />
-        <circle cx={x + NODE_W - 14} cy={y + 14} r={5} fill={sc} className={ledClass} />
-        <circle cx={x + NODE_W - 14} cy={y + 14} r={8} fill="none" stroke={sc} strokeWidth={1} opacity={0.3} />
+      <g
+        onClick={() => onNodeClick(def.stage)}
+        style={{ cursor: 'pointer' }}
+      >
+        {/* Outer glow rect */}
+        <rect x={x} y={y} width={NODE_W} height={NODE_H} rx={10}
+          fill="none" stroke={sc} strokeWidth={1.5} strokeOpacity={0.25}
+          style={{ filter: `drop-shadow(0 0 8px ${glow})` }}
+        />
+        {/* Inner fill */}
+        <rect x={x+1} y={y+1} width={NODE_W-2} height={NODE_H-2} rx={9}
+          fill="#0d0d12"
+        />
+        {/* Top color accent bar */}
+        <rect x={x+1} y={y+1} width={NODE_W-2} height={3} rx={9}
+          fill={def.color} opacity={0.7}
+        />
+
+        {/* LED indicator */}
+        <circle
+          cx={x + NODE_W - 14} cy={y + 14}
+          r={5}
+          fill={sc}
+          className={ledClass}
+          style={status === 'FAIL' ? { filter: `drop-shadow(0 0 4px ${sc})` } : undefined}
+        />
+        {/* LED ring */}
+        <circle
+          cx={x + NODE_W - 14} cy={y + 14}
+          r={8}
+          fill="none" stroke={sc} strokeWidth={1} opacity={0.3}
+        />
+
+        {/* Icon (text emoji) */}
         <text x={x + 12} y={y + 22} fontSize={13} fontFamily="monospace">{def.icon}</text>
-        <text x={x + 8} y={y + 46} fontSize={10} fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="monospace">{def.label}</text>
-        <text x={x + 8} y={y + 60} fontSize={8} fill="rgba(255,255,255,0.3)" fontFamily="monospace">{def.sub}</text>
-        <text x={x + 8} y={y + 78} fontSize={13} fontWeight="bold" fill={def.color} fontFamily="monospace">{count.toLocaleString()}</text>
-        <text x={x + NODE_W - 10} y={y + NODE_H - 8} fontSize={7} fill={sc} fontFamily="monospace" textAnchor="end" fontWeight="bold">{status}</text>
+
+        {/* Label */}
+        <text x={x + 8} y={y + 46} fontSize={10} fontWeight="bold" fill="rgba(255,255,255,0.85)" fontFamily="monospace">
+          {def.label}
+        </text>
+
+        {/* Sub label */}
+        <text x={x + 8} y={y + 60} fontSize={8} fill="rgba(255,255,255,0.3)" fontFamily="monospace">
+          {def.sub}
+        </text>
+
+        {/* Count */}
+        <text x={x + 8} y={y + 78} fontSize={13} fontWeight="bold" fill={def.color} fontFamily="monospace">
+          {count.toLocaleString()}
+        </text>
+
+        {/* Status label */}
+        <text x={x + NODE_W - 10} y={y + NODE_H - 8} fontSize={7} fill={sc} fontFamily="monospace" textAnchor="end" fontWeight="bold">
+          {status}
+        </text>
       </g>
     );
   };
 
-  const Connector = ({ x1, y1, x2, y2, fromId, toId, reverse }: any) => {
+  // Animated arrow connector
+  const Connector: React.FC<{
+    x1: number; y1: number; x2: number; y2: number;
+    fromId: string; toId: string; reverse?: boolean;
+  }> = ({ x1, y1, x2, y2, fromId, toId, reverse }) => {
     const cs = connStatus(fromId, toId, metrics);
     const color = CS_COLOR[cs];
-    const dashClass = reverse ? (cs === 'FLOWING' ? 'flow-rev' : cs === 'SLOW' ? 'flow-warn' : 'flow-fail') : CS_CLASS[cs];
+    const dashClass = reverse
+      ? (cs === 'FLOWING' ? 'flow-rev' : cs === 'SLOW' ? 'flow-warn' : 'flow-fail')
+      : CS_CLASS[cs];
+    const label = cs === 'BLOCKED' ? 'BLOCKED' : cs === 'SLOW' ? 'SLOW' : '';
+
+    // midpoint for label
     const mx = (x1 + x2) / 2;
     const my = (y1 + y2) / 2;
     const isVertical = x1 === x2;
 
     return (
       <g>
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
-        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={cs === 'FLOWING' ? 2.5 : 1.5} strokeDasharray={cs === 'BLOCKED' ? '0' : '8 16'} className={dashClass} style={{ opacity: cs === 'IDLE' ? 0.2 : 1 }} />
-        {!isVertical && !reverse && <polygon points={`${x2},${y2} ${x2-8},${y2-4} ${x2-8},${y2+4}`} fill={color} />}
-        {!isVertical && reverse && <polygon points={`${x1},${y1} ${x1+8},${y1-4} ${x1+8},${y1+4}`} fill={color} />}
-        {isVertical && <polygon points={`${x2},${y2} ${x2-4},${y2-8} ${x2+4},${y2-8}`} fill={color} />}
+        {/* Base track */}
+        <line x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke="rgba(255,255,255,0.06)" strokeWidth={2}
+        />
+        {/* Animated flow line */}
+        <line x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke={color}
+          strokeWidth={cs === 'FLOWING' ? 2.5 : 1.5}
+          strokeDasharray={cs === 'BLOCKED' ? '0' : '8 16'}
+          className={dashClass}
+          style={{
+            filter: cs === 'FLOWING' ? `drop-shadow(0 0 3px ${color})` : undefined,
+            opacity: cs === 'IDLE' ? 0.2 : 1,
+          }}
+        />
+        {/* Arrowhead */}
+        {!isVertical && !reverse && (
+          <polygon
+            points={`${x2},${y2} ${x2-8},${y2-4} ${x2-8},${y2+4}`}
+            fill={color} opacity={cs === 'IDLE' ? 0.2 : 0.8}
+          />
+        )}
+        {!isVertical && reverse && (
+          <polygon
+            points={`${x1},${y1} ${x1+8},${y1-4} ${x1+8},${y1+4}`}
+            fill={color} opacity={cs === 'IDLE' ? 0.2 : 0.8}
+          />
+        )}
+        {isVertical && (
+          <polygon
+            points={`${x2},${y2} ${x2-4},${y2-8} ${x2+4},${y2-8}`}
+            fill={color} opacity={cs === 'IDLE' ? 0.2 : 0.8}
+          />
+        )}
+        {/* BLOCKED label */}
+        {label && (
+          <text x={mx + (isVertical ? 8 : 0)} y={my + (isVertical ? 0 : -6)}
+            fontSize={7} fill={color} fontFamily="monospace" fontWeight="bold" textAnchor="middle"
+          >
+            {label}
+          </text>
+        )}
       </g>
     );
   };
 
-  const tx = topDefs.map(d => xs[d.xi]);
+  // Top row x centers
+  const tx = topDefs.map(d => xs[d.xi] );
+  // Bottom row x centers — same columns
   const bx = botDefs.map(d => xs[d.xi]);
 
+  // Node center helpers
+  const tCx = (i: number) => tx[i] + NODE_W / 2;
+  const tCy = TOP_Y + NODE_H / 2;
+  const tRx = (i: number) => tx[i] + NODE_W; // right edge
+  const tLx = (i: number) => tx[i]; // left edge
+  const tBy = TOP_Y + NODE_H; // bottom edge of top row
+
+  const bCx = (i: number) => bx[i] + NODE_W / 2;
+  const bCy = BOT_Y + NODE_H / 2;
+  const bRx = (i: number) => bx[i] + NODE_W;
+  const bLx = (i: number) => bx[i];
+  const bTy = BOT_Y; // top edge of bottom row
+
   return (
-    <div className="bg-[#070709] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-      <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-gradient-to-r from-black via-[#0a0a10] to-black">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <Activity className="w-4 h-4 text-emerald-500" />
-          </div>
-          <div>
-            <div className="text-[10px] font-mono text-white/40 uppercase tracking-[0.2em]">Intelligence Pipeline Map</div>
-            <div className="text-[9px] font-mono text-emerald-400">Live Active Decision Matrix (ADM)</div>
-          </div>
+    <div className="bg-[#070709] border border-white/5 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+        <div className="flex items-center gap-2 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+          <Activity className="w-3.5 h-3.5 text-emerald-500" />
+          Intelligence Pipeline Flow — Live ADM
         </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4 text-[9px] font-mono">
-            {[
-              { c: '#10b981', l: 'FLOWING' },
-              { c: '#f59e0b', l: 'DEGRADED' },
-              { c: '#ef4444', l: 'CRITICAL' },
-            ].map(({ c, l }) => (
-              <span key={l} className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c, boxShadow: `0 0 8px ${c}` }} />
-                <span className="text-white/30 uppercase tracking-tighter">{l}</span>
-              </span>
-            ))}
-          </div>
-          <div className="px-3 py-1 rounded bg-white/5 border border-white/10 text-[9px] font-mono text-white/60">
-            AUTO-RECOVERY: <span className="text-emerald-400">ENABLED</span>
-          </div>
+        <div className="flex items-center gap-4 text-[9px] font-mono">
+          {[
+            { c: '#10b981', l: 'OK / Flowing' },
+            { c: '#f59e0b', l: 'Degraded / Slow' },
+            { c: '#ef4444', l: 'Failed / Blocked' },
+            { c: '#334155', l: 'Idle' },
+          ].map(({ c, l }) => (
+            <span key={l} className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: c, boxShadow: `0 0 4px ${c}` }} />
+              <span className="text-white/30">{l}</span>
+            </span>
+          ))}
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto overflow-y-hidden py-10 bg-[#050508] relative">
-        <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-        
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} className="relative z-10 mx-auto" style={{ minWidth: 800 }}>
-          <Connector x1={tx[0]+NODE_W} y1={TOP_Y+45} x2={tx[1]} y2={TOP_Y+45} fromId="rss" toId="parser" />
-          <Connector x1={tx[1]+NODE_W} y1={TOP_Y+45} x2={tx[2]} y2={TOP_Y+45} fromId="parser" toId="classifier" />
-          <Connector x1={tx[2]+NODE_W} y1={TOP_Y+45} x2={tx[3]} y2={TOP_Y+45} fromId="classifier" toId="supabase" />
+      {/* SVG canvas */}
+      <div className="w-full overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          width="100%"
+          height={H}
+          style={{ minWidth: 600, display: 'block' }}
+        >
+          {/* ── CONNECTIONS ── */}
 
+          {/* Top row: RSS→Parser→Classifier→Supabase */}
+          <Connector x1={tRx(0)} y1={tCy} x2={tLx(1)} y2={tCy} fromId="rss" toId="parser" />
+          <Connector x1={tRx(1)} y1={tCy} x2={tLx(2)} y2={tCy} fromId="parser" toId="classifier" />
+          <Connector x1={tRx(2)} y1={tCy} x2={tLx(3)} y2={tCy} fromId="classifier" toId="supabase" />
+
+          {/* Vertical: Supabase (col 3) down to Signals (col 0) via an L-bend */}
+          {/* We draw: Supabase bottom → down to mid-lane → left to col0 → down to Signals top */}
           {(() => {
-            const midY = (TOP_Y + NODE_H + BOT_Y) / 2;
-            const x3 = tx[3] + NODE_W / 2;
-            const x0 = bx[0] + NODE_W / 2;
+            const midY = (tBy + bTy) / 2;
+            // Supabase col=3, Signals col=0
+            const x3 = tCx(3);
+            const x0 = bCx(0);
             return (
               <g>
-                <line x1={x3} y1={TOP_Y+NODE_H} x2={x3} y2={midY} stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
-                <line x1={x3} y1={midY} x2={x0} y2={midY} stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
-                <line x1={x0} y1={midY} x2={x0} y2={BOT_Y} stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
-                <line x1={x3} y1={TOP_Y+NODE_H} x2={x3} y2={midY} stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]} strokeWidth={2} strokeDasharray="8 16" className={CS_CLASS[connStatus('supabase', 'signals', metrics)]} />
-                <line x1={x3} y1={midY} x2={x0} y2={midY} stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]} strokeWidth={2} strokeDasharray="8 16" className={CS_CLASS[connStatus('supabase', 'signals', metrics)]} />
-                <line x1={x0} y1={midY} x2={x0} y2={BOT_Y} stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]} strokeWidth={2} strokeDasharray="8 16" className={CS_CLASS[connStatus('supabase', 'signals', metrics)]} />
+                {/* Down from Supabase */}
+                <line x1={x3} y1={tBy} x2={x3} y2={midY}
+                  stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
+                <line x1={x3} y1={tBy} x2={x3} y2={midY}
+                  stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]}
+                  strokeWidth={2} strokeDasharray="8 16"
+                  className={CS_CLASS[connStatus('supabase', 'signals', metrics)]}
+                  style={{ opacity: connStatus('supabase','signals',metrics) === 'IDLE' ? 0.2 : 1 }}
+                />
+                {/* Left along mid-lane */}
+                <line x1={x3} y1={midY} x2={x0} y2={midY}
+                  stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
+                <line x1={x3} y1={midY} x2={x0} y2={midY}
+                  stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]}
+                  strokeWidth={2} strokeDasharray="8 16"
+                  className={CS_CLASS[connStatus('supabase', 'signals', metrics)]}
+                  style={{ opacity: connStatus('supabase','signals',metrics) === 'IDLE' ? 0.2 : 1 }}
+                />
+                {/* Down to Signals */}
+                <line x1={x0} y1={midY} x2={x0} y2={bTy}
+                  stroke="rgba(255,255,255,0.06)" strokeWidth={2} />
+                <line x1={x0} y1={midY} x2={x0} y2={bTy}
+                  stroke={CS_COLOR[connStatus('supabase', 'signals', metrics)]}
+                  strokeWidth={2} strokeDasharray="8 16"
+                  className={CS_CLASS[connStatus('supabase', 'signals', metrics)]}
+                  style={{ opacity: connStatus('supabase','signals',metrics) === 'IDLE' ? 0.2 : 1 }}
+                />
+                {/* Arrowhead pointing down into Signals */}
+                <polygon
+                  points={`${x0},${bTy} ${x0-4},${bTy-8} ${x0+4},${bTy-8}`}
+                  fill={CS_COLOR[connStatus('supabase', 'signals', metrics)]}
+                  opacity={0.8}
+                />
+                {/* Corner dots */}
+                <circle cx={x3} cy={midY} r={3} fill="rgba(255,255,255,0.15)" />
+                <circle cx={x0} cy={midY} r={3} fill="rgba(255,255,255,0.15)" />
               </g>
             );
           })()}
 
-          <Connector x1={bx[0]+NODE_W} y1={BOT_Y+45} x2={bx[1]} y2={BOT_Y+45} fromId="signals" toId="events" />
-          <Connector x1={bx[1]+NODE_W} y1={BOT_Y+45} x2={bx[2]} y2={BOT_Y+45} fromId="events" toId="rri" />
-          <Connector x1={bx[2]+NODE_W} y1={BOT_Y+45} x2={bx[3]} y2={BOT_Y+45} fromId="rri" toId="ui" />
+          {/* Bottom row: Signals→Events→RRI→Dashboard (left to right) */}
+          <Connector x1={bRx(0)} y1={bCy} x2={bLx(1)} y2={bCy} fromId="signals" toId="events" />
+          <Connector x1={bRx(1)} y1={bCy} x2={bLx(2)} y2={bCy} fromId="events" toId="rri" />
+          <Connector x1={bRx(2)} y1={bCy} x2={bLx(3)} y2={bCy} fromId="rri" toId="ui" />
 
-          {topDefs.map((d, i) => <NodeBox key={d.id} def={d} x={tx[i]} y={TOP_Y} />)}
-          {botDefs.map((d, i) => <NodeBox key={d.id} def={d} x={bx[i]} y={BOT_Y} />)}
+          {/* ── NODES ── */}
+          {topDefs.map((d, i) => (
+            <NodeBox key={d.id} def={d} x={tx[i]} y={TOP_Y} />
+          ))}
+          {botDefs.map((d, i) => (
+            <NodeBox key={d.id} def={d} x={bx[i]} y={BOT_Y} />
+          ))}
+
+          {/* Row labels */}
+          <text x={8} y={TOP_Y + 44} fontSize={8} fill="rgba(255,255,255,0.15)" fontFamily="monospace" fontWeight="bold" writingMode="vertical-rl" textAnchor="middle">INGEST</text>
+          <text x={8} y={BOT_Y + 44} fontSize={8} fill="rgba(255,255,255,0.15)" fontFamily="monospace" fontWeight="bold" writingMode="vertical-rl" textAnchor="middle">PROCESS</text>
         </svg>
       </div>
 
-      <div className="flex items-center justify-between px-5 py-3 border-t border-white/5 bg-[#0a0a0f] text-[9px] font-mono text-white/30 uppercase">
-        <div className="flex gap-6">
-          <span className="flex items-center gap-2"><Zap className="w-3 h-3 text-orange-400" /> RSS Rate: <span className="text-white/60 tracking-wider">{(metrics.ingestionRate || 0).toFixed(1)}/min</span></span>
-          <span className="flex items-center gap-2"><Layers className="w-3 h-3 text-indigo-400" /> Buffer Load: <span className="text-white/60 tracking-wider">{(metrics.loadFactor || 0).toFixed(1)}%</span></span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Loader2 className="w-3 h-3 animate-spin text-emerald-500" />
-          Synchronizing Decision Core...
-        </div>
+      {/* Footer strip */}
+      <div className="flex items-center justify-between px-5 py-2.5 border-t border-white/5 text-[9px] font-mono text-white/20 uppercase tracking-tighter">
+        <span className="flex items-center gap-1.5">
+          <Zap className="w-2.5 h-2.5 text-orange-400" />
+          Ingestion: <span className="text-white/40">{Math.round(metrics.ingestionRate || 0)}/cycle</span>
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+          Live ADM — click any node → Debugger
+        </span>
+        <span>
+          Latency: <span className={metrics.latencyMs > 2000 ? 'text-red-400' : 'text-white/40'}>{Math.round(metrics.latencyMs || 0)}ms</span>
+        </span>
       </div>
     </div>
   );
 };
 
-// ─── MISSION CONTROL COMPONENTS ─────────────────────────────────────────────
+// ─── MISSION CONTROL TAB ─────────────────────────────────────────────────────
 
-const MetricCard = ({ label, value, trend, unit, icon: Icon, color }: any) => (
-  <div className="bg-[#0b0b0f] border border-white/5 rounded-xl p-5 hover:border-white/10 transition-all group">
-    <div className="flex items-start justify-between mb-4">
-      <div className={`p-2.5 rounded-lg bg-${color}-500/10 border border-${color}-500/20`}>
-        <Icon className={`w-4 h-4 text-${color}-400`} />
-      </div>
-      {trend && (
-        <span className={`flex items-center gap-1 text-[10px] font-bold ${trend > 0 ? 'text-emerald-400' : 'text-red-400'} font-mono`}>
-          {trend > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {Math.abs(trend)}%
-        </span>
-      )}
-    </div>
-    <div className="space-y-1">
-      <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest">{label}</div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="text-2xl font-bold tracking-tight text-white/90 font-mono">{typeof value === 'number' ? value.toLocaleString() : value}</span>
-        <span className="text-[10px] font-mono text-white/20 uppercase">{unit}</span>
-      </div>
-    </div>
-  </div>
-);
+const MissionControl: React.FC<{
+  onJumpToDebugger: (stage?: string) => void;
+}> = ({ onJumpToDebugger }) => {
+  const { metrics, history, alerts, healthScore, logs } = useObservability();
+  const { articles, events, fetchNow } = useRSS();
+  const { isPaused, togglePause, recalculateRRI } = usePipeline();
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
-const ServiceStatus = ({ name, status, lag }: any) => (
-  <div className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-    <div className="flex items-center gap-3">
-      <div className={`w-1.5 h-1.5 rounded-full ${status === 'healthy' ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : status === 'warning' ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
-      <span className="text-xs font-mono text-white/60 tracking-tight">{name}</span>
-    </div>
-    <div className="flex items-center gap-4">
-      <span className="text-[10px] font-mono text-white/20 font-bold uppercase">{status}</span>
-      {lag && <span className="text-[10px] font-mono text-white/40">{lag}ms</span>}
-    </div>
-  </div>
-);
+  const health = healthScore > 80
+    ? { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', label: 'HEALTHY' }
+    : healthScore > 50
+      ? { color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', label: 'DEGRADED' }
+      : { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'CRITICAL' };
 
-const SectionHeader = ({ icon: Icon, title, subtitle }: any) => (
-  <div className="flex items-center gap-3 mb-6 px-1">
-    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-      <Icon className="w-4 h-4 text-white/60" />
-    </div>
-    <div>
-      <h3 className="text-xs font-mono text-white/90 uppercase tracking-[0.2em]">{title}</h3>
-      <p className="text-[9px] font-mono text-white/30 uppercase tracking-widest">{subtitle}</p>
-    </div>
-  </div>
-);
-
-// ─── MISSION CONTROL TAB ────────────────────────────────────────────────────
-
-const MissionControl: React.FC<{ metrics: any }> = ({ metrics }) => {
-  const { data, rriState } = usePipeline();
-  const handleResetSystem = () => {
-    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
-      window.localStorage.clear();
-      window.location.reload();
-    }
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try { await fetchNow(true); } catch (e) { console.error(e); }
+    finally { setIsSyncing(false); }
   };
 
-  return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* MAINTENANCE SECTION */}
-      <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <SectionHeader icon={RotateCcw} title="System Command" subtitle="Operational maintenance & state reset" />
-          <button 
-            onClick={handleResetSystem}
-            className="px-4 py-2 border border-red-500/30 bg-red-500/10 text-red-100 rounded-xl text-[10px] font-bold uppercase hover:bg-red-500/20 transition-all flex items-center gap-2"
-            title="Factory Reset - Clear all local cache and reload"
-          >
-            <RefreshCw className="w-3 h-3" />
-            Reset System
-          </button>
-        </div>
-        <p className="text-[10px] font-mono text-white/30 leading-relaxed max-w-2xl">
-          Use this function if the dashboard becomes unresponsive or exhibits stale data. This will clear the browser's localStorage and indexedDB cache, then trigger a full page reload.
-        </p>
-      </div>
-      
-      {/* KPI GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Total Intelligence Units" value={metrics.newsCount || 0} unit="RECORDS" icon={Database} color="blue" trend={12} />
-        <MetricCard label="Pipeline Velocity" value={Math.round(metrics.ingestionRate || 0)} unit="NEWS/MIN" icon={Zap} color="orange" trend={5.4} />
-        <MetricCard label="System Latency" value={Math.round(metrics.latencyMs || 0)} unit="MS" icon={Activity} color="emerald" trend={-8} />
-        <MetricCard label="Signal Strength" value={metrics.signalCount || 0} unit="ACTIVE" icon={Radio} color="purple" trend={2.1} />
-      </div>
+  const handleRRI = async () => {
+    setIsRecalculating(true);
+    try { recalculateRRI(); await new Promise(r => setTimeout(r, 800)); }
+    finally { setIsRecalculating(false); }
+  };
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* SERVICES COLUMN */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl p-6">
-            <SectionHeader icon={Server} title="Service Matrix" subtitle="Real-time health grid" />
-            <div className="space-y-3">
-              <ServiceStatus name="Google RSS Cluster" status="healthy" lag={42} />
-              <ServiceStatus name="NLP Parser Node" status="healthy" lag={128} />
-              <ServiceStatus name="Signal Scoring Logic" status="healthy" lag={84} />
-              <ServiceStatus name="Event Clustering Core" status="healthy" lag={210} />
-              <ServiceStatus name="Supabase Realtime" status="healthy" lag={56} />
-              <ServiceStatus name="DeepMind Inference" status="healthy" lag={892} />
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-white/5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Resource Allocation</span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold">OPTIMAL</span>
-              </div>
-              <div className="space-y-4">
-                {[
-                  { l: 'CPU', v: 42, c: 'bg-emerald-500' },
-                  { l: 'MEM', v: 68, c: 'bg-indigo-500' },
-                  { l: 'NET', v: 15, c: 'bg-blue-500' },
-                ].map((r) => (
-                  <div key={r.l} className="space-y-1.5">
-                    <div className="flex justify-between text-[9px] font-mono text-white/40">
-                      <span>{r.l} LOAD</span>
-                      <span>{r.v}%</span>
-                    </div>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                      <div className={`h-full ${r.c} transition-all duration-1000`} style={{ width: `${r.v}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+  const serviceChecks = [
+    { label: 'RSS Feed', ok: metrics.lastIngestionTime > 0 && (Date.now() - metrics.lastIngestionTime < 600000) },
+    { label: 'Supabase DB', ok: metrics.dbWriteCount > 0 || metrics.dbReadCount > 0 },
+    { label: 'Signal Engine', ok: metrics.signalCount >= 0 },
+    { label: 'RRI Engine', ok: true },
+    { label: 'AI / Gemini', ok: metrics.newsCount > 0 },
+    { label: 'Realtime Sub', ok: !metrics.isFetching || isSyncing },
+  ];
+
+  const miniMetrics = [
+    { label: 'Feed Rate', value: `${Math.round(metrics.ingestionRate || 0)}`, unit: '/cycle', color: 'text-blue-400' },
+    { label: 'Articles', value: metrics.newsCount || 0, color: 'text-emerald-400' },
+    { label: 'Signals', value: metrics.signalCount || 0, color: 'text-orange-400' },
+    { label: 'Events', value: metrics.eventCount || 0, color: 'text-purple-400' },
+    { label: 'DB Writes', value: metrics.dbWriteCount || 0, color: 'text-intel-cyan' },
+    { label: 'DB Reads', value: metrics.dbReadCount || 0, color: 'text-blue-300' },
+    { label: 'Error %', value: `${((metrics.errorRate || 0) * 100).toFixed(1)}%`, color: metrics.errorRate > 0.2 ? 'text-red-400' : 'text-emerald-400' },
+    { label: 'Latency', value: `${Math.round(metrics.latencyMs || 0)}ms`, color: metrics.latencyMs > 2000 ? 'text-red-400' : 'text-emerald-400' },
+  ];
+
+  return (
+    <div className="flex flex-col space-y-4 h-full overflow-y-auto pr-1 no-scrollbar">
+
+      {/* Top strip: health + controls */}
+      <div className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0">
+        <div className="flex items-center gap-6">
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${health.bg} ${health.border}`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${healthScore > 80 ? 'bg-emerald-500' : healthScore > 50 ? 'bg-amber-500' : 'bg-red-500'}`} />
+            <span className={`text-sm font-bold font-mono ${health.color}`}>{Math.round(healthScore)}%</span>
+            <span className={`text-[9px] font-mono ${health.color} opacity-70 uppercase`}>{health.label}</span>
+          </div>
+          <div className="flex items-center gap-4 text-[9px] font-mono text-white/30 uppercase">
+            <span>Articles loaded: <span className="text-white/60">{articles.length}</span></span>
+            <span>Events tracked: <span className="text-white/60">{events.length}</span></span>
+            <span>Alerts: <span className={alerts.length > 0 ? 'text-amber-400' : 'text-white/60'}>{alerts.length}</span></span>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={togglePause}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono transition-all border ${isPaused ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse' : 'bg-white/5 text-white/50 border-white/10 hover:text-white'}`}
+          >
+            {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+            {isPaused ? 'Resume' : 'Pause'}
+          </button>
+          <button
+            onClick={handleSync}
+            disabled={isSyncing || isPaused}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
+          >
+            <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing…' : 'Force Sync'}
+          </button>
+          <button
+            onClick={handleRRI}
+            disabled={isRecalculating}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-40"
+          >
+            <RotateCcw className={`w-3 h-3 ${isRecalculating ? 'animate-spin' : ''}`} />
+            {isRecalculating ? 'Recalc…' : 'Force RRI'}
+          </button>
+        </div>
+      </div>
 
-        {/* RECENT EVENTS COLUMN */}
-        <div className="lg:col-span-2">
-          <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl h-full flex flex-col">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between">
-              <SectionHeader icon={History} title="Operational History" subtitle="Live pipeline trace" />
-              <div className="flex gap-2">
-                <button className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[9px] font-mono text-white/40 hover:text-white/70 transition-colors">EXPORT LOGS</button>
-                <button className="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-mono text-indigo-400 hover:bg-indigo-500/20 transition-colors">VIEW ALL</button>
+      {/* Alerts */}
+      <AnimatePresence>
+        {alerts.length > 0 && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-1 shrink-0">
+            {alerts.slice(0, 3).map((a, i) => (
+              <div key={i} className="flex items-center gap-3 bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-2 text-red-400 text-[10px] font-mono animate-pulse">
+                <AlertCircle className="w-3 h-3 shrink-0" />
+                <span className="font-bold uppercase">{a.message}</span>
               </div>
-            </div>
-            <div className="flex-1 p-6 space-y-4 overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-white/10">
-              {prepareList([
-                { t: 'PIPELINE_INIT', m: 'Cold start complete. Warm cache ready.', s: 'SYSTEM', ts: '10:42:01' },
-                { t: 'INGEST_SCAN', m: '58 RSS feeds scanned. 12 new artifacts found.', s: 'FEEDER', ts: '10:41:55' },
-                { t: 'SIGNAL_BURST', m: 'Detected high-volatility event cluster in Tech sector.', s: 'SIGNALS', ts: '10:41:42' },
-                { t: 'DB_SYNC', m: 'Batch update success. Records: 450, Latency: 42ms.', s: 'SUPABASE', ts: '10:40:12' },
-                { t: 'PARSER_LOAD', m: 'Optimizing XML buffer load. Decreasing GC pressure.', s: 'PARSER', ts: '10:39:58' },
-                { t: 'CLUSTER_LOCK', m: 'Conflict detected in event grouping. Resolving...', s: 'EVENTS', ts: '10:38:22' },
-              ]).map((ev: any, i: number) => (
-                <div key={assertKey(getRenderKey(ev, i, 'scc-op-hist'))} className="flex gap-4 p-3 rounded-lg hover:bg-white/[0.02] transition-colors group">
-                  <div className="text-[10px] font-mono text-white/20 whitespace-nowrap pt-1">{ev.ts}</div>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold font-mono text-indigo-400 tracking-tighter">[{ev.t}]</span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-white/40">{ev.s}</span>
-                    </div>
-                    <p className="text-xs font-mono text-white/60 leading-relaxed">{ev.m}</p>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 text-white/10 group-hover:text-white/40 transition-colors" />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Metric tiles */}
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 shrink-0">
+        {miniMetrics.map((m, i) => (
+          <div key={i} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all">
+            <div className="text-[8px] text-white/20 uppercase tracking-tighter mb-1">{m.label}</div>
+            <div className={`text-base font-bold font-mono ${m.color}`}>{m.value}</div>
+            {m.unit && <div className="text-[7px] text-white/20">{m.unit}</div>}
+          </div>
+        ))}
+      </div>
+
+      {/* Pipeline flow diagram */}
+      <FlowDiagram metrics={metrics} onNodeClick={(stage) => onJumpToDebugger(stage)} />
+
+      {/* Service checks + recent logs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Service health */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5">
+          <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Server className="w-3.5 h-3.5" />
+            Service Health Matrix
+          </div>
+          <div className="space-y-3">
+            {serviceChecks.map((s, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <span className="text-[11px] text-white/60 font-mono">{s.label}</span>
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${s.ok ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  <span className={`text-[10px] font-bold font-mono ${s.ok ? 'text-emerald-400' : 'text-red-400'}`}>{s.ok ? 'OK' : 'ERROR'}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── PIPELINE DEBUGGER TAB ──────────────────────────────────────────────────
-
-const DebuggerTab: React.FC = () => {
-  const [logs, setLogs] = useState<DebugLog[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [highlightDuplicates, setHighlightDuplicates] = useState(true);
-
-  useEffect(() => {
-    // Initial logs
-    setLogs(pipelineDebugger.getLogs());
-    
-    // Subscribe to new logs
-    const unsubscribe = pipelineDebugger.subscribe((newLog) => {
-      if (!newLog || !newLog.id) {
-        // Handle clear
-        setLogs(pipelineDebugger.getLogs());
-        return;
-      }
-      setLogs(prev => [newLog, ...prev].slice(0, 500));
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  const stageLogs = (stage: PipelineStage) => logs.filter(l => l.stage === stage);
-
-  return (
-    <div className="flex flex-col h-full bg-[#030305]">
-      {/* Debugger Toolbar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-white/5 bg-[#0a0a0f]">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-[10px] font-mono text-white/30 uppercase tracking-widest">
-            <Filter className="w-3 h-3" />
-            Display Filters:
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer group">
-            <input 
-              type="checkbox" 
-              checked={highlightDuplicates} 
-              onChange={e => setHighlightDuplicates(e.target.checked)}
-              className="w-3 h-3 rounded border-white/10 bg-white/5 text-emerald-500 focus:ring-0 focus:ring-offset-0"
-            />
-            <span className="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors uppercase">Highlight Duplicates</span>
-          </label>
-        </div>
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => pipelineDebugger.clear()}
-            className="flex items-center gap-2 px-3 py-1 rounded bg-red-500/10 border border-red-500/20 text-[9px] font-mono text-red-400 hover:bg-red-500/20 transition-all uppercase tracking-tighter"
-          >
-            <Trash2 className="w-3 h-3" /> Clear Buffer
-          </button>
-          <div className="h-4 w-px bg-white/10 mx-1" />
-          <div className="text-[10px] font-mono text-white/20 uppercase tracking-widest">
-            Buffer: <span className="text-white/50">{logs.length}/500</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid of Columns */}
-      <div className="flex-1 overflow-x-auto min-w-0">
-        <div className="flex h-full min-w-[1250px]">
-          <div className="flex-1 min-w-[250px]">
-            <FeedColumn 
-              items={stageLogs('FEED')} 
-              selectedId={selectedId} 
-              onSelect={setSelectedId} 
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <NewsColumn 
-              items={stageLogs('NEWS')} 
-              selectedId={selectedId} 
-              onSelect={setSelectedId}
-              highlightDuplicates={highlightDuplicates}
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <SignalsColumn 
-              items={stageLogs('SIGNALS')} 
-              selectedId={selectedId} 
-              onSelect={setSelectedId} 
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <EventsColumn 
-              items={stageLogs('EVENTS')} 
-              selectedId={selectedId} 
-              onSelect={setSelectedId} 
-            />
-          </div>
-          <div className="flex-1 min-w-[250px]">
-            <PipelineLogColumn 
-              items={stageLogs('PIPELINE')} 
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── DATABASE TAB ──────────────────────────────────────────────────────────
-
-const DatabaseTab: React.FC = () => {
-  const { metrics } = useObservability();
-  const [dbStats, setDbStats] = useState<any[]>([]);
-  const [timeSeries, setTimeSeries] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDbMetadata = async () => {
-      setLoading(true);
-      try {
-        const tables = ['articles', 'events', 'signals', 'narratives', 'audit_logs'];
-        const stats = await Promise.all(tables.map(async (table) => {
-          const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
-          return { name: table, count: count || 0, error };
-        }));
-        setDbStats(stats);
-
-        // Fetch last 7 days of article ingestion for flow graph
-        const { data: recent, error: flowError } = await supabase
-          .from('articles')
-          .select('created_at')
-          .order('created_at', { ascending: false })
-          .limit(1000);
-
-        if (!flowError && recent) {
-          const days: Record<string, number> = {};
-          recent.forEach(r => {
-            const date = new Date(r.created_at).toLocaleDateString();
-            days[date] = (days[date] || 0) + 1;
-          });
-          const chartData = Object.entries(days).map(([date, count]) => ({ date, count })).reverse();
-          setTimeSeries(chartData);
-        }
-      } catch (e) {
-        console.error("Database metadata fetch failed", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDbMetadata();
-  }, []);
-
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Real-time Activity Card */}
-        <div className="lg:col-span-1 bg-[#0b0b0f] border border-white/5 rounded-2xl p-6">
-          <SectionHeader icon={Activity} title="Live I/O Stream" subtitle="Database interaction metrics" />
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Active Writes</span>
-                <span className="text-2xl font-bold font-mono text-emerald-400">{metrics.dbWriteCount || 0}</span>
-              </div>
-              <div className="flex flex-col text-right">
-                <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Active Reads</span>
-                <span className="text-2xl font-bold font-mono text-blue-400">{metrics.dbReadCount || 1}</span>
-              </div>
-            </div>
-            
-            <div className="h-24 w-full overflow-hidden">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                <AreaChart data={timeSeries.slice(-10)}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="count" stroke="#10b981" fillOpacity={1} fill="url(#colorCount)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="pt-4 border-t border-white/5 space-y-3">
-              <div className="flex justify-between items-center text-[10px] font-mono">
-                <span className="text-white/40 uppercase">Connection Pool</span>
-                <span className="text-emerald-400 font-bold">STABLE</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] font-mono">
-                <span className="text-white/40 uppercase">Transaction Latency</span>
-                <span className="text-white/60">42ms</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Storage Distribution */}
-        <div className="lg:col-span-2 bg-[#0b0b0f] border border-white/5 rounded-2xl p-6">
-          <SectionHeader icon={Database} title="Storage Matrix" subtitle="Global table distribution" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {dbStats.map((stat, i) => (
-              <div key={stat.name} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="text-[8px] font-mono text-white/30 uppercase mb-1">{stat.name}</div>
-                <div className="text-xl font-bold font-mono text-white/90">{stat.count.toLocaleString()}</div>
               </div>
             ))}
           </div>
-          
-          <div className="h-64 w-full overflow-hidden">
-             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-                <AreaChart data={timeSeries}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="rgba(255,255,255,0.2)" 
-                    fontSize={8} 
-                    fontFamily="monospace"
-                  />
-                  <YAxis 
-                    stroke="rgba(255,255,255,0.2)" 
-                    fontSize={8} 
-                    fontFamily="monospace"
-                  />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#0a0a0f', border: '1px solid rgba(255,255,255,0.1)', fontSize: '10px', fontFamily: 'monospace' }}
-                  />
-                  <Area type="stepBefore" dataKey="count" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} />
-                </AreaChart>
-             </ResponsiveContainer>
-          </div>
         </div>
-      </div>
 
-      {/* Real-time Query Monitor */}
-      <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/5 flex items-center justify-between">
-           <SectionHeader icon={Terminal} title="Query Monitor" subtitle="Active transaction listeners" />
-           <div className="flex items-center gap-2">
-             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-             <span className="text-[10px] font-mono text-white/40 uppercase">AWAITING TRANSACTIONS...</span>
-           </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left font-mono text-[10px]">
-            <thead>
-              <tr className="border-b border-white/5 text-white/20 uppercase tracking-widest">
-                <th className="px-6 py-4 font-bold">Transaction ID</th>
-                <th className="px-6 py-4 font-bold">Operation</th>
-                <th className="px-6 py-4 font-bold">Schema</th>
-                <th className="px-6 py-4 font-bold">Result</th>
-                <th className="px-6 py-4 font-bold">Execution</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.03]">
-              {[
-                { id: 'tx_8291_a', op: 'INSERT', schema: 'articles', res: 'SUCCESS', exec: '12ms' },
-                { id: 'tx_8292_b', op: 'SELECT', schema: 'events', res: 'SUCCESS', exec: '8ms' },
-                { id: 'tx_8293_c', op: 'UPDATE', schema: 'audit_logs', res: 'SUCCESS', exec: '24ms' },
-                { id: 'tx_8294_d', op: 'DELETE', schema: 'cache_tmp', res: 'SUCCESS', exec: '4ms' },
-              ].map((tx) => (
-                <tr key={tx.id} className="hover:bg-white/[0.02] text-white/60">
-                  <td className="px-6 py-3 font-bold text-white/40">{tx.id}</td>
-                  <td className="px-6 py-3">
-                    <span className={`px-1.5 py-0.5 rounded ${tx.op === 'INSERT' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                      {tx.op}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3">{tx.schema}</td>
-                  <td className="px-6 py-3 text-emerald-400/70">{tx.res}</td>
-                  <td className="px-6 py-3 text-white/20">{tx.exec}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Recent terminal logs */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5 flex flex-col">
+          <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Terminal className="w-3.5 h-3.5" />
+            Recent Pipeline Events
+          </div>
+          <div className="flex-1 overflow-y-auto space-y-1 no-scrollbar font-mono text-[9px]">
+            {logs.slice(0, 12).map((log, i) => (
+              <div key={i} className="flex gap-3 py-1 border-b border-white/[0.03] hover:bg-white/[0.02]">
+                <span className="text-white/20 shrink-0">{String(log.timestamp).split('T')[1]?.slice(0, 8) || '—'}</span>
+                <span className={`w-16 shrink-0 font-bold ${log.level === 'ERROR' ? 'text-red-500' : log.level === 'WARN' ? 'text-amber-500' : 'text-emerald-500'}`}>[{log.stage}]</span>
+                <span className="text-white/50 truncate">{log.message}</span>
+              </div>
+            ))}
+            {logs.length === 0 && <div className="text-white/10 text-center py-8 italic">No events yet…</div>}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-// ─── TEST SUITE TAB ──────────────────────────────────────────────────────────
+// ─── PIPELINE DEBUGGER TAB ───────────────────────────────────────────────────
+
+const DebuggerTab: React.FC<{ jumpToStage?: string }> = ({ jumpToStage }) => {
+  const [logs, setLogs] = useState<DebugLog[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showInvalid, setShowInvalid] = useState(true);
+  const [highlightDuplicates, setHighlightDuplicates] = useState(true);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  const stats = useMemo(() => {
+    const c = { FEED: 0, NEWS: 0, SIGNALS: 0, EVENTS: 0, PIPELINE: 0, dropped: 0, error: 0 };
+    logs.forEach(l => {
+      c[l.stage as keyof typeof c] = ((c[l.stage as keyof typeof c] as number) || 0) + 1;
+      if (l.status === 'dropped') c.dropped++;
+      if (l.status === 'error') c.error++;
+    });
+    return c;
+  }, [logs]);
+
+  useEffect(() => {
+    const unsub = pipelineDebugger.subscribe((newLog) => {
+      if (isPaused) return;
+      if (newLog.id) setLogs(prev => [newLog, ...prev].slice(0, 500));
+      else setLogs([]);
+    });
+    setLogs(pipelineDebugger.getLogs());
+    return () => unsub();
+  }, [isPaused]);
+
+  useEffect(() => {
+    const articleCh = supabase.channel('scc-debug-news')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'articles' }, (payload) => {
+        if (isPaused) return;
+        pipelineDebugger.log('NEWS', 'valid', `DB INSERT: ${payload.new.title}`, payload.new);
+      }).subscribe();
+    const eventCh = supabase.channel('scc-debug-events')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, (payload) => {
+        if (isPaused) return;
+        const d = payload.new as any;
+        pipelineDebugger.log('EVENTS', 'valid', `${payload.eventType}: ${d.title || 'Untitled'}`, payload.new);
+      }).subscribe();
+    return () => {
+      supabase.removeChannel(articleCh);
+      supabase.removeChannel(eventCh);
+    };
+  }, [isPaused]);
+
+  const filteredLogs = useMemo(() => showInvalid ? logs : logs.filter(l => l.status === 'valid'), [logs, showInvalid]);
+  const feedItems = useMemo(() => filteredLogs.filter(l => l.stage === 'FEED'), [filteredLogs]);
+  const newsItems = useMemo(() => filteredLogs.filter(l => l.stage === 'NEWS'), [filteredLogs]);
+  const signalItems = useMemo(() => filteredLogs.filter(l => l.stage === 'SIGNALS'), [filteredLogs]);
+  const eventItems = useMemo(() => filteredLogs.filter(l => l.stage === 'EVENTS'), [filteredLogs]);
+  const pipeLogs = useMemo(() => logs.filter(l => l.stage === 'PIPELINE' || l.status === 'error' || l.status === 'dropped'), [logs]);
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Debugger controls */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-black/40 shrink-0">
+        <div className="flex items-center gap-4 text-[10px] font-mono uppercase tracking-wider text-white/30">
+          <span className="flex items-center gap-1"><Radio className="w-3 h-3 text-blue-400" /> Feed: <span className="text-white/70">{stats.FEED}</span></span>
+          <span className="flex items-center gap-1"><Database className="w-3 h-3 text-emerald-400" /> News: <span className="text-white/70">{stats.NEWS}</span></span>
+          <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-orange-400" /> Signals: <span className="text-white/70">{stats.SIGNALS}</span></span>
+          <span className="flex items-center gap-1"><Activity className="w-3 h-3 text-purple-400" /> Events: <span className="text-white/70">{stats.EVENTS}</span></span>
+          <span className="flex items-center gap-1 text-red-400/70"><AlertTriangle className="w-3 h-3" /> Drops: {stats.dropped}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase font-mono border transition-all ${isPaused ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}
+          >
+            {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+            {isPaused ? 'Paused' : 'Live'}
+          </button>
+          <button onClick={() => setShowInvalid(!showInvalid)} className={`p-1.5 rounded-lg border transition-all ${showInvalid ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-white/30 border-white/10'}`} title="Toggle invalid items">
+            <Filter className="w-3.5 h-3.5" />
+          </button>
+          <button onClick={() => pipelineDebugger.clear()} className="p-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition-all" title="Clear buffer">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* 5-column grid */}
+      <div className="flex-1 grid grid-cols-5 gap-px bg-white/5 overflow-hidden min-h-0">
+        <FeedColumn items={feedItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+        <NewsColumn items={newsItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} highlightDuplicates={highlightDuplicates} />
+        <SignalsColumn items={signalItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+        <EventsColumn items={eventItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+        <PipelineLogColumn items={pipeLogs} />
+      </div>
+
+      {/* Trace footer */}
+      <AnimatePresence>
+        {selectedItemId && (
+          <motion.div
+            initial={{ y: 80 }} animate={{ y: 0 }} exit={{ y: 80 }}
+            className="h-20 bg-black/95 border-t border-emerald-500/30 absolute bottom-0 left-0 right-0 z-20 px-6 flex items-center gap-8"
+          >
+            <div className="flex-1">
+              <span className="text-[9px] text-emerald-500 uppercase font-bold tracking-widest block mb-0.5">Active Trace</span>
+              <span className="text-white text-xs truncate block font-mono">{selectedItemId}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              {['FEED', 'NEWS', 'SIGNAL', 'EVENT', 'RRI'].map((step, i, arr) => (
+                <React.Fragment key={step}>
+                  <div className="flex flex-col items-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] mb-1" />
+                    <span className="text-[8px] font-bold text-emerald-400">{step}</span>
+                  </div>
+                  {i < arr.length - 1 && <ArrowRight className="w-3 h-3 text-white/20" />}
+                </React.Fragment>
+              ))}
+            </div>
+            <button onClick={() => setSelectedItemId(null)} className="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-[10px] font-bold border border-emerald-500/20 font-mono uppercase">
+              Exit Trace
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ─── TEST SUITE TAB ───────────────────────────────────────────────────────────
+
+const INITIAL_TESTS: TestResult[] = [
+  // RSS
+  { id: 'rss-ping', label: 'RSS Feed Reachability', status: 'idle', message: 'Test RSS endpoint connectivity' },
+  { id: 'rss-sync', label: 'Force Full RSS Sync', status: 'idle', message: 'Trigger fetchAllFeeds()' },
+  { id: 'rss-parse', label: 'RSS Parse Validation', status: 'idle', message: 'Check article parse output' },
+  // Database
+  { id: 'db-ping', label: 'Supabase Ping', status: 'idle', message: 'Test DB connection' },
+  { id: 'db-articles', label: 'Articles Table Count', status: 'idle', message: 'SELECT count(*) FROM articles' },
+  { id: 'db-events', label: 'Events Table Count', status: 'idle', message: 'SELECT count(*) FROM events' },
+  { id: 'db-dupes', label: 'Duplicate Article Check', status: 'idle', message: 'Scan for duplicate IDs' },
+  { id: 'db-schema', label: 'Schema Validation', status: 'idle', message: 'Verify required fields on recent rows' },
+  // AI
+  { id: 'ai-ping', label: 'Gemini API Health', status: 'idle', message: 'GET /api/health → check key status' },
+  { id: 'ai-classify', label: 'Test Classification', status: 'idle', message: 'Run sample article through classifier' },
+  { id: 'ai-proxy', label: 'AI Proxy Route', status: 'idle', message: 'Test /api/ai endpoint' },
+  // RRI
+  { id: 'rri-calc', label: 'RRI Recalculation', status: 'idle', message: 'Trigger recalculateRRI()' },
+  { id: 'rri-vars', label: 'Variable Count Check', status: 'idle', message: 'Verify 250 variables loaded' },
+  { id: 'rri-output', label: 'RRI Output Sanity', status: 'idle', message: 'Check R(t) is within 0–5 range' },
+];
+
+const GROUPS = [
+  { id: 'rss', label: 'RSS Feed', icon: Globe, color: 'text-blue-400', borderColor: 'border-blue-500/20', ids: ['rss-ping', 'rss-sync', 'rss-parse'] },
+  { id: 'db', label: 'Database', icon: Database, color: 'text-emerald-400', borderColor: 'border-emerald-500/20', ids: ['db-ping', 'db-articles', 'db-events', 'db-dupes', 'db-schema'] },
+  { id: 'ai', label: 'AI / Gemini', icon: Cpu, color: 'text-amber-400', borderColor: 'border-amber-500/20', ids: ['ai-ping', 'ai-classify', 'ai-proxy'] },
+  { id: 'rri', label: 'RRI Engine', icon: BarChart3, color: 'text-red-400', borderColor: 'border-red-500/20', ids: ['rri-calc', 'rri-vars', 'rri-output'] },
+];
 
 const TestSuite: React.FC = () => {
+  const [tests, setTests] = useState<TestResult[]>(INITIAL_TESTS);
   const { recalculateRRI, data } = usePipeline();
   const { fetchNow } = useRSS();
   const [isRunningAll, setIsRunningAll] = useState(false);
-  const [tests, setTests] = useState<TestResult[]>([
-    { id: 'rss-ping', label: 'RSS Feed Reachability', status: 'idle', message: 'Ready' },
-    { id: 'rss-sync', label: 'Force Full RSS Sync', status: 'idle', message: 'Ready' },
-    { id: 'db-ping', label: 'Supabase Database Ping', status: 'idle', message: 'Ready' },
-    { id: 'db-articles', label: 'Article Table Count', status: 'idle', message: 'Ready' },
-    { id: 'tg-ping', label: 'Telegram Bot API Link', status: 'idle', message: 'Ready' },
-    { id: 'tg-ingest', label: 'Telegram Ingestion Test', status: 'idle', message: 'Ready' },
-    { id: 'ai-ping', label: 'Gemini API Health', status: 'idle', message: 'Ready' },
-    { id: 'ai-proxy', label: 'AI Proxy Reachability', status: 'idle', message: 'Ready' },
-    { id: 'rri-vars', label: 'RRI Variable Check', status: 'idle', message: 'Ready' },
-    { id: 'rri-output', label: 'RRI Outcome Sanity', status: 'idle', message: 'Ready' },
-  ]);
+
+  const setTest = (id: string, patch: Partial<TestResult>) =>
+    setTests(prev => prev.map(t => t.id === id ? { ...t, ...patch } : t));
 
   const runTest = useCallback(async (id: string) => {
     const start = Date.now();
-    setTests(prev => prev.map(t => t.id === id ? { ...t, status: 'running', message: 'Executing...' } : t));
+    setTest(id, { status: 'running', message: 'Running…' });
 
     try {
-      let message = 'Verification Complete';
-      let status: 'pass' | 'fail' = 'pass';
-      let detail = '';
-
       switch (id) {
+
         case 'rss-ping': {
-          const feedUrl = encodeURIComponent('https://africanmanager.com/feed/');
-          const res = await fetch(`/api/rss?url=${feedUrl}`);
+          const res = await fetch('/api/rss', { method: 'GET' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          message = 'Endpoint Reachable';
+          const ms = Date.now() - start;
+          setTest(id, { status: 'pass', message: `Endpoint reachable`, latencyMs: ms, detail: `Status ${res.status}` });
           break;
         }
+
         case 'rss-sync': {
           await fetchNow(true);
-          message = 'Sync Signal Emitted';
+          const ms = Date.now() - start;
+          setTest(id, { status: 'pass', message: 'Full sync triggered', latencyMs: ms, detail: `ingestionMetrics.successCount: ${ingestionMetrics.successCount}` });
           break;
         }
+
+        case 'rss-parse': {
+          const count = ingestionMetrics.successCount || 0;
+          const ms = Date.now() - start;
+          if (count === 0) setTest(id, { status: 'fail', message: 'No articles parsed yet', latencyMs: ms });
+          else setTest(id, { status: 'pass', message: `${count} articles parsed successfully`, latencyMs: ms });
+          break;
+        }
+
         case 'db-ping': {
           const { error } = await supabase.from('articles').select('id').limit(1);
+          const ms = Date.now() - start;
           if (error) throw error;
-          message = 'PostgreSQL Link Active';
+          setTest(id, { status: 'pass', message: 'Connection OK', latencyMs: ms });
           break;
         }
+
         case 'db-articles': {
           const { count, error } = await supabase.from('articles').select('*', { count: 'exact', head: true });
+          const ms = Date.now() - start;
           if (error) throw error;
-          message = `${count?.toLocaleString()} Rows Detected`;
+          setTest(id, { status: count! > 0 ? 'pass' : 'fail', message: `${count?.toLocaleString()} rows`, latencyMs: ms, detail: count === 0 ? 'Table empty — pipeline not writing' : undefined });
           break;
         }
-        case 'tg-ping': {
-          const res = await fetch('/api/health');
-          const json = await res.json();
-          const ok = json.telegram?.token_exists;
-          if (!ok) { status = 'fail'; message = 'Bot Token Missing'; }
-          else message = 'Token Validated';
+
+        case 'db-events': {
+          const { count, error } = await supabase.from('events').select('*', { count: 'exact', head: true });
+          const ms = Date.now() - start;
+          if (error) throw error;
+          setTest(id, { status: 'pass', message: `${count?.toLocaleString()} rows`, latencyMs: ms });
           break;
         }
-        case 'tg-ingest': {
-          const result = await ingestTelegramManually();
-          if (result.errors.length > 0) throw new Error(result.errors[0]);
-          message = `Processed ${result.totalArticlesHandled} items (${result.newArticles} new)`;
+
+        case 'db-dupes': {
+          const { data: rows, error } = await supabase.from('articles').select('id').limit(500);
+          const ms = Date.now() - start;
+          if (error) throw error;
+          const ids = rows!.map(r => r.id);
+          const dupes = ids.length - new Set(ids).size;
+          setTest(id, {
+            status: dupes === 0 ? 'pass' : 'fail',
+            message: dupes === 0 ? 'No duplicates found' : `${dupes} duplicate IDs detected`,
+            latencyMs: ms,
+            detail: `Checked ${ids.length} rows`,
+          });
           break;
         }
+
+        case 'db-schema': {
+          const { data: rows, error } = await supabase.from('articles').select('id,title,source_name,severity,created_at').limit(5);
+          const ms = Date.now() - start;
+          if (error) throw error;
+          const issues = rows!.filter(r => !r.id || !r.title || !r.source_name).length;
+          setTest(id, {
+            status: issues === 0 ? 'pass' : 'fail',
+            message: issues === 0 ? 'Schema valid on recent rows' : `${issues} rows missing required fields`,
+            latencyMs: ms,
+          });
+          break;
+        }
+
         case 'ai-ping': {
           const res = await fetch('/api/health');
           const json = await res.json();
-          const ok = json.gemini?.key_exists && !json.gemini?.key_is_placeholder;
-          if (!ok) { status = 'fail'; message = 'Key Missing or Placeholder'; }
-          else message = 'Gemini API Validated';
+          const ms = Date.now() - start;
+          const geminiOk = json.gemini?.key_exists && !json.gemini?.key_is_placeholder;
+          setTest(id, {
+            status: geminiOk ? 'pass' : 'fail',
+            message: geminiOk ? 'Gemini API key valid' : 'Key missing or placeholder',
+            latencyMs: ms,
+            detail: `key_exists: ${json.gemini?.key_exists}, placeholder: ${json.gemini?.key_is_placeholder}`,
+          });
           break;
         }
+
+        case 'ai-classify': {
+          const res = await fetch('/api/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: 'Classify severity 1-5 for: "Protests in Tunis over rising bread prices". Reply with just a number.' }),
+          });
+          const ms = Date.now() - start;
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = await res.json();
+          const reply = json.response?.trim();
+          setTest(id, { status: 'pass', message: `Model replied: "${reply}"`, latencyMs: ms });
+          break;
+        }
+
         case 'ai-proxy': {
           const res = await fetch('/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: 'Reply: PROXY_OK' }),
+            body: JSON.stringify({ prompt: 'Reply with exactly: PROXY_OK' }),
           });
-          if (!res.ok) throw new Error('Proxy Unreachable');
-          message = 'Inference Pipeline Clear';
+          const ms = Date.now() - start;
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          setTest(id, { status: 'pass', message: 'AI proxy route reachable', latencyMs: ms, detail: `Status ${res.status}` });
           break;
         }
-        case 'rri-vars': {
-          const count = data?.variables ? Object.keys(data.variables).length : 0;
-          if (count < 200) { status = 'fail'; message = `Low Variable Yield: ${count}`; }
-          else message = `${count} Variables Active`;
-          break;
-        }
-        case 'rri-output': {
-          const val = data?.rri?.rri;
-          if (val === undefined || val === null) { status = 'fail'; message = 'Invalid RRI Output'; }
-          else message = `Outcome: ${val.toFixed(3)}`;
-          break;
-        }
-      }
 
-      setTests(prev => prev.map(t => t.id === id ? { 
-        ...t, 
-        status, 
-        message, 
-        latencyMs: Date.now() - start,
-        ts: Date.now()
-      } : t));
-    } catch (e: any) {
-      setTests(prev => prev.map(t => t.id === id ? { ...t, status: 'fail', message: e.message || 'IO Fail' } : t));
+        case 'rri-calc': {
+          recalculateRRI();
+          await new Promise(r => setTimeout(r, 600));
+          const ms = Date.now() - start;
+          setTest(id, { status: 'pass', message: 'Recalculation triggered', latencyMs: ms });
+          break;
+        }
+
+        case 'rri-vars': {
+          const ms = Date.now() - start;
+          const varCount = data?.variables ? Object.keys(data.variables).length : 0;
+          setTest(id, {
+            status: varCount >= 240 ? 'pass' : varCount > 0 ? 'fail' : 'fail',
+            message: `${varCount} variables loaded`,
+            latencyMs: ms,
+            detail: varCount < 240 ? `Expected 250, got ${varCount}` : undefined,
+          });
+          break;
+        }
+
+        case 'rri-output': {
+          const ms = Date.now() - start;
+          const rri = data?.rri ?? null;
+          if (rri === null) { setTest(id, { status: 'fail', message: 'R(t) is null — not calculated', latencyMs: ms }); break; }
+          const ok = rri >= 0 && rri <= 5;
+          setTest(id, {
+            status: ok ? 'pass' : 'fail',
+            message: ok ? `R(t) = ${rri.toFixed(3)} — within range` : `R(t) = ${rri.toFixed(3)} — OUT OF RANGE`,
+            latencyMs: ms,
+          });
+          break;
+        }
+
+        default:
+          setTest(id, { status: 'fail', message: 'Unknown test', latencyMs: Date.now() - start });
+      }
+    } catch (err: any) {
+      setTest(id, { status: 'fail', message: err.message || 'Unknown error', latencyMs: Date.now() - start });
     }
-  }, [data, fetchNow]);
+  }, [recalculateRRI, fetchNow, data]);
 
   const runAll = async () => {
     setIsRunningAll(true);
-    for (const test of tests) {
-      await runTest(test.id);
+    for (const t of INITIAL_TESTS) {
+      await runTest(t.id);
+      await new Promise(r => setTimeout(r, 120));
     }
     setIsRunningAll(false);
   };
 
+  const resetAll = () => setTests(INITIAL_TESTS);
+
+  const passCount = tests.filter(t => t.status === 'pass').length;
+  const failCount = tests.filter(t => t.status === 'fail').length;
+  const runningCount = tests.filter(t => t.status === 'running').length;
+
   return (
-    <div className="bg-[#0b0b0f] border border-white/5 rounded-2xl p-6 lg:p-8 animate-in zoom-in-95 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <SectionHeader icon={FlaskConical} title="System Validation Suite" subtitle="Comprehensive pipeline integrity testing" />
-        <div className="flex flex-wrap gap-3">
-          <button onClick={() => setTests(prev => prev.map(t => ({ ...t, status: 'idle', message: 'Reset' })))} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-white/40 hover:bg-white/10 transition-colors uppercase tracking-widest">RESET ALL</button>
-          <button onClick={runAll} disabled={isRunningAll} className="px-6 py-2 rounded-xl bg-emerald-500 text-black text-xs font-bold font-mono tracking-[0.2em] shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-            {isRunningAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3 fill-current" />}
-            STRESS TEST CLUSTER
+    <div className="flex flex-col h-full overflow-y-auto pr-1 no-scrollbar space-y-5">
+      {/* Header strip */}
+      <div className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0">
+        <div className="flex items-center gap-6 text-[10px] font-mono">
+          <span className="text-white/30 uppercase tracking-widest">Test Results</span>
+          <span className="text-emerald-400 font-bold">{passCount} PASS</span>
+          <span className="text-red-400 font-bold">{failCount} FAIL</span>
+          {runningCount > 0 && <span className="text-amber-400 font-bold animate-pulse">{runningCount} RUNNING</span>}
+          <span className="text-white/20">{tests.filter(t => t.status === 'idle').length} IDLE</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={resetAll}
+            className="px-3 py-2 bg-white/5 text-white/40 border border-white/10 rounded-lg text-[10px] font-mono uppercase font-bold hover:text-white transition-all"
+          >
+            Reset All
+          </button>
+          <button
+            onClick={runAll}
+            disabled={isRunningAll}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-lg text-[10px] font-mono uppercase font-bold hover:bg-emerald-500/25 transition-all disabled:opacity-50"
+          >
+            {isRunningAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <FlaskConical className="w-3 h-3" />}
+            {isRunningAll ? 'Running…' : 'Run All Tests'}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {tests.map((test) => (
-          <div key={test.id} className="relative bg-white/[0.02] border border-white/5 rounded-xl p-5 group hover:border-white/10 transition-all">
-            <div className="flex items-center justify-between mb-4">
-               <span className="text-[10px] font-mono text-white/20 tracking-tighter">REF: {test.id.toUpperCase()}</span>
-               {test.status === 'running' ? (
-                 <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
-               ) : test.status === 'pass' ? (
-                 <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-               ) : test.status === 'fail' ? (
-                 <XCircle className="w-4 h-4 text-red-500" />
-               ) : (
-                 <div className="w-4 h-4 rounded-full border border-white/10" />
-               )}
-            </div>
-            <h4 className="text-sm font-mono text-white/80 font-bold mb-1">{test.label}</h4>
-            <p className={`text-[10px] font-mono ${test.status === 'fail' ? 'text-red-400' : 'text-white/30'}`}>{test.message}</p>
-            
-            {test.latencyMs && (
-              <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">Latency</span>
-                <span className="text-[10px] font-mono text-white/60 font-bold">{test.latencyMs.toFixed(1)}ms</span>
-              </div>
-            )}
+      {/* Test groups */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {GROUPS.map(group => {
+          const Icon = group.icon;
+          const groupTests = tests.filter(t => group.ids.includes(t.id));
+          const groupPass = groupTests.filter(t => t.status === 'pass').length;
+          const groupFail = groupTests.filter(t => t.status === 'fail').length;
 
-            {test.status === 'running' && (
-              <div className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500/20 overflow-hidden rounded-b-xl">
-                <motion.div initial={{ x: '-100%' }} animate={{ x: '100%' }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-1/2 h-full bg-emerald-500" />
+          return (
+            <div key={group.id} className={`bg-[#0a0a0c] border ${group.borderColor} rounded-xl overflow-hidden`}>
+              <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-black/20">
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${group.color}`} />
+                  <span className={`text-[10px] font-bold font-mono uppercase tracking-widest ${group.color}`}>{group.label}</span>
+                </div>
+                <div className="flex items-center gap-3 text-[9px] font-mono">
+                  {groupPass > 0 && <span className="text-emerald-400">{groupPass}✓</span>}
+                  {groupFail > 0 && <span className="text-red-400">{groupFail}✗</span>}
+                  <button
+                    onClick={() => group.ids.forEach(id => runTest(id))}
+                    className={`px-2 py-1 rounded border text-[8px] font-bold uppercase font-mono transition-all ${group.color} border-current/30 hover:bg-current/10 opacity-70 hover:opacity-100`}
+                  >
+                    Run Group
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
-        ))}
+              <div className="divide-y divide-white/[0.04]">
+                {groupTests.map(test => (
+                  <div key={test.id} className="flex items-start gap-4 px-5 py-3 hover:bg-white/[0.02] transition-colors group">
+                    {/* Status icon */}
+                    <div className="mt-0.5 shrink-0 w-4">
+                      {test.status === 'idle' && <div className="w-2 h-2 rounded-full bg-white/10 mt-1" />}
+                      {test.status === 'running' && <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />}
+                      {test.status === 'pass' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                      {test.status === 'fail' && <XCircle className="w-3.5 h-3.5 text-red-400" />}
+                    </div>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-mono text-white/80">{test.label}</span>
+                        {test.latencyMs !== undefined && (
+                          <span className={`text-[9px] font-mono shrink-0 ${test.latencyMs > 3000 ? 'text-amber-400' : 'text-white/30'}`}>{test.latencyMs}ms</span>
+                        )}
+                      </div>
+                      <div className={`text-[10px] font-mono mt-0.5 ${test.status === 'pass' ? 'text-emerald-400/70' : test.status === 'fail' ? 'text-red-400/70' : 'text-white/20'}`}>
+                        {test.message}
+                      </div>
+                      {test.detail && (
+                        <div className="text-[9px] font-mono text-white/20 mt-0.5 bg-white/[0.03] px-2 py-1 rounded">{test.detail}</div>
+                      )}
+                    </div>
+                    {/* Run button */}
+                    <button
+                      onClick={() => runTest(test.id)}
+                      disabled={test.status === 'running'}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 px-2 py-1 bg-white/5 hover:bg-white/10 text-white/40 hover:text-white rounded text-[8px] font-mono uppercase font-bold disabled:opacity-20"
+                    >
+                      Run
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-// ─── MAIN SYSTEM COMMAND CENTER ─────────────────────────────────────────────
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface SystemCommandCenterProps {
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('MISSION');
-  const { metrics, updateMetrics } = useObservability();
-  const {} = useRSS();
-  const { isPaused } = usePipeline();
-  
-  useEffect(() => {
-    const fetchInitialCounts = async () => {
-        try {
-          const { count: articleCount } = await supabase.from('articles').select('*', { count: 'exact', head: true });
-          const { count: eventCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
-          updateMetrics({ 
-            newsCount: articleCount || 0, 
-            eventCount: eventCount || 0,
-            signalCount: (eventCount || 0) * 2.5
-          });
-        } catch (e) {
-          console.error("Initial count fetch failed", e);
-        }
-    };
-    fetchInitialCounts();
-  }, [updateMetrics]);
-  
-  const combinedMetrics = useMemo(() => ({
-    ...metrics,
-    pipeline: isPaused ? 'PAUSED' : 'ACTIVE',
-    ingestionRate: metrics?.ingestionRate || 0,
-    latencyMs: metrics?.latencyMs || 0,
-    loadFactor: (metrics?.dbWriteCount || 0) / 10,
-  }), [metrics, isPaused]);
+  const [jumpStage, setJumpStage] = useState<string | undefined>();
 
-  const { fetchNow, isFetching } = useRSS();
-
-  const [isTelegramFetching, setIsTelegramFetching] = useState(false);
-
-  const handleForceSync = async () => {
-    try {
-      await fetchNow(true);
-    } catch (e) {
-      console.error('Manual sync failed', e);
-    }
+  const handleJumpToDebugger = (stage?: string) => {
+    setJumpStage(stage);
+    setActiveTab('DEBUGGER');
   };
 
-  const handleResetSystem = () => {
-    if (window.confirm('Are you sure you want to reset the system? This will clear all locally saved configurations and refresh the page.')) {
-      window.localStorage.clear();
-      window.location.reload();
-    }
-  };
-
-  const handleTelegramSync = async () => {
-    setIsTelegramFetching(true);
-    try {
-      await ingestTelegramManually();
-      window.dispatchEvent(new CustomEvent('sync-completed', {
-        detail: { newArticles: '?', totalHandled: '?', feeds: 1, errors: [] }
-      }));
-    } catch (e) {
-      console.error('Telegram sync failed', e);
-    } finally {
-      setIsTelegramFetching(false);
-    }
-  };
-
-  const tabs: { id: Tab; label: string; icon: any }[] = [
-    { id: 'MISSION', label: 'Mission Control', icon: Radio },
-    { id: 'FLOW', label: 'Flow ADM', icon: MapIcon },
-    { id: 'DEBUGGER', label: 'Pipeline Debugger', icon: Terminal },
-    { id: 'DATABASE', label: 'Database', icon: Database },
-    { id: 'TESTS', label: 'Global Tests', icon: FlaskConical },
+  const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+    { id: 'MISSION', label: 'Mission Control', icon: ShieldAlert },
+    { id: 'DEBUGGER', label: 'Pipeline Debugger', icon: Layers },
+    { id: 'TESTS', label: 'Test Suite', icon: FlaskConical },
   ];
 
   return (
-    <div className="flex flex-col h-full bg-[#030305] text-white">
-      {/* HUD Header */}
-      <div className="flex items-center justify-between px-8 py-5 border-b border-white/5 bg-[#070709] relative overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-               <ShieldAlert className="w-5 h-5 text-black" />
-             </div>
-             <div>
-                <h1 className="text-sm font-black font-mono uppercase tracking-[0.3em] text-white/90 leading-tight">System CommandCenter</h1>
-                <p className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest leading-tight">Sentinel Operational Node v4.0.2</p>
-             </div>
-          </div>
-          <div className="hidden lg:flex items-center gap-8 pl-8 border-l border-white/5">
-             <div className="space-y-1">
-                <div className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Network Status</div>
-                <div className="flex items-center gap-2">
-                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
-                   <span className="text-[10px] font-mono text-emerald-400 font-bold">SECURED</span>
-                </div>
-             </div>
-             <div className="space-y-1">
-                <div className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Decision Core</div>
-                <div className="flex items-center gap-2">
-                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_#3b82f6]" />
-                   <span className="text-[10px] font-mono text-blue-400 font-bold">ACTIVE</span>
-                </div>
-             </div>
-          </div>
-        </div>
+    <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
-        <div className="ml-auto flex items-center gap-4">
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-            <button
-              onClick={handleTelegramSync}
-              disabled={isTelegramFetching}
-              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-lg border border-indigo-500/30 transition-all mr-2 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 disabled:opacity-50`}
-            >
-              {isTelegramFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
-              {isTelegramFetching ? 'INGESTING...' : 'TELEGRAM SYNC'}
-            </button>
-            <button
-              onClick={handleForceSync}
-              disabled={isFetching}
-              className={`flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-lg border border-white/5 transition-all mr-4 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50`}
-            >
-              {isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-              {isFetching ? 'SYNCING...' : 'FORCE SYNC'}
-            </button>
-            {tabs.map(tab => {
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-5 h-5 text-red-500" />
+            <h1 className="text-sm font-bold tracking-widest text-white uppercase">System Command Center</h1>
+          </div>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
+            {TABS.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-2 px-5 py-2.5 text-[10px] font-mono uppercase tracking-[0.2em] transition-all rounded-lg overflow-hidden group ${
-                    activeTab === tab.id ? 'text-black' : 'text-white/40 hover:text-white/70'
-                  }`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}
                 >
-                  {activeTab === tab.id && (
-                    <motion.div layoutId="activeTab" className="absolute inset-0 bg-white" />
-                  )}
-                  <Icon className={`relative z-10 w-3.5 h-3.5 ${activeTab === tab.id ? 'text-black' : 'text-white/40 group-hover:text-white/60'}`} />
-                  <span className="relative z-10 font-bold">{tab.label}</span>
+                  <Icon className="w-3 h-3" />
+                  {tab.label}
                 </button>
               );
             })}
           </div>
-          
-          <div className="flex items-center gap-3">
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="p-2.5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors rounded-xl border border-white/10 bg-white/5 hover:border-red-500/50"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/20 uppercase">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            TunisiaIntel SCC v1.0
           </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-white/30 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Primary Viewport */}
-      <div className="flex-1 overflow-y-auto p-8 lg:p-12 scrollbar-thin scrollbar-thumb-white/10">
-        <div className="max-w-7xl mx-auto h-full">
-          {activeTab === 'MISSION' && <MissionControl metrics={combinedMetrics} />}
-          {activeTab === 'FLOW' && <FlowDiagram metrics={combinedMetrics} onNodeClick={() => setActiveTab('DEBUGGER')} />}
-          {activeTab === 'DEBUGGER' && <DebuggerTab />}
-          {activeTab === 'DATABASE' && <DatabaseTab />}
-          {activeTab === 'TESTS' && <TestSuite />}
-        </div>
-      </div>
-
-      {/* Footer Meta */}
-      <div className="px-8 py-3 border-t border-white/5 bg-[#070709] flex items-center justify-between text-[9px] font-mono text-white/20">
-        <div className="flex items-center gap-6">
-           <span className="flex items-center gap-2"><Globe className="w-3 h-3" /> NODE_LOC: EUROPE_W2</span>
-           <span className="flex items-center gap-2"><Cpu className="w-3 h-3" /> KER_STK: V8_ISOLATE</span>
-           <span className="flex items-center gap-2"><Settings className="w-3 h-3" /> CFG_MODE: PROD_HIGH_AVAIL</span>
-        </div>
-        <div className="flex items-center gap-2">
-           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-           UPTIME: 14D 08H 22M 14S
-        </div>
+      {/* Body */}
+      <div className="flex-1 overflow-hidden relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="h-full p-5"
+          >
+            {activeTab === 'MISSION' && <MissionControl onJumpToDebugger={handleJumpToDebugger} />}
+            {activeTab === 'DEBUGGER' && <DebuggerTab jumpToStage={jumpStage} />}
+            {activeTab === 'TESTS' && <TestSuite />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

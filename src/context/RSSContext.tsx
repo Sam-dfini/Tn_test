@@ -7,6 +7,12 @@ import {
   fetchAllFeeds, getRecentArticles
 } from '../services/rssService';
 import {
+  fetchAllTelegramChannels, telegramMetrics
+} from '../services/telegramService';
+import {
+  fetchAllNewsAPIs, newsApiMetrics
+} from '../services/newsApiService';
+import {
   addNotification, getNotifications, getUnreadCount,
   markAsRead, markAllAsRead
 } from '../services/notificationService';
@@ -56,15 +62,9 @@ export const RSSProvider: React.FC<{
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper to deduplicate arrays of items with an id
-  const deduplicateById = useCallback(<T extends Record<string, any>>(items: T[]): T[] => {
-    const seen = new Set<string>();
-    return items.filter(item => {
-      const id = String(item.id || item.event_id || '').trim();
-      if (!id || seen.has(id)) return false;
-      seen.add(id);
-      return true;
-    });
-  }, []);
+  const deduplicateById = <T extends Record<string, any>>(items: T[]): T[] => {
+    return prepareList(items) as unknown as T[];
+  };
 
   // Load recent intelligence from Supabase
   const loadData = useCallback(async () => {
@@ -120,32 +120,40 @@ export const RSSProvider: React.FC<{
     trackTrace("rss_fetch", "INGESTION", `RSS Fetch cycle started ${force ? "(Force)" : ""}`);
 
     try {
-      const result = await fetchAllFeeds({ force });
+      // Run RSS, Telegram, and News APIs concurrently
+      const [result, tgResult, apiResult] = await Promise.allSettled([
+        fetchAllFeeds({ force }),
+        fetchAllTelegramChannels({ force }),
+        fetchAllNewsAPIs({ force }),
+      ]);
+
+      const rss = result.status === 'fulfilled' ? result.value : { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
+      const tg = tgResult.status === 'fulfilled' ? tgResult.value : { newArticles: 0, channelsProcessed: 0, droppedByGeo: 0, errors: [] };
+      const api = apiResult.status === 'fulfilled' ? apiResult.value : { newArticles: 0, droppedByGeo: 0, errors: [] };
+
       if (!isMounted) return;
-      
+
+      const combinedNew = rss.newArticles + tg.newArticles + api.newArticles;
+      const combinedErrors = [...(rss.errors || []), ...(tg.errors || []), ...(api.errors || [])];
       const endTime = Date.now();
       const latency = endTime - startTime;
 
-      if (result.newArticles > 0) {
-        await loadData();
-        await loadNotifications();
-      }
-
-      setNewArticlesCount(result.newArticles);
-      setSyncErrors(result.errors || []);
+      setNewArticlesCount(combinedNew);
+      setSyncErrors(combinedErrors);
       setLastFetch(new Date());
 
-      // Update observability metrics
       updateMetrics({
-        feedCount: result.feedsProcessed || 0,
-        newsCount: result.totalArticlesHandled || 0,
-        ingestionRate: result.newArticles,
-        errorRate: (result.errors?.length || 0) / (result.feedsProcessed || 1),
+        feedCount: (rss.feedsProcessed || 0) + (tg.channelsProcessed || 0) + 3,
+        newsCount: (rss.totalArticlesHandled || 0) + tg.newArticles + api.newArticles,
+        ingestionRate: combinedNew,
+        errorRate: combinedErrors.length / Math.max(1, (rss.feedsProcessed || 0) + (tg.channelsProcessed || 0) + 3),
         latencyMs: latency,
-        lastIngestionTime: endTime
+        lastIngestionTime: endTime,
       });
 
-      trackTrace("rss_fetch", "INGESTION", `RSS Fetch cycle completed: ${result.newArticles} new articles`, { latency });
+      trackTrace('rss_fetch', 'INGESTION',
+        `Pipeline cycle: RSS +${rss.newArticles} | TG +${tg.newArticles} | API +${api.newArticles} | geo-dropped: ${(tg.droppedByGeo || 0) + (api.droppedByGeo || 0)}`,
+        { latency });
 
       // Visual feedback via custom event for UI to show toast
       window.dispatchEvent(new CustomEvent('sync-completed', {
@@ -214,19 +222,10 @@ export const RSSProvider: React.FC<{
     loadData();
     loadNotifications();
 
-    // POLLED INGESTION DISABLED - Manual Trigger Only
-    /*
+    // Trigger an initial fetch immediately if not busy (checks backend)
+    // We use a local flag to ensure this only runs once per mount even if dependencies change
     fetchNow();
-    fetchIntervalRef.current = setInterval(() => {
-      fetchNow();
-    }, 15 * 60 * 1000);
-    */
 
-    return () => {
-      if (fetchIntervalRef.current) {
-        clearInterval(fetchIntervalRef.current);
-      }
-    };
   }, []); // Only run once on mount
 
   // Realtime subscription via WebSocket
