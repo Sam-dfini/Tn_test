@@ -11,10 +11,14 @@ import {
 import { motion as m } from 'motion/react';
 import { supabase } from '../lib/supabase';
 import { pipelineDebugger, DebugLog } from '../services/debugService';
+import { prepareList } from '../lib/keyUtils';
 import { useObservability } from '../context/ObservabilityContext';
 import { useRSS } from '../context/RSSContext';
 import { usePipeline } from '../context/PipelineContext';
-import { fetchAllFeeds, ingestionMetrics } from '../services/rssService';
+import { fetchAllFeeds, ingestionMetrics, fetchRSSFeed, validateRSSSource } from '../services/rssService';
+import { RSS_SOURCES } from '../config/rssSources';
+import { TELEGRAM_CHANNELS, fetchTelegramChannel } from '../services/telegramService';
+import { fetchFromNewsAPI, fetchFromNewsData, fetchFromGNews } from '../services/newsApiService';
 import { FeedColumn } from './debug/FeedColumn';
 import { NewsColumn } from './debug/NewsColumn';
 import { SignalsColumn } from './debug/SignalsColumn';
@@ -23,7 +27,7 @@ import { PipelineLogColumn } from './debug/PipelineLogColumn';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG';
 
 interface TestResult {
   id: string;
@@ -527,7 +531,7 @@ const MissionControl: React.FC<{
   ];
 
   return (
-    <div className="flex flex-col space-y-4 h-full overflow-y-auto pr-1 no-scrollbar">
+    <div className="flex flex-col space-y-4 h-full overflow-y-auto pr-1">
 
       {/* Top strip: health + controls */}
       <div className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0">
@@ -625,7 +629,7 @@ const MissionControl: React.FC<{
             <Terminal className="w-3.5 h-3.5" />
             Recent Pipeline Events
           </div>
-          <div className="flex-1 overflow-y-auto space-y-1 no-scrollbar font-mono text-[9px]">
+          <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[9px]">
             {logs.slice(0, 12).map((log, i) => (
               <div key={i} className="flex gap-3 py-1 border-b border-white/[0.03] hover:bg-white/[0.02]">
                 <span className="text-white/20 shrink-0">{String(log.timestamp).split('T')[1]?.slice(0, 8) || '—'}</span>
@@ -667,7 +671,7 @@ const DebuggerTab: React.FC<{ jumpToStage?: string }> = ({ jumpToStage }) => {
       else setLogs([]);
     });
     setLogs(pipelineDebugger.getLogs());
-    return () => unsub();
+    return () => { unsub(); };
   }, [isPaused]);
 
   useEffect(() => {
@@ -724,7 +728,7 @@ const DebuggerTab: React.FC<{ jumpToStage?: string }> = ({ jumpToStage }) => {
       </div>
 
       {/* 5-column grid */}
-      <div className="flex-1 grid grid-cols-5 gap-px bg-white/5 overflow-hidden min-h-0">
+      <div className="flex-1 grid grid-cols-5 gap-px bg-white/5 overflow-hidden min-h-0 text-[10px]">
         <FeedColumn items={feedItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
         <NewsColumn items={newsItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} highlightDuplicates={highlightDuplicates} />
         <SignalsColumn items={signalItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
@@ -947,12 +951,12 @@ const TestSuite: React.FC = () => {
 
         case 'rri-output': {
           const ms = Date.now() - start;
-          const rri = data?.rri ?? null;
-          if (rri === null) { setTest(id, { status: 'fail', message: 'R(t) is null — not calculated', latencyMs: ms }); break; }
-          const ok = rri >= 0 && rri <= 5;
+          const rriValue = data?.rri?.rri ?? null;
+          if (rriValue === null) { setTest(id, { status: 'fail', message: 'R(t) is null — not calculated', latencyMs: ms }); break; }
+          const ok = rriValue >= 0 && rriValue <= 5;
           setTest(id, {
             status: ok ? 'pass' : 'fail',
-            message: ok ? `R(t) = ${rri.toFixed(3)} — within range` : `R(t) = ${rri.toFixed(3)} — OUT OF RANGE`,
+            message: ok ? `R(t) = ${rriValue.toFixed(3)} — within range` : `R(t) = ${rriValue.toFixed(3)} — OUT OF RANGE`,
             latencyMs: ms,
           });
           break;
@@ -982,7 +986,7 @@ const TestSuite: React.FC = () => {
   const runningCount = tests.filter(t => t.status === 'running').length;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto pr-1 no-scrollbar space-y-5">
+    <div className="flex flex-col h-full overflow-y-auto pr-1 space-y-5">
       {/* Header strip */}
       <div className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0">
         <div className="flex items-center gap-6 text-[10px] font-mono">
@@ -1080,6 +1084,179 @@ const TestSuite: React.FC = () => {
   );
 };
 
+// ─── SOURCE DEBUGGER TAB ─────────────────────────────────────────────────────
+
+const SourceDebuggerTab: React.FC = () => {
+  const [selectedSource, setSelectedSource] = useState<any | null>(null);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [statusMap, setStatusMap] = useState<Record<string, 'healthy' | 'warning' | 'failing' | 'idle' | 'testing'>>({});
+  const [isTestingAll, setIsTestingAll] = useState(false);
+
+  const allSources = useMemo(() => prepareList([
+    ...RSS_SOURCES.map(s => ({ ...s, id: s.id || s.url, group: 'RSS' })),
+    ...TELEGRAM_CHANNELS.map(s => ({ ...s, group: 'Telegram' })),
+    { id: 'newsapi', name: 'NewsAPI.org', group: 'API', type: 'api', url: 'https://newsapi.org' },
+    { id: 'newsdata', name: 'NewsData.io', group: 'API', type: 'api', url: 'https://newsdata.io' },
+    { id: 'gnews', name: 'GNews.io', group: 'API', type: 'api', url: 'https://gnews.io' },
+  ]), []);
+
+  const testSource = async (source: any) => {
+    setStatusMap(prev => ({ ...prev, [source.id]: 'testing' }));
+    try {
+      if (source.group === 'RSS') {
+        const res = await validateRSSSource(source.url);
+        // Check if actually has items
+        const data = await fetchRSSFeed(source);
+        if (res === 'failing') {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
+        } else if (res === 'degraded' || data.length === 0) {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        } else {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
+        }
+      } else if (source.group === 'Telegram') {
+        const data = await fetchTelegramChannel(source, 0);
+        setStatusMap(prev => ({ ...prev, [source.id]: data.length > 0 ? 'healthy' : 'warning' }));
+      } else {
+        // API Sources
+        let data: any[] = [];
+        if (source.id === 'newsapi') data = await fetchFromNewsAPI();
+        else if (source.id === 'newsdata') data = await fetchFromNewsData();
+        else if (source.id === 'gnews') data = await fetchFromGNews();
+        
+        if (data.length === 0) setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        else setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
+      }
+    } catch {
+      setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+    }
+  };
+
+  const testAll = async () => {
+    setIsTestingAll(true);
+    for (const source of allSources) {
+      await testSource(source);
+    }
+    setIsTestingAll(false);
+  };
+
+  const selectSource = async (source: any) => {
+    setSelectedSource(source);
+    setLoading(true);
+    setItems([]);
+    try {
+      let data: any[] = [];
+      if (source.group === 'RSS') {
+        data = await fetchRSSFeed(source);
+      } else if (source.group === 'Telegram') {
+        data = await fetchTelegramChannel(source);
+      } else if (source.id === 'newsapi') {
+        data = await fetchFromNewsAPI();
+      } else if (source.id === 'newsdata') {
+        data = await fetchFromNewsData();
+      } else if (source.id === 'gnews') {
+        data = await fetchFromGNews();
+      }
+      setItems(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex h-full gap-4 overflow-hidden">
+      {/* List Column */}
+      <div className="w-80 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden shrink-0">
+        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
+          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Data Sources</span>
+          <button 
+            onClick={testAll}
+            disabled={isTestingAll}
+            className="flex items-center gap-1.5 px-2 py-1 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded text-[9px] font-bold text-intel-cyan transition-all disabled:opacity-50"
+          >
+            {isTestingAll ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Wifi className="w-2.5 h-2.5" />}
+            Test All
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
+          {['RSS', 'Telegram', 'API'].map(group => (
+            <div key={group} className="mb-4">
+              <div className="px-2 py-1 text-[8px] font-bold text-white/20 uppercase tracking-tight">{group}</div>
+              {allSources.filter(s => s.group === group).map(source => (
+                <div 
+                  key={source.id}
+                  onClick={() => selectSource(source)}
+                  className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedSource?.id === source.id ? 'bg-intel-cyan/10 border border-intel-cyan/20' : 'hover:bg-white/5 border border-transparent'}`}
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <div className={`w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px] ${
+                      statusMap[source.id] === 'healthy' ? 'bg-emerald-500 shadow-emerald-500/40' : 
+                      statusMap[source.id] === 'warning' ? 'bg-amber-500 shadow-amber-500/40' :
+                      statusMap[source.id] === 'failing' ? 'bg-red-500 shadow-red-500/40' : 
+                      'bg-white/10 shadow-transparent'
+                    }`} />
+                    <span className={`text-[11px] truncate ${selectedSource?.id === source.id ? 'text-white font-bold' : 'text-white/60'}`}>{source.name}</span>
+                  </div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); testSource(source); }}
+                    className="p-1.5 hover:text-white text-white/20 hover:bg-white/5 rounded transition-all"
+                    title="Test Source"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${statusMap[source.id] === 'testing' ? 'animate-spin text-intel-cyan' : ''}`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Content Column */}
+      <div className="flex-1 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
+        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Send className="w-3.5 h-3.5 text-intel-cyan" />
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest">
+              {selectedSource ? selectedSource.name : 'Select a source'}
+              {selectedSource && <span className="ml-2 text-white/30 font-normal">({items.length} items)</span>}
+            </span>
+          </div>
+          {loading && <Loader2 className="w-3.5 h-3.5 text-intel-cyan animate-spin" />}
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+          {!selectedSource ? (
+            <div className="h-full flex flex-col items-center justify-center text-white/10 space-y-4">
+              <Eye className="w-12 h-12 opacity-50" />
+              <div className="text-xs uppercase tracking-widest font-bold">Waiting for selection…</div>
+            </div>
+          ) : items.length === 0 && !loading ? (
+            <div className="text-center py-20 text-white/30 text-xs italic">No content found or failed to fetch.</div>
+          ) : (
+            prepareList(items).map((item: any) => (
+              <div key={item.id} className="p-3 bg-white/[0.03] border border-white/5 rounded-lg hover:border-white/20 transition-all">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <h3 className="text-xs font-bold text-white/90 leading-tight">{item.title}</h3>
+                  <span className="text-[9px] font-mono text-white/30 shrink-0">{item.published_at ? new Date(item.published_at).toLocaleTimeString() : 'N/A'}</span>
+                </div>
+                {item.summary && <p className="text-[10px] text-white/50 leading-relaxed line-clamp-3">{item.summary}</p>}
+                <div className="mt-3 flex items-center gap-4 border-t border-white/5 pt-2">
+                  <div className="text-[8px] font-mono text-white/20 uppercase">Severity: <span className={item.severity >= 4 ? 'text-red-400' : 'text-intel-cyan'}>{item.severity}</span></div>
+                  <div className="text-[8px] font-mono text-white/20 uppercase">Geo: <span className="text-white/40">{item.geo_relevance_score?.toFixed(2) || 'N/A'}</span></div>
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto text-[8px] font-bold text-intel-cyan hover:underline uppercase tracking-widest">Source ↗</a>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface SystemCommandCenterProps {
@@ -1097,7 +1274,8 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
 
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'MISSION', label: 'Mission Control', icon: ShieldAlert },
-    { id: 'DEBUGGER', label: 'Pipeline Debugger', icon: Layers },
+    { id: 'DEBUGGER', label: 'Pipeline Debug', icon: Layers },
+    { id: 'NEWS_DEBUG', label: 'News Debug', icon: Send },
     { id: 'TESTS', label: 'Test Suite', icon: FlaskConical },
   ];
 
@@ -1155,6 +1333,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
           >
             {activeTab === 'MISSION' && <MissionControl onJumpToDebugger={handleJumpToDebugger} />}
             {activeTab === 'DEBUGGER' && <DebuggerTab jumpToStage={jumpStage} />}
+            {activeTab === 'NEWS_DEBUG' && <SourceDebuggerTab />}
             {activeTab === 'TESTS' && <TestSuite />}
           </motion.div>
         </AnimatePresence>

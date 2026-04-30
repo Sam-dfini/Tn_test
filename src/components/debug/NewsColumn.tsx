@@ -14,7 +14,7 @@ export function NewsColumn({ items, selectedId, onSelect, highlightDuplicates }:
   const seenIds = new Set();
   
   return (
-    <div className="flex flex-col h-full bg-[#0d0d0f] border-r border-white/5">
+    <div className="flex flex-col h-full min-h-0 bg-[#0d0d0f] border-r border-white/5">
       <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Database className="w-3.5 h-3.5 text-emerald-400" />
@@ -22,7 +22,7 @@ export function NewsColumn({ items, selectedId, onSelect, highlightDuplicates }:
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500/80">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2">
         {prepareList(items.filter(i => i.data && i.data.id)).map((item: any, idx) => {
           const isDup = seenIds.has(item.data.id);
           seenIds.add(item.data.id);

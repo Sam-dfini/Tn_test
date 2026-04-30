@@ -61,7 +61,7 @@ interface RawNewsItem {
 
 // ─── PROVIDER 1: NEWSAPI.ORG ─────────────────────────────────────────────────
 
-async function fetchFromNewsAPI(): Promise<RawNewsItem[]> {
+export async function fetchFromNewsAPI(): Promise<RawNewsItem[]> {
   if (!NEWSAPI_KEY) {
     pipelineDebugger.log('FEED', 'dropped', '[NEWSAPI] No key — set VITE_NEWSAPI_KEY to enable', {});
     return [];
@@ -106,7 +106,7 @@ async function fetchFromNewsAPI(): Promise<RawNewsItem[]> {
 
 // ─── PROVIDER 2: NEWSDATA.IO ─────────────────────────────────────────────────
 
-async function fetchFromNewsData(): Promise<RawNewsItem[]> {
+export async function fetchFromNewsData(): Promise<RawNewsItem[]> {
   if (!NEWSDATA_KEY) {
     pipelineDebugger.log('FEED', 'dropped', '[NEWSDATA] No key — set VITE_NEWSDATA_KEY to enable', {});
     return [];
@@ -152,7 +152,7 @@ async function fetchFromNewsData(): Promise<RawNewsItem[]> {
 
 // ─── PROVIDER 3: GNEWS.IO ────────────────────────────────────────────────────
 
-async function fetchFromGNews(): Promise<RawNewsItem[]> {
+export async function fetchFromGNews(): Promise<RawNewsItem[]> {
   if (!GNEWS_KEY) {
     pipelineDebugger.log('FEED', 'dropped', '[GNEWS] No key — set VITE_GNEWS_KEY to enable', {});
     return [];

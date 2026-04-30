@@ -158,16 +158,16 @@ export const RSSProvider: React.FC<{
       // Visual feedback via custom event for UI to show toast
       window.dispatchEvent(new CustomEvent('sync-completed', {
         detail: {
-          newArticles: result.newArticles,
-          totalHandled: result.totalArticlesHandled,
-          feeds: result.feedsProcessed,
-          errors: result.errors
+          newArticles: rss.newArticles,
+          totalHandled: rss.totalArticlesHandled,
+          feeds: rss.feedsProcessed,
+          errors: rss.errors
         }
       }));
 
-      console.log(`[PIPELINE] Ingestion report: ${result.feedsProcessed} feeds, ${result.totalArticlesHandled} items, ${result.newArticles} new articles`);
+      console.log(`[PIPELINE] Ingestion report: ${rss.feedsProcessed} feeds, ${rss.totalArticlesHandled} items, ${rss.newArticles} new articles`);
 
-      if (result.newArticles > 0) {
+      if (rss.newArticles > 0) {
         // Notification logic
         const highSeverity = articles.filter(
           a => a.severity >= 4 &&
@@ -178,7 +178,7 @@ export const RSSProvider: React.FC<{
           await addNotification({
             type: 'RSS',
             priority: 'HIGH',
-            title: `${result.newArticles} New Articles — ${highSeverity.length} High Severity`,
+            title: `${rss.newArticles} New Articles — ${highSeverity.length} High Severity`,
             message: highSeverity[0]?.title || 'New intelligence available',
             action_label: 'View Feed',
             action_event: 'navigate-main',

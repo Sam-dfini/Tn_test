@@ -168,7 +168,7 @@ export const telegramMetrics = {
 
 // ─── FETCH SINGLE CHANNEL ────────────────────────────────────────────────────
 
-async function fetchTelegramChannel(
+export async function fetchTelegramChannel(
   channel: TelegramChannel,
   retries = 2,
 ): Promise<any[]> {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Terminal, AlertTriangle, Info, XCircle, RefreshCw } from 'lucide-react';
 import { DebugLog } from '../../services/debugService';
+import { prepareList } from '../../lib/keyUtils';
 
 interface ColProps {
   items: DebugLog[];
@@ -8,7 +9,7 @@ interface ColProps {
 
 export function PipelineLogColumn({ items }: ColProps) {
   return (
-    <div className="flex flex-col h-full bg-[#0d0d0f]">
+    <div className="flex flex-col h-full min-h-0 bg-[#0d0d0f]">
       <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Terminal className="w-3.5 h-3.5 text-gray-400" />
@@ -16,8 +17,8 @@ export function PipelineLogColumn({ items }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-gray-500">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-white/10 font-mono">
-        {items.map(item => (
+      <div className="flex-1 overflow-y-auto p-0 font-mono">
+        {prepareList(items).map(item => (
           <div 
             key={item.id}
             className={`p-3 border-b border-white/5 text-[9px] ${

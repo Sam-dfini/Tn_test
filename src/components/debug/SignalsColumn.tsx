@@ -12,7 +12,7 @@ interface ColProps {
 
 export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
   return (
-    <div className="flex flex-col h-full bg-[#0d0d0f] border-r border-white/5">
+    <div className="flex flex-col h-full min-h-0 bg-[#0d0d0f] border-r border-white/5">
       <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Zap className="w-3.5 h-3.5 text-orange-400" />
@@ -20,7 +20,7 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500/80">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 scrollbar-thin scrollbar-thumb-white/10">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2">
         {prepareList(items).map((item, idx) => (
           <div 
             key={assertKey(getRenderKey(item, idx, 'sig'))}
