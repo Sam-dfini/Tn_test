@@ -19,49 +19,49 @@ export function EventsColumn({ items, selectedId, onSelect }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500/80">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
         {prepareList(items).map((item, idx) => (
           <div 
             key={assertKey(getRenderKey(item, idx, 'devt'))}
             onClick={() => onSelect(item.data.id)}
-            className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
+            className={`p-1.5 rounded border text-[9px] cursor-pointer transition-all ${
               selectedId === item.data.id
                 ? 'bg-purple-500/10 border-purple-500/50' 
                 : 'bg-black/40 border-white/5 hover:border-white/10'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className={`px-1.5 py-0.5 rounded text-[7px] font-bold uppercase ${
+            <div className="flex items-center justify-between mb-0.5">
+              <span className={`px-1 rounded text-[7px] font-bold uppercase ${
                 item.data.status === 'escalating' ? 'bg-red-500/20 text-red-400' : 
                 item.data.status === 'emerging' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-emerald-500/20 text-emerald-400'
               }`}>
                 {item.data.status}
               </span>
-              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString()}</span>
+              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString([], { hour12: false })}</span>
             </div>
-            <h3 className="text-gray-300 font-medium line-clamp-1 mb-1">{item.data.title}</h3>
-            <div className="flex items-center gap-2 text-[8px] text-gray-500 mb-2">
-              <span className="flex items-center gap-0.5"><MapPin className="w-2.5 h-2.5" /> {item.data.governorate}</span>
+            <h3 className="text-gray-300 font-medium line-clamp-1 mb-0.5">{item.data.title}</h3>
+            <div className="flex items-center gap-1.5 text-[8px] text-gray-500 mb-1.5">
+              <span className="flex items-center gap-0.5 truncate max-w-[60px]"><MapPin className="w-2.5 h-2.5" /> {item.data.governorate}</span>
               <span>•</span>
-              <span>{item.data.article_count} articles</span>
+              <span className="shrink-0">{item.data.article_count} articles</span>
             </div>
             
             <div className="flex items-center justify-between pt-1 border-t border-white/5">
-               <div className="flex flex-col">
-                 <span className="text-[7px] text-gray-600 uppercase">PRIORITY</span>
-                 <span className="text-purple-400 font-bold">{item.data.priority_score}</span>
-               </div>
-               <div className="flex flex-col items-end">
-                 <span className="text-[7px] text-gray-600 uppercase">TREND</span>
-                 <span className={`text-[10px] font-bold uppercase ${
-                   item.data.trend === 'up' ? 'text-red-400' : 
-                   item.data.trend === 'down' ? 'text-blue-400' : 
-                   'text-gray-400'
-                 }`}>
-                   {item.data.trend === 'up' ? '▲ HIGHER' : item.data.trend === 'down' ? '▼ LOWER' : '● STABLE'}
-                 </span>
-               </div>
+              <div className="flex flex-col">
+                <span className="text-[6px] text-gray-600 uppercase">PRIO</span>
+                <span className="text-purple-400 font-bold text-[9px]">{item.data.priority_score}</span>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-[6px] text-gray-600 uppercase">TREND</span>
+                <span className={`text-[8px] font-bold uppercase ${
+                  item.data.trend === 'up' ? 'text-red-400 text-[9px]' : 
+                  item.data.trend === 'down' ? 'text-blue-400 text-[9px]' : 
+                  'text-gray-400'
+                }`}>
+                  {item.data.trend === 'up' ? '▲ UP' : item.data.trend === 'down' ? '▼ DWN' : '● STB'}
+                </span>
+              </div>
             </div>
           </div>
         ))}

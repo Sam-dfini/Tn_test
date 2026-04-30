@@ -20,35 +20,35 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500/80">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
         {prepareList(items).map((item, idx) => (
           <div 
             key={assertKey(getRenderKey(item, idx, 'sig'))}
             onClick={() => onSelect(item.data.eventId)}
-            className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
+            className={`p-1.5 rounded border text-[9px] cursor-pointer transition-all ${
               selectedId === item.data.eventId
                 ? 'bg-orange-500/10 border-orange-500/50' 
                 : 'bg-black/40 border-white/5 hover:border-white/10'
             }`}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-500 text-[8px] uppercase tracking-tighter truncate max-w-[100px]">{item.data.eventId}</span>
-              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString()}</span>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-gray-500 text-[8px] uppercase tracking-tighter truncate max-w-[80px]">{item.data.eventId}</span>
+              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString([], { hour12: false })}</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-2">
-              <SignalItem label="PRIORITY" value={item.data.finalScore} status="active" />
-              <SignalItem label="SEVERITY" value={item.data.severity.toFixed(2)} status="neutral" />
-              <SignalItem label="VOLUME" value={item.data.volume.toFixed(2)} status="neutral" />
-              <SignalItem label="VELOCITY" value={item.data.velocity.toFixed(2)} status={item.data.velocity > 0.5 ? 'active' : 'neutral'} />
+            <div className="grid grid-cols-2 gap-1.5">
+              <SignalItem label="PRIO" value={item.data.finalScore} status="active" />
+              <SignalItem label="SEV" value={item.data.severity.toFixed(1)} status="neutral" />
+              <SignalItem label="VOL" value={item.data.volume.toFixed(1)} status="neutral" />
+              <SignalItem label="VEL" value={item.data.velocity.toFixed(1)} status={item.data.velocity > 0.5 ? 'active' : 'neutral'} />
             </div>
 
-            <div className="mt-2 flex items-center justify-between">
+            <div className="mt-1.5 flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <span className="text-[8px] text-gray-600">DECAY:</span>
-                <span className="text-[8px] text-gray-400">{(item.data.decay * 100).toFixed(0)}%</span>
+                <span className="text-[7px] text-gray-600 uppercase">Decay:</span>
+                <span className="text-[7px] text-gray-400">{(item.data.decay * 100).toFixed(0)}%</span>
               </div>
-              <div className={`w-1.5 h-1.5 rounded-full ${item.data.finalScore > 7 ? 'bg-red-500 animate-pulse' : 'bg-orange-500/40'}`} />
+              <div className={`w-1 h-1 rounded-full ${item.data.finalScore > 7 ? 'bg-red-500 animate-pulse' : 'bg-orange-500/40'}`} />
             </div>
           </div>
         ))}

@@ -9,6 +9,7 @@ import {
   Shield, Activity, Settings, Download, Zap
 } from 'lucide-react';
 import { useRSS } from '../context/RSSContext';
+import { prepareList, assertKey, getRenderKey } from '../lib/keyUtils';
 
 type SourceType = 'rss' | 'api' | 'file' | 'social';
 type SourceStatus = 'connected' | 'slow' | 'error' | 'untested' | 'testing';
@@ -615,11 +616,11 @@ const SourceCard: React.FC<{
             {/* Keywords */}
             {(source.keywords || source.monitorKeywords) && (
               <div className="flex flex-wrap gap-1 pt-0.5">
-                {(source.keywords || source.monitorKeywords || [])
-                  .slice(0, 4).map(kw => (
-                  <span key={kw} className="text-[7px] font-mono px-1.5 py-0.5
+                {prepareList(source.keywords || source.monitorKeywords || [])
+                  .slice(0, 4).map((kwItem: any, idx) => (
+                  <span key={assertKey(getRenderKey(kwItem, idx, 'source-kw'))} className="text-[7px] font-mono px-1.5 py-0.5
                     bg-white/5 text-slate-600 border border-white/5 rounded">
-                    {kw}
+                    {typeof kwItem === 'string' ? kwItem : kwItem.value}
                   </span>
                 ))}
               </div>
@@ -975,13 +976,13 @@ export const SourceLibrary: React.FC<{
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-3">
-              {filteredSources.map(source => {
-                const sourceArticles = articles.filter(a => a.url.includes(new URL(source.url).hostname));
+              {prepareList(filteredSources).map((source: any, idx) => {
+                const sourceArticles = articles.filter(a => a.url && source.url && a.url.includes(new URL(source.url).hostname));
                 const lastArticle = sourceArticles.length > 0 ? sourceArticles[0] : null;
                 
                 return (
                   <SourceCard
-                    key={source.id}
+                    key={assertKey(getRenderKey(source, idx, 'source-lib'))}
                     source={source}
                     onTest={handleTest}
                     onToggle={handleToggle}
@@ -1007,9 +1008,9 @@ export const SourceLibrary: React.FC<{
           </div>
 
           <div className="space-y-4">
-            {articles.slice(0, 15).map((article, index) => (
+            {prepareList(articles.slice(0, 15)).map((article: any, index) => (
               <div 
-                key={`${article.id}-${index}`} 
+                key={assertKey(getRenderKey(article, index, 'lib-art'))} 
                 className="p-3 bg-white/5 border border-white/5 rounded-xl hover:border-intel-cyan/30 transition-all cursor-pointer group"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent('pipeline-article', { 
@@ -1021,7 +1022,7 @@ export const SourceLibrary: React.FC<{
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[8px] font-mono text-intel-cyan uppercase">{article.source_name}</span>
                   <span className="text-[8px] font-mono text-slate-600">
-                    {new Date(article.published_at).toLocaleDateString()}
+                    {article.published_at ? new Date(article.published_at).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
                 <h4 className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors line-clamp-2 leading-relaxed">

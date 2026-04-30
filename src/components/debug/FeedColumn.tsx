@@ -19,30 +19,30 @@ export function FeedColumn({ items, selectedId, onSelect }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500/80">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
         {prepareList(items).map((item, idx) => (
           <div 
             key={assertKey(getRenderKey(item, idx, 'feed'))}
             onClick={() => item.data?.id && onSelect(item.data.id)}
-            className={`p-2 rounded border text-[10px] cursor-pointer transition-all ${
+            className={`p-1.5 rounded border text-[9px] cursor-pointer transition-all ${
               selectedId === item.data?.id 
                 ? 'bg-blue-500/10 border-blue-500/50 shadow-[0_0_10px_rgba(59,130,246,0.1)]' 
                 : 'bg-black/40 border-white/5 hover:border-white/10'
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-blue-400 font-bold uppercase text-[9px]">{item.data.source}</span>
-              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString()}</span>
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-blue-400 font-bold uppercase text-[8px]">{item.data.source}</span>
+              <span className="text-gray-600 text-[8px]">{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
             </div>
-            <h3 className="text-gray-300 font-medium line-clamp-2 leading-relaxed mb-1">{item.data.title}</h3>
+            <h3 className="text-gray-300 font-medium line-clamp-1 leading-tight mb-0.5">{item.data.title}</h3>
             {item.data.pubDate && (
-              <div className="flex items-center gap-1 text-gray-600 text-[8px]">
-                <Clock className="w-2.5 h-2.5" />
+              <div className="flex items-center gap-1 text-gray-600 text-[7px]">
+                <Clock className="w-2 h-2" />
                 <span>{item.data.pubDate}</span>
               </div>
             )}
-            <div className="mt-2 p-1.5 bg-black/60 rounded text-[8px] font-mono text-gray-500 break-all border border-white/5 opacity-60">
-              {item.data.xmlSnippet || 'No XML available'}
+            <div className="mt-1 p-1 bg-black/60 rounded text-[7px] font-mono text-gray-500 break-all border border-white/5 opacity-50 line-clamp-1">
+              {item.data.xmlSnippet || 'No XML'}
             </div>
           </div>
         ))}

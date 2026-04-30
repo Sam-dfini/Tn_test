@@ -3,6 +3,7 @@ import { callAI, parseAIJSON } from '../../services/aiService';
 import { motion } from 'motion/react';
 import { RefreshCw, AlertTriangle, Globe } from 'lucide-react';
 import { processArticleForRRI } from '../../utils/rriEngine';
+import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 interface NewsItem {
   source: string;
@@ -128,12 +129,12 @@ JSON structure:
           </div>
         )}
 
-        {news.map((n, i) => (
+        {prepareList(news).map((n: any, i) => (
           <motion.div 
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.1 }}
-            key={`osint-${n.source}-${i}-${n.content.substring(0, 15)}`} 
+            key={assertKey(getRenderKey(n, i, 'osint'))} 
             className="space-y-2 border-l border-intel-cyan/20 pl-3 relative"
           >
             <div className="absolute left-[-1px] top-0 w-[2px] h-2 bg-intel-cyan"></div>
@@ -143,8 +144,10 @@ JSON structure:
                 <span className="text-[8px] font-mono text-slate-600 uppercase">{n.time}</span>
               </div>
               <div className="flex space-x-1">
-                {n.tags.map((t, j) => (
-                  <span key={`tag-${n.source}-${t}-${j}-${i}`} className="text-[7px] font-mono font-bold px-1 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded uppercase">{t}</span>
+                {prepareList(n.tags).map((t: any, j) => (
+                  <span key={assertKey(getRenderKey(t, j, 'tag'))} className="text-[7px] font-mono font-bold px-1 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded uppercase">
+                    {typeof t === 'string' ? t : t.value}
+                  </span>
                 ))}
               </div>
             </div>

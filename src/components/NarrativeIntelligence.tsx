@@ -334,8 +334,8 @@ export const NarrativeIntelligence: React.FC = () => {
                 </div>
                 {techniqueFrequency.length > 0 ? (
                   <div className="space-y-3">
-                    {techniqueFrequency.map(t => (
-                      <div key={t.name} className="space-y-1">
+                    {prepareList(techniqueFrequency).map((t: any, idx) => (
+                      <div key={assertKey(getRenderKey(t, idx, 'tech'))} className="space-y-1">
                         <div className="flex justify-between
                           text-[9px] font-mono">
                           <span className="text-slate-400">
@@ -450,8 +450,8 @@ export const NarrativeIntelligence: React.FC = () => {
                 active propaganda use.
               </p>
               <div className="space-y-3">
-                {sourceStats.map((source, i) => (
-                  <div key={source.name}
+                {prepareList(sourceStats).map((source: any, i) => (
+                  <div key={assertKey(getRenderKey(source, i, 'source-score'))}
                     className={`p-5 rounded-2xl border space-y-3
                       ${getScoreBg(source.avg_score)}`}>
                     <div className="flex items-center
@@ -535,9 +535,9 @@ export const NarrativeIntelligence: React.FC = () => {
                     No divergence events detected yet
                   </div>
                 ) : (
-                  highDivergenceEvents.map(event => (
+                  prepareList(highDivergenceEvents).map((event: any, idx) => (
                     <button
-                      key={event.id}
+                      key={assertKey(getRenderKey(event, idx, 'ev-sel'))}
                       onClick={() => setSelectedEvent(event)}
                       className={`w-full text-left p-3 rounded-xl
                         border text-[10px] transition-all ${
@@ -742,7 +742,8 @@ export const NarrativeIntelligence: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2
                   gap-3">
-                  {REGIME_TALKING_POINTS.map(phrase => {
+                  {prepareList(REGIME_TALKING_POINTS).map((phraseItem: any, idx) => {
+                    const phrase = typeof phraseItem === 'string' ? phraseItem : phraseItem.value;
                     const count = articles.filter(
                       a => (a.title + ' ' + (a.content || ''))
                         .toLowerCase()
@@ -750,7 +751,7 @@ export const NarrativeIntelligence: React.FC = () => {
                     ).length;
                     if (count === 0) return null;
                     return (
-                      <div key={phrase}
+                      <div key={assertKey(getRenderKey(phraseItem, idx, 'tp'))}
                         className="flex items-center justify-between
                           p-3 rounded-xl border border-intel-border/30
                           bg-black/20 text-[10px]">

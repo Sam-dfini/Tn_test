@@ -2,6 +2,7 @@ import React from 'react';
 import { Flame, Droplets, Car, UserX, ShieldAlert } from 'lucide-react';
 import { usePipeline } from '../../context/PipelineContext';
 import { cn } from '../../lib/utils';
+import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 export const FireIncidentsWidget: React.FC = () => {
   const { data } = usePipeline();
@@ -21,8 +22,8 @@ export const FireIncidentsWidget: React.FC = () => {
         <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Fire Incidents</h3>
       </div>
       <div className="space-y-2">
-        {fires.map((fire) => (
-          <div key={`${fire.region}-${fire.count}`} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+        {prepareList(fires).map((fire: any, idx) => (
+          <div key={assertKey(getRenderKey(fire, idx, 'fire'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
             <span className="text-[10px] font-mono text-slate-300">{fire.region}</span>
             <div className="flex items-center space-x-3">
               <span className="text-[10px] font-mono text-slate-500">{fire.trend}</span>
@@ -59,8 +60,8 @@ export const WaterCutsWidget: React.FC = () => {
         <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Water Cuts</h3>
       </div>
       <div className="space-y-2">
-        {cuts.map((cut) => (
-          <div key={`${cut.region}-${cut.hours}`} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+        {prepareList(cuts).map((cut: any, idx) => (
+          <div key={assertKey(getRenderKey(cut, idx, 'cut'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
             <span className="text-[10px] font-mono text-slate-300">{cut.region}</span>
             <div className="flex items-center space-x-3">
               <span className="text-[9px] font-mono text-slate-500">{cut.hours}h/day</span>
@@ -93,8 +94,8 @@ export const RoadAccidentsWidget: React.FC = () => {
         <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Road Accidents</h3>
       </div>
       <div className="space-y-2">
-        {accidents.map((acc) => (
-          <div key={`${acc.route}-${acc.count}`} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
+        {prepareList(accidents).map((acc: any, idx) => (
+          <div key={assertKey(getRenderKey(acc, idx, 'acc'))} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[9px] font-mono text-slate-300 truncate">{acc.route}</span>
               <span className={cn(
@@ -128,8 +129,8 @@ export const SuicidesWidget: React.FC = () => {
         <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Suicide Intel</h3>
       </div>
       <div className="space-y-2">
-        {suicides.map((item) => (
-          <div key={`${item.region}-${item.count}`} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+        {prepareList(suicides).map((item: any, idx) => (
+          <div key={assertKey(getRenderKey(item, idx, 'sui'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
             <span className="text-[10px] font-mono text-slate-300">{item.region}</span>
             <div className="flex items-center space-x-3">
               <span className={cn(
@@ -163,8 +164,8 @@ export const ViolenceWidget: React.FC = () => {
         <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Violence / Crime</h3>
       </div>
       <div className="space-y-2">
-        {violence.map((item) => (
-          <div key={`${item.type}-${item.regions.join('-')}`} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
+        {prepareList(violence).map((item: any, idx) => (
+          <div key={assertKey(getRenderKey(item, idx, 'vio'))} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono text-slate-300">{item.type}</span>
               <span className={cn(

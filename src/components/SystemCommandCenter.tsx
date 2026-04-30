@@ -1110,14 +1110,21 @@ const SourceDebuggerTab: React.FC = () => {
         const data = await fetchRSSFeed(source);
         if (res === 'failing') {
           setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
-        } else if (res === 'degraded' || data.length === 0) {
+        } else if (data.length === 0) {
+          // Yellow if no feed
+          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        } else if (res === 'degraded') {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       } else if (source.group === 'Telegram') {
         const data = await fetchTelegramChannel(source, 0);
-        setStatusMap(prev => ({ ...prev, [source.id]: data.length > 0 ? 'healthy' : 'warning' }));
+        if (data.length === 0) {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        } else {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
+        }
       } else {
         // API Sources
         let data: any[] = [];
@@ -1125,10 +1132,14 @@ const SourceDebuggerTab: React.FC = () => {
         else if (source.id === 'newsdata') data = await fetchFromNewsData();
         else if (source.id === 'gnews') data = await fetchFromGNews();
         
-        if (data.length === 0) setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        else setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
+        if (data.length === 0) {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        } else {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
+        }
       }
     } catch {
+      // Failed to fetch -> yellow per user request
       setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
     }
   };
@@ -1181,7 +1192,7 @@ const SourceDebuggerTab: React.FC = () => {
             Test All
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {['RSS', 'Telegram', 'API'].map(group => (
             <div key={group} className="mb-4">
               <div className="px-2 py-1 text-[8px] font-bold text-white/20 uppercase tracking-tight">{group}</div>
@@ -1227,7 +1238,7 @@ const SourceDebuggerTab: React.FC = () => {
           {loading && <Loader2 className="w-3.5 h-3.5 text-intel-cyan animate-spin" />}
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
           {!selectedSource ? (
             <div className="h-full flex flex-col items-center justify-center text-white/10 space-y-4">
               <Eye className="w-12 h-12 opacity-50" />

@@ -17,25 +17,25 @@ export function PipelineLogColumn({ items }: ColProps) {
         </div>
         <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-gray-500">{items.length}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-0 font-mono">
+      <div className="flex-1 overflow-y-auto p-0 font-mono custom-scrollbar">
         {prepareList(items).map(item => (
           <div 
             key={item.id}
-            className={`p-3 border-b border-white/5 text-[9px] ${
+            className={`p-2 border-b border-white/5 text-[8px] ${
               item.status === 'error' ? 'bg-red-500/5 text-red-400' :
               item.status === 'dropped' ? 'bg-orange-500/5 text-orange-400' :
               'text-gray-400'
             }`}
           >
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-1.5">
               <div className="mt-0.5">
-                {item.status === 'error' ? <XCircle className="w-3 h-3" /> : 
-                 item.status === 'dropped' ? <AlertTriangle className="w-3 h-3" /> :
-                 item.stage === 'PIPELINE' ? <RefreshCw className="w-3 h-3 text-emerald-500/60" /> :
-                 <Info className="w-3 h-3 text-blue-500/60" />}
+                {item.status === 'error' ? <XCircle className="w-2.5 h-2.5" /> : 
+                 item.status === 'dropped' ? <AlertTriangle className="w-2.5 h-2.5" /> :
+                 item.stage === 'PIPELINE' ? <RefreshCw className="w-2.5 h-2.5 text-emerald-500/60" /> :
+                 <Info className="w-2.5 h-2.5 text-blue-500/60" />}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center justify-between mb-0.5">
                   <span className={`font-bold ${
                     item.stage === 'FEED' ? 'text-blue-400' :
                     item.stage === 'NEWS' ? 'text-emerald-400' :
@@ -43,12 +43,12 @@ export function PipelineLogColumn({ items }: ColProps) {
                     item.stage === 'EVENTS' ? 'text-purple-400' :
                     'text-gray-500'
                   }`}>[{item.stage}]</span>
-                  <span className="text-[8px] opacity-40">{new Date(item.timestamp).toLocaleTimeString()}</span>
+                  <span className="text-[7px] opacity-40">{new Date(item.timestamp).toLocaleTimeString([], { hour12: false })}</span>
                 </div>
-                <p className="leading-tight break-words">{item.message}</p>
+                <p className="leading-tight break-words line-clamp-2">{item.message}</p>
                 {item.data && Object.keys(item.data).length > 0 && (
-                  <pre className="mt-2 text-[8px] opacity-60 bg-black/40 p-1.5 rounded overflow-x-auto max-h-24">
-                    {JSON.stringify(item.data, null, 2)}
+                  <pre className="mt-1 text-[7px] opacity-50 bg-black/40 p-1 rounded overflow-x-auto max-h-16 scrollbar-hide">
+                    {JSON.stringify(item.data, null, 1)}
                   </pre>
                 )}
               </div>
