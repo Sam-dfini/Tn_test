@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { PipelineMetrics, alertEngine, Alert } from '../lib/alertEngine.js';
-import { logger, LogEvent } from '../utils/logger.js';
+import { PipelineMetrics, alertEngine, Alert } from '../lib/alertEngine.ts';
+import { logger, LogEvent } from '../utils/logger.ts';
 
 export interface MetricPoint {
   timestamp: number;

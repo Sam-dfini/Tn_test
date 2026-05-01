@@ -1,7 +1,7 @@
 import { Event, Article } from '../lib/supabase';
 import { RSS_SOURCES } from '../config/rssSources';
 import { pipelineDebugger } from './debugService';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger.ts';
 
 export interface PriorityResult {
   score: number;

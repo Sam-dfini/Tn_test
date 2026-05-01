@@ -5,7 +5,7 @@ import { generateAnalystResponse } from './geminiService';
 import { analyzeArticle, analyzeLexical } from './narrativeEngine';
 import { detectShortagesInArticles } from './shortageDetector';
 import { RSS_SOURCES, RSSSource, scoreGeoRelevance } from '../config/rssSources';
-import { logger, logPipelineError } from '../utils/logger.js';
+import { logger, logPipelineError } from '../utils/logger.ts';
 import { pipelineDebugger } from './debugService';
 import { safeAI } from '../lib/aiSafe';
 
@@ -560,6 +560,61 @@ export function pauseRSSPipeline() {
   setRSSPaused(true);
 }
 
+// ============================================================
+// ARTICLE INGESTION
+// ============================================================
+
+export async function ingestArticles(articles: Omit<Article, 'fetched_at' | 'created_at'>[]): Promise<number> {
+  if (articles.length === 0) return 0;
+  
+  let newCount = 0;
+  
+  for (const article of articles) {
+    try {
+      // Check if already exists by fingerprint
+      const { data: existing } = await supabase
+        .from('articles')
+        .select('id')
+        .eq('id', article.id)
+        .maybeSingle();
+      
+      if (!existing) {
+        const fullArticle = {
+          ...article,
+          fetched_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        };
+
+        const { error } = await supabase.from('articles').insert([fullArticle]);
+        
+        if (!error) {
+          newCount++;
+          // Trigger signal extraction logic via the article's classification
+          pipelineDebugger.log('NEWS', 'valid', `Ingested: ${article.title.slice(0, 50)}`, { id: article.id });
+          
+          // Process event grouping
+          await processEvent(fullArticle as Article);
+          
+          // Update global metrics via dispatch
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('supabase_op', { 
+              detail: { table: 'articles', op: 'INSERT', timestamp: Date.now() } 
+            }));
+          }
+        } else {
+          if (error.code !== '23505') { // Ignore duplicate key errors if fingerprint check missed it
+            pipelineDebugger.log('NEWS', 'error', `DB Insert failed: ${error.message}`, { title: article.title });
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to ingest article', e);
+    }
+  }
+  
+  return newCount;
+}
+
 export async function fetchAllFeeds(options?: { force?: boolean }): Promise<{
   newArticles: number;
   feedsProcessed: number;
@@ -571,47 +626,76 @@ export async function fetchAllFeeds(options?: { force?: boolean }): Promise<{
   }
 
   ingestionMetrics.isFetching = true;
-  
-  // Health check
-  for (const feed of RSS_SOURCES) {
-      if (feed.status === 'paused') continue;
-      const status = await validateRSSSource(feed.url);
-      if (status === 'failing') {
-          markSource(feed.id, 'paused');
-          continue;
-      }
-      if (status === 'degraded') {
-          markSource(feed.id, 'degraded');
-      } else {
-          markSource(feed.id, 'healthy');
-      }
-  }
+  const errors: string[] = [];
+  let totalNew = 0;
+  let feedsProcessedCount = 0;
+  let totalDiscovered = 0;
 
+  // 1. ATTEMPT BACKEND SYNC FIRST
   try {
-    const response = await fetch(`/api/rss/sync${options?.force ? '?force=true' : ''}`, { method: 'POST' });
-    if (!response.ok) {
-        // Silently fail if backend is offline in preview mode
-        return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
-    }
+    const response = await fetch(`/api/rss/sync${options?.force ? '?force=true' : ''}`, { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
     
-    const result = await response.json();
-    ingestionMetrics.successCount += result.new_articles;
-    ingestionMetrics.lastFetch = Date.now();
-
-    return { 
-      newArticles: result.new_articles, 
-      feedsProcessed: result.feeds_processed || 0,
-      totalArticlesHandled: result.total_discovered || 0,
-      errors: result.errors || []
-    };
+    if (response.ok) {
+      const result = await response.json();
+      totalNew = result.new_articles || 0;
+      feedsProcessedCount = result.feeds_processed || 0;
+      totalDiscovered = result.total_discovered || 0;
+      
+      if (totalNew > 0 || feedsProcessedCount > 0) {
+        ingestionMetrics.successCount += totalNew;
+        ingestionMetrics.lastFetch = Date.now();
+        return { 
+          newArticles: totalNew, 
+          feedsProcessed: feedsProcessedCount,
+          totalArticlesHandled: totalDiscovered,
+          errors: result.errors || []
+        };
+      }
+    }
   } catch (err: any) {
-    // Console log as warning instead of terrorizing the user
-    console.warn('Backend sync unavailable, using cached/realtime data instead.', err.message);
-    ingestionMetrics.failureCount++;
-    return { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
-  } finally {
-    ingestionMetrics.isFetching = false;
+    console.warn('Backend sync unavailable, falling back to client-side ingestion.', err.message);
+    errors.push(`Backend sync failed: ${err.message}`);
   }
+
+  // 2. CLIENT-SIDE FALLBACK (Critical for preview environment)
+  pipelineDebugger.log('FEED', 'valid', 'No backend data. Running client-side ingestion fallback...', {});
+  
+  const activeSources = RSS_SOURCES.filter(s => s.status !== 'paused');
+  
+  const results = await Promise.allSettled(
+    activeSources.map(async (source) => {
+      const articles = await fetchRSSFeed(source);
+      if (articles.length > 0) {
+        const counts = await ingestArticles(articles);
+        return { count: counts, items: articles.length };
+      }
+      return { count: 0, items: 0 };
+    })
+  );
+
+  results.forEach((res, i) => {
+    if (res.status === 'fulfilled') {
+      totalNew += res.value.count;
+      totalDiscovered += res.value.items;
+      feedsProcessedCount++;
+    } else {
+      errors.push(`Feed ${activeSources[i].name} failed: ${res.reason}`);
+    }
+  });
+
+  ingestionMetrics.successCount += totalNew;
+  ingestionMetrics.lastFetch = Date.now();
+  ingestionMetrics.isFetching = false;
+
+  return {
+    newArticles: totalNew,
+    feedsProcessed: feedsProcessedCount,
+    totalArticlesHandled: totalDiscovered,
+    errors
+  };
 }
 
 

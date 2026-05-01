@@ -500,8 +500,83 @@ const MissionControl: React.FC<{
 
   const handleSync = async () => {
     setIsSyncing(true);
-    try { await fetchNow(true); } catch (e) { console.error(e); }
-    finally { setIsSyncing(false); }
+    try {
+      // 1. FLUSH & REBOOT
+      pipelineDebugger.clear();
+      
+      // Reset metrics to defaults (broadcast to ObservabilityContext)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('pipeline_metric_update', { 
+          detail: {
+            feedCount: 0,
+            newsCount: 0,
+            signalCount: 0,
+            eventCount: 0,
+            ingestionRate: 0,
+            errorRate: 0,
+            duplicateRate: 0,
+            lastIngestionTime: 0,
+            lastFetch: Date.now(),
+            latencyMs: 0,
+            dbWriteCount: 0,
+            dbReadCount: 0,
+            successCount: 0,
+            failureCount: 0,
+            isFetching: true 
+          } 
+        }));
+      }
+
+      pipelineDebugger.log('PIPELINE', 'valid', `┌─────────────────── SYSTEM PIPELINE REBOOT ────────────────────┐
+│ [INGESTION] ──> [INTEL ENGINE] ──> [SIGNALS] ──> [SITUATION] │
+│      │               │                │               │      │
+│   (POLLING)      (NARRATIVE)       (DECAY)       (DECISION)  │
+└──────────────────────────────────────────────────────────────┘`, {});
+
+      pipelineDebugger.log('PIPELINE', 'valid', 'SCC REBOOT: Command Center state flushed. Initiating deep diagnostic...', {});
+      await new Promise(r => setTimeout(r, 800));
+
+      // 2. DEEP TESTING RSS FIRST
+      const rssSources = RSS_SOURCES.map(s => ({ ...s, id: s.id || s.url, group: 'RSS' }));
+      pipelineDebugger.log('PIPELINE', 'valid', `Diagnostic: Sequential reachability test for ${rssSources.length} RSS endpoints...`, { count: rssSources.length });
+      
+      for (const source of rssSources) {
+        pipelineDebugger.log('FEED', 'valid', `Diagnostic: Probing ${source.name}...`, { url: source.url });
+        try {
+          // Deep probe: actually try to fetch items through the proxy
+          const feedItems = await fetchRSSFeed(source as any);
+          if (feedItems.length > 0) {
+            pipelineDebugger.log('FEED', 'valid', `Diagnostic PASSED: ${source.name} reachable (${feedItems.length} items discovered).`, { count: feedItems.length });
+          } else {
+            pipelineDebugger.log('FEED', 'warning', `Diagnostic WARNING: ${source.name} returned 0 items. Possible block or stale URL.`, { url: source.url });
+          }
+        } catch (err: any) {
+          pipelineDebugger.log('FEED', 'error', `Diagnostic FAILED: ${source.name} unreachable. Error: ${err.message}`, { error: err.message });
+        }
+        // Throttled diagnostic to prevent proxy overload
+        await new Promise(r => setTimeout(r, 100));
+      }
+
+      pipelineDebugger.log('PIPELINE', 'valid', 'RSS DIAGNOSTIC COMPLETE. INITIALIZING INGESTION PIPELINE...', {});
+
+      // 3. START PARSING (Full Sync)
+      pipelineDebugger.log('PIPELINE', 'valid', 'Starting ingestion cycle (RSS + Telegram + NewsAPI)...', {});
+      await fetchNow(true); 
+      
+      // Post-ingestion recalcs
+      pipelineDebugger.log('SIGNALS', 'valid', 'Ingestion finished. Re-running narrative & signal analysis...', {});
+      
+      // Force RRI recalibration as part of "rest of pipeline"
+      await recalculateRRI();
+      
+      pipelineDebugger.log('PIPELINE', 'valid', 'Full Ingestion Cycle & Analysis completed successfully.', {});
+
+    } catch (e: any) { 
+      console.error(e); 
+      pipelineDebugger.log('PIPELINE', 'error', `Force Sync Sequence Aborted: ${e.message}`, { error: e.message });
+    } finally { 
+      setIsSyncing(false); 
+    }
   };
 
   const handleRRI = async () => {
@@ -894,11 +969,14 @@ const TestSuite: React.FC = () => {
           const json = await res.json();
           const ms = Date.now() - start;
           const geminiOk = json.gemini?.key_exists && !json.gemini?.key_is_placeholder;
+          const openaiOk = json.openai?.key_exists && !json.openai?.key_is_placeholder;
+          const aiOk = geminiOk || openaiOk;
+          
           setTest(id, {
-            status: geminiOk ? 'pass' : 'fail',
-            message: geminiOk ? 'Gemini API key valid' : 'Key missing or placeholder',
+            status: aiOk ? 'pass' : 'fail',
+            message: aiOk ? (openaiOk ? 'OpenAI key active (Primary)' : 'Gemini key active (Fallback)') : 'AI keys missing or placeholder',
             latencyMs: ms,
-            detail: `key_exists: ${json.gemini?.key_exists}, placeholder: ${json.gemini?.key_is_placeholder}`,
+            detail: `Gemini: ${geminiOk ? 'OK' : 'OFF'}, OpenAI: ${openaiOk ? 'OK' : 'OFF'}`,
           });
           break;
         }
@@ -912,7 +990,7 @@ const TestSuite: React.FC = () => {
           const ms = Date.now() - start;
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const json = await res.json();
-          const reply = json.response?.trim();
+          const reply = json.text?.trim() || json.response?.trim();
           setTest(id, { status: 'pass', message: `Model replied: "${reply}"`, latencyMs: ms });
           break;
         }
@@ -1146,7 +1224,11 @@ const SourceDebuggerTab: React.FC = () => {
 
   const testAll = async () => {
     setIsTestingAll(true);
-    for (const source of allSources) {
+    // Prioritize RSS sources for testing as requested
+    const rss = allSources.filter(s => s.group === 'RSS');
+    const others = allSources.filter(s => s.group !== 'RSS');
+    
+    for (const source of [...rss, ...others]) {
       await testSource(source);
     }
     setIsTestingAll(false);
@@ -1196,7 +1278,24 @@ const SourceDebuggerTab: React.FC = () => {
           {['RSS', 'Telegram', 'API'].map(group => (
             <div key={group} className="mb-4">
               <div className="px-2 py-1 text-[8px] font-bold text-white/20 uppercase tracking-tight">{group}</div>
-              {allSources.filter(s => s.group === group).map(source => (
+              {allSources
+                .filter(s => s.group === group)
+                .sort((a, b) => {
+                  const statusA = statusMap[a.id] || 'idle';
+                  const statusB = statusMap[b.id] || 'idle';
+                  
+                  // Priority: testing > healthy > idle > warning > failing
+                  const scores: Record<string, number> = {
+                    testing: 5,
+                    healthy: 4,
+                    idle: 3,
+                    warning: 2,
+                    failing: 1
+                  };
+                  
+                  return (scores[statusB] || 0) - (scores[statusA] || 0);
+                })
+                .map(source => (
                 <div 
                   key={source.id}
                   onClick={() => selectSource(source)}

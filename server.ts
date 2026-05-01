@@ -10,9 +10,9 @@ import { createServer } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import 'dotenv/config';
-import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.js';
+import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
 import { createClient } from '@supabase/supabase-js';
-import { initializeAllSchemas } from './src/utils/schemaValidator.js';
+import { initializeAllSchemas } from './src/utils/schemaValidator.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -170,10 +170,22 @@ async function startServer() {
 
   // 1. Specific API routes (defined before the general proxy)
   app.get('/api/health', (req, res) => {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+
     res.json({ 
       status: 'ok', 
-      key_exists: !!process.env.GEMINI_API_KEY, 
-      key_is_placeholder: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') : false 
+      gemini: {
+        key_exists: !!geminiKey,
+        key_is_placeholder: geminiKey ? geminiKey.includes('MY_GEMINI_API_KEY') : false
+      },
+      openai: {
+        key_exists: !!openAIApiKey,
+        key_is_placeholder: openAIApiKey ? openAIApiKey.includes('MY_OPENAI_API_KEY') : false
+      },
+      // Keep legacy top-level for backwards compatibility if needed
+      key_exists: !!geminiKey, 
+      key_is_placeholder: geminiKey ? geminiKey.includes('MY_GEMINI_API_KEY') : false
     });
   });
 
@@ -201,13 +213,45 @@ async function startServer() {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // PREFER GEMINI as requested
+    // 1. TRY OPENAI FIRST (User requested priority)
+    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    if (openAIApiKey && !openAIApiKey.includes('MY_OPENAI_API_KEY')) {
+      try {
+        console.log('Attempting OpenAI generation...');
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: config?.model?.includes('gpt') ? config.model : 'gpt-4o',
+            messages: [{ role: 'user', content: prompt }],
+            temperature: config?.temperature ?? 0.1,
+            top_p: config?.topP ?? 0.8,
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          return res.json({ text: data.choices[0].message.content });
+        } else {
+          const errorData = await response.text();
+          console.warn(`OpenAI primary attempt failed (Status ${response.status}). Falling back to Gemini...`);
+        }
+      } catch (error: any) {
+        console.warn('OpenAI primary attempt errored. Falling back to Gemini...', error.message);
+      }
+    }
+
+    // 2. FALLBACK TO GEMINI (Primary fallback)
     const geminiKey = process.env.GEMINI_API_KEY;
     if (geminiKey && !geminiKey.includes('MY_GEMINI_API_KEY')) {
       const genAI = new GoogleGenerativeAI(geminiKey);
       try {
+        console.log('Attempting Gemini generation...');
         const model = genAI.getGenerativeModel({ 
-          model: config?.model || 'gemini-1.5-flash',
+          model: config?.model?.includes('gemini') ? config.model : 'gemini-1.5-flash',
           generationConfig: {
             temperature: config?.temperature ?? 0.1,
             topP: config?.topP ?? 0.8,
@@ -221,45 +265,15 @@ async function startServer() {
         const text = response.text();
         return res.json({ text });
       } catch (error: any) {
-        console.error('Gemini Error:', error);
-        // Fallback to other providers if Gemini fails
+        console.error('Gemini Error (fallback):', error);
       }
     }
 
-    // OpenAI Fallback
-    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-    if (openAIApiKey && !openAIApiKey.includes('MY_OPENAI_API_KEY')) {
-      try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: config?.temperature ?? 0.1,
-            top_p: config?.topP ?? 0.8,
-          })
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(`OpenAI Error ${response.status}: ${errorData}`);
-        }
-        
-        const data = await response.json();
-        return res.json({ text: data.choices[0].message.content });
-      } catch (error: any) {
-        console.error('OpenAI Error:', error);
-        return res.status(500).json({ error: 'OpenAI Generation Failed', details: error.message });
-      }
-    }
-
+    // 3. SECONDARY FALLBACK: OpenRouter
     const openRouterApiKey = process.env.OPENROUTER_API_KEY;
     if (openRouterApiKey && !openRouterApiKey.includes('MY_OPENROUTER_API_KEY')) {
       try {
+        console.log('Attempting OpenRouter generation...');
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -273,54 +287,21 @@ async function startServer() {
           })
         });
         
-        if (!response.ok) {
-          throw new Error(`OpenRouter Error: ${response.status}`);
+        if (response.ok) {
+          const data = await response.json();
+          return res.json({ text: data.choices[0].message.content });
         }
-        
-        const data = await response.json();
-        return res.json({ text: data.choices[0].message.content });
       } catch (error: any) {
         console.error('OpenRouter Error:', error);
-        // Fallback to Gemini if OpenRouter fails
       }
     }
 
-    if (!genAI) {
-      const isPlaceholder = process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY');
-      if (isPlaceholder) {
-        console.warn('AI Proxy Warning: GEMINI_API_KEY is a placeholder. Returning simulated response.');
-      } else {
-        console.error('AI Proxy Error: GEMINI_API_KEY environment variable is not defined.');
-      }
-      return res.status(200).json({ 
-        text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API key.'} Please provide a valid GEMINI_API_KEY or OPENROUTER_API_KEY in Settings.]`
-      });
-    }
-
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: config?.model || 'gemini-1.5-flash',
-        generationConfig: {
-          temperature: config?.temperature ?? 0.1,
-          topP: config?.topP ?? 0.8,
-          topK: config?.topK ?? 40,
-          responseMimeType: config?.responseMimeType || 'text/plain',
-        }
-      });
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      res.json({ text });
-    } catch (error: any) {
-      console.error('AI Proxy Error:', error);
-      res.status(400).json({ 
-        error: 'AI Generation Failed', 
-        message: error.message,
-        details: error.toString()
-      });
-    }
+    // 4. FINAL FAILSAFE
+    const isPlaceholder = (geminiKey && geminiKey.includes('MY_GEMINI_API_KEY')) || (openAIApiKey && openAIApiKey.includes('MY_OPENAI_API_KEY'));
+    
+    return res.status(200).json({ 
+      text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API keys.'} Please verify your OPENAI_API_KEY or GEMINI_API_KEY in the environment settings.]`
+    });
   });
 
   // RSS Proxy API

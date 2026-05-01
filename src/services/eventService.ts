@@ -1,7 +1,7 @@
 import { supabase, Article, Event } from '../lib/supabase';
 import { calculateEventPriority } from './priorityEngine';
 import { pipelineDebugger } from './debugService';
-import { logger } from '../utils/logger.js';
+import { logger } from '../utils/logger.ts';
 
 export async function processEvent(article: Article): Promise<string | null> {
   const dateStr = article.published_at.split('T')[0];

@@ -48,7 +48,10 @@ import {
   ShieldAlert,
   Rocket,
   Compass,
-  MapPin
+  MapPin,
+  Wheat,
+  Package,
+  Droplets
 } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer, YAxis, XAxis, Tooltip, BarChart, Bar, Cell, ReferenceLine, CartesianGrid } from 'recharts';
 import { NarrativeIntelligence } from './NarrativeIntelligence';
@@ -73,6 +76,10 @@ import { CivilizationalAnalysis } from './CivilizationalAnalysis';
 import { FireIntelligencePanel } from './FireIntelligencePanel';
 import { ObservabilityDashboard } from '../pages/ObservabilityDashboard';
 import { AgriIntelDashboard } from './AgriIntelDashboard';
+import { FeedIntelligenceHub } from './FeedIntelligenceHub';
+import { PoultryEggsIntelligence } from './PoultryEggsIntelligence';
+import { LivestockMeatIntelligence } from './LivestockMeatIntelligence';
+import { MilkDairyIntelligence } from './MilkDairyIntelligence';
 import ActorNetworkIntelligence from './ActorNetworkIntelligence';
 import SimulationIntelligence from './SimulationIntelligence';
 import { NewsFeed } from './NewsFeed';
@@ -90,7 +97,6 @@ import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
 import { IndustrialIntelligencePanel } from './IndustrialIntelligencePanel';
 import { StrategicEnergyIntelligencePanel } from './StrategicEnergyIntelligencePanel';
 import { BlackMarketIntelligencePanel } from './BlackMarketIntelligencePanel';
-import { BusinessCommandCenter } from './BusinessCommandCenter';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
@@ -112,11 +118,13 @@ const SIDEBAR_CATEGORIES = [
     id: 'economical',
     label: 'Economical',
     items: [
-      { id: 'business-center', label: 'Business Command', icon: Target },
+      { id: 'reports', label: 'Investment Reports', icon: FileText },
       { id: 'economy', label: 'Economy', icon: TrendingUp },
       { id: 'industry', label: 'Industry', icon: Box },
       { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
       { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
+      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: Compass },
+      { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     ]
   },
   {
@@ -147,7 +155,11 @@ const SIDEBAR_CATEGORIES = [
     items: [
       { id: 'environment', label: 'Environment', icon: Sprout },
       { id: 'agriculture', label: 'Agriculture', icon: Leaf },
-      { id: 'energy', label: 'Energy', icon: Zap },
+      { id: 'feed-hub', label: 'Feed Intelligence', icon: Wheat },
+      { id: 'poultry', label: 'Poultry & Eggs', icon: Zap },
+      { id: 'livestock', label: 'Livestock & Meat', icon: Package },
+      { id: 'dairy', label: 'Milk & Dairy', icon: Droplets },
+      { id: 'energy', label: 'Energy', icon: Activity },
       { id: 'fire', label: 'Fire Intel', icon: Flame },
     ]
   },
@@ -451,7 +463,7 @@ export const ProfessionalIntel: React.FC<{
 }> = ({ context, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onToggleDebug }) => {
   const { data, rriState, miiProfile, actorNetwork, auditLog, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = usePipeline();
   const { articles: rssArticles, isFetching } = useRSS();
-  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'industry' | 'strategic-explorer' | 'pipeline-control' | 'business-center'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'feed-hub' | 'poultry' | 'livestock' | 'dairy' | 'industry' | 'strategic-explorer' | 'pipeline-control'>('overview');
   const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine' | 'timeline' | 'signal' | 'temporal' | 'rtee'>('news');
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -590,7 +602,6 @@ Return only the 3-sentence briefing.`;
     { id: 'political', label: 'Political', icon: Users },
     { id: 'radicalisation', label: 'Radicalisation', icon: AlertTriangle },
     { id: 'cognitive', label: 'Cognitive Warfare', icon: ShieldAlert },
-    { id: 'business-center', label: 'Business Command', icon: Target },
     { id: 'economy', label: 'Economy', icon: TrendingUp },
     { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
@@ -600,12 +611,14 @@ Return only the 3-sentence briefing.`;
     { id: 'social', label: 'Social', icon: Users },
     { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
     { id: 'simulation', label: 'Simulation', icon: Cpu },
+    { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
     { id: 'fire', label: 'Fire Intel', icon: Flame },
     { id: 'ne', label: 'NE', icon: Newspaper },
     { id: 'performance', label: 'Model Performance', icon: ShieldCheck },
     { id: 'govagent', label: 'Gov. Agent', icon: Brain },
     { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
+    { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     { id: 'industry', label: 'Industry', icon: Box },
   ];
 
@@ -800,13 +813,6 @@ Return only the 3-sentence briefing.`;
         <div className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6" id="professional-intel-dossier">
         {activeTab === 'pipeline-control' ? (
           <ObservabilityDashboard onBack={() => setActiveTab('overview')} />
-        ) : activeTab === 'business-center' ? (
-          <BusinessCommandCenter 
-            onOpenAI={onOpenAI}
-            onOpenPipeline={onOpenPipeline}
-            onGoHome={onGoHome}
-            onOpenReport={onOpenReport}
-          />
         ) : activeTab === 'govagent' ? (
           <GovernmentAgentPanel />
         ) : activeTab === 'events' ? (
@@ -905,6 +911,8 @@ Return only the 3-sentence briefing.`;
           <RadicalisationIntelligence />
         ) : activeTab === 'actor-network' ? (
           <ActorNetworkIntelligence />
+        ) : activeTab === 'reports' ? (
+          <InvestmentIntelligenceReportGenerator />
         ) : activeTab === 'industry' ? (
           <IndustrialIntelligencePanel />
         ) : activeTab === 'strategic-energy' ? (
@@ -1594,7 +1602,7 @@ Return only the 3-sentence briefing.`;
     </div>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
       {hotspots.map((h, i) => (
-        <div key={`hotspot-${i}`} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${h.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : h.risk === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
+        <div key={i} className={`glass rounded-xl border p-4 space-y-3 hover:border-white/20 transition-all ${h.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : h.risk === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
           <div className="flex items-center justify-between">
             <span className="text-base font-bold font-mono text-white">{h.region}</span>
             <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${h.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : h.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10'}`}>{h.risk}</span>
@@ -1622,7 +1630,7 @@ Return only the 3-sentence briefing.`;
     </div>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {scenarios.map((s, i) => (
-        <div key={`scenario-${i}`} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
+        <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-3 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between">
             <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${s.impact === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.impact === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : s.impact === 'LOW' ? 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5' : 'text-slate-400 border-slate-700 bg-slate-800/50'}`}>{s.impact}</span>
           </div>
@@ -1712,6 +1720,14 @@ Return only the 3-sentence briefing.`;
         <EnvironmentalIntelligence />
       ) : activeTab === 'agriculture' ? (
         <AgriIntelDashboard />
+      ) : activeTab === 'feed-hub' ? (
+        <FeedIntelligenceHub />
+      ) : activeTab === 'poultry' ? (
+        <PoultryEggsIntelligence />
+      ) : activeTab === 'livestock' ? (
+        <LivestockMeatIntelligence />
+      ) : activeTab === 'dairy' ? (
+        <MilkDairyIntelligence />
       ) : activeTab === 'social' ? (
         <SocialIntelligence />
       ) : activeTab === 'strategic' ? (
@@ -1733,6 +1749,10 @@ Return only the 3-sentence briefing.`;
           />
           <NewsFeed hideBackground={true} />
         </div>
+      ) : activeTab === 'entrepreneur' ? (
+        <EntrepreneurIntelligence />
+      ) : activeTab === 'strategic-explorer' ? (
+        <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} onOpenAI={() => {}} onOpenPipeline={() => {}} onOpenReport={() => {}} />
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
       ) : (

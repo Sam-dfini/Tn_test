@@ -51,6 +51,7 @@ export const RSSProvider: React.FC<{
   const [totalArticles, setTotalArticles] = useState(0);
   const [lastFetch, setLastFetch] = useState<Date | null>(null);
   const [isFetching, setIsFetching] = useState(false);
+  const isFetchingRef = useRef(false);
   const [syncErrors, setSyncErrors] = useState<string[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -67,6 +68,11 @@ export const RSSProvider: React.FC<{
   };
 
   // Load recent intelligence from Supabase
+  const articlesRef = useRef<Article[]>([]);
+  useEffect(() => {
+    articlesRef.current = articles;
+  }, [articles]);
+
   const loadData = useCallback(async () => {
     try {
       const { getLiveEvents } = await import('../services/rssService');
@@ -105,13 +111,14 @@ export const RSSProvider: React.FC<{
     const { isIngestionBusy } = await import('../lib/ingestionEngine');
     
     // STRICT CONCURRENCY LOCK
-    if (isFetching || isIngestionBusy()) {
+    if (isFetchingRef.current || isIngestionBusy()) {
       console.warn("[RSS] Ingestion blocked: Global lock active or session in progress");
       return;
     }
     
     console.log("[PIPELINE] Ingestion started: RSS", force ? "(FORCE)" : "");
     setIsFetching(true);
+    isFetchingRef.current = true;
     const startTime = Date.now();
     let isMounted = true;
 
@@ -169,7 +176,7 @@ export const RSSProvider: React.FC<{
 
       if (rss.newArticles > 0) {
         // Notification logic
-        const highSeverity = articles.filter(
+        const highSeverity = articlesRef.current.filter(
           a => a.severity >= 4 &&
           new Date(a.published_at) > new Date(Date.now() - 900000)
         );
@@ -184,14 +191,18 @@ export const RSSProvider: React.FC<{
             action_event: 'navigate-main',
             action_detail: { tab: 'newsfeed' },
           });
+          await loadNotifications();
         }
       }
     } catch (e) {
       console.error('[RSS ERROR] Fetch failed:', e);
     } finally {
-      if (isMounted) setIsFetching(false);
+      if (isMounted) {
+        setIsFetching(false);
+        isFetchingRef.current = false;
+      }
     }
-  }, [articles, loadData, loadNotifications]);
+  }, [isPaused, updateMetrics, trackTrace, loadNotifications]);
 
   // Watch RRI state for threshold breaches
   useEffect(() => {
@@ -218,15 +229,30 @@ export const RSSProvider: React.FC<{
   }, [rriState?.rri, rriState?.velocity]);
 
   // CORE LOOP CONTROL
+  const hasInit = useRef(false);
   useEffect(() => {
-    loadData();
-    loadNotifications();
+    if (!hasInit.current) {
+      loadData();
+      loadNotifications();
+      fetchNow();
+      hasInit.current = true;
+    }
 
-    // Trigger an initial fetch immediately if not busy (checks backend)
-    // We use a local flag to ensure this only runs once per mount even if dependencies change
-    fetchNow();
+    // ── BACKGROUND INGESTION CYCLE ──────────────────────────────────────────
+    // Every 5 minutes, run a full check.
+    const interval = setInterval(() => {
+      if (!isPaused) {
+        console.log("[RSS] Scheduled ingestion triggered...");
+        fetchNow();
+      }
+    }, 300_000); 
 
-  }, []); // Only run once on mount
+    fetchIntervalRef.current = interval;
+
+    return () => {
+      if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
+    };
+  }, [isPaused, fetchNow, loadData, loadNotifications]);
 
   // Realtime subscription via WebSocket
   useEffect(() => {

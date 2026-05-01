@@ -45,7 +45,7 @@ export function PipelineLogColumn({ items }: ColProps) {
                   }`}>[{item.stage}]</span>
                   <span className="text-[7px] opacity-40">{new Date(item.timestamp).toLocaleTimeString([], { hour12: false })}</span>
                 </div>
-                <p className="leading-tight break-words line-clamp-2">{item.message}</p>
+                <p className="leading-tight break-words whitespace-pre-wrap">{item.message}</p>
                 {item.data && Object.keys(item.data).length > 0 && (
                   <pre className="mt-1 text-[7px] opacity-50 bg-black/40 p-1 rounded overflow-x-auto max-h-16 scrollbar-hide">
                     {JSON.stringify(item.data, null, 1)}
