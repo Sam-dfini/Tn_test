@@ -575,12 +575,13 @@ export async function ingestArticles(articles: Omit<Article, 'fetched_at' | 'cre
       const { data: existing } = await supabase
         .from('articles')
         .select('id')
-        .eq('id', article.id)
+        .eq('fingerprint', article.fingerprint)
         .maybeSingle();
       
       if (!existing) {
         const fullArticle = {
           ...article,
+          id: crypto.randomUUID(), // Generate a valid UUID v4
           fetched_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
         };

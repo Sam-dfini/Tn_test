@@ -146,7 +146,10 @@ export const LivestockMeatIntelligence: React.FC = () => {
   const indices = useMemo(() => computeFeedIndices({ ...BASE_FEED, fx_stress: fxStress }), [fxStress]);
   const { HI, sheepDeficit, eidRiskScore, meatPriceIndex } = computeHerdIndex(indices.FPI_livestock);
 
-  const eidDaysTo = 37; // days to Eid al-Adha 2026-06-06 from current
+  const eidDate = new Date('2026-05-27T00:00:00');
+  const today = new Date();
+  const diffTime = eidDate.getTime() - today.getTime();
+  const eidDaysTo = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
   return (
     <div className="p-3 md:p-4 space-y-6 relative pb-10">

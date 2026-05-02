@@ -97,6 +97,7 @@ import { EntrepreneurIntelligence } from './EntrepreneurIntelligence';
 import { IndustrialIntelligencePanel } from './IndustrialIntelligencePanel';
 import { StrategicEnergyIntelligencePanel } from './StrategicEnergyIntelligencePanel';
 import { BlackMarketIntelligencePanel } from './BlackMarketIntelligencePanel';
+import IntelIconSet from './IntelIconSet';
 import { useRSS } from '../context/RSSContext';
 import { generateAnalystResponse } from '../services/geminiService';
 import { Article } from '../lib/supabase';
@@ -107,77 +108,77 @@ const SIDEBAR_CATEGORIES = [
   {
     id: 'command',
     label: 'Command Center',
-    icon: LayoutDashboard,
+    icon: 'dashboard',
     items: [
-      { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'calendar', label: 'Calendar', icon: Calendar },
-      { id: 'govagent', label: 'Gov. Agent', icon: Brain },
-      { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
+      { id: 'overview', label: 'Dashboard', icon: 'dashboard' },
+      { id: 'calendar', label: 'Calendar', icon: 'calendar' },
+      { id: 'govagent', label: 'Gov. Agent', icon: 'agent' },
+      { id: 'methodology', label: 'Methodology', icon: 'methodology', isEvent: true },
     ]
   },
   {
     id: 'economical',
     label: 'Economical',
-    icon: TrendingUp,
+    icon: 'economy',
     items: [
-      { id: 'reports', label: 'Investment Reports', icon: FileText },
-      { id: 'economy', label: 'Economy', icon: TrendingUp },
-      { id: 'industry', label: 'Industry', icon: Box },
-      { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
-      { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
-      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: Compass },
-      { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
+      { id: 'reports', label: 'Investment Reports', icon: 'investment' },
+      { id: 'economy', label: 'Economy', icon: 'economy' },
+      { id: 'industry', label: 'Industry', icon: 'industry' },
+      { id: 'strategic-energy', label: 'Strategic Energy', icon: 'energy_strat' },
+      { id: 'black-market', label: 'Black Market', icon: 'black_market' },
+      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: 'explorer' },
+      { id: 'entrepreneur', label: 'Entrepreneur', icon: 'entrepreneur' },
     ]
   },
   {
     id: 'threat',
     label: 'Threat & Security',
-    icon: Shield,
+    icon: 'security',
     items: [
-      { id: 'events', label: 'Events', icon: Radio },
-      { id: 'security', label: 'Security', icon: ShieldCheck },
-      { id: 'clusters', label: 'Clusters', icon: Network },
-      { id: 'actor-network', label: 'Actor Network', icon: Network },
-      { id: 'radicalisation', label: 'Radicalisation', icon: AlertTriangle },
-      { id: 'cognitive', label: 'Cognitive Warfare', icon: ShieldAlert },
+      { id: 'events', label: 'Events', icon: 'events' },
+      { id: 'security', label: 'Security', icon: 'security' },
+      { id: 'clusters', label: 'Clusters', icon: 'clusters' },
+      { id: 'actor-network', label: 'Actor Network', icon: 'actor' },
+      { id: 'radicalisation', label: 'Radicalisation', icon: 'radicalisation' },
+      { id: 'cognitive', label: 'Cognitive Warfare', icon: 'cognitive' },
     ]
   },
   {
     id: 'socio',
     label: 'Socio-Political',
-    icon: Users,
+    icon: 'social',
     items: [
-      { id: 'political', label: 'Political', icon: Users },
-      { id: 'social', label: 'Social', icon: Users },
-      { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
-      { id: 'narrative', label: 'Narrative', icon: Brain },
+      { id: 'political', label: 'Political', icon: 'political' },
+      { id: 'social', label: 'Social', icon: 'social' },
+      { id: 'geopolitical', label: 'Geopolitical', icon: 'geopolitical' },
+      { id: 'narrative', label: 'Narrative', icon: 'narrative' },
     ]
   },
   {
     id: 'env',
     label: 'Environment',
-    icon: Leaf,
+    icon: 'env_base',
     items: [
-      { id: 'environment', label: 'Environment', icon: Sprout },
-      { id: 'agriculture', label: 'Agriculture', icon: Leaf },
-      { id: 'feed-hub', label: 'Feed Intelligence', icon: Wheat },
-      { id: 'poultry', label: 'Poultry & Eggs', icon: Zap },
-      { id: 'livestock', label: 'Livestock & Meat', icon: Package },
-      { id: 'dairy', label: 'Milk & Dairy', icon: Droplets },
-      { id: 'energy', label: 'Energy', icon: Activity },
-      { id: 'fire', label: 'Fire Intel', icon: Flame },
+      { id: 'environment', label: 'Environment', icon: 'env_base' },
+      { id: 'agriculture', label: 'Agriculture', icon: 'agriculture' },
+      { id: 'feed-hub', label: 'Feed Intelligence', icon: 'feed_intel' },
+      { id: 'poultry', label: 'Poultry & Eggs', icon: 'poultry' },
+      { id: 'livestock', label: 'Livestock & Meat', icon: 'livestock' },
+      { id: 'dairy', label: 'Milk & Dairy', icon: 'dairy' },
+      { id: 'energy', label: 'Energy', icon: 'energy' },
+      { id: 'fire', label: 'Fire Intel', icon: 'fire_intel' },
     ]
   },
   {
     id: 'advanced',
     label: 'Advanced Modeling',
-    icon: BrainCircuit,
+    icon: 'strategic',
     items: [
-      { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
-      { id: 'simulation', label: 'Simulation', icon: Cpu },
-      { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
-      { id: 'performance', label: 'Model Performance', icon: ShieldCheck },
-      { id: 'ne', label: 'NE', icon: Newspaper },
+      { id: 'strategic', label: 'Strategic', icon: 'strategic' },
+      { id: 'simulation', label: 'Simulation', icon: 'simulation' },
+      { id: 'civilizational', label: 'Civilizational', icon: 'civilizational' },
+      { id: 'performance', label: 'Model Performance', icon: 'performance' },
+      { id: 'ne', label: 'NE', icon: 'ne' },
     ]
   }
 ];
@@ -750,7 +751,12 @@ Return only the 3-sentence briefing.`;
                       ${isExpanded && sidebarOpen ? 'ring-1 ring-intel-cyan/30 scale-105 bg-white/5' : ''}
                     `}
                   >
-                    <category.icon className={`w-5 h-5 transition-transform duration-500 ${isAnyItemActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                    <IntelIconSet 
+                      name={category.icon} 
+                      isActive={isAnyItemActive} 
+                      size={20}
+                      className={`transition-transform duration-500 ${isAnyItemActive ? 'scale-110' : 'group-hover:scale-110'}`} 
+                    />
                     {isAnyItemActive && (
                       <div className="absolute inset-0 rounded-2xl bg-intel-cyan/5 blur-md" />
                     )}
@@ -813,7 +819,7 @@ Return only the 3-sentence briefing.`;
                         className="space-y-6"
                       >
                         <div className="px-1 text-[11px] font-mono font-bold text-intel-cyan tracking-[0.2em] flex items-center uppercase">
-                          <category.icon className="w-4 h-4 mr-3 opacity-80" />
+                          <IntelIconSet name={category.icon} isActive={true} size={16} className="mr-3 opacity-80" />
                           {category.label}
                         </div>
                         <div className="space-y-1 ml-1 pl-4 border-l border-white/10">
@@ -837,7 +843,12 @@ Return only the 3-sentence briefing.`;
                                     : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent'}
                                 `}
                               >
-                                <item.icon className={`w-4 h-4 shrink-0 transition-all duration-500 ${isActive ? "text-intel-cyan scale-110" : "opacity-40 group-hover:opacity-100 group-hover:scale-110"}`} />
+                                <IntelIconSet 
+                                  name={item.icon || 'dashboard'} 
+                                  isActive={isActive} 
+                                  size={16}
+                                  className={`shrink-0 transition-all duration-500 ${isActive ? "scale-110" : "opacity-40 group-hover:opacity-100 group-hover:scale-110"}`} 
+                                />
                                 <span className={`truncate tracking-wide ${isActive ? 'font-medium' : 'font-normal'}`}>{item.label}</span>
                                 {isActive && (
                                   <motion.div 
