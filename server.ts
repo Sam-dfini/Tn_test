@@ -40,14 +40,29 @@ if (!genAI) {
 // Start the Python FastAPI backend on port 8000
 function startPythonBackend() {
   console.log('Starting Python backend intelligence engine...');
+  const backendPath = path.join(__dirname, 'backend');
+  
+  if (!fs.existsSync(backendPath)) {
+    console.error(`ERROR: Backend directory not found at ${backendPath}`);
+    return null;
+  }
+
   const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
-    cwd: path.join(__dirname, 'backend'),
-    stdio: 'inherit',
-    env: { ...process.env, PYTHONPATH: path.join(__dirname, 'backend') }
+    cwd: backendPath,
+    stdio: 'pipe', // Capture output
+    env: { ...process.env, PYTHONPATH: backendPath }
+  });
+
+  pythonProcess.stdout?.on('data', (data) => {
+    console.log(`[Python Stdout]: ${data}`);
+  });
+
+  pythonProcess.stderr?.on('data', (data) => {
+    console.error(`[Python Stderr]: ${data}`);
   });
 
   pythonProcess.on('error', (err) => {
-    console.error('Failed to start Python backend:', err);
+    console.error('Failed to start Python backend process:', err);
   });
 
   pythonProcess.on('exit', (code) => {
@@ -62,7 +77,33 @@ function startPythonBackend() {
 }
 
 // Start backend immediately
-startPythonBackend();
+const pythonBackendRequirements = async () => {
+  const backendPath = path.join(__dirname, 'backend');
+  const reqsPath = path.join(backendPath, 'requirements.txt');
+  
+  if (fs.existsSync(reqsPath)) {
+    console.log('[Python] Installing requirements from:', reqsPath);
+    try {
+      const pip = spawn('python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
+        cwd: backendPath,
+        stdio: 'inherit'
+      });
+      
+      await new Promise((resolve) => {
+        pip.on('exit', (code) => {
+          if (code !== 0) console.warn(`[Python] pip install exited with code ${code}`);
+          resolve(code);
+        });
+      });
+    } catch (err) {
+      console.error('[Python] Failed to run pip install:', err);
+    }
+  }
+  
+  startPythonBackend();
+};
+
+pythonBackendRequirements();
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({
@@ -192,13 +233,29 @@ async function startServer() {
   // Intelligence Variables Endpoint (Node implementation fallback)
   app.get('/api/variables', (req, res) => {
     try {
-      const dataPath = path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json');
-      if (fs.existsSync(dataPath)) {
+      const pathsToTry = [
+        path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json'),
+        path.join(process.cwd(), 'backend', 'app', 'data', 'rri_variables.json'),
+        '/backend/app/data/rri_variables.json',
+        './backend/app/data/rri_variables.json'
+      ];
+      
+      let dataPath = null;
+      for (const p of pathsToTry) {
+        if (fs.existsSync(p)) {
+          dataPath = p;
+          break;
+        }
+      }
+
+      if (dataPath) {
         const raw = fs.readFileSync(dataPath, 'utf8');
         const data = JSON.parse(raw);
         return res.json(data.variables || []);
       }
-      res.status(404).json({ error: 'Variables data not found' });
+      
+      console.error('Variables data not found. Tried paths:', pathsToTry);
+      res.status(404).json({ error: 'Variables data not found', triedPaths: pathsToTry });
     } catch (error) {
       console.error('Error serving variables:', error);
       res.status(500).json({ error: 'Internal server error serving variables' });
@@ -535,10 +592,26 @@ async function startServer() {
     target: 'http://localhost:8000',
     changeOrigin: true,
     ws: true, // proxy websockets
+    on: {
+      error: (err, req, res) => {
+        console.error('[Proxy Error]:', err);
+        if (res && (res as any).status) {
+          (res as any).status(502).send('Proxy to backend failed');
+        }
+      }
+    }
   });
   
   app.use('/api', apiProxy);
   app.use('/ws', apiProxy);
+
+  // Prevent API and WS requests from falling through to the Catch-all SPA route
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API route not found' });
+  });
+  app.all('/ws/*', (req, res) => {
+    res.status(404).json({ error: 'WebSocket route not found' });
+  });
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {

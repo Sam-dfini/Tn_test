@@ -121,6 +121,11 @@ export const LiveSignalFeed: React.FC<{
       .slice(0, maxItems);
   }, [classified, filter, maxItems, articleMap]);
 
+  // Final prepared list for rendering (memoized to prevent key regeneration)
+  const preparedList = useMemo(() => {
+    return prepareList(filtered);
+  }, [filtered]);
+
   if (!articles.length) {
     return (
       <div className="glass p-5 rounded-2xl border border-intel-border/30
@@ -207,7 +212,7 @@ export const LiveSignalFeed: React.FC<{
         </div>
       ) : (
         <div className="space-y-2">
-          {prepareList(filtered).map((c: any, i: number) => {
+          {preparedList.map((c: any, i: number) => {
             const article = articleMap.get(c.articleId);
             if (!article) return null;
             return (

@@ -68,17 +68,6 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
       
       <div className="flex items-center space-x-4 md:space-x-8">
         <div className="flex items-center space-x-2 md:space-x-4">
-          {onToggleSidebar && (
-            <button 
-              onClick={onToggleSidebar}
-              className="relative p-2 -ml-2 md:ml-0 rounded-lg text-intel-cyan bg-intel-cyan/10 border border-intel-cyan/40 hover:bg-intel-cyan/20 hover:border-intel-cyan/60 hover:text-white shadow-[0_0_10px_rgba(0,242,255,0.15)] hover:shadow-[0_0_20px_rgba(0,242,255,0.4)] transition-all duration-300 group overflow-hidden"
-              title="Toggle Sidebar Navigation"
-            >
-              <div className="absolute inset-0 bg-intel-cyan/20 animate-pulse blur-[2px] opacity-60 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00f2ff] to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-              <Menu className="w-4 h-4 relative z-10 drop-shadow-[0_0_8px_rgba(0,242,255,1)]" />
-            </button>
-          )}
           <div className="w-9 h-9 hidden md:flex bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.05)]">
             <Shield className="w-5 h-5 text-intel-cyan" />
           </div>

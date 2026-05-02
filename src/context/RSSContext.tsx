@@ -63,8 +63,18 @@ export const RSSProvider: React.FC<{
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper to deduplicate arrays of items with an id
-  const deduplicateById = <T extends Record<string, any>>(items: T[]): T[] => {
-    return prepareList(items) as unknown as T[];
+  const deduplicateById = <T extends { id?: any }>(items: T[]): T[] => {
+    if (!items || !Array.isArray(items)) return [];
+    const map = new Map();
+    items.forEach((item, index) => {
+      if (!item) return;
+      const key = item.id || `idx_${index}`;
+      // Keep the first one encountered (usually the newest if prepending)
+      if (!map.has(key)) {
+        map.set(key, item);
+      }
+    });
+    return Array.from(map.values());
   };
 
   // Load recent intelligence from Supabase

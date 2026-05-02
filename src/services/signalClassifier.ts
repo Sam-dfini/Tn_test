@@ -68,6 +68,7 @@ export interface PredictionMatch {
 }
 
 export interface SignalClassification {
+  id: string;            // Stable unique ID (usually article.id)
   articleId: string;
   tier: SignalTier;
   tierReason: string;            // why this tier
@@ -539,6 +540,7 @@ export function classifySignal(
   ));
 
   return {
+    id: article.id,
     articleId: article.id,
     tier,
     tierReason,

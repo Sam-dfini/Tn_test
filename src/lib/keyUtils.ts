@@ -86,7 +86,7 @@ export function prepareList<T>(
          
          // If missing, empty, or invalid type, generate a fallback
          if (!isValidId(baseId)) {
-           const fallbackSource = (item as any).url || (item as any).hash || (item as any).guid || (item as any).link || (item as any).title || (item as any).name;
+           const fallbackSource = (item as any).articleId || (item as any).article_id || (item as any).url || (item as any).hash || (item as any).guid || (item as any).link || (item as any).title || (item as any).name;
            baseId = isValidId(fallbackSource) ? stableHash(`derived_${fallbackSource}`) : generateSafeId();
          }
       } else {
