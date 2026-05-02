@@ -60,12 +60,19 @@ const FLOW_STYLE = `
   0%,100% { opacity:1; }
   50%      { opacity:0.3; }
 }
+@keyframes admTicker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 .flow-ok   { animation: flowDash 0.8s linear infinite; }
 .flow-rev  { animation: flowDashRev 0.8s linear infinite; }
 .flow-warn { animation: flowDash 1.6s linear infinite; }
 .flow-fail { animation: none; }
 .led-ok    { animation: ledPulse 2s ease-in-out infinite; }
 .led-warn  { animation: ledPulseWarn 1s ease-in-out infinite; }
+.adm-ticker-track { display: inline-flex; min-width: max-content; }
+.adm-ticker-run { animation: admTicker 26s linear infinite; }
+.adm-ticker-run:hover { animation-play-state: paused; }
 `;
 
 // Inject styles once
@@ -158,6 +165,7 @@ const FlowDiagram: React.FC<{
   metrics: any;
   onNodeClick: (stage: string) => void;
 }> = ({ metrics, onNodeClick }) => {
+  const [edgeIssueTimestamps, setEdgeIssueTimestamps] = useState<Record<string, number>>({});
 
   // SVG canvas dimensions
   const W = 900;
@@ -349,6 +357,97 @@ const FlowDiagram: React.FC<{
   // Bottom row x centers — same columns
   const bx = botDefs.map(d => xs[d.xi]);
 
+  const flowEdges = [
+    ['rss', 'parser'],
+    ['parser', 'classifier'],
+    ['classifier', 'supabase'],
+    ['supabase', 'signals'],
+    ['signals', 'events'],
+    ['events', 'rri'],
+    ['rri', 'ui'],
+  ] as const;
+
+  const nodeById = [...topDefs, ...botDefs].reduce((acc, n) => {
+    acc[n.id] = n;
+    return acc;
+  }, {} as Record<string, (typeof topDefs)[number]>);
+
+  useEffect(() => {
+    const now = Date.now();
+    setEdgeIssueTimestamps(prev => {
+      const next = { ...prev };
+      for (const [from, to] of flowEdges) {
+        const key = `${from}-${to}`;
+        const state = connStatus(from, to, metrics);
+        if (state === 'SLOW' || state === 'BLOCKED') {
+          if (!next[key]) next[key] = now;
+        } else {
+          delete next[key];
+        }
+      }
+      return next;
+    });
+  }, [
+    metrics.feedCount,
+    metrics.newsCount,
+    metrics.errorRate,
+    metrics.dbWriteCount,
+    metrics.signalCount,
+    metrics.eventCount,
+    metrics.lastIngestionTime,
+  ]);
+
+  const flowIssues = flowEdges
+    .map(([from, to]) => {
+      const state = connStatus(from, to, metrics);
+      if (state === 'FLOWING' || state === 'IDLE') return null;
+      const key = `${from}-${to}`;
+      const fromNode = nodeById[from];
+      const toNode = nodeById[to];
+      const ts = edgeIssueTimestamps[key] ?? Date.now();
+      const hhmmss = new Date(ts).toLocaleTimeString([], { hour12: false });
+      return {
+        key,
+        status: state,
+        from,
+        to,
+        fromLabel: fromNode?.label ?? from,
+        toLabel: toNode?.label ?? to,
+        fromStage: fromNode?.stage ?? 'MISSION',
+        toStage: toNode?.stage ?? 'MISSION',
+        timestamp: hhmmss,
+      };
+    })
+    .filter(Boolean) as Array<{
+      key: string;
+      status: ConnStatus;
+      from: string;
+      to: string;
+      fromLabel: string;
+      toLabel: string;
+      fromStage: string;
+      toStage: string;
+      timestamp: string;
+    }>;
+
+  const hasFlowIssues = flowIssues.length > 0;
+
+  const tickerContent = hasFlowIssues
+    ? [...flowIssues, ...flowIssues]
+    : [
+        {
+          key: 'ok',
+          status: 'FLOWING' as ConnStatus,
+          from: 'ok',
+          to: 'ok',
+          fromLabel: 'No active flow errors',
+          toLabel: '',
+          fromStage: 'MISSION',
+          toStage: 'MISSION',
+          timestamp: new Date().toLocaleTimeString([], { hour12: false }),
+        },
+      ];
+
   // Node center helpers
   const tCx = (i: number) => tx[i] + NODE_W / 2;
   const tCy = TOP_Y + NODE_H / 2;
@@ -481,6 +580,43 @@ const FlowDiagram: React.FC<{
         <span>
           Latency: <span className={metrics.latencyMs > 2000 ? 'text-red-400' : 'text-white/40'}>{Math.round(metrics.latencyMs || 0)}ms</span>
         </span>
+      </div>
+
+      <div className="px-5 py-2 border-t border-white/5 text-[9px] font-mono bg-black/30 overflow-hidden">
+        <div className="flex items-center gap-2 mb-1">
+          <span className={hasFlowIssues ? 'text-red-400' : 'text-emerald-400'}>
+            ADM Flow Errors:
+          </span>
+          <span className="text-white/25">(click an item to jump)</span>
+        </div>
+
+        <div className="w-full overflow-hidden whitespace-nowrap">
+          <div className={`adm-ticker-track ${hasFlowIssues ? 'adm-ticker-run' : ''}`}>
+            {tickerContent.map((issue, idx) => {
+              const isIssue = issue.status === 'SLOW' || issue.status === 'BLOCKED';
+              const tone = issue.status === 'BLOCKED'
+                ? 'text-red-300 border-red-500/30 bg-red-500/10'
+                : issue.status === 'SLOW'
+                  ? 'text-amber-300 border-amber-500/30 bg-amber-500/10'
+                  : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
+
+              return (
+                <button
+                  key={`${issue.key}-${idx}`}
+                  id={`adm-flow-issue-${idx}`}
+                  type="button"
+                  onClick={() => isIssue && onNodeClick(issue.toStage)}
+                  className={`inline-flex items-center gap-2 px-2 py-1 mr-3 rounded border ${tone} ${isIssue ? 'cursor-pointer hover:brightness-110' : 'cursor-default'}`}
+                  title={isIssue ? `Jump to ${issue.toStage}` : 'Pipeline healthy'}
+                >
+                  <span className="text-white/60">[{issue.timestamp}]</span>
+                  <span>{issue.status}</span>
+                  <span className="text-white/80">{issue.fromLabel}{issue.toLabel ? ` → ${issue.toLabel}` : ''}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -862,7 +998,7 @@ const INITIAL_TESTS: TestResult[] = [
   { id: 'db-dupes', label: 'Duplicate Article Check', status: 'idle', message: 'Scan for duplicate IDs' },
   { id: 'db-schema', label: 'Schema Validation', status: 'idle', message: 'Verify required fields on recent rows' },
   // AI
-  { id: 'ai-ping', label: 'Gemini API Health', status: 'idle', message: 'GET /api/health → check key status' },
+  { id: 'ai-ping', label: 'General API', status: 'idle', message: 'GET /api/health → check key status' },
   { id: 'ai-classify', label: 'Test Classification', status: 'idle', message: 'Run sample article through classifier' },
   { id: 'ai-proxy', label: 'AI Proxy Route', status: 'idle', message: 'Test /api/ai endpoint' },
   // RRI
@@ -979,9 +1115,9 @@ const TestSuite: React.FC = () => {
           
           setTest(id, {
             status: aiOk ? 'pass' : 'fail',
-            message: aiOk ? (openaiOk ? 'OpenAI key active (Primary)' : 'Gemini key active (Fallback)') : 'AI keys missing or placeholder',
+            message: aiOk ? (openaiOk ? 'NVIDIA Llama-3.1-70b (Primary)' : 'OpenRouter (Fallback)') : 'AI keys missing or placeholder',
             latencyMs: ms,
-            detail: `Gemini: ${geminiOk ? 'OK' : 'OFF'}, OpenAI: ${openaiOk ? 'OK' : 'OFF'}`,
+            detail: `NVIDIA: ${openaiOk ? 'OK' : 'OFF'}, OpenRouter: ${geminiOk ? 'OK' : 'OFF'}`,
           });
           break;
         }
@@ -1175,6 +1311,7 @@ const SourceDebuggerTab: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [statusMap, setStatusMap] = useState<Record<string, 'healthy' | 'warning' | 'failing' | 'idle' | 'testing'>>({});
   const [isTestingAll, setIsTestingAll] = useState(false);
+  const SLOW_SOURCE_MS = 4000;
 
   const allSources = useMemo(() => prepareList([
     ...RSS_SOURCES.map(s => ({ ...s, id: s.id || s.url, group: 'RSS' })),
@@ -1186,58 +1323,81 @@ const SourceDebuggerTab: React.FC = () => {
 
   const testSource = async (source: any) => {
     setStatusMap(prev => ({ ...prev, [source.id]: 'testing' }));
+    const startedAt = Date.now();
+
     try {
       if (source.group === 'RSS') {
         const res = await validateRSSSource(source.url);
         // Check if actually has items
         const data = await fetchRSSFeed(source);
+        const elapsed = Date.now() - startedAt;
+
         if (res === 'failing') {
           setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
-        } else if (data.length === 0) {
-          // Yellow if no feed
-          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        } else if (res === 'degraded') {
+        } else if (data.length === 0 || res === 'degraded' || elapsed > SLOW_SOURCE_MS) {
+          // Slow or empty = orange
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       } else if (source.group === 'Telegram') {
         const data = await fetchTelegramChannel(source, 0);
-        if (data.length === 0) {
+        const elapsed = Date.now() - startedAt;
+        if (data.length === 0 || elapsed > SLOW_SOURCE_MS) {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       } else {
-        // API Sources
-        let data: any[] = [];
-        if (source.id === 'newsapi') data = await fetchFromNewsAPI();
-        else if (source.id === 'newsdata') data = await fetchFromNewsData();
-        else if (source.id === 'gnews') data = await fetchFromGNews();
-        
-        if (data.length === 0) {
+        // API Sources — probe multiple times to maximize coverage
+        const MAX_PROBES = 3;
+        const probeFetch = async () => {
+          if (source.id === 'newsapi') return await fetchFromNewsAPI();
+          if (source.id === 'newsdata') return await fetchFromNewsData();
+          if (source.id === 'gnews') return await fetchFromGNews();
+          return [] as any[];
+        };
+
+        const probeResults = await Promise.allSettled(
+          Array.from({ length: MAX_PROBES }, () => probeFetch())
+        );
+
+        const successful = probeResults.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<any[]>[];
+        const totalItems = successful.reduce((acc, r) => acc + (r.value?.length || 0), 0);
+        const elapsed = Date.now() - startedAt;
+
+        if (successful.length === 0) {
+          setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
+        } else if (totalItems === 0 || elapsed > SLOW_SOURCE_MS) {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       }
     } catch {
-      // Failed to fetch -> yellow per user request
-      setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+      // Unreachable/dead -> red
+      setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
     }
   };
 
   const testAll = async () => {
     setIsTestingAll(true);
-    // Prioritize RSS sources for testing as requested
+    // Prioritize RSS + API first on startup diagnostics
     const rss = allSources.filter(s => s.group === 'RSS');
-    const others = allSources.filter(s => s.group !== 'RSS');
+    const api = allSources.filter(s => s.group === 'API');
+    const others = allSources.filter(s => s.group !== 'RSS' && s.group !== 'API');
     
-    for (const source of [...rss, ...others]) {
+    for (const source of [...rss, ...api, ...others]) {
       await testSource(source);
     }
     setIsTestingAll(false);
   };
+
+  useEffect(() => {
+    // Auto-diagnostic when SCC source debugger opens
+    testAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const selectSource = async (source: any) => {
     setSelectedSource(source);
@@ -1290,12 +1450,13 @@ const SourceDebuggerTab: React.FC = () => {
                   const statusB = statusMap[b.id] || 'idle';
                   
                   // Priority: testing > healthy > idle > warning > failing
+                  // Unreachable/empty (warning/failing) stay at the bottom waiting queue
                   const scores: Record<string, number> = {
                     testing: 5,
                     healthy: 4,
                     idle: 3,
-                    warning: 2,
-                    failing: 1
+                    warning: 1,
+                    failing: 0
                   };
                   
                   return (scores[statusB] || 0) - (scores[statusA] || 0);

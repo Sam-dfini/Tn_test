@@ -62,15 +62,7 @@ async def root():
         "app_name": settings.APP_NAME
     }
 
-@app.get("/health")
-async def health_check():
-    """
-    Health check endpoint.
-    """
-    return {
-        "status": "ok",
-        "debug": settings.DEBUG
-    }
+# Detailed health check is now in api/routes.py
 
 if __name__ == "__main__":
     import uvicorn

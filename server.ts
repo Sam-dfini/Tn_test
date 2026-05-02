@@ -47,7 +47,8 @@ function startPythonBackend() {
     return null;
   }
 
-  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+  const pythonProcess = spawn(pythonCmd, ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: backendPath,
     stdio: 'pipe', // Capture output
     env: { ...process.env, PYTHONPATH: backendPath }
@@ -84,7 +85,8 @@ const pythonBackendRequirements = async () => {
   if (fs.existsSync(reqsPath)) {
     console.log('[Python] Installing requirements from:', reqsPath);
     try {
-      const pip = spawn('python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
+      const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+      const pip = spawn(pythonCmd, ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
         cwd: backendPath,
         stdio: 'inherit'
       });
@@ -209,26 +211,7 @@ async function startServer() {
     }
   });
 
-  // 1. Specific API routes (defined before the general proxy)
-  app.get('/api/health', (req, res) => {
-    const geminiKey = process.env.GEMINI_API_KEY;
-    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-
-    res.json({ 
-      status: 'ok', 
-      gemini: {
-        key_exists: !!geminiKey,
-        key_is_placeholder: geminiKey ? geminiKey.includes('MY_GEMINI_API_KEY') : false
-      },
-      openai: {
-        key_exists: !!openAIApiKey,
-        key_is_placeholder: openAIApiKey ? openAIApiKey.includes('MY_OPENAI_API_KEY') : false
-      },
-      // Keep legacy top-level for backwards compatibility if needed
-      key_exists: !!geminiKey, 
-      key_is_placeholder: geminiKey ? geminiKey.includes('MY_GEMINI_API_KEY') : false
-    });
-  });
+  // Removed hardcoded /api/health to allow proxying to FastAPI
 
   // Intelligence Variables Endpoint (Node implementation fallback)
   app.get('/api/variables', (req, res) => {
@@ -262,104 +245,7 @@ async function startServer() {
     }
   });
 
-  // AI Proxy Endpoint
-  app.post('/api/ai', async (req, res) => {
-    console.log('Received request to /api/ai');
-    const { prompt, config } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-
-    // 1. TRY OPENAI FIRST (User requested priority)
-    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-    if (openAIApiKey && !openAIApiKey.includes('MY_OPENAI_API_KEY')) {
-      try {
-        console.log('Attempting OpenAI generation...');
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: config?.model?.includes('gpt') ? config.model : 'gpt-4o',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: config?.temperature ?? 0.1,
-            top_p: config?.topP ?? 0.8,
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
-        } else {
-          const errorData = await response.text();
-          console.warn(`OpenAI primary attempt failed (Status ${response.status}). Falling back to Gemini...`);
-        }
-      } catch (error: any) {
-        console.warn('OpenAI primary attempt errored. Falling back to Gemini...', error.message);
-      }
-    }
-
-    // 2. FALLBACK TO GEMINI (Primary fallback)
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && !geminiKey.includes('MY_GEMINI_API_KEY')) {
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      try {
-        console.log('Attempting Gemini generation...');
-        const model = genAI.getGenerativeModel({ 
-          model: config?.model?.includes('gemini') ? config.model : 'gemini-1.5-flash',
-          generationConfig: {
-            temperature: config?.temperature ?? 0.1,
-            topP: config?.topP ?? 0.8,
-            topK: config?.topK ?? 40,
-            responseMimeType: config?.responseMimeType || 'text/plain',
-          }
-        });
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        return res.json({ text });
-      } catch (error: any) {
-        console.error('Gemini Error (fallback):', error);
-      }
-    }
-
-    // 3. SECONDARY FALLBACK: OpenRouter
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-    if (openRouterApiKey && !openRouterApiKey.includes('MY_OPENROUTER_API_KEY')) {
-      try {
-        console.log('Attempting OpenRouter generation...');
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openRouterApiKey}`,
-            'HTTP-Referer': process.env.APP_URL || 'https://ais.studio',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: config?.model || 'google/gemini-2.0-flash-lite',
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
-        }
-      } catch (error: any) {
-        console.error('OpenRouter Error:', error);
-      }
-    }
-
-    // 4. FINAL FAILSAFE
-    const isPlaceholder = (geminiKey && geminiKey.includes('MY_GEMINI_API_KEY')) || (openAIApiKey && openAIApiKey.includes('MY_OPENAI_API_KEY'));
-    
-    return res.status(200).json({ 
-      text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API keys.'} Please verify your OPENAI_API_KEY or GEMINI_API_KEY in the environment settings.]`
-    });
-  });
+  // Removed hardcoded /api/ai proxy to allow requests to fall through to the FastAPI backend
 
   // RSS Proxy API
   app.get('/api/rss', async (req, res) => {
@@ -589,7 +475,7 @@ async function startServer() {
 
   // 2. Generic Proxy API - Catch-all for /api and /ws requests to FastAPI backend
   const apiProxy = createProxyMiddleware({
-    target: 'http://localhost:8000',
+    target: 'http://localhost:8000/api',
     changeOrigin: true,
     ws: true, // proxy websockets
     on: {
