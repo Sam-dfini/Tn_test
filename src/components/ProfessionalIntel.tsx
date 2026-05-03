@@ -630,12 +630,42 @@ Return only the 3-sentence briefing.`;
   ];
 
   useEffect(() => {
+    // Handle global navigation events
+    const handleNavigate = (e: any) => {
+      const { tab, subTab } = e.detail || {};
+      if (tab) {
+        // Map global tabs to professional tabs
+        const mapping: Record<string, string> = {
+          'risk': 'overview',
+          'newsfeed': 'events',
+          'economy': 'economy',
+          'social': 'social',
+          'pipeline': 'events'
+        };
+        const localTab = (mapping[tab.toLowerCase()] || tab) as any;
+        
+        const exists = tabs.some(t => t.id === localTab);
+        if (exists) {
+          setActiveTab(localTab as any);
+          
+          if (subTab) {
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('navigate-subtab', { detail: { ...e.detail, tab: localTab } }));
+            }, 50);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('navigate-main', handleNavigate);
+    
     // Check hash on load
     if (window.location.hash === '#pipeline') {
       // The pipeline is now an overlay, so we don't set activeTab here
-      // App.tsx handles the navigate-to-pipeline event
     }
-  }, []);
+
+    return () => window.removeEventListener('navigate-main', handleNavigate);
+  }, [tabs]);
 
   const stabilityRisk = useMemo(() => {
     return Math.min(100, Math.max(0, Math.round(rriState.p_rev * 100)));

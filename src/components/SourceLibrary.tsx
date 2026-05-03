@@ -50,22 +50,52 @@ interface Source {
 
 const DEFAULT_SOURCES: Source[] = [
   // ============================================================
-  // RSS FEEDS
+  // RSS FEEDS (24 sources — mirrors rssSources.ts)
   // ============================================================
-  {
-    id: 'rss-realites',
-    type: 'rss',
-    name: 'Réalités',
-    url: 'https://realites.com.tn/fr/feed/',
-    language: 'FR',
-    reliability: 'B',
-    notes: 'Weekly news magazine and daily news site.',
-    status: 'untested',
-    active: true,
-    keywords: ['Tunisie', 'politique', 'société', 'actualité'],
-    addedAt: '2026-03-27',
-    builtIn: true,
-  },
+  { id: 'google-news-tunisia', type: 'rss', name: 'Google News Tunisia', url: 'https://news.google.com/rss/search?q=Tunisia&hl=en-US&gl=US&ceid=US:en', language: 'EN', reliability: 'A', notes: 'Google aggregated English-language Tunisia coverage.', status: 'untested', active: true, keywords: ['Tunisia'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'google-news-tunisie', type: 'rss', name: 'Google News Tunisie', url: 'https://news.google.com/rss/search?q=Tunisie&hl=fr&gl=FR&ceid=FR:fr', language: 'FR', reliability: 'A', notes: 'Google aggregated French-language Tunisia coverage.', status: 'untested', active: true, keywords: ['Tunisie'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'kapitalis', type: 'rss', name: 'Kapitalis', url: 'https://kapitalis.com/tunisie/feed/', language: 'FR', reliability: 'B', notes: 'Tunisian French-language news magazine.', status: 'untested', active: true, keywords: ['Tunisie', 'actualité'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'africanmanager', type: 'rss', name: 'African Manager', url: 'https://africanmanager.com/feed/', language: 'FR', reliability: 'B', notes: 'Business and economy news for Tunisia and North Africa.', status: 'untested', active: true, keywords: ['Tunisie', 'économie'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'realites', type: 'rss', name: 'Réalités', url: 'https://realites.com.tn/fr/feed/', language: 'FR', reliability: 'B', notes: 'Weekly news magazine and daily news site.', status: 'untested', active: true, keywords: ['Tunisie', 'politique', 'société'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'nawaat', type: 'rss', name: 'Nawaat', url: 'https://nawaat.org/feed/', language: 'AR', reliability: 'A', notes: 'Independent investigative journalism — critical alignment.', status: 'untested', active: true, keywords: ['تونس', 'حقوق', 'سياسة'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'wmc-tunisie', type: 'rss', name: 'WebManagerCenter Tunisie', url: 'https://news.google.com/rss/search?q=site:webmanagercenter.com+tunisie&hl=fr&gl=FR&ceid=FR:fr', language: 'FR', reliability: 'B', notes: 'Economy and management news.', status: 'untested', active: true, keywords: ['Tunisie', 'management'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tunisie-soir', type: 'rss', name: 'Tunisie Soir', url: 'https://tunisiesoir.com/feed/', language: 'FR', reliability: 'B', notes: 'Daily French-language news.', status: 'untested', active: true, keywords: ['Tunisie', 'actualité'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'webdo', type: 'rss', name: 'Webdo Tunisie', url: 'https://news.google.com/rss/search?q=site:webdo.tn+tunisie&hl=fr&gl=FR&ceid=FR:fr', language: 'FR', reliability: 'B', notes: 'Digital-first Tunisian news portal.', status: 'untested', active: true, keywords: ['Tunisie'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'espacemanager', type: 'rss', name: 'Espace Manager', url: 'https://www.espacemanager.com/feed/', language: 'FR', reliability: 'B', notes: 'Business and economy focused.', status: 'untested', active: true, keywords: ['Tunisie', 'économie', 'business'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tuniscope', type: 'rss', name: 'Tuniscope', url: 'https://news.google.com/rss/search?q=site:tuniscope.com+tunisie&hl=fr&gl=FR&ceid=FR:fr', language: 'FR', reliability: 'B', notes: 'French-language general news.', status: 'untested', active: true, keywords: ['Tunisie'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'babnet', type: 'rss', name: 'Babnet', url: 'https://www.babnet.net/rss.php', language: 'AR', reliability: 'B', notes: 'Arabic-language general news aggregator.', status: 'untested', active: true, keywords: ['تونس', 'أخبار'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'lapresse', type: 'rss', name: 'La Presse', url: 'https://lapresse.tn/feed/', language: 'FR', reliability: 'A', notes: 'State-aligned newspaper — pro-government.', status: 'untested', active: true, keywords: ['Tunisie', 'gouvernement'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'france24-en', type: 'rss', name: 'France 24 EN', url: 'https://www.france24.com/en/africa/rss', language: 'EN', reliability: 'A', notes: 'International French broadcaster — Africa coverage.', status: 'untested', active: true, keywords: ['Tunisia', 'Africa'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'france24-fr', type: 'rss', name: 'France 24 FR', url: 'https://www.france24.com/fr/afrique/rss', language: 'FR', reliability: 'A', notes: 'International French broadcaster — Afrique coverage.', status: 'untested', active: true, keywords: ['Tunisie', 'Afrique'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'aljazeera-all', type: 'rss', name: 'Al Jazeera All', url: 'https://www.aljazeera.com/xml/rss/all.xml', language: 'EN', reliability: 'B', notes: 'Qatari broadcaster — regional geo filter applied.', status: 'untested', active: true, keywords: ['Tunisia', 'North Africa'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'alarabiya-en', type: 'rss', name: 'Al Arabiya EN', url: 'https://news.google.com/rss/search?q=site:english.alarabiya.net+tunisia&hl=en-US&gl=US&ceid=US:en', language: 'EN', reliability: 'B', notes: 'Saudi-owned English broadcaster.', status: 'untested', active: true, keywords: ['Tunisia'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'alhadath-ar', type: 'rss', name: 'Al Hadath AR', url: 'https://news.google.com/rss/search?q=site:alhadath.net+تونس&hl=ar&gl=AE&ceid=AE:ar', language: 'AR', reliability: 'B', notes: 'Arabic-language regional news.', status: 'untested', active: true, keywords: ['تونس'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'allafrica-tun', type: 'rss', name: 'All Africa Tunis', url: 'https://allafrica.com/tools/headlines/rdf/tunisia/headlines.rdf', language: 'EN', reliability: 'B', notes: 'Pan-African news aggregator — Tunisia section.', status: 'untested', active: true, keywords: ['Tunisia'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'apanews-tn', type: 'rss', name: 'APA News Tunisie', url: 'https://news.google.com/rss/search?q=site:apanews.net+tunisie&hl=fr&gl=FR&ceid=FR:fr', language: 'FR', reliability: 'B', notes: 'African Press Agency — Tunisie.', status: 'untested', active: true, keywords: ['Tunisie'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'bbc-africa', type: 'rss', name: 'BBC Africa', url: 'http://feeds.bbci.co.uk/news/world/africa/rss.xml', language: 'EN', reliability: 'A', notes: 'BBC Africa feed — geo filter applied.', status: 'untested', active: true, keywords: ['Tunisia', 'Africa'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'mosaique-fr', type: 'rss', name: 'Mosaïque FM', url: 'http://www.mosaiquefm.net/fr/rss', language: 'FR', reliability: 'B', notes: 'Major Tunisian radio station web feed.', status: 'untested', active: true, keywords: ['Tunisie', 'radio'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'jeuneafrique', type: 'rss', name: 'Jeune Afrique', url: 'https://www.jeuneafrique.com/feed/', language: 'FR', reliability: 'A', notes: 'Pan-African French-language magazine.', status: 'untested', active: true, keywords: ['Tunisie', 'Afrique'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'lemonde-tn', type: 'rss', name: 'Le Monde Tunisie', url: 'https://www.lemonde.fr/tunisie/rss_full.xml', language: 'FR', reliability: 'A', notes: 'Le Monde dedicated Tunisia section.', status: 'untested', active: true, keywords: ['Tunisie'], addedAt: '2026-03-27', builtIn: true },
+
+  // ============================================================
+  // TELEGRAM CHANNELS (9 channels — mirrors telegramService.ts)
+  // ============================================================
+  { id: 'tg-mosaique', type: 'social', name: 'Mosaïque FM (Telegram)', url: 'https://t.me/mosaiquefmofficiel', language: 'AR', reliability: 'A', notes: 'Major news radio Telegram channel. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['تونس', 'أخبار', 'عاجل'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-businessnews', type: 'social', name: 'Business News TN (Telegram)', url: 'https://t.me/businessnewstunisie', language: 'FR', reliability: 'A', notes: 'Economy and business news. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['Tunisie', 'économie', 'business'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-inkyfada', type: 'social', name: 'Inkyfada (Telegram)', url: 'https://t.me/inkyfada', language: 'FR', reliability: 'A', notes: 'Investigative journalism. Bridge: RSSHub', status: 'untested', active: true, monitorKeywords: ['Tunisie', 'enquête', 'droits'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-nawaat', type: 'social', name: 'Nawaat (Telegram)', url: 'https://t.me/nawaat', language: 'AR', reliability: 'A', notes: 'Independent critical media. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['تونس', 'حقوق', 'سياسة'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-leaders', type: 'social', name: 'Leaders Tunisie (Telegram)', url: 'https://t.me/leaderstunisie', language: 'FR', reliability: 'B', notes: 'Economy, pro-government leaning. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['Tunisie', 'leadership'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-tap', type: 'social', name: 'TAP Wire (Telegram)', url: 'https://t.me/agencetaptn', language: 'AR', reliability: 'A', notes: 'Official Tunisian state news agency. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['تونس', 'وكالة', 'رسمي'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-kapitalis', type: 'social', name: 'Kapitalis (Telegram)', url: 'https://t.me/kapitalismag', language: 'FR', reliability: 'B', notes: 'French news magazine. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['Tunisie', 'actualité'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-leconomiste', type: 'social', name: "L'Économiste Maghrébin (Telegram)", url: 'https://t.me/leconomistemaghrebin', language: 'FR', reliability: 'B', notes: 'Economy, regional coverage. Bridge: RSSHub', status: 'untested', active: true, monitorKeywords: ['économie', 'Maghreb'], addedAt: '2026-03-27', builtIn: true },
+  { id: 'tg-realites', type: 'social', name: 'Réalités Online (Telegram)', url: 'https://t.me/realitestunisie', language: 'FR', reliability: 'B', notes: 'News magazine Telegram channel. Bridge: tg.i-c-a.ru', status: 'untested', active: true, monitorKeywords: ['Tunisie', 'actualité'], addedAt: '2026-03-27', builtIn: true },
+
+  // ============================================================
+  // NEWS APIs (3 sources — mirrors newsApiService.ts)
+  // ============================================================
+  { id: 'api-newsapi', type: 'api', name: 'NewsAPI.org — Tunisia', url: 'https://newsapi.org/v2/everything?q=Tunisia&language=en', language: 'EN', reliability: 'A', notes: 'English-language international articles mentioning Tunisia. Requires VITE_NEWSAPI_KEY.', status: 'untested', schedule: 'Every 5 min', addedAt: '2026-03-27', builtIn: true },
+  { id: 'api-newsdata', type: 'api', name: 'NewsData.io — Tunisia', url: 'https://newsdata.io/api/1/news?country=tn', language: 'AR/FR/EN', reliability: 'B', notes: 'Multi-language Tunisian news. Requires VITE_NEWSDATA_KEY.', status: 'untested', schedule: 'Every 5 min', addedAt: '2026-03-27', builtIn: true },
+  { id: 'api-gnews', type: 'api', name: 'GNews — Tunisia', url: 'https://gnews.io/api/v4/search?q=Tunisia&lang=en', language: 'EN', reliability: 'B', notes: 'English Tunisia articles via GNews. Requires VITE_GNEWS_KEY.', status: 'untested', schedule: 'Every 5 min', addedAt: '2026-03-27', builtIn: true },
 ];
 
 const testConnection = async (source: Source): Promise<Partial<Source>> => {
@@ -701,11 +731,14 @@ export const SourceLibrary: React.FC<{
     try {
       const saved = safeStorage.getItem('ti_sources');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        // Merge with built-in sources (add any new built-ins)
-        const savedIds = parsed.map((s: Source) => s.id);
-        const newBuiltIns = DEFAULT_SOURCES.filter(s => !savedIds.includes(s.id));
-        return [...parsed, ...newBuiltIns];
+        const parsed: Source[] = JSON.parse(saved);
+        const builtInIds = new Set(DEFAULT_SOURCES.map(s => s.id));
+        // Strip stale built-ins (old IDs no longer in DEFAULT_SOURCES)
+        const filtered = parsed.filter(s => !s.builtIn || builtInIds.has(s.id));
+        // Add any new built-ins not yet in saved list
+        const savedIds = new Set(filtered.map(s => s.id));
+        const newBuiltIns = DEFAULT_SOURCES.filter(s => !savedIds.has(s.id));
+        return [...filtered, ...newBuiltIns];
       }
     } catch {}
     return DEFAULT_SOURCES;

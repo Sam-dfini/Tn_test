@@ -60,19 +60,12 @@ const FLOW_STYLE = `
   0%,100% { opacity:1; }
   50%      { opacity:0.3; }
 }
-@keyframes admTicker {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
 .flow-ok   { animation: flowDash 0.8s linear infinite; }
 .flow-rev  { animation: flowDashRev 0.8s linear infinite; }
 .flow-warn { animation: flowDash 1.6s linear infinite; }
 .flow-fail { animation: none; }
 .led-ok    { animation: ledPulse 2s ease-in-out infinite; }
 .led-warn  { animation: ledPulseWarn 1s ease-in-out infinite; }
-.adm-ticker-track { display: inline-flex; min-width: max-content; }
-.adm-ticker-run { animation: admTicker 26s linear infinite; }
-.adm-ticker-run:hover { animation-play-state: paused; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
@@ -453,8 +446,8 @@ const FlowDiagram: React.FC<{
 
   const hasFlowIssues = flowIssues.length > 0;
 
-  const tickerContent = hasFlowIssues
-    ? [...flowIssues, ...flowIssues]
+  const logEntries = hasFlowIssues
+    ? flowIssues
     : [
         {
           key: 'ok',
@@ -613,32 +606,30 @@ const FlowDiagram: React.FC<{
           <span className="text-white/25">(click an item to jump)</span>
         </div>
 
-        <div className="w-full overflow-hidden whitespace-nowrap">
-          <div className={`adm-ticker-track ${hasFlowIssues ? 'adm-ticker-run' : ''}`}>
-            {tickerContent.map((issue, idx) => {
-              const isIssue = issue.status === 'SLOW' || issue.status === 'BLOCKED';
-              const tone = issue.status === 'BLOCKED'
-                ? 'text-red-300 border-red-500/30 bg-red-500/10'
-                : issue.status === 'SLOW'
-                  ? 'text-amber-300 border-amber-500/30 bg-amber-500/10'
-                  : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
+        <div className="space-y-1">
+          {logEntries.map((issue, idx) => {
+            const isIssue = issue.status === 'SLOW' || issue.status === 'BLOCKED';
+            const tone = issue.status === 'BLOCKED'
+              ? 'text-red-300 border-red-500/30 bg-red-500/10'
+              : issue.status === 'SLOW'
+                ? 'text-amber-300 border-amber-500/30 bg-amber-500/10'
+                : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
 
-              return (
-                <button
-                  key={`${issue.key}-${idx}`}
-                  id={`adm-flow-issue-${idx}`}
-                  type="button"
-                  onClick={() => isIssue && onNodeClick(issue.toStage)}
-                  className={`inline-flex items-center gap-2 px-2 py-1 mr-3 rounded border ${tone} ${isIssue ? 'cursor-pointer hover:brightness-110' : 'cursor-default'}`}
-                  title={isIssue ? `Jump to ${issue.toStage}` : 'Pipeline healthy'}
-                >
-                  <span className="text-white/60">[{issue.timestamp}]</span>
-                  <span>{issue.status}</span>
-                  <span className="text-white/80">{issue.fromLabel}{issue.toLabel ? ` → ${issue.toLabel}` : ''}</span>
-                </button>
-              );
-            })}
-          </div>
+            return (
+              <button
+                key={`${issue.key}-${idx}`}
+                id={`adm-flow-issue-${idx}`}
+                type="button"
+                onClick={() => isIssue && onNodeClick(issue.toStage)}
+                className={`w-full text-left inline-flex items-center gap-2 px-2 py-1 rounded border ${tone} ${isIssue ? 'cursor-pointer hover:brightness-110' : 'cursor-default'}`}
+                title={isIssue ? `Jump to ${issue.toStage}` : 'Pipeline healthy'}
+              >
+                <span className="text-white/60">[{issue.timestamp}]</span>
+                <span>{issue.status}</span>
+                <span className="text-white/80">{issue.fromLabel}{issue.toLabel ? ` → ${issue.toLabel}` : ''}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

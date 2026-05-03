@@ -307,6 +307,29 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
   const displayedEvents = cleared ? [] : events;
 
   const [activeTab, setActiveTab] = useState<'keywords' | 'feed' | 'operator' | 'markets' | 'predict' | 'economic-reality'>('operator');
+  
+  useEffect(() => {
+    const handleNavigate = (e: any) => {
+      const { tab } = e.detail || {};
+      if (tab) {
+        // Map global tabs to citizen tabs
+        const mapping: Record<string, string> = {
+          'risk': 'operator',
+          'newsfeed': 'feed',
+          'economy': 'markets',
+          'social': 'feed',
+          'reality': 'economic-reality'
+        };
+        const localTab = (mapping[tab.toLowerCase()] || tab) as any;
+        
+        if (['keywords', 'feed', 'operator', 'markets', 'predict', 'economic-reality'].includes(localTab)) {
+          setActiveTab(localTab);
+        }
+      }
+    };
+    window.addEventListener('navigate-main', handleNavigate);
+    return () => window.removeEventListener('navigate-main', handleNavigate);
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEventType, setSelectedEventType] = useState<string>('all');
 

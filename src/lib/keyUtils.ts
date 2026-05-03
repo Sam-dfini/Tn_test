@@ -49,3 +49,40 @@ export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ?
     }
   });
 }
+
+// Backwards compatibility aliases and helpers for various components
+
+export function generateStableKey(prefix: string, item: any, index: number): string {
+  return getRenderKey(item, index, prefix);
+}
+
+export function getUniqueKey(prefix: string, id: any): string {
+  return assertKey(id, prefix);
+}
+
+export function assertUnique(keys: Set<string>, key: string): string {
+  let finalKey = key;
+  let counter = 1;
+  while (keys.has(finalKey)) {
+    finalKey = `${key}-${counter}`;
+    counter++;
+  }
+  keys.add(finalKey);
+  return finalKey;
+}
+
+export function generateStableId(item: any, prefix = 'id'): string {
+  if (item && item.id) return `${prefix}-${item.id}`;
+  if (item && item.fingerprint) return `${prefix}-${item.fingerprint}`;
+  return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+export function stableHash(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+}

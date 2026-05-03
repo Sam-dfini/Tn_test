@@ -117,7 +117,69 @@ const insecureHttpAgent = new http.Agent({
 
 async function startServer() {
   const app = express();
+  const PORT = 3000;
+  const httpServer = createServer(app);
+  const io = new SocketIOServer(httpServer, {
+    cors: { origin: '*' }
+  });
+
+  // Vite middleware for development - MUST BE FIRST
+  let vite: any;
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[Vite] Initializing development middleware...');
+    vite = await createViteServer({
+      server: { 
+        middlewareMode: true,
+        hmr: { 
+          server: httpServer,
+          overlay: false
+        },
+        watch: null
+      },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+    console.log('[Vite] Middleware initialized.');
+  }
+
   app.use(express.json({ limit: '10mb' }));
+
+  const findFirstExistingPath = (candidates: string[]): string | null => {
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+    }
+    return null;
+  };
+
+  app.get('/graph', (req, res) => {
+    const graphFile = findFirstExistingPath([
+      path.join(__dirname, 'graphify-out', 'graph.html'),
+      path.join(process.cwd(), 'graphify-out', 'graph.html'),
+      path.join(process.cwd(), 'Tn_test', 'graphify-out', 'graph.html')
+    ]);
+
+    if (!graphFile) {
+      return res.status(404).send('graphify-out/graph.html not found');
+    }
+
+    return res.sendFile(graphFile);
+  });
+
+  app.get('/graph-report', (req, res) => {
+    const reportFile = findFirstExistingPath([
+      path.join(__dirname, 'graphify-out', 'GRAPH_REPORT.md'),
+      path.join(process.cwd(), 'graphify-out', 'GRAPH_REPORT.md'),
+      path.join(process.cwd(), 'Tn_test', 'graphify-out', 'GRAPH_REPORT.md')
+    ]);
+
+    if (!reportFile) {
+      return res.status(404).send('graphify-out/GRAPH_REPORT.md not found');
+    }
+
+    return res.sendFile(reportFile);
+  });
 
   // Safe Supabase initialization
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -139,12 +201,6 @@ async function startServer() {
   } else {
     console.error('[Supabase] URL or KEY missing! SUPABASE_URL:', !!supabaseUrl, 'SUPABASE_SERVICE_KEY:', !!supabaseKey);
   }
-
-  const PORT = 3000;
-  const httpServer = createServer(app);
-  const io = new SocketIOServer(httpServer, {
-    cors: { origin: '*' }
-  });
 
   // Live Intelligence Streaming Simulation
   io.on('connection', (socket) => {
@@ -648,14 +704,7 @@ async function startServer() {
     res.status(404).json({ error: 'WebSocket route not found' });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
+  if (process.env.NODE_ENV === 'production') {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -707,6 +756,13 @@ async function startServer() {
 
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
+  }).on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`ERROR: Port ${PORT} is already in use. Please kill the process using this port and try again.`);
+    } else {
+      console.error('Server failed to start:', err);
+    }
+    process.exit(1);
   });
 }
 

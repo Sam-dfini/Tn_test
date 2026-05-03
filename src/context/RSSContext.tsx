@@ -62,6 +62,11 @@ export const RSSProvider: React.FC<{
   // SINGLETON INTERVAL REF
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Stable refs so the interval effect doesn't restart when callbacks change
+  const fetchNowRef = useRef<(force?: boolean) => Promise<void>>(() => Promise.resolve());
+  const loadDataRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const loadNotificationsRef = useRef<() => Promise<void>>(() => Promise.resolve());
+
   // Helper to deduplicate arrays of items with an id
   const deduplicateById = <T extends { id?: any; title?: string; published_at?: any }>(items: T[]): T[] => {
     if (!items || !Array.isArray(items)) return [];
@@ -98,6 +103,9 @@ export const RSSProvider: React.FC<{
       console.error('Failed to load intelligence data:', err);
     }
   }, []);
+
+  // Keep refs current so the stable interval can always call the latest version
+  // (must be after the useCallback definitions below)
 
   // Load notifications
   const loadNotifications = useCallback(async () => {
@@ -206,9 +214,11 @@ export const RSSProvider: React.FC<{
             priority: 'CRITICAL',
             title: 'SYSTEM SHOCK DETECTED',
             message: shocks[0].title,
-            action_label: 'Analyze Shock',
-            action_event: 'navigate-main',
-            action_detail: { tab: 'newsfeed' },
+            action: {
+              label: 'Analyze Shock',
+              event: 'navigate-main',
+              detail: { tab: 'newsfeed' }
+            },
           });
         } else {
           const highSeverity = recent.filter(a => a.severity >= 4);
@@ -218,9 +228,11 @@ export const RSSProvider: React.FC<{
               priority: 'HIGH',
               title: `${combinedNew} New Articles — ${highSeverity.length} High Priority`,
               message: highSeverity[0]?.title || 'New intelligence available',
-              action_label: 'View Feed',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'newsfeed' },
+              action: {
+                label: 'View Feed',
+                event: 'navigate-main',
+                detail: { tab: 'newsfeed' }
+              },
             });
           }
         }
@@ -236,6 +248,11 @@ export const RSSProvider: React.FC<{
     }
   }, [isPaused, updateMetrics, trackTrace, loadNotifications]);
 
+  // Sync latest fetchNow into ref so the interval never goes stale
+  useEffect(() => { fetchNowRef.current = fetchNow; }, [fetchNow]);
+  useEffect(() => { loadDataRef.current = loadData; }, [loadData]);
+  useEffect(() => { loadNotificationsRef.current = loadNotifications; }, [loadNotifications]);
+
   // Watch RRI state for threshold breaches
   useEffect(() => {
     if (!rriState) return;
@@ -248,9 +265,11 @@ export const RSSProvider: React.FC<{
           priority: 'CRITICAL',
           title: '⚠ Revolution Threshold Breached',
           message: `R(t) = ${rriState.rri.toFixed(4)} — P_rev = ${(rriState.p_rev*100).toFixed(1)}%`,
-          action_label: 'View Risk Model',
-          action_event: 'navigate-main',
-          action_detail: { tab: 'risk' },
+          action: {
+            label: 'View Risk Model',
+            event: 'navigate-main',
+            detail: { tab: 'risk' }
+          },
         });
         await loadNotifications();
       }
@@ -260,13 +279,13 @@ export const RSSProvider: React.FC<{
     checkRRI();
   }, [rriState?.rri, rriState?.velocity]);
 
-  // CORE LOOP CONTROL
+  // CORE LOOP CONTROL — only depends on isPaused; callbacks accessed via refs
   const hasInit = useRef(false);
   useEffect(() => {
     if (!hasInit.current) {
-      loadData();
-      loadNotifications();
-      fetchNow();
+      loadDataRef.current();
+      loadNotificationsRef.current();
+      fetchNowRef.current();
       hasInit.current = true;
     }
 
@@ -275,16 +294,16 @@ export const RSSProvider: React.FC<{
     const interval = setInterval(() => {
       if (!isPaused) {
         console.log("[RSS] Scheduled ingestion triggered...");
-        fetchNow();
+        fetchNowRef.current();
       }
-    }, 300_000); 
+    }, 300_000);
 
     fetchIntervalRef.current = interval;
 
     return () => {
       if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     };
-  }, [isPaused, fetchNow, loadData, loadNotifications]);
+  }, [isPaused]);
 
   // Realtime subscription via WebSocket
   useEffect(() => {

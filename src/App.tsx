@@ -144,9 +144,21 @@ const AppContent: React.FC = () => {
       setShowMethodology(true);
     };
     const handlePipeline = (e: any) => handleOpenPipeline(e.detail?.tab || 'pipeline');
+    const handleObservability = () => setShowObservability(true);
+    const handleDebugger = () => setShowDebug(true);
+    
+    const handleMainNavigation = () => {
+      setShowPipeline(false);
+      setShowMethodology(false);
+      setShowObservability(false);
+      setShowDebug(false);
+    };
     
     window.addEventListener('navigate-to-methodology', handleMethodology);
     window.addEventListener('navigate-to-pipeline', handlePipeline);
+    window.addEventListener('navigate-to-observability', handleObservability);
+    window.addEventListener('navigate-to-debugger', handleDebugger);
+    window.addEventListener('navigate-main', handleMainNavigation);
     
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '`') {
@@ -155,14 +167,12 @@ const AppContent: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     
-    const handleObservability = () => setShowObservability(true);
-    window.addEventListener('navigate-to-observability', handleObservability);
-    
     return () => {
       window.removeEventListener('navigate-to-methodology', handleMethodology);
       window.removeEventListener('navigate-to-pipeline', handlePipeline);
-      window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('navigate-to-observability', handleObservability);
+      window.removeEventListener('navigate-to-debugger', handleDebugger);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 

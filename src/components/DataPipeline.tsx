@@ -522,7 +522,16 @@ export const DataPipeline: React.FC<{
             </div>
           ) : activeTab === 'ai-api' ? (
             <AIAPITab />
-          ) : activeTab === 'pipeline' ? (
+          ) : activeTab === 'sources' ? (
+            <SourceLibrary 
+              onClose={onClose} 
+              isEmbedded={true} 
+              onNavigateToPipeline={(url) => {
+                setUrlInput(url);
+                setActiveTab('pipeline');
+              }}
+            />
+          ) : (
             <div className="space-y-8">
                <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
                  <div className="lg:col-span-4 space-y-6">
@@ -594,7 +603,7 @@ export const DataPipeline: React.FC<{
                  </div>
                  <div className="lg:col-span-6 space-y-6">
                     {reviewQueue.length === 0 && (
-                      <div className="p-12 bg-slate-900/40 border border-white/10 rounded-2xl flex flex-col items-center justify-center text-center space-y-4 h-full border-dashed">
+                       <div className="p-12 bg-slate-900/40 border border-white/10 rounded-2xl flex flex-col items-center justify-center text-center space-y-4 h-full border-dashed">
                         <Database className="w-12 h-12 text-slate-600 mb-2" />
                         <div>
                           <h4 className="text-white font-bold font-mono tracking-tight uppercase">Pipeline Idle</h4>
@@ -622,15 +631,6 @@ export const DataPipeline: React.FC<{
                  </div>
                </div>
             </div>
-          ) : (
-            <SourceLibrary 
-              onClose={onClose} 
-              isEmbedded={true} 
-              onNavigateToPipeline={(url) => {
-                setUrlInput(url);
-                setActiveTab('pipeline');
-              }}
-            />
           )}
         </div>
       </div>

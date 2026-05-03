@@ -64,6 +64,31 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
     setLeftCollapsed(width < 768);
   }, [width]);
 
+  useEffect(() => {
+    const handleNavigate = (e: any) => {
+      const { tab } = e.detail || {};
+      if (tab) {
+        // Map global tabs to tactical tabs
+        const mapping: Record<string, string> = {
+          'risk': 'status',
+          'newsfeed': 'intel',
+          'economy': 'economy',
+          'social': 'social',
+          'pipeline': 'signals'
+        };
+        const localTab = (mapping[tab.toLowerCase()] || tab) as any;
+        
+        // Check if it's a valid left tab
+        if (['status', 'intel', 'economy', 'social', 'signals', 'weather'].includes(localTab)) {
+          setLeftTab(localTab);
+          setLeftCollapsed(false);
+        }
+      }
+    };
+    window.addEventListener('navigate-main', handleNavigate);
+    return () => window.removeEventListener('navigate-main', handleNavigate);
+  }, []);
+
   const [leftTab, setLeftTab] = useState<
     'status' | 'intel' | 'economy' | 'social' | 'signals' | 'weather'
   >('status');
