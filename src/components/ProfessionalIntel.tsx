@@ -303,7 +303,7 @@ const SpotlightCard: React.FC<{
     {/* Metrics */}
     <div className="md:col-span-3 space-y-2">
       {prepareList(metrics).map((m: any) => (
-        <div key={m.id}
+        <div key={m.renderId}
           className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
           <span className="text-[9px] font-mono text-slate-500">{m.label}</span>
           <span className={`text-[10px] font-mono font-bold ${
@@ -768,7 +768,7 @@ Return only the 3-sentence briefing.`;
               const isAnyItemActive = category.items.some((item: any) => activeTab === item.id);
               const isExpanded = expandedCategories[category.id];
               return (
-                <div key={category.id} className="group relative">
+                <div key={category.renderId} className="group relative">
                   <button
                     onClick={() => {
                       // Switch focus to this category and open sidebar
@@ -843,7 +843,7 @@ Return only the 3-sentence briefing.`;
                   {prepareList(SIDEBAR_CATEGORIES).map((category: any) => (
                     expandedCategories[category.id] && (
                       <motion.div 
-                        key={category.id}
+                        key={category.renderId}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="space-y-6"
@@ -857,7 +857,7 @@ Return only the 3-sentence briefing.`;
                             const isActive = activeTab === item.id;
                             return (
                               <button
-                                key={item.id}
+                                key={item.renderId}
                                 onClick={() => {
                                   if (item.isEvent) {
                                     window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
@@ -1125,7 +1125,7 @@ Return only the 3-sentence briefing.`;
             fill: rriState.pattern_similarity,
           },
         ]).map((m: any) => (
-          <div key={m.id} className="space-y-2 flex flex-col items-center">
+          <div key={m.renderId} className="space-y-2 flex flex-col items-center">
             <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider text-center">
               {m.label}
             </div>
@@ -1213,7 +1213,7 @@ Return only the 3-sentence briefing.`;
             sub: rriState.velocity_label,
           },
         ]).map((sig: any) => (
-          <div key={sig.id} className="grid grid-cols-12 items-center py-2 border-b border-white/5 last:border-0 gap-2">
+          <div key={sig.renderId} className="grid grid-cols-12 items-center py-2 border-b border-white/5 last:border-0 gap-2">
             <span className="col-span-5 text-[11px] font-mono text-slate-500 uppercase tracking-tight">{sig.label}</span>
             <div className="col-span-4 text-right pr-2">
               <span className={`text-[13px] font-mono font-bold ${
@@ -1317,7 +1317,7 @@ Return only the 3-sentence briefing.`;
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   {prepareList(aiAnalysis.keyDrivers).map((driver: any) => (
-                    <span key={driver.id} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
+                    <span key={driver.renderId} className="text-[9px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 text-slate-400 rounded">
                       {driver.value}
                     </span>
                   ))}
@@ -1341,7 +1341,7 @@ Return only the 3-sentence briefing.`;
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Variable Adjustments</div>
                 <div className="space-y-1 max-h-20 overflow-y-auto scrollbar-hide">
                   {prepareList(aiAnalysis.variableUpdates.slice(0, 3)).map((update: any) => (
-                    <div key={update.id} className="flex items-center justify-between text-[9px] font-mono">
+                    <div key={update.renderId} className="flex items-center justify-between text-[9px] font-mono">
                       <span className="text-slate-400 truncate mr-2">{update.variable}</span>
                       <span className="text-intel-cyan">{update.newValue}</span>
                     </div>
@@ -1871,6 +1871,8 @@ Return only the 3-sentence briefing.`;
         <BusinessInvestigator onGoHome={() => setActiveTab('overview')} context={data} inline={true} onOpenAI={() => {}} onOpenPipeline={() => {}} onOpenReport={() => {}} />
       ) : activeTab === 'calendar' ? (
         <PoliticalCalendar />
+      ) : activeTab === 'govagent' ? (
+        <GovernmentAgentPanel />
       ) : (
         <SimulationIntelligence context={context} variables={context?.variables || []} />
       )}

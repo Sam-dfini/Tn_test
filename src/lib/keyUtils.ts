@@ -37,13 +37,16 @@ export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ?
     seen.add(finalId);
     
     if (item && typeof item === 'object') {
+      const originalId = (item as any).id || (item as any).articleId || (item as any).event_id;
       return {
         ...item,
-        id: finalId
+        id: originalId || finalId,
+        renderId: finalId
       } as any;
     } else {
       return {
         id: finalId,
+        renderId: finalId,
         value: item
       } as any;
     }

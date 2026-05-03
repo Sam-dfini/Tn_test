@@ -1504,7 +1504,7 @@ const SourceDebuggerTab: React.FC = () => {
             <div className="text-center py-20 text-white/30 text-xs italic">No content found or failed to fetch.</div>
           ) : (
             prepareList(items).map((item: any) => (
-              <div key={item.id} className="p-3 bg-white/[0.03] border border-white/5 rounded-lg hover:border-white/20 transition-all">
+              <div key={item.renderId} className="p-3 bg-white/[0.03] border border-white/5 rounded-lg hover:border-white/20 transition-all">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <h3 className="text-xs font-bold text-white/90 leading-tight">{item.title}</h3>
                   <span className="text-[9px] font-mono text-white/30 shrink-0">{item.published_at ? new Date(item.published_at).toLocaleTimeString() : 'N/A'}</span>
