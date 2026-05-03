@@ -58,7 +58,19 @@ export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateMetrics = useCallback((newMetrics: Partial<PipelineMetrics>) => {
     setMetrics(prev => {
-      const updated = { ...prev, ...newMetrics };
+      const deltas = { ...prev.deltas };
+      
+      if (newMetrics.newsCount !== undefined && newMetrics.newsCount > prev.newsCount) {
+        deltas.newsCount = (deltas.newsCount || 0) + (newMetrics.newsCount - prev.newsCount);
+      }
+      if (newMetrics.signalCount !== undefined && newMetrics.signalCount > prev.signalCount) {
+        deltas.signalCount = (deltas.signalCount || 0) + (newMetrics.signalCount - prev.signalCount);
+      }
+      if (newMetrics.eventCount !== undefined && newMetrics.eventCount > prev.eventCount) {
+        deltas.eventCount = (deltas.eventCount || 0) + (newMetrics.eventCount - prev.eventCount);
+      }
+
+      const updated = { ...prev, ...newMetrics, deltas };
       alertEngine.evaluate(updated);
       
       // Add to history for charts

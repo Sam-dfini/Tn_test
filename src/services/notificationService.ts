@@ -3,10 +3,17 @@ import { supabase, Notification } from '../lib/supabase';
 export async function addNotification(
   notification: Omit<Notification, 'id' | 'read' | 'created_at'>
 ): Promise<void> {
-  await supabase.from('notifications').insert({
+  const { data, error } = await supabase.from('notifications').insert({
     ...notification,
     read: false,
-  });
+  }).select().single();
+
+  if (!error && data) {
+    // Dispatch window event so Toast components can show it immediately
+    window.dispatchEvent(new CustomEvent('ti:notification:new', {
+      detail: data
+    }));
+  }
 }
 
 export async function getNotifications(limit = 50): Promise<Notification[]> {

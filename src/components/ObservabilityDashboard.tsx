@@ -118,10 +118,10 @@ export const ObservabilityDashboard: React.FC = () => {
             {/* Metric Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
               <MiniMetric label="Feed Rate" value={`${Math.round(metrics.ingestionRate)}`} unit="/min" icon={BarChart3} color="text-emerald-400" key="metric-feed" />
-              <MiniMetric label="Successful" value={metrics.newsCount} icon={Database} color="text-blue-400" key="metric-success" />
+              <MiniMetric label="Successful" value={metrics.newsCount} delta={metrics.deltas?.newsCount} icon={Database} color="text-blue-400" key="metric-success" />
               <MiniMetric label="Failures" value={Math.round(metrics.errorRate * metrics.feedCount)} icon={AlertTriangle} color="text-red-400" key="metric-fail" />
-              <MiniMetric label="Signals" value={metrics.signalCount} icon={Activity} color="text-purple-400" key="metric-sig" />
-              <MiniMetric label="Events" value={metrics.eventCount} icon={Target} color="text-amber-400" key="metric-ev" />
+              <MiniMetric label="Signals" value={metrics.signalCount} delta={metrics.deltas?.signalCount} icon={Activity} color="text-purple-400" key="metric-sig" />
+              <MiniMetric label="Events" value={metrics.eventCount} delta={metrics.deltas?.eventCount} icon={Target} color="text-amber-400" key="metric-ev" />
               <MiniMetric label="Error %" value={(metrics.errorRate * 100).toFixed(1)} unit="%" icon={Cpu} color="text-red-500" key="metric-errp" />
               <MiniMetric label="Dups %" value={(metrics.duplicateRate * 100).toFixed(1)} unit="%" icon={RefreshCcw} color="text-amber-500" key="metric-dup" />
               <MiniMetric label="Latency" value={Math.round(metrics.latencyMs)} unit="ms" icon={TrendingUp} color="text-indigo-400" key="metric-lat" />
@@ -204,14 +204,17 @@ export const ObservabilityDashboard: React.FC = () => {
   );
 };
 
-const MiniMetric: React.FC<{ label: string; value: string | number; unit?: string; icon: any; color: string }> = ({ label, value, unit, icon: Icon, color }) => (
+const MiniMetric: React.FC<{ label: string; value: string | number; delta?: number; unit?: string; icon: any; color: string }> = ({ label, value, delta, unit, icon: Icon, color }) => (
   <div className="bg-[#0a0a0a] border border-white/5 rounded-xl p-3 flex flex-col justify-between hover:border-white/10 transition-colors">
      <div className="flex items-center justify-between mb-1">
         <span className="text-[9px] uppercase font-bold tracking-tighter text-white/20">{label}</span>
         <Icon className={`w-3 h-3 ${color} opacity-40`} />
      </div>
      <div className="flex items-baseline gap-1">
-        <span className="text-lg font-bold font-mono tracking-tighter text-white/90">{value}</span>
+        <span className="font-mono tracking-tighter text-white/90">
+          <span className="text-lg font-bold">{value}</span>
+          {delta && delta > 0 && <span className="text-[10px] text-emerald-400 ml-1">+{delta}</span>}
+        </span>
         {unit && <span className="text-[9px] opacity-20 font-bold">{unit}</span>}
      </div>
   </div>

@@ -35,6 +35,8 @@ import {
   rainfallToDeficit,
   soilToDeficit,
   normalizeNDVI,
+} from './AgriIntelEngine';
+import type {
   AgriResult,
   AgriNationalSummary,
 } from './AgriIntelEngine';

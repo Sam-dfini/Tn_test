@@ -2,6 +2,7 @@
 import { Article, supabase } from '../lib/supabase';
 import { RSSSource } from '../config/rssSources';
 import { pipelineDebugger } from './debugService';
+import { generateEventId } from '../utils/eventUtils';
 
 const NEWSDATA_API_KEY = 'pub_33fbfaf5f962474c87e881434e96fedb';
 
@@ -49,7 +50,7 @@ export async function fetchNewsData(query: string = 'Tunisia'): Promise<Article[
       if (lowerTitle.includes('revolution') || lowerTitle.includes('curfew')) severity = 5;
 
       return {
-        id: `nd-${btoa(item.link).substring(0, 32)}`,
+        id: generateEventId({ title: item.title, source: item.source_id }),
         fingerprint: btoa(item.link).substring(0, 32),
         source_id: item.source_id,
         source_name: item.source_id.toUpperCase(),

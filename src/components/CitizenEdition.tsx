@@ -564,7 +564,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <Flame className="w-4 h-4 text-intel-red" />
                   <span className="text-[8px] font-mono text-intel-red uppercase">Alert</span>
                 </div>
-                <div className="text-2xl font-bold text-white font-mono">{(pRev * 100).toFixed(1)}%</div>
+                <div className="text-2xl font-bold text-white font-mono">{((pRev ?? 0) * 100).toFixed(1)}%</div>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Revolution Risk</div>
               </div>
               <div className="glass p-5 rounded-3xl border border-intel-border space-y-2">

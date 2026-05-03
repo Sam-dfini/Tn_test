@@ -46,8 +46,21 @@ export function generateEventId(event: { title?: string; source?: string }): str
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822519) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489917);
   h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822519) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489917);
   
-  const idValue = `${(h1 >>> 0).toString(16)}${(h2 >>> 0).toString(16)}`;
-  return idValue ? `art_${idValue}` : `art_fallback_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  const h1_str = (h1 >>> 0).toString(16).padStart(8, '0');
+  const h2_str = (h2 >>> 0).toString(16).padStart(8, '0');
+  const combined = (h1_str + h2_str).padEnd(32, '0');
+  
+  // Format as UUID: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  // 32 chars total: 8-4-4-4-12
+  const uuid = [
+    combined.slice(0, 8),
+    combined.slice(8, 12),
+    '4' + combined.slice(13, 16),
+    'a' + combined.slice(17, 20),
+    combined.slice(20, 32)
+  ].join('-');
+
+  return uuid;
 }
 
 /**

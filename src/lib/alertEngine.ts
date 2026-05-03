@@ -25,6 +25,11 @@ export interface PipelineMetrics {
   successCount: number;
   failureCount: number;
   isFetching: boolean;
+  deltas?: {
+    newsCount?: number;
+    signalCount?: number;
+    eventCount?: number;
+  };
 }
 
 export class AlertEngine {

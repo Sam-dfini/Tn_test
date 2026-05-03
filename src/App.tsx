@@ -42,11 +42,16 @@ import { seedInitialEvents } from './lib/ingestionEngine';
 
 import { SystemCommandCenter } from './components/SystemCommandCenter';
 
+import { useNotificationTriggers } from './hooks/useNotificationTriggers';
+
 const safeGetItem = (key: string) => {
   try { return safeStorage.getItem(key); } catch (e) { return null; }
 };
 
 const AppContent: React.FC = () => {
+  // Activate automatic notification triggers
+  useNotificationTriggers();
+
   const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid'>(() => {
     const saved = safeGetItem('ti_app_mode');
     return (saved as any) || 'selection';
@@ -356,7 +361,7 @@ const AppContent: React.FC = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative z-10 w-full max-w-[1400px] h-full max-h-[85vh]"
+              className="relative z-10 w-full max-w-[1400px] h-full sm:h-auto md:h-full sm:max-h-[85vh]"
             >
               <SystemCommandCenter onClose={() => setShowDebug(false)} />
             </motion.div>

@@ -9,14 +9,14 @@ export const useNotificationTriggers = () => {
   const { addNotification } = useNotifications();
 
   // Track previous values to detect changes
-  const prevRRI = useRef(rriState.rri);
-  const prevVelocity = useRef(rriState.velocity);
-  const prevFX = useRef(data.economy.fx_reserves);
-  const prevUGTT = useRef(data.social.ugtt_mobilisation_level);
-  const prevProtests = useRef(data.social.protest_events_30d);
-  const prevD54 = useRef(data.social.decree54_charged);
-  const prevPattern = useRef(rriState.pattern_similarity);
-  const prevAuditLen = useRef(auditLog.length);
+  const prevRRI = useRef(rriState?.rri ?? 0);
+  const prevVelocity = useRef(rriState?.velocity ?? 0);
+  const prevFX = useRef(data?.economy?.fx_reserves ?? 0);
+  const prevUGTT = useRef(data?.social?.ugtt_mobilisation_level ?? 'STABLE');
+  const prevProtests = useRef(data?.social?.protest_events_30d ?? 0);
+  const prevD54 = useRef(data?.social?.decree54_charged ?? 0);
+  const prevPattern = useRef(rriState?.pattern_similarity ?? 0);
+  const prevAuditLen = useRef(auditLog?.length ?? 0);
   const initialized = useRef(false);
 
   // One-time: seed notifications reflecting current state
@@ -30,8 +30,8 @@ export const useNotificationTriggers = () => {
         addNotification({
           type: 'RRI',
           priority: rriState.rri >= 2.625 ? 'CRITICAL' : 'HIGH',
-          title: `Current R(t) = ${rriState.rri.toFixed(4)}`,
-          message: `Platform initialized. P_rev = ${(rriState.p_rev * 100).toFixed(1)}%. ${rriState.threshold_breaches?.length || 0} threshold breaches active.`,
+          title: `Current R(t) = ${(rriState?.rri ?? 0).toFixed(4)}`,
+          message: `Platform initialized. P_rev = ${((rriState?.p_rev ?? 0) * 100).toFixed(1)}%. ${rriState.threshold_breaches?.length || 0} threshold breaches active.`,
           action: { label: 'View Risk Model', event: 'navigate-main', detail: { tab: 'risk' } },
         });
       }
@@ -58,12 +58,12 @@ export const useNotificationTriggers = () => {
         });
       }
 
-      if (rriState.pattern_similarity > 0.5) {
+      if ((rriState?.pattern_similarity ?? 0) > 0.5) {
         addNotification({
           type: 'RRI',
           priority: 'HIGH',
           title: 'Historical Pattern Match Active',
-          message: `HPS = ${(rriState.pattern_similarity * 100).toFixed(0)}% — ${rriState.pattern_label}`,
+          message: `HPS = ${((rriState?.pattern_similarity ?? 0) * 100).toFixed(0)}% — ${rriState?.pattern_label ?? 'Scanning...'}`,
           action: { label: 'View Methodology', event: 'open-methodology', detail: { equation: '20' } },
         });
       }
@@ -114,12 +114,12 @@ export const useNotificationTriggers = () => {
     }
 
     // ── RRI THRESHOLD BREACH ────────────────────────────────
-    if (rriState.rri >= 2.625 && prevRRI.current < 2.625) {
+    if (rriState && typeof rriState.rri === 'number' && rriState.rri >= 2.625 && prevRRI.current < 2.625) {
       addNotification({
         type: 'RRI',
         priority: 'CRITICAL',
         title: '⚠ Revolution Threshold Breached',
-        message: `R(t) = ${rriState.rri.toFixed(4)} has crossed the 50% revolution probability threshold. P_rev = ${(rriState.p_rev * 100).toFixed(1)}%.`,
+        message: `R(t) = ${(rriState?.rri ?? 0).toFixed(4)} has crossed the 50% revolution probability threshold. P_rev = ${( (rriState?.p_rev || 0) * 100).toFixed(1)}%.`,
         action: {
           label: 'View Risk Model',
           event: 'navigate-main',
@@ -130,28 +130,35 @@ export const useNotificationTriggers = () => {
     }
 
     // ── THRESHOLD BREACH DETECTED ───────────────────────────
-    if (rriState.threshold_breaches && rriState.threshold_breaches.length > 0) {
+    if (rriState && rriState.threshold_breaches && Array.isArray(rriState.threshold_breaches) && rriState.threshold_breaches.length > 0) {
       const lastBreach = rriState.threshold_breaches[rriState.threshold_breaches.length - 1];
-      const breachKey = `breach_${lastBreach.variable}_${lastBreach.value}`;
-      if (!safeStorage.getItem(breachKey)) {
-        addNotification({
-          type: 'ALERT',
-          priority: 'HIGH',
-          title: `Threshold Breach: ${lastBreach.variable}`,
-          message: `${lastBreach.label} reached ${lastBreach.value} (Limit: ${lastBreach.threshold}). RRI impact: +${lastBreach.impact.toFixed(3)}.`,
-          action: {
-            label: 'View Variable',
-            event: 'navigate-to-pipeline',
-            detail: { tab: 'pipeline' }
-          },
-          rriVariable: lastBreach.variable,
-        });
-        safeStorage.setItem(breachKey, 'true');
+      if (lastBreach && typeof lastBreach === 'object') {
+        const breachKey = `breach_${lastBreach.variable || 'v'}_${lastBreach.value || '0'}`;
+        if (!safeStorage.getItem(breachKey)) {
+          const lVal = typeof lastBreach.value === 'number' ? lastBreach.value.toFixed(2) : lastBreach.value;
+          const lThr = typeof lastBreach.threshold === 'number' ? lastBreach.threshold.toFixed(2) : lastBreach.threshold;
+          const lImp = typeof lastBreach.impact === 'number' ? lastBreach.impact.toFixed(3) : '0.000';
+          const label = lastBreach.label || lastBreach.variable || 'Unknown Variable';
+
+          addNotification({
+            type: 'ALERT',
+            priority: 'HIGH',
+            title: `Threshold Breach: ${label}`,
+            message: `${label} reached ${lVal} (Limit: ${lThr}). RRI impact: +${lImp}.`,
+            action: {
+              label: 'View Variable',
+              event: 'navigate-to-pipeline',
+              detail: { tab: 'pipeline' }
+            },
+            rriVariable: lastBreach.variable,
+          });
+          safeStorage.setItem(breachKey, 'true');
+        }
       }
     }
 
     // ── RRI SIGNIFICANT JUMP (>0.10 in one recalc) ──────────
-    const rriJump = rriState.rri - prevRRI.current;
+    const rriJump = (rriState?.rri ?? 0) - (prevRRI.current ?? 0);
     if (Math.abs(rriJump) > 0.10) {
       addNotification({
         type: 'RRI',
@@ -159,7 +166,7 @@ export const useNotificationTriggers = () => {
         title: rriJump > 0
           ? `R(t) Jumped +${rriJump.toFixed(3)}`
           : `R(t) Improved ${rriJump.toFixed(3)}`,
-        message: `Revolutionary Risk Index moved from ${prevRRI.current.toFixed(4)} to ${rriState.rri.toFixed(4)}. P_rev = ${(rriState.p_rev * 100).toFixed(1)}%.`,
+        message: `Revolutionary Risk Index moved from ${(prevRRI.current ?? 0).toFixed(4)} to ${(rriState?.rri ?? 0).toFixed(4)}. P_rev = ${((rriState?.p_rev ?? 0) * 100).toFixed(1)}%.`,
         action: {
           label: 'View Risk Model',
           event: 'navigate-main',
@@ -170,12 +177,12 @@ export const useNotificationTriggers = () => {
     }
 
     // ── VELOCITY ACCELERATION ───────────────────────────────
-    if (rriState.velocity > 0.20 && prevVelocity.current <= 0.20) {
+    if ((rriState?.velocity ?? 0) > 0.20 && (prevVelocity.current ?? 0) <= 0.20) {
       addNotification({
         type: 'RRI',
         priority: 'HIGH',
         title: 'Rapid Deterioration — V(t) Accelerating',
-        message: `Velocity index reached +${rriState.velocity.toFixed(3)} (${rriState.velocity_label}). Multiple variables deteriorating simultaneously.`,
+        message: `Velocity index reached +${(rriState?.velocity ?? 0).toFixed(3)} (${rriState?.velocity_label || 'DETERIORATING'}). Multiple variables deteriorating simultaneously.`,
         action: {
           label: 'View Velocity',
           event: 'navigate-main',
@@ -185,13 +192,13 @@ export const useNotificationTriggers = () => {
     }
 
     // ── PATTERN MATCH ACTIVATED ─────────────────────────────
-    if (rriState.pattern_similarity > 0.65 &&
-        prevPattern.current <= 0.65) {
+    if ((rriState?.pattern_similarity ?? 0) > 0.65 &&
+        (prevPattern.current ?? 0) <= 0.65) {
       addNotification({
         type: 'RRI',
         priority: 'HIGH',
         title: 'Historical Pattern Match Activated',
-        message: `HPS = ${(rriState.pattern_similarity * 100).toFixed(0)}% — ${rriState.pattern_label}. Current variable vector matches a known pre-crisis state.`,
+        message: `HPS = ${((rriState?.pattern_similarity ?? 0) * 100).toFixed(0)}% — ${rriState?.pattern_label ?? 'Scanning...'}. Current variable vector matches a known pre-crisis state.`,
         action: {
           label: 'View Methodology',
           event: 'open-methodology',
@@ -282,22 +289,28 @@ export const useNotificationTriggers = () => {
       });
     }
 
-    // ── PIPELINE PUSH ───────────────────────────────────────
+    // ── PIPELINE SIGNAL ───────────────────────────────────────
     if (auditLog.length > prevAuditLen.current) {
-      const newEntries = auditLog.slice(
-        0, auditLog.length - prevAuditLen.current
-      );
+      const newEntries = auditLog.slice(0, auditLog.length - prevAuditLen.current);
       const pushEntries = newEntries.filter(
-        e => e.type === 'PUSH' || e.type === 'APPROVED'
+        e => e.type === 'PUSH' || e.type === 'APPROVED' || e.type === 'EXTRACTED'
       );
+      
       if (pushEntries.length > 0) {
+        // Find the most significant change
+        const mainEntry = pushEntries[0];
+        const isShock = pushEntries.length > 5 || 
+                      (mainEntry.type === 'PUSH' && Math.abs(mainEntry.value - mainEntry.oldValue) > 20);
+
         addNotification({
           type: 'PIPELINE',
-          priority: 'LOW',
-          title: 'Pipeline Push Complete',
-          message: `${pushEntries.length} field${pushEntries.length > 1 ? 's' : ''} updated. R(t) recalculated: ${rriState.rri.toFixed(4)}.`,
+          priority: isShock ? 'HIGH' : 'MEDIUM',
+          title: isShock ? '⚡ SYSTEM SHOCK DETECTED' : '📡 SIGNAL INGESTED',
+          message: isShock 
+            ? `Multiple concurrent variables shifted. System volatility increasing. New R(t): ${(rriState?.rri ?? 0).toFixed(4)}.`
+            : `Pipeline update: ${mainEntry.label} → ${mainEntry.value}. Recalculating systemic risk vectors.`,
           action: {
-            label: 'View Pipeline',
+            label: 'Open Debugger',
             event: 'navigate-to-pipeline',
             detail: { tab: 'pipeline' }
           },

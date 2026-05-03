@@ -7,42 +7,42 @@ export const RiskGauges: React.FC = () => {
   const gauges = [
     { 
       label: 'RRI Index', 
-      value: rriState.rri.toFixed(2), 
-      color: rriState.rri >= 2.5 ? 'text-intel-red' : 
-             rriState.rri >= 2.0 ? 'text-intel-orange' : 
+      value: (rriState?.rri ?? 0).toFixed(2), 
+      color: (rriState?.rri ?? 0) >= 2.5 ? 'text-intel-red' : 
+             (rriState?.rri ?? 0) >= 2.0 ? 'text-intel-orange' : 
              'text-intel-cyan',
-      level: rriState.rri >= 2.5 ? 'bg-intel-red' : 
-             rriState.rri >= 2.0 ? 'bg-intel-orange' : 
+      level: (rriState?.rri ?? 0) >= 2.5 ? 'bg-intel-red' : 
+             (rriState?.rri ?? 0) >= 2.0 ? 'bg-intel-orange' : 
              'bg-intel-cyan'
     },
     { 
       label: 'P(Revolution)', 
-      value: (rriState.p_rev * 100).toFixed(1) + '%',
-      color: rriState.p_rev >= 0.7 ? 'text-intel-red' : 
-             rriState.p_rev >= 0.5 ? 'text-intel-orange' : 
+      value: ((rriState?.p_rev ?? 0) * 100).toFixed(1) + '%',
+      color: (rriState?.p_rev ?? 0) >= 0.7 ? 'text-intel-red' : 
+             (rriState?.p_rev ?? 0) >= 0.5 ? 'text-intel-orange' : 
              'text-intel-cyan',
-      level: rriState.p_rev >= 0.7 ? 'bg-intel-red' : 
-             rriState.p_rev >= 0.5 ? 'bg-intel-orange' : 
+      level: (rriState?.p_rev ?? 0) >= 0.7 ? 'bg-intel-red' : 
+             (rriState?.p_rev ?? 0) >= 0.5 ? 'bg-intel-orange' : 
              'bg-intel-cyan'
     },
     { 
       label: 'Compound Stress', 
-      value: (rriState.compound_stress * 100).toFixed(1) + '%',
-      color: rriState.compound_stress >= 0.1 ? 'text-intel-red' : 
-             rriState.compound_stress >= 0.05 ? 'text-intel-orange' : 
+      value: ((rriState?.compound_stress ?? 0) * 100).toFixed(1) + '%',
+      color: (rriState?.compound_stress ?? 0) >= 0.1 ? 'text-intel-red' : 
+             (rriState?.compound_stress ?? 0) >= 0.05 ? 'text-intel-orange' : 
              'text-intel-cyan',
-      level: rriState.compound_stress >= 0.1 ? 'bg-intel-red' : 
-             rriState.compound_stress >= 0.05 ? 'bg-intel-orange' : 
+      level: (rriState?.compound_stress ?? 0) >= 0.1 ? 'bg-intel-red' : 
+             (rriState?.compound_stress ?? 0) >= 0.05 ? 'bg-intel-orange' : 
              'bg-intel-cyan'
     },
     { 
       label: 'Velocity of Change', 
-      value: rriState.velocity_label,
-      color: rriState.velocity > 0.2 ? 'text-intel-red' : 
-             rriState.velocity > 0.1 ? 'text-intel-orange' : 
+      value: rriState?.velocity_label || 'STABLE',
+      color: (rriState?.velocity ?? 0) > 0.2 ? 'text-intel-red' : 
+             (rriState?.velocity ?? 0) > 0.1 ? 'text-intel-orange' : 
              'text-intel-cyan',
-      level: rriState.velocity > 0.2 ? 'bg-intel-red' : 
-             rriState.velocity > 0.1 ? 'bg-intel-orange' : 
+      level: (rriState?.velocity ?? 0) > 0.2 ? 'bg-intel-red' : 
+             (rriState?.velocity ?? 0) > 0.1 ? 'bg-intel-orange' : 
              'bg-intel-cyan'
     },
     { 
@@ -67,7 +67,7 @@ export const RiskGauges: React.FC = () => {
     },
     { 
       label: 'TND/USD', 
-      value: data.economy.tnd_usd.toFixed(3),
+      value: (data?.economy?.tnd_usd ?? 3.118).toFixed(3),
       color: 'text-white',
       level: 'bg-slate-700'
     },

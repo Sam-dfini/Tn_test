@@ -1,4 +1,3 @@
-import os
 import asyncio
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
@@ -11,42 +10,6 @@ from ..core.database import db
 
 
 router = APIRouter()
-
-@router.get("/health")
-async def api_health_check():
-    """Health check for AI keys from the frontend."""
-    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-    nvidia_key = os.getenv("NVIDIA_API_KEY", "")
-    
-    return {
-        "status": "ok",
-        "gemini": { 
-            "key_exists": bool(openrouter_key),
-            "key_is_placeholder": "your" in openrouter_key.lower() or openrouter_key == ""
-        },
-        "openai": { 
-            "key_exists": bool(nvidia_key),
-            "key_is_placeholder": "your" in nvidia_key.lower() or nvidia_key == ""
-        }
-    }
-
-class AIPromptRequest(BaseModel):
-    prompt: str
-
-@router.post("/ai")
-async def proxy_ai_request(payload: AIPromptRequest):
-    """Proxy AI requests from the frontend test suite."""
-    from ..agents.base import BaseAgent
-    agent = BaseAgent(
-        role="Test Agent",
-        system_instruction="You are a helpful test assistant. Be concise. Provide exactly what is asked.",
-        model_name="google/gemini-2.0-flash"
-    )
-    try:
-        response = await agent._call_llm(payload.prompt)
-        return {"text": response.content}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/rss/sync")
 async def sync_rss_feeds(force: bool = False):

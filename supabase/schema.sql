@@ -37,6 +37,7 @@ create table if not exists articles (
   title text not null,
   title_ar text,                  -- Arabic title if detected
   url text not null unique,       -- deduplicate by URL
+  fingerprint text,               -- deterministic hash
   published_at timestamptz,
   fetched_at timestamptz default now(),
   content text,                   -- full article text if available
@@ -52,9 +53,13 @@ create table if not exists articles (
   -- Bias & Narrative
   bias_alignment text default 'NEUTRAL', -- PRO_GOV/NEUTRAL/CRITICAL
   bias_tone text default 'NEUTRAL',      -- ALARMIST/NEUTRAL/MINIMIZING
+  propaganda_score float,
+  techniques_detected text[],
   -- RRI impact
   rri_nudge float default 0,     -- calculated nudge to R(t)
   rri_variable text,              -- which RRI variable
+  -- Geo relevance
+  geo_relevance_score float,
   -- User engagement (citizen nodes)
   confirm_count integer default 0,
   dispute_count integer default 0,

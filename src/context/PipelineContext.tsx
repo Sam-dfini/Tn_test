@@ -9,6 +9,8 @@ import calculateRRI, {
 import { 
   generateAIAnalysis, 
   generateForecast,
+} from '../services/ai';
+import type { 
   AIAnalysis,
   ForecastResult
 } from '../services/ai';
@@ -22,6 +24,8 @@ import { TemporalAnalyzer } from '../services/temporalAnalysisService';
 import {
   processAllGovernorates,
   generateMockInputs,
+} from '../services/AgriIntelEngine';
+import type {
   AgriNationalSummary,
 } from '../services/AgriIntelEngine';
 import { addNotification } from '../services/notificationService';
@@ -29,6 +33,8 @@ import {
   processAgroNational,
   buildAgroInput,
   buildBCEWMInputs,
+} from '../services/AgroSystemEngine';
+import type {
   AgroNationalSummary,
 } from '../services/AgroSystemEngine';
 import { detectShortagesInArticles } from '../services/shortageDetector';
@@ -391,7 +397,11 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         model_confidence: 0.72,
         last_calculated: new Date().toISOString(),
         variables_count: 250,
-        threshold_breaches: ['A_FX','M_UGTT','E51'],
+        threshold_breaches: [
+          { variable: 'A_FX', label: 'FX Reserves', value: 92, threshold: 100, impact: 0.15 },
+          { variable: 'M_UGTT', label: 'UGTT Activism', value: 85, threshold: 80, impact: 0.12 },
+          { variable: 'E51', label: 'Protest Volume', value: 45, threshold: 40, impact: 0.08 }
+        ],
         sir_susceptible: 0.94,
         sir_infected: 0.04,
         sir_recovered: 0.02,

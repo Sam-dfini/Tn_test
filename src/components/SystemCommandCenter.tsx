@@ -6,7 +6,7 @@ import {
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
   Cpu, Globe, FileText, FlaskConical, Wifi, Server,
   BarChart3, TrendingUp, AlertCircle, Info, ChevronRight,
-  RotateCcw, Send, Eye, Loader2,
+  RotateCcw, Send, Eye, Loader2, Camera,
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../lib/supabase';
@@ -73,6 +73,8 @@ const FLOW_STYLE = `
 .adm-ticker-track { display: inline-flex; min-width: max-content; }
 .adm-ticker-run { animation: admTicker 26s linear infinite; }
 .adm-ticker-run:hover { animation-play-state: paused; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
 // Inject styles once
@@ -197,22 +199,41 @@ const FlowDiagram: React.FC<{
   ];
 
   const getCount = (id: string) => {
-    // For demonstration, let's assume we capture the "previous" from state or simple logic
     let current = 0;
-    let prev = 0;
+    let delta = 0;
     switch (id) {
-      case 'rss': current = 30; prev = 25; break; // 30 (new)
-      case 'parser': current = 36; prev = 30; break;
-      case 'classifier': current = 626; prev = 600; break;
-      case 'supabase': current = 626; prev = 600; break;
-      case 'signals': current = 7950; prev = 7500; break;
-      case 'events': current = 3180; prev = 3000; break;
-      case 'rri': current = 250; prev = 245; break;
-      case 'ui': current = 3180; prev = 3000; break;
-      default: return 0;
+      case 'rss': 
+        current = metrics.feedCount || 0; 
+        break;
+      case 'classifier': 
+      case 'supabase':
+        current = metrics.newsCount || 0; 
+        delta = metrics.deltas?.newsCount || 0;
+        break;
+      case 'signals': 
+        current = metrics.signalCount || 0; 
+        delta = metrics.deltas?.signalCount || 0;
+        break;
+      case 'events': 
+        current = metrics.eventCount || 0; 
+        delta = metrics.deltas?.eventCount || 0;
+        break;
+      case 'rri': 
+        current = metrics.eventCount || 0; 
+        delta = metrics.deltas?.eventCount || 0;
+        break;
+      case 'ui': 
+        current = metrics.eventCount || 0; 
+        delta = metrics.deltas?.eventCount || 0;
+        break;
+      default: return '0';
     }
-    const diff = current - prev;
-    return `${prev.toLocaleString()} + ${diff}`;
+    
+    if (delta > 0) {
+      const prev = Math.max(0, current - delta);
+      return `${prev.toLocaleString()} + ${delta.toLocaleString()}`;
+    }
+    return current.toLocaleString();
   };
 
   // Node box component inside SVG
@@ -276,7 +297,7 @@ const FlowDiagram: React.FC<{
 
         {/* Count */}
         <text x={x + 8} y={y + 78} fontSize={13} fontWeight="bold" fill={def.color} fontFamily="monospace">
-          {typeof count === 'string' ? count : count.toLocaleString()}
+          {count}
         </text>
 
         {/* Status label */}
@@ -485,14 +506,16 @@ const FlowDiagram: React.FC<{
       </div>
 
       {/* SVG canvas */}
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto custom-scrollbar relative group/flow">
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-black/60 border border-white/10 rounded text-[8px] text-white/40 font-mono uppercase tracking-widest opacity-0 group-hover/flow:opacity-100 lg:hidden transition-opacity pointer-events-none z-20">
+          Swipe to explore pipeline
+        </div>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width="100%"
-          height={H}
-          style={{ minWidth: 600, display: 'block' }}
+          className="h-auto max-h-[40vh]"
+          style={{ display: 'block' }}
         >
-          {/* ── CONNECTIONS ── */}
 
           {/* Top row: RSS→Parser→Classifier→Supabase */}
           <Connector x1={tRx(0)} y1={tCy} x2={tLx(1)} y2={tCy} fromId="rss" toId="parser" />
@@ -750,23 +773,23 @@ const MissionControl: React.FC<{
     <div className="flex flex-col space-y-4 h-full overflow-y-auto pr-1">
 
       {/* Top strip: health + controls */}
-      <div className="flex items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0">
-        <div className="flex items-center gap-6">
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${health.bg} ${health.border}`}>
+      <div className="flex flex-col sm:flex-row items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0 gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
+          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${health.bg} ${health.border} w-full sm:w-auto justify-center sm:justify-start`}>
             <div className={`w-2 h-2 rounded-full animate-pulse ${healthScore > 80 ? 'bg-emerald-500' : healthScore > 50 ? 'bg-amber-500' : 'bg-red-500'}`} />
             <span className={`text-sm font-bold font-mono ${health.color}`}>{Math.round(healthScore)}%</span>
             <span className={`text-[9px] font-mono ${health.color} opacity-70 uppercase`}>{health.label}</span>
           </div>
-          <div className="flex items-center gap-4 text-[9px] font-mono text-white/30 uppercase">
-            <span>Articles loaded: <span className="text-white/60">{articles.length}</span></span>
-            <span>Events tracked: <span className="text-white/60">{events.length}</span></span>
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[9px] font-mono text-white/30 uppercase">
+            <span>Articles: <span className="text-white/60">{articles.length}</span></span>
+            <span>Events: <span className="text-white/60">{events.length}</span></span>
             <span>Alerts: <span className={alerts.length > 0 ? 'text-amber-400' : 'text-white/60'}>{alerts.length}</span></span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end">
           <button
             onClick={togglePause}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono transition-all border ${isPaused ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse' : 'bg-white/5 text-white/50 border-white/10 hover:text-white'}`}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono transition-all border ${isPaused ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse' : 'bg-white/5 text-white/50 border-white/10 hover:text-white'}`}
           >
             {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
             {isPaused ? 'Resume' : 'Pause'}
@@ -774,7 +797,7 @@ const MissionControl: React.FC<{
           <button
             onClick={handleSync}
             disabled={isSyncing || isPaused}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
           >
             <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
             {isSyncing ? 'Syncing…' : 'Force Sync'}
@@ -782,7 +805,7 @@ const MissionControl: React.FC<{
           <button
             onClick={handleRRI}
             disabled={isRecalculating}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-40"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-40"
           >
             <RotateCcw className={`w-3 h-3 ${isRecalculating ? 'animate-spin' : ''}`} />
             {isRecalculating ? 'Recalc…' : 'Force RRI'}
@@ -805,9 +828,9 @@ const MissionControl: React.FC<{
       </AnimatePresence>
 
       {/* Metric tiles */}
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-2 shrink-0">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 shrink-0">
         {miniMetrics.map((m, i) => (
-          <div key={i} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all">
+          <div key={i} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all text-center sm:text-left">
             <div className="text-[8px] text-white/20 uppercase tracking-tighter mb-1">{m.label}</div>
             <div className={`text-base font-bold font-mono ${m.color}`}>{m.value}</div>
             {m.unit && <div className="text-[7px] text-white/20">{m.unit}</div>}
@@ -944,12 +967,14 @@ const DebuggerTab: React.FC<{ jumpToStage?: string }> = ({ jumpToStage }) => {
       </div>
 
       {/* 5-column grid */}
-      <div className="flex-1 grid grid-cols-5 gap-px bg-white/5 overflow-hidden min-h-0 text-[10px]">
-        <FeedColumn items={feedItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
-        <NewsColumn items={newsItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} highlightDuplicates={highlightDuplicates} />
-        <SignalsColumn items={signalItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
-        <EventsColumn items={eventItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
-        <PipelineLogColumn items={pipeLogs} />
+      <div className="flex-1 flex overflow-x-auto bg-white/5 min-h-0 text-[10px] custom-scrollbar overflow-y-hidden">
+        <div className="flex min-w-[1200px] h-full divide-x divide-white/5">
+          <FeedColumn items={feedItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+          <NewsColumn items={newsItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} highlightDuplicates={highlightDuplicates} />
+          <SignalsColumn items={signalItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+          <EventsColumn items={eventItems} selectedId={selectedItemId} onSelect={(id) => setSelectedItemId(id === selectedItemId ? null : id)} />
+          <PipelineLogColumn items={pipeLogs} />
+        </div>
       </div>
 
       {/* Trace footer */}
@@ -998,7 +1023,7 @@ const INITIAL_TESTS: TestResult[] = [
   { id: 'db-dupes', label: 'Duplicate Article Check', status: 'idle', message: 'Scan for duplicate IDs' },
   { id: 'db-schema', label: 'Schema Validation', status: 'idle', message: 'Verify required fields on recent rows' },
   // AI
-  { id: 'ai-ping', label: 'General API', status: 'idle', message: 'GET /api/health → check key status' },
+  { id: 'ai-ping', label: 'Gemini API Health', status: 'idle', message: 'GET /api/health → check key status' },
   { id: 'ai-classify', label: 'Test Classification', status: 'idle', message: 'Run sample article through classifier' },
   { id: 'ai-proxy', label: 'AI Proxy Route', status: 'idle', message: 'Test /api/ai endpoint' },
   // RRI
@@ -1234,7 +1259,7 @@ const TestSuite: React.FC = () => {
       </div>
 
       {/* Test groups */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5 pb-8 sm:pb-0">
         {GROUPS.map(group => {
           const Icon = group.icon;
           const groupTests = tests.filter(t => group.ids.includes(t.id));
@@ -1311,7 +1336,6 @@ const SourceDebuggerTab: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [statusMap, setStatusMap] = useState<Record<string, 'healthy' | 'warning' | 'failing' | 'idle' | 'testing'>>({});
   const [isTestingAll, setIsTestingAll] = useState(false);
-  const SLOW_SOURCE_MS = 4000;
 
   const allSources = useMemo(() => prepareList([
     ...RSS_SOURCES.map(s => ({ ...s, id: s.id || s.url, group: 'RSS' })),
@@ -1323,81 +1347,58 @@ const SourceDebuggerTab: React.FC = () => {
 
   const testSource = async (source: any) => {
     setStatusMap(prev => ({ ...prev, [source.id]: 'testing' }));
-    const startedAt = Date.now();
-
     try {
       if (source.group === 'RSS') {
         const res = await validateRSSSource(source.url);
         // Check if actually has items
         const data = await fetchRSSFeed(source);
-        const elapsed = Date.now() - startedAt;
-
         if (res === 'failing') {
           setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
-        } else if (data.length === 0 || res === 'degraded' || elapsed > SLOW_SOURCE_MS) {
-          // Slow or empty = orange
+        } else if (data.length === 0) {
+          // Yellow if no feed
+          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+        } else if (res === 'degraded') {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       } else if (source.group === 'Telegram') {
         const data = await fetchTelegramChannel(source, 0);
-        const elapsed = Date.now() - startedAt;
-        if (data.length === 0 || elapsed > SLOW_SOURCE_MS) {
+        if (data.length === 0) {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       } else {
-        // API Sources — probe multiple times to maximize coverage
-        const MAX_PROBES = 3;
-        const probeFetch = async () => {
-          if (source.id === 'newsapi') return await fetchFromNewsAPI();
-          if (source.id === 'newsdata') return await fetchFromNewsData();
-          if (source.id === 'gnews') return await fetchFromGNews();
-          return [] as any[];
-        };
-
-        const probeResults = await Promise.allSettled(
-          Array.from({ length: MAX_PROBES }, () => probeFetch())
-        );
-
-        const successful = probeResults.filter(r => r.status === 'fulfilled') as PromiseFulfilledResult<any[]>[];
-        const totalItems = successful.reduce((acc, r) => acc + (r.value?.length || 0), 0);
-        const elapsed = Date.now() - startedAt;
-
-        if (successful.length === 0) {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
-        } else if (totalItems === 0 || elapsed > SLOW_SOURCE_MS) {
+        // API Sources
+        let data: any[] = [];
+        if (source.id === 'newsapi') data = await fetchFromNewsAPI();
+        else if (source.id === 'newsdata') data = await fetchFromNewsData();
+        else if (source.id === 'gnews') data = await fetchFromGNews();
+        
+        if (data.length === 0) {
           setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
         } else {
           setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
         }
       }
     } catch {
-      // Unreachable/dead -> red
-      setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
+      // Failed to fetch -> yellow per user request
+      setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
     }
   };
 
   const testAll = async () => {
     setIsTestingAll(true);
-    // Prioritize RSS + API first on startup diagnostics
+    // Prioritize RSS sources for testing as requested
     const rss = allSources.filter(s => s.group === 'RSS');
-    const api = allSources.filter(s => s.group === 'API');
-    const others = allSources.filter(s => s.group !== 'RSS' && s.group !== 'API');
+    const others = allSources.filter(s => s.group !== 'RSS');
     
-    for (const source of [...rss, ...api, ...others]) {
+    for (const source of [...rss, ...others]) {
       await testSource(source);
     }
     setIsTestingAll(false);
   };
-
-  useEffect(() => {
-    // Auto-diagnostic when SCC source debugger opens
-    testAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const selectSource = async (source: any) => {
     setSelectedSource(source);
@@ -1425,10 +1426,10 @@ const SourceDebuggerTab: React.FC = () => {
   };
 
   return (
-    <div className="flex h-full gap-4 overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-full gap-4 overflow-hidden">
       {/* List Column */}
-      <div className="w-80 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden shrink-0">
-        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
+      <div className="w-full lg:w-80 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden shrink-0 h-1/3 lg:h-full">
+        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between sticky top-0 z-10">
           <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Data Sources</span>
           <button 
             onClick={testAll}
@@ -1450,13 +1451,12 @@ const SourceDebuggerTab: React.FC = () => {
                   const statusB = statusMap[b.id] || 'idle';
                   
                   // Priority: testing > healthy > idle > warning > failing
-                  // Unreachable/empty (warning/failing) stay at the bottom waiting queue
                   const scores: Record<string, number> = {
                     testing: 5,
                     healthy: 4,
                     idle: 3,
-                    warning: 1,
-                    failing: 0
+                    warning: 2,
+                    failing: 1
                   };
                   
                   return (scores[statusB] || 0) - (scores[statusA] || 0);
@@ -1491,7 +1491,7 @@ const SourceDebuggerTab: React.FC = () => {
       </div>
 
       {/* Content Column */}
-      <div className="flex-1 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
+      <div className="flex-1 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden h-2/3 lg:h-full">
         <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Send className="w-3.5 h-3.5 text-intel-cyan" />
@@ -1553,10 +1553,44 @@ interface SystemCommandCenterProps {
 export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('MISSION');
   const [jumpStage, setJumpStage] = useState<string | undefined>();
+  const [isSnapshotting, setIsSnapshotting] = useState(false);
+  
+  const { metrics, history, logs, alerts, healthScore } = useObservability();
+  const { rriState } = usePipeline();
 
   const handleJumpToDebugger = (stage?: string) => {
     setJumpStage(stage);
     setActiveTab('DEBUGGER');
+  };
+
+  const handleSnapshot = () => {
+    setIsSnapshotting(true);
+    
+    const snapshot = {
+      version: '1.0',
+      timestamp: new Date().toISOString(),
+      system: {
+        healthScore,
+        activeTab,
+      },
+      rri: rriState,
+      metrics,
+      alerts: alerts.slice(0, 20),
+      recentLogs: logs.slice(0, 50),
+      history: history,
+    };
+
+    const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scc_snapshot_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setTimeout(() => setIsSnapshotting(false), 1000);
   };
 
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
@@ -1568,36 +1602,43 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
   ];
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-none sm:rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-6 py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10 gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-red-500" />
-            <h1 className="text-sm font-bold tracking-widest text-white uppercase">System Command Center</h1>
+            <h1 className="text-sm font-bold tracking-widest text-white uppercase truncate">System Command Center</h1>
           </div>
-          <div className="h-4 w-px bg-white/10" />
-          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
+          <div className="hidden md:block h-4 w-px bg-white/10" />
+          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5 overflow-x-auto max-w-full custom-scrollbar no-scrollbar">
             {TABS.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}
                 >
                   <Icon className="w-3 h-3" />
-                  {tab.label}
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               );
             })}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-3">
+          <button
+            onClick={handleSnapshot}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border ${isSnapshotting ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:border-white/20'}`}
+          >
+            <Camera className={`w-3.5 h-3.5 ${isSnapshotting ? 'animate-pulse' : ''}`} />
+            <span className="hidden sm:inline">Snapshot</span>
+          </button>
           <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/20 uppercase">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            TunisiaIntel SCC v1.0
+            SCC v1.0
           </div>
           <button
             onClick={onClose}

@@ -192,8 +192,8 @@ export const NotificationPanel: React.FC<{
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="fixed sm:absolute top-20 sm:top-full right-4 sm:right-0 mt-2
-              w-[calc(100vw-32px)] sm:w-[400px] max-h-[calc(100vh-120px)] sm:max-h-[600px] 
+            className="fixed sm:absolute top-16 sm:top-full left-2 right-2 sm:left-auto sm:right-0 mt-2
+              w-auto sm:w-[400px] max-h-[calc(100vh-80px)] sm:max-h-[600px] 
               bg-[#05070a] border border-intel-border rounded-2xl
               shadow-2xl z-[9999] flex flex-col overflow-hidden"
           >
@@ -292,9 +292,9 @@ export const NotificationPanel: React.FC<{
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center
                   justify-center h-40 space-y-3">
-                  <Check className="w-8 h-8 text-slate-800" />
+                  <Check className="w-8 h-8 text-slate-700" />
                   <span className="text-[11px] font-mono
-                    text-slate-700 uppercase tracking-widest">
+                    text-slate-500 uppercase tracking-widest">
                     {activeFilter === 'UNREAD'
                       ? 'No unread notifications'
                       : 'No notifications'}

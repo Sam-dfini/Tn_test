@@ -100,20 +100,20 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
         <div className="hidden md:flex items-center space-x-6 border-x border-intel-border/30 px-6 h-full">
           <div className="flex flex-col items-end">
             <span className="text-[8px] lg:text-[10px] font-mono text-slate-500 uppercase tracking-widest">RRI Index</span>
-            <span className={`text-sm lg:text-xl font-bold font-mono ${rriState.rri > 2.5 ? 'text-intel-red' : 'text-intel-cyan'}`}>
-              {rriState.rri.toFixed(2)}
+            <span className={`text-sm lg:text-xl font-bold font-mono ${(rriState?.rri ?? 0) > 2.5 ? 'text-intel-red' : 'text-intel-cyan'}`}>
+              {(rriState?.rri ?? 0).toFixed(2)}
             </span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[8px] lg:text-[10px] font-mono text-slate-500 uppercase tracking-widest">P(Revolution)</span>
-            <span className={`text-sm lg:text-xl font-bold font-mono ${rriState.p_rev > 0.7 ? 'text-intel-red' : 'text-intel-orange'}`}>
-              {(rriState.p_rev * 100).toFixed(1)}%
+            <span className={`text-sm lg:text-xl font-bold font-mono ${(rriState?.p_rev ?? 0) > 0.7 ? 'text-intel-red' : 'text-intel-orange'}`}>
+              {((rriState?.p_rev ?? 0) * 100).toFixed(1)}%
             </span>
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[8px] lg:text-[10px] font-mono text-slate-500 uppercase tracking-widest">V(t)</span>
-            <span className={`text-sm lg:text-xl font-bold font-mono ${rriState.velocity > 0.15 ? 'text-intel-red' : rriState.velocity < -0.15 ? 'text-intel-cyan' : 'text-white'}`}>
-              {(rriState.velocity > 0 ? '+' : '') + rriState.velocity.toFixed(3)}
+            <span className={`text-sm lg:text-xl font-bold font-mono ${(rriState?.velocity ?? 0) > 0.15 ? 'text-intel-red' : (rriState?.velocity ?? 0) < -0.15 ? 'text-intel-cyan' : 'text-white'}`}>
+              {((rriState?.velocity ?? 0) > 0 ? '+' : '') + (rriState?.velocity ?? 0).toFixed(3)}
             </span>
           </div>
         </div>

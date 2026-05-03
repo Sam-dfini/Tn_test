@@ -16,11 +16,11 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { SatelliteReading } from './satelliteConfig.ts';
 import {
   GOVERNORATE_COORDS,
   getCached, setCache,
   CACHE_TTL_NDVI_MS, CACHE_TTL_RAIN_MS,
-  SatelliteReading,
 } from './satelliteConfig.ts';
 import { getNDVIBatch } from './ndviProcessor.ts';
 import { getRainfallBatch } from './rainfallProcessor.ts';
@@ -29,6 +29,8 @@ import { getSoilMoistureBatch } from './soilMoistureProcessor.ts';
 // ── Import AgriIntelEngine (pure computation layer) ───────────────────────
 import {
   processAllGovernorates,
+} from '../../services/AgriIntelEngine.ts';
+import type {
   AgriInputBundle,
   AgriNationalSummary,
 } from '../../services/AgriIntelEngine.ts';

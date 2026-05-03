@@ -18,8 +18,8 @@
  */
 
 import fetch from 'node-fetch';
+import type { GovCoord } from './satelliteConfig.ts';
 import {
-  GovCoord,
   isoDate, daysAgo,
   OPEN_METEO_ARCHIVE,
   OPEN_METEO_FORECAST,

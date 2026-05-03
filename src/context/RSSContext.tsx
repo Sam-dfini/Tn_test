@@ -63,12 +63,12 @@ export const RSSProvider: React.FC<{
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper to deduplicate arrays of items with an id
-  const deduplicateById = <T extends { id?: any }>(items: T[]): T[] => {
+  const deduplicateById = <T extends { id?: any; title?: string; published_at?: any }>(items: T[]): T[] => {
     if (!items || !Array.isArray(items)) return [];
     const map = new Map();
     items.forEach((item, index) => {
       if (!item) return;
-      const key = item.id || `idx_${index}`;
+      const key = item.id || `idx_${index}_${item.title?.slice(0, 10)}_${item.published_at}`;
       // Keep the first one encountered (usually the newest if prepending)
       if (!map.has(key)) {
         map.set(key, item);
@@ -184,25 +184,47 @@ export const RSSProvider: React.FC<{
 
       console.log(`[PIPELINE] Ingestion report: ${rss.feedsProcessed} feeds, ${rss.totalArticlesHandled} items, ${rss.newArticles} new articles`);
 
-      if (rss.newArticles > 0) {
+      if (rss.newArticles > 0 || tg.newArticles > 0 || api.newArticles > 0) {
         // Notification logic
-        const highSeverity = articlesRef.current.filter(
-          a => a.severity >= 4 &&
-          new Date(a.published_at) > new Date(Date.now() - 900000)
+        const recent = await getRecentArticles({ limit: 20 });
+        
+        const shocks = recent.filter(a => 
+          a.severity >= 5 || 
+          (a.severity >= 4 && a.propaganda_score < 0.3)
         );
 
-        if (highSeverity.length > 0) {
+        if (shocks.length > 0) {
+          // CREATE SNAPSHOT FOR THE SYSTEM SHOCK
+          if (rriState) {
+            saveRRISnapshot(rriState, `System Shock: ${shocks[0].title.slice(0, 50)}`).catch(e => 
+              console.error("[RSS] Snapshot failed:", e)
+            );
+          }
+
           await addNotification({
-            type: 'RSS',
-            priority: 'HIGH',
-            title: `${rss.newArticles} New Articles — ${highSeverity.length} High Severity`,
-            message: highSeverity[0]?.title || 'New intelligence available',
-            action_label: 'View Feed',
+            type: 'ALERT',
+            priority: 'CRITICAL',
+            title: 'SYSTEM SHOCK DETECTED',
+            message: shocks[0].title,
+            action_label: 'Analyze Shock',
             action_event: 'navigate-main',
             action_detail: { tab: 'newsfeed' },
           });
-          await loadNotifications();
+        } else {
+          const highSeverity = recent.filter(a => a.severity >= 4);
+          if (highSeverity.length > 0) {
+            await addNotification({
+              type: 'RSS',
+              priority: 'HIGH',
+              title: `${combinedNew} New Articles — ${highSeverity.length} High Priority`,
+              message: highSeverity[0]?.title || 'New intelligence available',
+              action_label: 'View Feed',
+              action_event: 'navigate-main',
+              action_detail: { tab: 'newsfeed' },
+            });
+          }
         }
+        await loadNotifications();
       }
     } catch (e) {
       console.error('[RSS ERROR] Fetch failed:', e);

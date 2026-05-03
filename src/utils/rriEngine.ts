@@ -841,7 +841,7 @@ export function calculateRRI(
   }, 0) / (vars.length || 1);
   const model_confidence = Math.min(0.95, (isNaN(freshness) ? 0 : freshness) * 0.9 + 0.1);
 
-  const threshold_breaches: { variable: string; value: number; threshold: number }[] = [];
+  const threshold_breaches: { variable: string; value: number; threshold: number; label: string; impact: number }[] = [];
   for (const v of vars) {
     if (v.threshold !== null) {
       const invert = v.invert ?? false;
@@ -852,7 +852,9 @@ export function calculateRRI(
         threshold_breaches.push({
           variable: v.id || `${v.code}${v.number}`,
           value: v.value_2026,
-          threshold: v.threshold
+          threshold: v.threshold,
+          label: v.label || v.id || `${v.code}${v.number}`,
+          impact: (v.weight || 0.05) * 5 * eq1_normalize(v) // Rough estimate of contribution to R(t)
         });
       }
     }

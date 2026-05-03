@@ -16,8 +16,9 @@
  */
 
 import fetch from 'node-fetch';
+import type { GovCoord } from './satelliteConfig.ts';
 import {
-  GovCoord, isoDate, daysAgo, OPEN_METEO_ARCHIVE,
+   isoDate, daysAgo, OPEN_METEO_ARCHIVE,
 } from './satelliteConfig.ts';
 
 // ── Tunisia soil capacity ranges (m³/m³) by soil type ────────────────────

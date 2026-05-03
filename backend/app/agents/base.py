@@ -25,40 +25,22 @@ class BaseAgent:
     ):
         self.role = role
         self.system_instruction = system_instruction
+        # OpenRouter uses provider/model format
         self.model_name = model_name
-        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-        self.nvidia_api_key = os.getenv("NVIDIA_API_KEY")
+        self.api_key = os.getenv("OPENROUTER_API_KEY")
         
-        if not self.openrouter_api_key and not self.nvidia_api_key:
-            raise ValueError("OPENROUTER_API_KEY or NVIDIA_API_KEY environment variable is required")
+        if not self.api_key:
+            raise ValueError("OPENROUTER_API_KEY environment variable is required")
         
-        self.clients = []
-        
-        # Add NVIDIA as primary
-        if self.nvidia_api_key:
-            self.clients.append({
-                "provider": "nvidia",
-                "client": OpenAI(
-                    base_url="https://integrate.api.nvidia.com/v1",
-                    api_key=self.nvidia_api_key
-                ),
-                "model": "meta/llama-3.1-70b-instruct" # Primary model on NVIDIA NIM
-            })
-            
-        # Add OpenRouter as fallback
-        if self.openrouter_api_key:
-            self.clients.append({
-                "provider": "openrouter",
-                "client": OpenAI(
-                    base_url="https://openrouter.ai/api/v1",
-                    api_key=self.openrouter_api_key,
-                    default_headers={
-                        "HTTP-Referer": "https://tunisia-intel.local",
-                        "X-Title": "TunisiaIntel"
-                    }
-                ),
-                "model": self.model_name
-            })
+        # Initialize OpenAI client with OpenRouter's base URL
+        self.client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.api_key,
+            default_headers={
+                "HTTP-Referer": "https://tunisia-intel.local",
+                "X-Title": "TunisiaIntel"
+            }
+        )
         
         # Agent's unique ID for memory
         self.agent_id = self.role.lower().replace(" ", "_")
@@ -159,35 +141,25 @@ class BaseAgent:
         if context:
             full_prompt = f"Context: {context}\n\nTask: {prompt}"
             
-        last_error = None
-        for config in self.clients:
-            try:
-                response = await config["client"].chat.completions.create(
-                    model=config["model"],
-                    messages=[
-                        {"role": "system", "content": self.system_instruction},
-                        {"role": "user", "content": full_prompt}
-                    ]
-                )
-                return AgentResponse(
-                    content=response.choices[0].message.content,
-                    tokens_used=response.usage.total_tokens if response.usage else 0
-                )
-            except Exception as e:
-                error_str = str(e)
-                print(f"Agent {self.role} failed with provider {config['provider']}: {error_str}")
-                last_error = e
-                # Do not immediately raise on 402/429, let it fallback to the next provider
-                continue
-                
-        # If all providers fail
-        if last_error:
-            error_str = str(last_error)
-            if "429" in error_str or "quota" in error_str.lower() or "rate_limit" in error_str.lower() or "402" in error_str:
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": self.system_instruction},
+                    {"role": "user", "content": full_prompt}
+                ]
+            )
+            return AgentResponse(
+                content=response.choices[0].message.content,
+                tokens_used=response.usage.total_tokens if response.usage else 0
+            )
+        except Exception as e:
+            error_str = str(e)
+            print(f"Agent {self.role} failed: {error_str}")
+            if "429" in error_str or "quota" in error_str.lower() or "rate_limit" in error_str.lower():
+                # Re-raise with specific message so API can catch it
                 raise Exception("AI_RATE_LIMIT_EXCEEDED")
-            raise last_error
-        
-        raise Exception("No AI providers available")
+            raise e
 
     async def _get_memory(self, context_key: str) -> List[Dict[str, Any]]:
         """
