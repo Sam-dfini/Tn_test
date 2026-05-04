@@ -106,13 +106,22 @@ export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ?
   return items.map((item, index) => {
     let baseId: string | number;
 
+    let finalId: string;
+
     if (item && typeof item === 'object') {
-      baseId = (item as any).id || (item as any).articleId || (item as any).event_id || index;
+      const existingId = (item as any).id || (item as any).articleId || (item as any).event_id;
+      baseId = existingId !== undefined ? existingId : index;
+      
+      // If it already has a valid string ID, try to preserve it
+      if (existingId !== undefined && typeof existingId === 'string' && existingId.length > 0) {
+        finalId = existingId;
+      } else {
+        finalId = assertKey(baseId, prefix);
+      }
     } else {
       baseId = String(item) || index;
+      finalId = assertKey(baseId, prefix);
     }
-
-    let finalId = assertKey(baseId, prefix);
 
     // Prevent duplicates within the mapped list
     if (seen.has(finalId)) {
