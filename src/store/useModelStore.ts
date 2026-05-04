@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { calculateRRI } from '../utils/rriEngine';
+import { calculateRRI } from '../math/rri/engine';
 
 interface SimulationResult {
   peak_infected: number;

@@ -1,9 +1,10 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 export const SignalCore: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
 
   const metrics = [
     {
@@ -68,8 +69,8 @@ export const SignalCore: React.FC = () => {
       </div>
 
       <div className="space-y-4 flex-1">
-        {metrics.map((m) => (
-          <div key={m.label} className="space-y-1.5 group">
+        {prepareList(metrics).map((m: any, i: number) => (
+          <div key={generateStableKey(m, i, 'metric')} className="space-y-1.5 group">
             <div className="flex justify-between items-center">
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight group-hover:text-slate-200 transition-colors">
                 {m.label}

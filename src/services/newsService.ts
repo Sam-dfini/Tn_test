@@ -2,7 +2,7 @@
 import { Article, supabase } from '../lib/supabase';
 import { RSSSource } from '../config/rssSources';
 import { pipelineDebugger } from './debugService';
-import { generateEventId } from '../utils/eventUtils';
+import { generateEventId } from '../utils/idUtils';
 
 const NEWSDATA_API_KEY = 'pub_33fbfaf5f962474c87e881434e96fedb';
 

@@ -92,3 +92,28 @@ export function computeSignals(eq: EquationOutputs): Signals {
     defectionProbability: eq.defectionProbability
   };
 }
+
+/**
+ * Convenience bridge between CoreLogicEngine and the Signal Layer
+ */
+export function getSignalsFromModel(analysis: any): Signals {
+  const rt = analysis.rt;
+  // Map simplified analysis to EquationOutputs-like structure
+  // In a full implementation, we'd have all 20 equations here
+  const eq: EquationOutputs = {
+    R: rt,
+    compoundStress: rt * 0.8,
+    salience: analysis.salience,
+    infoAmplification: 1.0,
+    remittanceEffect: 0.2,
+    protestInfectedRatio: analysis.pRev * 0.1,
+    defectionProbability: analysis.pRev * 0.05,
+    eliteCohesion: 1.0 - (analysis.pRev * 0.2),
+    velocity: 0.1,
+    cascadeProbability: analysis.pRev * 0.02,
+    shock: 0,
+    historicalSimilarity: 0.4
+  };
+  
+  return computeSignals(eq);
+}

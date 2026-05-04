@@ -17,6 +17,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { callAI, parseAIJSON } from '../../services/aiService';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 interface Hashtag {
   tag: string;
@@ -174,8 +175,8 @@ JSON structure:
               exit={{ opacity: 0, y: -10 }}
               className="grid grid-cols-2 gap-3"
             >
-              {hashtags.map((h, index) => (
-                <div key={`hashtag-${h.tag}-${index}-${h.count}`} className="bg-white/5 border border-white/10 p-2 rounded flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
+              {prepareList(hashtags).map((h: any, index: number) => (
+                <div key={generateStableKey(h, index, 'hashtag')} className="bg-white/5 border border-white/10 p-2 rounded flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
                   <div className="flex items-center space-x-2">
                     <Hash className="w-3 h-3 text-intel-cyan opacity-50" />
                     <div className="flex flex-col">
@@ -199,8 +200,8 @@ JSON structure:
               exit={{ opacity: 0, y: -10 }}
               className="space-y-4"
             >
-              {posts.map((p, index) => (
-                <div key={`post-${p.platform}-${p.user}-${index}-${p.content.substring(0, 15)}`} className="border-l-2 border-intel-cyan/20 pl-3 space-y-1 relative group">
+              {prepareList(posts).map((p: any, index: number) => (
+                <div key={generateStableKey(p, index, 'post')} className="border-l-2 border-intel-cyan/20 pl-3 space-y-1 relative group">
                   <div className="absolute left-[-2px] top-0 w-0.5 h-3 bg-intel-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

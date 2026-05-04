@@ -16,9 +16,9 @@ import {
   Sparkles,
   Loader2
 } from 'lucide-react';
-import { BackgroundGrid, ModuleHeader } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
 import { cn } from '../../utils/cn';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { generateAnalystResponse } from '../../services/geminiService';
 import Markdown from 'react-markdown';
 
@@ -186,7 +186,7 @@ const parties = [
 ];
 
 export const PartyDossier: React.FC = () => {
-  const { rriState } = usePipeline();
+  const { rriState } = useRiskMetrics();
   const [selectedParty, setSelectedParty] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [alignmentFilter, setAlignmentFilter] = useState('ALL');

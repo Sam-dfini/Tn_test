@@ -1,5 +1,5 @@
 import { CanonicalEvent, EventSource } from '../types/pipeline';
-import { generateEventId } from '../utils/eventUtils';
+import { generateEventId } from '../utils/idUtils';
 
 /**
  * Single Source of Truth for Data Pipeline Operations
@@ -10,13 +10,6 @@ export class IntelligencePipeline {
 
   constructor(maxBufferSize: number = 200) {
     this.maxBufferSize = maxBufferSize;
-  }
-
-  /**
-   * Generates a collision-proof deterministic hybrid hash
-   */
-  private generateDeterministicId(source: string, sourceId: string): string {
-    return `evt_${source}_${sourceId}`.toUpperCase();
   }
 
   /**

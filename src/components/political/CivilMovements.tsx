@@ -17,9 +17,9 @@ import {
   Sparkles,
   Loader2
 } from 'lucide-react';
-import { BackgroundGrid, ModuleHeader } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
 import { cn } from '../../utils/cn';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { generateAnalystResponse } from '../../services/geminiService';
 import Markdown from 'react-markdown';
 
@@ -96,7 +96,7 @@ const governorateRisks = [
 ];
 
 export const CivilMovements: React.FC = () => {
-  const { rriState } = usePipeline();
+  const { rriState } = useRiskMetrics();
   const [selectedMovement, setSelectedMovement] = useState<string | null>(null);
   const [filter, setFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');

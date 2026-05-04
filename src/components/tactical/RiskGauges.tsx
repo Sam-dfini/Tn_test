@@ -1,8 +1,9 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 export const RiskGauges: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
 
   const gauges = [
     { 
@@ -99,8 +100,8 @@ export const RiskGauges: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {gauges.map((g) => (
-          <div key={g.label} className="space-y-1 bg-white/5 p-2 rounded border border-intel-border/10">
+        {prepareList(gauges).map((g: any, i: number) => (
+          <div key={generateStableKey(g, i, 'gauge')} className="space-y-1 bg-white/5 p-2 rounded border border-intel-border/10">
             <div className="flex flex-col">
               <div className="text-[8px] text-slate-500 uppercase tracking-tighter truncate">{g.label}</div>
               <div className={`text-[10px] font-mono font-bold ${g.color}`}>{g.value}</div>

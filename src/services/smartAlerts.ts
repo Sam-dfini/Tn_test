@@ -4,6 +4,7 @@
  */
 
 import { Signals } from './signals';
+import { generateRandomId } from '../utils/idUtils';
 import { Clusters } from './clusters';
 import { SEIResult } from './seiEngine';
 import { AnalysisResult as TemporalAnalysisResult } from './temporalAnalysisService';
@@ -75,7 +76,7 @@ export function generateSmartAlerts(
   ): SmartAlert => {
     const priority = Math.min(10, Math.max(0, SEVERITY_WEIGHTS[severity] * 2 + Math.abs(delta) * 3 + value));
     return {
-      id: `${type}-${timestamp}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `${type}-${timestamp}-${generateRandomId('alt')}`,
       type,
       severity,
       priority,

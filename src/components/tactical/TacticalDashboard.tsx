@@ -27,13 +27,14 @@ import { LiveMediaStreams } from './LiveMediaStreams';
 import { IdeologicalIntelligence } from './IdeologicalIntelligence';
 import { CrossSourceSignals } from './CrossSourceSignals';
 import { LeverageableIdeas } from './LeverageableIdeas';
-import { IntelligenceBriefPanel } from '../IntelligenceBriefPanel';
+import { IntelligenceBriefPanel } from '../system/IntelligenceBriefPanel';
 
 import { WeatherWidget } from './WeatherWidget';
 import { FireIncidentsWidget, WaterCutsWidget, RoadAccidentsWidget, SuicidesWidget, ViolenceWidget } from './IncidentWidgets';
 
 import { Governorate, IntelEvent } from '../../types/intel';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { useAIAnalysis } from '../../context/AIAnalysisContext';
 import { useRSS } from '../../context/RSSContext';
 import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
@@ -50,7 +51,8 @@ interface TacticalDashboardProps {
 export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   governorates, events, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, data
 }) => {
-  const { rriState, data: pipelineData, aiAnalysis } = usePipeline();
+  const { rriState, fullData: pipelineData } = useRiskMetrics();
+  const { aiAnalysis } = useAIAnalysis();
   const { articles: rssArticles } = useRSS();
   const { width } = useWindowSize();
   const isSmallScreen = width < 768;
@@ -63,31 +65,6 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   useEffect(() => {
     setLeftCollapsed(width < 768);
   }, [width]);
-
-  useEffect(() => {
-    const handleNavigate = (e: any) => {
-      const { tab } = e.detail || {};
-      if (tab) {
-        // Map global tabs to tactical tabs
-        const mapping: Record<string, string> = {
-          'risk': 'status',
-          'newsfeed': 'intel',
-          'economy': 'economy',
-          'social': 'social',
-          'pipeline': 'signals'
-        };
-        const localTab = (mapping[tab.toLowerCase()] || tab) as any;
-        
-        // Check if it's a valid left tab
-        if (['status', 'intel', 'economy', 'social', 'signals', 'weather'].includes(localTab)) {
-          setLeftTab(localTab);
-          setLeftCollapsed(false);
-        }
-      }
-    };
-    window.addEventListener('navigate-main', handleNavigate);
-    return () => window.removeEventListener('navigate-main', handleNavigate);
-  }, []);
 
   const [leftTab, setLeftTab] = useState<
     'status' | 'intel' | 'economy' | 'social' | 'signals' | 'weather'

@@ -1,5 +1,5 @@
 import { supabase, Article, Event } from '../lib/supabase';
-import { generateEventId } from '../utils/eventUtils';
+import { generateEventId } from '../utils/idUtils';
 import { calculateEventPriority } from './priorityEngine';
 import { generateAnalystResponse } from './geminiService';
 import { analyzeArticle, analyzeLexical } from './narrativeEngine';

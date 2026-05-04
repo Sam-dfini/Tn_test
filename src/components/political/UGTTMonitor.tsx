@@ -15,9 +15,10 @@ import {
   Briefcase,
   Globe
 } from 'lucide-react';
-import { BackgroundGrid, ModuleHeader } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
 import { cn } from '../../utils/cn';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { generateStableKey } from '../../lib/keyUtils';
 
 const strikeHistory = [
   { date: '2025-12-15', sector: 'Transport', impact: 'HIGH', status: 'RESOLVED', description: 'National rail strike over wage arrears.' },
@@ -72,7 +73,7 @@ const contributingFactors = [
 ];
 
 export const UGTTMonitor: React.FC = () => {
-  const { rriState } = usePipeline();
+  const { rriState } = useRiskMetrics();
   const [selectedSector, setSelectedSector] = useState<string | null>(null);
 
   const stats = [
@@ -96,7 +97,7 @@ export const UGTTMonitor: React.FC = () => {
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-20">
         {stats.map((stat, i) => (
-          <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+          <div key={generateStableKey(stat, i, 'stat')} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{stat.label}</span>
@@ -126,7 +127,7 @@ export const UGTTMonitor: React.FC = () => {
                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Regional Representation Map</h4>
                 <div className="space-y-3">
                   {regionalRepresentation.map((reg, i) => (
-                    <div key={i} className="space-y-1">
+                    <div key={generateStableKey(reg, i, 'reg')} className="space-y-1">
                       <div className="flex justify-between text-[9px] font-mono">
                         <span className="text-slate-400">{reg.region}</span>
                         <span className="text-white font-bold">{reg.count} Members</span>
@@ -152,7 +153,7 @@ export const UGTTMonitor: React.FC = () => {
                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bureau Members</h4>
                 <div className="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
                   {newExecutiveBureau.map((member, i) => (
-                    <div key={i} className="p-3 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center group hover:border-intel-cyan/30 transition-all">
+                    <div key={generateStableKey(member, i, 'member')} className="p-3 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center group hover:border-intel-cyan/30 transition-all">
                       <div className="space-y-0.5">
                         <div className="text-[11px] font-bold text-white group-hover:text-intel-cyan transition-colors">{member.name}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{member.role}</div>
@@ -185,7 +186,7 @@ export const UGTTMonitor: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {wageNegotiations.map((neg, i) => (
-                    <tr key={i} className="group hover:bg-white/5 transition-colors">
+                    <tr key={generateStableKey(neg, i, 'neg')} className="group hover:bg-white/5 transition-colors">
                       <td className="py-4">
                         <div className="text-xs font-bold text-white">{neg.sector}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{neg.status}</div>
@@ -215,7 +216,7 @@ export const UGTTMonitor: React.FC = () => {
               <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contributing Economic Factors</h4>
               <div className="space-y-4">
                 {contributingFactors.map((factor, i) => (
-                  <div key={i} className="space-y-1.5">
+                  <div key={generateStableKey(factor, i, 'factor')} className="space-y-1.5">
                     <div className="flex justify-between text-[10px] font-mono">
                       <span className="text-slate-400">{factor.factor}</span>
                       <div className="space-x-2">
@@ -267,7 +268,7 @@ export const UGTTMonitor: React.FC = () => {
             </div>
             <div className="space-y-4">
               {strikeHistory.map((strike, i) => (
-                <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2 group hover:border-intel-cyan/30 transition-all cursor-pointer">
+                <div key={generateStableKey(strike, i, 'strike')} className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2 group hover:border-intel-cyan/30 transition-all cursor-pointer">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">
                       <div className="text-xs font-bold text-white">{strike.sector}</div>
@@ -304,7 +305,7 @@ export const UGTTMonitor: React.FC = () => {
                 { label: 'Privatization of CPG or STEG', prob: '94%' },
                 { label: 'Failure to reach 2026 Wage Agreement', prob: '68%' },
               ].map((trigger, i) => (
-                <div key={i} className="space-y-1">
+                <div key={generateStableKey(trigger, i, 'trigger')} className="space-y-1">
                   <div className="flex justify-between text-[9px] font-mono">
                     <span className="text-slate-400">{trigger.label}</span>
                     <span className="text-intel-red font-bold">{trigger.prob}</span>

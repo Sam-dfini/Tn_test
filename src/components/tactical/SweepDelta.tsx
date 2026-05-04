@@ -1,10 +1,13 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { useAuditLog } from '../../context/AuditContext';
 import { cn } from '../../utils/cn';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 export const SweepDelta: React.FC = () => {
-  const { data, rriState, auditLog } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
+  const { auditLog } = useAuditLog();
 
   const recentChanges = [
     {
@@ -72,8 +75,8 @@ export const SweepDelta: React.FC = () => {
       </div>
 
       <div className="space-y-1.5">
-        {recentChanges.map((item, i) => (
-          <div key={`sweep-delta-chg-stable-${i}-${item.type}-${item.field}`} className="flex items-center space-x-2">
+        {prepareList(recentChanges).map((item: any, i: number) => (
+          <div key={generateStableKey(item, i, 'chg')} className="flex items-center space-x-2">
             <span className={`text-[7px] font-mono font-bold px-1
               rounded border uppercase shrink-0 ${
               item.type === 'RRI'

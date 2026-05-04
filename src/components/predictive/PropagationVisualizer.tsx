@@ -15,6 +15,7 @@ import {
   Activity
 } from 'lucide-react';
 import governorateData from '../../data/governorates.json';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 import { 
   simulatePropagation, 
   HISTORICAL_WAVES, 
@@ -22,7 +23,7 @@ import {
   PropagationResult,
   PropagationNode
 } from '../../services/propagationEngine';
-import { Map } from '../Map';
+import { Map } from '../shared/Map';
 import { Governorate } from '../../types/intel';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -290,12 +291,12 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 </svg>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
-                  {Object.values(simulation.nodes)
+                  {prepareList(Object.values(simulation.nodes)
                     .filter(n => n.status !== 'unreachable')
-                    .sort((a, b) => a.expectedDays - b.expectedDays)
-                    .map((node, idx) => (
+                    .sort((a, b) => a.expectedDays - b.expectedDays))
+                    .map((node: any, idx: number) => (
                       <motion.div
-                        key={node.governorateId}
+                        key={generateStableKey(node.governorateId, idx, 'node')}
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ 
@@ -350,9 +351,9 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 className="h-full p-8 overflow-y-auto"
               >
                 <div className="relative border-l border-white/10 ml-4 pl-8 space-y-12">
-                  {nodesByDay.map((dayGroup, idx) => (
+                  {prepareList(nodesByDay).map((dayGroup: any, idx: number) => (
                     <motion.div 
-                      key={dayGroup.day} 
+                      key={generateStableKey(dayGroup, idx, 'day-group')} 
                       className="relative"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -372,9 +373,9 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                         <p className="text-xs text-gray-500 uppercase tracking-widest">Potential Activation Window</p>
                       </div>
                       <div className="flex flex-wrap gap-3">
-                        {dayGroup.nodes.map((node, nodeIdx) => (
+                        {prepareList(dayGroup.nodes).map((node: any, nodeIdx: number) => (
                           <motion.div 
-                            key={node.governorateId}
+                            key={generateStableKey(node, nodeIdx, 'node-item')}
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.2 + 0.2 + nodeIdx * 0.05 }}
@@ -494,8 +495,8 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
               <h3 className="text-xs font-mono uppercase tracking-widest text-gray-400">Historical Pattern Match</h3>
             </div>
             <div className="space-y-3">
-              {historicalMatches.map(match => (
-                <div key={match.name} className="p-3 rounded-lg bg-white/5 border border-white/10">
+              {prepareList(historicalMatches).map((match: any, i: number) => (
+                <div key={generateStableKey(match, i, 'hist-match')} className="p-3 rounded-lg bg-white/5 border border-white/10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium truncate pr-2">{match.name}</span>
                     <span className="text-xs font-mono text-blue-400">{(match.score * 100).toFixed(0)}%</span>
@@ -580,8 +581,8 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                   <div>
                     <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Propagation Path</div>
                     <div className="flex flex-wrap items-center gap-1 mt-1">
-                      {selectedNode.path.map((step, i) => (
-                        <React.Fragment key={`${step}-${i}`}>
+                      {prepareList(selectedNode.path).map((step: any, i: number) => (
+                        <React.Fragment key={generateStableKey(step, i, 'step')}>
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{step}</span>
                           {i < selectedNode.path.length - 1 && <ChevronRight className="w-3 h-3 text-gray-600" />}
                         </React.Fragment>

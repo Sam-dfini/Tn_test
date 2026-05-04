@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingDown, TrendingUp, Activity, Globe } from 'lucide-react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
 
 export const MacroMarkets: React.FC = () => {
-  const { data } = usePipeline();
+  const { fullData: data } = useRiskMetrics();
   const [liveRates, setLiveRates] = useState<any>(null);
   const [lastFetch, setLastFetch] = useState<string>('');
 

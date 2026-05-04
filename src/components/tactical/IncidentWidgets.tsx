@@ -1,11 +1,11 @@
 import React from 'react';
 import { Flame, Droplets, Car, UserX, ShieldAlert } from 'lucide-react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../lib/utils';
 import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 export const FireIncidentsWidget: React.FC = () => {
-  const { data } = usePipeline();
+  const { fullData: data } = useRiskMetrics();
   
   // Mock data for fire incidents if not in pipeline
   const fires = [
@@ -44,7 +44,7 @@ export const FireIncidentsWidget: React.FC = () => {
 };
 
 export const WaterCutsWidget: React.FC = () => {
-  const { data } = usePipeline();
+  const { fullData: data } = useRiskMetrics();
   
   const cuts = [
     { region: 'Gafsa', hours: 14, status: 'CRITICAL' },

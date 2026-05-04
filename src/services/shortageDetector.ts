@@ -1,4 +1,6 @@
 import { Article } from '../lib/supabase';
+import { SHORTAGE_DICTIONARY, ENERGY_SHOCK_DICTIONARY } from '../config/dictionary';
+import { getMatches } from '../utils/featureUtils';
 
 // ── Shortage Types ─────────────────────────────────────────────
 
@@ -55,164 +57,21 @@ export interface EnergyShockSignal {
 
 // ── Keyword Dictionaries ───────────────────────────────────────
 
-const SHORTAGE_KEYWORDS: Record<ShortageType, {
-  fr: string[];
-  ar: string[];
-  en: string[];
-  weight: number;             // how much one article nudges R(t)
-  rriVariable: string;
-}> = {
-  butane: {
-    fr: ['butane', 'gaz butane', 'bouteille gaz', 'pénurie gaz',
-         'rupture gaz', 'file gaz', 'introuvable gaz', 'gaz manque'],
-    ar: ['بوطان', 'غاز البوطان', 'أسطوانة الغاز', 'نقص الغاز',
-         'انقطاع الغاز', 'طابور الغاز', 'غاز مفقود', 'أزمة الغاز'],
-    en: ['butane shortage', 'gas shortage', 'lpg shortage'],
-    weight: 0.025,
-    rriVariable: 'B22',
-  },
-  electricity: {
-    fr: ['coupure électricité', 'délestage', 'STEG coupure',
-         'panne courant', 'heures coupure', 'électricité coupée',
-         'sans électricité', 'réseau électrique'],
-    ar: ['انقطاع الكهرباء', 'قطع التيار', 'ستاغ', 'أعطال كهربائية',
-         'ساعات الانقطاع', 'كهرباء مقطوعة', 'بدون كهرباء'],
-    en: ['power cut', 'electricity cut', 'blackout', 'load shedding'],
-    weight: 0.020,
-    rriVariable: 'B23',
-  },
-  water: {
-    fr: ['coupure eau', 'pénurie eau', 'SONEDE', 'eau coupée',
-         'manque eau', 'distribution eau', 'heures eau'],
-    ar: ['انقطاع الماء', 'نقص المياه', 'سونيد', 'قطع الماء',
-         'مياه مقطوعة', 'ساعات الماء', 'أزمة مياه'],
-    en: ['water cut', 'water shortage', 'SONEDE'],
-    weight: 0.018,
-    rriVariable: 'B21',
-  },
-  chicken: {
-    fr: ['poulet', 'viande blanche', 'poulet introuvable', 'prix poulet',
-         'rayon poulet vide', 'rupture poulet', 'pénurie poulet'],
-    ar: ['دجاج', 'دجاج مفقود', 'سعر الدجاج', 'نقص الدجاج',
-         'أزمة الدجاج', 'دجاج مرتفع السعر', 'رفع أسعار الدجاج'],
-    en: ['chicken shortage', 'poultry shortage'],
-    weight: 0.015,
-    rriVariable: 'B24',
-  },
-  meat: {
-    fr: ['viande rouge', 'prix viande', 'viande introuvable',
-         'agneau', 'bœuf pénurie', 'rupture viande'],
-    ar: ['لحم', 'لحم غالي', 'نقص اللحوم', 'أسعار اللحوم',
-         'لحم مفقود', 'أزمة اللحوم', 'كيلو اللحم'],
-    en: ['meat shortage', 'beef shortage'],
-    weight: 0.012,
-    rriVariable: 'B24',
-  },
-  milk: {
-    fr: ['lait introuvable', 'pénurie lait', 'prix lait',
-         'rupture lait', 'manque lait'],
-    ar: ['حليب مفقود', 'نقص الحليب', 'أسعار الحليب',
-         'أزمة الحليب', 'حليب غالي'],
-    en: ['milk shortage'],
-    weight: 0.010,
-    rriVariable: 'B24',
-  },
-  sugar: {
-    fr: ['sucre introuvable', 'pénurie sucre', 'prix sucre',
-         'rupture sucre', 'sucre manque', 'rayon sucre vide'],
-    ar: ['سكر مفقود', 'نقص السكر', 'أسعار السكر',
-         'أزمة السكر', 'سكر غالي', 'طابور السكر'],
-    en: ['sugar shortage'],
-    weight: 0.015,
-    rriVariable: 'B24',
-  },
-  coffee: {
-    fr: ['café introuvable', 'pénurie café', 'prix café',
-         'rupture café', 'café manque'],
-    ar: ['قهوة مفقودة', 'نقص القهوة', 'أسعار القهوة', 'أزمة القهوة'],
-    en: ['coffee shortage'],
-    weight: 0.008,
-    rriVariable: 'B24',
-  },
-  oil: {
-    fr: ['huile introuvable', 'pénurie huile', 'huile végétale',
-         'rupture huile', 'prix huile'],
-    ar: ['زيت مفقود', 'نقص الزيت', 'أزمة الزيت',
-         'زيت نباتي', 'أسعار الزيت'],
-    en: ['cooking oil shortage', 'oil shortage'],
-    weight: 0.018,
-    rriVariable: 'B24',
-  },
-  flour: {
-    fr: ['farine introuvable', 'pénurie farine', 'semoule',
-         'rupture farine', 'pain pénurie'],
-    ar: ['دقيق مفقود', 'نقص الدقيق', 'سميد', 'أزمة الدقيق',
-         'خبز نقص'],
-    en: ['flour shortage', 'bread shortage'],
-    weight: 0.022,
-    rriVariable: 'B24',
-  },
-  fuel: {
-    fr: ['carburant', 'essence manque', 'station fermée',
-         'queue station', 'pénurie essence', 'diesel manque'],
-    ar: ['وقود', 'بنزين مفقود', 'محطة مغلقة', 'طابور بنزين',
-         'نقص الوقود', 'أزمة الوقود'],
-    en: ['fuel shortage', 'petrol shortage', 'gas station queue'],
-    weight: 0.020,
-    rriVariable: 'B25',
-  },
-  medicine: {
-    fr: ['médicaments introuvables', 'pénurie médicaments',
-         'pharmacie rupture', 'manque médicaments'],
-    ar: ['أدوية مفقودة', 'نقص الدواء', 'صيدلية', 'أزمة الدواء'],
-    en: ['medicine shortage', 'drug shortage'],
-    weight: 0.025,
-    rriVariable: 'B24',
-  },
-};
+/**
+ * detectShortages
+ * Scans article content for shortage signals using unified dictionary.
+ */
+function detectShortages(content: string): ShortageType[] {
+  return getMatches(content, SHORTAGE_DICTIONARY as any) as ShortageType[];
+}
 
-// Energy shock keywords (global)
-const ENERGY_SHOCK_KEYWORDS = {
-  iran_conflict: {
-    en: ['Iran attack', 'Iran war', 'Hormuz', 'strait closed',
-         'Iranian strike', 'Iran conflict', 'Middle East war'],
-    fr: ['guerre Iran', 'détroit Hormuz', 'conflit Iran', 'attaque Iran'],
-    ar: ['حرب إيران', 'مضيق هرمز', 'هجوم إيران', 'النزاع الإيراني'],
-    estimatedLagDays: 14,
-    severity: 3 as const,
-    type: 'regional_conflict' as EnergyShockType,
-  },
-  oil_price_spike: {
-    en: ['oil price spike', 'crude surges', 'Brent rises',
-         'OPEC cuts', 'oil crisis', 'energy crisis', 'WTI spike'],
-    fr: ['prix pétrole hausse', 'Brent monte', 'crise énergie',
-         'pétrole cher'],
-    ar: ['ارتفاع أسعار النفط', 'بريت', 'أزمة طاقة', 'أوبك'],
-    estimatedLagDays: 21,
-    severity: 2 as const,
-    type: 'global_oil_price' as EnergyShockType,
-  },
-  steg_tariff: {
-    fr: ['tarif STEG', 'hausse électricité', 'prix électricité augmente',
-         'STEG augmentation', 'facture électricité'],
-    ar: ['تعريفة ستاغ', 'رفع أسعار الكهرباء', 'فاتورة الكهرباء',
-         'ستاغ رفع'],
-    en: ['STEG tariff', 'electricity price increase Tunisia'],
-    estimatedLagDays: 0,
-    severity: 2 as const,
-    type: 'steg_tariff' as EnergyShockType,
-  },
-  subsidy_cut: {
-    fr: ['subvention énergie coupée', 'fin subvention gaz',
-         'réforme subventions', 'prix gaz augmente'],
-    ar: ['رفع الدعم', 'إلغاء دعم الطاقة', 'إصلاح الدعم',
-         'رفع أسعار الغاز'],
-    en: ['subsidy reform Tunisia', 'fuel subsidy cut'],
-    estimatedLagDays: 7,
-    severity: 3 as const,
-    type: 'subsidy_cut' as EnergyShockType,
-  },
-};
+/**
+ * detectEnergyShocks
+ * Scans for global energy events using unified dictionary.
+ */
+function detectEnergyShocks(content: string): EnergyShockType[] {
+  return getMatches(content, ENERGY_SHOCK_DICTIONARY as any) as EnergyShockType[];
+}
 
 // ── Seasonal Calendar ──────────────────────────────────────────
 // Month 0 = January, 11 = December
@@ -290,8 +149,9 @@ export function detectShortagesInArticles(
     ].join(' ').toLowerCase();
 
     // Check shortage keywords
-    for (const [type, config] of Object.entries(SHORTAGE_KEYWORDS)) {
-      const allKws = [...config.fr, ...config.ar, ...config.en];
+    for (const [type, config] of Object.entries(SHORTAGE_DICTIONARY)) {
+      const typedConfig = config as any;
+      const allKws = [...(typedConfig.fr || []), ...(typedConfig.ar || []), ...(typedConfig.en || [])];
       const matches = allKws.filter(kw => text.includes(kw.toLowerCase()));
 
       if (matches.length >= 1) {
@@ -310,20 +170,21 @@ export function detectShortagesInArticles(
     }
 
     // Check energy shock keywords
-    for (const [shockId, config] of Object.entries(ENERGY_SHOCK_KEYWORDS)) {
-      const allKws = [...config.en, ...config.fr, ...config.ar];
+    for (const [shockId, config] of Object.entries(ENERGY_SHOCK_DICTIONARY)) {
+      const typedConfig = config as any;
+      const allKws = [...(typedConfig.en || []), ...(typedConfig.fr || []), ...(typedConfig.ar || [])];
       const matches = allKws.filter(kw => text.includes(kw.toLowerCase()));
 
       if (matches.length >= 1) {
         // Avoid duplicate shocks
-        const existing = energyShocks.find(s => s.type === config.type);
+        const existing = energyShocks.find(s => s.type === typedConfig.type);
         if (!existing) {
           energyShocks.push({
-            type: config.type,
+            type: typedConfig.type,
             source: article.source_name,
             headline: article.title,
-            estimatedTunisiaImpactDays: config.estimatedLagDays,
-            severity: config.severity,
+            estimatedTunisiaImpactDays: typedConfig.estimatedLagDays,
+            severity: typedConfig.severity,
             detectedAt: new Date(article.published_at).getTime(),
           });
         }
@@ -338,7 +199,7 @@ export function detectShortagesInArticles(
     const [type, gov] = key.split(':');
     if (data.count < 1) continue;  // needs at least 1 mention
 
-    const config = SHORTAGE_KEYWORDS[type as ShortageType];
+    const config = (SHORTAGE_DICTIONARY as any)[type as ShortageType];
     if (!config) continue;
 
     const seasonal = getSeasonalMultiplier(type as ShortageType);

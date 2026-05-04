@@ -23,7 +23,7 @@ import {
 } from 'recharts';
 import { motion } from 'motion/react';
 import { cn } from '../../utils/cn';
-import { BackgroundGrid, ModuleHeader, LiveTicker } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader, LiveTicker } from '../shared/ProfessionalShared';
 
 const sentimentAlerts = [
   { code: 'SENT-01', title: 'Narrative Shift: Sovereignty discourse up 14%', impact: 'HIGH' },

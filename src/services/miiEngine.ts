@@ -23,6 +23,7 @@
  */
 
 import { Article } from '../lib/supabase';
+import { calculateMII } from '../math/political';
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -618,19 +619,13 @@ export function computeMII(
 
   // EQ.21:
   // MII(t) = α·CF + β·(1/tenure_normalized) + γ·CrisisChanges + δ·KM + ε·LS
-  const ALPHA = 0.20;
-  const BETA  = 0.25;
-  const GAMMA = 0.20;
-  const DELTA = 0.20;
-  const EPS   = 0.15;
-
-  const mii = Math.min(1, Math.max(0,
-    ALPHA * cf +
-    BETA  * tenure +
-    GAMMA * crisisRatio +
-    DELTA * km +
-    EPS   * ls
-  ));
+  const mii = calculateMII({
+    changeFrequency: cf,
+    tenureScore: tenure,
+    crisisRatio,
+    keyMinistryScore: km,
+    loyaltyShift: ls
+  });
 
   const miiDelta = mii - _previousMII;
   _previousMII = mii;

@@ -13,11 +13,11 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, Tooltip as Le
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Governorate, IntelEvent, RiskLevel, FireData } from '../../types/intel';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
 import { FireLayer } from './FireLayer';
 import { getMockFires, filterFires } from '../../services/firmsService';
-import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
+import { prepareList, assertKey, getRenderKey, generateStableKey } from '../../lib/keyUtils';
 
 // Helper to normalize governorate names for matching
 const normalizeName = (name: string) => {
@@ -212,7 +212,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
   hideLegend = false,
   forcedRiskZones
 }) => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
   const tunisiaCenter: [number, number] = [33.8869, 9.5375];
   const zoom = 7;
 
@@ -505,9 +505,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           />
           
           {/* Geofences */}
-          {layers.geofences && GEOFENCES.map(gf => (
+          {prepareList(GEOFENCES).map((gf: any, i: number) => (
             <Circle
-              key={gf.id}
+              key={generateStableKey(gf, i, 'gf')}
               center={[gf.lat, gf.lon]}
               radius={gf.radius}
               pathOptions={{
@@ -529,9 +529,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           ))}
 
           {/* Cascade Paths */}
-          {layers.cascade && CASCADE_PATHS.map(path => (
+          {prepareList(layers.cascade ? CASCADE_PATHS : []).map((path: any, i: number) => (
             <Polyline
-              key={path.id}
+              key={generateStableKey(path, i, 'cascade')}
               positions={[path.from as [number,number], path.to as [number,number]]}
               pathOptions={{
                 color: path.probability > 0.6 ? '#ff453a' : '#ff9f0a',
@@ -550,7 +550,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           ))}
           
           {/* Event Markers */}
-          {layers.events && prepareList(filteredEvents || []).filter(e => e && e.lat != null && e.lon != null).map((event, index) => {
+          {layers.events && prepareList(filteredEvents || []).filter(e => e && e.lat != null && e.lon != null).map((event: any, index: number) => {
             if (!event || !event.title) return null;
             const isAccident = event.title.toLowerCase().includes('accident') || 
                                event.title.toLowerCase().includes('suicide') || 
@@ -560,7 +560,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
             return (
               <Marker 
-                key={event.id}
+                key={generateStableKey(event, index, 'evt')}
                 position={[event.lat!, event.lon!]}
                 icon={L.divIcon({
                   className: 'tactical-icon',
@@ -732,20 +732,20 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           </div>
           
           <div className="space-y-0.5">
-            {[
-              { id: 'grid', label: 'Grid', icon: Grid3X3 },
-              { id: 'scanning', label: 'Scan', icon: Activity },
-              { id: 'events', label: 'Intel', icon: MapPin },
-              { id: 'riskZones', label: 'Data', icon: AlertTriangle },
-              { id: 'geofences', label: 'Zones', icon: Target },
-              { id: 'fire', label: 'Fires', icon: FireIcon },
-              { id: 'cascade', label: 'Paths', icon: TrendingUp },
-            ].map((layer) => {
-              const Icon = layer.icon;
-              const isActive = layers[layer.id as keyof typeof layers];
-              return (
-                <button
-                  key={layer.id}
+              {[
+                { id: 'grid', label: 'Grid', icon: Grid3X3 },
+                { id: 'scanning', label: 'Scan', icon: Activity },
+                { id: 'events', label: 'Intel', icon: MapPin },
+                { id: 'riskZones', label: 'Data', icon: AlertTriangle },
+                { id: 'geofences', label: 'Zones', icon: Target },
+                { id: 'fire', label: 'Fires', icon: FireIcon },
+                { id: 'cascade', label: 'Paths', icon: TrendingUp },
+              ].map((layer, idx) => {
+                const Icon = layer.icon;
+                const isActive = layers[layer.id as keyof typeof layers];
+                return (
+                  <button
+                    key={generateStableKey(layer, idx, 'lay-ctrl')}
                   onClick={() => toggleLayer(layer.id as keyof typeof layers)}
                   className={cn(
                     "w-full flex items-center justify-between px-1 py-0.5 transition-all",
@@ -777,13 +777,13 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             </div>
             
             <div className="flex items-center space-x-1">
-              {[
+              {prepareList([
                 { id: 'today', label: 'TOD' },
                 { id: '7d', label: '7D' },
                 { id: '30d', label: '30D' },
-              ].map((range) => (
+              ]).map((range: any, idx: number) => (
                 <button
-                  key={range.id}
+                  key={generateStableKey(range, idx, 'fire-rg')}
                   onClick={() => setFireRange(range.id as any)}
                   className={cn(
                     "flex-1 px-1 py-0.5 text-[6px] font-mono font-bold border transition-all",
@@ -810,8 +810,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <div className="text-[7px] font-mono text-intel-cyan uppercase border-b border-intel-cyan/20 pb-1 mb-0.5 font-bold tracking-widest">
               {LAYER_LEGENDS[activeLayer]?.title || 'Legend'}
             </div>
-            {LAYER_LEGENDS[activeLayer]?.items.map(item => (
-              <div key={item.label} className="flex items-center space-x-1">
+            {prepareList(LAYER_LEGENDS[activeLayer]?.items || []).map((item: any, idx: number) => (
+              <div key={generateStableKey(item, idx, 'leg-it')} className="flex items-center space-x-1">
                 <div className={`w-1.5 h-1.5 ${item.color}`} />
                 <span className="text-[6px] font-mono text-slate-300 uppercase leading-none">{item.label}</span>
               </div>
@@ -836,7 +836,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           <div className="absolute top-3 left-3 right-3 z-40 flex flex-col items-center space-y-2 pointer-events-none">
           <div className="flex items-center space-x-1 bg-black/80 backdrop-blur-sm border border-intel-border rounded-xl p-1 pointer-events-auto overflow-x-auto scrollbar-hide max-w-full">
             <div className="flex items-center space-x-1 min-w-max">
-              {[
+              {prepareList([
                 { id: 'risk', label: 'RRI', icon: Activity },
                 { id: 'water', label: 'Water', icon: Droplets },
                 { id: 'poverty', label: 'Poverty', icon: DollarSign },
@@ -849,9 +849,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 { id: 'security', label: 'Security', icon: Shield },
                 { id: 'internet', label: 'Internet', icon: Wifi },
                 { id: 'fire', label: 'Thermal', icon: FireIcon },
-              ].map(layer => (
+              ]).map((layer: any, idx: number) => (
                 <button
-                  key={layer.id}
+                  key={generateStableKey(layer, idx, 'lay-sel')}
                   onClick={() => setActiveLayer(layer.id as any)}
                   title={layer.label}
                   aria-label={`Show ${layer.label} data`}
@@ -884,9 +884,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               >
                 ALL EVENTS
               </button>
-              {['protest', 'arrest', 'economic', 'water', 'migration', 'internet', 'political', 'detention', 'infrastructure', 'rights', 'labor'].map(type => (
+              {prepareList(['protest', 'arrest', 'economic', 'water', 'migration', 'internet', 'political', 'detention', 'infrastructure', 'rights', 'labor']).map((type: any, idx: number) => (
                 <button
-                  key={type}
+                  key={generateStableKey(type, idx, 'ty-sel')}
                   onClick={() => setSelectedEventType(type)}
                   aria-label={`Filter by ${type} events`}
                   aria-pressed={selectedEventType === type}
@@ -931,8 +931,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
         <div className="text-[7px] font-mono text-intel-cyan uppercase border-b border-intel-cyan/20 pb-1 mb-1">
           {LAYER_LEGENDS[activeLayer].title}
         </div>
-        {LAYER_LEGENDS[activeLayer].items.map(item => (
-          <div key={item.label} className="flex items-center space-x-2">
+        {prepareList(LAYER_LEGENDS[activeLayer].items).map((item: any, idx: number) => (
+          <div key={generateStableKey(item, idx, 'leg-it-2')} className="flex items-center space-x-2">
             <div className={`w-1.5 h-1.5 rounded-full ${item.color}`}></div>
             <span className="text-[7px] font-mono text-slate-400 uppercase">{item.label}</span>
           </div>
@@ -985,7 +985,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <div className="flex-1 p-4 space-y-4">
               {/* SECTION 1 — Core Stats */}
               <div className="grid grid-cols-2 gap-2">
-                {[
+                {prepareList([
                   { icon: Users, label: 'Population',
                     value: (selectedGov.pop/1000000).toFixed(2)+'M',
                     color: 'text-white' },
@@ -998,8 +998,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                   { icon: AlertTriangle, label: 'Poverty',
                     value: selectedGov.poverty_pct+'%',
                     color: selectedGov.poverty_pct > 25 ? 'text-intel-red' : 'text-intel-orange' },
-                ].map(item => (
-                  <div key={item.label} className="bg-black/30 rounded-lg p-2.5 border border-intel-border/30 space-y-1">
+                ]).map((item: any, idx: number) => (
+                  <div key={generateStableKey(item, idx, 'core-stat')} className="bg-black/30 rounded-lg p-2.5 border border-intel-border/30 space-y-1">
                     <div className="flex items-center space-x-1.5">
                       <item.icon className="w-3 h-3 text-slate-500" />
                       <span className="text-[8px] font-mono text-slate-500 uppercase">{item.label}</span>
@@ -1045,17 +1045,17 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               {/* SECTION 3 — Social Indicators */}
               <div className="space-y-2">
                 <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Social Indicators</div>
-                {[
+                {prepareList([
                   { label: 'Literacy', value: selectedGov.literacy_pct, max: 100, unit: '%', invert: false },
                   { label: 'Youth %', value: selectedGov.youth_pct, max: 45, unit: '%', invert: true },
                   { label: 'Rural %', value: selectedGov.rural_pct, max: 80, unit: '%', invert: true },
                   { label: 'Healthcare (beds/1k)', value: selectedGov.healthcare_beds_1k, max: 4, unit: '/1k', invert: false },
                   { label: 'Internet Score', value: selectedGov.internet_score, max: 100, unit: '/100', invert: false },
-                ].map(item => {
+                ]).map((item: any, idx: number) => {
                   const normalized = item.invert ? item.value / item.max : 1 - (item.value / item.max);
                   const color = normalized > 0.7 ? 'bg-intel-red' : normalized > 0.5 ? 'bg-intel-orange' : normalized > 0.3 ? 'bg-yellow-500' : 'bg-intel-cyan';
                   return (
-                    <div key={item.label} className="space-y-0.5">
+                    <div key={generateStableKey(item, idx, 'soc-ind')} className="space-y-0.5">
                       <div className="flex justify-between text-[9px] font-mono">
                         <span className="text-slate-500">{item.label}</span>
                         <span className="text-white">{item.value}{item.unit}</span>
@@ -1111,8 +1111,8 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                   <div className="pt-2 border-t border-intel-border/20 space-y-1">
                     <div className="text-[8px] font-mono text-slate-500">Key tribes / groups:</div>
                     <div className="flex flex-wrap gap-1">
-              {selectedGov.main_tribes.map((t, i) => (
-                        <span key={`tribe-${t}-${i}`} className="text-[8px] font-mono px-1.5 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded">{t}</span>
+                      {prepareList(selectedGov.main_tribes).map((t: any, i: number) => (
+                        <span key={generateStableKey(t, i, 'tribe')} className="text-[8px] font-mono px-1.5 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -1122,12 +1122,12 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               {/* SECTION 5 — Risk Predictions */}
               <div className="bg-black/30 rounded-xl border border-intel-border/30 p-3 space-y-2">
                 <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Instability Forecast</div>
-                {[
+                {prepareList([
                   { label: '7-Day', value: selectedGov.pred_7d },
                   { label: '30-Day', value: selectedGov.pred_30d },
                   { label: '90-Day', value: selectedGov.pred_90d },
-                ].map(p => (
-                  <div key={p.label} className="flex items-center space-x-3">
+                ]).map((p: any, idx: number) => (
+                  <div key={generateStableKey(p, idx, 'forecast')} className="flex items-center space-x-3">
                     <span className="text-[9px] font-mono text-slate-500 w-14">{p.label}</span>
                     <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
                       <div
@@ -1156,11 +1156,10 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               {/* SECTION 6 — Recent Events in this governorate */}
               <div className="space-y-2">
                 <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Recent Events</div>
-                {events
+                {prepareList(events
                   .filter(e => e.gov === selectedGov.id)
-                  .slice(0, 4)
-                  .map((event, index) => (
-                  <div key={`${event.id || 'evt'}-${index}`} className="flex items-start space-x-2 p-2 rounded-lg bg-black/30 border border-intel-border/30">
+                  .slice(0, 4)).map((event: any, index: number) => (
+                  <div key={generateStableKey(event, index, 'gov-evt')} className="flex items-start space-x-2 p-2 rounded-lg bg-black/30 border border-intel-border/30">
                     <div className={cn(
                       "w-1.5 h-1.5 rounded-full mt-1 shrink-0",
                       event.urgent ? 'bg-intel-red' : event.type === 'arrest' ? 'bg-intel-red' : event.type === 'economic' ? 'bg-intel-orange' : 'bg-yellow-500'

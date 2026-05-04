@@ -131,6 +131,59 @@ class IntelligenceGraphService {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'variables' }, callback)
       .subscribe();
   }
+  /**
+   * Finds the most weighted causal path between two nodes (Dijkstra-like)
+   */
+  async findCausalPath(sourceId: string, targetId: string): Promise<string[]> {
+    const graph = await this.getGraph();
+    const { nodes, links } = graph;
+
+    const distances: Record<string, number> = {};
+    const previous: Record<string, string | null> = {};
+    const queue = new Set<string>();
+
+    nodes.forEach(node => {
+      distances[node.id] = Infinity;
+      previous[node.id] = null;
+      queue.add(node.id);
+    });
+
+    distances[sourceId] = 0;
+
+    while (queue.size > 0) {
+      // Find node with minimum distance
+      let minNode: string | null = null;
+      queue.forEach(id => {
+        if (minNode === null || distances[id] < distances[minNode]) {
+          minNode = id;
+        }
+      });
+
+      if (minNode === null || distances[minNode] === Infinity || minNode === targetId) break;
+
+      queue.delete(minNode);
+
+      // Neighbors
+      const neighbors = links.filter(l => l.source === minNode);
+      for (const link of neighbors) {
+        const alt = distances[minNode] + (1 - link.weight); // Use inverse weight as distance
+        if (alt < distances[link.target]) {
+          distances[link.target] = alt;
+          previous[link.target] = minNode;
+        }
+      }
+    }
+
+    // Path reconstruction
+    const path: string[] = [];
+    let current: string | null = targetId;
+    while (current) {
+      path.unshift(current);
+      current = previous[current];
+    }
+
+    return path.length > 1 ? path : [];
+  }
 }
 
 export const intelligenceGraph = new IntelligenceGraphService();

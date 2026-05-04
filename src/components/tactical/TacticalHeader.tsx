@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Clock, Globe, Eye, Download, Home, TrendingUp, Database, Settings, Shield, Zap, Search, HelpCircle } from 'lucide-react';
-import { usePipeline } from '../../context/PipelineContext';
-import { NotificationBell } from '../NotificationPanel';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { NotificationBell } from '../shared/NotificationPanel';
 import { WeatherMini } from './WeatherMini';
 
 interface TacticalHeaderProps {
@@ -20,7 +20,7 @@ interface TacticalHeaderProps {
 export const TacticalHeader: React.FC<TacticalHeaderProps> = ({ 
   onOpenAI, onOpenPipeline, onGoHome, data, activeRegion, onRegionChange, viewMode, onViewModeChange, onOpenReport
 }) => {
-  const { rriState } = usePipeline();
+  const { rriState } = useRiskMetrics();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {

@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 
 export const SensorGrid: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
 
   const sensors = [
     {

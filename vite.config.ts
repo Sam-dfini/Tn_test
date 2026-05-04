@@ -37,50 +37,13 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      // Port/host is managed by Express in server.ts — do not bind here
-      watch: {
-        // Ignore non-source directories that change at runtime and cause spurious full reloads
-        ignored: [
-          '**/backend/**',
-          '**/dist/**',
-          '**/graphify-out/**',
-          '**/__pycache__/**',
-          '**/*.pyc',
-          '**/node_modules/**',
-          '**/patch_graphify.cjs',
-          '**/debug_page.js',
-          '**/*.log',
-          '**/*.txt',
-          '**/missing_imports.json',
-          '**/test-results/**',
-          '**/supabase/**',
-          '**/docs/**',
-          '**/ARCHITECTURE.md',
-          '**/METHODOLOGY.md',
-          '**/README.md',
-          '**/REFACTOR_PLAN.md',
-          '**/UPGRADE_PLAN.md',
-          '**/CHANGELOG.md',
-          '**/seed_variables.ts',
-          '**/generate_variables.ts',
-          '**/trigger_sync.ts',
-          '**/Tn_test-main/**',
-          '**/.*',
-          '**/*.tmp',
-          '**/temp/**',
-          '**/data/**',
-          '**/logs/**',
-          '**/backend/data/**',
-          '**/public/data/**',
-          '**/src/data/**',
-          '**/*.json',
-        ],
-        usePolling: true,
-        interval: 1000,
-      },
-      hmr: {
-        overlay: false,
-      },
+      host: true,
+      port: 3000,
+      hmr: process.env.DISABLE_HMR === 'true' ? false : {
+        protocol: "ws",
+        host: "localhost",
+        port: 3000
+      }
     },
   };
 });

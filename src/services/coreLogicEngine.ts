@@ -103,6 +103,33 @@ class CoreLogicEngine {
     }
   }
 
+  public updateByCode(code: string, newValue: number): void {
+    for (const category in this.model.variables_framework) {
+      for (const varKey in this.model.variables_framework[category]) {
+        const v = this.model.variables_framework[category][varKey];
+        if (v.code === code) {
+          v.value = newValue;
+          this.model.model_metadata.last_updated = new Date().toISOString().split('T')[0];
+          return;
+        }
+      }
+    }
+  }
+
+  public nudgeByCode(code: string, delta: number): void {
+    for (const category in this.model.variables_framework) {
+      for (const varKey in this.model.variables_framework[category]) {
+        const v = this.model.variables_framework[category][varKey];
+        if (v.code === code) {
+          const current = v.value || 0;
+          v.value = current + delta;
+          this.model.model_metadata.last_updated = new Date().toISOString().split('T')[0];
+          return;
+        }
+      }
+    }
+  }
+
   private pipelineMapping: Record<string, { category: string; variable: string }> = {
     'economy.inflation': { category: 'A_ECONOMIC', variable: 'A1_Inflation' },
     'economy.youth_unemployment': { category: 'A_ECONOMIC', variable: 'A2_Youth_Unemployment' },

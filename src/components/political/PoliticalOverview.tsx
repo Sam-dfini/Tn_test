@@ -29,9 +29,9 @@ import {
   ZAxis,
   Cell
 } from 'recharts';
-import { BackgroundGrid, ModuleHeader } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
 import { cn } from '../../utils/cn';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { generateAnalystResponse } from '../../services/geminiService';
 import Markdown from 'react-markdown';
 
@@ -95,7 +95,7 @@ const officialStatements = [
 ];
 
 export const PoliticalOverview: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
   const [ideologyFilter, setIdeologyFilter] = useState<string>('All');
   const [stanceFilter, setStanceFilter] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');

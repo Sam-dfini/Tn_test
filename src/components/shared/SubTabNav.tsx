@@ -1,4 +1,5 @@
 import React from 'react';
+import { generateStableKey } from '../../lib/keyUtils';
 
 interface SubTabNavProps {
   tabs: Array<{ id: string; label: string; icon?: React.ReactNode }>;
@@ -8,9 +9,9 @@ interface SubTabNavProps {
 
 export const SubTabNav: React.FC<SubTabNavProps> = ({ tabs, activeTab, onChange }) => (
   <div className="flex items-center space-x-1 border-b border-intel-border overflow-x-auto scrollbar-hide pb-0 mb-6">
-    {tabs.map(tab => (
+    {tabs.map((tab, i) => (
       <button
-        key={tab.id}
+        key={generateStableKey(tab, i, 'stab')}
         onClick={() => onChange(tab.id)}
         className={`flex items-center space-x-2 px-4 py-2.5 text-[10px] font-mono uppercase tracking-wider whitespace-nowrap border-b-2 transition-all flex-shrink-0 ${
           activeTab === tab.id

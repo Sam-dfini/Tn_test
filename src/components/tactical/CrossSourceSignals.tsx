@@ -1,10 +1,11 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
 import { Eye, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 export const CrossSourceSignals: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
 
   const crossSignals = [
     {
@@ -65,9 +66,9 @@ export const CrossSourceSignals: React.FC = () => {
       </div>
 
       <div className="space-y-3 flex-1 overflow-y-auto pr-1 scrollbar-hide">
-        {crossSignals.map((signal) => (
+        {prepareList(crossSignals).map((signal: any, i: number) => (
           <div 
-            key={signal.event} 
+            key={generateStableKey(signal, i, 'signal')} 
             className={cn(
               "p-3 rounded-lg border transition-all hover:bg-white/5",
               signal.consensus === 'DISPUTED' || signal.divergence.includes('contradicts') 

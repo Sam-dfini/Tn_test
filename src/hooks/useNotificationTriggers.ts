@@ -1,11 +1,13 @@
 import { safeStorage } from '../utils/storage';
 import { useEffect, useRef } from 'react';
-import { usePipeline } from '../context/PipelineContext';
+import { useRiskMetrics } from '../hooks/usePipelineDomains';
+import { useAuditLog } from '../context/AuditContext';
 import { useNotifications } from '../context/NotificationContext';
 import { getSeasonalForecast } from '../services/shortageDetector';
 
 export const useNotificationTriggers = () => {
-  const { data, rriState, auditLog } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
+  const { auditLog } = useAuditLog();
   const { addNotification } = useNotifications();
 
   // Track previous values to detect changes
@@ -42,7 +44,7 @@ export const useNotificationTriggers = () => {
           priority: 'HIGH',
           title: 'FX Reserves Below Warning',
           message: `Current: ${data.economy.fx_reserves} days. Warning threshold: 90 days.`,
-          action: { label: 'View Economy', event: 'navigate-main', detail: { tab: 'economy' } },
+          action: { label: 'View Economy', event: 'navigate-to-pipeline', detail: { tab: 'economy' } },
           rriVariable: 'A_FX',
         });
       }
@@ -53,7 +55,7 @@ export const useNotificationTriggers = () => {
           priority: 'CRITICAL',
           title: 'UGTT Mobilisation: HIGH',
           message: `General strike threshold at 64%. ${data.social.ugtt_strike_count_2025 || 847} strikes in 2025.`,
-          action: { label: 'View Social', event: 'navigate-main', detail: { tab: 'social' } },
+          action: { label: 'View UGTT', event: 'navigate-to-pipeline', detail: { tab: 'political', subTab: 'ugtt' } },
           rriVariable: 'M_UGTT',
         });
       }
@@ -88,9 +90,9 @@ export const useNotificationTriggers = () => {
         title: `Seasonal Shortage Risk: ${highPriority[0].type.toUpperCase()}`,
         message: `${highPriority[0].warning}. ${highPriority[0].timeframe}. Interior governorates most vulnerable.`,
         action: {
-          label: 'View Economy',
-          event: 'navigate-main',
-          detail: { tab: 'economy' }
+          label: 'View Shortage Monitor',
+          event: 'navigate-to-pipeline',
+          detail: { tab: 'economy', subTab: 'shortages' }
         },
         rriVariable: 'B22',
       });
@@ -216,8 +218,8 @@ export const useNotificationTriggers = () => {
         message: `BCT foreign exchange reserves fell to ${data.economy.fx_reserves} days import cover. Warning threshold: 90 days. Crisis threshold: 60 days.`,
         action: {
           label: 'View Economy',
-          event: 'navigate-main',
-          detail: { tab: 'economy' }
+          event: 'navigate-to-pipeline',
+          detail: { tab: 'economy', subTab: 'macro' }
         },
         rriVariable: 'A_FX',
       });
@@ -231,8 +233,8 @@ export const useNotificationTriggers = () => {
         message: `Reserves at ${data.economy.fx_reserves} days — BELOW CRISIS THRESHOLD of 60 days. Import disruptions, medicine shortages risk imminent.`,
         action: {
           label: 'View Economy',
-          event: 'navigate-main',
-          detail: { tab: 'economy' }
+          event: 'navigate-to-pipeline',
+          detail: { tab: 'economy', subTab: 'macro' }
         },
         rriVariable: 'A_FX',
       });
@@ -247,9 +249,9 @@ export const useNotificationTriggers = () => {
         title: 'UGTT Mobilisation at HIGH — Strike Imminent',
         message: `UGTT has reached HIGH mobilisation level. General strike probability: 64%. 72-hour strike notice may be filed.`,
         action: {
-          label: 'View Social',
-          event: 'navigate-main',
-          detail: { tab: 'social' }
+          label: 'View UGTT Monitor',
+          event: 'navigate-to-pipeline',
+          detail: { tab: 'political', subTab: 'ugtt' }
         },
         rriVariable: 'M_UGTT',
       });
@@ -265,7 +267,7 @@ export const useNotificationTriggers = () => {
         message: `Protest events reached ${data.social.protest_events_30d}/month — above 30-event alert threshold. Check governorate breakdown.`,
         action: {
           label: 'View Social',
-          event: 'navigate-main',
+          event: 'navigate-to-pipeline',
           detail: { tab: 'social' }
         },
         rriVariable: 'E51',
@@ -281,9 +283,9 @@ export const useNotificationTriggers = () => {
         title: `Decree 54: ${newCharges} New Charge${newCharges > 1 ? 's' : ''}`,
         message: `Total Decree 54 charged now ${data.social.decree54_charged}. Press freedom and opposition suppression index updated.`,
         action: {
-          label: 'View Social',
-          event: 'navigate-main',
-          detail: { tab: 'social' }
+          label: 'View Freedom Index',
+          event: 'navigate-to-pipeline',
+          detail: { tab: 'political', subTab: 'decree54' }
         },
         rriVariable: 'D44',
       });
@@ -311,8 +313,8 @@ export const useNotificationTriggers = () => {
             : `Pipeline update: ${mainEntry.label} → ${mainEntry.value}. Recalculating systemic risk vectors.`,
           action: {
             label: 'Open Debugger',
-            event: 'navigate-to-debugger',
-            detail: { tab: 'debugger' }
+            event: 'navigate-to-pipeline',
+            detail: { tab: 'pipeline' }
           },
         });
       }

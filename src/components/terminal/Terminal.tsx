@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Terminal as TerminalIcon, Shield, X, Maximize2, Minimize2, Cpu, TerminalSquare } from 'lucide-react';
 import { OutputConsole } from './OutputConsole';
 import { CommandInput } from './CommandInput';
+import { generateRandomId } from '../../utils/idUtils';
 import { TerminalLine } from './types';
 import { parseCommand } from './commandParser';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 
 interface TerminalProps {
   isOpen: boolean;
@@ -30,11 +31,11 @@ export const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose }) => {
   ]);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [isMaximized, setIsMaximized] = useState(false);
-  const dataContext = usePipeline();
+  const dataContext = useRiskMetrics();
 
   const addLine = useCallback((line: Partial<TerminalLine>) => {
     setHistory(prev => [...prev, {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateRandomId('term'),
       type: line.type || 'output',
       content: line.content || '',
       timestamp: Date.now(),

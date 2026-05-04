@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { getUniqueKey, stableHash, assertKey } from '../lib/keyUtils';
-import { usePipeline } from '../context/PipelineContext';
+import { useRiskMetrics } from '../hooks/usePipelineDomains';
 
 // Panels
 import { FeedPanel } from '../components/observability/FeedPanel';
@@ -33,7 +33,7 @@ import { useRSS } from '../context/RSSContext';
 export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { metrics, dbOps, healthScore, logs, alerts } = useObservability();
   const { articles, events, fetchNow } = useRSS();
-  const { isPaused, togglePause } = usePipeline();
+  const { isPaused, togglePause } = useRiskMetrics();
   const [agents, setAgents] = useState<any[]>([]);
   const [isResetting, setIsResetting] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(Date.now());

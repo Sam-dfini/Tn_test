@@ -25,9 +25,10 @@ import {
   CheckCircle2,
   XCircle
 } from 'lucide-react';
-import { BackgroundGrid, ModuleHeader } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
 import { callAI, parseAIJSON } from '../../services/aiService';
 import { generateAnalystResponse } from '../../services/ai';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 const INITIAL_ACTOR_DATA = {
   actors: [
@@ -495,10 +496,10 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
             />
           </div>
           <div className="flex items-center bg-black/40 border border-intel-border rounded-lg p-1">
-            {(['ALL', 'GOV', 'OPP', 'INTL'] as Alignment[]).map((align) => (
+            {prepareList(['ALL', 'GOV', 'OPP', 'INTL']).map((align: any, i: number) => (
               <button
-                key={align}
-                onClick={() => setFilterAlignment(align)}
+                key={generateStableKey(align, i, 'align')}
+                onClick={() => setFilterAlignment(align.id)}
                 className={`px-3 py-1 text-[10px] font-bold font-mono rounded-md transition-all ${
                   filterAlignment === align 
                     ? align === 'GOV' ? 'bg-intel-cyan text-black' :
@@ -583,7 +584,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               }
 
               return (
-                <g key={`rel-${idx}`} opacity={isDimmed ? 0.1 : opacity}>
+                <g key={generateStableKey(rel, idx, 'rel-line')} opacity={isDimmed ? 0.1 : opacity}>
                   <line 
                     x1={from.x} y1={from.y} 
                     x2={to.x} y2={to.y} 
@@ -609,7 +610,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
             })}
 
             {/* Nodes */}
-            {filteredActors.map((actor) => {
+            {filteredActors.map((actor, idx) => {
               const r = actor.influence / 10 + 2;
               const isSelected = selectedActor?.id === actor.id;
               const isHovered = hoveredActor === actor.id;
@@ -617,7 +618,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
 
               return (
                 <g 
-                  key={actor.id} 
+                  key={generateStableKey(actor, idx, 'node')} 
                   transform={`translate(${actor.nx}, ${actor.ny})`}
                   className="cursor-pointer transition-all duration-500"
                   onClick={() => setSelectedActor(actor)}
@@ -713,7 +714,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                             className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
                           >
                             <option value="">Select...</option>
-                            {actors.filter(a => a.id !== selectedActor.id).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                            {prepareList(actors.filter(a => a.id !== selectedActor.id)).map((a: any, i: number) => <option key={generateStableKey(a, i, 'opt')} value={a.id}>{a.name}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
@@ -741,15 +742,15 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex space-x-1">
-                          {[1, 2, 3].map(s => (
+                          {prepareList([1, 2, 3]).map((s: any, i: number) => (
                             <button
-                              key={s}
-                              onClick={() => setRelData(prev => ({ ...prev, strength: s }))}
+                              key={generateStableKey(s, i, 'strength')}
+                              onClick={() => setRelData(prev => ({ ...prev, strength: s.id }))}
                               className={`w-6 h-6 rounded border text-[8px] font-mono transition-all ${
-                                relData.strength === s ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
+                                relData.strength === s.id ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
                               }`}
                             >
-                              {s}
+                              {s.id}
                             </button>
                           ))}
                         </div>
@@ -764,12 +765,12 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                   )}
 
                   <div className="space-y-2">
-                    {relationships.filter(rel => rel.from === selectedActor.id || rel.to === selectedActor.id).map((rel, idx) => {
+                    {prepareList(relationships.filter(rel => rel.from === selectedActor.id || rel.to === selectedActor.id)).map((rel, idx) => {
                       const otherId = rel.from === selectedActor.id ? rel.to : rel.from;
                       const otherActor = actors.find(a => a.id === otherId);
                       const actualIdx = relationships.findIndex(r => r === rel);
                       return (
-                        <div key={idx} className="group flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-all">
+                        <div key={generateStableKey(rel, idx, 'net-rel')} className="group flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-all">
                           <div className="flex items-center space-x-2">
                             <div className="w-1 h-4 rounded-full" style={{ backgroundColor: rel.type === 'ALLIANCE' ? '#00f2ff' : rel.type === 'TENSION' ? '#f97316' : '#ef4444' }} />
                             <span className="text-[10px] font-mono text-white">{otherActor?.name}</span>
@@ -785,8 +786,8 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                             </div>
                             <span className="text-[8px] font-mono text-slate-500 uppercase">{rel.type}</span>
                             <div className="flex space-x-0.5">
-                              {[...Array(3)].map((_, i) => (
-                                <div key={i} className={`w-1 h-1 rounded-full ${i < rel.strength ? 'bg-intel-cyan' : 'bg-slate-700'}`} />
+                              {prepareList([1, 2, 3]).map((_, i) => (
+                                <div key={generateStableKey({}, i, 'strength-dot')} className={`w-1 h-1 rounded-full ${i < rel.strength ? 'bg-intel-cyan' : 'bg-slate-700'}`} />
                               ))}
                             </div>
                           </div>

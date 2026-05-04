@@ -2,33 +2,36 @@ import { safeStorage } from './utils/storage';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
-import { ModeSelection } from './components/ModeSelection';
-import { TunisiaTerminal } from './components/TunisiaTerminal';
-import { Authentication } from './components/Authentication';
-import { CitizenEdition } from './components/CitizenEdition';
-import { ProfessionalIntel } from './components/ProfessionalIntel';
+import { ModeSelection } from './components/modes/ModeSelection';
+import { TunisiaTerminal } from './components/modes/TunisiaTerminal';
+import { Authentication } from './components/shared/Authentication';
+import { CitizenEdition } from './components/modes/CitizenEdition';
+import { ProfessionalIntel } from './components/modes/ProfessionalIntel';
 import { TacticalDashboard } from './components/tactical/TacticalDashboard';
-import { PalantirDashboard } from './components/PalantirDashboard';
-import { BloombergTerminal } from './components/BloombergTerminal';
-import { BusinessInvestigator } from './components/BusinessInvestigator';
-import { DataPipeline } from './components/DataPipeline';
+import { PalantirDashboard } from './components/modes/PalantirDashboard';
+import { BloombergTerminal } from './components/economy/BloombergTerminal';
+import { BusinessInvestigator } from './components/economy/BusinessInvestigator';
+import { DataPipeline } from './components/system/DataPipeline';
 import { ObservabilityDashboard } from './pages/ObservabilityDashboard';
-import { RRIMethodology } from './components/RRIMethodology';
-import { IntelligenceDossierExporterModal } from './components/IntelligenceDossierExporterModal';
-import { CalendarOverlay } from './components/CalendarOverlay';
-import { Onboarding } from './components/Onboarding';
+import { RRIMethodology } from './components/system/RRIMethodology';
+import { IntelligenceDossierExporterModal } from './components/shared/IntelligenceDossierExporterModal';
+import { CalendarOverlay } from './components/shared/CalendarOverlay';
+import { Onboarding } from './components/shared/Onboarding';
 import { NotificationProvider } from './context/NotificationContext';
+import { AuditProvider } from './context/AuditContext';
 import { PipelineProvider, usePipeline } from './context/PipelineContext';
+import { AIAnalysisProvider, useAIAnalysis } from './context/AIAnalysisContext';
+import { AgriIntelProvider, useAgriIntel } from './context/AgriIntelContext';
 import { RSSProvider, useRSS } from './context/RSSContext';
 import { AIProvider_ } from './context/AIContext';
 import { ObservabilityProvider } from './context/ObservabilityContext';
-import { NotificationToast } from './components/NotificationToast';
-import { NotificationPanel } from './components/NotificationPanel';
+import { NotificationToast } from './components/shared/NotificationToast';
+import { NotificationPanel } from './components/shared/NotificationPanel';
 
-import { TacticalLoading } from './components/TacticalLoading';
-import { AIAnalystPanel } from './components/AIAnalystPanel';
+import { TacticalLoading } from './components/shared/TacticalLoading';
+import { AIAnalystPanel } from './components/system/AIAnalystPanel';
 
-import { TestMode } from './components/TestMode';
+import { TestMode } from './components/modes/TestMode';
 
 import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
 
@@ -40,7 +43,7 @@ import { initializeVariables } from './services/pipelineService';
 import { useEventsStore } from './store/useEventsStore';
 import { seedInitialEvents } from './lib/ingestionEngine';
 
-import { SystemCommandCenter } from './components/SystemCommandCenter';
+import { SystemCommandCenter } from './components/system/SystemCommandCenter';
 
 import { useNotificationTriggers } from './hooks/useNotificationTriggers';
 
@@ -144,21 +147,9 @@ const AppContent: React.FC = () => {
       setShowMethodology(true);
     };
     const handlePipeline = (e: any) => handleOpenPipeline(e.detail?.tab || 'pipeline');
-    const handleObservability = () => setShowObservability(true);
-    const handleDebugger = () => setShowDebug(true);
-    
-    const handleMainNavigation = () => {
-      setShowPipeline(false);
-      setShowMethodology(false);
-      setShowObservability(false);
-      setShowDebug(false);
-    };
     
     window.addEventListener('navigate-to-methodology', handleMethodology);
     window.addEventListener('navigate-to-pipeline', handlePipeline);
-    window.addEventListener('navigate-to-observability', handleObservability);
-    window.addEventListener('navigate-to-debugger', handleDebugger);
-    window.addEventListener('navigate-main', handleMainNavigation);
     
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '`') {
@@ -167,12 +158,14 @@ const AppContent: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     
+    const handleObservability = () => setShowObservability(true);
+    window.addEventListener('navigate-to-observability', handleObservability);
+    
     return () => {
       window.removeEventListener('navigate-to-methodology', handleMethodology);
       window.removeEventListener('navigate-to-pipeline', handlePipeline);
-      window.removeEventListener('navigate-to-observability', handleObservability);
-      window.removeEventListener('navigate-to-debugger', handleDebugger);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('navigate-to-observability', handleObservability);
     };
   }, []);
 
@@ -190,99 +183,105 @@ const AppContent: React.FC = () => {
     switch (mode) {
       case 'simplified':
         return (
-          <CitizenEdition 
-            governorates={govData.governorates as any}
-            events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
-            rri={rriState.rri}
-            pRev={rriState.p_rev}
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            data={pipelineData}
-          />
+          <motion.div key="simplified" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.4 }} className="h-full">
+            <CitizenEdition 
+              governorates={govData.governorates as any}
+              events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
+              rri={rriState.rri}
+              pRev={rriState.p_rev}
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              data={pipelineData}
+            />
+          </motion.div>
         );
       case 'professional':
         return (
-          <ProfessionalIntel 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            onToggleDebug={() => setShowDebug(prev => !prev)}
-            context={{
-              governorates: govData.governorates,
-              events: liveEvents.length > 0 ? liveEvents : eventData.events
-            }}
-          />
+          <motion.div key="professional" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} transition={{ duration: 0.4 }} className="h-full">
+            <ProfessionalIntel 
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              onToggleDebug={() => setShowDebug(prev => !prev)}
+              context={{
+                governorates: govData.governorates,
+                events: liveEvents.length > 0 ? liveEvents : eventData.events
+              }}
+            />
+          </motion.div>
         );
       case 'advanced':
         return (
-          <TacticalDashboard 
-            governorates={govData.governorates as any}
-            events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            data={pipelineData}
-          />
+          <motion.div key="advanced" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }} className="h-full">
+            <TacticalDashboard 
+              governorates={govData.governorates as any}
+              events={liveEvents.length > 0 ? liveEvents : (eventData.events as any)}
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              data={pipelineData}
+            />
+          </motion.div>
         );
       case 'palantir':
         return (
-          <PalantirDashboard 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            onOpenObservability={() => setShowObservability(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
+          <motion.div key="palantir" initial={{ opacity: 0, filter: 'blur(10px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, filter: 'blur(10px)' }} transition={{ duration: 0.6 }} className="h-full">
+            <PalantirDashboard 
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              onOpenObservability={() => setShowObservability(true)}
+              context={{
+                governorates: govData.governorates,
+                events: eventData.events
+              }}
+            />
+          </motion.div>
         );
       case 'bloomberg':
         return (
-          <BloombergTerminal 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
+          <motion.div key="bloomberg" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="h-full">
+            <BloombergTerminal 
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              context={{
+                governorates: govData.governorates,
+                events: eventData.events
+              }}
+            />
+          </motion.div>
         );
       case 'business_investigator':
         return (
-          <BusinessInvestigator 
-            onOpenAI={() => setShowAIAnalyst(true)} 
-            onOpenPipeline={handleOpenPipeline}
-            onGoHome={() => handleModeSelect('selection')}
-            onOpenReport={() => setShowReport(true)}
-            context={{
-              governorates: govData.governorates,
-              events: eventData.events
-            }}
-          />
+          <motion.div key="investigator" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 50 }} transition={{ duration: 0.5 }} className="h-full">
+            <BusinessInvestigator 
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+              context={{
+                governorates: govData.governorates,
+                events: eventData.events
+              }}
+            />
+          </motion.div>
         );
       case 'test':
         return (
-          <TestMode 
-            onGoHome={() => handleModeSelect('selection')}
-          />
+          <motion.div key="test" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full">
+            <TestMode onGoHome={() => handleModeSelect('selection')} />
+          </motion.div>
         );
       case 'terminal':
         return (
-          <motion.div
-            key="terminal-app"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="h-full w-full"
-          >
+          <motion.div key="terminal" initial={{ opacity: 0, scale: 1.1 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4 }} className="h-full">
             <TunisiaTerminal
               onGoHome={() => handleModeSelect('selection')}
               governorates={govData.governorates as any}
@@ -291,16 +290,24 @@ const AppContent: React.FC = () => {
         );
       case 'agriculture':
         return (
-          <TunisiaAgricultureDashboard />
+          <motion.div key="agri" initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 100 }} transition={{ type: 'spring', damping: 20 }} className="h-full">
+            <TunisiaAgricultureDashboard />
+          </motion.div>
         );
       default:
-        return <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); try { safeStorage.removeItem('ti_authenticated'); } catch(e) {} setMode('selection'); }} />;
+        return (
+          <motion.div key="selection" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="h-full">
+            <ModeSelection onSelect={handleModeSelect} onLogoff={() => { supabase.auth.signOut(); setIsAuthenticated(false); try { safeStorage.removeItem('ti_authenticated'); } catch(e) {} setMode('selection'); }} />
+          </motion.div>
+        );
     }
   };
 
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30 selection:text-white">
-      {renderMode()}
+      <AnimatePresence mode="wait">
+        {renderMode()}
+      </AnimatePresence>
 
       {/* Global Overlays */}
       <AnimatePresence>
@@ -409,13 +416,19 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <ObservabilityProvider>
         <AIProvider_>
-          <PipelineProvider>
-            <NotificationProviderWrapper>
-              <RSSProviderWrapper>
-                <AppContent />
-              </RSSProviderWrapper>
-            </NotificationProviderWrapper>
-          </PipelineProvider>
+          <AuditProvider>
+            <PipelineProvider>
+              <NotificationProviderWrapper>
+                <AIAnalysisProvider>
+                  <AgriIntelProvider>
+                    <RSSProviderWrapper>
+                      <AppContent />
+                    </RSSProviderWrapper>
+                  </AgriIntelProvider>
+                </AIAnalysisProvider>
+              </NotificationProviderWrapper>
+            </PipelineProvider>
+          </AuditProvider>
         </AIProvider_>
       </ObservabilityProvider>
     </ErrorBoundary>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { callAI, parseAIJSON } from '../../services/aiService';
 import { motion } from 'motion/react';
 import { RefreshCw, AlertTriangle, Globe } from 'lucide-react';
-import { processArticleForRRI } from '../../utils/rriEngine';
+import { processArticleForRRI } from '../../math/rri/engine';
 import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
 
 interface NewsItem {

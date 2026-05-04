@@ -1,6 +1,6 @@
 import { Article, Event } from '../lib/supabase';
 
-export type PipelineStage = 'FEED' | 'NEWS' | 'SIGNALS' | 'EVENTS' | 'PIPELINE';
+export type PipelineStage = 'FEED' | 'NEWS' | 'SIGNALS' | 'EVENTS' | 'PIPELINE' | 'ORCHESTRATOR';
 
 export interface DebugLog {
   id: string;

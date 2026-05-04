@@ -133,3 +133,17 @@
   display: none !important;
 }
 
+.adm-ticker-track {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+}
+
+.adm-ticker-run {
+  animation: ticker 40s linear infinite;
+}
+
+.adm-ticker-run:hover {
+  animation-play-state: paused;
+}
+

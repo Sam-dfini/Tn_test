@@ -32,7 +32,8 @@ import {
 } from 'recharts';
 import { motion } from 'motion/react';
 import { cn } from '../../utils/cn';
-import { BackgroundGrid, ModuleHeader, LiveTicker } from '../ProfessionalShared';
+import { BackgroundGrid, ModuleHeader, LiveTicker } from '../shared/ProfessionalShared';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 
 const freedomAlerts = [
   { code: 'DEC54-01', title: 'Decree 54: 67 Charged — 3 New This Week', impact: 'CRITICAL' },
@@ -177,14 +178,14 @@ export const FreedomIndex: React.FC = () => {
 
       {/* Sub-tabs */}
       <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-xl border border-white/10 w-fit">
-        {[
+        {prepareList([
           { id: 'decree54', label: 'Decree 54', icon: Globe },
           { id: 'detention', label: 'Detention Tracker', icon: Lock },
           { id: 'press', label: 'Press Freedom', icon: Newspaper },
           { id: 'institutions', label: 'Institutions', icon: Building2 }
-        ].map(tab => (
+        ]).map((tab: any, i: number) => (
           <button
-            key={tab.id}
+            key={generateStableKey(tab, i, 'tab')}
             onClick={() => setActiveTab(tab.id as any)}
             className={cn(
               "flex items-center space-x-2 px-4 py-2 rounded-lg text-[10px] font-mono font-bold transition-all",
@@ -203,13 +204,13 @@ export const FreedomIndex: React.FC = () => {
         <div className="space-y-8">
           {/* Header Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
+            {prepareList([
               { label: 'Total Charged', value: '67', sub: 'Decree 54 Cases', color: 'text-intel-red', pulse: true },
               { label: 'Journalists', value: '23', sub: '34% of total', color: 'text-intel-cyan' },
               { label: 'Activists / Opposition', value: '38', sub: '57% of total', color: 'text-intel-cyan' },
               { label: 'Business Figures', value: '6', sub: '9% of total', color: 'text-intel-cyan' }
-            ].map((stat, i) => (
-              <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+            ]).map((stat: any, i: number) => (
+              <div key={generateStableKey(stat, i, 'd54-stat')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{stat.label}</span>
                   <div className={cn("text-2xl font-bold font-mono", stat.color)}>
@@ -257,8 +258,8 @@ export const FreedomIndex: React.FC = () => {
             <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Category Breakdown</h3>
               <div className="space-y-6">
-                {categoryBreakdown.map((item, i) => (
-                  <div key={i} className="space-y-2">
+                {prepareList(categoryBreakdown).map((item: any, i: number) => (
+                  <div key={generateStableKey(item, i, 'cat')} className="space-y-2">
                     <div className="flex justify-between text-[10px] font-mono">
                       <span className="text-slate-400 uppercase">{item.category}</span>
                       <span className="text-white font-bold">{item.cases} cases</span>
@@ -293,8 +294,8 @@ export const FreedomIndex: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {recentCases.map((row, i) => (
-                      <tr key={i} className="group hover:bg-white/5 transition-colors">
+                    {prepareList(recentCases).map((row: any, i: number) => (
+                      <tr key={generateStableKey(row, i, 'case')} className="group hover:bg-white/5 transition-colors">
                         <td className="py-4 text-[10px] font-mono text-slate-400">{row.date}</td>
                         <td className="py-4 text-xs font-bold text-white">{row.name}</td>
                         <td className="py-4 text-[10px] font-mono text-slate-300">{row.category}</td>
@@ -320,8 +321,8 @@ export const FreedomIndex: React.FC = () => {
             <div className="lg:col-span-5 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Documented Internet Restriction Events</h3>
               <div className="space-y-4">
-                {throttlingLog.map((incident, i) => (
-                  <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+                {prepareList(throttlingLog).map((incident: any, i: number) => (
+                  <div key={generateStableKey(incident, i, 'throttle')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
                     <div className="flex justify-between items-start">
                       <span className="px-2 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded text-[8px] font-mono uppercase font-bold">{incident.date}</span>
                       <span className="text-[8px] font-mono text-slate-500 uppercase">{incident.duration}</span>
@@ -374,8 +375,8 @@ export const FreedomIndex: React.FC = () => {
               </div>
 
               <div className="w-full space-y-2">
-                {detentionBreakdown.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+                {prepareList(detentionBreakdown).map((item: any, i: number) => (
+                  <div key={generateStableKey(item, i, 'det-break')} className="flex items-center justify-between text-[10px] font-mono">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className="text-slate-400 uppercase">{item.name}</span>
@@ -418,8 +419,8 @@ export const FreedomIndex: React.FC = () => {
           <div className="space-y-6">
             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Notable Detainees & Status</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {notableDetainees.map((detainee, i) => (
-                <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
+              {prepareList(notableDetainees).map((detainee: any, i: number) => (
+                <div key={generateStableKey(detainee, i, 'detainee')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <div className="text-xs font-bold text-white">{detainee.name}</div>
@@ -520,16 +521,16 @@ export const FreedomIndex: React.FC = () => {
 
           {/* Media Landscape Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
+            {prepareList([
               { title: 'State-Controlled', items: mediaLandscape.state, color: 'text-intel-red' },
               { title: 'Independent (Under Pressure)', items: mediaLandscape.independent, color: 'text-intel-orange' },
               { title: 'Shut Down / Suspended', items: mediaLandscape.suspended, color: 'text-slate-500' }
-            ].map((group, i) => (
-              <div key={i} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4">
+            ]).map((group: any, i: number) => (
+              <div key={generateStableKey(group, i, 'media-group')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4">
                 <h4 className={cn("text-xs font-bold uppercase tracking-widest", group.color)}>{group.title}</h4>
                 <div className="space-y-3">
-                  {group.items.map((media, j) => (
-                    <div key={j} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
+                  {prepareList(group.items).map((media: any, j: number) => (
+                    <div key={generateStableKey(media, j, 'media-item')} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
                       <span className="text-xs font-bold text-white">{media.name}</span>
                       <span className={cn(
                         "text-[8px] font-mono px-2 py-0.5 rounded border uppercase",
@@ -555,8 +556,8 @@ export const FreedomIndex: React.FC = () => {
             <div className="lg:col-span-7 space-y-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Institutional Erosion Timeline</h3>
               <div className="space-y-4 relative before:absolute before:left-[11px] before:top-0 before:bottom-0 before:w-px before:bg-intel-border">
-                {institutionalErosion.map((event, i) => (
-                  <div key={i} className="relative pl-8 group">
+                {prepareList(institutionalErosion).map((event: any, i: number) => (
+                  <div key={generateStableKey(event, i, 'erosion')} className="relative pl-8 group">
                     <div className={cn(
                       "absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-intel-bg z-10",
                       event.impact === 'CRITICAL' ? "bg-intel-red" : event.impact === 'HIGH' ? "bg-intel-orange" : "bg-intel-yellow"
@@ -595,8 +596,8 @@ export const FreedomIndex: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {institutionalHealth.map((row, i) => (
-                        <tr key={i} className="group hover:bg-white/5 transition-colors">
+                      {prepareList(institutionalHealth).map((row: any, i: number) => (
+                        <tr key={generateStableKey(row, i, 'health')} className="group hover:bg-white/5 transition-colors">
                           <td className="py-4">
                             <div className="text-xs font-bold text-white">{row.institution}</div>
                             <div className="text-[8px] font-mono text-slate-600 uppercase">Pre-2021: {row.pre}</div>

@@ -15,7 +15,7 @@
  */
 
 import { supabase } from '../lib/supabase';
-import { generateEventId } from '../utils/eventUtils';
+import { generateEventId } from '../utils/idUtils';
 import { classifyArticle } from './rssService';
 import { scoreGeoRelevance } from '../config/rssSources';
 import { pipelineDebugger } from './debugService';

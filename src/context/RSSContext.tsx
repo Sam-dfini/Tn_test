@@ -17,7 +17,8 @@ import {
   markAsRead, markAllAsRead
 } from '../services/notificationService';
 import { saveRRISnapshot } from '../services/rssService';
-import { usePipeline } from './PipelineContext';
+import { intelligenceOrchestrator } from '../services/intelligenceOrchestrator';
+import { useRiskMetrics } from '../hooks/usePipelineDomains';
 import { useObservability } from './ObservabilityContext';
 import { prepareList } from '../lib/keyUtils';
 
@@ -47,7 +48,7 @@ export const RSSProvider: React.FC<{
   const [articles, setArticles] = useState<Article[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
-  const { updateArticleCache, isPaused } = usePipeline();
+  const { updateArticleCache, isPaused } = useRiskMetrics();
   const [totalArticles, setTotalArticles] = useState(0);
   const [lastFetch, setLastFetch] = useState<Date | null>(null);
   const [isFetching, setIsFetching] = useState(false);
@@ -61,11 +62,6 @@ export const RSSProvider: React.FC<{
   
   // SINGLETON INTERVAL REF
   const fetchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Stable refs so the interval effect doesn't restart when callbacks change
-  const fetchNowRef = useRef<(force?: boolean) => Promise<void>>(() => Promise.resolve());
-  const loadDataRef = useRef<() => Promise<void>>(() => Promise.resolve());
-  const loadNotificationsRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   // Helper to deduplicate arrays of items with an id
   const deduplicateById = <T extends { id?: any; title?: string; published_at?: any }>(items: T[]): T[] => {
@@ -103,9 +99,6 @@ export const RSSProvider: React.FC<{
       console.error('Failed to load intelligence data:', err);
     }
   }, []);
-
-  // Keep refs current so the stable interval can always call the latest version
-  // (must be after the useCallback definitions below)
 
   // Load notifications
   const loadNotifications = useCallback(async () => {
@@ -193,9 +186,13 @@ export const RSSProvider: React.FC<{
       console.log(`[PIPELINE] Ingestion report: ${rss.feedsProcessed} feeds, ${rss.totalArticlesHandled} items, ${rss.newArticles} new articles`);
 
       if (rss.newArticles > 0 || tg.newArticles > 0 || api.newArticles > 0) {
+        // Run Real-Time Intelligence Loop (Step 5)
+        const recent = await getRecentArticles({ limit: 50 });
+        intelligenceOrchestrator.runIntelligenceLoop(recent).catch(err => 
+          console.error("[ORCHESTRATOR] Background loop error:", err)
+        );
+
         // Notification logic
-        const recent = await getRecentArticles({ limit: 20 });
-        
         const shocks = recent.filter(a => 
           a.severity >= 5 || 
           (a.severity >= 4 && a.propaganda_score < 0.3)
@@ -214,11 +211,9 @@ export const RSSProvider: React.FC<{
             priority: 'CRITICAL',
             title: 'SYSTEM SHOCK DETECTED',
             message: shocks[0].title,
-            action: {
-              label: 'Analyze Shock',
-              event: 'navigate-main',
-              detail: { tab: 'newsfeed' }
-            },
+            action_label: 'Analyze Shock',
+            action_event: 'navigate-main',
+            action_detail: { tab: 'newsfeed' },
           });
         } else {
           const highSeverity = recent.filter(a => a.severity >= 4);
@@ -228,11 +223,9 @@ export const RSSProvider: React.FC<{
               priority: 'HIGH',
               title: `${combinedNew} New Articles — ${highSeverity.length} High Priority`,
               message: highSeverity[0]?.title || 'New intelligence available',
-              action: {
-                label: 'View Feed',
-                event: 'navigate-main',
-                detail: { tab: 'newsfeed' }
-              },
+              action_label: 'View Feed',
+              action_event: 'navigate-main',
+              action_detail: { tab: 'newsfeed' },
             });
           }
         }
@@ -248,11 +241,6 @@ export const RSSProvider: React.FC<{
     }
   }, [isPaused, updateMetrics, trackTrace, loadNotifications]);
 
-  // Sync latest fetchNow into ref so the interval never goes stale
-  useEffect(() => { fetchNowRef.current = fetchNow; }, [fetchNow]);
-  useEffect(() => { loadDataRef.current = loadData; }, [loadData]);
-  useEffect(() => { loadNotificationsRef.current = loadNotifications; }, [loadNotifications]);
-
   // Watch RRI state for threshold breaches
   useEffect(() => {
     if (!rriState) return;
@@ -265,11 +253,9 @@ export const RSSProvider: React.FC<{
           priority: 'CRITICAL',
           title: '⚠ Revolution Threshold Breached',
           message: `R(t) = ${rriState.rri.toFixed(4)} — P_rev = ${(rriState.p_rev*100).toFixed(1)}%`,
-          action: {
-            label: 'View Risk Model',
-            event: 'navigate-main',
-            detail: { tab: 'risk' }
-          },
+          action_label: 'View Risk Model',
+          action_event: 'navigate-main',
+          action_detail: { tab: 'risk' },
         });
         await loadNotifications();
       }
@@ -279,13 +265,13 @@ export const RSSProvider: React.FC<{
     checkRRI();
   }, [rriState?.rri, rriState?.velocity]);
 
-  // CORE LOOP CONTROL — only depends on isPaused; callbacks accessed via refs
+  // CORE LOOP CONTROL
   const hasInit = useRef(false);
   useEffect(() => {
     if (!hasInit.current) {
-      loadDataRef.current();
-      loadNotificationsRef.current();
-      fetchNowRef.current();
+      loadData();
+      loadNotifications();
+      fetchNow();
       hasInit.current = true;
     }
 
@@ -294,16 +280,16 @@ export const RSSProvider: React.FC<{
     const interval = setInterval(() => {
       if (!isPaused) {
         console.log("[RSS] Scheduled ingestion triggered...");
-        fetchNowRef.current();
+        fetchNow();
       }
-    }, 300_000);
+    }, 300_000); 
 
     fetchIntervalRef.current = interval;
 
     return () => {
       if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     };
-  }, [isPaused]);
+  }, [isPaused, fetchNow, loadData, loadNotifications]);
 
   // Realtime subscription via WebSocket
   useEffect(() => {

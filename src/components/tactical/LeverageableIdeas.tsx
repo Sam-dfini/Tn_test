@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
 import { Lightbulb, Zap, AlertTriangle, Eye } from 'lucide-react';
 
@@ -67,7 +67,7 @@ const generateIdeas = (rriState: any, data: any) => [
 ].filter(Boolean);
 
 export const LeverageableIdeas: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { fullData: data, rriState } = useRiskMetrics();
   const ideas = generateIdeas(rriState, data);
 
   return (

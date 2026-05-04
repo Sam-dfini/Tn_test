@@ -22,6 +22,7 @@
  */
 
 import { Article } from '../lib/supabase';
+import { calculateSEI } from '../math/economic';
 import {
   ShortageSignal, ShortageType,
   detectShortagesInArticles,
@@ -220,21 +221,15 @@ function computeSEI(
   shortage: ShortageSignal,
   phaseSignals: ReturnType<typeof detectPhaseSignals>
 ): number {
-  // Base from severity (1-5 → 0.1-0.5)
-  const severityBase = shortage.severity * 0.10;
-
-  // Phase signals stack up
-  const phaseContribution =
-    phaseSignals.denial * 0.10 +
-    phaseSignals.acceleration * 0.15 +
-    phaseSignals.intervention * 0.15 +
-    phaseSignals.distortion * 0.20 +
-    phaseSignals.angerIgnition * 0.25;
-
-  // Article density (more articles = more crisis)
-  const densityBoost = Math.min(0.15, shortage.articleCount * 0.015);
-
-  return Math.min(1.0, severityBase + phaseContribution + densityBoost);
+  return calculateSEI({
+    severityBase: shortage.severity * 0.10,
+    denial: phaseSignals.denial,
+    acceleration: phaseSignals.acceleration,
+    intervention: phaseSignals.intervention,
+    distortion: phaseSignals.distortion,
+    angerIgnition: phaseSignals.angerIgnition,
+    densityBoost: Math.min(0.15, shortage.articleCount * 0.015)
+  });
 }
 
 // ── Phase Classifier from SEI ──────────────────────────────────

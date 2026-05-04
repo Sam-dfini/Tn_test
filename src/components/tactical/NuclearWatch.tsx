@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 
 const sites = [
   { name: 'STEG Rades Power Station', value: 'NOMINAL', color: 'text-intel-green' },
@@ -14,7 +14,7 @@ const sites = [
 ];
 
 export const InfraWatch: React.FC = () => {
-  const { data } = usePipeline();
+  const { fullData: data } = useRiskMetrics();
 
   return (
     <div className="glass p-4 rounded-lg border border-intel-border">

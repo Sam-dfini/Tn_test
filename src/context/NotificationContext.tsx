@@ -1,3 +1,4 @@
+import { generateRandomId } from '../utils/idUtils';
 import { safeStorage } from '../utils/storage';
 import React, {
   createContext, useContext, useState,
@@ -102,7 +103,7 @@ export const NotificationProvider: React.FC<{
   ) => {
     const notification: Notification = {
       ...n,
-      id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${Math.floor(Math.random() * 1000)}`,
+      id: generateRandomId('notif'),
       timestamp: Date.now(),
       read: false,
     };

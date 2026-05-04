@@ -5,6 +5,8 @@
 
 import { logPipelineError } from './logger';
 
+import { generateDeterministicId, generateEventId } from './idUtils';
+
 export const DEBUG_EVENTS = true;
 
 export interface IntelligenceEvent {
@@ -15,52 +17,6 @@ export interface IntelligenceEvent {
   description: string;
   location: string | null;
   [key: string]: any; 
-}
-
-/**
- * Generates a purely deterministic ID based only on title and source.
- * NO timestamps, NO random components.
- */
-export function generateEventId(event: { title?: string; source?: string }): string {
-  let t = (event.title || "").trim().toLowerCase();
-  const s = (event.source || "unknown").trim().toLowerCase();
-  
-  if (!t) {
-    // If title is missing, fallback to using a portion of the source and a timestamp/random
-    // but try to stay deterministic if possible.
-    t = "untitled-intel-" + Math.random().toString(36).substring(7);
-  }
-
-  const base = `${t}|${s}`;
-  
-  // Dual-hash for 64-bit collision space
-  let h1 = 0xdeadbeef;
-  let h2 = 0x41c6ce57;
-  
-  for (let i = 0; i < base.length; i++) {
-    const ch = base.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822519) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489917);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822519) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489917);
-  
-  const h1_str = (h1 >>> 0).toString(16).padStart(8, '0');
-  const h2_str = (h2 >>> 0).toString(16).padStart(8, '0');
-  const combined = (h1_str + h2_str).padEnd(32, '0');
-  
-  // Format as UUID: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-  // 32 chars total: 8-4-4-4-12
-  const uuid = [
-    combined.slice(0, 8),
-    combined.slice(8, 12),
-    '4' + combined.slice(13, 16),
-    'a' + combined.slice(17, 20),
-    combined.slice(20, 32)
-  ].join('-');
-
-  return uuid;
 }
 
 /**

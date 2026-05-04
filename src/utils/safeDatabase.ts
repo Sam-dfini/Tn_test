@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { checkAndFixSchema } from './schemaValidator.ts';
+import { generateRandomId } from './idUtils.ts';
 
 /**
  * sanitizeData
@@ -8,8 +9,8 @@ import { checkAndFixSchema } from './schemaValidator.ts';
 export function sanitizeData(tableName: string, data: any): any {
   if (tableName === 'articles') {
     return {
-      id: data.id || `art_${Math.random().toString(36).slice(2, 11)}`,
-      fingerprint: data.fingerprint || `fp_${Date.now()}_${Math.random()}`,
+      id: data.id || generateRandomId('art'),
+      fingerprint: data.fingerprint || `fp_${Date.now()}_${generateRandomId('sub')}`,
       title: data.title || "NO_TITLE",
       source: data.source || "UNKNOWN",
       created_at: new Date().toISOString(),

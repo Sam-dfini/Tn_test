@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { create } from 'zustand';
 import { Loader2, Sprout, Droplets, Wheat } from 'lucide-react';
-import { ModuleHeader } from '../ProfessionalShared';
+import { ModuleHeader } from '../shared/ProfessionalShared';
 import clsx from 'clsx';
 import KpiRow from './KpiRow';
 import TacticalMap from './TacticalMap';

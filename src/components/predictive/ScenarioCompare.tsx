@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { usePipeline } from '../../context/PipelineContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { generateAnalystResponse } from '../../services/ai';
 import { RRIVariable } from '../../types/intel';
-import { generateStableKey } from '../../lib/keyUtils';
+import { generateStableKey, prepareList } from '../../lib/keyUtils';
 import './ScenarioCompare.css';
 
 interface Scenario {
@@ -53,7 +53,7 @@ const SCENARIOS: Scenario[] = [
 ];
 
 export const ScenarioCompare: React.FC<{ variables?: RRIVariable[] }> = ({ variables }) => {
-  const { rriState } = usePipeline();
+  const { rriState } = useRiskMetrics();
   const [selectedIds, setSelectedIds] = useState<string[]>(['baseline', 'imf_collapse', 'imf_deal']);
   const [results, setResults] = useState<any[]>([]);
   const [aiSynthesis, setAiSynthesis] = useState<string | null>(null);
@@ -235,8 +235,8 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
       <div className="sc-selector-bar">
         <span className="sc-selector-label">SELECT UP TO 3:</span>
         <div className="sc-pills">
-          {SCENARIOS.map(s => (
-            <label key={s.id} className="sc-pill" style={{ '--pc': s.color } as React.CSSProperties}>
+          {prepareList(SCENARIOS).map((s: any, i: number) => (
+            <label key={generateStableKey(s.id, i, 'scen-pill')} className="sc-pill" style={{ '--pc': s.color } as React.CSSProperties}>
               <input 
                 type="checkbox" 
                 className="sc-pill-check" 
@@ -258,8 +258,8 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
           <div>
             {/* Scenario header cards */}
             <div className="sc-cards" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-              {results.map((r, rIdx) => (
-                <div key={`${r.scenario.id}-${rIdx}`} className="sc-card" style={{ '--cc': r.scenario.color } as React.CSSProperties}>
+              {prepareList(results).map((r: any, rIdx: number) => (
+                <div key={generateStableKey(r, rIdx, 'scen-card')} className="sc-card" style={{ '--cc': r.scenario.color } as React.CSSProperties}>
                   <div className="sc-card-name">{r.scenario.name.toUpperCase()}</div>
                   <div className="sc-card-desc">{r.scenario.desc}</div>
                   <div className="sc-card-rri" style={{ color: parseFloat(r.rri) >= 2.31 ? '#ef4444' : '#22c55e' }}>
@@ -276,22 +276,22 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
             <div className="sc-table">
               <div className="sc-table-head" style={{ gridTemplateColumns: `130px repeat(${cols}, 1fr)` }}>
                 <div className="sc-th">METRIC</div>
-                {results.map((r, rIdx) => (
-                  <div key={`${r.scenario.id}-${rIdx}`} className="sc-th" style={{ color: r.scenario.color }}>
+                {prepareList(results).map((r: any, rIdx: number) => (
+                  <div key={generateStableKey(r, rIdx, 'th')} className="sc-th" style={{ color: r.scenario.color }}>
                     {r.scenario.name}
                   </div>
                 ))}
               </div>
-              {metrics.map(m => (
-                <div key={m.key} className="sc-table-row" style={{ gridTemplateColumns: `130px repeat(${cols}, 1fr)` }}>
+              {prepareList(metrics).map((m: any, mIdx: number) => (
+                <div key={generateStableKey(m, mIdx, 'metric-row')} className="sc-table-row" style={{ gridTemplateColumns: `130px repeat(${cols}, 1fr)` }}>
                   <div className="sc-td sc-td-label">{m.label}</div>
-                  {results.map((r, rIdx) => {
+                  {prepareList(results).map((r: any, rIdx: number) => {
                     const val = parseFloat(r[m.key]);
                     const isBest = val === best[m.key];
                     const isWorst = val === worst[m.key] && cols > 1;
                     const col = isBest ? '#22c55e' : isWorst ? '#ef4444' : '#e2e8f0';
                     return (
-                      <div key={`${r.scenario.id}-${rIdx}`} className="sc-td" style={{ color: col, fontWeight: isBest || isWorst ? 700 : 400 }}>
+                      <div key={generateStableKey(r, rIdx, 'td')} className="sc-td" style={{ color: col, fontWeight: isBest || isWorst ? 700 : 400 }}>
                         {m.fmt(r[m.key])} {isBest ? '▲' : isWorst ? '▼' : ''}
                       </div>
                     );
@@ -303,15 +303,15 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
             {/* Bar charts */}
             <div className="sc-bars">
               <div className="sc-bars-title">VISUAL COMPARISON</div>
-              {['prev', 'protest', 'collapse'].map(key => {
+              {prepareList(['prev', 'protest', 'collapse']).map((key: any, kIdx: number) => {
                 const label = { prev: 'P_rev (%)', protest: 'Protest P(30d)', collapse: 'Collapse P(30d)' }[key as keyof typeof best];
                 return (
-                  <div key={key} className="sc-bar-group">
+                  <div key={generateStableKey(key, kIdx, 'bar-group')} className="sc-bar-group">
                     <div className="sc-bar-label">{label}</div>
-                    {results.map((r, rIdx) => {
+                    {prepareList(results).map((r: any, rIdx: number) => {
                       const val = parseInt(r[key]);
                       return (
-                        <div key={`${r.scenario.id}-${rIdx}`} className="sc-bar-row">
+                        <div key={generateStableKey(r, rIdx, 'bar-row')} className="sc-bar-row">
                           <div className="sc-bar-name" style={{ color: r.scenario.color }}>{r.scenario.name}</div>
                           <div className="sc-bar-track">
                             <div className="sc-bar-fill" style={{ width: `${val}%`, background: r.scenario.color }}></div>
@@ -329,12 +329,12 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
             <div className="sc-overrides">
               <div className="sc-overrides-title">VARIABLE OVERRIDES APPLIED</div>
               <div className="sc-overrides-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-                {results.map((r, rIdx) => (
-                  <div key={`${r.scenario.id}-${rIdx}`} className="sc-override-col" style={{ borderTop: `2px solid ${r.scenario.color}` }}>
+                {prepareList(results).map((r: any, rIdx: number) => (
+                  <div key={generateStableKey(r, rIdx, 'override-card')} className="sc-override-col" style={{ borderTop: `2px solid ${r.scenario.color}` }}>
                     <div className="sc-override-head" style={{ color: r.scenario.color }}>{r.scenario.name}</div>
                     {Object.keys(r.scenario.overrides).length ? (
-                      Object.entries(r.scenario.overrides).map(([id, val], vIdx) => (
-                        <div key={`${id}-${vIdx}`} className="sc-override-row">
+                      prepareList(Object.entries(r.scenario.overrides)).map(([id, val]: any, vIdx: number) => (
+                        <div key={generateStableKey(id, vIdx, 'override-row')} className="sc-override-row">
                           <span className="sc-override-id">{id}</span>
                           <span className="sc-override-val">{val as number}</span>
                         </div>
