@@ -1041,7 +1041,7 @@ const GROUPS = [
 
 const TestSuite: React.FC = () => {
   const [tests, setTests] = useState<TestResult[]>(INITIAL_TESTS);
-  const { recalculateRRI, fullData: data } = useRiskMetrics();
+  const { recalculateRRI, fullData: data, rriState } = useRiskMetrics();
   const { fetchNow } = useRSS();
   const [isRunningAll, setIsRunningAll] = useState(false);
 
@@ -1183,7 +1183,7 @@ const TestSuite: React.FC = () => {
 
         case 'rri-vars': {
           const ms = Date.now() - start;
-          const varCount = data?.variables ? Object.keys(data.variables).length : 0;
+          const varCount = rriState?.variables ? Object.keys(rriState.variables).length : 0;
           setTest(id, {
             status: varCount >= 240 ? 'pass' : varCount > 0 ? 'fail' : 'fail',
             message: `${varCount} variables loaded`,

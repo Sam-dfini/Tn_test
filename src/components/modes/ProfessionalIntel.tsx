@@ -80,6 +80,7 @@ import { FeedIntelligenceHub } from '../agriculture/FeedIntelligenceHub';
 import { PoultryEggsIntelligence } from '../agriculture/PoultryEggsIntelligence';
 import { LivestockMeatIntelligence } from '../agriculture/LivestockMeatIntelligence';
 import { MilkDairyIntelligence } from '../agriculture/MilkDairyIntelligence';
+import { SocietalFractureMonitor } from '../SocietalFractureMonitor';
 import ActorNetworkIntelligence from '../political/ActorNetworkIntelligence';
 import SimulationIntelligence from '../predictive/SimulationIntelligence';
 import { NewsFeed } from '../shared/NewsFeed';
@@ -97,7 +98,6 @@ import { EntrepreneurIntelligence } from '../economy/EntrepreneurIntelligence';
 import { IndustrialIntelligencePanel } from '../economy/IndustrialIntelligencePanel';
 import { StrategicEnergyIntelligencePanel } from '../energy/StrategicEnergyIntelligencePanel';
 import { BlackMarketIntelligencePanel } from '../geopolitical/BlackMarketIntelligencePanel';
-import IntelIconSet from '../shared/IntelIconSet';
 import { useRSS } from '../../context/RSSContext';
 import { generateAnalystResponse } from '../../services/geminiService';
 import { Article } from '../../lib/supabase';
@@ -108,77 +108,78 @@ const SIDEBAR_CATEGORIES = [
   {
     id: 'command',
     label: 'Command Center',
-    icon: 'dashboard',
     items: [
-      { id: 'overview', label: 'Dashboard', icon: 'dashboard' },
-      { id: 'calendar', label: 'Calendar', icon: 'calendar' },
-      { id: 'govagent', label: 'Gov. Agent', icon: 'agent' },
-      { id: 'methodology', label: 'Methodology', icon: 'methodology', isEvent: true },
+      { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+      { id: 'calendar', label: 'Calendar', icon: Calendar },
+      { id: 'govagent', label: 'Gov. Agent', icon: Brain },
+      { id: 'methodology', label: 'Methodology', icon: BookOpen, isEvent: true },
     ]
   },
   {
     id: 'economical',
     label: 'Economical',
-    icon: 'economy',
     items: [
-      { id: 'reports', label: 'Investment Reports', icon: 'investment' },
-      { id: 'economy', label: 'Economy', icon: 'economy' },
-      { id: 'industry', label: 'Industry', icon: 'industry' },
-      { id: 'strategic-energy', label: 'Strategic Energy', icon: 'energy_strat' },
-      { id: 'black-market', label: 'Black Market', icon: 'black_market' },
-      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: 'explorer' },
-      { id: 'entrepreneur', label: 'Entrepreneur', icon: 'entrepreneur' },
+      { id: 'reports', label: 'Investment Reports', icon: FileText },
+      { id: 'economy', label: 'Economy', icon: TrendingUp },
+      { id: 'industry', label: 'Industry', icon: Box },
+      { id: 'strategic-energy', label: 'Strategic Energy', icon: Zap },
+      { id: 'black-market', label: 'Black Market', icon: ShoppingBag },
+      { id: 'strategic-explorer', label: 'Strategic Explorer', icon: Compass },
+      { id: 'entrepreneur', label: 'Entrepreneur', icon: Rocket },
     ]
   },
   {
     id: 'threat',
     label: 'Threat & Security',
-    icon: 'security',
     items: [
-      { id: 'events', label: 'Events', icon: 'events' },
-      { id: 'security', label: 'Security', icon: 'security' },
-      { id: 'clusters', label: 'Clusters', icon: 'clusters' },
-      { id: 'actor-network', label: 'Actor Network', icon: 'actor' },
-      { id: 'radicalisation', label: 'Radicalisation', icon: 'radicalisation' },
-      { id: 'cognitive', label: 'Cognitive Warfare', icon: 'cognitive' },
+      { id: 'events', label: 'Events', icon: Radio },
+      { id: 'security', label: 'Security', icon: ShieldCheck },
+      { id: 'clusters', label: 'Clusters', icon: Network },
+      { id: 'actor-network', label: 'Actor Network', icon: Network },
+      { id: 'radicalisation', label: 'Radicalisation', icon: AlertTriangle },
+      { id: 'cognitive', label: 'Cognitive Warfare', icon: ShieldAlert },
+    ]
+  },
+  {
+    id: 'social-observatory',
+    label: 'Social Observatory',
+    items: [
+      { id: 'societal-fracture', label: 'Societal Fracture', icon: Brain },
     ]
   },
   {
     id: 'socio',
     label: 'Socio-Political',
-    icon: 'social',
     items: [
-      { id: 'political', label: 'Political', icon: 'political' },
-      { id: 'social', label: 'Social', icon: 'social' },
-      { id: 'geopolitical', label: 'Geopolitical', icon: 'geopolitical' },
-      { id: 'narrative', label: 'Narrative', icon: 'narrative' },
+      { id: 'political', label: 'Political', icon: Users },
+      { id: 'social', label: 'Social', icon: Users },
+      { id: 'geopolitical', label: 'Geopolitical', icon: Globe },
+      { id: 'narrative', label: 'Narrative', icon: Brain },
     ]
   },
   {
     id: 'env',
     label: 'Environment',
-    icon: 'env_base',
     items: [
-      { id: 'environment', label: 'Environment', icon: 'env_base' },
-      { id: 'agriculture', label: 'Agriculture', icon: 'agriculture' },
-      { id: 'feed-hub', label: 'Feed Intelligence', icon: 'feed_intel' },
-      { id: 'poultry', label: 'Poultry & Eggs', icon: 'poultry' },
-      { id: 'livestock', label: 'Livestock & Meat', icon: 'livestock' },
-      { id: 'dairy', label: 'Milk & Dairy', icon: 'dairy' },
-      { id: 'energy', label: 'Energy', icon: 'energy' },
-      { id: 'fire', label: 'Fire Intel', icon: 'fire_intel' },
+      { id: 'environment', label: 'Environment', icon: Sprout },
+      { id: 'agriculture', label: 'Agriculture', icon: Leaf },
+      { id: 'feed-hub', label: 'Feed Intelligence', icon: Wheat },
+      { id: 'poultry', label: 'Poultry & Eggs', icon: Zap },
+      { id: 'livestock', label: 'Livestock & Meat', icon: Package },
+      { id: 'dairy', label: 'Milk & Dairy', icon: Droplets },
+      { id: 'energy', label: 'Energy', icon: Activity },
+      { id: 'fire', label: 'Fire Intel', icon: Flame },
     ]
   },
   {
     id: 'advanced',
     label: 'Advanced Modeling',
-    icon: 'strategic',
     items: [
-      { id: 'strategic', label: 'Strategic', icon: 'strategic' },
-      { id: 'simulation', label: 'Simulation', icon: 'simulation' },
-      { id: 'civilizational', label: 'Civilizational', icon: 'civilizational' },
-      { id: 'performance', label: 'Model Performance', icon: 'performance' },
-      { id: 'ne', label: 'NE', icon: 'ne' },
+      { id: 'strategic', label: 'Strategic', icon: BrainCircuit },
+      { id: 'simulation', label: 'Simulation', icon: Cpu },
+      { id: 'civilizational', label: 'Civilizational', icon: RotateCcw },
+      { id: 'performance', label: 'Model Performance', icon: ShieldCheck },
+      { id: 'ne', label: 'NE', icon: Newspaper },
     ]
   }
 ];
@@ -273,9 +274,7 @@ const reports: IntelReport[] = [
 
 import { generateAIAnalysis, AIAnalysis, ForecastResult } from '../../services/ai';
 import { ModelPerformance } from '../system/ModelPerformance';
-import { useRiskMetrics } from '../../hooks/usePipelineDomains';
-import { useAuditLog } from '../../context/AuditContext';
-import { useAIAnalysis } from '../../context/AIAnalysisContext';
+import { usePipeline } from '../../context/PipelineContext';
 import { SmartAlert, Situation } from '../../services/smartAlerts';
 import { AgentInsight } from '../../services/agents';
 import { ProfessionalHeader } from '../shared/ProfessionalHeader';
@@ -318,8 +317,7 @@ const SpotlightCard: React.FC<{
 );
 
 const ForecastPanel: React.FC = () => {
-  const { fullData: data } = useRiskMetrics();
-  const { forecast } = useAIAnalysis();
+  const { forecast, data } = usePipeline();
   const rri = (data as any)?.rri?.rri ?? 0.46;
 
   // Generate 14-day cascade probability bars from forecast
@@ -471,11 +469,9 @@ export const ProfessionalIntel: React.FC<{
   onOpenReport: () => void;
   onToggleDebug: () => void;
 }> = ({ context, onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onToggleDebug }) => {
-  const { fullData: data, rriState } = useRiskMetrics();
-  const { auditLog } = useAuditLog();
-  const { miiProfile, actorNetwork, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = useAIAnalysis();
+  const { data, rriState, miiProfile, actorNetwork, auditLog, aiAnalysis, forecast, runAIAnalysis, isAIAnalysisLoading } = usePipeline();
   const { articles: rssArticles, isFetching } = useRSS();
-  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'feed-hub' | 'poultry' | 'livestock' | 'dairy' | 'industry' | 'strategic-explorer' | 'pipeline-control'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clusters' | 'events' | 'narrative' | 'political' | 'radicalisation' | 'cognitive' | 'economy' | 'energy' | 'strategic-energy' | 'black-market' | 'environment' | 'social' | 'security' | 'strategic' | 'geopolitical' | 'simulation' | 'methodology' | 'civilizational' | 'calendar' | 'performance' | 'actor-network' | 'govagent' | 'reports' | 'fire' | 'ne' | 'entrepreneur' | 'agriculture' | 'feed-hub' | 'poultry' | 'livestock' | 'dairy' | 'societal-fracture' | 'industry' | 'strategic-explorer' | 'pipeline-control'>('overview');
   const [eventsSubTab, setEventsSubTab] = useState<'news' | 'engine' | 'timeline' | 'signal' | 'temporal' | 'rtee'>('news');
   const [activeNewsTab, setActiveNewsTab] = useState<'feed' | 'signal'>('feed');
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
@@ -729,163 +725,84 @@ Return only the 3-sentence briefing.`;
       )}
 
       {/* Sidebar Navigation */}
-      <div className={`fixed z-[70] top-0 bottom-0 left-0 h-full flex transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]`}>
-        {/* Slim Column (Constant Space) */}
-        <div className="w-[68px] h-full flex flex-col items-center py-6 border-r border-white/10 bg-black/40 backdrop-blur-3xl relative z-[80]">
-          <div className="mb-10">
-             <div className="w-9 h-9 rounded-xl bg-intel-cyan/10 flex items-center justify-center border border-intel-cyan/25 shadow-[0_0_20px_-5px_rgba(0,242,255,0.3)] group cursor-pointer hover:bg-intel-cyan/20 transition-all duration-300" onClick={onGoHome}>
-                <div className="w-2.5 h-2.5 rounded-full bg-intel-cyan animate-pulse" />
-             </div>
+      <div className={`fixed z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-3xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
+        sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full border-r-0"
+      }`}>
+        <div className="w-64 h-full flex flex-col">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-white/10 text-center flex items-center justify-between">
+            <div className="flex items-center justify-center space-x-2 text-intel-cyan font-mono select-none tracking-widest text-[10px] md:text-sm pl-2">
+               <div className="w-2 h-2 rounded-full bg-intel-cyan animate-pulse" />
+               <span>SYSTEM LINK</span>
+            </div>
+            {/* Close button for mobile inside sidebar */}
+            <button className="md:hidden p-1 text-slate-400 hover:text-white" onClick={() => setSidebarOpen(false)}>
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
-          <div className="flex-1 space-y-5">
-            {prepareList(SIDEBAR_CATEGORIES).map((category: any) => {
-              const isAnyItemActive = category.items.some((item: any) => activeTab === item.id);
-              const isExpanded = expandedCategories[category.id];
-              return (
-                <div key={category.id} className="group relative">
-                  <button
-                    onClick={() => {
-                      // Switch focus to this category and open sidebar
-                      const newExpanded = { [category.id]: true };
-                      setExpandedCategories(newExpanded);
-                      setSidebarOpen(true);
-                    }}
-                    className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-500 relative
-                      ${isAnyItemActive ? 'bg-intel-cyan/15 text-intel-cyan border border-intel-cyan/30 shadow-[0_0_15px_-4px_rgba(0,242,255,0.4)]' : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent'}
-                      ${isExpanded && sidebarOpen ? 'ring-1 ring-intel-cyan/30 scale-105 bg-white/5' : ''}
-                    `}
-                  >
-                    <IntelIconSet 
-                      name={category.icon} 
-                      isActive={isAnyItemActive} 
-                      size={20}
-                      className={`transition-transform duration-500 ${isAnyItemActive ? 'scale-110' : 'group-hover:scale-110'}`} 
-                    />
-                    {isAnyItemActive && (
-                      <div className="absolute inset-0 rounded-2xl bg-intel-cyan/5 blur-md" />
-                    )}
-                    {isAnyItemActive && !sidebarOpen && (
-                      <div className="absolute right-1 top-1 w-2 h-2 bg-intel-cyan rounded-full shadow-[0_0_10px_rgba(0,242,255,0.8)]" />
-                    )}
-                  </button>
+          {/* Sidebar Categories */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
+            {prepareList(SIDEBAR_CATEGORIES).map((category: any) => (
+              <div key={category.id} className="space-y-1">
+                {/* Category Header */}
+                <button 
+                  onClick={() => {
+                    toggleCategory(category.id);
+                  }}
+                  className="w-full flex items-center justify-between px-2 py-1.5 text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest hover:text-slate-300 transition-colors"
+                  aria-expanded={expandedCategories[category.id]}
+                >
+                  <span>{category.label}</span>
+                  <ChevronRight className={`w-3.5 h-3.5 transition-transform ${expandedCategories[category.id] ? 'rotate-90 text-intel-cyan' : ''}`} />
+                </button>
 
-                  {!sidebarOpen && (
-                    <div className="absolute left-[calc(100%+16px)] top-1/2 -translate-y-1/2 px-3 py-2 bg-black/90 backdrop-blur-xl border border-white/10 rounded-xl text-[10px] font-mono text-intel-cyan opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500 pointer-events-none whitespace-nowrap z-50 shadow-2xl">
-                      <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-[#050505] border-l border-b border-white/10 rotate-45" />
-                      <div className="flex items-center space-x-2">
-                        <div className="w-1 h-3 bg-intel-cyan/50 rounded-full" />
-                        <span className="uppercase tracking-[0.1em]">{category.label}</span>
-                      </div>
-                    </div>
+                {/* Category Items */}
+                <AnimatePresence>
+                  {expandedCategories[category.id] && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-0.5 overflow-hidden border-l border-white/10 pl-2 ml-2 mt-1"
+                    >
+                      {prepareList(category.items).map((item: any) => {
+                        const isActive = activeTab === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => {
+                              if (item.isEvent) {
+                                window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
+                              } else {
+                                setActiveTab(item.id as any);
+                              }
+                              // auto-close when a link is clicked (overlay behavior)
+                              setSidebarOpen(false);
+                            }}
+                            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs transition-all tracking-wide
+                              ${isActive 
+                                ? 'bg-intel-cyan/10 text-intel-cyan font-bold shadow-[inset_2px_0_0_0_#00f2ff]' 
+                                : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
+                            `}
+                          >
+                            <item.icon className={`w-4 h-4 shrink-0 col-span-1 ${isActive ? "text-intel-cyan animate-pulse" : "opacity-80"}`} />
+                            <span className={`${isActive ? 'opacity-100' : 'opacity-80'} truncate`}>{item.label}</span>
+                          </button>
+                        );
+                      })}
+                    </motion.div>
                   )}
-                </div>
-              );
-            })}
-          </div>
-
-          <button 
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="mt-auto w-10 h-10 rounded-full flex items-center justify-center text-slate-600 hover:text-intel-cyan transition-all duration-300 hover:bg-intel-cyan/5"
-          >
-            <motion.div animate={{ rotate: sidebarOpen ? 180 : 0 }} transition={{ type: "spring", stiffness: 200, damping: 20 }}>
-              <ChevronRight className="w-5 h-5" />
-            </motion.div>
-          </button>
-        </div>
-
-        {/* Expanded Overlay Content View (Branches) */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: -20, width: 0 }}
-              animate={{ opacity: 1, x: 0, width: 240 }}
-              exit={{ opacity: 0, x: -20, width: 0 }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-              className="flex-1 flex flex-col bg-black/60 backdrop-blur-3xl overflow-hidden border-r border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.5)] h-full relative z-[70]"
-            >
-              <div className="p-7 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-8 px-1">
-                  <div className="text-[9px] font-mono text-slate-500 tracking-[0.3em] uppercase">
-                    System Branches
-                  </div>
-                  <button onClick={() => setSidebarOpen(false)} className="text-slate-500 hover:text-white transition-colors">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-10 pr-2">
-                  {prepareList(SIDEBAR_CATEGORIES).map((category: any) => (
-                    expandedCategories[category.id] && (
-                      <motion.div 
-                        key={category.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-6"
-                      >
-                        <div className="px-1 text-[11px] font-mono font-bold text-intel-cyan tracking-[0.2em] flex items-center uppercase">
-                          <IntelIconSet name={category.icon} isActive={true} size={16} className="mr-3 opacity-80" />
-                          {category.label}
-                        </div>
-                        <div className="space-y-1 ml-1 pl-4 border-l border-white/10">
-                          {prepareList(category.items).map((item: any) => {
-                            const isActive = activeTab === item.id;
-                            return (
-                              <button
-                                key={item.id}
-                                onClick={() => {
-                                  if (item.isEvent) {
-                                    window.dispatchEvent(new CustomEvent('navigate-to-methodology', { detail: {} }));
-                                  } else {
-                                    setActiveTab(item.id as any);
-                                  }
-                                  // Optional: close sidebar on selection for less intrusive feel
-                                  // setSidebarOpen(false);
-                                }}
-                                className={`w-full group flex items-center space-x-3 px-3 py-3 rounded-xl text-[11px] transition-all duration-500
-                                  ${isActive 
-                                    ? 'bg-intel-cyan/15 text-intel-cyan border border-intel-cyan/25 shadow-[0_0_15px_-5px_rgba(0,242,255,0.2)]' 
-                                    : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent'}
-                                `}
-                              >
-                                <IntelIconSet 
-                                  name={item.icon || 'dashboard'} 
-                                  isActive={isActive} 
-                                  size={16}
-                                  className={`shrink-0 transition-all duration-500 ${isActive ? "scale-110" : "opacity-40 group-hover:opacity-100 group-hover:scale-110"}`} 
-                                />
-                                <span className={`truncate tracking-wide ${isActive ? 'font-medium' : 'font-normal'}`}>{item.label}</span>
-                                {isActive && (
-                                  <motion.div 
-                                    layoutId="active-indicator"
-                                    className="ml-auto w-1 h-3 bg-intel-cyan rounded-full shadow-[0_0_10px_rgba(0,242,255,0.6)]" 
-                                  />
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </motion.div>
-                    )
-                  ))}
-                </div>
-
-                <div className="mt-auto pt-8 border-t border-white/5">
-                  <div className="flex flex-col items-center space-y-2 opacity-30">
-                    <div className="text-[8px] font-mono text-slate-500 tracking-widest uppercase">
-                      Classified Terminal
-                    </div>
-                  </div>
-                </div>
+                </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Main Content Area - Constant margin for the slim bar; expansion overlays the content */}
-      <div className={`flex-1 flex flex-col min-w-0 bg-background overflow-hidden h-full relative z-[50] ml-[68px]`}>
-
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden h-full relative z-[50]">
         {/* Global Action Header */}
         <ProfessionalHeader 
           onOpenAI={onOpenAI}
@@ -1819,6 +1736,8 @@ Return only the 3-sentence briefing.`;
         <LivestockMeatIntelligence />
       ) : activeTab === 'dairy' ? (
         <MilkDairyIntelligence />
+      ) : activeTab === 'societal-fracture' ? (
+        <SocietalFractureMonitor />
       ) : activeTab === 'social' ? (
         <SocialIntelligence />
       ) : activeTab === 'strategic' ? (

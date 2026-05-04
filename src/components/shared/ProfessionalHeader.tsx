@@ -66,8 +66,19 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-intel-cyan/50 to-transparent" />
       
-      <div className="flex items-center space-x-4 md:space-x-8">
+      <div className="flex items-center space-x-2 md:space-x-6">
         <div className="flex items-center space-x-2 md:space-x-4">
+          <button 
+            onClick={onToggleSidebar}
+            className={`p-2 rounded-lg transition-all ${
+              sidebarOpen 
+                ? 'text-intel-cyan bg-intel-cyan/10' 
+                : 'text-slate-500 hover:text-white hover:bg-white/5'
+            }`}
+            title={sidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
           <div className="w-9 h-9 hidden md:flex bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.05)]">
             <Shield className="w-5 h-5 text-intel-cyan" />
           </div>
