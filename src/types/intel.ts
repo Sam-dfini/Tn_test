@@ -127,6 +127,7 @@ export interface RRIState {
   model_confidence: number;
   last_calculated: string;
   variables_count: number;
+  variables?: Record<string, RRIVariable>;
   threshold_breaches: { variable: string; value: number; threshold: number }[];
   rri_history?: { date: string; rri: number }[];
 

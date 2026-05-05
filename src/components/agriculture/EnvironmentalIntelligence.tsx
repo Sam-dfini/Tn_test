@@ -460,7 +460,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 {prepareList(['Water Stress', 'Fire Risk', 'Erosion Index', 'Aquifer Depletion']).map((layer: any, layerIdx) => (
                   <button
                     key={generateStableKey(layer, layerIdx, 'map-layer')}
-                    onClick={() => setActiveMapLayer(layer.id)}
+                    onClick={() => setActiveMapLayer(layer)}
                     className={cn(
                       'px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase tracking-widest transition-all',
                       activeMapLayer === layer 

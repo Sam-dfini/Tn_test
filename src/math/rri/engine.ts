@@ -892,6 +892,11 @@ export function calculateRRI(
     model_confidence: parseFloat(safeVal(model_confidence, 0.85).toFixed(4)),
     last_calculated: new Date().toISOString(),
     variables_count: vars.length,
+    variables: vars.reduce((acc, v) => {
+      const id = v.id || `${v.code}${v.number}`;
+      acc[id] = v;
+      return acc;
+    }, {} as Record<string, RRIVariable>),
     threshold_breaches,
     rri_history: [
       { date: '2026-03-01', rri: 2.15 },

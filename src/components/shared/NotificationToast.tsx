@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, AlertTriangle, Zap } from 'lucide-react';
 import { Notification } from '../../context/NotificationContext';
+import { audioService } from '../../services/audioService';
 
 export const NotificationToast: React.FC = () => {
   const [toasts, setToasts] = useState<Notification[]>([]);
@@ -9,6 +10,10 @@ export const NotificationToast: React.FC = () => {
   useEffect(() => {
     const handler = (e: Event) => {
       const notification = (e as CustomEvent).detail as Notification;
+      
+      // Play sound for all notifications regardless of toast visibility
+      audioService.playNotification(notification.priority);
+
       // Show toasts for CRITICAL, HIGH, and MEDIUM
       if (['CRITICAL', 'HIGH', 'MEDIUM'].includes(notification.priority)) {
         setToasts(prev => {

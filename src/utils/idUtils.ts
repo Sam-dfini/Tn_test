@@ -99,13 +99,12 @@ export function getRenderKey(item: any, index: number, prefix: string = 'item'):
 /**
  * Takes an array of mixed elements and ensures they are objects with valid `id` properties.
  */
-export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ? T & { id: string } : { id: string, value: T })[] {
+export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ? T & { id: string } : T)[] {
   if (!items || !Array.isArray(items)) return [] as any;
   const seen = new Set<string>();
 
   return items.map((item, index) => {
     let baseId: string | number;
-
     let finalId: string;
 
     if (item && typeof item === 'object') {
@@ -118,21 +117,17 @@ export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ?
       } else {
         finalId = assertKey(baseId, prefix);
       }
-    } else {
-      baseId = String(item) || index;
-      finalId = assertKey(baseId, prefix);
-    }
 
-    // Prevent duplicates within the mapped list
-    if (seen.has(finalId)) {
-      finalId = `${finalId}-${index}`;
-    }
-    seen.add(finalId);
+      // Prevent duplicates within the mapped list
+      if (seen.has(finalId)) {
+        finalId = `${finalId}-${index}`;
+      }
+      seen.add(finalId);
 
-    if (item && typeof item === 'object') {
       return { ...item, id: finalId } as any;
     } else {
-      return { id: finalId, value: item } as any;
+      // Return primitives unwrapped
+      return item as any;
     }
   });
 }

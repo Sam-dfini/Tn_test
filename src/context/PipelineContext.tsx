@@ -391,6 +391,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         model_confidence: 0.72,
         last_calculated: new Date().toISOString(),
         variables_count: 250,
+        variables: {},
         threshold_breaches: ['A_FX','M_UGTT','E51'],
         sir_susceptible: 0.94,
         sir_infected: 0.04,

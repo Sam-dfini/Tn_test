@@ -227,6 +227,14 @@ export const RSSProvider: React.FC<{
               action_event: 'navigate-main',
               action_detail: { tab: 'newsfeed' },
             });
+          } else if (combinedNew > 0) {
+            // LOW priority for "grey or other" - no toast but plays sound
+            await addNotification({
+              type: 'RSS',
+              priority: 'LOW',
+              title: `${combinedNew} New Signals Extracted`,
+              message: 'Intelligence feed updated with low-priority signals.',
+            });
           }
         }
         await loadNotifications();
