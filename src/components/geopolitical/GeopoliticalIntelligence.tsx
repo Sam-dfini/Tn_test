@@ -60,6 +60,7 @@ import {
   ModuleHeader, 
   LiveTicker 
 } from '../shared/ProfessionalShared';
+import { GeopoliticalNetworkGraph } from '../political/GeopoliticalNetworkGraph';
 
 const actors = [
   { id: 'imf', name: 'IMF', color: '#3b82f6', icon: DollarSign, pressure: 85, dependency: 92, status: 'STALLED NEGOTIATION', region: 'Global', volatility: 'High' },
@@ -182,7 +183,7 @@ const strategicRisks = [
 ];
 
 export const GeopoliticalIntelligence: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'diplomacy' | 'regional'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'diplomacy' | 'regional' | 'network'>('overview');
   const [selectedActor, setSelectedActor] = useState(actors[0]);
   const [hoveredDimension, setHoveredDimension] = useState<string | null>(null);
   const { fullData: data, updateField } = useRiskMetrics();
@@ -279,6 +280,23 @@ export const GeopoliticalIntelligence: React.FC = () => {
             <motion.div 
               layoutId="activeGeopolTab" 
               className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.5)]" 
+              key="active-tab-regional"
+            />
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('network')}
+          className={cn(
+            "pb-4 px-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all relative",
+            activeTab === 'network' ? "text-intel-cyan" : "text-slate-500 hover:text-white"
+          )}
+        >
+          Influence Network
+          {activeTab === 'network' && (
+            <motion.div 
+              layoutId="activeGeopolTab" 
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.5)]" 
+              key="active-tab-network"
             />
           )}
         </button>
@@ -1054,6 +1072,16 @@ export const GeopoliticalIntelligence: React.FC = () => {
           </div>
         </div>
       </div>
+    </motion.div>
+  ) : activeTab === 'network' ? (
+    <motion.div
+      key="network"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="space-y-8"
+    >
+      <GeopoliticalNetworkGraph />
     </motion.div>
   ) : (
     <motion.div

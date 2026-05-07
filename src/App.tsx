@@ -418,15 +418,15 @@ const App: React.FC = () => {
         <AIProvider_>
           <AuditProvider>
             <PipelineProvider>
-              <NotificationProviderWrapper>
-                <AIAnalysisProvider>
-                  <AgriIntelProvider>
-                    <RSSProviderWrapper>
+              <RSSProviderWrapper>
+                <NotificationProviderWrapper>
+                  <AIAnalysisProvider>
+                    <AgriIntelProvider>
                       <AppContent />
-                    </RSSProviderWrapper>
-                  </AgriIntelProvider>
-                </AIAnalysisProvider>
-              </NotificationProviderWrapper>
+                    </AgriIntelProvider>
+                  </AIAnalysisProvider>
+                </NotificationProviderWrapper>
+              </RSSProviderWrapper>
             </PipelineProvider>
           </AuditProvider>
         </AIProvider_>

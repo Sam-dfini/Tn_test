@@ -485,7 +485,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
   const isFracture = trgmState === "FRACTURE";
 
   // Apex triangle points (equilateral, centered at APEX)
-  const AS = 160;
+  const AS = 190;
   const apexPts = `${APEX.x},${APEX.y - AS * 0.58} ${APEX.x - AS * 0.5},${APEX.y + AS * 0.29} ${APEX.x + AS * 0.5},${APEX.y + AS * 0.29}`;
 
   // Operational triangle points
@@ -806,7 +806,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
         ] as const
       ).map(({ center, pole, data, gsiInfo, label, animCls }) => {
         const isSelected = selectedPole === pole;
-        const s = 110;
+        const s = 140;
         return (
           <g
             key={pole}

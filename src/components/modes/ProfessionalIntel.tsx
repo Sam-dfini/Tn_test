@@ -101,6 +101,7 @@ import { NewsFeed } from "../shared/NewsFeed";
 import { RealTimeNewsFeed } from "../tactical/RealTimeNewsFeed";
 import { LiveSignalFeed } from "../tactical/LiveSignalFeed";
 import { EventsIntelligence } from "../geopolitical/EventsIntelligence";
+import { GeopoliticalNetworkGraph } from "../political/GeopoliticalNetworkGraph";
 import { RTEE } from "../system/RTEE";
 import { TemporalAnalysisTab } from "../predictive/TemporalAnalysisTab";
 import { Timeline } from "../shared/Timeline";
@@ -176,6 +177,7 @@ const SIDEBAR_CATEGORIES = [
       { id: "political", label: "Political", icon: Users },
       { id: "social", label: "Social", icon: Users },
       { id: "geopolitical", label: "Geopolitical", icon: Globe },
+      { id: "geopolitical-network", label: "Int'l Actor Network", icon: Globe },
       { id: "narrative", label: "Narrative", icon: Brain },
     ],
   },
@@ -639,6 +641,7 @@ export const ProfessionalIntel: React.FC<{
     | "security"
     | "strategic"
     | "geopolitical"
+    | "geopolitical-network"
     | "simulation"
     | "methodology"
     | "civilizational"
@@ -2267,6 +2270,8 @@ Return only the 3-sentence briefing.`;
             <EconomyIntelligence />
           ) : activeTab === "geopolitical" ? (
             <GeopoliticalIntelligence />
+          ) : activeTab === "geopolitical-network" ? (
+            <GeopoliticalNetworkGraph />
           ) : activeTab === "political" ? (
             <PoliticalIntelligence context={context} />
           ) : activeTab === "security" ? (

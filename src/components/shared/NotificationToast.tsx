@@ -21,10 +21,10 @@ export const NotificationToast: React.FC = () => {
           if (prev.some(t => t.id === notification.id)) return prev;
           return [notification, ...prev].slice(0, 3);
         });
-        // Auto-dismiss after 8 seconds
+        // Auto-dismiss after 10 seconds
         setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== notification.id));
-        }, 8000);
+        }, 10000);
       }
     };
 
@@ -126,7 +126,7 @@ export const NotificationToast: React.FC = () => {
               <motion.div
                 initial={{ width: '100%' }}
                 animate={{ width: '0%' }}
-                transition={{ duration: 8, ease: 'linear' }}
+                transition={{ duration: 10, ease: 'linear' }}
                 className={`h-full ${
                   toast.priority === 'CRITICAL'
                     ? 'bg-red-500/50'

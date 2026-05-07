@@ -768,6 +768,12 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [data, rriState, isAIAnalysisLoading, addAuditEntry]);
 
+  useEffect(() => {
+    if (!aiAnalysis && !isAIAnalysisLoading) {
+      runAIAnalysis();
+    }
+  }, [aiAnalysis, isAIAnalysisLoading, runAIAnalysis]);
+
   return (
     <PipelineContext.Provider value={{
       data, updateField, pushApprovedChanges, 

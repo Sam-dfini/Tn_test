@@ -368,7 +368,7 @@ export const EconomyIntelligence: React.FC = () => {
     { month: 'DEC 25', gdp: 0.2, inflation: 7.3 },
     { month: 'JAN 26', gdp: 0.25, inflation: 7.2 },
     { month: 'FEB 26', gdp: 0.3, inflation: 7.1 },
-    { month: 'MAR 26', gdp: data.economy.gdp_growth, inflation: data.economy.inflation }
+    { month: 'MAR 26', gdp: data?.economy?.gdp_growth ?? 0.4, inflation: data?.economy?.inflation ?? 7.1 }
   ];
 
   const sectorData = [
@@ -425,7 +425,7 @@ export const EconomyIntelligence: React.FC = () => {
   ];
 
   const regionalData = [
-    { country: 'Tunisia', gdp: data.economy.gdp_growth, inflation: data.economy.inflation, debt: data.economy.public_debt, unemployment: data.economy.unemployment, reserves: data.economy.fx_reserves, risk: 'CRITICAL', isTarget: true },
+    { country: 'Tunisia', gdp: data?.economy?.gdp_growth ?? 0.4, inflation: data?.economy?.inflation ?? 7.1, debt: data?.economy?.public_debt ?? 81.2, unemployment: data?.economy?.unemployment ?? 16.4, reserves: data?.economy?.fx_reserves ?? 84, risk: 'CRITICAL', isTarget: true },
     { country: 'Morocco', gdp: 3.4, inflation: 4.2, debt: 71.3, unemployment: 11.8, reserves: 142, risk: 'MEDIUM' },
     { country: 'Egypt', gdp: 4.2, inflation: 12.8, debt: 94.2, unemployment: 7.4, reserves: 98, risk: 'HIGH' },
     { country: 'Algeria', gdp: 3.8, inflation: 6.9, debt: 52.1, unemployment: 12.3, reserves: 196, risk: 'MEDIUM' },
@@ -513,11 +513,11 @@ export const EconomyIntelligence: React.FC = () => {
 
   const renderBusinessClimate = () => {
     const compositeScore = (
-      (data.economy.heritage_freedom_score || 0) + 
-      (data.economy.cpi_score || 0) + 
+      (data?.economy?.heritage_freedom_score || 0) + 
+      (data?.economy?.cpi_score || 0) + 
       45 + // Global Innovation Index (Mock)
       48 + // Global Competitiveness (Mock)
-      (100 - (data.economy.doing_business_rank || 0)) + // Doing Business Proxy
+      (100 - (data?.economy?.doing_business_rank || 0)) + // Doing Business Proxy
       42   // Fraser Institute (Mock)
     ) / 6;
 
@@ -559,11 +559,11 @@ export const EconomyIntelligence: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {prepareList([
-                      { name: 'Heritage Economic Freedom', score: data.economy.heritage_freedom_score || 0, rank: '121/184' },
-                      { name: 'Transparency Intl (CPI)', score: data.economy.cpi_score || 0, rank: '87/180' },
+                      { name: 'Heritage Economic Freedom', score: data?.economy?.heritage_freedom_score || 0, rank: '121/184' },
+                      { name: 'Transparency Intl (CPI)', score: data?.economy?.cpi_score || 0, rank: '87/180' },
                       { name: 'Global Innovation Index', score: 45, rank: '71/132' },
                       { name: 'Global Competitiveness', score: 48, rank: '87/141' },
-                      { name: 'Doing Business (Proxy)', score: 100 - (data.economy.doing_business_rank || 0), rank: `${data.economy.doing_business_rank || 0}/190` },
+                      { name: 'Doing Business (Proxy)', score: 100 - (data?.economy?.doing_business_rank || 0), rank: `${data?.economy?.doing_business_rank || 0}/190` },
                       { name: 'Economic Freedom (Fraser)', score: 42, rank: '128/165' }
                     ]).map((idx: any, i: number) => (
                       <tr key={generateStableKey(idx, i, 'climate-idx')} className="hover:bg-white/5 transition-colors">
@@ -581,7 +581,7 @@ export const EconomyIntelligence: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={[
                   { subject: 'Property Rights', A: 42, full: 100 },
-                  { subject: 'Gov Integrity', A: data.economy.cpi_score, full: 100 },
+                  { subject: 'Gov Integrity', A: data?.economy?.cpi_score ?? 40, full: 100 },
                   { subject: 'Judicial Effect', A: 38, full: 100 },
                   { subject: 'Tax Burden', A: 72, full: 100 },
                   { subject: 'Gov Spending', A: 45, full: 100 },
@@ -651,7 +651,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { year: '2023', score: 40 },
                   { year: '2024', score: 41 },
                   { year: '2025', score: 40 },
-                  { year: '2026', score: data.economy.cpi_score }
+                  { year: '2026', score: data?.economy?.cpi_score ?? 40 }
                 ]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
@@ -662,7 +662,7 @@ export const EconomyIntelligence: React.FC = () => {
               </ResponsiveContainer>
             </div>
             <div className="flex items-center justify-between text-[10px] font-mono">
-              <span className="text-slate-500 uppercase">Current Score: {(data.economy.cpi_score || 0).toString()}/100</span>
+              <span className="text-slate-500 uppercase">Current Score: {(data?.economy?.cpi_score || 0).toString()}/100</span>
               <span className="text-intel-red font-bold uppercase">Stagnant / Declining</span>
             </div>
           </div>
@@ -676,7 +676,7 @@ export const EconomyIntelligence: React.FC = () => {
               <p className="text-[10px] text-slate-500">Annual inflows (B USD) and primary destination sectors</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-white font-mono">{(data.economy.fdi_inflow_usd || 0).toString()}B USD</div>
+              <div className="text-2xl font-bold text-white font-mono">{(data?.economy?.fdi_inflow_usd || 0).toString()}B USD</div>
               <p className="text-[8px] font-mono text-slate-500 uppercase">Annual Inflow (2025)</p>
             </div>
           </div>
@@ -689,7 +689,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { year: '2022', fdi: 1.5 },
                   { year: '2023', fdi: 1.3 },
                   { year: '2024', fdi: 1.4 },
-                  { year: '2025', fdi: data.economy.fdi_inflow_usd }
+                  { year: '2025', fdi: data?.economy?.fdi_inflow_usd ?? 0.9 }
                 ]}>
                   <defs>
                     <linearGradient id="colorFdi" x1="0" y1="0" x2="0" y2="1">
@@ -749,14 +749,14 @@ export const EconomyIntelligence: React.FC = () => {
                   <path
                     className="stroke-current text-intel-cyan"
                     strokeWidth="3"
-                    strokeDasharray={`${data.economy.sme_credit_access_pct}, 100`}
+                    strokeDasharray={`${data?.economy?.sme_credit_access_pct || 0}, 100`}
                     strokeLinecap="round"
                     fill="none"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-white font-mono">{(data.economy.sme_credit_access_pct || 0).toString()}%</span>
+                  <span className="text-3xl font-bold text-white font-mono">{(data?.economy?.sme_credit_access_pct || 0).toString()}%</span>
                   <span className="text-[8px] font-mono text-slate-500 uppercase">Access Rate</span>
                 </div>
               </div>
@@ -786,7 +786,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { month: 'DEC', val: 950 },
                   { month: 'JAN', val: 1050 },
                   { month: 'FEB', val: 1120 },
-                  { month: 'MAR', val: data.economy.new_business_registrations }
+                  { month: 'MAR', val: data?.economy?.new_business_registrations || 1100 }
                 ]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
@@ -886,14 +886,14 @@ export const EconomyIntelligence: React.FC = () => {
                   <path
                     className="stroke-current text-intel-orange"
                     strokeWidth="3"
-                    strokeDasharray={`${data.economy.informal_economy_pct}, 100`}
+                    strokeDasharray={`${data?.economy?.informal_economy_pct || 0}, 100`}
                     strokeLinecap="round"
                     fill="none"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-intel-orange font-mono">{(data.economy.informal_economy_pct || 0).toString()}%</span>
+                  <span className="text-3xl font-bold text-intel-orange font-mono">{(data?.economy?.informal_economy_pct || 0).toString()}%</span>
                   <span className="text-[8px] font-mono text-slate-500 uppercase">Informal Share</span>
                 </div>
               </div>
@@ -901,11 +901,11 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between text-[10px] font-mono">
                 <span className="text-slate-500 uppercase">Formal Sector</span>
-                <span className="text-intel-cyan font-bold">{(100 - (data.economy.informal_economy_pct || 0)).toString()}%</span>
+                <span className="text-intel-cyan font-bold">{(100 - (data?.economy?.informal_economy_pct || 0)).toString()}%</span>
               </div>
               <div className="flex justify-between text-[10px] font-mono">
                 <span className="text-slate-500 uppercase">Informal Sector</span>
-                <span className="text-intel-orange font-bold">{(data.economy.informal_economy_pct || 0).toString()}%</span>
+                <span className="text-intel-orange font-bold">{(data?.economy?.informal_economy_pct || 0).toString()}%</span>
               </div>
             </div>
           </div>
@@ -919,7 +919,7 @@ export const EconomyIntelligence: React.FC = () => {
               <p className="text-[10px] text-slate-500">Parallel market premium and estimated illicit outflows</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-intel-red font-mono">+{(data.economy.parallel_market_premium || 0).toString()}%</div>
+              <div className="text-2xl font-bold text-intel-red font-mono">+{(data?.economy?.parallel_market_premium || 0).toString()}%</div>
               <p className="text-[8px] font-mono text-slate-500 uppercase">Parallel Premium (Ben Guerdane/Djerba)</p>
             </div>
           </div>
@@ -932,7 +932,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { month: 'DEC', official: 3.31, parallel: 3.78 },
                   { month: 'JAN', official: 3.35, parallel: 3.92 },
                   { month: 'FEB', official: 3.38, parallel: 4.05 },
-                  { month: 'MAR', official: 3.42, parallel: 3.42 * (1 + data.economy.parallel_market_premium / 100) }
+                  { month: 'MAR', official: 3.42, parallel: 3.42 * (1 + (data?.economy?.parallel_market_premium || 0) / 100) }
                 ]}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'monospace' }} />
@@ -980,14 +980,14 @@ export const EconomyIntelligence: React.FC = () => {
                 <ZAxis type="number" dataKey="pop" range={[50, 400]} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
                 <Scatter name="Regions" data={prepareList([
-                  { name: 'Tunisia (Current)', freedom: data.economy.heritage_freedom_score, rri: 78, pop: 300, color: '#ef4444' },
+                  { name: 'Tunisia (Current)', freedom: data?.economy?.heritage_freedom_score || 0, rri: 78, pop: 300, color: '#ef4444' },
                   { name: 'Morocco', freedom: 58, rri: 42, pop: 200, color: '#22c55e' },
                   { name: 'Egypt', freedom: 48, rri: 65, pop: 250, color: '#f97316' },
                   { name: 'Algeria', freedom: 42, rri: 58, pop: 180, color: '#f59e0b' },
                   { name: 'Jordan', freedom: 62, rri: 38, pop: 120, color: '#00f2ff' }
                 ])}>
                   { prepareList([
-                    { name: 'Tunisia (Current)', freedom: data.economy.heritage_freedom_score, rri: 78, pop: 300, color: '#ef4444' },
+                    { name: 'Tunisia (Current)', freedom: data?.economy?.heritage_freedom_score || 0, rri: 78, pop: 300, color: '#ef4444' },
                     { name: 'Morocco', freedom: 58, rri: 42, pop: 200, color: '#22c55e' },
                     { name: 'Egypt', freedom: 48, rri: 65, pop: 250, color: '#f97316' },
                     { name: 'Algeria', freedom: 42, rri: 58, pop: 180, color: '#f59e0b' },
@@ -1040,9 +1040,9 @@ export const EconomyIntelligence: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {prepareList([
-          { label: 'Total Remittances', value: `${data.economy.remittances_total_bnd}B TND`, trend: `+${data.economy.remittances_growth_yoy}% YoY`, status: 'GOOD', desc: 'Total annual inflows from Tunisian diaspora.' },
-          { label: '% of GDP', value: `${data.economy.remittances_pct_gdp}%`, trend: 'Structural Pillar', status: 'WARNING', desc: 'Critical source of foreign exchange and household income.' },
-          { label: 'France Share', value: `${data.economy.remittances_france_pct}%`, trend: 'High Concentration', status: 'WARNING', desc: 'Percentage of total remittances originating from France.' },
+          { label: 'Total Remittances', value: `${data?.economy?.remittances_total_bnd}B TND`, trend: `+${data?.economy?.remittances_growth_yoy}% YoY`, status: 'GOOD', desc: 'Total annual inflows from Tunisian diaspora.' },
+          { label: '% of GDP', value: `${data?.economy?.remittances_pct_gdp}%`, trend: 'Structural Pillar', status: 'WARNING', desc: 'Critical source of foreign exchange and household income.' },
+          { label: 'France Share', value: `${data?.economy?.remittances_france_pct}%`, trend: 'High Concentration', status: 'WARNING', desc: 'Percentage of total remittances originating from France.' },
           { label: 'Avg Transfer Cost', value: '6.2%', trend: 'SDG Target: 3%', status: 'CRITICAL', desc: 'Average cost of sending $200 to Tunisia.' }
         ]).map((stat: any, i: number) => (
           <div key={generateStableKey(stat, i, 'rem-stat')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
@@ -1191,13 +1191,13 @@ export const EconomyIntelligence: React.FC = () => {
           ))
         ) : (
           prepareList((macroIndicators.length > 0 ? macroIndicators : [
-            { label: 'GDP Growth', value: `${data.economy.gdp_growth}%`, trend: '-1.2 vs Q4 2025', status: 'CRITICAL', desc: 'Real GDP growth rate Q1 2026. Revised down from 1.6% forecast.', source: 'INS Tunisia', history: [0.8, 0.6, 0.5, 0.4, 0.4] },
-            { label: 'CPI Inflation', value: `${data.economy.inflation}%`, trend: '-0.4 vs Feb 2026', status: 'WARNING', desc: 'Consumer Price Index annual variation. Food inflation at 9.3%.', source: 'INS Tunisia', history: [8.2, 7.8, 7.5, 7.2, 7.1] },
-            { label: 'BCT Forex Reserves', value: `${data.economy.fx_reserves} days`, trend: '+28 vs Jan 2026', status: data.economy.fx_reserves >= 90 ? 'GOOD' : 'CRITICAL', desc: `Foreign exchange reserves expressed as import cover days. ${data.economy.fx_reserves >= 90 ? 'Above 90-day safety threshold.' : 'Below 90-day safety threshold.'}`, source: 'Banque Centrale de Tunisie', history: [88, 92, 98, 105, 112] },
-            { label: 'Unemployment', value: `${data.economy.unemployment}%`, trend: '+0.3 vs Q4 2025', status: 'CRITICAL', desc: `National unemployment rate. Youth (15-24) rate: ${data.economy.youth_unemployment}%. Interior regions: 29%+`, source: 'INS Tunisia', history: [15.5, 15.8, 16.0, 16.1, 16.2] },
-            { label: 'Public Debt / GDP', value: `${data.economy.public_debt}%`, trend: '+2.1 vs 2025', status: 'CRITICAL', desc: 'Total public debt as % of GDP. External debt service: $3.2B due in 2026.', source: 'Ministry of Finance', history: [82, 84, 85, 86, 87.4] },
+            { label: 'GDP Growth', value: `${data?.economy?.gdp_growth ?? 0.4}%`, trend: '-1.2 vs Q4 2025', status: 'CRITICAL', desc: 'Real GDP growth rate Q1 2026. Revised down from 1.6% forecast.', source: 'INS Tunisia', history: [0.8, 0.6, 0.5, 0.4, 0.4] },
+            { label: 'CPI Inflation', value: `${data?.economy?.inflation ?? 7.1}%`, trend: '-0.4 vs Feb 2026', status: 'WARNING', desc: 'Consumer Price Index annual variation. Food inflation at 9.3%.', source: 'INS Tunisia', history: [8.2, 7.8, 7.5, 7.2, 7.1] },
+            { label: 'BCT Forex Reserves', value: `${data?.economy?.fx_reserves ?? 84} days`, trend: '+28 vs Jan 2026', status: (data?.economy?.fx_reserves ?? 84) >= 90 ? 'GOOD' : 'CRITICAL', desc: `Foreign exchange reserves expressed as import cover days. ${(data?.economy?.fx_reserves ?? 84) >= 90 ? 'Above 90-day safety threshold.' : 'Below 90-day safety threshold.'}`, source: 'Banque Centrale de Tunisie', history: [88, 92, 98, 105, 112] },
+            { label: 'Unemployment', value: `${data?.economy?.unemployment ?? 16.4}%`, trend: '+0.3 vs Q4 2025', status: 'CRITICAL', desc: `National unemployment rate. Youth (15-24) rate: ${data?.economy?.youth_unemployment ?? 37.8}%. Interior regions: 29%+`, source: 'INS Tunisia', history: [15.5, 15.8, 16.0, 16.1, 16.2] },
+            { label: 'Public Debt / GDP', value: `${data?.economy?.public_debt ?? 81.2}%`, trend: '+2.1 vs 2025', status: 'CRITICAL', desc: 'Total public debt as % of GDP. External debt service: $3.2B due in 2026.', source: 'Ministry of Finance', history: [82, 84, 85, 86, 87.4] },
             { label: 'Current Account', value: '-8.3%', trend: '-0.7 vs 2025', status: 'CRITICAL', desc: 'Current account balance as % of GDP. Trade deficit widening due to energy imports.', source: 'BCT', history: [-7.2, -7.5, -7.8, -8.1, -8.3] },
-            { label: 'TND / USD', value: `${data.economy.tnd_usd}`, trend: '+4.2 YTD 2026', status: 'WARNING', desc: 'Official dinar exchange rate. Parallel market estimated at 3.85 TND/USD (+20%).', source: 'BCT Official Rate', history: [3.05, 3.12, 3.15, 3.18, 3.21] },
+            { label: 'TND / USD', value: `${data?.economy?.tnd_usd ?? 3.42}`, trend: '+4.2 YTD 2026', status: 'WARNING', desc: 'Official dinar exchange rate. Parallel market estimated at 3.85 TND/USD (+20%).', source: 'BCT Official Rate', history: [3.05, 3.12, 3.15, 3.18, 3.21] },
             { 
               label: 'Budget Deficit', 
               value: '-7.8%', 
@@ -1424,7 +1424,7 @@ export const EconomyIntelligence: React.FC = () => {
               <h3 className="text-xs font-bold text-white uppercase tracking-widest">CPI Inflation by Component</h3>
               <p className="text-[10px] text-slate-500">Annual % change - March 2026</p>
             </div>
-            <span className="text-[10px] font-mono text-intel-orange uppercase">{(data.economy.inflation || 0).toString()}% Overall</span>
+            <span className="text-[10px] font-mono text-intel-orange uppercase">{(data?.economy?.inflation || 0).toString()}% Overall</span>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">

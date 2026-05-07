@@ -325,19 +325,22 @@ function buildDevelopments(
     });
   }
 
+  const econ = data?.economy || {};
+  const social = data?.social || {};
+
   // FX
-  if (data.economy.fx_reserves < 90) {
+  if ((econ.fx_reserves ?? 100) < 90) {
     devs.push({
-      signal: `FX reserves at ${data.economy.fx_reserves} days — approaching warning threshold`,
+      signal: `FX reserves at ${econ.fx_reserves} days — approaching warning threshold`,
       source: 'A_FX variable',
       direction: 'down',
-      severity: data.economy.fx_reserves < 70 ? 'critical' : data.economy.fx_reserves < 80 ? 'high' : 'medium',
-      value: `${data.economy.fx_reserves}d`,
+      severity: (econ.fx_reserves ?? 100) < 70 ? 'critical' : (econ.fx_reserves ?? 100) < 80 ? 'high' : 'medium',
+      value: `${econ.fx_reserves}d`,
     });
   }
 
   // UGTT
-  if (data.social.ugtt_mobilisation_level === 'HIGH') {
+  if (social.ugtt_mobilisation_level === 'HIGH') {
     devs.push({
       signal: 'UGTT mobilisation at HIGH — strike action imminent',
       source: 'M_UGTT variable',
@@ -489,27 +492,30 @@ function buildWatchIndicators(
   const seiMax = engines.seiResult?.maxSEI ?? 0.42;
   const seiDomPhase = engines.seiResult?.dominantPhase ?? 2;
 
+  const econ = data?.economy || {};
+  const social = data?.social || {};
+
   // FX reserves
-  if (data.economy.fx_reserves < 110) {
+  if ((econ.fx_reserves ?? 150) < 110) {
     indicators.push({
       indicator: 'BCT Foreign Exchange Reserves',
-      currentValue: `${data.economy.fx_reserves} days`,
+      currentValue: `${econ.fx_reserves} days`,
       threshold: 'Below 75 days (warning) / Below 60 days (crisis)',
       consequence: 'Import disruptions begin → medicine/food shortages within weeks → immediate R(t) +0.15',
-      timeframe: data.economy.fx_reserves < 90 ? '30-60 days' : '60-120 days',
-      probability: Math.min(0.85, (110 - data.economy.fx_reserves) / 80),
+      timeframe: (econ.fx_reserves ?? 100) < 90 ? '30-60 days' : '60-120 days',
+      probability: Math.min(0.85, (110 - (econ.fx_reserves ?? 110)) / 80),
     });
   }
 
   // UGTT
-  if (data.social.ugtt_mobilisation_level !== 'LOW') {
+  if (social.ugtt_mobilisation_level !== 'LOW' && social.ugtt_mobilisation_level) {
     indicators.push({
       indicator: 'UGTT Mobilisation Level',
-      currentValue: data.social.ugtt_mobilisation_level,
+      currentValue: social.ugtt_mobilisation_level,
       threshold: 'HIGH + formal 72-hour strike notice filed',
       consequence: 'General strike → economic paralysis → R(t) +0.14 minimum',
-      timeframe: data.social.ugtt_mobilisation_level === 'HIGH' ? '7-21 days' : '30-60 days',
-      probability: data.social.ugtt_mobilisation_level === 'HIGH' ? 0.72 : 0.38,
+      timeframe: social.ugtt_mobilisation_level === 'HIGH' ? '7-21 days' : '30-60 days',
+      probability: social.ugtt_mobilisation_level === 'HIGH' ? 0.72 : 0.38,
     });
   }
 
@@ -699,15 +705,18 @@ function identifyPrimaryDrivers(
   rpi: number,
   seiMax: number
 ): string[] {
+  const econ = data?.economy || {};
+  const social = data?.social || {};
+
   const candidates = [
-    { driver: `Food inflation + shortage pressure (SEI ${(seiMax*100).toFixed(0)}%)`, score: seiMax * 0.8 + (data.economy.inflation / 15) * 0.4 },
-    { driver: `FX reserve depletion (${data.economy.fx_reserves}d)`, score: (1 - data.economy.fx_reserves / 120) * 0.9 },
-    { driver: `UGTT mobilisation (${data.social.ugtt_mobilisation_level})`, score: data.social.ugtt_mobilisation_level === 'HIGH' ? 0.85 : data.social.ugtt_mobilisation_level === 'ELEVATED' ? 0.55 : 0.25 },
+    { driver: `Food inflation + shortage pressure (SEI ${(seiMax*100).toFixed(0)}%)`, score: seiMax * 0.8 + ((econ.inflation ?? 7.1) / 15) * 0.4 },
+    { driver: `FX reserve depletion (${econ.fx_reserves ?? 84}d)`, score: (1 - (econ.fx_reserves ?? 84) / 120) * 0.9 },
+    { driver: `UGTT mobilisation (${social.ugtt_mobilisation_level ?? 'MEDIUM'})`, score: social.ugtt_mobilisation_level === 'HIGH' ? 0.85 : social.ugtt_mobilisation_level === 'ELEVATED' ? 0.55 : 0.25 },
     { driver: `Elite instability / loyalist concentration (MII ${(mii*100).toFixed(0)}%)`, score: mii * 0.75 },
-    { driver: `Youth unemployment + structural grievance (${data.economy.youth_unemployment}%)`, score: data.economy.youth_unemployment / 50 },
+    { driver: `Youth unemployment + structural grievance (${econ.youth_unemployment ?? 35}%)`, score: (econ.youth_unemployment ?? 35) / 50 },
     { driver: `Radicalization dynamics (Level ${rpiState?.escalationLevel ?? 2})`, score: rpi * 0.70 },
     { driver: `Cascade risk — interior corridor (${(rriState.cascade_probability*100).toFixed(0)}%)`, score: rriState.cascade_probability * 0.80 },
-    { driver: `Decree 54 suppression (${data.social.decree54_charged} charged)`, score: (data.social.decree54_charged / 50) * 0.65 },
+    { driver: `Decree 54 suppression (${social.decree54_charged ?? 0} charged)`, score: ((social.decree54_charged ?? 0) / 50) * 0.65 },
   ];
 
   return candidates
@@ -764,10 +773,10 @@ export function generateIntelligenceBrief(
     rriState_.rri ?? 2.31,
     rriState_.p_rev ?? 0.643,
     miiPhase, escalationLevel, etmPhase, seiMax, seiDomPhase,
-    data.economy.fx_reserves ?? 84,
-    data.social.ugtt_mobilisation_level ?? 'ELEVATED',
-    data.social.protest_events_30d ?? 23,
-    data.economy.inflation ?? 7.1,
+    data?.economy?.fx_reserves ?? 84,
+    data?.social?.ugtt_mobilisation_level ?? 'ELEVATED',
+    data?.social?.protest_events_30d ?? 23,
+    data?.economy?.inflation ?? 7.1,
     oci
   );
 
@@ -786,16 +795,16 @@ export function generateIntelligenceBrief(
   const watchIndicators = buildWatchIndicators(rriState_, data, engines, classification);
   const recommendedActions = buildActions(
     classification, miiPhase, etmPhase, escalationLevel, seiDomPhase,
-    data.social.ugtt_mobilisation_level ?? 'ELEVATED',
-    data.economy.fx_reserves ?? 84,
+    data?.social?.ugtt_mobilisation_level ?? 'ELEVATED',
+    data?.economy?.fx_reserves ?? 84,
     contradictionTexts
   );
 
   const triggerZones = identifyTriggerZones(
     rriState_.cascade_probability ?? 0.58,
     engines.seiResult,
-    data.social.protest_events_30d ?? 23,
-    data.social.water_crisis_govs ?? 8
+    data?.social?.protest_events_30d ?? 23,
+    data?.social?.water_crisis_govs ?? 8
   );
 
   const primaryDrivers = identifyPrimaryDrivers(rriState_, data, mii, rpi, seiMax);

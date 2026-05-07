@@ -297,9 +297,11 @@ async function startServer() {
         if (response.ok) {
           const data = await response.json();
           return res.json({ text: data.choices[0].message.content });
+        } else if (response.status === 429) {
+          console.info('[AI] OpenAI rate limited. Falling back...');
         } else {
           const errorData = await response.text();
-          console.warn(`OpenAI primary attempt failed (Status ${response.status}). Falling back to Gemini...`);
+          console.warn(`[AI] OpenAI failed (Status ${response.status}). Falling back to Gemini...`);
         }
       } catch (error: any) {
         console.warn('OpenAI primary attempt errored. Falling back to Gemini...', error.message);
@@ -622,23 +624,27 @@ async function startServer() {
     }
   });
 
-  // 2. Generic Proxy API - Catch-all for /api and /ws requests to FastAPI backend
+  // 2. Generic Proxy API - Integrated middleware to ensure prefix stability
   const apiProxy = createProxyMiddleware({
     target: 'http://localhost:8000',
     changeOrigin: true,
-    ws: true, // proxy websockets
+    ws: true,
+    pathFilter: ['/api', '/ws'], // Prevents stripping prefixes by default
     on: {
-      error: (err, req, res) => {
-        console.error('[Proxy Error]:', err);
-        if (res && (res as any).status) {
-          (res as any).status(502).send('Proxy to backend failed');
+      error: (err, req, res: any) => {
+        console.error('[Proxy Error]:', err.message);
+        if (res && res.status) {
+          res.status(502).json({ 
+            error: 'Backend inaccessible', 
+            message: 'TunisiaIntel intelligence engine is starting or unavailable.',
+            details: err.message
+          });
         }
       }
     }
   });
   
-  app.use('/api', apiProxy);
-  app.use('/ws', apiProxy);
+  app.use(apiProxy);
 
   // Prevent API and WS requests from falling through to the Catch-all SPA route
   app.all('/api/*', (req, res) => {

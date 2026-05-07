@@ -1,4 +1,5 @@
 import { supabase, Notification } from '../lib/supabase';
+import { playNotificationSound, SoundType } from '../utils/audio';
 
 export async function addNotification(
   notification: Omit<Notification, 'id' | 'read' | 'created_at'>
@@ -9,6 +10,13 @@ export async function addNotification(
   }).select().single();
 
   if (!error && data) {
+    // Play sound based on priority
+    const soundType: SoundType = 
+      notification.priority === 'CRITICAL' ? 'critical' :
+      notification.priority === 'HIGH' ? 'warning' : 'info';
+    
+    playNotificationSound(soundType);
+
     // Dispatch window event so Toast components can show it immediately
     window.dispatchEvent(new CustomEvent('ti:notification:new', {
       detail: data

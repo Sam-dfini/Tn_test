@@ -1,13 +1,15 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRiskMetrics } from '../hooks/usePipelineDomains';
 import { useAuditLog } from './AuditContext';
+import { useRSS } from './RSSContext';
 import { generateAIAnalysis, generateForecast, AIAnalysis, ForecastResult } from '../services/ai';
 import { computeSignals } from '../services/signals';
 import { computeClusters } from '../services/clusters';
 import { generateSmartAlerts } from '../services/smartAlerts';
 import { generateAgentInsights } from '../services/agents';
-import { computeMII } from '../services/miiEngine';
+import { computeMII, detectCabinetEventsFromArticles } from '../services/miiEngine';
 import { analyzeActorNetwork } from '../services/actorNetwork';
+import { detectArticleVolumePatterns } from '../services/temporalAnalysisService';
 
 interface AIAnalysisContextType {
   aiAnalysis: AIAnalysis | null;
@@ -23,17 +25,35 @@ export const AIAnalysisContext = createContext<AIAnalysisContextType>({} as AIAn
 
 export const AIAnalysisProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { fullData: data, rriState } = useRiskMetrics();
+  const { articles } = useRSS();
   const { addAuditEntry } = useAuditLog();
 
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [forecast, setForecast] = useState<ForecastResult | null>(null);
-  const [miiProfile, setMiiProfile] = useState<any>(null);
-  const [actorNetwork, setActorNetwork] = useState<any>(null);
-  const [temporalAnalysis, setTemporalAnalysis] = useState<any>(null);
   const [isAIAnalysisLoading, setIsAIAnalysisLoading] = useState(false);
+  
+  const isCurrentlyLoading = useRef(false);
+
+  // Deterministic computations that don't need AI but react to data/articles
+  const miiProfile = useMemo(() => {
+    const events = detectCabinetEventsFromArticles(articles);
+    return computeMII(events);
+  }, [articles]);
+
+  const actorNetwork = useMemo(() => analyzeActorNetwork(articles), [articles]);
+  
+  const temporalAnalysis = useMemo(() => {
+    return {
+      rri: detectArticleVolumePatterns(articles, ''),
+      social: detectArticleVolumePatterns(articles, 'social'),
+      economy: detectArticleVolumePatterns(articles, 'economy'),
+      security: detectArticleVolumePatterns(articles, 'security')
+    };
+  }, [articles]);
 
   const runAIAnalysis = useCallback(async () => {
-    if (isAIAnalysisLoading) return;
+    if (isCurrentlyLoading.current) return;
+    isCurrentlyLoading.current = true;
     setIsAIAnalysisLoading(true);
     try {
       const signals = computeSignals({
@@ -58,18 +78,13 @@ export const AIAnalysisProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       
       const { insights } = generateAgentInsights(signals, clusters, alerts, null);
 
-      const [analysis, forecastResult, mii, actors] = await Promise.all([
+      const [analysis, forecastResult] = await Promise.all([
         generateAIAnalysis(signals, clusters, alerts, situations, insights),
-        generateForecast({ rri: rriState.rri, data }, []),
-        computeMII(),
-        analyzeActorNetwork([])
+        generateForecast({ rri: rriState.rri, data }, [])
       ]);
 
       setAiAnalysis(analysis);
       setForecast(forecastResult);
-      setMiiProfile(mii);
-      setActorNetwork(actors);
-      setTemporalAnalysis({});
 
       addAuditEntry({
         type: 'EXTRACTED',
@@ -83,8 +98,15 @@ export const AIAnalysisProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       console.error('AI Analysis failed:', e);
     } finally {
       setIsAIAnalysisLoading(false);
+      isCurrentlyLoading.current = false;
     }
-  }, [data, rriState, isAIAnalysisLoading, addAuditEntry]);
+  }, [rriState, addAuditEntry, data]);
+
+  useEffect(() => {
+    if (!aiAnalysis && !isAIAnalysisLoading && rriState) {
+      runAIAnalysis();
+    }
+  }, [aiAnalysis, isAIAnalysisLoading, rriState, runAIAnalysis]);
 
   const value = useMemo(() => ({
     aiAnalysis,

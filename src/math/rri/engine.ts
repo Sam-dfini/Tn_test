@@ -1,6 +1,23 @@
 import variables from '../../data/rri_variables.json';
 import { RRIVariable, RRIState } from '../../types/intel';
 
+// Helper to get raw variables correctly regardless of import style
+const getRawVariables = (): RRIVariable[] => {
+  if (!variables) return [];
+  
+  // Handle various module formats (default export, named variables, direct array)
+  // Vite often wraps JSON in a default object
+  const data = (variables as any).default || variables;
+  
+  if (Array.isArray(data.variables)) return data.variables;
+  if (Array.isArray(data)) return data;
+  if (Array.isArray((variables as any).variables)) return (variables as any).variables;
+  
+  return [];
+};
+
+const baseVars = getRawVariables();
+
 const PARAMS = {
   // EQ.12 — Logistic Revolution Probability
   P_REV_K: 0.8,          // sensitivity parameter
@@ -200,7 +217,7 @@ function normalize(
 }
 
 function getVar(id: string): RRIVariable | undefined {
-  return (variables.variables as RRIVariable[]).find(v => (v.id === id || `${v.code}${v.number}` === id));
+  return baseVars.find(v => (v.id === id || `${v.code}${v.number}` === id));
 }
 
 function getCurrentStateVector(vars: RRIVariable[]): Record<string, number> {
@@ -622,7 +639,6 @@ export function calculateRRI(
   rpi_t: number = 0
 ): RRIState {
   let vars: RRIVariable[];
-  const baseVars = (variables && Array.isArray(variables.variables)) ? variables.variables : [];
   
   if (Array.isArray(overridesOrVars)) {
     vars = overridesOrVars;

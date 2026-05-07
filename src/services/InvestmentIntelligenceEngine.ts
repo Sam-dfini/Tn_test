@@ -445,12 +445,12 @@ function assessTiming(
   triggers: InvestmentIntelReport['entryTriggers'];
   confidence: number;
 } {
-  const fx = data.economy.fx_reserves ?? 84;
-  const inflation = data.economy.inflation ?? 7.1;
-  const imf = data.geopolitical?.imf_deal_probability ?? 31;
+  const fx = data?.economy?.fx_reserves ?? 84;
+  const inflation = data?.economy?.inflation ?? 7.1;
+  const imf = data?.geopolitical?.imf_deal_probability ?? 31;
   const velocity = rriState.velocity ?? 0.18;
   const rri = rriState.rri ?? 2.31;
-  const ugtt = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const ugtt = data?.social?.ugtt_mobilisation_level ?? 'ELEVATED';
 
   const sector = SECTOR_INTELLIGENCE[query.sector];
   const isFXSensitive = sector.fxSensitivity === 'HIGH' || sector.fxSensitivity === 'CRITICAL' as any;
@@ -692,7 +692,7 @@ function buildConstraints(
   data: any,
   rriState: any
 ): StructuralConstraint[] {
-  const fx = data.economy.fx_reserves ?? 84;
+  const fx = data?.economy?.fx_reserves ?? 84;
   const sector = SECTOR_INTELLIGENCE[query.sector];
   const constraints: StructuralConstraint[] = [];
 
@@ -710,7 +710,7 @@ function buildConstraints(
 
   // Labor — if UGTT exposure is high
   if (sector.ugttExposure === 'HIGH' || sector.ugttExposure === 'MEDIUM') {
-    const ugtt = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
+    const ugtt = data?.social?.ugtt_mobilisation_level ?? 'ELEVATED';
     constraints.push({
       category: 'LABOR',
       severity: ugtt === 'HIGH' ? 'HIGH' : 'MEDIUM',
@@ -771,8 +771,8 @@ function buildScenarios(
 ): RiskScenario[] {
   const velocity = rriState.velocity ?? 0.18;
   const rri = rriState.rri ?? 2.31;
-  const fx = data.economy.fx_reserves ?? 84;
-  const imf = data.geopolitical?.imf_deal_probability ?? 31;
+  const fx = data?.economy?.fx_reserves ?? 84;
+  const imf = data?.geopolitical?.imf_deal_probability ?? 31;
 
   // Base case probability (slightly deterioration-leaning given V(t) > 0)
   const baseProb = velocity > 0.10 ? 0.40 : 0.50;
@@ -866,9 +866,9 @@ function buildWatchIndicators(
   data: any,
   rriState: any
 ): WatchIndicator[] {
-  const fx = data.economy.fx_reserves ?? 84;
-  const imf = data.geopolitical?.imf_deal_probability ?? 31;
-  const ugtt = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const fx = data?.economy?.fx_reserves ?? 84;
+  const imf = data?.geopolitical?.imf_deal_probability ?? 31;
+  const ugtt = data?.social?.ugtt_mobilisation_level ?? 'ELEVATED';
   const sector = SECTOR_INTELLIGENCE[query.sector];
 
   const indicators: WatchIndicator[] = [
@@ -999,10 +999,10 @@ export function generateInvestmentReport(
       rri: rriState.rri ?? 2.31,
       p_rev: rriState.p_rev ?? 0.643,
       velocity: rriState.velocity_label ?? 'DETERIORATING',
-      fxReserves: data.economy.fx_reserves ?? 84,
-      inflation: data.economy.inflation ?? 7.1,
-      imfDealProb: data.geopolitical?.imf_deal_probability ?? 31,
-      ugttLevel: data.social.ugtt_mobilisation_level ?? 'ELEVATED',
+      fxReserves: data?.economy?.fx_reserves ?? 84,
+      inflation: data?.economy?.inflation ?? 7.1,
+      imfDealProb: data?.geopolitical?.imf_deal_probability ?? 31,
+      ugttLevel: data?.social?.ugtt_mobilisation_level ?? 'ELEVATED',
     },
     executiveSummary,
     timingVerdict: verdict,

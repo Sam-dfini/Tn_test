@@ -768,19 +768,23 @@ export function assessGovernmentAgent(
   const eliteDefection = rriState.elite_defection_prob ?? 0.12;
   const cascadeProb = rriState.cascade_probability ?? 0.58;
 
-  const inflation = data.economy.inflation ?? 7.1;
-  const fxReserves = data.economy.fx_reserves ?? 84;
-  const imfDealProb = data.geopolitical?.imf_deal_probability ?? 31;
-  const decree54 = data.social.decree54_charged ?? 23;
-  const ugttLevel = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
-  const protests = data.social.protest_events_30d ?? 23;
-  const pressFreedom = data.social.press_freedom_rank ?? 118;
+  const econ = data?.economy || {};
+  const social = data?.social || {};
+  const geo = data?.geopolitical || {};
+
+  const inflation = econ.inflation ?? 7.1;
+  const fxReserves = econ.fx_reserves ?? 84;
+  const imfDealProb = geo.imf_deal_probability ?? 31;
+  const decree54 = social.decree54_charged ?? 23;
+  const ugttLevel = social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const protests = social.protest_events_30d ?? 23;
+  const pressFreedom = social.press_freedom_rank ?? 118;
 
   // Evaluate all four hard constraints
   const constraintStresses: ConstraintStress[] = [
     evalMilitaryLoyalty(eliteCohesion, eliteDefection, mii, miiPhase, loyalistConc),
     evalWesternAlignment(imfDealProb, fxReserves, decree54, pressFreedom),
-    evalEconomicMinimum(fxReserves, inflation, seiMax, seiPhase, data.economy.unemployment ?? 16.4),
+    evalEconomicMinimum(fxReserves, inflation, seiMax, seiPhase, econ.unemployment ?? 16.4),
     evalEliteCohesion(mii, miiPhase, loyalistConc, eliteDefection),
   ];
 

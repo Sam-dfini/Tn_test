@@ -152,10 +152,10 @@ export function generatePredictions(
   const cascade = rriState.cascade_probability ?? 0.58;
   const eliteDefection = rriState.elite_defection_prob ?? 0.12;
   const eliteCohesion = rriState.elite_cohesion_dynamics ?? 0.65;
-  const inflation = data.economy.inflation ?? 7.1;
-  const fxReserves = data.economy.fx_reserves ?? 84;
-  const protests = data.social.protest_events_30d ?? 23;
-  const ugtt = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const inflation = data?.economy?.inflation ?? 7.1;
+  const fxReserves = data?.economy?.fx_reserves ?? 84;
+  const protests = data?.social?.protest_events_30d ?? 23;
+  const ugtt = data?.social?.ugtt_mobilisation_level ?? 'ELEVATED';
 
   const mii = engines.miiProfile?.mii ?? 0.572;
   const miiPhase = engines.miiProfile?.phase ?? 'FREEZE';
@@ -402,9 +402,9 @@ export async function evaluatePendingPredictions(
       // Build actuals from current observed data
       const actuals: Partial<Record<PredictionVariable, boolean>> = {};
 
-      const fx = currentData.economy.fx_reserves ?? 84;
-      const protests = currentData.social.protest_events_30d ?? 23;
-      const ugtt = currentData.social.ugtt_mobilisation_level ?? 'ELEVATED';
+      const fx = currentData?.economy?.fx_reserves ?? 84;
+      const protests = currentData?.social?.protest_events_30d ?? 23;
+      const ugtt = currentData?.social?.ugtt_mobilisation_level ?? 'ELEVATED';
 
       actuals.fx_reserves_below_75 = fx < 75;
       actuals.fx_reserves_below_60 = fx < 60;

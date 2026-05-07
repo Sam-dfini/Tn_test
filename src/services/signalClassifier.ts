@@ -450,10 +450,13 @@ function buildContextualTiming(
   rriState: any,
   data: any
 ): string {
-  const inflation = data.economy.inflation ?? 7.1;
-  const fxReserves = data.economy.fx_reserves ?? 84;
-  const ugtt = data.social.ugtt_mobilisation_level ?? 'ELEVATED';
-  const velocity = rriState.velocity ?? 0.18;
+  const econ = data?.economy || {};
+  const social = data?.social || {};
+  
+  const inflation = econ.inflation ?? 7.1;
+  const fxReserves = econ.fx_reserves ?? 84;
+  const ugtt = social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const velocity = rriState?.velocity ?? 0.18;
 
   if (intent === 'DISTRACT' && actor === 'REGIME') {
     if (inflation > 7.0) {

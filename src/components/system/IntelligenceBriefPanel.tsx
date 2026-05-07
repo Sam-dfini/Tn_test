@@ -242,11 +242,11 @@ export const IntelligenceBriefPanel: React.FC<{
                   📍 Trigger zones
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {prepareList(brief.triggerZones).map((z: any) => (
-                    <span key={z.id}
+                  {(brief.triggerZones || []).map((z: string, i: number) => (
+                    <span key={getRenderKey(z, i, 'zone')}
                       className={`text-[8px] font-mono px-1.5 py-0.5
                         rounded border ${cfg.color} ${cfg.border}`}>
-                      {z.value}
+                      {z}
                     </span>
                   ))}
                 </div>
@@ -258,10 +258,10 @@ export const IntelligenceBriefPanel: React.FC<{
                   🎯 Primary drivers
                 </div>
                 <div className="space-y-0.5">
-                  {prepareList(brief.primaryDrivers.slice(0, 2)).map((d: any, i: number) => (
-                    <div key={d.id}
+                  {(brief.primaryDrivers || []).slice(0, 2).map((d: string, i: number) => (
+                    <div key={getRenderKey(d, i, 'driver')}
                       className="text-[8px] text-slate-500 truncate">
-                      {i + 1}. {d.value}
+                      {i + 1}. {d}
                     </div>
                   ))}
                 </div>
@@ -274,21 +274,21 @@ export const IntelligenceBriefPanel: React.FC<{
       {/* Section nav */}
       <div className="flex items-center space-x-1 bg-black/40 border
         border-intel-border rounded-xl p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
-        {prepareList(['brief', 'watch', 'actions', 'drivers'] as BriefSection[]).map((s: any, i: number) => (
-          <button key={s.id}
-            onClick={() => setActiveSection(s.value as BriefSection)}
+        {(['brief', 'watch', 'actions', 'drivers'] as BriefSection[]).map((s, i) => (
+          <button key={s}
+            onClick={() => setActiveSection(s)}
             className={`flex items-center space-x-2 px-3 py-2 rounded-lg
               text-[9px] font-mono uppercase tracking-wider transition-all ${
-              activeSection === s.value
+              activeSection === s
                 ? `${cfg.bg} ${cfg.color} border ${cfg.border}`
                 : 'text-slate-600 hover:text-slate-300'
             }`}
           >
-            {s.value === 'brief' && <BookOpen className="w-3 h-3" />}
-            {s.value === 'watch' && <Eye className="w-3 h-3" />}
-            {s.value === 'actions' && <Target className="w-3 h-3" />}
-            {s.value === 'drivers' && <Radio className="w-3 h-3" />}
-            <span>{SECTION_LABELS[s.value as BriefSection]}</span>
+            {s === 'brief' && <BookOpen className="w-3 h-3" />}
+            {s === 'watch' && <Eye className="w-3 h-3" />}
+            {s === 'actions' && <Target className="w-3 h-3" />}
+            {s === 'drivers' && <Radio className="w-3 h-3" />}
+            <span>{SECTION_LABELS[s]}</span>
           </button>
         ))}
       </div>
@@ -392,10 +392,10 @@ export const IntelligenceBriefPanel: React.FC<{
                   <div className="text-[9px] font-mono text-intel-purple uppercase">
                     Framework Contradictions
                   </div>
-                  {prepareList(brief.contradictions).map((c: any) => (
-                    <div key={c.id} className="flex items-start space-x-2 text-[9px]">
+                  {brief.contradictions.map((c: string, i: number) => (
+                    <div key={getRenderKey(c, i, 'contradiction')} className="flex items-start space-x-2 text-[9px]">
                       <span className="text-intel-purple shrink-0">◆</span>
-                      <span className="text-slate-400">{c.value}</span>
+                      <span className="text-slate-400">{c}</span>
                     </div>
                   ))}
                 </div>
@@ -534,8 +534,8 @@ export const IntelligenceBriefPanel: React.FC<{
                 signal weight across all analytical layers.
               </p>
               <div className="space-y-2">
-                {prepareList(brief.primaryDrivers).map((driver: any, i: number) => (
-                  <div key={driver.id}
+                {brief.primaryDrivers.map((driver: string, i: number) => (
+                  <div key={getRenderKey(driver, i, 'driver')}
                     className="glass p-4 rounded-xl border border-intel-border/30
                       flex items-center space-x-3">
                     <div className={`w-7 h-7 rounded-full border flex items-center
@@ -544,7 +544,7 @@ export const IntelligenceBriefPanel: React.FC<{
                       i === 1 ? 'border-intel-orange/40 text-intel-orange' :
                       'border-yellow-500/30 text-yellow-500'
                     }`}>{i + 1}</div>
-                    <span className="text-[10px] text-slate-300">{driver.value}</span>
+                    <span className="text-[10px] text-slate-300">{driver}</span>
                   </div>
                 ))}
               </div>

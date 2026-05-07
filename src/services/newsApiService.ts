@@ -24,9 +24,19 @@ import { pipelineDebugger } from './debugService';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 
-const NEWSAPI_KEY  = import.meta.env.VITE_NEWSAPI_KEY  || '';
-const NEWSDATA_KEY = import.meta.env.VITE_NEWSDATA_KEY || '';
-const GNEWS_KEY    = import.meta.env.VITE_GNEWS_KEY    || '';
+const getEnv = (key: string) => {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key];
+  }
+  return '';
+};
+
+const NEWSAPI_KEY  = getEnv('VITE_NEWSAPI_KEY') || getEnv('NEWSAPI_KEY');
+const NEWSDATA_KEY = getEnv('VITE_NEWSDATA_KEY') || getEnv('NEWSDATA_KEY');
+const GNEWS_KEY    = getEnv('VITE_GNEWS_KEY') || getEnv('GNEWS_KEY');
 
 // Search queries for each provider
 const TUNISIA_QUERIES = {

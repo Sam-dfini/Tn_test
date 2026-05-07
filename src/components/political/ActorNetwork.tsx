@@ -499,7 +499,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
             {prepareList(['ALL', 'GOV', 'OPP', 'INTL']).map((align: any, i: number) => (
               <button
                 key={generateStableKey(align, i, 'align')}
-                onClick={() => setFilterAlignment(align.id)}
+                onClick={() => setFilterAlignment(align)}
                 className={`px-3 py-1 text-[10px] font-bold font-mono rounded-md transition-all ${
                   filterAlignment === align 
                     ? align === 'GOV' ? 'bg-intel-cyan text-black' :
@@ -745,12 +745,12 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                           {prepareList([1, 2, 3]).map((s: any, i: number) => (
                             <button
                               key={generateStableKey(s, i, 'strength')}
-                              onClick={() => setRelData(prev => ({ ...prev, strength: s.id }))}
+                              onClick={() => setRelData(prev => ({ ...prev, strength: s }))}
                               className={`w-6 h-6 rounded border text-[8px] font-mono transition-all ${
-                                relData.strength === s.id ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
+                                relData.strength === s ? 'bg-intel-cyan/20 border-intel-cyan text-intel-cyan' : 'border-intel-border text-slate-500'
                               }`}
                             >
-                              {s.id}
+                              {s}
                             </button>
                           ))}
                         </div>
