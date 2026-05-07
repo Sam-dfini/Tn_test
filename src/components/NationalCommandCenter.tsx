@@ -49,6 +49,20 @@ import {
 } from "recharts";
 import { usePipeline } from "../context/PipelineContext";
 import { cn } from "../utils/cn";
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const normalizeName = (name: string) => {
+  if (!name) return '';
+  const normalized = name.toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/ /g, '_')
+    .replace(/-/g, '_')
+    .trim();
+  if (normalized === 'le_kef' || normalized === 'al_kaf' || normalized === 'lekef' || normalized === 'alkaf') return 'kef';
+  return normalized;
+};
 
 // ─── NBS CALCULATION ─────────────────────────────────────────────────────────
 function computeNBS(rri: number, pRev: number): number {
@@ -493,6 +507,23 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   const { data, rriState } = usePipeline();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [now, setNow] = useState(new Date());
+  const [geoData, setGeoData] = useState<any>(null);
+
+  useEffect(() => {
+    const loadGeoJSON = async () => {
+      try {
+        const targetUrl = 'https://raw.githubusercontent.com/sammmeeeh/tunisia-immigration-analytics-dashboard/main/TN-gouvernorat.geojson';
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('GeoJSON fetch failed');
+        const data = await response.json();
+        setGeoData(data);
+      } catch (error) {
+        console.error('Error loading GeoJSON:', error);
+      }
+    };
+    loadGeoJSON();
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -947,72 +978,84 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
             </span>
           </div>
           <div className="relative h-[280px] bg-[#0a0c10] flex items-center justify-center overflow-hidden">
-            {/* SVG Tunisia outline with hotspot glows */}
-            <svg viewBox="0 0 200 300" className="h-full opacity-90">
-              {/* Simplified Tunisia outline */}
-              <path
-                d="M100,20 L140,30 L160,60 L165,90 L155,120 L160,150 L155,180 L145,220 L130,260 L115,280 L100,275 L85,260 L75,240 L80,200 L70,170 L65,140 L70,110 L60,80 L70,50 Z"
-                fill="none"
-                stroke="rgba(0,242,255,0.3)"
-                strokeWidth="1.5"
-              />
-              <path
-                d="M100,20 L140,30 L160,60 L165,90 L155,120 L160,150 L155,180 L145,220 L130,260 L115,280 L100,275 L85,260 L75,240 L80,200 L70,170 L65,140 L70,110 L60,80 L70,50 Z"
-                fill="rgba(0,242,255,0.04)"
-              />
+            {/* Choropleth Map via react-leaflet */}
+            <div className="absolute inset-0 z-0">
+              <MapContainer 
+                center={[34.0, 9.5]} 
+                zoom={5.5} 
+                style={{ height: '100%', width: '100%', background: '#0a0c10' }}
+                zoomControl={false}
+                attributionControl={false}
+                dragging={false}
+                scrollWheelZoom={false}
+                doubleClickZoom={false}
+              >
+                <TileLayer
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+                  opacity={0.3}
+                />
+                
+                {geoData && (
+                  <GeoJSON
+                    key="national-command-map"
+                    data={geoData}
+                    style={(feature: any) => {
+                      const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
+                      const normalized = normalizeName(name);
 
-              {/* Hotspot glows */}
-              {[
-                { x: 108, y: 55, label: "Tunis", color: "#f97316", r: 12 },
-                { x: 130, y: 110, label: "Nabeul", color: "#ef4444", r: 14 },
-                { x: 72, y: 170, label: "Kasserine", color: "#ef4444", r: 16 },
-                { x: 125, y: 190, label: "Sfax", color: "#f97316", r: 11 },
-                { x: 78, y: 210, label: "Gafsa", color: "#ef4444", r: 13 },
-              ].map((h, i) => (
-                <g key={`hotspot-${h.label}-${i}`}>
-                  <circle
-                    cx={h.x}
-                    cy={h.y}
-                    r={h.r}
-                    fill={h.color}
-                    opacity={0.15}
+                      let color = '#1e293b';
+                      let isHotspot = false;
+
+                      if (normalized === 'tunis' || normalized === 'sfax') {
+                        color = '#f97316';
+                        isHotspot = true;
+                      } else if (normalized === 'nabeul' || normalized === 'kasserine' || normalized === 'gafsa') {
+                        color = '#ef4444';
+                        isHotspot = true;
+                      }
+
+                      return {
+                        fillColor: color,
+                        weight: isHotspot ? 1.5 : 0.5,
+                        opacity: 1,
+                        color: isHotspot ? color : '#334155',
+                        fillOpacity: isHotspot ? 0.5 : 0.2,
+                      };
+                    }}
+                    onEachFeature={(feature: any, layer: L.Layer) => {
+                      const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
+                      const normalized = normalizeName(name);
+                      
+                      let label = '';
+                      let val = '';
+                      if (normalized === 'tunis' || normalized === 'sfax') {
+                        label = 'STRAINED';
+                        val = 'High Risk';
+                      } else if (normalized === 'nabeul' || normalized === 'kasserine' || normalized === 'gafsa') {
+                        label = 'CRITICAL';
+                        val = 'Extreme Risk';
+                      }
+                      
+                      if (label) {
+                        layer.bindTooltip(`
+                          <div style="font-family: monospace; text-align: center;">
+                            <strong style="color: #00D2FF; font-size: 11px;">${name.toUpperCase()}</strong><br/>
+                            <span style="font-size: 10px; color: #aaa;">STATUS:</span> ${label}
+                          </div>
+                        `, {
+                          className: 'intel-tooltip',
+                          sticky: true,
+                          direction: 'top'
+                        });
+                      }
+                    }}
                   />
-                  <circle
-                    cx={h.x}
-                    cy={h.y}
-                    r={h.r * 0.5}
-                    fill={h.color}
-                    opacity={0.4}
-                  >
-                    <animate
-                      attributeName="r"
-                      values={`${h.r * 0.4};${h.r * 0.7};${h.r * 0.4}`}
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="opacity"
-                      values="0.4;0.1;0.4"
-                      dur="2s"
-                      repeatCount="indefinite"
-                    />
-                  </circle>
-                  <circle cx={h.x} cy={h.y} r={3} fill={h.color} />
-                  <text
-                    x={h.x + 6}
-                    y={h.y - 6}
-                    fill={h.color}
-                    fontSize={7}
-                    fontFamily="monospace"
-                  >
-                    {h.label}
-                  </text>
-                </g>
-              ))}
-            </svg>
+                )}
+              </MapContainer>
+            </div>
 
             {/* Color scale */}
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 z-10 pointer-events-none">
               {["#ef4444", "#f97316", "#f59e0b", "#10b981"].map((c, i) => (
                 <div
                   key={`scale-${i}`}

@@ -118,6 +118,7 @@ import { generateAnalystResponse } from "../../services/geminiService";
 import { Article } from "../../lib/supabase";
 import { BackgroundGrid, ModuleHeader } from "../shared/ProfessionalShared";
 import { TRGMDashboard } from './TRGMDashboard';
+import { NationalAgriculturalPulse } from './NationalAgriculturalPulse';
 
 // Categories for sidebar grouping
 const SIDEBAR_CATEGORIES = [
@@ -187,6 +188,7 @@ const SIDEBAR_CATEGORIES = [
     items: [
       { id: "environment", label: "Environment", icon: Sprout },
       { id: "agriculture", label: "Agriculture", icon: Leaf },
+      { id: "agri-pulse", label: "Agricultural Pulse", icon: Leaf },
       { id: "feed-hub", label: "Feed Intelligence", icon: Wheat },
       { id: "poultry", label: "Poultry & Eggs", icon: Zap },
       { id: "livestock", label: "Livestock & Meat", icon: Package },
@@ -654,6 +656,7 @@ export const ProfessionalIntel: React.FC<{
     | "ne"
     | "entrepreneur"
     | "agriculture"
+    | "agri-pulse"
     | "feed-hub"
     | "poultry"
     | "livestock"
@@ -2282,6 +2285,8 @@ Return only the 3-sentence briefing.`;
             <EnvironmentalIntelligence />
           ) : activeTab === "agriculture" ? (
             <AgriIntelDashboard />
+          ) : activeTab === "agri-pulse" ? (
+            <NationalAgriculturalPulse />
           ) : activeTab === "feed-hub" ? (
             <FeedIntelligenceHub />
           ) : activeTab === "poultry" ? (

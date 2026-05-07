@@ -128,51 +128,39 @@ export const LiveSignalFeed: React.FC<{
     return prepareList(filtered);
   }, [filtered]);
 
-  if (!articles.length) {
-    return (
-      <div className="glass p-5 rounded-2xl border border-intel-border/30
-        text-center space-y-2">
-        <Radio className="w-6 h-6 text-slate-700 mx-auto" />
-        <p className="text-[9px] font-mono text-slate-700 uppercase">
-          No RSS articles in feed
-        </p>
-      </div>
-    );
-  }
+  // Filters
+  const filters = ['ALL', 'SYSTEM_SHOCK', 'SIGNAL', 'CONFIRMED'] as FeedFilter[];
 
   return (
     <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Radio className="w-4 h-4 text-intel-orange" />
+          <Radio className="w-4 h-4 text-intel-yellow" />
           <span className="text-[10px] font-mono text-white uppercase tracking-widest">
             {title}
           </span>
-          {summary.systemShocks > 0 && (
-            <div className="flex items-center space-x-1 px-2 py-0.5 rounded
-              bg-intel-red/15 border border-intel-red/30">
-              <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
-              <span className="text-[8px] font-mono text-intel-red font-bold">
-                {summary.systemShocks} SHOCK{summary.systemShocks > 1 ? 'S' : ''}
-              </span>
-            </div>
-          )}
+          <button 
+            className="p-1 hover:bg-white/5 rounded text-slate-500 hover:text-intel-cyan transition-colors"
+            title="Refresh Feed"
+          >
+            <RefreshCw className="w-3 h-3" />
+          </button>
         </div>
 
         {showFilter && (
-          <div className="flex items-center space-x-1">
-            {prepareList(['ALL', 'SYSTEM_SHOCK', 'SIGNAL', 'CONFIRMED'] as FeedFilter[]).map((f: any) => (
-              <button key={f.id}
-                onClick={() => setFilter(f.value)}
+          <div className="flex items-center space-x-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
+            {filters.map((f: any) => (
+              <button key={f}
+                onClick={() => setFilter(f)}
                 className={`text-[7px] font-mono uppercase px-2 py-1 rounded
                   transition-all ${
-                  filter === f.value
-                    ? 'bg-intel-orange/10 text-intel-orange border border-intel-orange/20'
-                    : 'text-slate-700 hover:text-slate-400'
+                  filter === f
+                    ? 'bg-intel-yellow/10 text-intel-yellow border border-intel-yellow/20'
+                    : 'text-slate-600 hover:text-slate-400'
                 }`}
               >
-                {f.value === 'CONFIRMED' ? 'PREDICTED' : f.value}
+                {f === 'CONFIRMED' ? 'PREDICTED' : f}
               </button>
             ))}
           </div>
@@ -186,7 +174,7 @@ export const LiveSignalFeed: React.FC<{
           <strong className="text-intel-red">{summary.systemShocks}</strong> shocks
         </span>
         <span>
-          <strong className="text-intel-orange">{summary.signals}</strong> signals
+          <strong className="text-intel-yellow">{summary.signals}</strong> signals
         </span>
         {summary.confirmedPredictions > 0 && (
           <span>

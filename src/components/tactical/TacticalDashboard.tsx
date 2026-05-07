@@ -20,6 +20,7 @@ import { BreakingIntelFeed } from './BreakingIntelFeed';
 import { OSINTStream } from './OSINTStream';
 import { SocialMonitor } from './SocialMonitor';
 import { SignalCore } from './SignalCore';
+import { LiveSignalFeed } from './LiveSignalFeed';
 import { NewsTicker } from './NewsTicker';
 import { SweepDelta } from './SweepDelta';
 import { MacroMarkets } from './MacroMarkets';
@@ -213,9 +214,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 
                 {leftTab === 'intel' && (
                   <div className="space-y-4">
+                    <LiveSignalFeed />
                     <BreakingIntelFeed externalAlerts={geofenceAlerts} />
                     <OSINTStream />
-                    <NewsTicker />
                   </div>
                 )}
                 

@@ -18,8 +18,46 @@ import {
   Plus, Minus, RefreshCw, ZoomIn, ZoomOut
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useRSS } from '../../context/RSSContext';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { useAIAnalysis } from '../../context/AIAnalysisContext';
+import { classifySignals, SignalClassification, SignalTier } from '../../services/signalClassifier';
+import { assessGovernmentAgent } from '../../services/govAgent';
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
+
+const ACTOR_MAP: Record<string, string> = {
+  'Tunisia': 'TUN',
+  'regime': 'TUN',
+  'government': 'TUN',
+  'Algeria': 'DZA',
+  'Italy': 'ITA',
+  'France': 'FRA',
+  'European Union': 'EU',
+  'EU': 'EU',
+  'Brussels': 'EU',
+  'United States': 'USA',
+  'USA': 'USA',
+  'Washington': 'USA',
+  'Saudi Arabia': 'KSA',
+  'Saudi': 'KSA',
+  'UAE': 'UAE',
+  'Emirates': 'UAE',
+  'Abu Dhabi': 'UAE',
+  'China': 'CHN',
+  'Beijing': 'CHN',
+  'UK': 'GBR',
+  'Britain': 'GBR',
+  'London': 'GBR',
+  'Turkey': 'TUR',
+  'Ankara': 'TUR',
+  'Qatar': 'QAT',
+  'Doha': 'QAT',
+  'Russia': 'RUS',
+  'Moscow': 'RUS',
+  'Libya': 'LBY',
+  'Tripoli': 'LBY',
+};
 
 type EdgeType = 'coercive' | 'cooperative' | 'competitive' | 'dependent' | 'extractive' | 'spillover';
 type Domain = 'energy' | 'migration' | 'security' | 'finance' | 'infrastructure' | 'media' | 'diplomatic' | 'ideological' | 'strategic';
@@ -195,6 +233,137 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const [filters, setFilters] = useState<{ domain: Domain | 'all'; tier: number | 'all'; type: EdgeType | 'all' }>({ domain: 'all', tier: 'all', type: 'all' });
   const [gameMode, setGameMode] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
+  // ─── SIGNAL POPS ───────────────────────────────────────────────────────────
+  const { articles } = useRSS();
+  const { rriState, fullData: data, seiResult } = useRiskMetrics();
+  const { miiProfile, actorNetwork: aiActorNetwork } = useAIAnalysis();
+  
+  const [pops, setPops] = useState<{id: string, type: SignalTier, actorId: string, timestamp: number}[]>([]);
+  const seenSignals = useRef<Set<string>>(new Set());
+
+  // Gov agent assessment for signal classification
+  const govAssessment = useMemo(() => {
+    try {
+      return assessGovernmentAgent(rriState, data, {
+        miiProfile, actorNetwork: aiActorNetwork, seiResult
+      });
+    } catch { return null; }
+  }, [rriState, data, miiProfile, aiActorNetwork, seiResult]);
+
+  useEffect(() => {
+    if (!articles.length) return;
+
+    // Classify recent articles
+    const classified = classifySignals(articles, rriState, data, govAssessment, 20);
+    const newPops: typeof pops = [];
+    const now = Date.now();
+
+    classified.forEach(sig => {
+      if (seenSignals.current.has(sig.id)) return;
+      seenSignals.current.add(sig.id);
+
+      // Map signal to graph nodes
+      const article = articles.find(a => a.id === sig.articleId);
+      if (!article) return;
+
+      const targets = new Set<string>();
+      
+      // 1. Direct actor mentions in article
+      article.actors?.forEach(a => {
+        Object.entries(ACTOR_MAP).forEach(([key, id]) => {
+          if (a.toLowerCase().includes(key.toLowerCase())) targets.add(id);
+        });
+      });
+
+      // 2. Keyword mentions in title/summary
+      const text = `${article.title} ${article.summary}`.toLowerCase();
+      Object.entries(ACTOR_MAP).forEach(([key, id]) => {
+        if (text.includes(key.toLowerCase())) targets.add(id);
+      });
+
+      // 3. Fallback for SYSTEM_SHOCK (usually Tunisia regime)
+      if (sig.tier === 'SYSTEM_SHOCK' && targets.size === 0) {
+        targets.add('TUN');
+      }
+
+      targets.forEach(actorId => {
+        newPops.push({
+          id: `${sig.id}-${actorId}`,
+          type: sig.tier,
+          actorId,
+          timestamp: now
+        });
+      });
+    });
+
+    if (newPops.length > 0) {
+      setPops(prev => {
+        const filtered = prev.filter(p => now - p.timestamp < 10000);
+        return [...filtered, ...newPops];
+      });
+    }
+  }, [articles, rriState, data, govAssessment]);
+
+  // Handle pop animations using D3
+  useEffect(() => {
+    if (!svgRef.current || pops.length === 0) return;
+    const g = d3.select(svgRef.current).select('g.signal-pops');
+    if (g.empty()) return;
+
+    const simulationNodes = simRef.current?.nodes() || [];
+    const now = Date.now();
+    
+    // Process only recent pops (last 1000ms) to avoid duplicates if state updates
+    pops.filter(p => now - p.timestamp < 1000).forEach(pop => {
+      const node = simulationNodes.find(n => n.id === pop.actorId);
+      if (!node) return;
+
+      const color = pop.type === 'SYSTEM_SHOCK' ? '#ef4444' : pop.type === 'SIGNAL' ? '#fde047' : '#f8fafc';
+      const duration = pop.type === 'SYSTEM_SHOCK' ? 3000 : 2000;
+      
+      // Secondary shock pulse for SYSTEM_SHOCK
+      if (pop.type === 'SYSTEM_SHOCK') {
+        const pulse = g.append('circle')
+          .attr('data-actor-id', pop.actorId)
+          .attr('cx', node.x!)
+          .attr('cy', node.y!)
+          .attr('r', node.size * 0.45)
+          .attr('fill', `${color}44`)
+          .attr('stroke', color)
+          .attr('stroke-width', 2)
+          .attr('opacity', 0.8)
+          .attr('class', 'pop-pulse');
+
+        pulse.transition()
+          .duration(duration)
+          .ease(d3.easeExpOut)
+          .attr('r', node.size * 3.5)
+          .attr('stroke-width', 0)
+          .attr('opacity', 0)
+          .remove();
+      }
+
+      const ring = g.append('circle')
+        .attr('data-actor-id', pop.actorId)
+        .attr('cx', node.x!)
+        .attr('cy', node.y!)
+        .attr('r', node.size * 0.45)
+        .attr('fill', 'none')
+        .attr('stroke', color)
+        .attr('stroke-width', 4)
+        .attr('opacity', 1)
+        .attr('class', 'pop-ring');
+
+      ring.transition()
+        .duration(duration * 0.8)
+        .ease(d3.easeCircleOut)
+        .attr('r', node.size * 3)
+        .attr('stroke-width', 0)
+        .attr('opacity', 0)
+        .remove();
+    });
+  }, [pops]);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const W = 1200, H = 850;
@@ -329,6 +498,10 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
 
     // Edge group - inside container
     const edgeG = container.append('g').attr('class', 'edges');
+    
+    // Signal Pop group (behind nodes, in front of edges)
+    container.append('g').attr('class', 'signal-pops');
+
     const edgePaths = edgeG.selectAll<SVGPathElement, SimLink>('path')
       .data(links)
       .join('path')
@@ -503,6 +676,17 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       });
 
       nodeGroups.attr('transform', d => `translate(${d.x ?? CX},${d.y ?? CY})`);
+
+      // Sync pop positions in tick
+      container.selectAll('.pop-ring, .pop-pulse')
+        .each(function() {
+           const pop = d3.select(this);
+           const actorId = pop.attr('data-actor-id');
+           const node = nodes.find(n => n.id === actorId);
+           if (node && node.x && node.y) {
+             pop.attr('cx', node.x).attr('cy', node.y);
+           }
+        });
     });
 
     return () => { sim.stop(); };

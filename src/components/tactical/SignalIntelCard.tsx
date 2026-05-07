@@ -53,17 +53,17 @@ const TIER_CONFIG: Record<
   },
   SIGNAL: {
     label: "SIGNAL",
-    color: "text-intel-orange",
-    bg: "bg-intel-orange/8",
-    border: "border-intel-orange/25",
+    color: "text-intel-yellow",
+    bg: "bg-intel-yellow/10",
+    border: "border-intel-yellow/30",
     icon: <Radio className="w-3.5 h-3.5" />,
     pulse: false,
   },
   NOISE: {
-    label: "NOISE",
-    color: "text-slate-600",
-    bg: "bg-black/10",
-    border: "border-intel-border/20",
+    label: "CYCLE INGESTION",
+    color: "text-slate-400",
+    bg: "bg-white/5",
+    border: "border-white/10",
     icon: <Activity className="w-3 h-3" />,
     pulse: false,
   },
@@ -124,7 +124,7 @@ export const SignalIntelCard: React.FC<{
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-xl border overflow-hidden ${tierCfg.bg} ${tierCfg.border}`}
+      className={`rounded-xl border overflow-hidden ${tierCfg.bg} ${tierCfg.border} group/card hover:border-intel-cyan/40 transition-all duration-300`}
     >
       {/* ── Header row ── */}
       <div
@@ -222,24 +222,48 @@ export const SignalIntelCard: React.FC<{
           </div>
         </div>
 
-        {/* Expand / source */}
-        <div className="shrink-0 flex flex-col items-end space-y-1">
+        {/* Options / Action row */}
+        <div className="shrink-0 flex flex-col items-end space-y-2">
+          <div className="flex items-center space-x-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
+            <button 
+              onClick={(e) => { e.stopPropagation(); /* validate logic */ }}
+              className="p-1 rounded bg-white/5 hover:bg-intel-cyan/20 border border-white/10 text-slate-500 hover:text-intel-cyan transition-all"
+              title="Validate"
+            >
+              <CheckCircle className="w-3 h-3" />
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); /* dispute logic */ }}
+              className="p-1 rounded bg-white/5 hover:bg-intel-red/20 border border-white/10 text-slate-500 hover:text-intel-red transition-all"
+              title="Dispute"
+            >
+              <Shield className="w-3 h-3" />
+            </button>
+            {article.url && (
+               <a 
+                href={article.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="p-1 rounded bg-white/5 hover:bg-intel-orange/20 border border-white/10 text-slate-500 hover:text-intel-orange transition-all"
+                title="View Source"
+               >
+                 <ExternalLink className="w-3 h-3" />
+               </a>
+            )}
+          </div>
           <button
-            className={`text-slate-700 hover:text-slate-400 transition-colors`}
+            className={`text-slate-700 hover:text-slate-400 transition-colors flex items-center space-x-1`}
           >
+            <span className="text-[7px] font-mono uppercase mr-1">
+              {getSeverityLabel(article.severity)}
+            </span>
             {expanded ? (
               <ChevronUp className="w-3.5 h-3.5" />
             ) : (
               <ChevronDown className="w-3.5 h-3.5" />
             )}
           </button>
-          <span
-            className={`text-[7px] font-mono uppercase ${
-              c.tier === "SYSTEM_SHOCK" ? tierCfg.color : "text-slate-700"
-            }`}
-          >
-            {getSeverityLabel(article.severity)}
-          </span>
         </div>
       </div>
 

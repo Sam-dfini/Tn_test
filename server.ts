@@ -90,6 +90,10 @@ const pythonBackendRequirements = async () => {
       });
       
       await new Promise((resolve) => {
+        pip.on('error', (err) => {
+          console.warn(`[Python] pip install spawn error:`, err);
+          resolve(-1);
+        });
         pip.on('exit', (code) => {
           if (code !== 0) console.warn(`[Python] pip install exited with code ${code}`);
           resolve(code);
@@ -241,6 +245,7 @@ async function startServer() {
       const pathsToTry = [
         path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json'),
         path.join(process.cwd(), 'backend', 'app', 'data', 'rri_variables.json'),
+        path.resolve('backend/app/data/rri_variables.json'),
         '/backend/app/data/rri_variables.json',
         './backend/app/data/rri_variables.json'
       ];
@@ -633,12 +638,15 @@ async function startServer() {
     on: {
       error: (err, req, res: any) => {
         console.error('[Proxy Error]:', err.message);
-        if (res && res.status) {
+        if (res && typeof res.status === 'function') {
           res.status(502).json({ 
             error: 'Backend inaccessible', 
             message: 'TunisiaIntel intelligence engine is starting or unavailable.',
             details: err.message
           });
+        } else if (res && typeof res.destroy === 'function') {
+          // It's a net.Socket from a WebSocket upgrade
+          res.destroy();
         }
       }
     }

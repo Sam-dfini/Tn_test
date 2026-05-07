@@ -103,7 +103,7 @@ export const RTEE: React.FC = () => {
                     </span>
                     <span className={`w-16 font-bold flex-shrink-0 ${
                       anomaly.severity >= 4 ? 'text-intel-red' : 
-                      anomaly.severity >= 3 ? 'text-intel-orange' : 'text-intel-cyan'
+                      anomaly.severity >= 3 ? 'text-intel-yellow' : 'text-intel-cyan'
                     }`}>
                       LVL-{anomaly.severity || 1}
                     </span>

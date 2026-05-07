@@ -219,17 +219,19 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
 
   useEffect(() => {
-    // Using a more reliable source for Tunisia GeoJSON
-    fetch('https://raw.githubusercontent.com/sammmeeeh/tunisia-immigration-analytics-dashboard/main/TN-gouvernorat.geojson')
-      .then(res => {
-        if (!res.ok) throw new Error('GeoJSON fetch failed');
-        return res.json();
-      })
-      .then(data => {
-        console.log('GeoJSON loaded successfully:', data);
+    const loadGeoJSON = async () => {
+      try {
+        const targetUrl = 'https://raw.githubusercontent.com/sammmeeeh/tunisia-immigration-analytics-dashboard/main/TN-gouvernorat.geojson';
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error('GeoJSON fetch failed');
+        const data = await response.json();
         setGeoJsonData(data);
-      })
-      .catch(err => console.error('Error loading GeoJSON:', err));
+      } catch (error) {
+        console.error('Error loading GeoJSON:', error);
+      }
+    };
+    loadGeoJSON();
   }, []);
 
   const [layers, setLayers] = useState({
