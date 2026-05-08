@@ -46,6 +46,9 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  Tooltip,
+  XAxis,
+  YAxis
 } from "recharts";
 import { usePipeline } from "../context/PipelineContext";
 import { cn } from "../utils/cn";
@@ -117,16 +120,16 @@ function getStatusLabel(rri: number): {
 
 // ─── MINI SPARKLINE DATA ─────────────────────────────────────────────────────
 const SPARK_DATA = [
-  { v: 1.28 },
-  { v: 1.31 },
-  { v: 1.29 },
-  { v: 1.34 },
-  { v: 1.38 },
-  { v: 1.35 },
-  { v: 1.41 },
-  { v: 1.44 },
-  { v: 1.42 },
-  { v: 1.47 },
+  { time: "-9d", v: 1.28 },
+  { time: "-8d", v: 1.31 },
+  { time: "-7d", v: 1.29 },
+  { time: "-6d", v: 1.34 },
+  { time: "-5d", v: 1.38 },
+  { time: "-4d", v: 1.35 },
+  { time: "-3d", v: 1.41 },
+  { time: "-2d", v: 1.44 },
+  { time: "-1d", v: 1.42 },
+  { time: "Now", v: 1.47 },
 ];
 
 // ─── ARC GAUGE ───────────────────────────────────────────────────────────────
@@ -190,7 +193,7 @@ const ArcGauge: React.FC<{
           initial={{ opacity: 0, filter: "blur(10px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
           x="200"
-          y="100"
+          y="135"
           textAnchor="middle"
           fill={status.color}
           className="text-6xl md:text-[80px] font-mono font-bold tracking-tighter pointer-events-none"
@@ -284,15 +287,16 @@ const ArcGauge: React.FC<{
         <motion.g
           initial={{ rotate: -135 }}
           animate={{ rotate: angle }}
-          transition={{ type: "spring", stiffness: 45, damping: 15 }}
+          transition={{ type: "spring", stiffness: 20, damping: 12, mass: 1.2, delay: 0.3 }}
           style={{ 
-            transformOrigin: "200px 180px", 
-            filter: "url(#neoGlow)",
-            // Precise sub-pixel adjustment for "left and down" perception
-            x: -2.0,
-            y: 2.0 
+            transformOrigin: "center", 
+            transformBox: "fill-box",
+            filter: "url(#neoGlow)"
           }}
         >
+          {/* Invisible bounding box to force center origin to 200,180 */}
+          <rect x="0" y="0" width="400" height="360" fill="transparent" pointerEvents="none" />
+          
           {/* The main beam */}
           <path
             d={`M ${cx - 3.5} ${cy} L ${cx} ${cy - 160} L ${cx + 3.5} ${cy} Z`}
@@ -799,18 +803,39 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
             Integrated National Resilience
           </div>
           {/* Mini sparkline */}
-          <div className="h-8 w-28">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={SPARK_DATA}>
-                <Line
-                  type="monotone"
-                  dataKey="v"
-                  stroke={status.color}
-                  strokeWidth={1.5}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">10-Day Trend</div>
+              <div className="text-[10px] font-mono font-bold" style={{ color: status.color }}>+14.8% Δ</div>
+            </div>
+            <div className="h-10 w-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={SPARK_DATA}>
+                  <defs>
+                    <linearGradient id={`sparkGradient-${status.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={status.color} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={status.color} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px' }}
+                    itemStyle={{ color: status.color, fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold' }}
+                    labelStyle={{ color: '#64748b', fontSize: '9px', fontFamily: 'monospace', marginBottom: '2px' }}
+                    formatter={(val: number) => [`${val} RRI`, '']}
+                  />
+                  <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} hide />
+                  <XAxis dataKey="time" hide />
+                  <Area
+                    type="monotone"
+                    dataKey="v"
+                    stroke={status.color}
+                    fill={`url(#sparkGradient-${status.color.replace('#', '')})`}
+                    strokeWidth={2}
+                    activeDot={{ r: 3, fill: status.color, stroke: '#000', strokeWidth: 1 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
         <div className="px-4 py-2">
