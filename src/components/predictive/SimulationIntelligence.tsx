@@ -162,14 +162,14 @@ const calculatePRev = (params: Record<string, number>) => {
 };
 
 const DEFAULT_SCENARIO_VARIABLES = [
-  { id: 'war', name: 'Regional War Spillover', value: 0.2 },
-  { id: 'repression', name: 'State Repression Level', value: 0.4 },
-  { id: 'remittances', name: 'Diaspora Remittances', value: 0.7 },
-  { id: 'imf', name: 'IMF Deal Probability', value: 0.3 },
-  { id: 'ugtt', name: 'UGTT Strike Mobilization', value: 0.5 },
-  { id: 'fx', name: 'FX Reserves Stability', value: 0.4 },
-  { id: 'youth', name: 'Youth Unemployment/Anger', value: 0.8 },
-  { id: 'elite', name: 'Elite Cohesion', value: 0.6 }
+  { id: 'war', name: 'Regional War Spillover', value: 0.2, weight: 0.05 },
+  { id: 'repression', name: 'State Repression Level', value: 0.4, weight: 0.08 },
+  { id: 'remittances', name: 'Diaspora Remittances', value: 0.7, weight: 0.06 },
+  { id: 'imf', name: 'IMF Deal Probability', value: 0.3, weight: 0.10 },
+  { id: 'ugtt', name: 'UGTT Strike Mobilization', value: 0.5, weight: 0.07 },
+  { id: 'fx', name: 'FX Reserves Stability', value: 0.4, weight: 0.12 },
+  { id: 'youth', name: 'Youth Unemployment/Anger', value: 0.8, weight: 0.09 },
+  { id: 'elite', name: 'Elite Cohesion', value: 0.6, weight: 0.08 }
 ];
 
 // --- Components ---

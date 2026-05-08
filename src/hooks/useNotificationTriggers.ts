@@ -9,6 +9,7 @@ export const useNotificationTriggers = () => {
   const { fullData: data, rriState } = useRiskMetrics();
   const { auditLog } = useAuditLog();
   const { addNotification } = useNotifications();
+  const { injectSignal } = useRiskMetrics();
 
   // Track previous values to detect changes
   const prevRRI = useRef(rriState?.rri ?? 0);
@@ -305,7 +306,7 @@ export const useNotificationTriggers = () => {
                       (mainEntry.type === 'PUSH' && Math.abs(mainEntry.value - mainEntry.oldValue) > 20);
 
         addNotification({
-          type: 'PIPELINE',
+          type: isShock ? 'SHOCK' : 'PIPELINE',
           priority: isShock ? 'HIGH' : 'MEDIUM',
           title: isShock ? '⚡ SYSTEM SHOCK DETECTED' : '📡 SIGNAL INGESTED',
           message: isShock 
@@ -348,6 +349,14 @@ export const useNotificationTriggers = () => {
             detail: { tab: 'newsfeed', articleId: article.id }
           },
         });
+
+        // SHOCK INJECTION LOGIC
+        if (title.includes('eid') && (title.includes('price') || title.includes('prix') || title.includes('mouton') || title.includes('sheep'))) {
+          injectSignal('EID_PRICE_SHOCK');
+        }
+        if (title.includes('water') && (title.includes('cut') || title.includes('shortage') || title.includes('sonede'))) {
+          injectSignal('WATER_CRISIS_EXPANSION');
+        }
       }
     };
 

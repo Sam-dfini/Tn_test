@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
-import { generateAnalystResponse } from '../../services/ai';
+import { generateAnalystResponse } from '../../services/geminiService';
 import { RRIVariable } from '../../types/intel';
+import { simulateScenario } from '../../math/rri/engine';
+import { motion, AnimatePresence } from 'motion/react';
 import { generateStableKey, prepareList } from '../../lib/keyUtils';
 import './ScenarioCompare.css';
 
@@ -70,96 +72,53 @@ export const ScenarioCompare: React.FC<{ variables?: RRIVariable[] }> = ({ varia
     });
   };
 
-  const computeScenario = (scenario: Scenario) => {
-    // We use the variables from the pipeline context if available
-    const baseVars: Record<string, any> = {};
-    const rriVars = variables || [];
+  const computeScenario = useCallback((scenario: Scenario) => {
+    if (!variables) return null;
     
-    rriVars.forEach(v => {
-      baseVars[v.id] = { ...v };
-    });
-
-    for (const [id, val] of Object.entries(scenario.overrides)) {
-      if (id !== 'W' && baseVars[id]) {
-        baseVars[id] = { ...baseVars[id], value: val };
-      } else if (id !== 'W') {
-        // If variable not in context, mock it
-        baseVars[id] = { id, value: val, weight: 1, baseline: val };
-      }
-    }
-
-    const W = scenario.overrides['W'] ?? 0.72;
-
-    // Simplified calculation if we don't have full categories
-    let total = 0, totalWeight = 0;
+    // Use the robust engine calculation
+    const engineState = simulateScenario(variables, scenario.overrides);
     
-    // Use the actual RRI calculation logic if possible, or a simplified one
-    Object.values(baseVars).forEach(v => {
-      const norm = Math.max(0, Math.min(1, v.value / ((v.baseline || v.value || 1) * 1.5)));
-      const w = v.weight || 1;
-      total += norm * w;
-      totalWeight += w;
-    });
-
-    let rri = 2.31;
-    if (totalWeight > 0) {
-      rri = Math.max(0, Math.min(5, (total / totalWeight) * 5));
-    }
+    // Calculate secondary metrics based on RRI and P_rev
+    const rri = isNaN(engineState.rri) ? 0 : engineState.rri;
+    const prev = isNaN(engineState.prev) ? 0 : Math.round(engineState.prev * 100);
     
-    // If baseline scenario, use the actual RRI
-    if (scenario.id === 'baseline') {
-      rri = rriState.rri;
-    } else {
-      // Add some variance based on overrides to make it look realistic
-      const overrideCount = Object.keys(scenario.overrides).length;
-      if (overrideCount > 0) {
-        let diff = 0;
-        if (scenario.id === 'imf_collapse') diff = 0.8;
-        if (scenario.id === 'imf_deal') diff = -0.6;
-        if (scenario.id === 'social_explosion') diff = 1.2;
-        if (scenario.id === 'military_intervention') diff = 0.3;
-        rri = Math.max(0, Math.min(5, rriState.rri + diff));
-      }
-    }
-
-    const k = 0.8;
-    const thr = 2.31;
-    const prev = Math.round(100 / (1 + Math.exp(-k * (rri - thr))));
+    const W = isNaN(scenario.overrides['W']) ? 0.72 : (scenario.overrides['W'] ?? 0.72);
     
-    const E51 = baseVars['E51']?.value ?? 14;
-    const A2 = baseVars['A2']?.value ?? 37.8;
-    const A1 = baseVars['A1']?.value ?? 7.1;
-    const M133 = baseVars['M133']?.value ?? 0.58;
+    // Use components of RRI to estimate social dynamics
+    const E51 = scenario.overrides['E51'] ?? variables.find(v => v.id === 'E51' || v.id === 'M202')?.value ?? 0.45;
+    const A2 = scenario.overrides['A2'] ?? variables.find(v => v.id === 'A2' || v.id === 'A2')?.value ?? 8.5;
     
-    const protest = Math.min(97, Math.round((E51 / 22 * 0.4 + A2 / 100 * 0.3 + A1 / 15 * 0.2 + (1 - W) * 0.1) * 0.55 * 1.4 * 100));
-    const collapse = Math.min(99, Math.round((1 - Math.pow(1 - prev / 100, 1 / 12) * (1 - Math.exp(-0.04 * (1 - W)))) * 100));
-    const strike = Math.min(95, Math.round((M133 * 0.5 + E51 / 25 * 0.3 + A2 / 100 * 0.2) * 0.55 * 1.1 * 100));
+    // Normalized estimates for UI visualization
+    const protest = Math.min(97, Math.round((E51 * 0.4 + (A2 / 15) * 0.3 + (1 - W) * 0.3) * 100));
+    const collapse = Math.min(99, Math.round(prev * 1.1 + (1 - W) * 10));
+    const strike = Math.min(95, Math.round((E51 * 0.5 + (A2 / 20) * 0.2 + (1 - W) * 0.3) * 100));
     
-    const delta = rri - rriState.rri;
+    const delta = rri - (rriState?.rri || 0);
 
     return {
       scenario,
       rri: rri.toFixed(2),
       prev,
       W: W.toFixed(2),
-      protest,
-      collapse,
-      strike,
-      delta: delta.toFixed(2),
+      protest: isNaN(protest) ? 0 : protest,
+      collapse: isNaN(collapse) ? 0 : collapse,
+      strike: isNaN(strike) ? 0 : strike,
+      delta: isNaN(delta) ? "0.00" : delta.toFixed(2),
       deltaSign: delta > 0 ? '+' : '',
     };
-  };
+  }, [variables, rriState.rri]);
 
-  const handleRun = () => {
+  const handleRun = useCallback(() => {
     const selected = SCENARIOS.filter(s => selectedIds.includes(s.id));
     if (!selected.length) return;
     
-    const newResults = selected.map(s => computeScenario(s));
+    const newResults = selected.map(s => computeScenario(s)).filter(Boolean);
     setResults(newResults);
-    generateAiSynthesis(newResults);
-  };
+    generateAiSynthesis(newResults as any[]);
+  }, [selectedIds, computeScenario]);
 
   const generateAiSynthesis = async (res: any[]) => {
+    if (!res.length) return;
     setIsSynthesizing(true);
     setAiSynthesis(null);
     
@@ -172,7 +131,7 @@ ${r.scenario.name.toUpperCase()} — ${r.scenario.desc}
 • P_rev: ${r.prev}% | Protest P(30d): ${r.protest}% | Collapse P(30d): ${r.collapse}% | Strike P(30d): ${r.strike}%
 • W(t): ${r.W}`).join('\n')}
 
-Write a concise 3-paragraph intelligence assessment:
+Based on EQ.1–14 dynamics, write a concise 3-paragraph intelligence assessment:
 1. Which scenario poses greatest near-term risk and why
 2. Key variable drivers of divergence between scenarios
 3. Policy recommendation for the most likely outcome
@@ -190,10 +149,12 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
     }
   };
 
-  // Run on initial load
+  // Auto-run on mount or when selection/variables change
   useEffect(() => {
-    handleRun();
-  }, []);
+    if (variables && variables.length > 0) {
+      handleRun();
+    }
+  }, [selectedIds, variables, handleRun]);
 
   const cols = results.length;
   const metrics = [
@@ -252,25 +213,46 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
 
       {/* Results area */}
       <div className="sc-page-body">
-        {results.length === 0 ? (
-          <div className="sc-loading">Click ▶ RUN to compute scenarios</div>
-        ) : (
-          <div>
-            {/* Scenario header cards */}
-            <div className="sc-cards" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-              {prepareList(results).map((r: any, rIdx: number) => (
-                <div key={generateStableKey(r, rIdx, 'scen-card')} className="sc-card" style={{ '--cc': r.scenario.color } as React.CSSProperties}>
-                  <div className="sc-card-name">{r.scenario.name.toUpperCase()}</div>
-                  <div className="sc-card-desc">{r.scenario.desc}</div>
-                  <div className="sc-card-rri" style={{ color: parseFloat(r.rri) >= 2.31 ? '#ef4444' : '#22c55e' }}>
-                    {r.rri}
-                  </div>
-                  <div className="sc-card-delta" style={{ color: parseFloat(r.delta) > 0 ? '#ef4444' : parseFloat(r.delta) < 0 ? '#22c55e' : '#94a3b8' }}>
-                    Δ {r.deltaSign}{r.delta} from live
-                  </div>
-                </div>
-              ))}
-            </div>
+        <AnimatePresence mode="wait">
+          {results.length === 0 ? (
+            <motion.div 
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="sc-loading"
+            >
+              Click ▶ RUN to compute scenarios
+            </motion.div>
+          ) : (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-8"
+            >
+              {/* Scenario header cards */}
+              <div className="sc-cards" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+                {prepareList(results).map((r: any, rIdx: number) => (
+                  <motion.div 
+                    key={generateStableKey(r, rIdx, 'scen-card')} 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: rIdx * 0.1 }}
+                    className="sc-card" 
+                    style={{ '--cc': r.scenario.color } as React.CSSProperties}
+                  >
+                    <div className="sc-card-name">{r.scenario.name.toUpperCase()}</div>
+                    <div className="sc-card-desc">{r.scenario.desc}</div>
+                    <div className="sc-card-rri" style={{ color: parseFloat(r.rri) >= 2.31 ? '#ef4444' : '#22c55e' }}>
+                      {r.rri}
+                    </div>
+                    <div className="sc-card-delta" style={{ color: parseFloat(r.delta) > 0 ? '#ef4444' : parseFloat(r.delta) < 0 ? '#22c55e' : '#94a3b8' }}>
+                      Δ {r.deltaSign}{r.delta} from live
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
 
             {/* Metric table */}
             <div className="sc-table">
@@ -333,7 +315,7 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
                   <div key={generateStableKey(r, rIdx, 'override-card')} className="sc-override-col" style={{ borderTop: `2px solid ${r.scenario.color}` }}>
                     <div className="sc-override-head" style={{ color: r.scenario.color }}>{r.scenario.name}</div>
                     {Object.keys(r.scenario.overrides).length ? (
-                      prepareList(Object.entries(r.scenario.overrides)).map(([id, val]: any, vIdx: number) => (
+                      Object.entries(r.scenario.overrides).map(([id, val]: any, vIdx: number) => (
                         <div key={generateStableKey(id, vIdx, 'override-row')} className="sc-override-row">
                           <span className="sc-override-id">{id}</span>
                           <span className="sc-override-val">{val as number}</span>
@@ -367,8 +349,9 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
                 ) : null}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+      </AnimatePresence>
       </div>
     </div>
   );

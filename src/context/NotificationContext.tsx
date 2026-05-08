@@ -15,7 +15,8 @@ export type NotificationType =
   | 'PIPELINE'  // push complete, field updated, doc ingested
   | 'RSS'       // new article, high severity article
   | 'SOURCE'    // source connected/disconnected
-  | 'SYSTEM';   // model recalculated, staleness warning
+  | 'SYSTEM'    // model recalculated, staleness warning
+  | 'SHOCK';    // stochastic shock events
 
 export type NotificationPriority =
   | 'CRITICAL'  // red, pulsing — requires immediate attention

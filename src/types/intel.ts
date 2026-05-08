@@ -92,6 +92,17 @@ export interface RRIVariable {
   methodology?: string;
 }
 
+export interface ShockSignal {
+  id: string;
+  type: 'ECON' | 'SEC' | 'AGRI' | 'SOCIAL' | 'SYSTEM';
+  source: string;
+  intensity: number; // 0-1
+  message: string;
+  timestamp: number;
+  overrides: Record<string, number>;
+  governorates?: string[];
+}
+
 export interface RRIState {
   // Core outputs (Samir Dni model)
   rri: number;                  // R(t) — Revolutionary Risk Index
@@ -103,6 +114,7 @@ export interface RRIState {
   oci: number;                  // OCI — Opposition Coordination Index
   cpg_cascade_amplifier: number; // CPG — Gafsa cascade amplifier
   elite_defection_prob: number; // Probability of elite defection
+  active_signals?: ShockSignal[];
 
   // New outputs (TUNISIAINTEL extensions)
   velocity: number;             // V(t) — Rate of change (-1 to +1)

@@ -138,14 +138,27 @@ const KpiCard: React.FC<{ label: string; value: string; sub: string; warn?: bool
 );
 
 export const LivestockMeatIntelligence: React.FC = () => {
-  const { fullData: data } = useRiskMetrics();
+  const { fullData: data, rriState, injectSignal } = useRiskMetrics();
   const [activeTab, setActiveTab] = useState<TabId>('SECTOR');
+
+  const activeSignals = rriState?.active_signals || [];
+  const eidShock = activeSignals.find(s => s.id === 'EID_PRICE_SHOCK');
 
   const fxStress = (data as any)?.economy?.fx_reserves
     ? Math.max(0.3, 1 - (data as any).economy.fx_reserves / 200)
     : 0.68;
   const indices = useMemo(() => computeFeedIndices({ ...BASE_FEED, fx_stress: fxStress }), [fxStress]);
-  const { HI, sheepDeficit, eidRiskScore, meatPriceIndex } = computeHerdIndex(indices.FPI_livestock);
+  
+  // Base indices
+  let { HI, sheepDeficit, eidRiskScore, meatPriceIndex } = computeHerdIndex(indices.FPI_livestock);
+
+  // Apply shock overrides if present
+  if (eidShock) {
+    // Message from the news/shock
+    meatPriceIndex = eidShock.intensity > 0.8 ? 1.65 : 1.45;
+    sheepDeficit = Math.max(sheepDeficit, 0.22);
+    eidRiskScore = Math.min(1, eidRiskScore + 0.35);
+  }
 
   const eidDate = new Date('2026-05-27T00:00:00');
   const today = new Date();
@@ -163,22 +176,56 @@ export const LivestockMeatIntelligence: React.FC = () => {
       />
 
       {/* Eid countdown banner */}
-      <div className="rounded-xl border border-red-500/30 bg-red-500/8 p-4 flex items-center justify-between">
+      <div className={cn("rounded-xl border p-4 flex items-center justify-between", 
+        eidShock ? "border-red-500 bg-red-600/20" : "border-red-500/30 bg-red-500/8")}>
         <div className="flex items-center gap-3">
-          <Clock className="w-5 h-5 text-red-400 shrink-0" />
+          <Clock className={cn("w-5 h-5 shrink-0", eidShock ? "text-red-300 animate-pulse" : "text-red-400")} />
           <div>
-            <div className="text-[11px] font-bold font-mono text-red-400 uppercase tracking-widest">
+            <div className={cn("text-[11px] font-bold font-mono uppercase tracking-widest", 
+              eidShock ? "text-white" : "text-red-400")}>
+              {eidShock ? '⚠️ SHOCK ALERT TRIGGERED: ' : ''}
               Eid al-Adha 2026 — {eidDaysTo} Days · Projected Sheep Deficit: {(sheepDeficit * 100).toFixed(1)}%
             </div>
-            <div className="text-[9px] font-mono text-slate-500 mt-0.5">
-              Eid Risk Score: {eidRiskScore.toFixed(3)} · Herd Index: {HI.toFixed(3)} · Meat Price Index: ×{meatPriceIndex.toFixed(2)}
+            <div className={cn("text-[9px] font-mono mt-0.5", eidShock ? "text-red-100" : "text-slate-500")}>
+              {eidShock ? eidShock.message : `Eid Risk Score: ${eidRiskScore.toFixed(3)} · Herd Index: ${HI.toFixed(3)} · Meat Price Index: ×${meatPriceIndex.toFixed(2)}`}
             </div>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-2">
+          {!eidShock && (
+             <button 
+              onClick={() => injectSignal('EID_PRICE_SHOCK')}
+              className="text-[8px] font-mono font-bold bg-amber-500/20 text-amber-500 border border-amber-500/30 px-2 py-1 rounded hover:bg-amber-500/30 transition-colors uppercase"
+            >
+              Simulate Eid Price Shock
+            </button>
+          )}
           <RiskBadge level={eidRiskScore > 0.6 ? 'CRITICAL' : eidRiskScore > 0.4 ? 'HIGH' : 'MEDIUM'} />
         </div>
       </div>
+
+      {eidShock && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass rounded-xl border-2 border-red-500/50 bg-red-500/10 p-4"
+        >
+          <div className="flex items-start gap-4">
+            <div className="bg-red-500 rounded p-2">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1">
+              <div className="text-[12px] font-bold font-mono text-red-100 uppercase tracking-tighter mb-1">
+                INJECTED INTELLIGENCE: {eidShock.source}
+              </div>
+              <p className="text-[10px] font-mono text-white/90 leading-relaxed">
+                {eidShock.message} Systemic RRI variables E81 and M202 have been manually accelerated 
+                due to this event. Social contract violation threshold (EQ.15) is now under heavy load.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

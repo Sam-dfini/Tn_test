@@ -173,7 +173,7 @@ export interface PriceReport {
 
 export interface Notification {
   id: string;
-  type: 'ALERT' | 'PIPELINE' | 'RSS' | 'RRI' | 'SYSTEM';
+  type: 'ALERT' | 'PIPELINE' | 'RSS' | 'RRI' | 'SYSTEM' | 'SHOCK' | 'SOURCE';
   priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   title: string;
   message: string;

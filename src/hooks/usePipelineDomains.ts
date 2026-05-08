@@ -28,7 +28,8 @@ export const useRiskMetrics = () => {
     pushApprovedChanges,
     isPaused,
     togglePause,
-    updateArticleCache
+    updateArticleCache,
+    injectSignal
   } = context;
   
   return { 
@@ -46,7 +47,8 @@ export const useRiskMetrics = () => {
     pushApprovedChanges,
     isPaused,
     togglePause,
-    updateArticleCache
+    updateArticleCache,
+    injectSignal
   };
 };
 

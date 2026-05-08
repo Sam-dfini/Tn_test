@@ -1002,18 +1002,15 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
               System stress
             </span>
           </div>
-          <div className="relative h-[280px] bg-[#0a0c10] flex items-center justify-center overflow-hidden">
+          <div className="relative h-[400px] bg-[#0a0c10] flex items-center justify-center overflow-hidden">
             {/* Choropleth Map via react-leaflet */}
             <div className="absolute inset-0 z-0">
               <MapContainer 
                 center={[34.0, 9.5]} 
-                zoom={5.5} 
+                zoom={6} 
                 style={{ height: '100%', width: '100%', background: '#0a0c10' }}
-                zoomControl={false}
+                zoomControl={true}
                 attributionControl={false}
-                dragging={false}
-                scrollWheelZoom={false}
-                doubleClickZoom={false}
               >
                 <TileLayer
                   url="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"

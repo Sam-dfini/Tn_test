@@ -171,6 +171,8 @@ export const NotificationPanel: React.FC<{
   const FILTERS = [
     { id: 'ALL', label: 'All', count: notifications.length },
     { id: 'UNREAD', label: 'Unread', count: unreadCount },
+    { id: 'SHOCK', label: 'Shocks', count: notifications.filter(n => n.type === 'SHOCK').length },
+    { id: 'SYSTEM', label: 'System', count: notifications.filter(n => n.type === 'SYSTEM').length },
     { id: 'RRI', label: 'RRI', count: notifications.filter(n => n.type === 'RRI').length },
     { id: 'ALERT', label: 'Alert', count: notifications.filter(n => n.type === 'ALERT').length },
     { id: 'PIPELINE', label: 'Pipeline', count: notifications.filter(n => n.type === 'PIPELINE').length },

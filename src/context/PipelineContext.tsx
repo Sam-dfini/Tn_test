@@ -1,5 +1,7 @@
 import { safeStorage } from '../utils/storage';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { ShockSignal } from '../types/intel';
+import { PRESET_SHOCKS } from '../config/shocks';
 import calculateRRI, {
   updateVariableFromPipeline
 } from '../math/rri/engine';
@@ -160,6 +162,7 @@ interface PlatformData {
   rri: RRIData;
   geopolitical: GeopoliticalData;
   social: SocialData;
+  active_signals: ShockSignal[];
   last_pipeline_push: string | null;
 }
 
@@ -266,6 +269,7 @@ const DEFAULT_DATA: PlatformData = {
     last_updated: '2026-03-14',
     source: 'UGTT / RSF / TAP'
   },
+  active_signals: [],
   last_pipeline_push: null
 };
 
@@ -299,6 +303,8 @@ interface PipelineContextType {
   rriState: any;
   recalculateRRI: () => void;
   updateArticleCache: (articles: any) => void;
+  injectSignal: (signalId: string) => void;
+  activeSignals: ShockSignal[];
   miiProfile?: any;
   sbdeResult?: ReturnType<typeof computeSBDE>;
   actorNetwork?: any;
@@ -415,8 +421,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const recalculateRRI = useCallback(() => {
     try {
-      // Build overrides from current pipeline data
-      const overrides: Record<string, number> = {
+      // Build base overrides from current pipeline data
+      const baseOverrides: Record<string, number> = {
         'economy.fx_reserves': data.economy.fx_reserves,
         'economy.inflation': data.economy.inflation,
         'economy.unemployment': data.economy.unemployment,
@@ -448,6 +454,16 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         'energy.steg_debt': data.energy?.steg_debt ?? 4.2,
       };
 
+      // Apply overrides from active signals
+      const signalOverrides: Record<string, number> = {};
+      data.active_signals.forEach(sig => {
+        Object.entries(sig.overrides).forEach(([key, val]) => {
+          signalOverrides[key] = val;
+        });
+      });
+
+      const overrides = { ...baseOverrides, ...signalOverrides };
+
       // ── EQ.10 — Ψ_soc(t) SBDE Integration ──────────────────────────────
       // Compute live SBDE with economic stress from current pipeline data
       const econStress = Math.min(1, (data.economy?.inflation ?? 7.1) / 15);
@@ -464,6 +480,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // ─────────────────────────────────────────────────────────────────────
 
       const newState = calculateRRI(overrides);
+      newState.active_signals = data.active_signals;
       setRriState(newState);
 
       // Run AgriIntel satellite engine
@@ -774,6 +791,33 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [aiAnalysis, isAIAnalysisLoading, runAIAnalysis]);
 
+  const injectSignal = useCallback((signalId: string) => {
+    const preset = PRESET_SHOCKS[signalId];
+    if (!preset) return;
+
+    const signal: ShockSignal = {
+      ...preset,
+      timestamp: Date.now()
+    };
+
+    setData(prev => ({
+      ...prev,
+      active_signals: [...prev.active_signals.filter(s => s.id !== signalId), signal]
+    }));
+
+    addNotification({
+      type: 'SHOCK',
+      priority: 'CRITICAL',
+      title: `⚡ ${signal.type} SHOCK: ${signal.id}`,
+      message: signal.message,
+      action_label: 'View Impact',
+      action_event: 'navigate-main',
+      action_detail: { tab: 'risk' }
+    });
+
+    setTimeout(() => recalculateRRI(), 100);
+  }, [addNotification, recalculateRRI]);
+
   return (
     <PipelineContext.Provider value={{
       data, updateField, pushApprovedChanges, 
@@ -785,6 +829,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       runAIAnalysis,
       isPaused,
       togglePause,
+      injectSignal,
+      activeSignals: data.active_signals,
       updateArticleCache: (articles: any) => {}
     }}>
       {children}

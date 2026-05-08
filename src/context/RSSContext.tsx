@@ -207,7 +207,7 @@ export const RSSProvider: React.FC<{
           }
 
           await addNotification({
-            type: 'ALERT',
+            type: 'SHOCK',
             priority: 'CRITICAL',
             title: 'SYSTEM SHOCK DETECTED',
             message: shocks[0].title,

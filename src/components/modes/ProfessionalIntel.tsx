@@ -1751,7 +1751,7 @@ Return only the 3-sentence briefing.`;
                       </span>
                     </div>
                   </div>
-                  <div className="flex-1 relative bg-black/60 isolate overflow-hidden pointer-events-none">
+                  <div className="flex-1 relative bg-black/60 isolate overflow-hidden">
                     <Map
                       governorates={context?.governorates || []}
                       events={context?.events || []}
@@ -2334,7 +2334,7 @@ Return only the 3-sentence briefing.`;
           ) : (
             <SimulationIntelligence
               context={context}
-              variables={context?.variables || []}
+              variables={Object.values(rriState?.variables || {})}
             />
           )}
         </div>

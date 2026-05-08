@@ -127,7 +127,7 @@ const MapController = ({ governorates, focusedGovId }: { governorates: Governora
 };
 
 export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, heatmapPoints, onSelectGovernorate, onSimulate, focusedGovId, externalActiveLayer }) => {
-  const tunisiaCenter: [number, number] = [34.0, 9.0]; // Centered as requested
+  const tunisiaCenter: [number, number] = [34.0, 9.5]; // Centered as requested
   const zoom = 6;
   const [geoData, setGeoData] = useState<any>(null);
   const [showChoropleth, setShowChoropleth] = useState(true);
@@ -280,7 +280,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           center={tunisiaCenter} 
           zoom={zoom} 
           style={{ height: '100%', width: '100%', background: '#05070a' }}
-          zoomControl={false}
+          zoomControl={true}
           attributionControl={false}
         >
           <MapController governorates={governorates} focusedGovId={focusedGovId} />
