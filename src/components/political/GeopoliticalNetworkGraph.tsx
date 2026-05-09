@@ -722,7 +722,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-3 md:p-4 relative">
+    <div className="flex flex-col space-y-4 p-3 md:p-4 relative">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 shrink-0">
