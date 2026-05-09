@@ -130,6 +130,7 @@ const SIDEBAR_CATEGORIES = [
       { id: "command-center", label: "National Command", icon: Target },
       { id: "trgm", label: "Governance Matrix", icon: Triangle },
       { id: "briefing", label: "Daily Briefing", icon: FileText },
+      { id: "ne", label: "Daily News", icon: Newspaper },
       { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
       { id: "calendar", label: "Calendar", icon: Calendar },
       { id: "govagent", label: "Gov. Agent", icon: Brain },
@@ -207,7 +208,6 @@ const SIDEBAR_CATEGORIES = [
       { id: "simulation", label: "Simulation", icon: Cpu },
       { id: "civilizational", label: "Civilizational", icon: RotateCcw },
       { id: "performance", label: "Model Performance", icon: ShieldCheck },
-      { id: "ne", label: "NE", icon: Newspaper },
     ],
   },
 ];
@@ -829,7 +829,7 @@ Return only the 3-sentence briefing.`;
     { id: "reports", label: "Reports", icon: FileText },
     { id: "civilizational", label: "Civilizational", icon: RotateCcw },
     { id: "fire", label: "Fire Intel", icon: Flame },
-    { id: "ne", label: "NE", icon: Newspaper },
+    { id: "ne", label: "Daily News", icon: Newspaper },
     { id: "performance", label: "Model Performance", icon: ShieldCheck },
     { id: "govagent", label: "Gov. Agent", icon: Brain },
     { id: "methodology", label: "Methodology", icon: BookOpen, isEvent: true },
@@ -2316,7 +2316,7 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "ne" ? (
             <div className="space-y-6">
               <ModuleHeader
-                title="NE // Intelligence Feed"
+                title="Daily News // Intelligence Feed"
                 subtitle="Simplified real-time stream of latest regional and global intelligence signals"
                 icon={Newspaper}
                 nodeId="NE-NODE-01"

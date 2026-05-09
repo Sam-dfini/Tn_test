@@ -23,6 +23,7 @@ import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useAIAnalysis } from '../../context/AIAnalysisContext';
 import { classifySignals, SignalClassification, SignalTier } from '../../services/signalClassifier';
 import { assessGovernmentAgent } from '../../services/govAgent';
+import { ModuleHeader } from '../shared/ProfessionalShared';
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -233,6 +234,14 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const [filters, setFilters] = useState<{ domain: Domain | 'all'; tier: number | 'all'; type: EdgeType | 'all' }>({ domain: 'all', tier: 'all', type: 'all' });
   const [gameMode, setGameMode] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to panel when game theory is activated
+  useEffect(() => {
+    if ((gameMode || selectedGame) && panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [gameMode, !!selectedGame]);
 
   // ─── SIGNAL POPS ───────────────────────────────────────────────────────────
   const { articles } = useRSS();
@@ -445,8 +454,11 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     zoomRef.current = zoom;
     svg.call(zoom);
 
-    // Initial zoom - slightly out to fit all
-    svg.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(0.85));
+    // Initial zoom - centered
+    const initialScale = 0.85;
+    const initialTx = (W / 2) * (1 - initialScale);
+    const initialTy = (H / 2) * (1 - initialScale);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
 
     // Orbital rings (decorative) - inside container
     [1, 2, 3].forEach(tier => {
@@ -632,7 +644,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     // Label
     nodeGroups.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', d => d.size * 0.45 + 14)
+      .attr('dy', d => d.size * 0.45 + 22)
       .attr('fill', d => d.color)
       .attr('font-size', d => d.id === 'TUN' ? 12 : 9)
       .attr('font-family', 'monospace')
@@ -690,7 +702,49 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     });
 
     return () => { sim.stop(); };
-  }, [visibleNodes, visibleEdges, gameMode, selectedGame, hoveredNode]);
+  }, [visibleNodes, visibleEdges]);
+
+  // Handle visual state updates (hover, game highlights) without rebuilding the whole graph
+  useEffect(() => {
+    if (!gRef.current) return;
+    const container = d3.select(gRef.current);
+
+    // Update edge opacities based on hover/game state
+    container.selectAll<SVGPathElement, any>('g.edges path')
+      .interrupt()
+      .transition().duration(200)
+      .attr('opacity', (d) => {
+        if (!d) return 0.6;
+        if (gameMode && selectedGame) {
+          const gamePair = new Set(selectedGame.players);
+          const s = (d.source as ActorNode).id || d.source;
+          const t = (d.target as ActorNode).id || d.target;
+          return (gamePair.has(s) && gamePair.has(t)) ? 1 : 0.05;
+        }
+        if (hoveredNode) {
+          return (d.source.id === hoveredNode || d.target.id === hoveredNode) ? 1 : 0.1;
+        }
+        return 0.6;
+      });
+
+    // Highlight hovered node or game players
+    container.selectAll<SVGGElement, any>('g.nodes g')
+      .interrupt()
+      .transition().duration(200)
+      .attr('opacity', (d) => {
+        if (!d) return 1;
+        if (gameMode && selectedGame) {
+          return selectedGame.players.includes(d.id) ? 1 : 0.2;
+        }
+        if (hoveredNode) {
+          return (d.id === hoveredNode || visibleEdges.some(e => 
+            (e.source === hoveredNode && e.target === d.id) || 
+            (e.target === hoveredNode && e.source === d.id)
+          )) ? 1 : 0.3;
+        }
+        return 1;
+      });
+  }, [hoveredNode, gameMode, selectedGame, visibleEdges]);
 
   const tunIncomingEdges = EDGES.filter(e => e.target === 'TUN');
   const dominantActor = tunIncomingEdges.sort((a, b) => b.weight - a.weight)[0];
@@ -699,20 +753,20 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
   return (
-    <div className="flex flex-col h-full space-y-4 p-3 md:p-4 relative">
+    <div className="flex flex-col h-full space-y-4 p-3 md:p-6 relative">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 shrink-0">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <Globe className="w-5 h-5 text-intel-cyan" />
-            Geopolitical Actor Network
-          </h2>
-          <p className="text-[9px] font-mono text-slate-600 uppercase tracking-widest mt-1">
-            13 actors · 42 directed relationships · 6 game theory models · Tunisia as sink node
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+      <ModuleHeader 
+        title="Geopolitical Actor Network" 
+        subtitle="13 actors · 42 directed relationships · 6 game theory models" 
+        icon={Globe}
+        statusLabel="UPLINK SECURE"
+        nodeId="GEO-NODE-07"
+      />
+
+      {/* Secondary Actions */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => { setGameMode(!gameMode); setSelectedNode(null); setSelectedEdge(null); }}
             className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase transition-all',
@@ -824,7 +878,10 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
           <button 
             onClick={() => {
               if (svgRef.current && zoomRef.current) {
-                d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(0, 0).scale(0.85));
+                const initialScale = 0.85;
+                const initialTx = (W / 2) * (1 - initialScale);
+                const initialTy = (H / 2) * (1 - initialScale);
+                d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
               }
             }}
             className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
@@ -941,7 +998,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
               </div>
               {selectedGame && <button onClick={() => setSelectedGame(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>}
             </div>
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-4" ref={panelRef}>
               {/* Game selector */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {GAMES.map(g => (
