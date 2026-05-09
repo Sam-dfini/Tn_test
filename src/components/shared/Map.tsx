@@ -388,7 +388,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           <div className="glass px-4 py-2 rounded-lg flex items-center space-x-3">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Active Layer</span>
-              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{activeLayer} Choropleth</span>
+              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{activeLayer}</span>
             </div>
             
             {externalActiveLayer === 'Agricultural Stress' ? (
@@ -425,19 +425,6 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
             )}
           </div>
           
-          <button 
-            onClick={() => setShowChoropleth(!showChoropleth)}
-            className={cn(
-              "glass px-4 py-2 rounded-lg flex items-center justify-between transition-all border",
-              showChoropleth ? "border-intel-cyan/50 text-intel-cyan" : "border-white/10 text-slate-500"
-            )}
-          >
-            <span className="text-[8px] font-mono uppercase tracking-widest">Choropleth</span>
-            <div className={cn(
-              "w-2 h-2 rounded-full ml-3",
-              showChoropleth ? "bg-intel-cyan animate-pulse" : "bg-slate-700"
-            )}></div>
-          </button>
         </div>
       </div>
 

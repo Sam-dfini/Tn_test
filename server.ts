@@ -6,9 +6,10 @@ import fetch from 'node-fetch';
 import https from 'https';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { Server as SocketIOServer } from 'socket.io';
-import { createServer } from 'http';
+import { createServer, Agent as HttpAgent } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
+import ws from 'ws';
 import 'dotenv/config';
 import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
 import { createClient } from '@supabase/supabase-js';
@@ -47,7 +48,12 @@ function startPythonBackend() {
     return null;
   }
 
-  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const venvPython = path.join(__dirname, 'venv', 'bin', 'python');
+  const pythonExe = fs.existsSync(venvPython) ? venvPython : 'python3';
+  
+  console.log(`[Python] Using executable: ${pythonExe}`);
+
+  const pythonProcess = spawn(pythonExe, ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: backendPath,
     stdio: 'pipe', // Capture output
     env: { ...process.env, PYTHONPATH: backendPath }
@@ -83,8 +89,11 @@ const pythonBackendRequirements = async () => {
   
   if (fs.existsSync(reqsPath)) {
     console.log('[Python] Installing requirements from:', reqsPath);
+    const venvPython = path.join(__dirname, 'venv', 'bin', 'python');
+    const pythonExe = fs.existsSync(venvPython) ? venvPython : 'python3';
+
     try {
-      const pip = spawn('python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
+      const pip = spawn(pythonExe, ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
         cwd: backendPath,
         stdio: 'inherit'
       });
@@ -104,22 +113,22 @@ const pythonBackendRequirements = async () => {
     }
   }
   
-  startPythonBackend();
 };
-
-pythonBackendRequirements();
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({
   rejectUnauthorized: false
 });
 
-import http from 'http';
-const insecureHttpAgent = new http.Agent({
+const insecureHttpAgent = new HttpAgent({
   keepAlive: true
 });
 
 async function startServer() {
+  // Ensure Python backend is checked/started first
+  await pythonBackendRequirements();
+  startPythonBackend();
+
   const app = express();
   app.use(express.json({ limit: '10mb' }));
 
@@ -130,7 +139,11 @@ async function startServer() {
   let supabaseServer: any = null;
   if (supabaseUrl && supabaseKey) {
     try {
-      supabaseServer = createClient(supabaseUrl, supabaseKey);
+      supabaseServer = createClient(supabaseUrl, supabaseKey, {
+        realtime: {
+          transport: ws,
+        },
+      });
       console.log('[Supabase] Server-side client initialized with URL:', supabaseUrl);
       
       // Self-healing: Initialize and fix schemas on startup

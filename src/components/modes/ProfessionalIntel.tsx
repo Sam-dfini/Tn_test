@@ -1738,11 +1738,11 @@ Return only the 3-sentence briefing.`;
                 </div>
 
                 {/* Map */}
-                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[400px]">
+                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
                   <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/5 shrink-0">
                     <div className="text-[9px] font-mono uppercase tracking-widest text-slate-300 flex items-center space-x-2">
                       <MapPin className="w-3 h-3 text-intel-cyan" />
-                      <span>Regional Risk Choropleth</span>
+                      <span>Regional Risk</span>
                     </div>
                     <div className="flex items-center space-x-1 border border-intel-cyan/30 bg-intel-cyan/10 px-1 py-0.5 rounded">
                       <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse" />
