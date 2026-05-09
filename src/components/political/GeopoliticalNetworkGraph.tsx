@@ -514,7 +514,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .attr('stroke', d => EDGE_STYLE[d.type].color)
       .attr('stroke-width', d => EDGE_STYLE[d.type].width(d.weight))
       .attr('stroke-dasharray', d => EDGE_STYLE[d.type].dash)
-      .attr('opacity', d => hoveredNode ? (d.source === hoveredNode || d.target === hoveredNode ? 1 : 0.15) : 0.6)
+      .attr('opacity', 0.6)
       .attr('marker-end', d => `url(#arrow-${d.type})`)
       .attr('marker-start', d => d.type === 'competitive' ? 'url(#arrow-competitive-back)' : null)
       .style('cursor', 'pointer')
@@ -695,7 +695,25 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     });
 
     return () => { sim.stop(); };
-  }, [visibleNodes, visibleEdges, gameMode, selectedGame, hoveredNode]);
+  }, [visibleNodes, visibleEdges, gameMode, selectedGame]);
+
+  // ─── HOVER HIGHLIGHTING ───────────────────────────────────────────────────
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    const edges = svg.selectAll('.edges path');
+    
+    if (!hoveredNode) {
+      edges.transition().duration(200).attr('opacity', 0.6);
+      return;
+    }
+
+    edges.transition().duration(200).attr('opacity', (d: any) => {
+      const s = d.source.id || d.source;
+      const t = d.target.id || d.target;
+      return (s === hoveredNode || t === hoveredNode) ? 1 : 0.15;
+    });
+  }, [hoveredNode]);
 
   const tunIncomingEdges = EDGES.filter(e => e.target === 'TUN');
   const dominantActor = tunIncomingEdges.sort((a, b) => b.weight - a.weight)[0];
