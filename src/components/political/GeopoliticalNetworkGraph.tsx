@@ -222,7 +222,12 @@ const RISK_BORDER: Record<string, { width: number; color: string }> = {
 // ─── ORBITAL RADII ────────────────────────────────────────────────────────────
 const ORBIT: Record<number, number> = { 1: 210, 2: 310, 3: 420, 4: 330 };
 
-// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
+// Helper to safely get node label from D3 source/target (which can be string or object)
+const getNodeLabel = (node: any): string => {
+  if (!node) return 'Unknown';
+  if (typeof node === 'string') return node;
+  return node.label || node.id || 'Unknown';
+};
 
 export const GeopoliticalNetworkGraph: React.FC = () => {
   const svgRef    = useRef<SVGSVGElement>(null);
@@ -899,7 +904,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold" style={{ color: EDGE_STYLE[selectedEdge.type].color }}>
-                    {selectedEdge.source as string} → {selectedEdge.target as string}
+                    {getNodeLabel(selectedEdge.source)} → {getNodeLabel(selectedEdge.target)}
                   </div>
                   <div className="text-slate-600 text-[8px] uppercase">{selectedEdge.type} · weight {selectedEdge.weight}/10 · {selectedEdge.domain}</div>
                 </div>
