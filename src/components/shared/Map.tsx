@@ -384,7 +384,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
         </MapContainer>
 
         {/* Overlay UI */}
-        <div className="absolute top-6 left-6 z-[1000] hidden md:flex flex-col space-y-2">
+        <div className="absolute bottom-6 left-6 z-[1000] hidden md:flex flex-col space-y-2">
           <div className="glass px-4 py-2 rounded-lg flex items-center space-x-3">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Active Layer</span>
