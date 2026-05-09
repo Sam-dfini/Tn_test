@@ -1,6 +1,6 @@
 {
-  "name": "TUNISIAINTEL v2.0",
-  "description": "Production-grade political risk intelligence platform for Tunisia. Features independent AI agents, a central mission orchestrator, and a real-time risk modeling engine integrated into a high-performance Node.js service.",
+  "name": "TunisiaIntel v2.0",
+  "description": "A high-fidelity political risk intelligence platform for Tunisia, featuring real-time event tracking, Revolutionary Risk Index (RRI) modeling, economic monitoring, and multi-model AI analysis.",
   "requestFramePermissions": [
     "geolocation"
   ]

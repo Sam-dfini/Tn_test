@@ -95,6 +95,7 @@ import { LivestockMeatIntelligence } from "../agriculture/LivestockMeatIntellige
 import { MilkDairyIntelligence } from "../agriculture/MilkDairyIntelligence";
 import { SocietalFractureMonitor } from "../SocietalFractureMonitor";
 import { NationalCommandCenter } from "../NationalCommandCenter";
+import { DailyBriefing } from "../briefing/DailyBriefing";
 import ActorNetworkIntelligence from "../political/ActorNetworkIntelligence";
 import SimulationIntelligence from "../predictive/SimulationIntelligence";
 import { NewsFeed } from "../shared/NewsFeed";
@@ -128,6 +129,7 @@ const SIDEBAR_CATEGORIES = [
     items: [
       { id: "command-center", label: "National Command", icon: Target },
       { id: "trgm", label: "Governance Matrix", icon: Triangle },
+      { id: "briefing", label: "Daily Briefing", icon: FileText },
       { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
       { id: "calendar", label: "Calendar", icon: Calendar },
       { id: "govagent", label: "Gov. Agent", icon: Brain },
@@ -627,6 +629,7 @@ export const ProfessionalIntel: React.FC<{
   const [activeTab, setActiveTab] = useState<
     | "command-center"
     | "trgm"
+    | "briefing"
     | "overview"
     | "clusters"
     | "events"
@@ -1136,7 +1139,9 @@ Return only the 3-sentence briefing.`;
           className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6"
           id="professional-intel-dossier"
         >
-          {activeTab === "pipeline-control" ? (
+          {activeTab === "briefing" ? (
+            <DailyBriefing />
+          ) : activeTab === "pipeline-control" ? (
             <ObservabilityDashboard onBack={() => setActiveTab("overview")} />
           ) : activeTab === "govagent" ? (
             <GovernmentAgentPanel />
@@ -1738,11 +1743,11 @@ Return only the 3-sentence briefing.`;
                 </div>
 
                 {/* Map */}
-                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[calc(100vh-320px)]">
+                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[400px]">
                   <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/5 shrink-0">
                     <div className="text-[9px] font-mono uppercase tracking-widest text-slate-300 flex items-center space-x-2">
                       <MapPin className="w-3 h-3 text-intel-cyan" />
-                      <span>Regional Risk</span>
+                      <span>Regional Risk Choropleth</span>
                     </div>
                     <div className="flex items-center space-x-1 border border-intel-cyan/30 bg-intel-cyan/10 px-1 py-0.5 rounded">
                       <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse" />

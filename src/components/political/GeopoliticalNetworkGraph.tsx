@@ -222,12 +222,7 @@ const RISK_BORDER: Record<string, { width: number; color: string }> = {
 // ─── ORBITAL RADII ────────────────────────────────────────────────────────────
 const ORBIT: Record<number, number> = { 1: 210, 2: 310, 3: 420, 4: 330 };
 
-// Helper to safely get node label from D3 source/target (which can be string or object)
-const getNodeLabel = (node: any): string => {
-  if (!node) return 'Unknown';
-  if (typeof node === 'string') return node;
-  return node.label || node.id || 'Unknown';
-};
+// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
 export const GeopoliticalNetworkGraph: React.FC = () => {
   const svgRef    = useRef<SVGSVGElement>(null);
@@ -514,7 +509,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .attr('stroke', d => EDGE_STYLE[d.type].color)
       .attr('stroke-width', d => EDGE_STYLE[d.type].width(d.weight))
       .attr('stroke-dasharray', d => EDGE_STYLE[d.type].dash)
-      .attr('opacity', 0.6)
+      .attr('opacity', d => hoveredNode ? (d.source === hoveredNode || d.target === hoveredNode ? 1 : 0.15) : 0.6)
       .attr('marker-end', d => `url(#arrow-${d.type})`)
       .attr('marker-start', d => d.type === 'competitive' ? 'url(#arrow-competitive-back)' : null)
       .style('cursor', 'pointer')
@@ -695,25 +690,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     });
 
     return () => { sim.stop(); };
-  }, [visibleNodes, visibleEdges, gameMode, selectedGame]);
-
-  // ─── HOVER HIGHLIGHTING ───────────────────────────────────────────────────
-  useEffect(() => {
-    if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
-    const edges = svg.selectAll('.edges path');
-    
-    if (!hoveredNode) {
-      edges.transition().duration(200).attr('opacity', 0.6);
-      return;
-    }
-
-    edges.transition().duration(200).attr('opacity', (d: any) => {
-      const s = d.source.id || d.source;
-      const t = d.target.id || d.target;
-      return (s === hoveredNode || t === hoveredNode) ? 1 : 0.15;
-    });
-  }, [hoveredNode]);
+  }, [visibleNodes, visibleEdges, gameMode, selectedGame, hoveredNode]);
 
   const tunIncomingEdges = EDGES.filter(e => e.target === 'TUN');
   const dominantActor = tunIncomingEdges.sort((a, b) => b.weight - a.weight)[0];
@@ -722,7 +699,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
   return (
-    <div className="flex flex-col space-y-4 p-3 md:p-4 relative">
+    <div className="flex flex-col h-full space-y-4 p-3 md:p-4 relative">
 
       {/* Header */}
       <div className="flex items-start justify-between gap-4 shrink-0">
@@ -922,7 +899,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-bold" style={{ color: EDGE_STYLE[selectedEdge.type].color }}>
-                    {getNodeLabel(selectedEdge.source)} → {getNodeLabel(selectedEdge.target)}
+                    {selectedEdge.source as string} → {selectedEdge.target as string}
                   </div>
                   <div className="text-slate-600 text-[8px] uppercase">{selectedEdge.type} · weight {selectedEdge.weight}/10 · {selectedEdge.domain}</div>
                 </div>
