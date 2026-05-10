@@ -5,6 +5,14 @@ coverage/
 *.log
 .env*
 !.env.example
+# Python virtual environments
 venv/
+temp_venv/
 env/
 ENV/
+.env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
