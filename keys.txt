@@ -1,0 +1,913 @@
+src/components/tactical/MacroMarkets.tsx:              <div key={m.label} className="group">
+src/components/tactical/MacroMarkets.tsx:              <div key={f.label} className="p-2 bg-white/5 rounded border border-white/5 hover:border-intel-cyan/30 transition-all">
+src/components/tactical/MacroMarkets.tsx:              <div key={idx.label}>
+src/components/tactical/SignalIntelCard.tsx:                        key={eq}
+src/components/tactical/SignalIntelCard.tsx:                        key={idx}
+src/components/tactical/FireLayer.tsx:          key={`fire-${idx}-${fire.lat}-${fire.lon}`}
+src/components/tactical/CrossSourceSignals.tsx:            key={generateStableKey(signal, i, 'signal')} 
+src/components/tactical/OSINTStream.tsx:            key={assertKey(getRenderKey(n, i, 'osint'))} 
+src/components/tactical/OSINTStream.tsx:                  <span key={assertKey(getRenderKey(t, j, 'tag'))} className="text-[7px] font-mono font-bold px-1 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded uppercase">
+src/components/tactical/WeatherWidget.tsx:              <div key={`forecast-${f.day}-${i}`} className="p-2 bg-white/5 rounded border border-white/5 flex flex-col items-center space-y-1">
+src/components/tactical/NewsTicker.tsx:              key={assertKey(getRenderKey(item, index, 'ntk'))}
+src/components/tactical/RealTimeNewsFeed.tsx:                    key={assertKey(getUniqueKey('sev', sev))}
+src/components/tactical/RealTimeNewsFeed.tsx:                      <div key={err.id} className="flex items-center space-x-2 text-[9px] font-mono text-intel-red/80 px-2 py-1 bg-intel-red/5 rounded">
+src/components/tactical/RealTimeNewsFeed.tsx:                <div key={item.id} className="flex items-center space-x-2 px-4 border-r border-intel-red/10">
+src/components/tactical/RealTimeNewsFeed.tsx:                key={article.id}
+src/components/tactical/RealTimeNewsFeed.tsx:                                          <span key={k.id} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k.value}</span>
+src/components/tactical/TacticalDashboard.tsx:                key={tab.id}
+src/components/tactical/TacticalDashboard.tsx:                <div key={item.id} className="flex flex-col items-center space-y-1 group relative">
+src/components/tactical/TacticalDashboard.tsx:                  <div key={assertKey(getRenderKey(article, idx, 'tac-t1-article'))} className="flex items-center space-x-3">
+src/components/tactical/TacticalDashboard.tsx:                    <div key={assertKey(getRenderKey(article, idx, 'tac-t2-article'))} className="flex items-center space-x-3">
+src/components/tactical/TacticalDashboard.tsx:                key={tab.id}
+src/components/tactical/TacticalDashboard.tsx:                  <div key={breach.id} className="bg-intel-red/5 border border-intel-red/20 p-2 rounded flex items-center justify-between">
+src/components/tactical/TacticalDashboard.tsx:                    <div key={driver.id} className="bg-intel-cyan/5 border border-intel-cyan/20 p-2 rounded">
+src/components/tactical/TacticalDashboard.tsx:                    <div key={rec.id} className="bg-white/5 border border-white/10 p-2 rounded">
+src/components/tactical/TacticalDashboard.tsx:                <div key={assertKey(getRenderKey(event, idx, 'tac-fe-1'))} className="flex items-center space-x-2">
+src/components/tactical/TacticalDashboard.tsx:                <div key={assertKey(getRenderKey(event, idx, 'tac-fe-2'))} className="flex items-center space-x-2">
+src/components/tactical/SocialMonitor.tsx:                <div key={generateStableKey(h, index, 'hashtag')} className="bg-white/5 border border-white/10 p-2 rounded flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
+src/components/tactical/SocialMonitor.tsx:                <div key={generateStableKey(p, index, 'post')} className="border-l-2 border-intel-cyan/20 pl-3 space-y-1 relative group">
+src/components/tactical/LiveSignalFeed.tsx:              <button key={f}
+src/components/tactical/LiveSignalFeed.tsx:                key={c.id}
+src/components/tactical/BreakingIntelFeed.tsx:              key={generateStableKey(update)} 
+src/components/tactical/SignalCore.tsx:          <div key={generateStableKey(m, i, 'metric')} className="space-y-1.5 group">
+src/components/tactical/SweepDelta.tsx:          <div key={generateStableKey(item, i, 'chg')} className="flex items-center space-x-2">
+src/components/tactical/RiskGauges.tsx:          <div key={generateStableKey(g, i, 'gauge')} className="space-y-1 bg-white/5 p-2 rounded border border-intel-border/10">
+src/components/tactical/IncidentWidgets.tsx:          <div key={assertKey(getRenderKey(fire, idx, 'fire'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+src/components/tactical/IncidentWidgets.tsx:          <div key={assertKey(getRenderKey(cut, idx, 'cut'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+src/components/tactical/IncidentWidgets.tsx:          <div key={assertKey(getRenderKey(acc, idx, 'acc'))} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
+src/components/tactical/IncidentWidgets.tsx:          <div key={assertKey(getRenderKey(item, idx, 'sui'))} className="flex items-center justify-between p-2 rounded bg-white/5 border border-white/5">
+src/components/tactical/IncidentWidgets.tsx:          <div key={assertKey(getRenderKey(item, idx, 'vio'))} className="flex flex-col p-2 rounded bg-white/5 border border-white/5 space-y-1">
+src/components/tactical/LeverageableIdeas.tsx:            <div key={idea.id} className="p-4 rounded-xl border border-white/5 bg-black/20 space-y-3 group hover:border-white/10 transition-all">
+src/components/tactical/IdeologicalIntelligence.tsx:                <div key={block.name} className={cn("p-3 rounded-lg border transition-all hover:border-white/20", block.color)}>
+src/components/tactical/IdeologicalIntelligence.tsx:                <div key={`${alliance.year}-${alliance.title}`} className="relative pl-10 group">
+src/components/tactical/ClusterIntelligence.tsx:            key={tab.id}
+src/components/tactical/ClusterIntelligence.tsx:              key={generateStableKey(cluster, idx, 'cluster')}
+src/components/tactical/ClusterIntelligence.tsx:            <div key={generateStableKey(g, i, 'cluster-group')} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/tactical/ClusterIntelligence.tsx:                  <span key={generateStableKey(gov, j, 'gov-badge')} className="text-[8px] font-mono bg-white/5 px-1.5 py-0.5 rounded text-slate-400">{gov}</span>
+src/components/tactical/ClusterIntelligence.tsx:                    <Cell key={generateStableKey(entry, i, 'cell')} fill={entry.composite > 0.7 ? '#ef4444' : entry.composite > 0.55 ? '#f97316' : entry.composite > 0.45 ? '#8b5cf6' : '#10b981'} />
+src/components/tactical/ClusterIntelligence.tsx:                    <th key={generateStableKey(h, index, 'header')} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/tactical/ClusterIntelligence.tsx:                  <tr key={generateStableKey(row, i, 'gov-row')} className="hover:bg-white/[0.02]">
+src/components/tactical/ClusterIntelligence.tsx:                      <td key={generateStableKey(key, j, 'gov-val')} className="py-2 pr-4">
+src/components/tactical/ClusterIntelligence.tsx:              <span key={generateStableKey(l, i, 'legend')} className="flex items-center gap-1.5">
+src/components/tactical/NuclearWatch.tsx:          <div key={site.name} className="flex items-center justify-between">
+src/components/tactical/TacticalMap.tsx:              key={generateStableKey(gf, i, 'gf')}
+src/components/tactical/TacticalMap.tsx:              key={generateStableKey(path, i, 'cascade')}
+src/components/tactical/TacticalMap.tsx:                key={generateStableKey(event, index, 'evt')}
+src/components/tactical/TacticalMap.tsx:                    key={generateStableKey(layer, idx, 'lay-ctrl')}
+src/components/tactical/TacticalMap.tsx:                  key={generateStableKey(range, idx, 'fire-rg')}
+src/components/tactical/TacticalMap.tsx:              <div key={generateStableKey(item, idx, 'leg-it')} className="flex items-center space-x-1">
+src/components/tactical/TacticalMap.tsx:                  key={generateStableKey(layer, idx, 'lay-sel')}
+src/components/tactical/TacticalMap.tsx:                  key={generateStableKey(type, idx, 'ty-sel')}
+src/components/tactical/TacticalMap.tsx:          <div key={generateStableKey(item, idx, 'leg-it-2')} className="flex items-center space-x-2">
+src/components/tactical/TacticalMap.tsx:                  <div key={generateStableKey(item, idx, 'core-stat')} className="bg-black/30 rounded-lg p-2.5 border border-intel-border/30 space-y-1">
+src/components/tactical/TacticalMap.tsx:                    <div key={generateStableKey(item, idx, 'soc-ind')} className="space-y-0.5">
+src/components/tactical/TacticalMap.tsx:                        <span key={generateStableKey(t, i, 'tribe')} className="text-[8px] font-mono px-1.5 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded">{t}</span>
+src/components/tactical/TacticalMap.tsx:                  <div key={generateStableKey(p, idx, 'forecast')} className="flex items-center space-x-3">
+src/components/tactical/TacticalMap.tsx:                  <div key={generateStableKey(event, index, 'gov-evt')} className="flex items-start space-x-2 p-2 rounded-lg bg-black/30 border border-intel-border/30">
+src/components/tactical/SensorGrid.tsx:          <div key={s.label} className="bg-white/5 p-2 rounded border border-intel-border/10 group cursor-pointer hover:bg-white/10 transition-colors">
+src/components/tactical/LiveMediaStreams.tsx:                  key={activeStream.id}
+src/components/tactical/LiveMediaStreams.tsx:                    key={`wave-${i}`}
+src/components/tactical/LiveMediaStreams.tsx:                key={cat.id}
+src/components/tactical/LiveMediaStreams.tsx:                key={`${stream.id}-${index}`}
+src/components/security/RadicalisationIntelligence.tsx:                <span key={generateStableKey(sig, i, 'signal')} className={`text-[8px] font-mono px-2 py-0.5
+src/components/security/RadicalisationIntelligence.tsx:            <button key={generateStableKey(s.id, 0, 'nav')}
+src/components/security/RadicalisationIntelligence.tsx:        <motion.div key={activeSection}
+src/components/security/RadicalisationIntelligence.tsx:                      <div key={generateStableKey(lvl, idx, 'level')}
+src/components/security/RadicalisationIntelligence.tsx:                    <div key={generateStableKey(comp.label, i, 'breakdown')} className="space-y-1.5">
+src/components/security/RadicalisationIntelligence.tsx:                      <div key={generateStableKey(pole, idx, 'pole')}
+src/components/security/RadicalisationIntelligence.tsx:                    <div key={generateStableKey(step.stage, i, 'pipeline-step')}>
+src/components/security/RadicalisationIntelligence.tsx:                <div key={generateStableKey(eq.eq, i, 'equation-card')}
+src/components/security/RadicalisationIntelligence.tsx:                        <li key={generateStableKey(s.slice(0, 20), i, 'strat-low')} className="flex items-start space-x-2">
+src/components/security/RadicalisationIntelligence.tsx:                        <li key={generateStableKey(s.slice(0, 20), i, 'strat-mid')} className="flex items-start space-x-2">
+src/components/security/RadicalisationIntelligence.tsx:                        <li key={generateStableKey(s.slice(0, 20), i, 'strat-high')} className={`flex items-start space-x-2 ${
+src/components/security/RadicalisationIntelligence.tsx:                      <div key={generateStableKey(row.gov, i, 'geo-ranking')} className="flex items-center gap-3 py-1.5 border-b border-white/5 last:border-0">
+src/components/security/RadicalisationIntelligence.tsx:                        <div key={generateStableKey(p.facility, i, 'prison-node')} className={`p-3 rounded-xl border space-y-1 ${p.severity === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.severity === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
+src/components/security/RadicalisationIntelligence.tsx:                      <div key={generateStableKey(v.platform, i, 'online-vector')} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+src/components/security/CognitiveWarfare.tsx:        <div key={r.label} className="flex items-center gap-3 py-1 border-b border-white/5">
+src/components/security/CognitiveWarfare.tsx:                    <VectorBar key={v.label} {...v} />
+src/components/security/CognitiveWarfare.tsx:                        <div key={i} className="flex items-center gap-1.5">
+src/components/security/CognitiveWarfare.tsx:                    <div key={i} className="flex items-start gap-2">
+src/components/security/CognitiveWarfare.tsx:            <button key={s.id} onClick={() => setActiveSection(s.id as any)}
+src/components/security/CognitiveWarfare.tsx:                ].map(v => <VectorBar key={v.label} {...v} />)}
+src/components/security/CognitiveWarfare.tsx:                  <div key={m.l}>
+src/components/security/CognitiveWarfare.tsx:            <AnalysisCard key={a.id} analysis={a}
+src/components/security/CognitiveWarfare.tsx:              <motion.div key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+src/components/security/CognitiveWarfare.tsx:                    <div key={k} className="text-center">
+src/components/security/Cases.tsx:            key={c.id}
+src/components/security/FireIntelligencePanel.tsx:              <div key={m.label} className="text-center sm:text-left">
+src/components/security/FireIntelligencePanel.tsx:            <div key={item.label} className="flex items-center space-x-1.5">
+src/components/security/FireIntelligencePanel.tsx:          <button key={f} onClick={() => setFilter(f)}
+src/components/security/FireIntelligencePanel.tsx:      {!loading && <div className="space-y-2">{filtered.map(s => <FireCard key={s.id} s={s} />)}</div>}
+src/components/security/FireIntelligencePanel.tsx:            <div key={i.label} className="flex flex-col sm:flex-row sm:items-start gap-1 sm:space-x-3 text-[8px]">
+src/components/security/SecurityIntelligence.tsx:            key={cat.id}
+src/components/security/SecurityIntelligence.tsx:          key={activeCategory}
+src/components/security/SecurityIntelligence.tsx:            <div key={metric.id} className="glass p-3 md:p-4 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden group">
+src/components/security/SecurityIntelligence.tsx:                    <div key={metric.id} className="p-4 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between group hover:border-intel-cyan/30 transition-all">
+src/components/security/SecurityIntelligence.tsx:                    <div key={hotspot.id} className="p-3 rounded-xl bg-white/5 border border-intel-border">
+src/components/security/SecurityIntelligence.tsx:                <div key={item.id} className="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between group hover:border-intel-cyan/30 transition-all">
+src/components/security/SecurityIntelligence.tsx:                      <Cell key={entry.id} fill={entry.color} />
+src/components/security/SecurityIntelligence.tsx:              <div key={drug.id} className="space-y-2">
+src/components/security/SecurityIntelligence.tsx:              <div key={route.id} className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3 relative overflow-hidden group">
+src/components/security/SecurityIntelligence.tsx:                    <div key={assertKey(getRenderKey(cause, i, 'seccau'))} className="space-y-2">
+src/components/security/SecurityIntelligence.tsx:                    <div key={assertKey(getRenderKey(route, i, 'seccor'))} className="p-3 rounded-xl bg-white/5 border border-intel-border">
+src/components/security/SecurityIntelligence.tsx:              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/security/SecurityIntelligence.tsx:                  <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+src/components/security/SecurityIntelligence.tsx:                <div key={i} className={`p-4 rounded-xl border space-y-2 ${a.activity === 'ELEVATED' ? 'border-intel-orange/30 bg-intel-orange/5' : 'border-intel-border bg-white/[0.02]'}`}>
+src/components/security/SecurityIntelligence.tsx:              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/security/SecurityIntelligence.tsx:                  <div key={i} className="space-y-1.5 py-2 border-b border-white/5 last:border-0">
+src/components/security/SecurityIntelligence.tsx:              <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/security/SecurityIntelligence.tsx:                  <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+src/components/security/SecurityIntelligence.tsx:                      <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/security/SecurityIntelligence.tsx:                    <tr key={i} className="hover:bg-white/[0.02]">
+src/components/security/SecurityIntelligence.tsx:              <div key={assertKey(getRenderKey(spot, index, 'sechot'))} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-cyan/30 transition-all group">
+src/components/security/Suspects.tsx:                key={s.id}
+src/components/security/CognitiveSecurityIntelligence.tsx:            <button key={s.id}
+src/components/security/CognitiveSecurityIntelligence.tsx:        <motion.div key={activeSection}
+src/components/security/CognitiveSecurityIntelligence.tsx:                      key={narrative.id}
+src/components/security/CognitiveSecurityIntelligence.tsx:                            <div key={e.key} className="space-y-1">
+src/components/security/CognitiveSecurityIntelligence.tsx:                    <button key={n.id}
+src/components/security/CognitiveSecurityIntelligence.tsx:                            <div key={`${e}-${index}`}
+src/components/security/CognitiveSecurityIntelligence.tsx:                                <span key={`${a}-${index}`}
+src/components/security/CognitiveSecurityIntelligence.tsx:                            <span key={`${s}-${index}`}
+src/components/security/CognitiveSecurityIntelligence.tsx:                            <div key={i}
+src/components/security/CognitiveSecurityIntelligence.tsx:                      <div key={phase} className="space-y-3 relative z-10">
+src/components/security/CognitiveSecurityIntelligence.tsx:                          <div key={n.id}
+src/components/security/CognitiveSecurityIntelligence.tsx:                  <div key={n.id} className="space-y-2">
+src/components/security/CognitiveSecurityIntelligence.tsx:                <div key={strategy.phase}
+src/components/security/CognitiveSecurityIntelligence.tsx:                      <div key={i} className="flex items-start space-x-2 text-[10px]">
+src/components/security/GovernmentAgentPanel.tsx:            <button key={s.id}
+src/components/security/GovernmentAgentPanel.tsx:        <motion.div key={activeSection}
+src/components/security/GovernmentAgentPanel.tsx:                    <div key={i} className="flex items-start space-x-3">
+src/components/security/GovernmentAgentPanel.tsx:                  <div key={i}
+src/components/security/GovernmentAgentPanel.tsx:                    <div key={i}
+src/components/security/GovernmentAgentPanel.tsx:                <div key={i} className="glass p-5 rounded-2xl border border-intel-border/50 space-y-3">
+src/components/security/GovernmentAgentPanel.tsx:                    <div key={i}
+src/components/political/PoliticalCalendar.tsx:              <span key={`${org}-${index}`} className="text-[8px] font-mono px-2 py-0.5 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded">
+src/components/political/PoliticalCalendar.tsx:            <span key={`${v}-${index}`} className="text-[8px] font-mono px-2 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded">
+src/components/political/PoliticalCalendar.tsx:          <span key={`${s}-${index}`} className="text-[8px] font-mono text-slate-700">{s}</span>
+src/components/political/PoliticalCalendar.tsx:                <button key={v.id}
+src/components/political/PoliticalCalendar.tsx:            <div key={stat.label} className="glass p-4 rounded-2xl border border-intel-border space-y-1">
+src/components/political/PoliticalCalendar.tsx:                <div key={d} className="text-center text-[9px] font-mono text-slate-600 uppercase py-2">
+src/components/political/PoliticalCalendar.tsx:                if (!day) return <div key={`empty-${i}`} className="h-16" />;
+src/components/political/PoliticalCalendar.tsx:                    key={day}
+src/components/political/PoliticalCalendar.tsx:                        <div key={j} className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: event.upcoming ? `${EVENT_COLORS[event.type]}80` : EVENT_COLORS[event.type], border: event.upcoming ? `1px dashed ${EVENT_COLORS[event.type]}` : 'none' }} />
+src/components/political/PoliticalCalendar.tsx:                <motion.div key={selectedDay} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+src/components/political/PoliticalCalendar.tsx:                      <div key={event.id} className={`p-4 rounded-xl border space-y-3 ${event.upcoming ? 'border-intel-cyan/20 bg-intel-cyan/5' : event.type === 'arrest' || event.type === 'decree' ? 'border-intel-red/20 bg-intel-red/5' : event.type === 'trial' ? 'border-intel-purple/20 bg-intel-purple/5' : 'border-intel-border/30 bg-black/20'}`}>
+src/components/political/PoliticalCalendar.tsx:                    <PrisonerCard key={p.id} prisoner={p as any} compact onClick={() => { setSelectedPrisoner(p as any); setView('prisoners'); }} />
+src/components/political/PoliticalCalendar.tsx:                <div key={prisoner.id}>
+src/components/political/PoliticalCalendar.tsx:                <div key={prisoner.id} className="flex items-start justify-between p-4 rounded-xl border border-intel-border/30 bg-black/20 gap-4">
+src/components/political/PyramidHierarchy.tsx:                  <div key={generateStableKey('hierarchy-indicator', i, 'pyramid')} className={cn("w-2 h-1", i < 4 ? "bg-[#71b1c6]" : "bg-[#71b1c6]/20")} />
+src/components/political/PyramidHierarchy.tsx:                    key={i}
+src/components/political/PyramidHierarchy.tsx:                  key={i}
+src/components/political/PyramidHierarchy.tsx:                           key={angle}
+src/components/political/PyramidHierarchy.tsx:                           key={angle}
+src/components/political/PyramidHierarchy.tsx:              key={tickerIndex}
+src/components/political/PoliticalIntelligence.tsx:            key={tab.id}
+src/components/political/CivilMovements.tsx:          <div key={`stat-${stat.label}`} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+src/components/political/CivilMovements.tsx:                    key={t}
+src/components/political/CivilMovements.tsx:                key={movement.id}
+src/components/political/CivilMovements.tsx:                    <span key={`hotspot-${movement.id}-${h}`} className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] text-slate-400 flex items-center">
+src/components/political/CivilMovements.tsx:                                <li key={`demand-${movement.id}-${d}`} className="text-[10px] text-slate-400 flex items-center">
+src/components/political/CivilMovements.tsx:                                <span key={a} className="px-2 py-1 bg-white/5 rounded-lg text-[9px] text-slate-400 border border-white/5">
+src/components/political/CivilMovements.tsx:                <div key={gov.name} className="space-y-2">
+src/components/political/CivilMovements.tsx:                  <div key={i} className="flex items-center space-x-2 text-[9px] text-slate-300">
+src/components/political/Elections.tsx:                        key={`cell-${index}`} 
+src/components/political/Elections.tsx:                <div key={r.name} className="space-y-3">
+src/components/political/Elections.tsx:                <div key={party.name} className="p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-purple/30 transition-colors">
+src/components/political/Elections.tsx:                <div key={item.label} className="space-y-2">
+src/components/political/Actors.tsx:            key={actor.id}
+src/components/political/Actors.tsx:            <div key={i} className="flex items-start space-x-4 p-4 bg-white/5 rounded-xl border border-intel-border">
+src/components/political/FreedomIndex.tsx:            key={generateStableKey(tab, i, 'tab')}
+src/components/political/FreedomIndex.tsx:              <div key={generateStableKey(stat, i, 'd54-stat')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+src/components/political/FreedomIndex.tsx:                        <Cell key={`cell-${index}`} fill={entry.charges > 10 ? '#ef4444' : entry.charges > 6 ? '#f97316' : '#fbbf24'} />
+src/components/political/FreedomIndex.tsx:                  <div key={generateStableKey(item, i, 'cat')} className="space-y-2">
+src/components/political/FreedomIndex.tsx:                      <tr key={generateStableKey(row, i, 'case')} className="group hover:bg-white/5 transition-colors">
+src/components/political/FreedomIndex.tsx:                  <div key={generateStableKey(incident, i, 'throttle')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+src/components/political/FreedomIndex.tsx:                        <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/political/FreedomIndex.tsx:                  <div key={generateStableKey(item, i, 'det-break')} className="flex items-center justify-between text-[10px] font-mono">
+src/components/political/FreedomIndex.tsx:                <div key={generateStableKey(detainee, i, 'detainee')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
+src/components/political/FreedomIndex.tsx:              <div key={generateStableKey(group, i, 'media-group')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4">
+src/components/political/FreedomIndex.tsx:                    <div key={generateStableKey(media, j, 'media-item')} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
+src/components/political/FreedomIndex.tsx:                  <div key={generateStableKey(event, i, 'erosion')} className="relative pl-8 group">
+src/components/political/FreedomIndex.tsx:                        <tr key={generateStableKey(row, i, 'health')} className="group hover:bg-white/5 transition-colors">
+src/components/political/ActorNetwork.tsx:                key={generateStableKey(align, i, 'align')}
+src/components/political/ActorNetwork.tsx:                <g key={generateStableKey(rel, idx, 'rel-line')} opacity={isDimmed ? 0.1 : opacity}>
+src/components/political/ActorNetwork.tsx:                  key={generateStableKey(actor, idx, 'node')} 
+src/components/political/ActorNetwork.tsx:                            {prepareList(actors.filter(a => a.id !== selectedActor.id)).map((a: any, i: number) => <option key={generateStableKey(a, i, 'opt')} value={a.id}>{a.name}</option>)}
+src/components/political/ActorNetwork.tsx:                              key={generateStableKey(s, i, 'strength')}
+src/components/political/ActorNetwork.tsx:                        <div key={generateStableKey(rel, idx, 'net-rel')} className="group flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-all">
+src/components/political/ActorNetwork.tsx:                                <div key={generateStableKey({}, i, 'strength-dot')} className={`w-1 h-1 rounded-full ${i < rel.strength ? 'bg-intel-cyan' : 'bg-slate-700'}`} />
+src/components/political/ActorNetwork.tsx:                    <div key={s.id} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
+src/components/political/PartyDossier.tsx:          <div key={i} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+src/components/political/PartyDossier.tsx:              key={a}
+src/components/political/PartyDossier.tsx:          <div key={party.id} className="intel-card rounded-3xl border border-intel-border overflow-hidden flex flex-col">
+src/components/political/PartyDossier.tsx:                    <div key={i} className="flex items-start space-x-2 text-[10px] text-slate-400">
+src/components/political/PartyDossier.tsx:                              <span key={`${link}-${index}`} className="flex items-center space-x-1 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] text-slate-400">
+src/components/political/PartyDossier.tsx:            <div key={i} className={cn("p-4 rounded-2xl border space-y-3", coalition.color)}>
+src/components/political/PartyDossier.tsx:                  <span key={p} className="text-[8px] font-mono px-1.5 py-0.5 bg-black/40 text-slate-400 border border-white/5 rounded">
+src/components/political/GeopoliticalNetworkGraph.tsx:              {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
+src/components/political/GeopoliticalNetworkGraph.tsx:              {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+src/components/political/GeopoliticalNetworkGraph.tsx:              {[1, 2, 3, 4].map(t => <option key={t} value={t}>Tier {t}</option>)}
+src/components/political/GeopoliticalNetworkGraph.tsx:                 <span key={type} className="flex items-center gap-1 text-[8px] font-mono" style={{ color: EDGE_STYLE[type as EdgeType].color }}>
+src/components/political/GeopoliticalNetworkGraph.tsx:                            <div key={k} className="space-y-1">
+src/components/political/GeopoliticalNetworkGraph.tsx:                           {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400 flex gap-2"><span>→</span> {g}</div>)}
+src/components/political/GeopoliticalNetworkGraph.tsx:                           {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80 flex gap-2"><span>⚠</span> {c}</div>)}
+src/components/political/GeopoliticalNetworkGraph.tsx:                        <button key={game.id} onClick={() => setSelectedGame(game)}
+src/components/political/GeopoliticalNetworkGraph.tsx:                  <button key={g.id} onClick={() => setSelectedGame(selectedGame === g ? null : g)}
+src/components/political/GeopoliticalNetworkGraph.tsx:                              <th key={i} className="px-2 py-2 text-center border-l border-white/5">{c}</th>
+src/components/political/GeopoliticalNetworkGraph.tsx:                            <tr key={ri} className="border-t border-white/5">
+src/components/political/GeopoliticalNetworkGraph.tsx:                                  <td key={ci} className={cn('px-2 py-4 text-center border-l border-white/5 transition-colors relative',
+src/components/political/PoliticalStabilityIntelligence.tsx:              <div key={generateStableKey(comp, i, 'comp')} className="space-y-2">
+src/components/political/PoliticalStabilityIntelligence.tsx:                <tr key={generateStableKey(profile, i, 'ministry')} className="hover:bg-white/5 transition-colors group">
+src/components/political/PoliticalStabilityIntelligence.tsx:              <div key={generateStableKey(event, i, 'event')} className="relative pl-8">
+src/components/political/PoliticalStabilityIntelligence.tsx:                <div key={generateStableKey(signal, i, 'signal')} className="flex items-center gap-3 p-2 bg-white/5 rounded-lg border border-white/5">
+src/components/political/UGTTMonitor.tsx:          <div key={generateStableKey(stat, i, 'stat')} className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
+src/components/political/UGTTMonitor.tsx:                    <div key={generateStableKey(reg, i, 'reg')} className="space-y-1">
+src/components/political/UGTTMonitor.tsx:                    <div key={generateStableKey(member, i, 'member')} className="p-3 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center group hover:border-intel-cyan/30 transition-all">
+src/components/political/UGTTMonitor.tsx:                    <tr key={generateStableKey(neg, i, 'neg')} className="group hover:bg-white/5 transition-colors">
+src/components/political/UGTTMonitor.tsx:                  <div key={generateStableKey(factor, i, 'factor')} className="space-y-1.5">
+src/components/political/UGTTMonitor.tsx:                <div key={generateStableKey(strike, i, 'strike')} className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2 group hover:border-intel-cyan/30 transition-all cursor-pointer">
+src/components/political/UGTTMonitor.tsx:                <div key={generateStableKey(trigger, i, 'trigger')} className="space-y-1">
+src/components/political/SentimentAnalysis.tsx:              key={tab.id}
+src/components/political/SentimentAnalysis.tsx:                <div key={i} className="intel-card p-6 md:p-8 rounded-3xl border-l-2 border-l-intel-cyan">
+src/components/political/SentimentAnalysis.tsx:                  <div key={actor.actor} className="space-y-2">
+src/components/political/SentimentAnalysis.tsx:                  <div key={topic.topic} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+src/components/political/SentimentAnalysis.tsx:                  <div key={platform.name} className="space-y-2">
+src/components/political/SentimentAnalysis.tsx:                      <tr key={region.region} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+src/components/political/PoliticalOverview.tsx:                  <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+src/components/political/PoliticalOverview.tsx:                key={i} 
+src/components/political/PoliticalOverview.tsx:                    <div key={i} className="flex items-center justify-between text-[10px] font-mono p-2 hover:bg-white/5 rounded-lg transition-colors">
+src/components/political/PoliticalOverview.tsx:                {ideologies.map((id, index) => <option key={`ideology-${id}-${index}`} value={id} className="bg-intel-bg">{id}</option>)}
+src/components/political/PoliticalOverview.tsx:                {stances.map((st, index) => <option key={`stance-${st}-${index}`} value={st} className="bg-intel-bg">{st}</option>)}
+src/components/political/PoliticalOverview.tsx:                    <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/political/PoliticalOverview.tsx:              <div key={`${party.name}-${index}`} className="flex items-center justify-between text-[10px]">
+src/components/political/PoliticalOverview.tsx:            <div key={metric.label} className="glass p-4 rounded-xl border border-intel-border/50 space-y-3">
+src/components/political/PoliticalOverview.tsx:                <div key={risk.category} className="flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5">
+src/components/political/PoliticalOverview.tsx:                <div key={`timeline-event-${event.date}-${i}`} className="relative pl-12 group">
+src/components/political/ActorNetworkIntelligence.tsx:              <div key={generateStableKey(issue, idx, 'issue')} className="relative">
+src/components/political/ActorNetworkIntelligence.tsx:                    <span key={generateStableKey(aff, affIdx, 'cluster')} className="text-[10px] px-1 bg-orange-600 text-black rounded tracking-widest uppercase font-mono">
+src/components/political/ActorNetworkIntelligence.tsx:                key={generateStableKey(align, alignIdx, 'align')}
+src/components/political/ActorNetworkIntelligence.tsx:                key={generateStableKey(actor, actorIdx, 'actor')} 
+src/components/shared/Onboarding.tsx:              key={currentStep}
+src/components/shared/Onboarding.tsx:                key={generateStableKey(step, i, 'onboarding-step')} 
+src/components/shared/NewsFeed.tsx:                key={sev}
+src/components/shared/NewsFeed.tsx:                key={generateStableKey(article)}
+src/components/shared/NotificationPanel.tsx:              <span key={generateStableKey(fc, i, 'fc')} className="text-[8px] font-mono
+src/components/shared/NotificationPanel.tsx:                  key={generateStableKey(f, i, 'filter')}
+src/components/shared/NotificationPanel.tsx:                      key={generateStableKey(n, i, 'notif')}
+src/components/shared/NotificationToast.tsx:            key={toast.id}
+src/components/shared/IntelligenceDossierExporterModal.tsx:                        key={f.id}
+src/components/shared/IntelligenceDossierExporterModal.tsx:                          key={c.id}
+src/components/shared/IntelligenceDossierExporterModal.tsx:                        key={section.id}
+src/components/shared/ProfessionalShared.tsx:            key={range}
+src/components/shared/ProfessionalShared.tsx:        <div key={`ticker-item-${i}`} className="flex items-center space-x-8 mx-4 md:mx-8">
+src/components/shared/PremiumReport.tsx:                <div key={box.label} className="bg-black/60 border border-[#FFB300]/30 rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+src/components/shared/PremiumReport.tsx:                  <div key={m.label} className="flex justify-between items-center border-b border-white/5 pb-2">
+src/components/shared/PremiumReport.tsx:                  <div key={a.label} className="space-y-1">
+src/components/shared/PremiumReport.tsx:              <div key={e.label} className="flex justify-between items-center border-b border-white/5 pb-2">
+src/components/shared/PremiumReport.tsx:                  <div key={s.label} className="flex justify-between items-center border-b border-white/5 pb-2">
+src/components/shared/PremiumReport.tsx:                  <div key={`${t}-${index}`} className="flex items-center space-x-2 bg-red-500/5 border border-red-500/20 px-2 py-1.5 rounded">
+src/components/shared/PremiumReport.tsx:                  <tr key={p[0]} className="hover:bg-white/5 transition-colors">
+src/components/shared/PremiumReport.tsx:                <div key={`${t}-${index}`} className="flex items-center space-x-2 bg-red-500/5 border border-red-500/20 px-3 py-2 rounded">
+src/components/shared/PremiumReport.tsx:                <div key={g.label} className="bg-white/5 border border-white/10 rounded-2xl p-6">
+src/components/shared/Timeline.tsx:          <div key={stat.label} className="glass p-4 rounded-xl border border-intel-border flex flex-col items-center">
+src/components/shared/Timeline.tsx:              key={t}
+src/components/shared/Timeline.tsx:              {governorates.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+src/components/shared/Timeline.tsx:              key={event.id}
+src/components/shared/Timeline.tsx:                    <span key={`${actor}-${idx}`} className="text-[8px] font-mono px-2 py-0.5 bg-white/5 text-slate-500 border border-white/10 rounded">
+src/components/shared/TacticalLoading.tsx:            <div key={generateStableKey(stat, i, 'stat')} className="bg-black/40 border border-intel-border p-2 md:p-3 rounded flex flex-col items-center text-center">
+src/components/shared/TacticalLoading.tsx:                  key={generateStableKey(null, i, 'log')} 
+src/components/shared/Map.tsx:              key={`geojson-layer-${renderLayer}`}
+src/components/shared/Map.tsx:                key={`icon-${gov.id}`}
+src/components/shared/Map.tsx:            <React.Fragment key={`heatmap-${point.id || 'point'}-${index}`}>
+src/components/shared/Map.tsx:                    key={layer.id}
+src/components/shared/Map.tsx:      <div key={`map-legend-item-${item.label}-${idx}`} className="flex items-center space-x-2">
+src/components/shared/SubTabNav.tsx:        key={generateStableKey(tab, i, 'stab')}
+src/components/system/RTEE.tsx:                    key={`signal-${anomaly.id}-${idx}`}
+src/components/system/SourceLibrary.tsx:                  key={t}
+src/components/system/SourceLibrary.tsx:                  <option key={l} value={l}>{l}</option>
+src/components/system/SourceLibrary.tsx:                  <span key={assertKey(getRenderKey(kwItem, idx, 'source-kw'))} className="text-[7px] font-mono px-1.5 py-0.5
+src/components/system/SourceLibrary.tsx:                key={tab.id}
+src/components/system/SourceLibrary.tsx:                    key={assertKey(getRenderKey(source, idx, 'source-lib'))}
+src/components/system/SourceLibrary.tsx:                key={assertKey(getRenderKey(article, index, 'lib-art'))} 
+src/components/system/ModelPerformance.tsx:            <div key={p.variable}
+src/components/system/ModelPerformance.tsx:          <div key={i}
+src/components/system/ModelPerformance.tsx:            <button key={s.id}
+src/components/system/ModelPerformance.tsx:        <motion.div key={activeSection}
+src/components/system/ModelPerformance.tsx:                    <div key={h} className="space-y-1">
+src/components/system/ModelPerformance.tsx:                      key={rec.id}
+src/components/system/ModelPerformance.tsx:                    <div key={s.variable}
+src/components/system/ModelPerformance.tsx:                            <div key={h} className="text-center">
+src/components/system/ModelPerformance.tsx:                    <div key={c.id}
+src/components/system/ModelPerformance.tsx:                    <div key={i}
+src/components/system/ModelPerformance.tsx:                  <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/system/ModelPerformance.tsx:                        if (!props.payload?.event) return <g key={props.key} />;
+src/components/system/ModelPerformance.tsx:                        return <circle key={props.key} cx={props.cx} cy={props.cy} r={5} fill="#f97316" stroke="#f97316" strokeWidth={2} />;
+src/components/system/ObservabilityDashboard.tsx:                        <div key={alert.id} className={`p-3 rounded border ${alert.type === 'CRITICAL' ? 'bg-red-500/5 border-red-500/20' : 'bg-amber-500/5 border-amber-500/20'}`}>
+src/components/system/ObservabilityDashboard.tsx:                  <div key={`log-${log.timestamp}-${i}`} className="flex gap-4 border-b border-white/[0.02] py-1 hover:bg-white/[0.02]">
+src/components/system/IntelligenceBriefPanel.tsx:                    <span key={getRenderKey(z, i, 'zone')}
+src/components/system/IntelligenceBriefPanel.tsx:                    <div key={getRenderKey(d, i, 'driver')}
+src/components/system/IntelligenceBriefPanel.tsx:          <button key={s}
+src/components/system/IntelligenceBriefPanel.tsx:        <motion.div key={activeSection}
+src/components/system/IntelligenceBriefPanel.tsx:                      <div key={dev.id} className="flex items-start space-x-3">
+src/components/system/IntelligenceBriefPanel.tsx:                    <div key={getRenderKey(c, i, 'contradiction')} className="flex items-start space-x-2 text-[9px]">
+src/components/system/IntelligenceBriefPanel.tsx:                  <div key={ind.id}
+src/components/system/IntelligenceBriefPanel.tsx:                  <div key={action.id}
+src/components/system/IntelligenceBriefPanel.tsx:                  <div key={getRenderKey(driver, i, 'driver')}
+src/components/system/IntelligenceBriefPanel.tsx:                    <div key={dev.id} className="flex items-center justify-between
+src/components/system/ObservabilityPanel.tsx:                    key={alert.id}
+src/components/system/ObservabilityPanel.tsx:              <div key={i} className="flex gap-2 p-1 hover:bg-white/5 rounded">
+src/components/system/AIAnalystPanel.tsx:                  key={msg.id} 
+src/components/system/SystemCommandCenter.tsx:            <span key={generateStableKey({c, l}, i, 'legend')} className="flex items-center gap-1.5">
+src/components/system/SystemCommandCenter.tsx:            <NodeBox key={generateStableKey(d, i, 'node-top')} def={d} x={tx[i]} y={TOP_Y} />
+src/components/system/SystemCommandCenter.tsx:            <NodeBox key={generateStableKey(d, i, 'node-bot')} def={d} x={bx[i]} y={BOT_Y} />
+src/components/system/SystemCommandCenter.tsx:                  key={`${issue.key}-${idx}`}
+src/components/system/SystemCommandCenter.tsx:              <div key={generateStableKey(a, i, 'alert')} className="flex items-center gap-3 bg-red-500/8 border border-red-500/20 rounded-lg px-4 py-2 text-red-400 text-[10px] font-mono animate-pulse">
+src/components/system/SystemCommandCenter.tsx:          <div key={generateStableKey(m, i, 'mini-metric')} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all text-center sm:text-left">
+src/components/system/SystemCommandCenter.tsx:              <div key={generateStableKey(s, i, 'service-check')} className="flex items-center justify-between">
+src/components/system/SystemCommandCenter.tsx:              <div key={generateStableKey(log, i, 'recent-log')} className="flex gap-3 py-1 border-b border-white/[0.03] hover:bg-white/[0.02]">
+src/components/system/SystemCommandCenter.tsx:                <React.Fragment key={step}>
+src/components/system/SystemCommandCenter.tsx:            <div key={generateStableKey(group, groupIndex, 'test-group')} className={`bg-[#0a0a0c] border ${group.borderColor} rounded-xl overflow-hidden`}>
+src/components/system/SystemCommandCenter.tsx:                  <div key={generateStableKey(test, testIndex, 'test-item')} className="flex items-start gap-4 px-5 py-3 hover:bg-white/[0.02] transition-colors group">
+src/components/system/SystemCommandCenter.tsx:            <div key={group} className="mb-4">
+src/components/system/SystemCommandCenter.tsx:                  key={generateStableKey(source.id, sourceIndex, 'source-item')}
+src/components/system/SystemCommandCenter.tsx:              <div key={item.id} className="p-3 bg-white/[0.03] border border-white/5 rounded-lg hover:border-white/20 transition-all">
+src/components/system/SystemCommandCenter.tsx:                  key={generateStableKey(tab.id, i, 'scc-tab')}
+src/components/system/SystemCommandCenter.tsx:            key={activeTab}
+src/components/system/AgentObservability.tsx:            key={agent.id}
+src/components/system/RRIMethodology.tsx:            <div key={v.symbol} className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-3 text-[10px] md:text-[11px] border-b border-white/5 sm:border-none pb-1 sm:pb-0">
+src/components/system/RRIMethodology.tsx:              key={tier.id}
+src/components/system/RRIMethodology.tsx:            <div key={layer.id} className="relative">
+src/components/system/RRIMethodology.tsx:              <div key={i} className="w-8 h-px bg-intel-cyan/20 relative">
+src/components/system/RRIMethodology.tsx:              key={hoveredLayer}
+src/components/system/RRIMethodology.tsx:          <g key={s.label}
+src/components/system/RRIMethodology.tsx:          <g key={y}>
+src/components/system/RRIMethodology.tsx:            <text key={item.text} x="265" y={item.y} textAnchor="middle"
+src/components/system/RRIMethodology.tsx:            <text key={t} x="655" y={145 + i * 16}
+src/components/system/RRIMethodology.tsx:          <g key={out.label}
+src/components/system/RRIMethodology.tsx:          <div key={item.label} className="space-y-0.5">
+src/components/system/RRIMethodology.tsx:          <div key={item.label} className="flex items-center space-x-1.5">
+src/components/system/RRIMethodology.tsx:            <line key={`${conn.from}-${conn.to}`}
+src/components/system/RRIMethodology.tsx:            <g key={eq.id}
+src/components/system/RRIMethodology.tsx:            <div key={`layer-conn-${i}`} className="flex items-center">
+src/components/system/RRIMethodology.tsx:              key={layer.id}
+src/components/system/RRIMethodology.tsx:                  <div key={`${item}-${index}`} className="flex items-center space-x-2
+src/components/system/RRIMethodology.tsx:            <div key={item.label} className="space-y-0.5">
+src/components/system/RRIMethodology.tsx:                key={item.id}
+src/components/system/RRIMethodology.tsx:              <div key={item.label} className="flex justify-between items-center">
+src/components/system/RRIMethodology.tsx:              key={item.id}
+src/components/system/RRIMethodology.tsx:                  <div key={o.symbol} className="flex items-start justify-between gap-2">
+src/components/system/RRIMethodology.tsx:                  <div key={item.label} className="flex justify-between text-[10px] md:text-[11px]">
+src/components/system/RRIMethodology.tsx:                key={cat.code}
+src/components/system/RRIMethodology.tsx:                          key={v.symbol}
+src/components/system/RRIMethodology.tsx:                  <div key={item.param} className="flex items-center justify-between text-[11px]">
+src/components/system/RRIMethodology.tsx:                  <div key={stat.label} className="bg-black/30 border border-intel-border p-6 rounded-xl">
+src/components/system/RRIMethodology.tsx:                <div key={ref.citation} className="flex items-start space-x-3 sm:space-x-4 p-3 sm:p-4 rounded-xl bg-black/20 border border-intel-border/30">
+src/components/system/DataPipeline.tsx:                            <option key={type.id} value={type.id}>{type.name}</option>
+src/components/system/DataPipeline.tsx:                             <div key={doc.id} className="p-3 bg-black/40 border border-white/5 rounded-lg">
+src/components/system/DataPipeline.tsx:                      <div key={field.id} className="p-5 bg-slate-900/60 border border-white/10 rounded-2xl flex items-center justify-between">
+src/components/observability/ErrorsPanel.tsx:            <div key={err.id || i} className="p-2 bg-red-500/5 border border-red-500/10 rounded text-[10px] font-mono group">
+src/components/observability/AgentPanel.tsx:            <div key={agent.id || `agent-${i}`} className="bg-white/5 border border-white/5 rounded-lg p-2 group hover:border-intel-cyan/30 transition-colors">
+src/components/observability/TraceInspector.tsx:                <div key={i} className="relative">
+src/components/observability/SignalsPanel.tsx:            key={generateStableKey('pulse-bar', i, 'signals-panel')}
+src/components/terminal/OutputConsole.tsx:            key={line.id}
+src/components/terminal/OutputConsole.tsx:                        <div key={key} className="flex justify-between border-b border-white/5 py-1">
+src/components/terminal/OutputConsole.tsx:                             key={i} 
+src/components/agriculture_dashboard/GovernoratePanel.tsx:            key={`subtab-${tab.id}`}
+src/components/agriculture_dashboard/index.tsx:              key={`agri-tab-${tab.id}`}
+src/components/predictive/Predict.tsx:            key={f.label}
+src/components/predictive/TemporalAnalysisTab.tsx:                  key={varName}
+src/components/predictive/TemporalAnalysisTab.tsx:                            <circle key={circleKey} cx={props.cx} cy={props.cy} r={6} fill="#ff4d4d" stroke="white" strokeWidth={2} />
+src/components/predictive/TemporalAnalysisTab.tsx:                        return <circle key={circleKey} cx={props.cx} cy={props.cy} r={3} fill="#00f2ff" />;
+src/components/predictive/ScenarioCompare.tsx:            <label key={generateStableKey(s.id, i, 'scen-pill')} className="sc-pill" style={{ '--pc': s.color } as React.CSSProperties}>
+src/components/predictive/ScenarioCompare.tsx:                    key={generateStableKey(r, rIdx, 'scen-card')} 
+src/components/predictive/ScenarioCompare.tsx:                  <div key={generateStableKey(r, rIdx, 'th')} className="sc-th" style={{ color: r.scenario.color }}>
+src/components/predictive/ScenarioCompare.tsx:                <div key={generateStableKey(m, mIdx, 'metric-row')} className="sc-table-row" style={{ gridTemplateColumns: `130px repeat(${cols}, 1fr)` }}>
+src/components/predictive/ScenarioCompare.tsx:                      <div key={generateStableKey(r, rIdx, 'td')} className="sc-td" style={{ color: col, fontWeight: isBest || isWorst ? 700 : 400 }}>
+src/components/predictive/ScenarioCompare.tsx:                  <div key={generateStableKey(key, kIdx, 'bar-group')} className="sc-bar-group">
+src/components/predictive/ScenarioCompare.tsx:                        <div key={generateStableKey(r, rIdx, 'bar-row')} className="sc-bar-row">
+src/components/predictive/ScenarioCompare.tsx:                  <div key={generateStableKey(r, rIdx, 'override-card')} className="sc-override-col" style={{ borderTop: `2px solid ${r.scenario.color}` }}>
+src/components/predictive/ScenarioCompare.tsx:                        <div key={generateStableKey(id, vIdx, 'override-row')} className="sc-override-row">
+src/components/predictive/ScenarioCompare.tsx:                    <p key={generateStableKey(p, i, 'ai-para')} className="sc-ai-para">{p.replace(/\*\*/g, '').replace(/\*/g, '')}</p>
+src/components/predictive/RiskModel.tsx:                  <span key={breach.variable} className="text-[8px] font-mono px-2 py-0.5
+src/components/predictive/RiskModel.tsx:                <div key={path.from+path.to} className="flex items-center
+src/components/predictive/RiskModel.tsx:                <div key={item.label} className="text-center space-y-1">
+src/components/predictive/RiskModel.tsx:                  key={s.id}
+src/components/predictive/RiskModel.tsx:                      key={i}
+src/components/predictive/RiskModel.tsx:                      key={i}
+src/components/predictive/RiskModel.tsx:                <div key={category} className="space-y-6">
+src/components/predictive/RiskModel.tsx:                        <div key={`${varId}-${index}`} className="space-y-3 relative">
+src/components/predictive/PropagationVisualizer.tsx:                        key={`line-${node.governorateId}`}
+src/components/predictive/PropagationVisualizer.tsx:                        key={generateStableKey(node.governorateId, idx, 'node')}
+src/components/predictive/PropagationVisualizer.tsx:                      key={generateStableKey(dayGroup, idx, 'day-group')} 
+src/components/predictive/PropagationVisualizer.tsx:                            key={generateStableKey(node, nodeIdx, 'node-item')}
+src/components/predictive/PropagationVisualizer.tsx:                <div key={generateStableKey(match, i, 'hist-match')} className="p-3 rounded-lg bg-white/5 border border-white/10">
+src/components/predictive/PropagationVisualizer.tsx:                key={selectedNode.governorateId}
+src/components/predictive/PropagationVisualizer.tsx:                        <React.Fragment key={generateStableKey(step, i, 'step')}>
+src/components/predictive/StrategicModeling.tsx:                  <button key={f.id}
+src/components/predictive/StrategicModeling.tsx:              <motion.div key={activeFramework}
+src/components/predictive/StrategicModeling.tsx:                          <div key={f.label}
+src/components/predictive/StrategicModeling.tsx:                          <div key={c.id}
+src/components/predictive/StrategicModeling.tsx:                              <div key={dim} className="space-y-1">
+src/components/predictive/StrategicModeling.tsx:                            <div key={i} className="flex items-start space-x-2 text-[9px]">
+src/components/predictive/StrategicModeling.tsx:                          <div key={dim.label} className={`glass p-5 rounded-xl border space-y-3 ${
+src/components/predictive/StrategicModeling.tsx:                            <div key={i} className="space-y-0.5">
+src/components/predictive/StrategicModeling.tsx:                              <div key={s.stage} className="flex-1 relative z-10 text-center">
+src/components/predictive/StrategicModeling.tsx:                            <div key={i} className="flex items-start space-x-2 text-[9px]">
+src/components/predictive/StrategicModeling.tsx:                              <div key={n.label} className="space-y-1">
+src/components/predictive/StrategicModeling.tsx:                            <div key={i} className="flex items-start space-x-2 text-[9px]">
+src/components/predictive/StrategicModeling.tsx:                            <div key={g.name} className={`space-y-1 ${
+src/components/predictive/StrategicModeling.tsx:                              <div key={i} className="flex items-center space-x-2 text-[9px]">
+src/components/predictive/StrategicModeling.tsx:                            <div key={a.name}
+src/components/predictive/StrategicModeling.tsx:                    key={event.id}
+src/components/predictive/StrategicModeling.tsx:                    key={event.id}
+src/components/predictive/StrategicModeling.tsx:            <div key={i} className={`p-5 rounded-2xl border space-y-3 ${
+src/components/predictive/StrategicModeling.tsx:              <div key={i} className={`p-4 rounded-xl bg-white/5 border ${scenario.color}`}>
+src/components/predictive/StrategicModeling.tsx:              <div key={i} className="space-y-2">
+src/components/predictive/StrategicModeling.tsx:                    <tr key={rowI}>
+src/components/predictive/StrategicModeling.tsx:                        <td key={cellI} className={`p-3 border border-intel-border/30 ${cell.bg}`}>
+src/components/predictive/SimulationIntelligence.tsx:                    return <Cell key={generateStableKey(entry, index, 'cell')} fill={color} />;
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(stat, i, 'stat')} className="flex items-center justify-between border-b border-white/5 pb-2">
+src/components/predictive/SimulationIntelligence.tsx:                  key={generateStableKey(preset, i, 'preset')}
+src/components/predictive/SimulationIntelligence.tsx:              <div key={generateStableKey(v, index, 'sim-var')} className="space-y-3">
+src/components/predictive/SimulationIntelligence.tsx:                  key={currentPRev}
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(s, i, 'saved-scen')} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded-lg group">
+src/components/predictive/SimulationIntelligence.tsx:                  key={generateStableKey(speed, i, 'speed')}
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(agent, i, 'agent')} className="space-y-1">
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(a, i, 'init-agent')} className="flex items-center space-x-1">
+src/components/predictive/SimulationIntelligence.tsx:                    key={generateStableKey(a, i, 'line')}
+src/components/predictive/SimulationIntelligence.tsx:                key={generateStableKey(event, i, 'shock')}
+src/components/predictive/SimulationIntelligence.tsx:                    key={generateStableKey(response, i, 'ai-analyst')}
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(metric, i, 'accuracy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-1">
+src/components/predictive/SimulationIntelligence.tsx:                <div key={generateStableKey(log, i, 'backtest')} className="p-3 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
+src/components/predictive/SimulationIntelligence.tsx:              key={generateStableKey(tab, i, 'tab')}
+src/components/predictive/SimulationIntelligence.tsx:              key={activeTab}
+src/components/energy/EnergyIntelligence.tsx:            key={i}
+src/components/energy/EnergyIntelligence.tsx:          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
+src/components/energy/EnergyIntelligence.tsx:              <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-all">
+src/components/energy/EnergyIntelligence.tsx:          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
+src/components/energy/EnergyIntelligence.tsx:                    <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/energy/EnergyIntelligence.tsx:              <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+src/components/energy/EnergyIntelligence.tsx:                <tr key={i} className="group hover:bg-white/5 transition-colors">
+src/components/energy/EnergyIntelligence.tsx:          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
+src/components/energy/EnergyIntelligence.tsx:                    <Cell key={`cell-${index}`} fill={val > 80 ? '#ef4444' : val > 60 ? '#f97316' : '#22c55e'} />
+src/components/energy/EnergyIntelligence.tsx:              <div key={i} className="space-y-2">
+src/components/energy/EnergyIntelligence.tsx:          <div key={i} className="glass p-3 md:p-4 rounded-xl border border-white/10 space-y-2">
+src/components/energy/EnergyIntelligence.tsx:                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+src/components/energy/EnergyIntelligence.tsx:              <div key={i} className="flex items-center justify-between text-[10px] font-mono">
+src/components/energy/EnergyIntelligence.tsx:              <div key={i} className="relative pl-8 group">
+src/components/energy/EnergyIntelligence.tsx:            <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-3">
+src/components/energy/EnergyIntelligence.tsx:              key={tab.id}
+src/components/energy/EnergyIntelligence.tsx:            key={activeTab}
+src/components/energy/StrategicEnergyIntelligencePanel.tsx:                 <li key={idx} className="bg-black/40 border border-white/5 p-3 rounded flex items-start space-x-3">
+src/components/energy/StrategicEnergyIntelligencePanel.tsx:                 <button key={idx} className="text-left w-full px-3 py-2 text-[10px] font-mono text-intel-cyan border border-intel-cyan/30 rounded bg-intel-cyan/5 hover:bg-intel-cyan/20 transition-all">
+src/components/energy/Energy.tsx:            key={f.name}
+src/components/debug/NewsColumn.tsx:              key={assertKey(getRenderKey(item, idx, 'newsdbg'))}
+src/components/debug/SignalsColumn.tsx:            key={assertKey(getRenderKey(item, idx, 'sig'))}
+src/components/debug/FeedColumn.tsx:            key={assertKey(getRenderKey(item, idx, 'feed'))}
+src/components/debug/PipelineLogColumn.tsx:            key={item.id}
+src/components/debug/EventsColumn.tsx:            key={assertKey(getRenderKey(item, idx, 'devt'))}
+src/components/modes/TRGMDashboard.tsx:        <g key={b.label}>
+src/components/modes/TRGMDashboard.tsx:            key={i}
+src/components/modes/TRGMDashboard.tsx:        <g key={bi} opacity={0.6}>
+src/components/modes/TRGMDashboard.tsx:              key={ti}
+src/components/modes/TRGMDashboard.tsx:          <g key={i}>
+src/components/modes/TRGMDashboard.tsx:            key={pole}
+src/components/modes/TRGMDashboard.tsx:            <div key={i} className="px-4 py-3 space-y-1">
+src/components/modes/TRGMDashboard.tsx:                      key={i}
+src/components/modes/TRGMDashboard.tsx:                      key={i}
+src/components/modes/TRGMDashboard.tsx:                key={i}
+src/components/modes/TRGMDashboard.tsx:                      key={i}
+src/components/modes/TRGMDashboard.tsx:                        key={i}
+src/components/modes/TRGMDashboard.tsx:                    key={i}
+src/components/modes/TRGMDashboard.tsx:                          key={h}
+src/components/modes/TRGMDashboard.tsx:                        <tr key={i} className="hover:bg-white/[0.02]">
+src/components/modes/CitizenEdition.tsx:              {prepareList(topKeywords).map((k: any) => <KeywordItem key={k.id} keyword={k} />)}
+src/components/modes/CitizenEdition.tsx:                 <button key={assertKey(getRenderKey(f, i, 'cit-feed-filter'))} className="px-4 py-1.5 rounded-lg border border-intel-border bg-white/5 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap hover:border-intel-cyan/40 transition-all">
+src/components/modes/CitizenEdition.tsx:                  key={assertKey(getRenderKey(evt, idx, 'cit-feed'))} 
+src/components/modes/CitizenEdition.tsx:                  <div key={assertKey(getRenderKey(news, i, 'cit-econ-marquee'))} className="flex items-center mx-8">
+src/components/modes/CitizenEdition.tsx:                  {prepareList(marketIndices).map((m: any, i: number) => <MarketRow key={assertKey(getRenderKey(m, i, 'cit-market'))} item={m} />)}
+src/components/modes/CitizenEdition.tsx:                  {prepareList(commodities).map((c: any, i: number) => <MarketRow key={assertKey(getRenderKey(c, i, 'cit-commodity'))} item={c} />)}
+src/components/modes/CitizenEdition.tsx:                  {prepareList(foodPrices).map((f: any, i: number) => <MarketRow key={assertKey(getRenderKey(f, i, 'cit-food'))} item={f} />)}
+src/components/modes/CitizenEdition.tsx:              {prepareList(predictions).map((p: any) => <PredictionCard key={p.id} item={p} />)}
+src/components/modes/CitizenEdition.tsx:                    key={type}
+src/components/modes/CitizenEdition.tsx:                  <div key={assertKey(getRenderKey(item, idx, 'cit-recent'))} className="glass p-4 rounded-2xl border border-intel-border flex items-center justify-between group cursor-pointer hover:border-intel-cyan/30 transition-all" onClick={() => setActiveTab('feed')}>
+src/components/modes/CitizenEdition.tsx:                key={assertKey(getRenderKey(item, idx, 'cit-nav'))}
+src/components/modes/ModePageLayout.tsx:                <div key={module} className="bg-[#0f141a] border border-slate-800 p-4 rounded-lg flex items-center space-x-3">
+src/components/modes/ProfessionalIntel.tsx:          key={m.id}
+src/components/modes/ProfessionalIntel.tsx:                      key={i}
+src/components/modes/ProfessionalIntel.tsx:                <span key={label} className="flex items-center gap-1">
+src/components/modes/ProfessionalIntel.tsx:                  key={i}
+src/components/modes/ProfessionalIntel.tsx:              <div key={category.id} className="space-y-1">
+src/components/modes/ProfessionalIntel.tsx:                            key={item.id}
+src/components/modes/ProfessionalIntel.tsx:                        key={i}
+src/components/modes/ProfessionalIntel.tsx:                        key={idx}
+src/components/modes/ProfessionalIntel.tsx:                            key={`spotlight-${i}`}
+src/components/modes/ProfessionalIntel.tsx:                                key={i}
+src/components/modes/ProfessionalIntel.tsx:                        key={`kiq-${idx}`}
+src/components/modes/ProfessionalIntel.tsx:                        key={`hotspot-${idx}`}
+src/components/modes/ProfessionalIntel.tsx:                          key={`scenario-${idx}`}
+src/components/modes/ProfessionalIntel.tsx:                          key={`actor-${idx}`}
+src/components/modes/PalantirDashboard.tsx:                  {nodes.map(n => <option key={n.id} value={n.id}>{n.label}</option>)}
+src/components/modes/PalantirDashboard.tsx:                  {nodes.map(n => <option key={n.id} value={n.id}>{n.label}</option>)}
+src/components/modes/PalantirDashboard.tsx:                        <div key={id} className="flex items-center gap-2">
+src/components/modes/PalantirDashboard.tsx:                    key={i} 
+src/components/modes/TunisiaTerminal.tsx:          <span key={assertKey(getRenderKey(it, i, 'term-tick'))} style={{ padding: '0 15px', borderRight: `1px solid ${C.border}`, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+src/components/modes/TunisiaTerminal.tsx:          <div key={assertKey(getRenderKey(r, i, 'term-rrimet'))} style={{ ...S.tableRow, gridTemplateColumns: '1fr 65px' }}>
+src/components/modes/TunisiaTerminal.tsx:         <div key={assertKey(getRenderKey(r, i, 'term-bt'))} style={{ ...S.tableRow, gridTemplateColumns: '1fr 60px 50px' }}>
+src/components/modes/TunisiaTerminal.tsx:                      <div key={assertKey(getRenderKey(g, gi, 'term-gtile'))} style={{ background: riskBg(score), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '6px 2px' }}>
+src/components/modes/TunisiaTerminal.tsx:            <div key={assertKey(getRenderKey(a, i, 'term-if'))} style={{ padding: '6px 10px', borderBottom: `1px solid ${C.border}` }}>
+src/components/modes/NationalAgriculturalPulse.tsx:            key={year + mode + selected} 
+src/components/modes/NationalAgriculturalPulse.tsx:            <div key={i} className={cn('glass rounded-xl border p-4 space-y-2', k.warn ? 'border-red-500/30 bg-red-500/5' : 'border-intel-border')}>
+src/components/modes/NationalAgriculturalPulse.tsx:            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+src/components/modes/NationalAgriculturalPulse.tsx:        <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+src/components/modes/NationalAgriculturalPulse.tsx:                  <span key={cls} className="flex items-center gap-1.5">
+src/components/modes/NationalAgriculturalPulse.tsx:                  <div key={year} className="glass rounded-2xl border border-intel-border overflow-hidden">
+src/components/modes/NationalAgriculturalPulse.tsx:                          <div key={cls} className="text-center">
+src/components/modes/NationalAgriculturalPulse.tsx:                        {distChartData.map((_, i) => <Cell key={i} fill={Object.values(NDVI_COLORS)[i]} fillOpacity={0.5} />)}
+src/components/modes/NationalAgriculturalPulse.tsx:                        {distChartData.map((_, i) => <Cell key={i} fill={Object.values(NDVI_COLORS)[i]} fillOpacity={0.9} />)}
+src/components/modes/NationalAgriculturalPulse.tsx:                  <div key={i} className={cn('glass rounded-xl border p-4 space-y-2', k.warn ? 'border-red-500/30 bg-red-500/5' : 'border-intel-border')}>
+src/components/modes/NationalAgriculturalPulse.tsx:                        {GOVERNORATE_NDVI.map((g, i) => <Cell key={i} fill={g.dsi_contribution > 3 ? '#ef4444' : g.dsi_contribution > 1 ? '#f97316' : g.dsi_contribution > 0 ? '#f59e0b' : '#10b981'} />)}
+src/components/modes/NationalAgriculturalPulse.tsx:                    <div key={i} className="flex items-start gap-3 py-1.5 border-b border-white/5 last:border-0">
+src/components/modes/NationalAgriculturalPulse.tsx:                          <th key={h} className="px-3 py-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest">{h}</th>
+src/components/modes/NationalAgriculturalPulse.tsx:                          <tr key={i} className={cn('hover:bg-white/[0.02] cursor-pointer', selectedGov === g.id ? 'bg-white/[0.04]' : '')}
+src/components/modes/NationalAgriculturalPulse.tsx:                  <span key={cls} className="flex items-center gap-1.5">
+src/components/modes/NationalAgriculturalPulse.tsx:                  <div key={i} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/modes/NationalAgriculturalPulse.tsx:                    <div key={i} className={cn('text-[9px] font-mono flex items-center gap-2', item.includes('✓') ? 'text-emerald-400' : 'text-amber-400/60')}>
+src/components/agriculture/PoultryEggsIntelligence.tsx:            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+src/components/agriculture/PoultryEggsIntelligence.tsx:        <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
+src/components/agriculture/PoultryEggsIntelligence.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/PoultryEggsIntelligence.tsx:                        <tr key={i} className="hover:bg-white/[0.02]">
+src/components/agriculture/PoultryEggsIntelligence.tsx:                          <Cell key={i} fill={e.index < 55 ? '#ef4444' : e.index < 75 ? '#f97316' : '#10b981'} />
+src/components/agriculture/PoultryEggsIntelligence.tsx:                    <span key={l} className="flex items-center gap-1.5"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: c }} /><span className="text-slate-500">{l}</span></span>
+src/components/agriculture/PoultryEggsIntelligence.tsx:                      <div key={i} className="flex items-start gap-3 py-1.5 border-b border-white/5 last:border-0 text-[9px] font-mono">
+src/components/agriculture/PoultryEggsIntelligence.tsx:                      <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
+src/components/agriculture/PoultryEggsIntelligence.tsx:                      <div key={i} className={cn('p-3 rounded-xl border space-y-1.5', d.status === 'QUARANTINE' ? 'border-red-500/30 bg-red-500/5' : d.status === 'ALERT' ? 'border-orange-500/20' : 'border-intel-border')}>
+src/components/agriculture/AgriIntelDashboard.tsx:              key={tab.id}
+src/components/agriculture/AgriIntelDashboard.tsx:          key={activeTab}
+src/components/agriculture/AgriIntelDashboard.tsx:                    key={generateStableKey(layer, i, 'layer')}
+src/components/agriculture/AgriIntelDashboard.tsx:                        <div key={generateStableKey({ label }, i, 'wheat-legend')} className="flex items-center space-x-3">
+src/components/agriculture/AgriIntelDashboard.tsx:                        <div key={generateStableKey({ label }, i, 'olive-legend')} className="flex items-center space-x-3">
+src/components/agriculture/AgriIntelDashboard.tsx:                        <div key={generateStableKey({ label }, i, 'rain-legend')} className="flex items-center space-x-3">
+src/components/agriculture/AgriIntelDashboard.tsx:                        <div key={generateStableKey({ label }, i, 'soil-legend')} className="flex items-center space-x-3">
+src/components/agriculture/AgriIntelDashboard.tsx:                        <div key={generateStableKey({ label }, i, 'palm-legend')} className="flex items-center space-x-3">
+src/components/agriculture/AgriIntelDashboard.tsx:                        key={generateStableKey(d, i, 'rank')}
+src/components/agriculture/AgriIntelDashboard.tsx:                      <div key={generateStableKey(gov, i, 'yield')} className="p-2 rounded-lg bg-white/5 border border-white/5">
+src/components/agriculture/AgriIntelDashboard.tsx:                      <div key={generateStableKey(c, i, 'cal')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
+src/components/agriculture/AgriIntelDashboard.tsx:                            <Cell key={generateStableKey(entry, index, 'cell')} fill={entry.dependency > 80 ? '#ef4444' : entry.dependency > 50 ? '#f97316' : '#00f2ff'} />
+src/components/agriculture/AgriIntelDashboard.tsx:                        <tr key={generateStableKey(p, i, 'price')} className="hover:bg-white/[0.02] transition-all group">
+src/components/agriculture/AgriIntelDashboard.tsx:                      <div key={generateStableKey(r, i, 'unrest')} className="p-2 border-b border-white/5 hover:bg-white/[0.02] transition-all">
+src/components/agriculture/WaterIntelligenceHub.tsx:                    <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/agriculture/FeedIntelligenceHub.tsx:          <div key={generateStableKey(s, i, 'sector')} className="glass rounded-xl border border-intel-border p-3 space-y-2">
+src/components/agriculture/FeedIntelligenceHub.tsx:              key={tab.id}
+src/components/agriculture/FeedIntelligenceHub.tsx:          key={activeTab}
+src/components/agriculture/FeedIntelligenceHub.tsx:                    <span key={l} className="flex items-center gap-1.5"><span className="w-3 h-0.5 inline-block" style={{ backgroundColor: c }} /><span className="text-slate-500">{l}</span></span>
+src/components/agriculture/FeedIntelligenceHub.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/FeedIntelligenceHub.tsx:                        <tr key={generateStableKey(c, i, 'comm')} className="hover:bg-white/[0.02]">
+src/components/agriculture/FeedIntelligenceHub.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-3">{h}</th>
+src/components/agriculture/FeedIntelligenceHub.tsx:                        <tr key={generateStableKey(e, i, 'event')} className="hover:bg-white/[0.02]">
+src/components/agriculture/FeedIntelligenceHub.tsx:                            <td key={j} className={cn('py-2.5 text-[9px] font-mono pr-3',
+src/components/agriculture/FeedIntelligenceHub.tsx:                  <div key={generateStableKey(k, i, 'import-kpi')} className={cn('glass rounded-xl border p-4 space-y-2', k.warn ? 'border-red-500/30 bg-red-500/5' : 'border-intel-border')}>
+src/components/agriculture/FeedIntelligenceHub.tsx:                    <div key={generateStableKey(s, i, 'stock')} className="space-y-1">
+src/components/agriculture/FeedIntelligenceHub.tsx:                      <span key={l} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm inline-block" style={{ backgroundColor: c }} /><span className="text-slate-500">{l}</span></span>
+src/components/agriculture/FeedIntelligenceHub.tsx:                      <div key={generateStableKey(o, i, 'origin')} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+src/components/agriculture/FeedIntelligenceHub.tsx:                  <div key={generateStableKey(k, i, 'fodder-kpi')} className="glass rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-2">
+src/components/agriculture/FeedIntelligenceHub.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/FeedIntelligenceHub.tsx:                        <tr key={generateStableKey(row, i, 'gov')} className="hover:bg-white/[0.02]">
+src/components/agriculture/FeedIntelligenceHub.tsx:                      <span key={l} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: c }} /><span className="text-slate-500">{l}</span></span>
+src/components/agriculture/FeedIntelligenceHub.tsx:                      <div key={generateStableKey(step, i, 'impact')} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+src/components/agriculture/FeedIntelligenceHub.tsx:                  <div key={generateStableKey(k, i, 'bm-kpi')} className="glass rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-2">
+src/components/agriculture/FeedIntelligenceHub.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-3">{h}</th>
+src/components/agriculture/FeedIntelligenceHub.tsx:                          <tr key={generateStableKey(row, i, 'bm-item')} className="hover:bg-white/[0.02]">
+src/components/agriculture/FeedIntelligenceHub.tsx:                    <div key={generateStableKey(s, i, 'osint')} className="flex items-center gap-4 px-5 py-3 hover:bg-white/[0.02] transition-colors">
+src/components/agriculture/FeedIntelligenceHub.tsx:                      <div key={generateStableKey(c, i, 'alert-cond')} className="flex items-center gap-2 justify-end">
+src/components/agriculture/FeedIntelligenceHub.tsx:                  <div key={i} className={cn('p-4 rounded-xl border space-y-1',
+src/components/agriculture/MilkDairyIntelligence.tsx:            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+src/components/agriculture/MilkDairyIntelligence.tsx:        <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
+src/components/agriculture/MilkDairyIntelligence.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/MilkDairyIntelligence.tsx:                        <tr key={i} className="hover:bg-white/[0.02]">
+src/components/agriculture/MilkDairyIntelligence.tsx:                    <div key={i} className="flex items-center gap-3 py-3 hover:bg-white/[0.02]">
+src/components/agriculture/MilkDairyIntelligence.tsx:                  <KpiCard key={i} label={k.label} value={k.value} sub={k.sub} warn={k.warn} color={(k as any).color} />
+src/components/agriculture/MilkDairyIntelligence.tsx:                          <Cell key={i} fill={entry.surplus < -5 ? '#ef4444' : entry.surplus < 0 ? '#f97316' : '#10b981'} />
+src/components/agriculture/MilkDairyIntelligence.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/MilkDairyIntelligence.tsx:                        <tr key={i} className="hover:bg-white/[0.02]">
+src/components/agriculture/MilkDairyIntelligence.tsx:                      <div key={i} className={cn('p-3 rounded-xl border space-y-2', isCrisis ? 'border-red-500/30 bg-red-500/5' : isWarning ? 'border-orange-500/20' : 'border-intel-border')}>
+src/components/agriculture/MilkDairyIntelligence.tsx:                      <div key={i} className={cn('flex items-start gap-3 p-3 rounded-xl border transition-all',
+src/components/agriculture/AgroScenarioSimulator.tsx:                  key={generateStableKey(s, i, 'scenario')}
+src/components/agriculture/AgroScenarioSimulator.tsx:                     key={generateStableKey(step, i, 'step')}
+src/components/agriculture/AgroScenarioSimulator.tsx:                      { prepareList([0, 1, 2]).map((v: any, i: number) => <Cell key={generateStableKey(v, i, 'cell')} fill={ i === 0 ? '#10b981' : i === 1 ? '#f59e0b' : '#3b82f6'} />) }
+src/components/agriculture/EnvironmentalIntelligence.tsx:              key={generateStableKey(cat, idx, 'env-cat')}
+src/components/agriculture/EnvironmentalIntelligence.tsx:          key={activeCategory}
+src/components/agriculture/EnvironmentalIntelligence.tsx:                    key={generateStableKey(layer, layerIdx, 'map-layer')}
+src/components/agriculture/EnvironmentalIntelligence.tsx:                          {waterSourceMix.map((entry, i) => <Cell key={assertKey(getRenderKey(entry, i, 'water-source'))} fill={entry.color} />)}
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={generateStableKey(item, idx, 'water-mix')} className="flex items-center justify-between">
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={generateStableKey(gov, i, 'water-stress')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-intel-cyan/30 transition-all">
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={`soil-erosion-stable-${i}-${row.region}`} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={`coast-vuln-stable-${i}-${row.site}`} className="flex items-center justify-between p-2 rounded-lg bg-intel-cyan/5 border border-intel-cyan/10">
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={`spei-stable-${i}-${row.period}`} className="space-y-1.5">
+src/components/agriculture/EnvironmentalIntelligence.tsx:                      <div key={`fire-spot-stable-${spot.id}`} className="p-3 rounded-xl bg-white/5 border border-intel-border hover:border-intel-red/30 transition-all flex items-center justify-between group">
+src/components/agriculture/EnvironmentalIntelligence.tsx:              <div key={`env-dossier-stable-${i}-${dossier.title}`} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border relative overflow-hidden">
+src/components/agriculture/LivestockMeatIntelligence.tsx:            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+src/components/agriculture/LivestockMeatIntelligence.tsx:        <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
+src/components/agriculture/LivestockMeatIntelligence.tsx:                    <div key={generateStableKey(g, i, 'eid-gov')} className={cn('p-3 rounded-xl border space-y-1.5',
+src/components/agriculture/LivestockMeatIntelligence.tsx:                    <div key={generateStableKey(r, i, 'supply-chain')} className={cn('p-4 rounded-xl border space-y-2',
+src/components/agriculture/LivestockMeatIntelligence.tsx:                    <div key={generateStableKey(s, i, 'osint')} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
+src/components/agriculture/LivestockMeatIntelligence.tsx:                          <th key={generateStableKey(h, index, 'header')} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/agriculture/LivestockMeatIntelligence.tsx:                          <tr key={generateStableKey(r, i, 'price')} className="hover:bg-white/[0.02]">
+src/components/agriculture/LivestockMeatIntelligence.tsx:                          <Cell key={generateStableKey(e, i, 'cell')} fill={e.lamb_kg > 41 ? '#ef4444' : e.lamb_kg > 38 ? '#f97316' : '#f59e0b'} />
+src/components/agriculture/AgroCrisisModel.tsx:                    <Cell key={`cell-${index}`} fill={entry.color} />
+src/components/social/IdeologicalCycle.tsx:            key={phase.id} 
+src/components/social/IdeologicalCycle.tsx:          <div key={m.label} className="glass p-4 rounded-2xl border border-intel-border/50 space-y-1">
+src/components/social/IdeologicalCycle.tsx:                key={selectedPhase?.id || iciState.currentPhase.id}
+src/components/social/IdeologicalCycle.tsx:            <div key={i} className="flex items-start space-x-2">
+src/components/social/IdeologicalCycle.tsx:              key={phase.id}
+src/components/social/CivilizationalEngine.tsx:    <circle key={f} cx={cx} cy={cy} r={f * 85}
+src/components/social/CivilizationalEngine.tsx:          <g key={i}>
+src/components/social/CivilizationalEngine.tsx:                      <span key={p} className="text-[9px] px-1.5 py-0.5 bg-intel-cyan/10 text-intel-cyan rounded border border-intel-cyan/10 font-mono">
+src/components/social/CivilizationalEngine.tsx:                      <span key={p} className="text-[9px] px-1.5 py-0.5 bg-slate-500/10 text-slate-400 rounded border border-white/5 font-mono">
+src/components/social/CivilizationalEngine.tsx:    <text key={i} x={xS(i).toFixed(1)} y={H - 12} textAnchor="middle"
+src/components/social/CivilizationalEngine.tsx:      <polyline key={c.id} points={tracePts.join(' ')}
+src/components/social/CivilizationalEngine.tsx:    <g key={v}>
+src/components/social/CivilizationalEngine.tsx:                key={generateStableKey(c, idx, 'cycle')}
+src/components/social/CivilizationalEngine.tsx:                  <div key={generateStableKey(p, i, 'align-pair')} className="flex items-center space-x-2" title="These cycles are synchronized, leading to potential structural breakthroughs or crises.">
+src/components/social/CivilizationalEngine.tsx:                  <div key={generateStableKey(p, i, 'desync-pair')} className="flex items-center space-x-2" title="These cycles are out of phase, acting as a buffer that reduces overall systemic stress.">
+src/components/social/SocialIntelligence.tsx:              key={generateStableKey(cat, i, 'cat')}
+src/components/social/SocialIntelligence.tsx:          key={activeCategory}
+src/components/social/SocialIntelligence.tsx:              key={generateStableKey(ind, i, 'ind')} 
+src/components/social/SocialIntelligence.tsx:                      key={generateStableKey(ind.label, i, 'line')}
+src/components/social/SocialIntelligence.tsx:            <div key={generateStableKey(dossier, i, 'dossier')} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
+src/components/social/SocialIntelligence.tsx:              key={generateStableKey(ind, i, 'pop-pres')} 
+src/components/social/SocialIntelligence.tsx:                  <div key={generateStableKey(region, i, 'reg')} className="space-y-2">
+src/components/social/SocialIntelligence.tsx:                  <div key={generateStableKey(stat, i, 'fam')} className="p-3 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between">
+src/components/social/SocialIntelligence.tsx:              key={generateStableKey(ind, i, 'ind-h')} 
+src/components/social/SocialIntelligence.tsx:                      <Cell key={generateStableKey(entry, i, 'cell')} fill={entry.color} />
+src/components/social/SocialIntelligence.tsx:                  <div key={generateStableKey(disease, i, 'dis')} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-intel-border">
+src/components/social/SocialIntelligence.tsx:                <div key={generateStableKey(fund, i, 'fund')} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-3">
+src/components/social/SocialIntelligence.tsx:                      <Cell key={generateStableKey(entry, i, 'age-cell')} fill={entry.color} />
+src/components/social/SocialIntelligence.tsx:                  <div key={generateStableKey(stat, i, 'addict')} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-2">
+src/components/social/SocialIntelligence.tsx:            <div key={generateStableKey(metric, i, 'rehab')} className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-3">
+src/components/social/SocialIntelligence.tsx:                    key={generateStableKey(t, i, 'mig-tab')}
+src/components/social/SocialIntelligence.tsx:                key={migrationTab}
+src/components/social/SocialIntelligence.tsx:                              <div key={generateStableKey(c, i, 'country')} className="space-y-1.5">
+src/components/social/SocialIntelligence.tsx:                                  <Cell key={generateStableKey(v, idx, 'bar-cell')} fill={v > 70 ? '#ef4444' : v > 50 ? '#f97316' : '#00f2ff'} />
+src/components/social/SocialIntelligence.tsx:                                  <li key={generateStableKey(item, i, 'policy')} className="flex items-center space-x-2 text-[10px] text-slate-400">
+src/components/social/Narratives.tsx:              key={generateStableKey(nar, i, 'nar')}
+src/components/social/Narratives.tsx:              <div key={generateStableKey(note, i, 'note')} className={cn("p-5 rounded-2xl border space-y-3", 
+src/components/social/Narratives.tsx:                  <div key={generateStableKey(null, i, 'user')} className="w-6 h-6 rounded-full bg-slate-800 border border-intel-bg flex items-center justify-center">
+src/components/social/Media.tsx:              key={f.id}
+src/components/social/Media.tsx:            key={item.id}
+src/components/social/Media.tsx:            <span key={i} className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+src/components/social/CycleAnalysisTab.tsx:            key={tab.id}
+src/components/social/CycleAnalysisTab.tsx:            key={activeSubTab}
+src/components/social/CycleAnalysisTab.tsx:            <React.Fragment key={v}>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={r.label}>
+src/components/social/CycleAnalysisTab.tsx:                <React.Fragment key={s.p.id}>
+src/components/social/CycleAnalysisTab.tsx:              return <text key={name} x={mx} y={my+3} textAnchor="middle" fontSize={isCurM?8:6} fill={isCurM?'#fff':'#1c3654'} fontWeight={isCurM?700:400}>{name}</text>;
+src/components/social/CycleAnalysisTab.tsx:              return <text key={s.p.id} x={lx2} y={ly2+3} textAnchor="middle" fontSize="5.5" fill={`${s.p.color}${s.isCur?'ff':'88'}`}>{s.p.label.split(' ')[0]}</text>;
+src/components/social/CycleAnalysisTab.tsx:                <div key={p.id} className={`p-3 rounded-lg border-l-4 transition-all ${isCur ? 'bg-white/5 border-l-intel-cyan' : 'bg-white/2 border-l-white/10'}`} style={{ borderLeftColor: p.color }}>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={p.id}>
+src/components/social/CycleAnalysisTab.tsx:            <React.Fragment key={v}>
+src/components/social/CycleAnalysisTab.tsx:            <text key={y} x={pad.l+(y/30)*cW} y={H-10} textAnchor="middle" fontSize="6" fill="#1e3d55">{y}y</text>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={e.label}>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={p.id}>
+src/components/social/CycleAnalysisTab.tsx:            <React.Fragment key={v}>
+src/components/social/CycleAnalysisTab.tsx:            return <text key={yr} x={pad.l+xPct/100*cW} y={H-8} textAnchor="middle" fontSize="6.5" fill={yr===2026?'#00d4ff':'#1e3d55'} fontWeight={yr===2026?700:400}>{yr}</text>;
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={e.label}>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={yr}>
+src/components/social/CycleAnalysisTab.tsx:              <React.Fragment key={p.id}>
+src/components/social/CycleAnalysisTab.tsx:                    <React.Fragment key={v}>
+src/components/social/CycleAnalysisTab.tsx:                  {series.map((d:any,i:number)=>d.note && <circle key={`shock-${i}`} cx={xS(i)} cy={yR(d.rri)} r="3.5" fill="none" stroke="#ffd60a" strokeWidth="1.2" opacity="0.9"/>)}
+src/components/social/CycleAnalysisTab.tsx:                  {series.map((d:any,i:number)=>i%2===0 && <text key={`month-${i}`} x={xS(i)} y={H-6} textAnchor="middle" fontSize="6" fill="#1e3d55">{d.month.slice(5)}</text>)}
+src/components/social/NarrativeIntelligence.tsx:          <div key={generateStableKey(stat, idx, 'stat')}
+src/components/social/NarrativeIntelligence.tsx:              key={generateStableKey(s, idx, 'section')}
+src/components/social/NarrativeIntelligence.tsx:          key={activeSection}
+src/components/social/NarrativeIntelligence.tsx:                      <div key={assertKey(getRenderKey(t, idx, 'tech'))} className="space-y-1">
+src/components/social/NarrativeIntelligence.tsx:                          key={assertKey(getRenderKey(event, idx, 'ni'))}
+src/components/social/NarrativeIntelligence.tsx:                  <div key={assertKey(getRenderKey(source, i, 'source-score'))}
+src/components/social/NarrativeIntelligence.tsx:                      key={assertKey(getRenderKey(event, idx, 'ev-sel'))}
+src/components/social/NarrativeIntelligence.tsx:                            <div key={assertKey(getRenderKey(gap, i, 'om-gap'))}
+src/components/social/NarrativeIntelligence.tsx:                                    <div key={assertKey(getRenderKey(s, sIdx, 'pres'))}
+src/components/social/NarrativeIntelligence.tsx:                                    <div key={assertKey(getRenderKey(s, aIdx, 'abs'))}
+src/components/social/NarrativeIntelligence.tsx:                              <span key={p}
+src/components/social/NarrativeIntelligence.tsx:                      <div key={assertKey(getRenderKey(phraseItem, idx, 'tp'))}
+src/components/social/NarrativeIntelligence.tsx:                  <div key={weight} className="space-y-2">
+src/components/social/NarrativeIntelligence.tsx:                          <div key={generateStableKey(item, idx, 'lex')}
+src/components/social/NarrativeIntelligence.tsx:                  <div key={generateStableKey(k, i, 'di-kpi')} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/social/NarrativeIntelligence.tsx:                  <div key={assertKey(getRenderKey(c, i, 'di-camp'))} className={`glass p-5 rounded-xl border space-y-3 border-${c.color}/20 bg-${c.color === 'intel-red' ? 'intel-red' : c.color === 'intel-orange' ? 'intel-orange' : 'yellow'}/5`}>
+src/components/social/NarrativeIntelligence.tsx:                        {c.platforms.map(p => <span key={p} className="text-intel-cyan">{p}</span>)}
+src/components/social/NarrativeIntelligence.tsx:                  <div key={generateStableKey(k, i, 'mo-kpi')} className="glass rounded-xl border border-intel-border p-4 space-y-2">
+src/components/social/NarrativeIntelligence.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/social/NarrativeIntelligence.tsx:                          <tr key={generateStableKey(r, i, 'media-reg')} className="hover:bg-white/[0.02]">
+src/components/social/NarrativeIntelligence.tsx:                        ].map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+src/components/social/CivilizationalAnalysis.tsx:            key={tab.id}
+src/components/social/CivilizationalAnalysis.tsx:                <div key={item.label} className="flex items-start
+src/components/social/CivilizationalAnalysis.tsx:                <div key={item.characteristic}
+src/components/social/CivilizationalAnalysis.tsx:                <div key={item.actor} className="flex items-start
+src/components/social/CivilizationalAnalysis.tsx:                  <div key={axis.label} className="space-y-1.5">
+src/components/social/CivilizationalAnalysis.tsx:                  <div key={s.name} className={`p-4 rounded-xl border space-y-2 ${s.revolt === 'HIGH' ? 'border-intel-red/25 bg-intel-red/5' : s.revolt === 'MEDIUM' ? 'border-intel-orange/20 bg-intel-orange/3' : 'border-intel-border/20 bg-black/10'}`}>
+src/components/social/CivilizationalAnalysis.tsx:                        <div key={m.label} className="space-y-0.5">
+src/components/social/CivilizationalAnalysis.tsx:          <div key={item.phase} className={`p-3 rounded-xl border
+src/components/social/CivilizationalAnalysis.tsx:                <g key={i}
+src/components/social/CivilizationalAnalysis.tsx:              key={phase.id}
+src/components/social/CivilizationalAnalysis.tsx:                    <span key={`${v}-${index}`} className="text-[8px] font-mono
+src/components/social/CivilizationalAnalysis.tsx:                <line key={`line-${i}`}
+src/components/social/CivilizationalAnalysis.tsx:                <g key={`node-${node.id}`}
+src/components/social/CivilizationalAnalysis.tsx:              <div key={node.id}
+src/components/social/CivilizationalAnalysis.tsx:            key={i}
+src/components/social/CivilizationalAnalysis.tsx:                <div key={j} className="flex items-start
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'nato-actor')} fill={entry.color} />
+src/components/geopolitical/GeopoliticalIntelligence.tsx:              <div key={generateStableKey(actor, idx, 'nato-input')} className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3 hover:border-intel-cyan/30 transition-all group">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:          <div key={generateStableKey(stat, i, 'geopol-kpi')} className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden group hover:border-intel-cyan/30 transition-all">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                    key={generateStableKey(actor, idx, 'actor-btn')}
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                        <div key={generateStableKey(dim, index, 'align-dim')} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-intel-cyan/20 hover:bg-white/10 transition-all group cursor-default">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                  <div key={generateStableKey(item, i, 'depend-vec')} className="space-y-2">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                  key={risk.id} 
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                          <div key={generateStableKey(a, aIdx, 'risk-actor')} className="w-8 h-8 rounded-full bg-intel-bg border border-white/10 flex items-center justify-center shadow-lg hover:z-10 transition-all group/actor" title={a}>
+src/components/geopolitical/GeopoliticalIntelligence.tsx:              key={selectedActor.id}
+src/components/geopolitical/GeopoliticalIntelligence.tsx:            <div key={generateStableKey(p, i, 'regional-power')} className={`p-5 rounded-xl border space-y-4 ${p.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.risk === 'HIGH' ? 'border-intel-orange/20' : 'border-intel-border'}`}>
+src/components/geopolitical/GeopoliticalIntelligence.tsx:                  <div key={generateStableKey({ key, val }, vIdx, 'vector')} className="space-y-1">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:              <div key={generateStableKey(p, i, 'region-influence-row')} className="flex items-center gap-3">
+src/components/geopolitical/GeopoliticalIntelligence.tsx:            <div key={generateStableKey(rel, idx, 'diplomatic-rel')} className="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-intel-cyan/30 transition-all group relative overflow-hidden">
+src/components/geopolitical/EventsIntelligence.tsx:          <div key={stat.label}
+src/components/geopolitical/EventsIntelligence.tsx:                  key={generateStableKey(event)}
+src/components/geopolitical/EventsIntelligence.tsx:                key={selectedEvent.id}
+src/components/geopolitical/EventsIntelligence.tsx:                            <div key={assertKey(getRenderKey(w, i, 'ai-shimmer'))} className={`h-3 bg-slate-800
+src/components/geopolitical/EventsIntelligence.tsx:                            key={assertKey(getRenderKey(article, aIdx, 'art'))}
+src/components/geopolitical/EventsIntelligence.tsx:                            <div key={s.label} className="space-y-1">
+src/components/geopolitical/EventsIntelligence.tsx:                        <div key={item.label} className="space-y-1">
+src/components/geopolitical/EventsIntelligence.tsx:                        <div key={item.label} className="space-y-1">
+src/components/geopolitical/EventsIntelligence.tsx:                            <div key={alignment} className="space-y-2">
+src/components/geopolitical/EventsIntelligence.tsx:                                <div key={assertKey(getRenderKey(article, aIdx, 'ev-art'))}
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:              key={tab.id}
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:          key={activeTab}
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                        <div key={i} className="flex items-center gap-3 text-[10px] font-mono">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                    <div key={i} className={`p-3 rounded-xl border space-y-2 ${g.bmi > 0.8 ? 'border-intel-red/30 bg-intel-red/5' : g.bmi > 0.65 ? 'border-intel-orange/20' : 'border-intel-border'}`}>
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                    key={cat}
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                          <th key={h} className="px-4 py-3 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest">{h}</th>
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                          <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                          <Cell key={i} fill={i < 3 ? '#ef4444' : i < 6 ? '#f97316' : '#f59e0b'} />
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                  <div key={i} className={`glass rounded-xl p-5 border space-y-4 ${r.risk === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : 'border-intel-orange/20'}`}>
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                        <React.Fragment key={ni}>
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                  <div key={i} className="glass rounded-xl p-4 border border-intel-border/50 bg-[#0f141a]/90 space-y-2">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                    <div key={i} className="space-y-1.5">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                  <div key={i} className="glass rounded-xl p-4 border border-intel-border/50 bg-[#0f141a]/90 space-y-2">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                    <div key={i} className="flex items-start gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors">
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                          <Cell key={i} fill={s.velocity > 200 ? '#ef4444' : s.velocity > 100 ? '#f97316' : '#f59e0b'} />
+src/components/geopolitical/BlackMarketIntelligencePanel.tsx:                    <div key={i} className="bg-black/30 border border-white/5 rounded-xl p-4 space-y-2 hover:border-white/10 transition-all">
+src/components/economy/Economy.tsx:            key={`economy-ind-${ind.label}-${i}`}
+src/components/economy/Economy.tsx:                <div key={`bct-${val}-${i}`} className="flex-1 flex flex-col items-center group">
+src/components/economy/Economy.tsx:                <div key={item.label}>
+src/components/economy/EconomyIntelligence.tsx:                      <tr key={generateStableKey(idx, i, 'climate-idx')} className="hover:bg-white/5 transition-colors">
+src/components/economy/EconomyIntelligence.tsx:                      <Cell key={generateStableKey(entry, index, 'heritage-bar')} fill={entry < 50 ? '#ef4444' : entry < 60 ? '#f97316' : '#00f2ff'} />
+src/components/economy/EconomyIntelligence.tsx:                    <div key={generateStableKey(s, index, 'fdi-sector')} className="space-y-1">
+src/components/economy/EconomyIntelligence.tsx:              <div key={generateStableKey(op, i, 'compl-op')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+src/components/economy/EconomyIntelligence.tsx:                  <div key={generateStableKey(d, i, 'capital-driver')} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'scatter-rri')} fill={entry.color} />
+src/components/economy/EconomyIntelligence.tsx:          <div key={generateStableKey(stat, i, 'rem-stat')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'rem-dist')} fill={entry.color} />
+src/components/economy/EconomyIntelligence.tsx:            <div key={generateStableKey(item, i, 'rem-policy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+src/components/economy/EconomyIntelligence.tsx:            <div key={generateStableKey(i, i, 'skeleton-macro')} className="glass p-4 rounded-xl border border-intel-border h-40 animate-pulse bg-white/5"></div>
+src/components/economy/EconomyIntelligence.tsx:              key={generateStableKey(ind, i, 'macro-ind')} 
+src/components/economy/EconomyIntelligence.tsx:                          key={generateStableKey(link, lIdx, 'macro-link')}
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'cpi-bar')} fill={['#f43f5e', '#f97316', '#fbbf24', '#22d3ee', '#0ea5e9', '#38bdf8', '#7dd3fc', '#94a3b8'][index]} />
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'debt-cal')} fill={['#f97316', '#ef4444', '#22d3ee', '#38bdf8', '#f59e0b', '#dc2626'][index]} />
+src/components/economy/EconomyIntelligence.tsx:                      <Cell key={generateStableKey(entry, index, 'debt-pie')} fill={entry.color} stroke="none" />
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(item, i, 'debt-list')} className="flex items-center justify-between text-[10px] font-mono">
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(signal, i, 'macro-signal')} className="flex flex-col space-y-1">
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'sector-growth')} fill={entry.growth > 0 ? '#22c55e' : '#ef4444'} />
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(sector, i, 'sector-health')} className="space-y-2">
+src/components/economy/EconomyIntelligence.tsx:          <div key={generateStableKey(sector, i, 'sector-detail')} className="glass p-5 rounded-2xl border border-intel-border space-y-4">
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(s, j, 'sector-detail-stat')} className="flex justify-between text-[8px] font-mono uppercase">
+src/components/economy/EconomyIntelligence.tsx:                    <tr key={generateStableKey(m, i, 'ministry-row')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+src/components/economy/EconomyIntelligence.tsx:                  <li key={generateStableKey(item, i, 'labor-dispute')} className="space-y-1">
+src/components/economy/EconomyIntelligence.tsx:                  <li key={generateStableKey(item, i, 'policy-impact')} className="space-y-1">
+src/components/economy/EconomyIntelligence.tsx:            key={generateStableKey(alert, i, 'critical-alert')}
+src/components/economy/EconomyIntelligence.tsx:            key={generateStableKey(ind, i, 'market-indicator')}
+src/components/economy/EconomyIntelligence.tsx:                  <tr key={generateStableKey(item, i, 'essential-good')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+src/components/economy/EconomyIntelligence.tsx:              <div key={generateStableKey(news, i, 'market-news')} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-start justify-between group hover:bg-white/10 transition-all cursor-pointer">
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'market-comp')} fill={entry.color} />
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(gov, i, 'poverty-gov-heatmap')} className="p-2 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-between h-16">
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(item, i, 'safety-net-item')} className="space-y-2">
+src/components/economy/EconomyIntelligence.tsx:          <div key={generateStableKey(ind, i, 'poverty-risk-ind')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(mol, i, 'critical-mol')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
+src/components/economy/EconomyIntelligence.tsx:                      <Cell key={generateStableKey(entry, index, 'import-dep-pie')} fill={entry.color} />
+src/components/economy/EconomyIntelligence.tsx:                <div key={generateStableKey(item, i, 'import-dep-item')} className="flex items-center justify-between text-[9px] font-mono">
+src/components/economy/EconomyIntelligence.tsx:          <div key={generateStableKey(med, i, 'essential-med-status')} className="glass p-5 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group">
+src/components/economy/EconomyIntelligence.tsx:              <div key={generateStableKey(stock, i, 'strategic-stock')} className="space-y-2">
+src/components/economy/EconomyIntelligence.tsx:              <div key={generateStableKey(risk, i, 'procurement-risk')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
+src/components/economy/EconomyIntelligence.tsx:            key={generateStableKey(ind, i, 'startup-metric')}
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'startup-sector-cell')} fill={entry.color} />
+src/components/economy/EconomyIntelligence.tsx:            <div key={generateStableKey(item, i, 'startup-intel-item')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3 hover:bg-white/10 transition-all cursor-pointer group">
+src/components/economy/EconomyIntelligence.tsx:              <tr key={generateStableKey(peer, i, 'regional-comparison-row')} className={`hover:bg-white/5 transition-all ${peer.isTarget ? 'bg-intel-cyan/5' : ''}`}>
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'gdp-comp-cell')} fill={entry.isTarget ? '#ef4444' : '#22d3ee'} />
+src/components/economy/EconomyIntelligence.tsx:                    <Cell key={generateStableKey(entry, index, 'forex-comp-cell')} fill={
+src/components/economy/EconomyIntelligence.tsx:              key={cat.id}
+src/components/economy/EconomyIntelligence.tsx:          key={activeCategory}
+src/components/economy/EconomyIntelligence.tsx:                          <div key={generateStableKey(c, i, 'sei-commodity')} className="glass p-5 rounded-2xl border border-intel-border/30 space-y-4 relative overflow-hidden group">
+src/components/economy/EconomyIntelligence.tsx:                        <div key={generateStableKey(shock, i, 'energy-shock')}
+src/components/economy/EconomyIntelligence.tsx:                          <div key={generateStableKey(s, i, 'shortage-item')}
+src/components/economy/EconomyIntelligence.tsx:                        <div key={generateStableKey(f, i, 'seasonal-forecast')} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+src/components/economy/EconomyIntelligence.tsx:                      <div key={v.id}
+src/components/economy/BloombergTerminal.tsx:                <div key={i} className="flex justify-between items-center text-sm border-b border-emerald-900/50 pb-1">
+src/components/economy/BloombergTerminal.tsx:                <div key={i} className="flex items-start space-x-3 text-sm border-b border-emerald-900/30 pb-2">
+src/components/economy/EntrepreneurIntelligence.tsx:          <div key={i} className="pt-4 pb-1 first:pt-0">
+src/components/economy/EntrepreneurIntelligence.tsx:          <div key={i} className="flex items-start gap-2 py-0.5">
+src/components/economy/EntrepreneurIntelligence.tsx:          <div key={i} className="flex items-start gap-2 py-0.5">
+src/components/economy/EntrepreneurIntelligence.tsx:        if (line.trim() === '') return <div key={i} className="h-1" />;
+src/components/economy/EntrepreneurIntelligence.tsx:        return <p key={i} className="text-[10px] text-slate-300 leading-relaxed">{line}</p>;
+src/components/economy/EntrepreneurIntelligence.tsx:        <React.Fragment key={p.id}>
+src/components/economy/EntrepreneurIntelligence.tsx:          <span key={s.l} className="text-[8px] font-mono px-2 py-1 rounded"
+src/components/economy/EntrepreneurIntelligence.tsx:          {activeRules.map(r => <RuleBanner key={r.id} rule={r} />)}
+src/components/economy/EntrepreneurIntelligence.tsx:                key={p.id}
+src/components/economy/EntrepreneurIntelligence.tsx:                    <span key={s.l} className="text-[7px] font-mono px-1 py-0.5 rounded"
+src/components/economy/EntrepreneurIntelligence.tsx:                <span key={id} className="text-[8px] font-mono px-1.5 py-0.5 rounded"
+src/components/economy/EntrepreneurIntelligence.tsx:                    <div key={i} className="flex items-center gap-2 text-[9px] font-mono text-slate-600">
+src/components/economy/BusinessCommandCenter.tsx:            <div key={generateStableKey(kpi.label, i, 'kpi')} className="px-4 py-3 space-y-1 hover:bg-white/[0.02] transition-colors">
+src/components/economy/BusinessCommandCenter.tsx:          <div key={generateStableKey(a, i, 'alert')} className={`flex items-center gap-2 px-4 py-2 border-r border-white/5 shrink-0 ${i === 0 ? 'animate-pulse' : ''}`}>
+src/components/economy/BusinessCommandCenter.tsx:            key={generateStableKey(p, i, 'persona')}
+src/components/economy/BusinessCommandCenter.tsx:      <div key={generateStableKey(s, i, 'sector')} className="bg-[#0a0c10] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all">
+src/components/economy/BusinessCommandCenter.tsx:                key={tab.id}
+src/components/economy/BusinessCommandCenter.tsx:          key={activeTab}
+src/components/economy/IndustrialIntelligencePanel.tsx:                     key={gov.governorate}
+src/components/economy/IndustrialIntelligencePanel.tsx:                key={selectedRegionData.governorate}
+src/components/economy/IndustrialIntelligencePanel.tsx:                          <span key={factor} className="px-2 py-1 bg-red-900/20 text-red-400 border border-red-500/30 rounded text-[10px] font-mono">
+src/components/economy/EconomicReality.tsx:                    {prepareList(PRODUCTS).map((p: any) => <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>)}
+src/components/economy/EconomicReality.tsx:                    {prepareList(GOVERNORATES).map((g: any) => <option key={g.id} value={g.value}>{String(g.value).toUpperCase()}</option>)}
+src/components/economy/EconomicReality.tsx:                      key={report.id}
+src/components/economy/EconomicReality.tsx:                <div key={alert.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+src/components/economy/EconomicReality.tsx:                        {PRODUCTS.map((p, index) => <option key={`form-product-${p.id}-${index}`} value={p.id}>{p.name}</option>)}
+src/components/economy/EconomicReality.tsx:                        {GOVERNORATES.map((g, index) => <option key={`form-gov-${g}-${index}`} value={g}>{g}</option>)}
+src/components/economy/EconomicReality.tsx:                        {MARKET_TYPES.map((m, index) => <option key={`form-market-${m.id}-${index}`} value={m.id}>{m.name}</option>)}
+src/components/economy/BusinessInvestigator.tsx:          <div key={lineKey} className="mt-5 mb-2">
+src/components/economy/BusinessInvestigator.tsx:          <div key={lineKey} className="flex items-start space-x-2 py-0.5">
+src/components/economy/BusinessInvestigator.tsx:          <div key={lineKey} className="flex items-start space-x-2 py-0.5">
+src/components/economy/BusinessInvestigator.tsx:      if (line.trim() === '') return <div key={lineKey} className="h-1" />;
+src/components/economy/BusinessInvestigator.tsx:        <p key={lineKey} className="text-[10px] text-slate-300 leading-relaxed py-0.5">
+src/components/economy/BusinessInvestigator.tsx:                <div key={i} className="flex items-center space-x-2 text-[9px] font-mono text-slate-600">
+src/components/economy/BusinessInvestigator.tsx:            key={s.id}
+src/components/economy/BusinessInvestigator.tsx:            key={g.id}
+src/components/economy/BusinessInvestigator.tsx:                    <div key={m.l} className="flex items-center gap-1">
+src/components/economy/BusinessInvestigator.tsx:            key={s.id}
+src/components/economy/BusinessInvestigator.tsx:          key={selected}
+src/components/economy/BusinessInvestigator.tsx:                <div key={m.l} className="bg-black/30 p-2 rounded-lg border border-white/5">
+src/components/economy/BusinessInvestigator.tsx:                  <span key={g} className="text-[9px] font-mono px-2 py-0.5 rounded"
+src/components/economy/BusinessInvestigator.tsx:                  <span key={g} className="text-[9px] font-mono px-2 py-0.5 rounded"
+src/components/economy/BusinessInvestigator.tsx:          <div key={ind.label}
+src/components/economy/BusinessInvestigator.tsx:            <div key={i} className="flex items-start space-x-3 p-2 rounded-lg"
+src/components/economy/BusinessInvestigator.tsx:                key={tab.id}
+src/components/economy/BusinessInvestigator.tsx:                  <span key={m.l} className="flex items-center gap-1.5 px-2 py-1 rounded"
+src/components/economy/BusinessInvestigator.tsx:                      key={mode.id}
+src/components/economy/BusinessInvestigator.tsx:                      key={tab.id}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:              <option key={k} value={k}>{v}</option>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:              <option key={k} value={k}>{v}</option>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:            <button key={s.id}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:        <motion.div key={activeSection}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                  <div key={`${w.signal}-${i}`}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                    <div key={`${t.condition}-${i}`}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                  <div key={`${g.name}-${i}`}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                        <div key={m.label} className="space-y-0.5">
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                            <div key={`${s}-${j}`} className="text-slate-500">+ {s}</div>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                            <div key={`${r}-${j}`} className="text-slate-500">− {r}</div>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                  <div key={s.label}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                          <div key={i} className="text-slate-500">→ {c}</div>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                          <div key={i} className="text-slate-500">→ {a}</div>
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                  <div key={i}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                <div key={item.label}
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                    <div key={i} className="flex items-start space-x-3">
+src/components/economy/InvestmentIntelligenceReportGenerator.tsx:                  <div key={i}
+src/components/economy/FinanceLawPanel.tsx:            <div key={s.l} className="text-center">
+src/components/economy/FinanceLawPanel.tsx:            <button key={f} onClick={() => setFilter(f)}
+src/components/economy/FinanceLawPanel.tsx:          <div key={section.id} className="glass rounded-2xl border border-intel-border/40 overflow-hidden">
+src/components/economy/FinanceLawPanel.tsx:                        <div key={field.id}
+src/components/briefing/DailyBriefing.tsx:        key={p.num}
+src/components/briefing/DailyBriefing.tsx:            key={i}
+src/components/briefing/DailyBriefing.tsx:      <RRICard key={i} metric={m} />
+src/components/briefing/DailyBriefing.tsx:                key={i}
+src/components/briefing/DailyBriefing.tsx:          <GovernorateRow key={i} gov={gov} index={i} total={GOVERNORATE_ALERTS.length} />
+src/components/briefing/DailyBriefing.tsx:            key={i}
+src/components/briefing/DailyBriefing.tsx:                      <SectionCard key={s.id} section={s} />
+src/components/briefing/DailyBriefing.tsx:                <PhasePreviewCard key={p.phaseNumber} preview={p} />
+src/components/briefing/DailyBriefing.tsx:                  key={link}
+src/components/NationalCommandCenter.tsx:          key={`percentage-display-${rri}`}
+src/components/NationalCommandCenter.tsx:              key={`tick-${i}`}
+src/components/NationalCommandCenter.tsx:            <g key={`segment-${i}`}>
+src/components/NationalCommandCenter.tsx:              key={`metric-header-${m.id}-${i}`}
+src/components/NationalCommandCenter.tsx:                key={`threat-${t.domain}-${i}`}
+src/components/NationalCommandCenter.tsx:              key={`response-${i}`}
+src/components/NationalCommandCenter.tsx:              <PressureRow key={`pressure-${row.label}-${i}`} {...row} />
+src/components/NationalCommandCenter.tsx:                  key={`scale-${i}`}
+src/components/NationalCommandCenter.tsx:              key={`domain-tile-${d.tab}-${i}`}
+src/components/NationalCommandCenter.tsx:                      key={`analyst-tool-${i}`}
+src/components/SocietalFractureMonitor.tsx:            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+src/components/SocietalFractureMonitor.tsx:        <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }} className="space-y-6">
+src/components/SocietalFractureMonitor.tsx:                      <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
+src/components/SocietalFractureMonitor.tsx:                  <div key={i} className="glass rounded-xl border border-red-500/30 bg-red-500/5 p-4 space-y-2">
+src/components/SocietalFractureMonitor.tsx:                          {suicideByGov.map((e, i) => <Cell key={i} fill={e.color} />)}
+src/components/SocietalFractureMonitor.tsx:                  <div key={i} className={cn('glass rounded-xl border p-4 space-y-2', k.warn ? 'border-orange-500/30 bg-orange-500/5' : 'border-intel-border')}>
+src/components/SocietalFractureMonitor.tsx:                      <div key={i} className={cn('p-3 rounded-xl border space-y-1.5', isWarn ? 'border-orange-500/20 bg-orange-500/5' : 'border-intel-border')}>
+src/components/SocietalFractureMonitor.tsx:                    <div key={i} className="p-4 rounded-xl border space-y-3" style={{ borderColor: `${c.color}30`, backgroundColor: `${c.color}08` }}>
+src/components/SocietalFractureMonitor.tsx:                          <span key={ind} className="text-[8px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-slate-500">{ind}</span>
+src/components/SocietalFractureMonitor.tsx:                    <div key={i} className="p-4 rounded-xl border border-intel-border space-y-2 hover:border-white/10 transition-all">
+src/components/SocietalFractureMonitor.tsx:                          <th key={h} className="pb-2 text-left text-[8px] font-mono text-slate-600 uppercase tracking-widest pr-4">{h}</th>
+src/components/SocietalFractureMonitor.tsx:                        <tr key={i} className={cn('hover:bg-white/[0.02]', g.cluster === 'IGNITION' ? 'bg-red-500/5' : '')}>
+src/components/SocietalFractureMonitor.tsx:                          <Cell key={i} fill={g.cluster === 'IGNITION' ? '#ef4444' : g.cluster === 'ELEVATED' ? '#f97316' : g.cluster === 'MEDIUM' ? '#f59e0b' : '#10b981'} />

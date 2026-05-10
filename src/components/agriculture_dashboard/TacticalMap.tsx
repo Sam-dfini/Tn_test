@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDashboardStore } from './index';
+import { useDashboardStore } from './store';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Layers, Map as MapIcon, RotateCcw, Satellite } from 'lucide-react';

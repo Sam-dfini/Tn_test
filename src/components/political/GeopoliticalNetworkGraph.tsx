@@ -232,16 +232,24 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const [selectedEdge, setSelectedEdge] = useState<RelEdge | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
   const [filters, setFilters] = useState<{ domain: Domain | 'all'; tier: number | 'all'; type: EdgeType | 'all' }>({ domain: 'all', tier: 'all', type: 'all' });
-  const [gameMode, setGameMode] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to panel when game theory is activated
+  // Scroll to panel's active content when a game is selected
   useEffect(() => {
-    if ((gameMode || selectedGame) && panelRef.current) {
-      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (selectedGame && panelRef.current) {
+      // Find the specific container to scroll within the panel
+      const target = panelRef.current.querySelector('.game-details-anchor');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        panelRef.current.parentElement?.scrollTo({ 
+          top: panelRef.current.offsetTop, 
+          behavior: 'smooth' 
+        });
+      }
     }
-  }, [gameMode, !!selectedGame]);
+  }, [selectedGame?.id]);
 
   // ─── SIGNAL POPS ───────────────────────────────────────────────────────────
   const { articles } = useRSS();
@@ -455,9 +463,9 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     svg.call(zoom);
 
     // Initial zoom - centered
-    const initialScale = 0.85;
-    const initialTx = (W / 2) * (1 - initialScale);
-    const initialTy = (H / 2) * (1 - initialScale);
+    const initialScale = 0.95;
+    const initialTx = W / 2 - (W / 2 * initialScale);
+    const initialTy = H / 2 - (H / 2 * initialScale);
     svg.call(zoom.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
 
     // Orbital rings (decorative) - inside container
@@ -538,7 +546,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .style('animation', 'arc-flow 2s linear infinite');
 
     // Game highlight arcs
-    if (gameMode && selectedGame) {
+    if (selectedGame) {
       const gamePair = new Set(selectedGame.players);
       edgePaths.attr('opacity', d => {
         const s = (d.source as ActorNode).id || d.source;
@@ -569,7 +577,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
         event.stopPropagation();
         setSelectedNode(d);
         setSelectedEdge(null);
-        setSelectedGame(gameMode ? GAMES.find(g => g.players.includes(d.id)) || null : null);
+        setSelectedGame(GAMES.find(g => g.players.includes(d.id)) || null);
       })
       .on('mouseover', (_, d) => setHoveredNode(d.id))
       .on('mouseout', () => setHoveredNode(null));
@@ -644,7 +652,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     // Label
     nodeGroups.append('text')
       .attr('text-anchor', 'middle')
-      .attr('dy', d => d.size * 0.45 + 22)
+      .attr('dy', d => d.size * 0.45 + 28)
       .attr('fill', d => d.color)
       .attr('font-size', d => d.id === 'TUN' ? 12 : 9)
       .attr('font-family', 'monospace')
@@ -715,7 +723,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .transition().duration(200)
       .attr('opacity', (d) => {
         if (!d) return 0.6;
-        if (gameMode && selectedGame) {
+        if (selectedGame) {
           const gamePair = new Set(selectedGame.players);
           const s = (d.source as ActorNode).id || d.source;
           const t = (d.target as ActorNode).id || d.target;
@@ -733,7 +741,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .transition().duration(200)
       .attr('opacity', (d) => {
         if (!d) return 1;
-        if (gameMode && selectedGame) {
+        if (selectedGame) {
           return selectedGame.players.includes(d.id) ? 1 : 0.2;
         }
         if (hoveredNode) {
@@ -744,7 +752,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
         }
         return 1;
       });
-  }, [hoveredNode, gameMode, selectedGame, visibleEdges]);
+  }, [hoveredNode, selectedGame, visibleEdges]);
 
   const tunIncomingEdges = EDGES.filter(e => e.target === 'TUN');
   const dominantActor = tunIncomingEdges.sort((a, b) => b.weight - a.weight)[0];
@@ -752,8 +760,9 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const DOMAINS: Domain[] = ['energy', 'migration', 'security', 'finance', 'infrastructure', 'media', 'diplomatic', 'ideological', 'strategic'];
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
+  // Main content layout: Graph Left, Game Theory Right
   return (
-    <div className="flex flex-col h-full space-y-4 p-3 md:p-6 relative">
+    <div className="flex flex-col h-full space-y-4 p-3 md:p-6 relative overflow-hidden bg-dot-white/[0.02]">
 
       {/* Header */}
       <ModuleHeader 
@@ -764,22 +773,18 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
         nodeId="GEO-NODE-07"
       />
 
-      {/* Secondary Actions */}
+      {/* Secondary Actions / Status */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => { setGameMode(!gameMode); setSelectedNode(null); setSelectedEdge(null); }}
-            className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase transition-all',
-              gameMode ? 'border-purple-500/50 bg-purple-500/20 text-purple-400' : 'border-white/10 text-slate-500 hover:text-white'
-            )}
-          >
-            <Zap className="w-3 h-3" /> Game Theory
-          </button>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/5 bg-white/[0.02] text-[9px] font-mono text-slate-500 uppercase">
+             <Activity className="w-3.5 h-3.5 text-intel-cyan" />
+             Strategic Analysis Matrix
+          </div>
         </div>
       </div>
 
-      {/* Tunisia stress strip */}
-      <div className="glass rounded-xl border border-intel-border/50 overflow-hidden shrink-0">
+      {/* Tunisia pressure summary strip */}
+      <div className="glass rounded-xl border border-intel-border/30 overflow-hidden shrink-0 bg-white/[0.01]">
         <div className="flex items-center gap-0 divide-x divide-white/5 overflow-x-auto no-scrollbar">
           <div className="px-4 py-2.5 shrink-0">
             <div className="text-[8px] font-mono text-slate-600 uppercase">Tunisia Pressure</div>
@@ -804,285 +809,291 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter bar */}
-      <div className="flex items-center gap-3 flex-wrap shrink-0">
-        <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 uppercase">
-          <Filter className="w-3 h-3" /> Filter:
-        </div>
-        {/* Domain */}
-        <select
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
-          value={filters.domain}
-          onChange={e => setFilters(f => ({ ...f, domain: e.target.value as Domain | 'all' }))}
-        >
-          <option value="all">All Domains</option>
-          {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
-        {/* Edge type */}
-        <select
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
-          value={filters.type}
-          onChange={e => setFilters(f => ({ ...f, type: e.target.value as EdgeType | 'all' }))}
-        >
-          <option value="all">All Edge Types</option>
-          {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        {/* Tier */}
-        <select
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
-          value={filters.tier}
-          onChange={e => setFilters(f => ({ ...f, tier: e.target.value === 'all' ? 'all' : parseInt(e.target.value) }))}
-        >
-          <option value="all">All Tiers</option>
-          {[1, 2, 3, 4].map(t => <option key={t} value={t}>Tier {t}</option>)}
-        </select>
-        {/* Legend */}
-        <div className="flex items-center gap-3 ml-auto">
-          {Object.entries(EDGE_STYLE).map(([type, style]) => (
-            <span key={type} className="flex items-center gap-1 text-[8px] font-mono" style={{ color: style.color }}>
-              <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: style.color }} />
-              {type}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Main graph */}
-      <div className="glass rounded-2xl border border-intel-border/30 overflow-hidden relative" style={{ minHeight: 650 }}>
-        <svg ref={svgRef} width="100%" height="650px" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
-
-        {/* Zoom Controls */}
-        <div className="absolute left-6 bottom-6 flex flex-col gap-2">
-          <button 
-            onClick={() => {
-              if (svgRef.current && zoomRef.current) {
-                d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3);
-              }
-            }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
-            title="Zoom In"
-          >
-            <ZoomIn className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => {
-              if (svgRef.current && zoomRef.current) {
-                d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1/1.3);
-              }
-            }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
-            title="Zoom Out"
-          >
-            <ZoomOut className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => {
-              if (svgRef.current && zoomRef.current) {
-                const initialScale = 0.85;
-                const initialTx = (W / 2) * (1 - initialScale);
-                const initialTy = (H / 2) * (1 - initialScale);
-                d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
-              }
-            }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
-            title="Reset View"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Node info panel */}
-        <AnimatePresence>
-          {selectedNode && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="absolute top-4 right-4 w-72 glass rounded-xl border border-intel-border bg-[#050a10]/95 p-4 space-y-3 text-[10px] font-mono"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-bold" style={{ color: selectedNode.color }}>{selectedNode.label}</div>
-                  <div className="text-slate-600 uppercase text-[8px]">Tier {selectedNode.tier} · {selectedNode.powerType}</div>
-                </div>
-                <button onClick={() => setSelectedNode(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(selectedNode.resources).map(([k, v]) => (
-                  <div key={k}>
-                    <div className="text-[8px] text-slate-600 uppercase">{k}</div>
-                    <div className="flex items-center gap-1">
-                      <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full bg-intel-cyan" style={{ width: `${v * 10}%` }} />
-                      </div>
-                      <span className="text-white">{v}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Goals</div>
-                {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400">→ {g}</div>)}
-              </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Constraints</div>
-                {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80">⚠ {c}</div>)}
-              </div>
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-[8px]">
-                <div><span className="text-slate-600">Risk:</span> <span className={selectedNode.riskTolerance === 'high' ? 'text-red-400' : selectedNode.riskTolerance === 'medium' ? 'text-amber-400' : 'text-emerald-400'}>{selectedNode.riskTolerance}</span></div>
-                <div><span className="text-slate-600">Horizon:</span> <span className="text-slate-300">{selectedNode.timeHorizon}</span></div>
-                <div><span className="text-slate-600">Tier:</span> <span className="text-slate-300">{selectedNode.tier}</span></div>
-              </div>
-              {/* Related games */}
-              {GAMES.filter(g => g.players.includes(selectedNode.id)).map(game => (
-                <button key={game.id} onClick={() => setSelectedGame(game)}
-                  className="w-full text-left p-2 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[9px] hover:bg-purple-500/20">
-                  🎯 {game.name}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Edge info panel */}
-        <AnimatePresence>
-          {selectedEdge && !selectedNode && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="absolute top-4 right-4 w-72 glass rounded-xl border border-intel-border bg-[#050a10]/95 p-4 space-y-3 text-[10px] font-mono"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-bold" style={{ color: EDGE_STYLE[selectedEdge.type].color }}>
-                    {selectedEdge.source as string} → {selectedEdge.target as string}
-                  </div>
-                  <div className="text-slate-600 text-[8px] uppercase">{selectedEdge.type} · weight {selectedEdge.weight}/10 · {selectedEdge.domain}</div>
-                </div>
-                <button onClick={() => setSelectedEdge(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>
-              </div>
-              <p className="text-slate-300 leading-relaxed">{selectedEdge.description}</p>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Conditionality</div>
-                <p className="text-amber-400/80">{selectedEdge.conditionality}</p>
-              </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Evidence</div>
-                {selectedEdge.evidence.map((e, i) => <div key={i} className="text-slate-400">· {e}</div>)}
-              </div>
-              <div className="flex items-center gap-3 text-[8px] pt-2 border-t border-white/5">
-                <span className="text-slate-600">Trend:</span>
-                <span className={selectedEdge.trend === 'rising' ? 'text-red-400' : selectedEdge.trend === 'declining' ? 'text-emerald-400' : 'text-slate-400'}>
-                  {selectedEdge.trend === 'rising' ? '↑ Rising' : selectedEdge.trend === 'declining' ? '↓ Declining' : '→ Stable'}
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Game Theory Panel */}
-      <AnimatePresence>
-        {(gameMode || selectedGame) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="glass rounded-2xl border border-purple-500/20 overflow-hidden"
-          >
-            <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Zap className="w-4 h-4 text-purple-400" />
-                Game Theory Models — Select pair to view payoff matrix
-              </div>
-              {selectedGame && <button onClick={() => setSelectedGame(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>}
+      {/* Main interaction layout */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-hidden">
+        {/* Left Column: Network Map */}
+        <div className="flex-1 flex flex-col gap-4 min-h-[400px]">
+          {/* Filters mini-bar */}
+          <div className="flex items-center gap-3 flex-wrap shrink-0">
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 uppercase">
+              <Filter className="w-3 h-3" /> Filter:
             </div>
-            <div className="p-5 space-y-4" ref={panelRef}>
-              {/* Game selector */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <select
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              value={filters.domain}
+              onChange={e => setFilters(f => ({ ...f, domain: e.target.value as Domain | 'all' }))}
+            >
+              <option value="all">All Domains</option>
+              {DOMAINS.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <select
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              value={filters.type}
+              onChange={e => setFilters(f => ({ ...f, type: e.target.value as EdgeType | 'all' }))}
+            >
+              <option value="all">All Edge Types</option>
+              {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <select
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              value={filters.tier}
+              onChange={e => setFilters(f => ({ ...f, tier: e.target.value === 'all' ? 'all' : parseInt(e.target.value) }))}
+            >
+              <option value="all">All Tiers</option>
+              {[1, 2, 3, 4].map(t => <option key={t} value={t}>Tier {t}</option>)}
+            </select>
+            {/* Legend mini */}
+            <div className="flex items-center gap-3 ml-auto opacity-50">
+               {['coercive', 'cooperative'].map(type => (
+                 <span key={type} className="flex items-center gap-1 text-[8px] font-mono" style={{ color: EDGE_STYLE[type as EdgeType].color }}>
+                   <span className="w-2 h-0.5" style={{ backgroundColor: EDGE_STYLE[type as EdgeType].color }} /> {type}
+                 </span>
+               ))}
+            </div>
+          </div>
+
+          {/* Graph Stage */}
+          <div className="glass rounded-3xl border border-intel-border/30 overflow-hidden relative flex-1 bg-black/40">
+            <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
+
+            {/* Floating Controls */}
+            <div className="absolute left-6 bottom-6 flex flex-col gap-2">
+              <button 
+                onClick={() => {
+                  if (svgRef.current && zoomRef.current) {
+                    d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3);
+                  }
+                }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => {
+                  if (svgRef.current && zoomRef.current) {
+                    d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1/1.3);
+                  }
+                }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => {
+                  if (svgRef.current && zoomRef.current) {
+                    const initialScale = 0.85;
+                    const initialTx = (W / 2) * (1 - initialScale);
+                    const initialTy = (H / 2) * (1 - initialScale);
+                    d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
+                  }
+                }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
+                title="Reset View"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Interaction Overlays */}
+            <AnimatePresence>
+              {(selectedNode || selectedEdge) && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="absolute top-6 left-6 w-72 glass rounded-2xl border border-intel-border/50 bg-[#050a10]/95 p-5 space-y-4 text-[10px] font-mono shadow-2xl backdrop-blur-xl pointer-events-auto"
+                >
+                  {selectedNode ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-base font-bold tracking-tight text-white">{selectedNode.label}</div>
+                          <div className="text-slate-600 uppercase text-[8px] font-black">Tier {selectedNode.tier} · {selectedNode.powerType} VECTOR</div>
+                        </div>
+                        <button onClick={() => setSelectedNode(null)} className="text-slate-600 hover:text-white transition-colors p-1"><X className="w-4 h-4" /></button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                         {Object.entries(selectedNode.resources).map(([k, v]) => (
+                            <div key={k} className="space-y-1">
+                               <div className="text-[7px] text-slate-600 uppercase font-black">{k}</div>
+                               <div className="h-1.5 bg-white/5 rounded-full overflow-hidden flex items-center">
+                                  <div className="h-full bg-intel-cyan rounded-full" style={{ width: `${v * 10}%` }} />
+                               </div>
+                            </div>
+                         ))}
+                      </div>
+
+                      <div className="space-y-3 pt-2 border-t border-white/5">
+                        <div className="space-y-1">
+                           <div className="text-[7px] text-slate-600 uppercase font-black">Strategic Goals</div>
+                           {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400 flex gap-2"><span>→</span> {g}</div>)}
+                        </div>
+                        <div className="space-y-1">
+                           <div className="text-[7px] text-red-500/60 uppercase font-black">Structural Constraints</div>
+                           {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80 flex gap-2"><span>⚠</span> {c}</div>)}
+                        </div>
+                      </div>
+
+                      {GAMES.filter(g => g.players.includes(selectedNode.id)).map(game => (
+                        <button key={game.id} onClick={() => setSelectedGame(game)}
+                          className="w-full flex items-center justify-between p-3 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[10px] hover:bg-purple-500/20 transition-all font-bold">
+                          <span className="flex items-center gap-2"><Target className="w-3.5 h-3.5" /> {game.name}</span>
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      ))}
+                    </>
+                  ) : selectedEdge ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-base font-bold tracking-tight text-white mb-0.5">
+                            {selectedEdge.source as string} → {selectedEdge.target as string}
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: EDGE_STYLE[selectedEdge.type].color }} />
+                             <span className="text-slate-500 text-[8px] uppercase font-black tracking-widest">{selectedEdge.type} VECTOR</span>
+                          </div>
+                        </div>
+                        <button onClick={() => setSelectedEdge(null)} className="text-slate-600 hover:text-white p-1"><X className="w-4 h-4" /></button>
+                      </div>
+                      
+                      <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 leading-relaxed text-slate-400">
+                         {selectedEdge.description}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 pt-2">
+                         <div className="space-y-1">
+                            <div className="text-[7px] text-slate-600 uppercase font-black">Conditionality</div>
+                            <div className="text-amber-400 font-medium leading-tight">{selectedEdge.conditionality}</div>
+                         </div>
+                         <div className="space-y-1">
+                            <div className="text-[7px] text-slate-600 uppercase font-black">Force Multiplier</div>
+                            <div className="text-white font-bold">{selectedEdge.weight} / 10</div>
+                         </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                         <span className="text-slate-600 uppercase text-[7px] font-black">Strategic Trend</span>
+                         <div className={cn("px-2 py-0.5 rounded-full text-[8px] font-black uppercase",
+                            selectedEdge.trend === 'rising' ? 'bg-red-500/20 text-red-500' : 
+                            selectedEdge.trend === 'declining' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-500/20 text-slate-500'
+                         )}>
+                            {selectedEdge.trend}
+                         </div>
+                      </div>
+                    </>
+                  ) : null}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Right Column: Game Theory Panel (Permanent) */}
+        <div className="w-full lg:w-[540px] flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1 pb-6">
+          <div className="glass rounded-3xl border border-purple-500/20 overflow-hidden bg-white/[0.01]">
+            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.03]">
+              <div className="flex items-center gap-2.5 text-xs font-bold text-white uppercase tracking-widest font-mono">
+                <Zap className="w-4 h-4 text-purple-400" />
+                Strategic Game Engine
+              </div>
+              {selectedGame && <button onClick={() => setSelectedGame(null)} className="text-slate-600 hover:text-white p-1"><X className="w-4 h-4" /></button>}
+            </div>
+
+            <div className="p-5 space-y-6" ref={panelRef}>
+              <div className="grid grid-cols-2 gap-2">
                 {GAMES.map(g => (
-                  <button key={g.id} onClick={() => setSelectedGame(g)}
-                    className={cn('text-left p-3 rounded-xl border text-[9px] font-mono transition-all space-y-0.5',
+                  <button key={g.id} onClick={() => setSelectedGame(selectedGame === g ? null : g)}
+                    className={cn('text-left p-3.5 rounded-2xl border text-[9px] font-mono transition-all flex flex-col gap-1.5 relative overflow-hidden group',
                       selectedGame?.id === g.id
-                        ? 'border-purple-500/50 bg-purple-500/10 text-white'
-                        : 'border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
+                        ? 'border-purple-500/50 bg-purple-500/20 text-white shadow-lg'
+                        : 'border-white/5 bg-white/[0.02] text-slate-500 hover:border-white/20 hover:bg-white/[0.04]'
                     )}>
-                    <div className="font-bold text-[10px]">{g.name}</div>
-                    <div className="text-[8px] uppercase">{g.players.join(' vs ')}</div>
-                    <div className="text-[8px] opacity-70">{g.type}</div>
+                    <div className="font-bold text-[10px] truncate leading-tight transition-colors group-hover:text-white">{g.name}</div>
+                    <div className="flex items-center justify-between mt-auto">
+                       <span className="text-[7px] uppercase text-purple-400 font-black tracking-tighter">{g.type.replace('_',' ')}</span>
+                       {selectedGame?.id === g.id && <div className="w-1 h-1 rounded-full bg-purple-400 animate-pulse" />}
+                    </div>
                   </button>
                 ))}
               </div>
 
-              {/* Payoff matrix */}
-              {selectedGame && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Matrix */}
-                    <div className="space-y-3">
-                      <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Payoff Matrix — ({selectedGame.players[0]}, {selectedGame.players[1]})</div>
-                      <div className="overflow-x-auto">
-                        <table className="text-[9px] font-mono w-full">
-                          <thead>
-                            <tr>
-                              <th className="px-2 py-1 text-left text-slate-600" />
-                              {selectedGame.labels.cols.map((c, i) => (
-                                <th key={i} className="px-3 py-1 text-center text-intel-cyan border-b border-white/10">{c}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {selectedGame.labels.rows.map((row, ri) => (
-                              <tr key={ri}>
-                                <td className="px-2 py-2 text-intel-cyan border-r border-white/10 text-left">{row}</td>
-                                {selectedGame.labels.cols.map((_, ci) => {
-                                  const payoff = selectedGame.matrix[ri * 2 + ci < 4 ? ri * 2 + ci : 0];
-                                  const isNash = selectedGame.nashIdx[0] === ri && selectedGame.nashIdx[1] === ci;
-                                  const isCurrent = selectedGame.currentIdx[0] === ri && selectedGame.currentIdx[1] === ci;
-                                  const idx = ri * selectedGame.labels.cols.length + ci;
-                                  const vals = selectedGame.matrix[idx] || [0, 0];
-                                  return (
-                                    <td key={ci} className={cn('px-3 py-2 text-center border border-white/5',
-                                      isCurrent ? 'bg-red-500/20 border-red-500/30' : isNash ? 'bg-emerald-500/10 border-emerald-500/20' : ''
-                                    )}>
-                                      <span className={isCurrent ? 'text-red-400 font-bold' : isNash ? 'text-emerald-400 font-bold' : 'text-white'}>
-                                        ({vals[0] ?? 0}, {vals[1] ?? 0})
-                                      </span>
-                                      {isNash && !isCurrent && <div className="text-[7px] text-emerald-400">◆ Nash</div>}
-                                      {isCurrent && <div className="text-[7px] text-red-400">● Current</div>}
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+              {selectedGame ? (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pt-2">
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 shadow-inner">
+                     <div className="text-[7px] text-purple-400 uppercase font-black mb-1.5 tracking-[0.2em]">Projection Summary</div>
+                     <p className="text-[11px] text-slate-300 leading-relaxed font-italic">"{selectedGame.description}"</p>
+                  </div>
 
-                    {/* Analysis */}
-                    <div className="space-y-3 text-[10px] font-mono">
-                      <div>
-                        <div className="text-[8px] text-slate-600 uppercase mb-1">Game Type</div>
-                        <div className="text-purple-400 font-bold capitalize">{selectedGame.type.replace('_', ' ')}</div>
-                      </div>
-                      <div>
-                        <div className="text-[8px] text-slate-600 uppercase mb-1">Analysis</div>
-                        <p className="text-slate-400 leading-relaxed">{selectedGame.description}</p>
-                      </div>
-                      <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5">
-                        <div className="text-[8px] text-amber-400 uppercase font-bold mb-1">Tunisia Impact</div>
-                        <p className="text-amber-400/80 leading-relaxed">{selectedGame.tunisiaImpact}</p>
-                      </div>
+                  {/* Matrix */}
+                  <div className="space-y-3 game-details-anchor">
+                    <div className="text-[8px] text-slate-600 uppercase tracking-[0.2em] px-1 font-black font-mono">Real-Time Payoff Matrix</div>
+                    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md">
+                      <table className="text-[9px] font-mono min-w-[300px] w-full border-collapse">
+                        <thead>
+                          <tr className="bg-white/5 text-[7px] text-slate-500 font-black uppercase tracking-tighter">
+                            <th className="px-2 py-2 text-center">VECTOR</th>
+                            {selectedGame.labels.cols.map((c, i) => (
+                              <th key={i} className="px-2 py-2 text-center border-l border-white/5">{c}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedGame.labels.rows.map((row, ri) => (
+                            <tr key={ri} className="border-t border-white/5">
+                              <td className="px-2 py-4 bg-white/[0.02] text-slate-500 text-[7px] font-black uppercase leading-tight text-center">{row}</td>
+                              {selectedGame.labels.cols.map((_, ci) => {
+                                const idx = ri * selectedGame.labels.cols.length + ci;
+                                const vals = selectedGame.matrix[idx] || [0, 0];
+                                const isCurrent = selectedGame.currentIdx[0] === ri && selectedGame.currentIdx[1] === ci;
+                                const isNash = selectedGame.nashIdx[0] === ri && selectedGame.nashIdx[1] === ci;
+                                return (
+                                  <td key={ci} className={cn('px-2 py-4 text-center border-l border-white/5 transition-colors relative',
+                                    isCurrent ? 'bg-red-500/20' : isNash ? 'bg-emerald-500/15' : ''
+                                  )}>
+                                    <div className={cn("font-bold text-[11px] mb-1", 
+                                       isCurrent ? 'text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.4)]' : 
+                                       isNash ? 'text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'text-slate-200'
+                                    )}>
+                                      ({vals[0]}, {vals[1]})
+                                    </div>
+                                    {isCurrent && <div className="text-[6px] text-red-500 font-black uppercase tracking-tighter">SITUATION</div>}
+                                    {isNash && !isCurrent && <div className="text-[6px] text-emerald-500 font-black uppercase tracking-tighter">EQUILIBRIUM</div>}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
+
+                  <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-2 group">
+                    <div className="flex items-center gap-2">
+                       <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                       <div className="text-[8px] text-amber-500 uppercase font-black tracking-[0.2em]">Tunisia Sovereignty Impact</div>
+                    </div>
+                    <p className="text-[11px] text-amber-500/90 leading-relaxed font-medium">{selectedGame.tunisiaImpact}</p>
+                  </div>
                 </motion.div>
+              ) : (
+                <div className="py-24 flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 rounded-full border border-slate-800 flex items-center justify-center mb-6 animate-pulse">
+                     <Activity className="w-8 h-8 text-slate-800" />
+                  </div>
+                  <p className="text-[11px] text-slate-600 px-12 leading-relaxed uppercase tracking-wider font-mono">
+                    Awaiting Scenario Selection for Strategic Payload Calculation
+                  </p>
+                </div>
               )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

@@ -107,7 +107,7 @@ export function prepareList<T>(items: T[], prefix = 'list'): (T extends object ?
     let baseId: string | number;
     let finalId: string;
 
-    if (item && typeof item === 'object') {
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
       const existingId = (item as any).id || (item as any).articleId || (item as any).event_id;
       baseId = existingId !== undefined ? existingId : index;
       

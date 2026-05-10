@@ -13,6 +13,9 @@ import {
   AIAnalysis,
   ForecastResult
 } from '../services/ai';
+import { analyzeRadicalisation } from '../services/radicalEngine';
+import { quickScan, analyzeCognitiveWarfare } from '../services/cognitiveWarfareEngine';
+import { analyzeSEI } from '../services/seiEngine';
 import { computeSignals } from '../services/signals';
 import { computeClusters } from '../services/clusters';
 import { generateSmartAlerts } from '../services/smartAlerts';
@@ -349,9 +352,11 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [actorNetwork, setActorNetwork] = useState<any>(null);
   const [temporalAnalysis, setTemporalAnalysis] = useState<any>(null);
   const [seiResult, setSeiResult] = useState<any>(null);
+  const [rpiProfile, setRpiProfile] = useState<any>(null);
+  const [cognitiveEnvironment, setCognitiveEnvironment] = useState<any>(null);
+  const [articleCache, setArticleCache] = useState<any[]>([]);
   const [agriSummary, setAgriSummary] = useState<AgriNationalSummary | null>(null);
   const [agroSummary, setAgroSummary] = useState<AgroNationalSummary | null>(null);
-  const [articleCache, setArticleCache] = useState<any[]>([]);
   const [isPaused, setIsPaused] = useState(false);
 
   const togglePause = useCallback(async () => {
@@ -756,17 +761,23 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const { insights } = generateAgentInsights(signals, clusters, alerts, null);
 
       // 2. Parallel run analysis & forecast
-      const [analysis, forecastResult, mii, actors] = await Promise.all([
+      const [analysis, forecastResult, mii, actors, rpi, cogWar, sei] = await Promise.all([
         generateAIAnalysis(signals, clusters, alerts, situations, insights),
         generateForecast({ rri: rriState.rri, data }, []),
         computeMII(),
-        analyzeActorNetwork([]) // We could pass articles here if we had them in context
+        analyzeActorNetwork(articleCache),
+        analyzeRadicalisation(articleCache as any, rriState.w_t ?? 0.35),
+        analyzeCognitiveWarfare(articleCache as any, [], rriState, 'current'),
+        analyzeSEI(articleCache as any)
       ]);
 
       setAiAnalysis(analysis);
       setForecast(forecastResult);
       setMiiProfile(mii);
       setActorNetwork(actors);
+      setRpiProfile(rpi);
+      setCognitiveEnvironment(cogWar);
+      setSeiResult(sei);
       // temporalAnalysis requires complex per-variable mapping, skipping for now or return empty
       setTemporalAnalysis({});
 
@@ -831,7 +842,21 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       togglePause,
       injectSignal,
       activeSignals: data.active_signals,
-      updateArticleCache: (articles: any) => {}
+      updateArticleCache: (articles: any) => {
+        if (!articles) return;
+        setArticleCache(articles);
+        
+        // Instant Layer-1 detection for RPI and CogWar to keep dashboard fresh
+        const rpi = analyzeRadicalisation(articles, rriState.w_t ?? 0.35);
+        const cog = quickScan(articles, rriState);
+        const sei = analyzeSEI(articles);
+        
+        setRpiProfile(rpi);
+        setCognitiveEnvironment(cog);
+        setSeiResult(sei);
+      },
+      rpiProfile,
+      cognitiveEnvironment
     }}>
       {children}
     </PipelineContext.Provider>

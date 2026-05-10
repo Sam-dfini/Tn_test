@@ -520,7 +520,7 @@ export const RadicalisationIntelligence: React.FC = () => {
                   },
                   {
                     stage: 'Narrative Framing',
-                    value: Math.max(...(Object.values(profile.poleScores).filter(v => typeof v === 'number') as number[])),
+                    value: profile?.poleScores ? Math.max(0, ...(Object.values(profile.poleScores).filter(v => typeof v === 'number') as number[])) : 0,
                     desc: `Dominant: ${POLE_CONFIG[profile.dominantPole]?.label || 'Computing...'}`,
                     icon: <Layers className="w-3.5 h-3.5" />,
                     source: 'Pole classifier',

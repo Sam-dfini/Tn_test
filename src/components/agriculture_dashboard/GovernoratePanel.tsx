@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDashboardStore } from './index';
+import { useDashboardStore } from './store';
 import { X, Activity, Droplets, Wheat, AlertTriangle } from 'lucide-react';
 import clsx from 'clsx';
 

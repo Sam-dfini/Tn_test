@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { create } from 'zustand';
 import { Loader2, Sprout, Droplets, Wheat } from 'lucide-react';
 import { ModuleHeader } from '../shared/ProfessionalShared';
 import clsx from 'clsx';
@@ -11,28 +10,7 @@ import ProteinMarket from './ProteinMarket';
 import PipelineStatus from './PipelineStatus';
 import PricePrediction from './PricePrediction';
 import AlertPanel from './AlertPanel';
-
-interface DashboardState {
-  selectedGovernorate: string | null;
-  setSelectedGovernorate: (gov: string | null) => void;
-  timeRange: string;
-  setTimeRange: (range: string) => void;
-  activeLayers: string[];
-  toggleLayer: (layer: string) => void;
-}
-
-export const useDashboardStore = create<DashboardState>((set) => ({
-  selectedGovernorate: null,
-  setSelectedGovernorate: (gov) => set({ selectedGovernorate: gov }),
-  timeRange: '30d',
-  setTimeRange: (range) => set({ timeRange: range }),
-  activeLayers: ['ndvi', 'boundaries'],
-  toggleLayer: (layer) => set((state) => ({
-    activeLayers: state.activeLayers.includes(layer)
-      ? state.activeLayers.filter((l) => l !== layer)
-      : [...state.activeLayers, layer],
-  })),
-}));
+import { useDashboardStore } from './store';
 
 export default function TunisiaAgricultureDashboard() {
   const [loading, setLoading] = useState(true);
