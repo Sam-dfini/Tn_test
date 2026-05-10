@@ -48,7 +48,7 @@ function startPythonBackend() {
     return null;
   }
 
-  const pythonProcess = spawn('./venv/bin/python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: backendPath,
     stdio: 'pipe', // Capture output
     env: { ...process.env, PYTHONPATH: backendPath }
@@ -85,7 +85,7 @@ const pythonBackendRequirements = async () => {
   if (fs.existsSync(reqsPath)) {
     console.log('[Python] Installing requirements from:', reqsPath);
     try {
-      const pip = spawn('./venv/bin/python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
+      const pip = spawn('python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
         cwd: backendPath,
         stdio: 'inherit'
       });

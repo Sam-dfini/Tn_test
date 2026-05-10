@@ -48,7 +48,15 @@ import {
   Area,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Cell,
+  BarChart,
+  Bar
 } from "recharts";
 import { usePipeline } from "../context/PipelineContext";
 import { cn } from "../utils/cn";
@@ -131,6 +139,232 @@ const SPARK_DATA = [
   { time: "-1d", v: 1.42 },
   { time: "Now", v: 1.47 },
 ];
+
+// ─── VELOCITY INDEX V(t) ───────────────────────────────────────────────────
+const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
+  const isPositive = value >= 0;
+  const color = value > 0.3 ? "#ff9f43" : value < -0.3 ? "#00e676" : "#8a9bb0";
+  const label = value > 0.3 ? "ACCELERATING" : value < -0.3 ? "STABILIZING" : "STABLE";
+  
+  return (
+    <div className="flex items-center gap-1.5 px-4 py-3 shrink-0 border-r border-white/5">
+      <span className="text-[8px] font-mono text-slate-500 uppercase tracking-tight">V(t)</span>
+      <span className="text-[10px] font-mono font-bold" style={{ color }}>
+        {isPositive ? '+' : ''}{value.toFixed(2)}
+      </span>
+      <span className="text-[7px] font-mono text-slate-500">σ/day</span>
+      <ArrowRight 
+        className={cn("w-2.5 h-2.5 transition-transform duration-500", !isPositive && "rotate-180")} 
+        style={{ color }} 
+      />
+      <span className="text-[7px] font-mono font-bold uppercase hidden sm:inline" style={{ color }}>{label}</span>
+    </div>
+  );
+};
+
+// ─── DOMAIN INSTABILITY POLYGON ─────────────────────────────────────────────
+const DomainPolygon: React.FC<{ data: any; trend: any }> = ({ data, trend }) => {
+  const radarData = [
+    { subject: 'Economy', current: data.economy, trend: trend.economy },
+    { subject: 'Water', current: data.water, trend: trend.water },
+    { subject: 'Gov', current: data.governance, trend: trend.governance },
+    { subject: 'Security', current: data.security, trend: trend.security },
+    { subject: 'Narrative', current: data.narrative, trend: trend.narrative },
+    { subject: 'Social', current: data.socialCohesion, trend: trend.socialCohesion },
+    { subject: 'Youth', current: data.youthStress, trend: trend.youthStress },
+    { subject: 'External', current: data.externalPressure, trend: trend.externalPressure },
+  ];
+
+  return (
+    <div className="w-full h-full min-h-[300px] flex flex-col items-center">
+      <div className="w-full flex justify-between items-center px-4 pt-2">
+        <div className="text-[8px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+          Domain Instability Polygon // 8-Axis Multivariate
+        </div>
+      </div>
+      <div className="flex-1 w-full mt-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+            <PolarGrid stroke="#1a2332" strokeWidth={0.5} />
+            <PolarAngleAxis 
+              dataKey="subject" 
+              tick={{ fill: '#8a9bb0', fontSize: 8, fontFamily: 'monospace' }} 
+            />
+            <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
+            <Radar
+              name="Current"
+              dataKey="current"
+              stroke="#00d4ff"
+              strokeWidth={1.5}
+              fill="#00d4ff"
+              fillOpacity={0.15}
+            />
+            <Radar
+              name="Trend"
+              dataKey="trend"
+              stroke="#ff3b5c"
+              strokeWidth={1}
+              fill="none"
+              strokeDasharray="4 4"
+            />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex gap-4 pb-4">
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan" />
+          <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">Current</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-intel-red border border-dashed border-white" />
+          <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">24h Trend</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── INSTABILITY TIMELINE ──────────────────────────────────────────────────
+const InstabilityTimeline: React.FC<{ data: any[] }> = ({ data }) => {
+  return (
+    <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden mt-4">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+          Instability Timeline (24h) // Phase-Transition Monitoring
+        </div>
+      </div>
+      <div className="h-48 w-full p-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="instabilityGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis 
+              dataKey="time" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#4a5568', fontSize: 8, fontFamily: 'monospace' }} 
+            />
+            <YAxis 
+              domain={[0, 10]} 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#4a5568', fontSize: 8, fontFamily: 'monospace' }} 
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#0a0c14', border: '1px solid #1a2332', borderRadius: '8px' }}
+              itemStyle={{ color: '#00d4ff', fontSize: '10px', fontFamily: 'monospace', fontWeight: 'bold' }}
+              labelStyle={{ color: '#8a9bb0', fontSize: '8px', fontFamily: 'monospace', marginBottom: '4px' }}
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#00d4ff"
+              fill="url(#instabilityGradient)"
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="grid grid-cols-3 divide-x divide-white/5 border-t border-white/5">
+        <div className="py-2 text-center">
+          <span className="text-[7px] font-mono text-slate-600 uppercase block">Stable Zone</span>
+          <span className="text-[9px] font-mono font-bold text-emerald-400">0.0 - 3.0</span>
+        </div>
+        <div className="py-2 text-center">
+          <span className="text-[7px] font-mono text-slate-600 uppercase block">Elevated Zone</span>
+          <span className="text-[9px] font-mono font-bold text-amber-400">3.1 - 6.0</span>
+        </div>
+        <div className="py-2 text-center">
+          <span className="text-[7px] font-mono text-slate-600 uppercase block">Critical Zone</span>
+          <span className="text-[9px] font-mono font-bold text-red-400">6.1 - 10.0</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── NARRATIVE WARFARE MONITOR ──────────────────────────────────────────────
+const NarrativeWarfareMonitor: React.FC<{ metrics: any }> = ({ metrics }) => {
+  const data = [
+    { name: 'Opposition Sync', value: metrics.oppositionSync },
+    { name: 'Rumor Velocity', value: metrics.rumorVelocity },
+    { name: 'Media Hostility', value: metrics.mediaHostility },
+    { name: 'Censorship Pressure', value: metrics.censorshipPressure },
+    { name: 'Rev. Vocab Emergence', value: metrics.revVocabEmergence },
+    { name: 'Emotional Sentiment', value: metrics.emotionalPolarization },
+  ];
+
+  return (
+    <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden mt-4">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+          Narrative Warfare Monitor // Discourse Intelligence
+        </div>
+      </div>
+      <div className="p-5 space-y-4">
+        {data.map((item, i) => {
+          const color = item.value > 7 ? "#ff3b5c" : item.value > 5 ? "#ff9f43" : "#00e676";
+          return (
+            <div key={`narrative-bar-${i}`} className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">{item.name}</span>
+                <span className="text-[9px] font-mono font-bold" style={{ color }}>{item.value.toFixed(1)}</span>
+              </div>
+              <div className="h-1.5 w-full bg-[#1a2332] rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${item.value * 10}%` }}
+                  transition={{ duration: 0.8, delay: i * 0.1 }}
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: color, opacity: 0.7 }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── SIGNAL LOG ─────────────────────────────────────────────────────────────
+const SignalLog: React.FC<{ signals: any[] }> = ({ signals }) => {
+  return (
+    <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden mt-4">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+          Signal Log // Chronology Engine
+        </div>
+        <div className="text-[8px] font-mono text-slate-700 uppercase tracking-widest">
+          Recency-First Flow
+        </div>
+      </div>
+      <div className="max-h-[300px] overflow-y-auto no-scrollbar">
+        {signals.map((sig, i) => (
+          <div key={`signal-log-item-${i}`} className="flex items-center gap-3 px-4 py-2.5 border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+            <span className="text-[7px] font-mono text-slate-600 shrink-0">{sig.time}</span>
+            <div 
+              className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse" 
+              style={{ backgroundColor: sig.severity === 'critical' ? '#ff3b5c' : sig.severity === 'high' ? '#ff9f43' : sig.severity === 'medium' ? '#00d4ff' : '#00e676' }} 
+            />
+            <span className="text-[8px] font-mono text-slate-300 flex-1 truncate">{sig.description}</span>
+            <span 
+              className="text-[7px] font-mono font-bold uppercase shrink-0" 
+              style={{ color: sig.severity === 'critical' ? '#ff3b5c' : sig.severity === 'high' ? '#ff9f43' : '#8a9bb0' }}
+            >
+              {sig.severity}
+            </span>
+            <span className="text-[6px] font-mono text-slate-600 uppercase whitespace-nowrap hidden sm:inline">{sig.agent}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // ─── ARC GAUGE ───────────────────────────────────────────────────────────────
 const ArcGauge: React.FC<{
@@ -742,6 +976,10 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
               {status.zone === "ORANGE" ? "STRAINED" : status.label}
             </span>
           </div>
+          
+          {/* Enhancement 1: Velocity Index */}
+          <VelocityIndex value={0.34} />
+
           {[
             {
               id: "RRI",
@@ -795,51 +1033,79 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
         </div>
       </div>
 
-      {/* ── SECTION 2: NATIONAL STATUS GAUGE ── */}
-      <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
-          <div className="flex items-center gap-2 text-[9px] font-mono text-slate-600 uppercase tracking-widest">
-            <Activity className="w-3.5 h-3.5 text-intel-cyan" />
-            Integrated National Resilience
+      {/* ── SECTION 2: NATIONAL STATUS GAUGE + POLYGON ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+            <div className="flex items-center gap-2 text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+              <Activity className="w-3.5 h-3.5 text-intel-cyan" />
+              Integrated National Resilience
+            </div>
+            {/* Mini sparkline */}
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">10-Day Trend</div>
+                <div className="text-[10px] font-mono font-bold" style={{ color: status.color }}>+14.8% Δ</div>
+              </div>
+              <div className="h-10 w-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={SPARK_DATA}>
+                    <defs>
+                      <linearGradient id={`sparkGradient-${status.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={status.color} stopOpacity={0.4} />
+                        <stop offset="95%" stopColor={status.color} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px' }}
+                      itemStyle={{ color: status.color, fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold' }}
+                      labelStyle={{ color: '#64748b', fontSize: '9px', fontFamily: 'monospace', marginBottom: '2px' }}
+                      formatter={(val: number) => [`${val} RRI`, '']}
+                    />
+                    <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} hide />
+                    <XAxis dataKey="time" hide />
+                    <Area
+                      type="monotone"
+                      dataKey="v"
+                      stroke={status.color}
+                      fill={`url(#sparkGradient-${status.color.replace('#', '')})`}
+                      strokeWidth={2}
+                      activeDot={{ r: 3, fill: status.color, stroke: '#000', strokeWidth: 1 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-          {/* Mini sparkline */}
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">10-Day Trend</div>
-              <div className="text-[10px] font-mono font-bold" style={{ color: status.color }}>+14.8% Δ</div>
-            </div>
-            <div className="h-10 w-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={SPARK_DATA}>
-                  <defs>
-                    <linearGradient id={`sparkGradient-${status.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={status.color} stopOpacity={0.4} />
-                      <stop offset="95%" stopColor={status.color} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px' }}
-                    itemStyle={{ color: status.color, fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold' }}
-                    labelStyle={{ color: '#64748b', fontSize: '9px', fontFamily: 'monospace', marginBottom: '2px' }}
-                    formatter={(val: number) => [`${val} RRI`, '']}
-                  />
-                  <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} hide />
-                  <XAxis dataKey="time" hide />
-                  <Area
-                    type="monotone"
-                    dataKey="v"
-                    stroke={status.color}
-                    fill={`url(#sparkGradient-${status.color.replace('#', '')})`}
-                    strokeWidth={2}
-                    activeDot={{ r: 3, fill: status.color, stroke: '#000', strokeWidth: 1 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+          <div className="px-4 py-2">
+            <ArcGauge rri={rri} status={status} />
           </div>
         </div>
-        <div className="px-4 py-2">
-          <ArcGauge rri={rri} status={status} />
+
+        {/* Enhancement 2: Domain Instability Polygon */}
+        <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
+          <DomainPolygon 
+            data={{
+              economy: 6.4,
+              water: 4.2,
+              governance: 5.1,
+              security: 3.8,
+              narrative: 7.2,
+              socialCohesion: 5.5,
+              youthStress: 6.8,
+              externalPressure: 4.5
+            }} 
+            trend={{
+              economy: 7.1,
+              water: 4.5,
+              governance: 5.8,
+              security: 4.2,
+              narrative: 8.5,
+              socialCohesion: 6.1,
+              youthStress: 7.4,
+              externalPressure: 5.2
+            }}
+          />
         </div>
       </div>
 
@@ -959,19 +1225,37 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.07 }}
-              className="glass rounded-xl border border-intel-border p-4 space-y-2 hover:border-white/15 transition-all"
+              className="glass rounded-xl border border-intel-border p-4 space-y-2 hover:border-white/15 transition-all relative overflow-hidden"
             >
-              <div
-                className="text-[9px] font-mono font-bold uppercase tracking-widest"
-                style={{ color: r.color }}
-              >
-                {r.actor}
+              <div className="flex justify-between items-start">
+                <div
+                  className="text-[9px] font-mono font-bold uppercase tracking-widest"
+                  style={{ color: r.color }}
+                >
+                  {r.actor}
+                </div>
+                {/* Enhancement 7: Strategic Response Scores */}
+                <div className="flex items-center gap-3 text-right">
+                  <div className="flex flex-col">
+                    <span className="text-[6px] font-mono text-slate-500 uppercase">Confidence</span>
+                    <span className="text-[9px] font-mono font-bold text-emerald-400">78%</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[6px] font-mono text-slate-500 uppercase">Impact</span>
+                    <span className="text-[9px] font-mono font-bold text-red-400">HIGH</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[6px] font-mono text-intel-cyan uppercase">MC</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-0.5 mx-auto animate-pulse" />
+                  </div>
+                </div>
               </div>
               <p className="text-[11px] font-mono text-white leading-tight">
                 {r.action}
               </p>
-              <div className="text-[8px] font-mono text-slate-600 pt-1 border-t border-white/5">
-                {r.sub}
+              <div className="text-[8px] font-mono text-slate-600 pt-1 border-t border-white/5 flex justify-between">
+                <span>{r.sub}</span>
+                <span className="text-intel-orange font-bold uppercase">Horizon: 18h</span>
               </div>
             </motion.div>
           ))}
@@ -1098,6 +1382,36 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
         </div>
       </div>
 
+      {/* Enhancement 3 & 4 & 5 Stack */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <InstabilityTimeline data={[
+          { time: '00:00', value: 2.1 },
+          { time: '04:00', value: 2.4 },
+          { time: '08:00', value: 4.8 },
+          { time: '12:00', value: 6.2 },
+          { time: '16:00', value: 7.4 },
+          { time: '20:00', value: 6.8 },
+          { time: '23:00', value: 7.1 },
+        ]} />
+        <NarrativeWarfareMonitor metrics={{
+          oppositionSync: 7.8,
+          rumorVelocity: 8.2,
+          mediaHostility: 6.4,
+          censorshipPressure: 4.2,
+          revVocabEmergence: 5.1,
+          emotionalPolarization: 8.9
+        }} />
+      </div>
+
+      <SignalLog signals={[
+        { time: '14:02', description: 'Water stress alert — Kebili governorate escalation', severity: 'high', agent: 'WaterAgent' },
+        { time: '13:45', description: 'Protest diffusion Sidi Bouzid — coordination vectors detected', severity: 'critical', agent: 'ProtestAgent' },
+        { time: '13:12', description: 'FX reserve runway updated: 60 days import cover remaining', severity: 'medium', agent: 'EconomicAgent' },
+        { time: '12:54', description: 'Narrative surge: "Decree 54" keyword velocity +400%', severity: 'high', agent: 'NarrativeAgent' },
+        { time: '12:10', description: 'Wheat cargo arrival: Sfax port clearance initiated', severity: 'low', agent: 'AgriAgent' },
+      ]} />
+
+
       {/* ── SECTION 6: DOMAIN SWITCHBOARD ── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
@@ -1219,6 +1533,33 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Enhancement 6: Simulation Lab */}
+              <div className="p-5 border-t border-white/5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] font-mono font-bold text-slate-300 uppercase tracking-widest">
+                    Simulation Lab // Monte Carlo Scenario Engine
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {[
+                    "Internet Shutdown", "Elite Defection Cascade", 
+                    "Fuel Shock (+40%)", "Protest Cascade (SIR)", 
+                    "Drought + Crop Failure", "External War Distraction"
+                  ].map((scen, i) => (
+                    <button 
+                      key={`sim-scenario-${i}`}
+                      className="glass rounded-xl border border-intel-border/50 p-3 flex items-center gap-3 hover:border-intel-cyan/30 transition-all group text-left"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-intel-cyan group-hover:animate-pulse" />
+                      <div className="flex-1">
+                        <div className="text-[9px] font-mono font-bold text-slate-300 uppercase tracking-tighter">{scen}</div>
+                        <div className="text-[6px] font-mono text-intel-cyan font-black">MC VALIDATED</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}
