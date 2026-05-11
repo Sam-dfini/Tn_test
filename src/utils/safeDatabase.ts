@@ -91,10 +91,11 @@ export async function safeUpsert(
   rows: any[],
   onConflict: string
 ) {
+  const sanitizedRows = rows.map(r => sanitizeData(tableName, r));
   try {
     const { error } = await supabase
       .from(tableName)
-      .upsert(rows, { onConflict });
+      .upsert(sanitizedRows, { onConflict });
 
     if (!error) {
       console.log(`[UPSERT SUCCESS] in ${tableName} (${rows.length} rows)`);

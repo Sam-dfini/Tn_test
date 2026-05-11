@@ -4,18 +4,19 @@ import {
   Compass, Rocket, BarChart3, TrendingUp, TrendingDown,
   AlertTriangle, MapPin, Zap, Shield, Target,
   DollarSign, Building2, Users, Globe, ChevronRight,
-  Activity, Star, AlertCircle, RefreshCw,
+  Activity, Star, AlertCircle, RefreshCw, Share2
 } from 'lucide-react';
 import { generateStableKey, prepareList } from '../../lib/keyUtils';
 import { BusinessInvestigator } from '../economy/BusinessInvestigator';
 import { EntrepreneurIntelligence } from '../economy/EntrepreneurIntelligence';
 import { InvestmentIntelligenceReportGenerator } from '../economy/InvestmentIntelligenceReportGenerator';
+import { CorporateExplorer } from '../economy/CorporateExplorer';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { BackgroundGrid } from '../shared/ProfessionalShared';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-type MainTab = 'STRATEGIC' | 'ENTREPRENEUR' | 'INVESTMENT';
+type MainTab = 'STRATEGIC' | 'ENTREPRENEUR' | 'INVESTMENT' | 'ENTITY';
 
 type Persona =
   | 'NONE'
@@ -70,6 +71,10 @@ const TABS: { id: MainTab; label: string; icon: React.ElementType; desc: string 
   {
     id: 'INVESTMENT', label: 'Investment Report', icon: BarChart3,
     desc: 'Asset classes, ROI heatmap, capital pathways, red flags',
+  },
+  {
+    id: 'ENTITY', label: 'Entity Resolution', icon: Share2,
+    desc: 'Map corporate networks, partnerships, and institutional influence',
   },
 ];
 
@@ -437,6 +442,11 @@ export const BusinessCommandCenter: React.FC<BusinessCommandCenterProps> = ({
           {/* Investment Intelligence Report */}
           {activeTab === 'INVESTMENT' && (
             <InvestmentIntelligenceReportGenerator />
+          )}
+
+          {/* Corporate Explorer / Entity Map */}
+          {activeTab === 'ENTITY' && (
+            <CorporateExplorer />
           )}
         </motion.div>
       </AnimatePresence>

@@ -161,14 +161,14 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
             </h1>
             
             <div className="text-sm font-mono text-slate-400 uppercase tracking-widest mb-16">
-              Tunisia Intelligence Report — 2 April 2026 • Daily Intelligence Report
+              Tunisia Intelligence Report — {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} • {rriState.rri >= 2.625 ? 'Critical Alert Report' : 'Daily Intelligence Report'}
             </div>
 
             <div className="grid grid-cols-3 gap-6 w-full max-w-2xl mb-16">
               {[
-                { label: 'R(T) INDEX', value: '1.1255', color: '#FFB300' },
-                { label: 'P(REVOLUTION)', value: '24.3%', color: '#FFB300' },
-                { label: 'RISK STATUS', value: 'ELEVATED', color: '#FFB300' }
+                { label: 'R(T) INDEX', value: rriState.rri.toFixed(4), color: rriState.rri >= 2.625 ? '#FF453A' : '#FFB300' },
+                { label: 'P(REVOLUTION)', value: (rriState.p_rev * 100).toFixed(1) + '%', color: rriState.p_rev > 0.5 ? '#FF453A' : '#FFB300' },
+                { label: 'RISK STATUS', value: rriState.rri >= 2.625 ? 'CRITICAL' : 'ELEVATED', color: rriState.rri >= 2.625 ? '#FF453A' : '#FFB300' }
               ].map((box) => (
                 <div key={box.label} className="bg-black/60 border border-[#FFB300]/30 rounded-2xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
                   <div className="absolute inset-0 bg-[#FFB300]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -181,8 +181,9 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
             <div className="max-w-xl text-center">
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-4">Executive Summary</div>
               <p className="text-sm text-slate-300 leading-relaxed font-light">
-                Tunisia remains in an elevated but stable risk environment. Social mobilisation is the dominant driver. 
-                Pattern match to Q1 2021 remains critical, but velocity is negative. No imminent cascade trigger detected.
+                {data.sitrep?.summary || `Tunisia remains in an ${rriState.rri >= 2.625 ? 'extremely critical' : 'elevated'} risk environment. 
+                ${rriState.velocity > 0 ? 'Model velocity is positive, indicating deteriorating stability.' : 'Velocity is currently stable or improving.'}
+                Pattern match to ${rriState.pattern_label || 'historical benchmarks'} remains a key monitoring priority.`}
               </p>
             </div>
           </div>
@@ -195,14 +196,16 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
           <div className="grid grid-cols-2 gap-12 mb-12">
             <div>
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-2">Primary Risk Coefficient</div>
-              <div className="text-6xl font-bold text-[#00F5FF] tracking-tighter mb-6">1.1255</div>
+              <div className={`text-6xl font-bold tracking-tighter mb-6 ${rriState.rri >= 2.625 ? 'text-intel-red' : 'text-[#00F5FF]'}`}>
+                {rriState.rri.toFixed(4)}
+              </div>
               
               <div className="space-y-4">
                 {[
-                  { label: 'P(REVOLUTION)', value: '24.3%', color: 'text-white' },
-                  { label: 'VELOCITY', value: '-0.104', color: 'text-emerald-400' },
-                  { label: 'PATTERN MATCH', value: '99%', color: 'text-white' },
-                  { label: 'VOLATILITY', value: 'LOW', color: 'text-slate-400' }
+                  { label: 'P(REVOLUTION)', value: (rriState.p_rev * 100).toFixed(1) + '%', color: 'text-white' },
+                  { label: 'VELOCITY', value: (rriState.velocity > 0 ? '+' : '') + rriState.velocity.toFixed(3), color: rriState.velocity > 0 ? 'text-intel-red' : 'text-emerald-400' },
+                  { label: 'PATTERN MATCH', value: Math.round(rriState.pattern_similarity * 100) + '%', color: 'text-white' },
+                  { label: 'VOLATILITY', value: rriState.volatility > 0.1 ? 'HIGH' : 'LOW', color: 'text-slate-400' }
                 ].map((m) => (
                   <div key={m.label} className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{m.label}</span>
@@ -216,11 +219,11 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-4">Risk Accelerometers</div>
               <div className="space-y-4">
                 {[
-                  { label: 'Economic Stress', value: 60, color: '#FF453A' },
-                  { label: 'Social Mobilisation', value: 85, color: '#FFB300' },
-                  { label: 'Political Fragmentation', value: 75, color: '#00F5FF' },
-                  { label: 'External Pressure', value: 80, color: '#FF453A' },
-                  { label: 'Security Volatility', value: 65, color: '#FFB300' },
+                  { label: 'Economic Stress', value: Math.min(100, Math.round((data.economy?.inflation || 7.1) * 10)), color: '#FF453A' },
+                  { label: 'Social Mobilisation', value: data.social?.ugtt_mobilisation_level === 'HIGH' ? 95 : 65, color: '#FFB300' },
+                  { label: 'Political Fragmentation', value: Math.round((rriState.elite_defection_prob || 0.12) * 500), color: '#00F5FF' },
+                  { label: 'External Pressure', value: Math.round(100 - (data.geopolitical?.imf_deal_probability || 31)), color: '#FF453A' },
+                  { label: 'Security Volatility', value: Math.round((rriState.cascade_probability || 0.58) * 100), color: '#FFB300' },
                 ].map((a) => (
                   <div key={a.label} className="space-y-1">
                     <div className="flex justify-between text-[8px] font-mono text-slate-400 uppercase tracking-tighter">
@@ -239,14 +242,14 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
           <SectionHeader title="ECONOMIC INTELLIGENCE" />
           <div className="grid grid-cols-2 gap-x-12 gap-y-4">
             {[
-              { label: 'FX Reserves', value: '84 days', status: 'CRITICAL' },
-              { label: 'Inflation (CPI)', value: '7.1%', status: 'WARNING' },
-              { label: 'TND/USD', value: '3.18', status: 'STABLE' },
-              { label: 'Unemployment', value: '16.2%', status: 'HIGH' },
-              { label: 'Public Debt', value: '82% GDP', status: 'CRITICAL' },
-              { label: 'GDP Growth', value: '0.4%', status: 'STAGNANT' },
-              { label: 'Trade Deficit', value: '1.2B TND', status: 'NEGATIVE' },
-              { label: 'Remittances', value: 'N/A', status: 'PENDING' },
+              { label: 'FX Reserves', value: `${data.economy?.fx_reserves || 84} days`, status: (data.economy?.fx_reserves || 84) < 90 ? 'CRITICAL' : 'OK' },
+              { label: 'Inflation (CPI)', value: `${data.economy?.inflation || 7.1}%`, status: (data.economy?.inflation || 7.1) > 8 ? 'CRITICAL' : 'WARNING' },
+              { label: 'TND/USD', value: String(data.economy?.tnd_usd || 3.18), status: 'STABLE' },
+              { label: 'Unemployment', value: `${data.economy?.unemployment || 16.2}%`, status: (data.economy?.unemployment || 16.2) > 15 ? 'HIGH' : 'OK' },
+              { label: 'Public Debt', value: `${data.economy?.public_debt || 82}% GDP`, status: (data.economy?.public_debt || 82) > 80 ? 'CRITICAL' : 'WARNING' },
+              { label: 'GDP Growth', value: `${data.economy?.gdp_growth || 0.4}%`, status: (data.economy?.gdp_growth || 0.4) < 1 ? 'STAGNANT' : 'OK' },
+              { label: 'Trade Deficit', value: `${data.economy?.trade_deficit || 1.2}B TND`, status: 'NEGATIVE' },
+              { label: 'Remittances', value: data.economy?.remittances_total_bnd ? `${data.economy.remittances_total_bnd}B TND` : 'N/A', status: 'OK' },
             ].map((e) => (
               <div key={e.label} className="flex justify-between items-center border-b border-white/5 pb-2">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{e.label}</span>
@@ -270,11 +273,11 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               <SectionHeader title="SOCIAL INTELLIGENCE" />
               <div className="space-y-4">
                 {[
-                  { label: 'Protest Events (30d)', value: '23', status: 'HIGH' },
-                  { label: 'UGTT Mobilisation', value: 'HIGH', status: 'CRITICAL' },
-                  { label: 'Decree 54 Charged', value: '14', status: 'ACTIVE' },
-                  { label: 'Water Crisis Govs', value: '6', status: 'WARNING' },
-                  { label: 'Strike Count 2025', value: '847', status: 'ELEVATED' },
+                  { label: 'Protest Events (30d)', value: String(data.social?.protest_events_30d || 23), status: (data.social?.protest_events_30d || 23) > 20 ? 'HIGH' : 'OK' },
+                  { label: 'UGTT Mobilisation', value: data.social?.ugtt_mobilisation_level || 'ELEVATED', status: data.social?.ugtt_mobilisation_level === 'HIGH' ? 'CRITICAL' : 'WARNING' },
+                  { label: 'Decree 54 Charged', value: String(data.social?.decree54_charged || 14), status: 'ACTIVE' },
+                  { label: 'Water Crisis Govs', value: String(data.social?.water_crisis_govs || 6), status: (data.social?.water_crisis_govs || 6) > 5 ? 'WARNING' : 'OK' },
+                  { label: 'Strike Count 2025', value: String(data.social?.ugtt_strike_count_2025 || 847), status: 'ELEVATED' },
                 ].map((s) => (
                   <div key={s.label} className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{s.label}</span>
@@ -290,7 +293,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
             <div>
               <SectionHeader title="ACTIVE THRESHOLD BREACHES" />
               <div className="grid grid-cols-2 gap-2">
-                {thresholds.slice(0, 14).map((t, index) => (
+                {(rriState.threshold_breaches && rriState.threshold_breaches.length > 0 ? rriState.threshold_breaches : thresholds).slice(0, 14).map((t: string, index: number) => (
                   <div key={`${t}-${index}`} className="flex items-center space-x-2 bg-red-500/5 border border-red-500/20 px-2 py-1.5 rounded">
                     <div className="w-1 h-3 bg-red-500" />
                     <span className="text-[9px] font-mono text-red-400 font-bold tracking-widest">⚠ {t}</span>
@@ -312,7 +315,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {prisoners.map((p) => (
+                {(data.prisoners && data.prisoners.length > 0 ? data.prisoners : prisoners).map((p: any) => (
                   <tr key={p[0]} className="hover:bg-white/5 transition-colors">
                     <td className="px-4 py-3 text-[10px] font-bold text-white">{p[0]}</td>
                     <td className="px-4 py-3 text-[10px] text-slate-400">{p[1]}</td>
@@ -330,7 +333,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
           <div className="mb-12">
             <SectionHeader title="ACTIVE THRESHOLD BREACHES (CONTINUED)" />
             <div className="grid grid-cols-4 gap-3">
-              {thresholds.slice(14).map((t, index) => (
+              {(rriState.threshold_breaches && rriState.threshold_breaches.length > 14 ? rriState.threshold_breaches : thresholds).slice(14).map((t: string, index: number) => (
                 <div key={`${t}-${index}`} className="flex items-center space-x-2 bg-red-500/5 border border-red-500/20 px-3 py-2 rounded">
                   <div className="w-1 h-4 bg-red-500" />
                   <span className="text-[10px] font-mono text-red-400 font-bold tracking-widest">⚠ {t}</span>
@@ -341,6 +344,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
                 <p className="text-[10px] text-slate-400 leading-relaxed font-light">
                   Delta (Δ) indicators represent algorithmic breach points where current volatility exceeds 2-sigma historical standard deviation. 
                   Concentration in ΔA (Economic) and ΔB (Social) clusters suggests a structural decoupling of institutional stability from street-level sentiment.
+                  Current R(t) is {rriState.rri.toFixed(4)} with a compound stress of {(rriState.compound_stress || 0).toFixed(3)}.
                 </p>
               </div>
             </div>
@@ -350,8 +354,8 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-8">
               {[
-                { label: 'IMF Deal Probability', value: '31%', status: 'LOW', desc: 'Stalled negotiations over subsidy reform' },
-                { label: 'EU Relations', value: 'STRAINED', status: 'WARNING', desc: 'Migration deal friction and human rights concerns' },
+                { label: 'IMF Deal Probability', value: `${data.geopolitical?.imf_deal_probability || 31}%`, status: (data.geopolitical?.imf_deal_probability || 31) < 40 ? 'LOW' : 'OK', desc: 'Stalled negotiations over subsidy reform' },
+                { label: 'EU Relations', value: data.geopolitical?.eu_relations || 'STRAINED', status: 'WARNING', desc: 'Migration deal friction and human rights concerns' },
                 { label: 'Regional Stability', value: 'VOLATILE', status: 'WARNING', desc: 'Libyan border tensions and sub-Saharan migration' },
                 { label: 'US Security Aid', value: 'STABLE', status: 'OK', desc: 'Counter-terrorism cooperation remains active' },
               ].map((g) => (
@@ -375,8 +379,8 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               </div>
               <p className="text-xs text-slate-300 leading-relaxed font-light">
                 Tunisia's geopolitical leverage remains tied to its role as a Mediterranean migration buffer. 
-                However, internal economic deterioration is outpacing external support mechanisms. 
-                The IMF deadlock is the primary bottleneck for macro-stability in H2 2026.
+                Internal economic deterioration is outpacing external support mechanisms. 
+                Current R(t) velocity of {(rriState.velocity || 0).toFixed(3)} suggests {rriState.velocity > 0.1 ? 'mounting pressure' : 'a period of relative stagnation'}.
               </p>
             </div>
           </div>

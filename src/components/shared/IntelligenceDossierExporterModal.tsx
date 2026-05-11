@@ -17,7 +17,7 @@ import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useAuditLog } from '../../context/AuditContext';
 import { useRSS } from '../../context/RSSContext';
 import { useAI } from '../../context/AIContext';
-import PremiumReport from '../shared/PremiumReport';
+import PremiumReport from './PremiumReport';
 
 const SECTION_OPTIONS: {
   id: ReportSection;

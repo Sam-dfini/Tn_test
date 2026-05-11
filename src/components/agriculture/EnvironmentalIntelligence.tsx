@@ -765,7 +765,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                         <YAxis type="number" dataKey="temp" name="temp" unit="°C" hide />
                         <ZAxis type="number" dataKey="anomaly" range={[50, 400]} />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                        <Scatter name="Anomalies" data={[
+                        <Scatter isAnimationActive={false} name="Anomalies" data={[
                           { month: 1, temp: 18, anomaly: 1.2 },
                           { month: 2, temp: 20, anomaly: 1.5 },
                           { month: 4, temp: 28, anomaly: 2.4 },

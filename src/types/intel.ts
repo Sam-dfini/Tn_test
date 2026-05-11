@@ -94,13 +94,36 @@ export interface RRIVariable {
 
 export interface ShockSignal {
   id: string;
-  type: 'ECON' | 'SEC' | 'AGRI' | 'SOCIAL' | 'SYSTEM';
+  type: 'ECON' | 'SEC' | 'AGRI' | 'SOCIAL' | 'SYSTEM' | 'POLITICAL' | 'CLIMATE';
   source: string;
   intensity: number; // 0-1
   message: string;
   timestamp: number;
   overrides: Record<string, number>;
   governorates?: string[];
+  affectedEquations?: string[];
+  propagationPath?: string[];
+}
+
+export interface ShockEventMap {
+  eventType: string;
+  targetVariable: string;
+  baseIntensityMultiplier: number;
+  decayRate: number;
+  affectedEquations: string[];
+}
+
+export type MissionStatus = 'DORMANT' | 'MONITORING' | 'ACTIVE' | 'ESCALATING' | 'CRITICAL' | 'RESOLVED';
+
+export interface MissionConfig {
+  id: string;
+  title: string;
+  description: string;
+  status: MissionStatus;
+  involvedDomains: string[];
+  preloadedVariables: Record<string, number>;
+  widgetLayout: string[]; // Array of widget IDs
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
 export interface RRIState {

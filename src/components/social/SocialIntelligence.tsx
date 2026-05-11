@@ -215,7 +215,7 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
   );
 };
 
-export const SocialIntelligence: React.FC = () => {
+export const SocialPoliticalIntelligence: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('COHESION');
   const { fullData: data } = useRiskMetrics();
 

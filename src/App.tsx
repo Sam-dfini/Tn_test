@@ -1,19 +1,23 @@
 import { safeStorage } from './utils/storage';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
-import { ModeSelection } from './components/modes/ModeSelection';
-import { TunisiaTerminal } from './components/modes/TunisiaTerminal';
+import { ShieldAlert, RefreshCw, Terminal, Activity } from 'lucide-react';
+
+// Lazy load mode components
+const ModeSelection = lazy(() => import('./components/modes/ModeSelection').then(m => ({ default: m.ModeSelection })));
+const TunisiaTerminal = lazy(() => import('./components/modes/TunisiaTerminal').then(m => ({ default: m.TunisiaTerminal })));
+const CitizenEdition = lazy(() => import('./components/modes/CitizenEdition').then(m => ({ default: m.CitizenEdition })));
+const ProfessionalIntel = lazy(() => import('./components/modes/ProfessionalIntel').then(m => ({ default: m.ProfessionalIntel })));
+const TacticalDashboard = lazy(() => import('./components/tactical/TacticalDashboard').then(m => ({ default: m.TacticalDashboard })));
+const PalantirDashboard = lazy(() => import('./components/modes/PalantirDashboard').then(m => ({ default: m.PalantirDashboard })));
+const BloombergTerminal = lazy(() => import('./components/economy/BloombergTerminal').then(m => ({ default: m.BloombergTerminal })));
+const BusinessInvestigator = lazy(() => import('./components/economy/BusinessInvestigator').then(m => ({ default: m.BusinessInvestigator })));
+const DataPipeline = lazy(() => import('./components/system/DataPipeline').then(m => ({ default: m.DataPipeline })));
+const ObservabilityDashboard = lazy(() => import('./pages/ObservabilityDashboard').then(m => ({ default: m.ObservabilityDashboard })));
+const RRIMethodology = lazy(() => import('./components/system/RRIMethodology').then(m => ({ default: m.RRIMethodology })));
+
 import { Authentication } from './components/shared/Authentication';
-import { CitizenEdition } from './components/modes/CitizenEdition';
-import { ProfessionalIntel } from './components/modes/ProfessionalIntel';
-import { TacticalDashboard } from './components/tactical/TacticalDashboard';
-import { PalantirDashboard } from './components/modes/PalantirDashboard';
-import { BloombergTerminal } from './components/economy/BloombergTerminal';
-import { BusinessInvestigator } from './components/economy/BusinessInvestigator';
-import { DataPipeline } from './components/system/DataPipeline';
-import { ObservabilityDashboard } from './pages/ObservabilityDashboard';
-import { RRIMethodology } from './components/system/RRIMethodology';
 import { IntelligenceDossierExporterModal } from './components/shared/IntelligenceDossierExporterModal';
 import { CalendarOverlay } from './components/shared/CalendarOverlay';
 import { Onboarding } from './components/shared/Onboarding';
@@ -23,6 +27,7 @@ import { PipelineProvider, usePipeline } from './context/PipelineContext';
 import { AIAnalysisProvider, useAIAnalysis } from './context/AIAnalysisContext';
 import { AgriIntelProvider, useAgriIntel } from './context/AgriIntelContext';
 import { RSSProvider, useRSS } from './context/RSSContext';
+import { AlertProvider } from './context/AlertContext';
 import { AIProvider_ } from './context/AIContext';
 import { ObservabilityProvider } from './context/ObservabilityContext';
 import { NotificationToast } from './components/shared/NotificationToast';
@@ -31,9 +36,8 @@ import { NotificationPanel } from './components/shared/NotificationPanel';
 import { TacticalLoading } from './components/shared/TacticalLoading';
 import { AIAnalystPanel } from './components/system/AIAnalystPanel';
 
-import { TestMode } from './components/modes/TestMode';
-
-import TunisiaAgricultureDashboard from './components/agriculture_dashboard';
+const TestMode = lazy(() => import('./components/modes/TestMode').then(m => ({ default: m.TestMode })));
+const TunisiaAgricultureDashboard = lazy(() => import('./components/agriculture_dashboard/index').then(m => ({ default: m.default })));
 
 // Data imports
 import govData from './data/governorates.json';
@@ -55,96 +59,93 @@ const AppContent: React.FC = () => {
   // Activate automatic notification triggers
   useNotificationTriggers();
 
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid'>(() => {
-    const saved = safeGetItem('ti_app_mode');
-    return (saved as any) || 'selection';
-  });
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture'>(
+    (safeGetItem('ti_current_mode') as any) || 'selection'
+  );
+  const [isAuthenticated, setIsAuthenticated] = useState(safeGetItem('ti_authenticated') === 'true');
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [pendingMode, setPendingMode] = useState<'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingMode, setPendingMode] = useState<string | null>(null);
   const [showAIAnalyst, setShowAIAnalyst] = useState(false);
   const [showPipeline, setShowPipeline] = useState(false);
-  const [showMethodology, setShowMethodology] = useState(false);
-  const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>();
-  const [pipelineTab, setPipelineTab] = useState<'pipeline' | 'sources' | 'finance' | 'ai-api'>('pipeline');
+  const [pipelineTab, setPipelineTab] = useState<'status' | 'pipeline' | 'logs'>('status');
   const [showReport, setShowReport] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(() => !safeGetItem('ti_onboarding_done'));
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [showMethodology, setShowMethodology] = useState(false);
+  const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>(undefined);
   const [showDebug, setShowDebug] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [showObservability, setShowObservability] = useState(false);
-
-  const { rriState, data: pipelineData } = usePipeline();
-  const { events: liveEvents } = useRSS();
-  const { ingestData, events: storeEvents } = useEventsStore();
-  const hasSeededRef = useRef(false);
-  const initialized = useRef(false);
+  
+  const { pipelineData, rriState, loadPipelineData } = usePipeline();
+  const { events: liveEvents, setEvents } = useEventsStore();
 
   useEffect(() => {
-    if (initialized.current) return;
-    
-    initializeVariables().catch(err => console.error("Variable initialization failed:", err));
-    
-    // Seed initial events once if store is empty and we have data
-    if (rriState && pipelineData && !hasSeededRef.current) {
-      import('./lib/ingestionEngine').then(({ fetchSystemEvents }) => {
-        fetchSystemEvents(rriState, pipelineData, ingestData);
-      });
-      hasSeededRef.current = true;
-    }
-
-    initialized.current = true;
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsAuthenticated(!!session || !!safeGetItem('ti_authenticated'));
-      setIsLoadingAuth(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        try { safeStorage.removeItem('ti_authenticated'); } catch(e) {}
+        setIsAuthenticated(true);
+      } else {
+        // If no session but we have local storage flag, trust it for dev
+        if (safeGetItem('ti_authenticated') === 'true') {
+          setIsAuthenticated(true);
+        }
       }
-      setIsAuthenticated(!!session);
-    });
+      setIsLoadingAuth(false);
+      
+      // Seed initial events if store is empty
+      if (liveEvents.length === 0) {
+        const initialEvents = seedInitialEvents();
+        setEvents(initialEvents);
+      }
+    };
+    checkSession();
+  }, [setEvents, liveEvents.length]);
 
-    return () => subscription.unsubscribe();
-  }, [rriState, pipelineData, ingestData]);
+  useEffect(() => {
+    // Initial data load
+    loadPipelineData();
+    initializeVariables();
+  }, [loadPipelineData]);
 
   const handleAuthenticate = () => {
     setIsAuthenticated(true);
-  };
-
-  const handleModeSelect = (selected: 'selection' | 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid') => {
-    if (selected === 'selection') {
-      setMode('selection');
-      setPendingMode(null);
-      setIsLoading(false);
-    } else {
-      setPendingMode(selected);
-      setIsLoading(true);
+    try { safeStorage.setItem('ti_authenticated', 'true'); } catch(e) {}
+    
+    // Show onboarding if first time
+    if (safeGetItem('ti_onboarding_done') !== 'true') {
+      setShowOnboarding(true);
     }
   };
 
-  const handleLoadingComplete = React.useCallback(() => {
+  const handleModeSelect = (newMode: any) => {
+    if (newMode === mode) return;
+    setPendingMode(newMode);
+    setIsLoading(true);
+  };
+
+  const handleLoadingComplete = () => {
     if (pendingMode) {
-      setMode(pendingMode);
+      setMode(pendingMode as any);
+      try { safeStorage.setItem('ti_current_mode', pendingMode); } catch(e) {}
       setPendingMode(null);
     }
     setIsLoading(false);
-  }, [pendingMode]);
+  };
 
-  const handleOpenPipeline = (tab: 'pipeline' | 'sources' | 'finance' | 'ai-api' = 'pipeline') => {
+  const handleOpenPipeline = (tab: 'status' | 'pipeline' | 'logs' = 'pipeline') => {
     setPipelineTab(tab);
     setShowPipeline(true);
   };
 
-  // Listen for navigation events from components
+  const handleOpenMethodology = (equation?: string) => {
+    setMethodologyEquation(equation);
+    setShowMethodology(true);
+  };
+
   useEffect(() => {
     const handleMethodology = (e: any) => {
-      setMethodologyEquation(e.detail?.equation);
-      setShowMethodology(true);
+      handleOpenMethodology(e.detail?.equation);
     };
     const handlePipeline = (e: any) => handleOpenPipeline(e.detail?.tab || 'pipeline');
     
@@ -306,7 +307,16 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30 selection:text-white">
       <AnimatePresence mode="wait">
-        {renderMode()}
+        <Suspense fallback={
+          <div className="min-h-screen bg-[#05070a] flex items-center justify-center font-mono">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-2 border-intel-cyan/20 border-t-intel-cyan rounded-full animate-spin" />
+              <div className="text-[10px] text-intel-cyan/50 tracking-[0.4em] animate-pulse uppercase">Syncing Intel Core...</div>
+            </div>
+          </div>
+        }>
+          {renderMode()}
+        </Suspense>
       </AnimatePresence>
 
       {/* Global Overlays */}
@@ -334,10 +344,6 @@ const AppContent: React.FC = () => {
         <IntelligenceDossierExporterModal 
           isOpen={showReport}
           onClose={() => setShowReport(false)}
-        />
-        <CalendarOverlay
-          isOpen={showCalendar}
-          onClose={() => setShowCalendar(false)}
         />
         {showOnboarding && (
           <Onboarding onComplete={() => {
@@ -389,7 +395,7 @@ const AppContent: React.FC = () => {
   );
 };
 
-class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
   constructor(props: any) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -400,10 +406,66 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{color: 'red', padding: '20px', backgroundColor: '#fff', height: '100vh'}}>
-          <h2>Runtime Error</h2>
-          <pre>{this.state.error?.toString()}</pre>
-          <pre>{this.state.error?.stack}</pre>
+        <div className="min-h-screen bg-[#05070a] text-intel-cyan font-mono flex flex-col items-center justify-center p-6 text-center space-y-8 relative overflow-hidden">
+          {/* Background grid */}
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(#00f2ff 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+          />
+          
+          <div className="relative z-10 space-y-6 max-w-2xl w-full">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 animate-pulse">
+                <ShieldAlert className="w-10 h-10" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-3xl font-black tracking-tighter text-white uppercase">Critical Kernel Failure</h2>
+                <div className="text-[10px] text-red-500/70 font-bold tracking-[0.3em] uppercase">// SYSTEM_HALT_RECOVERY_REQUIRED</div>
+              </div>
+            </div>
+
+            <div className="glass-panel p-6 border-red-500/20 text-left space-y-4">
+              <div className="flex items-center gap-2 border-b border-red-500/10 pb-3">
+                <Terminal className="w-4 h-4 text-red-500" />
+                <span className="text-xs font-bold text-slate-400">Diagnostic Trace:</span>
+              </div>
+              <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-2">
+                <pre className="text-[11px] text-red-400/80 font-mono whitespace-pre-wrap leading-relaxed">
+                  {this.state.error?.toString()}
+                </pre>
+                <div className="h-px bg-white/5 w-full my-2" />
+                <pre className="text-[9px] text-slate-500 font-mono whitespace-pre-wrap leading-tight">
+                  {this.state.error?.stack}
+                </pre>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-6 py-2.5 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all rounded-lg font-bold text-xs uppercase tracking-widest group"
+              >
+                <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
+                Reboot System
+              </button>
+              <button
+                onClick={() => {
+                  try { safeStorage.clear(); } catch(e) {}
+                  window.location.reload();
+                }}
+                className="text-[10px] text-slate-500 hover:text-white transition-colors uppercase tracking-widest underline underline-offset-4"
+              >
+                [ Wipe Local Cache & Restart ]
+              </button>
+            </div>
+          </div>
+
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-8 opacity-20">
+            <div className="flex items-center gap-2 text-[8px] tracking-[0.4em] text-slate-500 font-bold">
+              <Activity className="w-3 h-3" />
+              TRACE_ID: {Math.random().toString(36).substring(7).toUpperCase()}
+            </div>
+          </div>
         </div>
       );
     }
@@ -422,7 +484,9 @@ const App: React.FC = () => {
                 <NotificationProviderWrapper>
                   <AIAnalysisProvider>
                     <AgriIntelProvider>
-                      <AppContent />
+                      <AlertProvider>
+                        <AppContent />
+                      </AlertProvider>
                     </AgriIntelProvider>
                   </AIAnalysisProvider>
                 </NotificationProviderWrapper>

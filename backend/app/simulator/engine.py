@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from .models import SimulatedScenario, SimulatedStep, HistoricalEvent
 from ..intelligence.engines import CausalityEngine, TemporalPatternEngine

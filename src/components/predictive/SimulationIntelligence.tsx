@@ -56,7 +56,11 @@ import { generateStableKey, prepareList, assertKey } from '../../lib/keyUtils';
 
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { PropagationVisualizer } from '../predictive/PropagationVisualizer';
+import { PropagationFlowchart } from '../system/PropagationFlowchart';
 import { ScenarioCompare } from '../predictive/ScenarioCompare';
+import { createManualShock } from '../../services/shockIngestionAdapter';
+import { ShockSignal } from '../../types/intel';
+import { usePipeline } from '../../context/PipelineContext';
 
 // --- Types ---
 
@@ -176,6 +180,7 @@ const DEFAULT_SCENARIO_VARIABLES = [
 
 export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVariable[] }> = ({ context, variables }) => {
   const { rriState } = useRiskMetrics();
+  const { injectShock } = usePipeline();
   const [activeTab, setActiveTab] = useState<Tab>('monte-carlo');
   
   // Use provided variables or fallback to defaults for the scenario simulator
@@ -247,6 +252,15 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
     { predicted: 80, actual: 82 },
     { predicted: 90, actual: 88 }
   ];
+
+  // Propagation Sandbox State
+  const [activeShock, setActiveShock] = useState<ShockSignal | null>(null);
+  const [shockParams, setShockParams] = useState({
+    domain: 'SOCIAL' as any,
+    variable: 'social.protest_events_30d',
+    intensity: 0.8,
+    governorate: 'kasserine'
+  });
 
   // --- Handlers ---
 
@@ -1018,12 +1032,12 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
                 />
                 {/* Perfect Calibration Line */}
-                <Scatter 
+                <Scatter isAnimationActive={false} 
                   data={[{ predicted: 0, actual: 0 }, { predicted: 100, actual: 100 }]} 
                   line={{ stroke: 'rgba(255,255,255,0.2)', strokeDasharray: '5 5' }} 
                   shape={() => null}
                 />
-                <Scatter name="Calibration" data={calibrationData} fill="#00f2ff" />
+                <Scatter isAnimationActive={false} name="Calibration" data={calibrationData} fill="#00f2ff" />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
@@ -1161,12 +1175,99 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               {activeTab === 'ai-multi' && renderAIMultiAgent()}
               {activeTab === 'backtesting' && renderBacktesting()}
               {activeTab === 'propagation' && (
-                <div className="h-auto">
-                  <PropagationVisualizer 
-                    originId="sidi_bouzid" 
-                    originName="Sidi Bouzid"
-                    cascadeProbability={context?.pRev || 0.643}
-                  />
+                <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="intel-card p-6 rounded-2xl border border-intel-border">
+                    <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-intel-cyan" />
+                      Sandbox: Inject Shock
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                      <div>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Domain</label>
+                        <select 
+                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          value={shockParams.domain}
+                          onChange={e => setShockParams({...shockParams, domain: e.target.value as any})}
+                        >
+                          <option value="SOCIAL">Social/Labor</option>
+                          <option value="ECON">Economic</option>
+                          <option value="AGRI">Agriculture</option>
+                          <option value="SEC">Security</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Target Variable</label>
+                        <select 
+                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          value={shockParams.variable}
+                          onChange={e => setShockParams({...shockParams, variable: e.target.value})}
+                        >
+                          <option value="social.protest_events_30d">Protest Events (30d)</option>
+                          <option value="social.ugtt_strike_count_2025">UGTT Strikes</option>
+                          <option value="economy.inflation">Inflation</option>
+                          <option value="social.water_crisis_govs">Water Crisis (Govs)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Epicenter</label>
+                        <select 
+                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          value={shockParams.governorate}
+                          onChange={e => setShockParams({...shockParams, governorate: e.target.value})}
+                        >
+                          <option value="kasserine">Kasserine</option>
+                          <option value="sidi_bouzid">Sidi Bouzid</option>
+                          <option value="gafsa">Gafsa</option>
+                          <option value="tunis">Tunis</option>
+                          <option value="sfax">Sfax</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Intensity: {shockParams.intensity}</label>
+                        <input 
+                          type="range" min="0.1" max="1" step="0.1" 
+                          value={shockParams.intensity}
+                          onChange={e => setShockParams({...shockParams, intensity: parseFloat(e.target.value)})}
+                          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-intel-red mt-2"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const shock = createManualShock(shockParams.domain, shockParams.variable, shockParams.intensity, shockParams.governorate, `Manual Sandbox Injection: ${shockParams.variable}`);
+                        setActiveShock(shock);
+                        injectShock(shock);
+                      }}
+                      className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg text-xs font-bold font-mono hover:bg-red-500/30 transition-colors"
+                    >
+                      INJECT SHOCK & RUN SIMULATION
+                    </button>
+                  </div>
+
+                  {activeShock && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      <div className="lg:col-span-4">
+                        <PropagationFlowchart shock={activeShock} rriDelta={activeShock.intensity * 0.15} />
+                      </div>
+                      <div className="lg:col-span-8">
+                        <PropagationVisualizer 
+                          originId={activeShock.governorates?.[0] || "kasserine"} 
+                          originName={activeShock.governorates?.[0]?.toUpperCase() || "KASSERINE"}
+                          cascadeProbability={Math.min(0.99, (context?.pRev || 0.643) + (activeShock.intensity * 0.2))}
+                          activeEventTitle={activeShock.message}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {!activeShock && (
+                    <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
+                       <PropagationVisualizer 
+                          originId="sidi_bouzid" 
+                          originName="Sidi Bouzid"
+                          cascadeProbability={context?.pRev || 0.643}
+                        />
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

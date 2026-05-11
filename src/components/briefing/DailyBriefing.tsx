@@ -14,6 +14,8 @@ import {
   Zap,
 } from "lucide-react";
 import { ModuleHeader } from "../shared/ProfessionalShared";
+import { NewsFeed } from "../shared/NewsFeed";
+import { AIVoiceBriefing } from "./AIVoiceBriefing";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -65,7 +67,7 @@ interface PhasePreview {
   title: string;
   description: string;
   features: string[];
-  status: "in-development" | "planned" | "research";
+  status: "in-development" | "planned" | "research" | "beta";
   accentColor: string;
 }
 
@@ -239,7 +241,7 @@ const PHASE_PREVIEWS: PhasePreview[] = [
       "Tunisian dialect support",
       "Scheduled briefings",
     ],
-    status: "in-development",
+    status: "beta",
     accentColor: "#8b5cf6",
   },
   {
@@ -385,9 +387,10 @@ const RiskBar: React.FC<{ percentage: number; level: string }> = ({
 const PHASES = [
   { num: 1, label: "Text Briefing", active: true },
   { num: 2, label: "Visual Cards", active: true },
-  { num: 3, label: "AI Voice", active: false },
-  { num: 4, label: "Forecast", active: false },
-  { num: 5, label: "Multi-Access", active: false },
+  { num: 3, label: "Live News Feed", active: true },
+  { num: 4, label: "AI Voice", active: true },
+  { num: 5, label: "Forecast", active: false },
+  { num: 6, label: "Multi-Access", active: false },
 ];
 
 const PhaseNav: React.FC<{
@@ -882,15 +885,10 @@ export const DailyBriefing: React.FC = () => {
             </div>
           </div>
 
-          {/* ── PHASE 1: TEXT BRIEFING ── */}
-          <AnimatePresence>
-            {(activePhase === 1 || activePhase === 2) && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-8"
-              >
+          {/* ── TABS CONTENT ── */}
+          <div className="min-h-[400px]">
+            {activePhase === 1 && (
+              <div className="space-y-8">
                 {/* Executive Summary */}
                 <div>
                   <ExecutiveSummary data={EXECUTIVE_SUMMARY} />
@@ -917,19 +915,11 @@ export const DailyBriefing: React.FC = () => {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
-
-          {/* ── PHASE 2: VISUAL CARDS ── */}
-          <AnimatePresence>
+            
             {activePhase === 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-8"
-              >
+              <div className="space-y-8">
                 {/* Governorate Alert Matrix */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
@@ -938,9 +928,35 @@ export const DailyBriefing: React.FC = () => {
                   </div>
                   <GovernorateAlertsPanel />
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+
+            {activePhase === 3 && (
+              <div className="space-y-8">
+                {/* Live News Feed */}
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-intel-blue rounded-full animate-pulse" />
+                    Live News Feed — Real-time Signal Monitoring
+                  </div>
+                  <NewsFeed hideBackground={true} />
+                </div>
+              </div>
+            )}
+
+            {activePhase === 4 && (
+              <div className="space-y-8">
+                {/* AI Voice Briefing */}
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
+                    Neural Voice Narration — Beta
+                  </div>
+                  <AIVoiceBriefing />
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Roadmap */}
           <div className="pt-12">

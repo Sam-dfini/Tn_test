@@ -42,7 +42,7 @@ export const ModuleHeader = ({
         <span className="text-[8px] md:text-[10px] font-mono uppercase tracking-[0.3em] font-bold">Intelligence Node: {nodeId} // STATUS: {statusLabel}</span>
       </div>
       <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight flex items-center space-x-3">
-        <Icon className="w-6 h-6 md:w-8 md:h-8 text-intel-cyan" />
+        {Icon ? <Icon className="w-6 h-6 md:w-8 md:h-8 text-intel-cyan" /> : <div className="w-6 h-6 md:w-8 md:h-8 bg-intel-cyan/20 rounded" />}
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">{title}</span>
       </h2>
       <p className="text-slate-500 text-[10px] md:text-xs uppercase font-mono tracking-wider">{subtitle}</p>

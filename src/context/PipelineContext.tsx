@@ -14,7 +14,7 @@ import {
   ForecastResult
 } from '../services/ai';
 import { analyzeRadicalisation } from '../services/radicalEngine';
-import { quickScan, analyzeCognitiveWarfare } from '../services/cognitiveWarfareEngine';
+import { quickScan, analyzeCognitiveWarfare, mapShockVectorToRRI } from '../services/cognitiveWarfareEngine';
 import { analyzeSEI } from '../services/seiEngine';
 import { computeSignals } from '../services/signals';
 import { computeClusters } from '../services/clusters';
@@ -37,6 +37,7 @@ import {
 } from '../services/AgroSystemEngine';
 import { detectShortagesInArticles } from '../services/shortageDetector';
 import { computeSBDE, DEFAULT_SBDE_INPUTS, W_PSI_RRI } from '../services/sbdeEngine';
+import { storePrediction, evaluatePendingPredictions } from '../services/predictionLedger';
 
 interface EconomyData {
   gdp_growth: number;        // % e.g. 0.4
@@ -307,6 +308,7 @@ interface PipelineContextType {
   recalculateRRI: () => void;
   updateArticleCache: (articles: any) => void;
   injectSignal: (signalId: string) => void;
+  injectShock: (shock: ShockSignal) => void;
   activeSignals: ShockSignal[];
   miiProfile?: any;
   sbdeResult?: ReturnType<typeof computeSBDE>;
@@ -476,12 +478,25 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         ...DEFAULT_SBDE_INPUTS,
         economic_stress: econStress,
         youth_unemployment_rate: (data.economy?.youth_unemployment ?? 37.8) / 100,
+        suicide_rate_normalized: Math.min(1, (data.social?.suicide_rate ?? 12.4) / 20),
+        mental_health_proxy: (data.social?.mental_health_stress ?? 68) / 100,
+        divorce_rate_normalized: Math.min(1, (data.social?.divorce_rate ?? 22.1) / 40),
+        street_crime_rate: Math.min(1, (data.social?.illegal_crossing_attempts ?? 36000) / 60000),
       });
       setSbdeResult(liveSbde);
 
       // Inject Ψ_soc as _psi_soc override — rriEngine reads this
       overrides['_psi_soc'] = liveSbde.psi_soc;
       overrides['_psi_soc_weight'] = W_PSI_RRI;
+      // ── EQ.COG — Cognitive Warfare Injection ──────────────────────────
+      if (cognitiveEnvironment) {
+        const cogwarRRI = mapShockVectorToRRI(cognitiveEnvironment);
+        overrides['_cogwar_epsilon_magnitude'] = cogwarRRI.epsilon_magnitude;
+        overrides['_cogwar_epsilon_weight'] = cogwarRRI.epsilon_weight;
+        overrides['_cogwar_salience_nudge'] = cogwarRRI.salience_nudge;
+        overrides['_cogwar_amplification_delta'] = cogwarRRI.amplification_delta;
+        overrides['_cogwar_cascade_risk_delta'] = cogwarRRI.cascade_risk_delta;
+      }
       // ─────────────────────────────────────────────────────────────────────
 
       const newState = calculateRRI(overrides);
@@ -633,6 +648,35 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     window.addEventListener('rri-recalculate', handler);
     return () => window.removeEventListener('rri-recalculate', handler);
   }, [recalculateRRI]);
+
+  // ── Prediction Learning Loop (Step 5) ──────────────────────────
+  useEffect(() => {
+    if (isPaused) return;
+
+    // Snapshot every 6 hours in background, or on significant RRI jump (>0.2)
+    const SNAPSHOT_INTERVAL = 6 * 60 * 60 * 1000;
+    let lastRRI = rriState.rri;
+
+    const runSnapshot = async (reason: 'RECALCULATE' | 'THRESHOLD_BREACH' | 'MANUAL' | 'SCHEDULED') => {
+      try {
+        const engines = { miiProfile, rpiProfile, cognitiveEnvironment, seiResult };
+        await storePrediction(rriState, data, engines, 14, reason);
+        console.log(`[LEARNING_LOOP] Snapshot stored: ${reason}`);
+      } catch (e) {
+        console.warn('[LEARNING_LOOP] Snapshot failed:', e);
+      }
+    };
+
+    const interval = setInterval(() => {
+      runSnapshot('SCHEDULED');
+      evaluatePendingPredictions(data).catch(console.error);
+    }, SNAPSHOT_INTERVAL);
+
+    // Initial evaluation on load
+    evaluatePendingPredictions(data).catch(console.error);
+
+    return () => clearInterval(interval);
+  }, [isPaused, rriState.rri, data, miiProfile, rpiProfile, cognitiveEnvironment, seiResult]);
 
   useEffect(() => {
     const handler = async (e: any) => {
@@ -829,6 +873,25 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimeout(() => recalculateRRI(), 100);
   }, [addNotification, recalculateRRI]);
 
+  const injectShock = useCallback((shock: ShockSignal) => {
+    setData(prev => ({
+      ...prev,
+      active_signals: [...prev.active_signals.filter(s => s.id !== shock.id), shock]
+    }));
+
+    addNotification({
+      type: 'SHOCK',
+      priority: 'CRITICAL',
+      title: `⚡ PROPAGATION: ${shock.type} SHOCK`,
+      message: shock.message,
+      action_label: 'View Impact',
+      action_event: 'navigate-main',
+      action_detail: { tab: 'alerts' }
+    });
+
+    setTimeout(() => recalculateRRI(), 100);
+  }, [addNotification, recalculateRRI]);
+
   return (
     <PipelineContext.Provider value={{
       data, updateField, pushApprovedChanges, 
@@ -841,6 +904,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       isPaused,
       togglePause,
       injectSignal,
+      injectShock,
       activeSignals: data.active_signals,
       updateArticleCache: (articles: any) => {
         if (!articles) return;

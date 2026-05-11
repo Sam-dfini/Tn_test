@@ -53,6 +53,13 @@ import {
   Package,
   Droplets,
   Triangle,
+  Crown,
+  MessageSquare,
+  GitBranch,
+  Bell,
+  Hourglass,
+  FlaskConical,
+  Telescope,
 } from "lucide-react";
 import {
   LineChart,
@@ -74,7 +81,8 @@ import { EconomyIntelligence } from "../economy/EconomyIntelligence";
 import { IntelligenceBriefPanel } from "../system/IntelligenceBriefPanel";
 import { EnergyIntelligence } from "../energy/EnergyIntelligence";
 import { EnvironmentalIntelligence } from "../agriculture/EnvironmentalIntelligence";
-import { SocialIntelligence } from "../social/SocialIntelligence";
+import { SocialPoliticalIntelligence } from "../social/SocialIntelligence";
+import { SocialThreatIntelligence } from "../security/SocialThreatIntelligence";
 import { SecurityIntelligence } from "../security/SecurityIntelligence";
 import { BusinessInvestigator } from "../economy/BusinessInvestigator";
 import { StrategicModeling } from "../predictive/StrategicModeling";
@@ -114,103 +122,156 @@ import { EntrepreneurIntelligence } from "../economy/EntrepreneurIntelligence";
 import { IndustrialIntelligencePanel } from "../economy/IndustrialIntelligencePanel";
 import { StrategicEnergyIntelligencePanel } from "../energy/StrategicEnergyIntelligencePanel";
 import { BlackMarketIntelligencePanel } from "../geopolitical/BlackMarketIntelligencePanel";
+import { RRIMethodology } from "../system/RRIMethodology";
+import { IntelligenceArchitecture } from "../system/IntelligenceArchitecture";
+import { AlertHub } from "../system/AlertHub";
 import { useRSS } from "../../context/RSSContext";
 import { generateAnalystResponse } from "../../services/geminiService";
 import { Article } from "../../lib/supabase";
 import { BackgroundGrid, ModuleHeader } from "../shared/ProfessionalShared";
 import { TRGMDashboard } from './TRGMDashboard';
-import { NationalAgriculturalPulse } from './NationalAgriculturalPulse';
+import { FoodSupplyChains } from "../agriculture/FoodSupplyChains";
+import { MissionWorkspace } from "../missions/MissionWorkspace";
+import { MISSIONS } from "../../config/missions";
+import { useViewMode, ViewMode } from "../../hooks/useViewMode";
 
-// Categories for sidebar grouping
-const SIDEBAR_CATEGORIES = [
-  {
-    id: "command",
-    label: "Command Center",
-    items: [
-      { id: "command-center", label: "National Command", icon: Target },
-      { id: "trgm", label: "Governance Matrix", icon: Triangle },
-      { id: "briefing", label: "Daily Briefing", icon: FileText },
-      { id: "ne", label: "Daily News", icon: Newspaper },
-      { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
-      { id: "calendar", label: "Calendar", icon: Calendar },
-      { id: "govagent", label: "Gov. Agent", icon: Brain },
-      {
-        id: "methodology",
-        label: "Methodology",
-        icon: BookOpen,
-        isEvent: true,
-      },
-    ],
-  },
-  {
-    id: "economical",
-    label: "Economical",
-    items: [
-      { id: "reports", label: "Investment Reports", icon: FileText },
-      { id: "economy", label: "Economy", icon: TrendingUp },
-      { id: "industry", label: "Industry", icon: Box },
-      { id: "strategic-energy", label: "Strategic Energy", icon: Zap },
-      { id: "black-market", label: "Black Market", icon: ShoppingBag },
-      { id: "strategic-explorer", label: "Strategic Explorer", icon: Compass },
-      { id: "entrepreneur", label: "Entrepreneur", icon: Rocket },
-    ],
-  },
-  {
-    id: "threat",
-    label: "Threat & Security",
-    items: [
-      { id: "events", label: "Events", icon: Radio },
-      { id: "security", label: "Security", icon: ShieldCheck },
-      { id: "clusters", label: "Clusters", icon: Network },
-      { id: "actor-network", label: "Actor Network", icon: Network },
-      { id: "radicalisation", label: "Radicalisation", icon: AlertTriangle },
-      { id: "cognitive", label: "Cognitive Warfare", icon: ShieldAlert },
-    ],
-  },
-  {
-    id: "social-observatory",
-    label: "Social Observatory",
-    items: [
-      { id: "societal-fracture", label: "Societal Fracture", icon: Brain },
-    ],
-  },
-  {
-    id: "socio",
-    label: "Socio-Political",
-    items: [
-      { id: "political", label: "Political", icon: Users },
-      { id: "social", label: "Social", icon: Users },
-      { id: "geopolitical", label: "Geopolitical", icon: Globe },
-      { id: "geopolitical-network", label: "Int'l Actor Network", icon: Globe },
-      { id: "narrative", label: "Narrative", icon: Brain },
-    ],
-  },
-  {
-    id: "env",
-    label: "Environment",
-    items: [
-      { id: "environment", label: "Environment", icon: Sprout },
-      { id: "agriculture", label: "Agriculture", icon: Leaf },
-      { id: "agri-pulse", label: "Agricultural Pulse", icon: Leaf },
-      { id: "feed-hub", label: "Feed Intelligence", icon: Wheat },
-      { id: "poultry", label: "Poultry & Eggs", icon: Zap },
-      { id: "livestock", label: "Livestock & Meat", icon: Package },
-      { id: "dairy", label: "Milk & Dairy", icon: Droplets },
-      { id: "energy", label: "Energy", icon: Activity },
-      { id: "fire", label: "Fire Intel", icon: Flame },
-    ],
-  },
-  {
-    id: "advanced",
-    label: "Advanced Modeling",
-    items: [
-      { id: "strategic", label: "Strategic", icon: BrainCircuit },
-      { id: "simulation", label: "Simulation", icon: Cpu },
-      { id: "civilizational", label: "Civilizational", icon: RotateCcw },
-      { id: "performance", label: "Model Performance", icon: ShieldCheck },
-    ],
-  },
-];
+// Categories for sidebar grouping - now dynamic
+const getSidebarCategories = (viewMode: ViewMode) => {
+  const categories = [
+    {
+      id: "command",
+      label: "Tier 1: National Command",
+      items: [
+        { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
+        { id: "command-center", label: "National Command", icon: Target, restricted: 'ANALYST' },
+        { id: "briefing", label: "Daily Briefing", icon: FileText, restricted: 'ANALYST' },
+        { id: "calendar", label: "Threat Calendar", icon: Calendar, restricted: 'ANALYST' },
+        { id: "alerts", label: "Alert Hub", icon: Bell, restricted: 'ANALYST' },
+      ],
+    },
+    {
+      id: "missions",
+      label: "Mission Control",
+      restricted: 'ANALYST',
+      items: [
+        { id: "food-security", label: "Food Security Crisis", icon: Wheat },
+        { id: "elite-fracture", label: "Elite Fracture", icon: Crown },
+        { id: "ugtt-escalation", label: "UGTT Escalation", icon: Users },
+        { id: "water-collapse", label: "Water Collapse", icon: Droplets },
+        { id: "border-instability", label: "Border Instability", icon: Shield },
+        { id: "narrative-war", label: "Narrative War", icon: MessageSquare },
+        { id: "intelligence-arch", label: "Intelligence Architecture", icon: GitBranch },
+      ],
+    },
+    {
+      id: "economical",
+      label: "Tier 2: Economic Intelligence",
+      items: [
+        { id: "economy", label: "Macro Dashboard", icon: TrendingUp },
+        { id: "industry", label: "Industry & Energy", icon: Box, restricted: 'ANALYST' },
+        { id: "black-market", label: "Informal Economy", icon: ShoppingBag, restricted: 'ANALYST' },
+        { id: "reports", label: "Investor Dossiers", icon: FileText, restricted: 'STRATEGIC' },
+        { id: "entrepreneur", label: "Entrepreneur Intel", icon: Rocket, restricted: 'ANALYST' },
+        { id: "strategic-explorer", label: "Corporate Explorer", icon: Compass, restricted: 'ANALYST' },
+      ],
+    },
+    {
+      id: "threat",
+      label: "Tier 2: Security & Threat",
+      restricted: 'ANALYST',
+      items: [
+        { id: "social-threat", label: "Social Threat", icon: Users },
+        { id: "events", label: "Event Telemetry", icon: Radio },
+        { id: "security", label: "Security & Borders", icon: ShieldCheck },
+        { id: "clusters", label: "Hotspot Clusters", icon: Network },
+        { id: "actor-network", label: "Actor Network", icon: Network },
+        { id: "radicalisation", label: "Radicalisation", icon: AlertTriangle },
+        { id: "cognitive", label: "Cognitive Warfare", icon: ShieldAlert },
+      ],
+    },
+    {
+      id: "socio",
+      label: "Tier 2: Socio-Political",
+      items: [
+        { id: "political", label: "Political", icon: Users, restricted: 'ANALYST' },
+        { id: "social", label: "Social Dynamics", icon: Users, restricted: 'ANALYST' },
+        { id: "geopolitical", label: "Geopolitical", icon: Globe, restricted: 'ANALYST' },
+        { id: "geopolitical-network", label: "Int'l Actors", icon: Globe, restricted: 'ANALYST' },
+        { id: "narrative", label: "Narrative", icon: Brain, restricted: 'ANALYST' },
+        { id: "societal-fracture", label: "Societal Fracture", icon: Brain, restricted: 'STRATEGIC' },
+      ],
+    },
+    {
+      id: "env",
+      label: "Tier 2: Environment & Food",
+      items: [
+        { id: "environment", label: "Climate & Water", icon: Sprout, restricted: 'ANALYST' },
+        { id: "agriculture", label: "Agriculture", icon: Leaf },
+        { id: "food-supply", label: "Food Supply Chains", icon: Wheat, restricted: 'ANALYST' },
+        { id: "fire", label: "Fire Intel", icon: Flame, restricted: 'ANALYST' },
+      ],
+    },
+    {
+      id: "advanced",
+      label: "Tier 3: Advanced Systems",
+      restricted: 'ANALYST',
+      items: [
+        { id: "simulation", label: "Simulation Sandbox", icon: FlaskConical, restricted: 'STRATEGIC' },
+        { id: "strategic", label: "Strategic Modeling", icon: Telescope, restricted: 'STRATEGIC' },
+        { id: "trgm", label: "TRGM Matrix", icon: Triangle, restricted: 'STRATEGIC' },
+        { id: "govagent", label: "Gov. Agent", icon: Brain, restricted: 'STRATEGIC' },
+        { id: "performance", label: "Model Performance", icon: Activity },
+        { id: "methodology", label: "Methodology", icon: BookOpen },
+        { id: "civilizational", label: "Civilizational Analysis", icon: Hourglass, restricted: 'STRATEGIC' },
+      ],
+    },
+  ];
+
+  const checkAccess = (restricted: string | undefined) => {
+    if (!restricted) return true;
+    if (viewMode === 'STRATEGIC') return true;
+    if (viewMode === 'ANALYST') return restricted !== 'STRATEGIC';
+    return false;
+  };
+
+  return categories
+    .map(cat => ({
+      ...cat,
+      items: cat.items.map(item => {
+        const itemRestricted = item.restricted || cat.restricted;
+        const hasAccess = checkAccess(itemRestricted);
+        return {
+          ...item,
+          isLocked: !hasAccess,
+          lockTier: itemRestricted
+        };
+      })
+    }));
+};
+
+const RestrictedOverlay: React.FC<{ tier: string }> = ({ tier }) => (
+  <div className="absolute inset-0 z-50 flex items-center justify-center p-8 text-center bg-black/60 backdrop-blur-md rounded-2xl border border-white/5">
+    <div className="max-w-md space-y-6">
+      <div className="w-20 h-20 bg-intel-purple/10 rounded-full flex items-center justify-center mx-auto border border-intel-purple/30">
+        <Lock className="w-10 h-10 text-intel-purple" />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">Upgrade Required</h2>
+        <p className="text-sm text-slate-400 font-mono uppercase tracking-widest">
+          {tier} Access Required for this module
+        </p>
+      </div>
+      <p className="text-sm text-slate-500 leading-relaxed">
+        This intelligence module contains restricted strategic datasets and predictive modeling tools 
+        available only to {tier === 'STRATEGIC' ? 'Executive Command' : 'Senior Analyst'} personnel. 
+        Contact System Administrator to request clearance elevation.
+      </p>
+      <button className="px-8 py-3 bg-intel-purple text-white text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-intel-purple-bright transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)]">
+        Request Clearance Elevation
+      </button>
+    </div>
+  </div>
+);
 
 interface IntelReport {
   id: string;
@@ -615,16 +676,17 @@ export const ProfessionalIntel: React.FC<{
   onToggleDebug,
 }) => {
   const {
-    data,
     rriState,
-    miiProfile,
-    actorNetwork,
-    auditLog,
-    aiAnalysis,
+    data,
     forecast,
+    aiAnalysis,
+    miiProfile,
     runAIAnalysis,
     isAIAnalysisLoading,
   } = usePipeline();
+  const { viewMode } = useViewMode();
+  const sidebarCategories = useMemo(() => getSidebarCategories(viewMode), [viewMode]);
+
   const { articles: rssArticles, isFetching } = useRSS();
   const [activeTab, setActiveTab] = useState<
     | "command-center"
@@ -659,15 +721,20 @@ export const ProfessionalIntel: React.FC<{
     | "ne"
     | "entrepreneur"
     | "agriculture"
-    | "agri-pulse"
-    | "feed-hub"
-    | "poultry"
-    | "livestock"
-    | "dairy"
+    | "alerts"
+    | "food-supply"
     | "societal-fracture"
     | "industry"
     | "strategic-explorer"
     | "pipeline-control"
+    | "intelligence-arch"
+    | "food-security"
+    | "elite-fracture"
+    | "ugtt-escalation"
+    | "water-collapse"
+    | "border-instability"
+    | "narrative-war"
+    | "social-threat"
   >("command-center");
   const [eventsSubTab, setEventsSubTab] = useState<
     "news" | "engine" | "timeline" | "signal" | "temporal" | "rtee"
@@ -689,8 +756,9 @@ export const ProfessionalIntel: React.FC<{
     threat: false,
     socio: false,
     env: false,
-    advanced: false,
+    advanced: true,
   });
+  const [sandboxOverrides, setSandboxOverrides] = useState<Record<string, number> | null>(null);
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) => ({
@@ -825,6 +893,7 @@ Return only the 3-sentence briefing.`;
     { id: "environment", label: "Environment", icon: Sprout },
     { id: "social", label: "Social", icon: Users },
     { id: "strategic", label: "Strategic", icon: BrainCircuit },
+    { id: "trgm", label: "TRGM Matrix", icon: Triangle },
     { id: "simulation", label: "Simulation", icon: Cpu },
     { id: "reports", label: "Reports", icon: FileText },
     { id: "civilizational", label: "Civilizational", icon: RotateCcw },
@@ -832,7 +901,7 @@ Return only the 3-sentence briefing.`;
     { id: "ne", label: "Daily News", icon: Newspaper },
     { id: "performance", label: "Model Performance", icon: ShieldCheck },
     { id: "govagent", label: "Gov. Agent", icon: Brain },
-    { id: "methodology", label: "Methodology", icon: BookOpen, isEvent: true },
+    { id: "methodology", label: "Methodology", icon: BookOpen },
     { id: "entrepreneur", label: "Entrepreneur", icon: Rocket },
     { id: "industry", label: "Industry", icon: Box },
   ];
@@ -1047,7 +1116,7 @@ Return only the 3-sentence briefing.`;
 
           {/* Sidebar Categories */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
-            {prepareList(SIDEBAR_CATEGORIES).map((category: any) => (
+            {prepareList(sidebarCategories).map((category: any) => (
               <div key={category.id} className="space-y-1">
                 {/* Category Header */}
                 <button
@@ -1075,10 +1144,14 @@ Return only the 3-sentence briefing.`;
                     >
                       {prepareList(category.items).map((item: any) => {
                         const isActive = activeTab === item.id;
+                        const isLocked = item.isLocked;
+                        
                         return (
                           <button
                             key={item.id}
+                            disabled={isLocked && activeTab !== item.id}
                             onClick={() => {
+                              if (isLocked) return;
                               if (item.isEvent) {
                                 window.dispatchEvent(
                                   new CustomEvent("navigate-to-methodology", {
@@ -1091,22 +1164,29 @@ Return only the 3-sentence briefing.`;
                               // auto-close when a link is clicked (overlay behavior)
                               setSidebarOpen(false);
                             }}
-                            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-xs transition-all tracking-wide
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all tracking-wide group
                               ${
-                                isActive
-                                  ? "bg-intel-cyan/10 text-intel-cyan font-bold shadow-[inset_2px_0_0_0_#00f2ff]"
-                                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                                isLocked 
+                                  ? "opacity-50 cursor-not-allowed grayscale" 
+                                  : isActive
+                                    ? "bg-intel-cyan/10 text-intel-cyan font-bold shadow-[inset_2px_0_0_0_#00f2ff]"
+                                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                               }
                             `}
                           >
-                            <item.icon
-                              className={`w-4 h-4 shrink-0 col-span-1 ${isActive ? "text-intel-cyan animate-pulse" : "opacity-80"}`}
-                            />
-                            <span
-                              className={`${isActive ? "opacity-100" : "opacity-80"} truncate`}
-                            >
-                              {item.label}
-                            </span>
+                            <div className="flex items-center space-x-3 overflow-hidden">
+                              <item.icon
+                                className={`w-4 h-4 shrink-0 ${isActive ? "text-intel-cyan animate-pulse" : "opacity-80"}`}
+                              />
+                              <span
+                                className={`${isActive ? "opacity-100" : "opacity-80"} truncate`}
+                              >
+                                {item.label}
+                              </span>
+                            </div>
+                            {isLocked && (
+                              <Lock className="w-3 h-3 text-slate-500 group-hover:text-intel-orange transition-colors" />
+                            )}
                           </button>
                         );
                       })}
@@ -1120,40 +1200,76 @@ Return only the 3-sentence briefing.`;
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-background overflow-hidden h-full relative z-[50]">
-        {/* Global Action Header */}
+      <main className="flex-1 min-w-0 flex flex-col relative overflow-hidden">
+        {/* Background Grid */}
+        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+        </div>
+
         <ProfessionalHeader
           onOpenAI={onOpenAI}
           onOpenPipeline={onOpenPipeline}
-          onGoHome={onGoHome}
           onOpenReport={onOpenReport}
-          onOpenCalendar={() => setShowCalendar(true)}
-          onOpenTerminal={() => setIsTerminalOpen(true)}
           onToggleDebug={onToggleDebug}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           sidebarOpen={sidebarOpen}
-        ></ProfessionalHeader>
+          onGoHome={() => setActiveTab("overview")}
+          onOpenCalendar={() => setShowCalendar(true)}
+          onOpenTerminal={() => setIsTerminalOpen(true)}
+        />
 
-        {/* Dynamic View Container */}
-        <div
-          className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-8 py-6"
-          id="professional-intel-dossier"
-        >
-          {activeTab === "briefing" ? (
-            <DailyBriefing />
-          ) : activeTab === "pipeline-control" ? (
-            <ObservabilityDashboard onBack={() => setActiveTab("overview")} />
-          ) : activeTab === "govagent" ? (
-            <GovernmentAgentPanel />
-          ) : activeTab === "events" ? (
-            <div className="space-y-6">
-              <ModuleHeader
-                title="News Intelligence"
-                subtitle="Real-time monitoring of local and international media sources with AI-powered sentiment analysis"
-                icon={Newspaper}
-                nodeId="NEWS-NODE-15"
-              />
-              <div className="flex items-center space-x-1 mb-6 bg-surface-container border border-outline-variant rounded-xl p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
+        {/* Content Scroll Area */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 relative z-10 custom-scrollbar">
+          {/* Restricted Access Overlay */}
+          {(() => {
+            const currentItem = sidebarCategories
+              .flatMap(c => c.items)
+              .find(i => i.id === activeTab);
+            if (currentItem?.isLocked) {
+              return <RestrictedOverlay tier={currentItem.lockTier || 'ANALYST'} />;
+            }
+            return null;
+          })()}
+
+          <div className={sidebarCategories.flatMap(c => c.items).find(i => i.id === activeTab)?.isLocked ? 'opacity-20 pointer-events-none' : ''}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {activeTab === "briefing" ? (
+                  <DailyBriefing />
+                ) : activeTab === "pipeline-control" ? (
+                  <ObservabilityDashboard onBack={() => setActiveTab("overview")} />
+                ) : activeTab === "govagent" ? (
+                  <GovernmentAgentPanel />
+                ) : activeTab === "methodology" ? (
+                  <RRIMethodology inline={true} onNavigateToPipeline={(tab) => {
+                     window.dispatchEvent(
+                       new CustomEvent("navigate-to-pipeline", {
+                         detail: { tab },
+                       })
+                     );
+                  }} />
+                ) : activeTab === "events" ? (
+                  <div className="space-y-6">
+                    <ModuleHeader
+                      title="News Intelligence"
+                      subtitle="Real-time monitoring of local and international media sources with AI-powered sentiment analysis"
+                      icon={Newspaper}
+                      nodeId="NEWS-NODE-15"
+                    />
+                    <div className="flex items-center space-x-1 mb-6 bg-surface-container border border-outline-variant rounded-xl p-1 w-fit max-w-full overflow-x-auto scrollbar-hide">
                 <button
                   onClick={() => setEventsSubTab("news")}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-[10px] font-mono uppercase tracking-wider transition-all whitespace-nowrap ${
@@ -2252,7 +2368,7 @@ Return only the 3-sentence briefing.`;
                   </div>
                 </div>
 
-                {/* 3C Live Signal Intelligence Footer Ticker */}
+                <SocialThreatIntelligence />
                 <div className="mt-4 pb-12">
                   <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">
                     Live Signal Intelligence (Σε(t)=+0.360)
@@ -2282,6 +2398,8 @@ Return only the 3-sentence briefing.`;
             <GeopoliticalNetworkGraph />
           ) : activeTab === "political" ? (
             <PoliticalIntelligence context={context} />
+          ) : activeTab === "alerts" ? (
+            <AlertHub />
           ) : activeTab === "security" ? (
             <SecurityIntelligence />
           ) : activeTab === "energy" ? (
@@ -2290,24 +2408,28 @@ Return only the 3-sentence briefing.`;
             <EnvironmentalIntelligence />
           ) : activeTab === "agriculture" ? (
             <AgriIntelDashboard />
-          ) : activeTab === "agri-pulse" ? (
-            <NationalAgriculturalPulse />
-          ) : activeTab === "feed-hub" ? (
-            <FeedIntelligenceHub />
-          ) : activeTab === "poultry" ? (
-            <PoultryEggsIntelligence />
-          ) : activeTab === "livestock" ? (
-            <LivestockMeatIntelligence />
-          ) : activeTab === "dairy" ? (
-            <MilkDairyIntelligence />
+          ) : activeTab === "food-supply" ? (
+            <FoodSupplyChains />
           ) : activeTab === "societal-fracture" ? (
             <SocietalFractureMonitor />
+          ) : activeTab === "social-threat" ? (
+            <SocialThreatIntelligence />
           ) : activeTab === "social" ? (
-            <SocialIntelligence />
+            <SocialPoliticalIntelligence />
           ) : activeTab === "strategic" ? (
             <StrategicModeling />
           ) : activeTab === "civilizational" ? (
             <CivilizationalAnalysis />
+          ) : activeTab === "intelligence-arch" ? (
+            <IntelligenceArchitecture />
+          ) : MISSIONS.find(m => m.id === activeTab) ? (
+            <MissionWorkspace 
+              mission={MISSIONS.find(m => m.id === activeTab)!} 
+              onOpenSandbox={(vars) => {
+                setSandboxOverrides(vars);
+                setActiveTab("simulation");
+              }}
+            />
           ) : activeTab === "fire" ? (
             <FireIntelligencePanel
               governorates={context?.governorates || []}
@@ -2339,11 +2461,18 @@ Return only the 3-sentence briefing.`;
           ) : (
             <SimulationIntelligence
               context={context}
-              variables={Object.values(rriState?.variables || {})}
+              variables={Object.values((rriState?.variables || {}) as Record<string, any>).map(v => 
+                sandboxOverrides && sandboxOverrides[v.id] !== undefined
+                  ? { ...v, value: sandboxOverrides[v.id] }
+                  : v
+              )}
             />
-          )}
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </main>
       <Terminal
         isOpen={isTerminalOpen}
         onClose={() => setIsTerminalOpen(false)}

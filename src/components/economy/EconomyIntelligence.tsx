@@ -979,7 +979,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <YAxis type="number" dataKey="rri" name="RRI" unit="" domain={[0, 100]} label={{ value: 'Revolution Risk Index (RRI)', angle: -90, position: 'insideLeft', fill: '#475569', fontSize: 8 }} tick={{ fill: '#475569', fontSize: 8 }} />
                 <ZAxis type="number" dataKey="pop" range={[50, 400]} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '10px' }} />
-                <Scatter name="Regions" data={prepareList([
+                <Scatter isAnimationActive={false} name="Regions" data={prepareList([
                   { name: 'Tunisia (Current)', freedom: data?.economy?.heritage_freedom_score || 0, rri: 78, pop: 300, color: '#ef4444' },
                   { name: 'Morocco', freedom: 58, rri: 42, pop: 200, color: '#22c55e' },
                   { name: 'Egypt', freedom: 48, rri: 65, pop: 250, color: '#f97316' },

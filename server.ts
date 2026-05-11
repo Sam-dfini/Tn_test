@@ -48,7 +48,10 @@ function startPythonBackend() {
     return null;
   }
 
-  const pythonProcess = spawn('python3', ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
+  const pythonPath = path.join(__dirname, 'venv', 'bin', 'python3');
+  const pythonExec = fs.existsSync(pythonPath) ? pythonPath : 'python3';
+
+  const pythonProcess = spawn(pythonExec, ['-m', 'uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000'], {
     cwd: backendPath,
     stdio: 'pipe', // Capture output
     env: { ...process.env, PYTHONPATH: backendPath }
@@ -85,7 +88,10 @@ const pythonBackendRequirements = async () => {
   if (fs.existsSync(reqsPath)) {
     console.log('[Python] Installing requirements from:', reqsPath);
     try {
-      const pip = spawn('python3', ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
+      const pythonPath = path.join(__dirname, 'venv', 'bin', 'python3');
+      const pythonExec = fs.existsSync(pythonPath) ? pythonPath : 'python3';
+      
+      const pip = spawn(pythonExec, ['-m', 'pip', 'install', '-r', 'requirements.txt'], {
         cwd: backendPath,
         stdio: 'inherit'
       });
@@ -108,7 +114,7 @@ const pythonBackendRequirements = async () => {
   startPythonBackend();
 };
 
-pythonBackendRequirements();
+// pythonBackendRequirements();
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({
@@ -150,7 +156,7 @@ async function startServer() {
     console.error('[Supabase] URL or KEY missing! SUPABASE_URL:', !!supabaseUrl, 'SUPABASE_SERVICE_KEY:', !!supabaseKey);
   }
 
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3001;
   const httpServer = createServer(app);
   const io = new SocketIOServer(httpServer, {
     cors: { origin: '*' }

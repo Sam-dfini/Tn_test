@@ -98,101 +98,109 @@ interface TRGMNode {
   lateralTargets?: { id: string; coeff: number }[];
 }
 
-const TUNISIA_NODES: TRGMNode[] = [
-  // Layer 0 — Strategic High Echelon (Father pole)
-  {
-    id: "presidency",
-    label: "Presidency (Saied)",
-    pole: "Father",
-    layer: 0,
-    F: 0.72,
-    N: 0.48,
-    P: 0.35,
-    weight: 0.4,
-  },
-  {
-    id: "army",
-    label: "Army (neutral arbiter)",
-    pole: "Father",
-    layer: 0,
-    F: 0.85,
-    N: 0.62,
-    P: 0.4,
-    weight: 0.35,
-  },
-  {
-    id: "interior",
-    label: "Interior / Nat. Guard",
-    pole: "Father",
-    layer: 0,
-    F: 0.61,
-    N: 0.38,
-    P: 0.42,
-    weight: 0.25,
-  },
-  // Layer 0 — Mother
-  {
-    id: "ugtt",
-    label: "UGTT (labor narrative)",
-    pole: "Mother",
-    layer: 0,
-    F: 0.35,
-    N: 0.81,
-    P: 0.52,
-    weight: 0.4,
-  },
-  {
-    id: "zitouna",
-    label: "Religious (Zitouna)",
-    pole: "Mother",
-    layer: 0,
-    F: 0.42,
-    N: 0.68,
-    P: 0.38,
-    weight: 0.25,
-  },
-  {
-    id: "diaspora",
-    label: "Diaspora media / NGO",
-    pole: "Mother",
-    layer: 0,
-    F: 0.15,
-    N: 0.71,
-    P: 0.44,
-    weight: 0.35,
-  },
-  // Layer 0 — Son
-  {
-    id: "informal",
-    label: "Informal economy",
-    pole: "Son",
-    layer: 0,
-    F: 0.28,
-    N: 0.42,
-    P: 0.68,
-    weight: 0.35,
-  },
-  {
-    id: "phosphate",
-    label: "Phosphate / Agri / Tourism",
-    pole: "Son",
-    layer: 0,
-    F: 0.45,
-    N: 0.48,
-    P: 0.55,
-    weight: 0.35,
-  },
-  {
-    id: "youth",
-    label: "Youth / Remittances",
-    pole: "Son",
-    layer: 0,
-    F: 0.18,
-    N: 0.52,
-    P: 0.48,
-    weight: 0.3,
-  },
-];
+// Function to compute dynamic nodes based on live intelligence
+function getDynamicNodes(miiProfile: any): TRGMNode[] {
+  const ls = miiProfile?.loyaltyShiftIndex ?? 0.78;
+  const mii = miiProfile?.mii ?? 0.52;
+  const isFreeze = miiProfile?.phase === "FREEZE";
+  const isChaotic = miiProfile?.phase === "CHAOTIC";
+
+  return [
+    // Layer 0 — Strategic High Echelon (Father pole)
+    {
+      id: "presidency",
+      label: "Presidency (Saied)",
+      pole: "Father",
+      layer: 0,
+      F: Math.min(0.95, 0.72 + ls * 0.15 + (isFreeze ? 0.1 : 0)),
+      N: Math.max(0.1, 0.48 - (isChaotic ? 0.2 : 0) - mii * 0.1),
+      P: 0.35,
+      weight: 0.4,
+    },
+    {
+      id: "army",
+      label: "Army (neutral arbiter)",
+      pole: "Father",
+      layer: 0,
+      F: 0.85,
+      N: 0.62,
+      P: 0.4,
+      weight: 0.35,
+    },
+    {
+      id: "interior",
+      label: "Interior / Nat. Guard",
+      pole: "Father",
+      layer: 0,
+      F: Math.min(0.9, 0.61 + ls * 0.2),
+      N: 0.38,
+      P: 0.42,
+      weight: 0.25,
+    },
+    // Layer 0 — Mother
+    {
+      id: "ugtt",
+      label: "UGTT (labor narrative)",
+      pole: "Mother",
+      layer: 0,
+      F: 0.35,
+      N: Math.max(0.2, 0.81 - (isChaotic ? 0.25 : 0)),
+      P: 0.52,
+      weight: 0.4,
+    },
+    {
+      id: "zitouna",
+      label: "Religious (Zitouna)",
+      pole: "Mother",
+      layer: 0,
+      F: 0.42,
+      N: 0.68,
+      P: 0.38,
+      weight: 0.25,
+    },
+    {
+      id: "diaspora",
+      label: "Diaspora media / NGO",
+      pole: "Mother",
+      layer: 0,
+      F: 0.15,
+      N: 0.71,
+      P: 0.44,
+      weight: 0.35,
+    },
+    // Layer 0 — Son
+    {
+      id: "informal",
+      label: "Informal economy",
+      pole: "Son",
+      layer: 0,
+      F: 0.28,
+      N: 0.42,
+      P: 0.68,
+      weight: 0.35,
+    },
+    {
+      id: "phosphate",
+      label: "Phosphate / Agri / Tourism",
+      pole: "Son",
+      layer: 0,
+      F: 0.45,
+      N: 0.48,
+      P: 0.55,
+      weight: 0.35,
+    },
+    {
+      id: "youth",
+      label: "Youth / Remittances",
+      pole: "Son",
+      layer: 0,
+      F: 0.18,
+      N: 0.52,
+      P: 0.48,
+      weight: 0.3,
+    },
+  ];
+}
 
 // Layer 1 branch aggregates
 const LAYER1_BRANCHES = {
@@ -268,17 +276,17 @@ const LAYER1_BRANCHES = {
 };
 
 // Compute aggregate GSI per pole
-function computePoleAggregate(pole: Pole): {
+function computePoleAggregate(pole: Pole, nodes: TRGMNode[]): {
   F: number;
   N: number;
   P: number;
   gsi: number;
 } {
-  const nodes = TUNISIA_NODES.filter((n) => n.pole === pole);
-  const totalWeight = nodes.reduce((s, n) => s + n.weight, 0);
-  const F = nodes.reduce((s, n) => s + n.F * n.weight, 0) / totalWeight;
-  const N = nodes.reduce((s, n) => s + n.N * n.weight, 0) / totalWeight;
-  const P = nodes.reduce((s, n) => s + n.P * n.weight, 0) / totalWeight;
+  const poleNodes = nodes.filter((n) => n.pole === pole);
+  const totalWeight = poleNodes.reduce((s, n) => s + n.weight, 0);
+  const F = poleNodes.reduce((s, n) => s + n.F * n.weight, 0) / totalWeight;
+  const N = poleNodes.reduce((s, n) => s + n.N * n.weight, 0) / totalWeight;
+  const P = poleNodes.reduce((s, n) => s + n.P * n.weight, 0) / totalWeight;
   return { F, N, P, gsi: computeGSI(F, N, P) };
 }
 
@@ -1056,7 +1064,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
 export const TRGMDashboard: React.FC = () => {
-  const { data, rriState } = usePipeline();
+  const { data, rriState, miiProfile } = usePipeline();
   const { addNotification } = useNotifications();
   const [selectedPole, setSelectedPole] = useState<Pole | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<CascadeEvent | null>(
@@ -1072,9 +1080,11 @@ export const TRGMDashboard: React.FC = () => {
   const prevStateRef = useRef<TRGMState>("STRESS");
 
   // Compute pole aggregates — live from pipeline if available
-  const fatherAgg = useMemo(() => computePoleAggregate("Father"), []);
-  const motherAgg = useMemo(() => computePoleAggregate("Mother"), []);
-  const sonAgg = useMemo(() => computePoleAggregate("Son"), []);
+  const dynamicNodes = useMemo(() => getDynamicNodes(miiProfile), [miiProfile]);
+
+  const fatherAgg = useMemo(() => computePoleAggregate("Father", dynamicNodes), [dynamicNodes]);
+  const motherAgg = useMemo(() => computePoleAggregate("Mother", dynamicNodes), [dynamicNodes]);
+  const sonAgg = useMemo(() => computePoleAggregate("Son", dynamicNodes), [dynamicNodes]);
 
   const apexGSI = useMemo(() => {
     // Recursive aggregation: α=0.6 direct, β=0.4 children average
@@ -1085,7 +1095,7 @@ export const TRGMDashboard: React.FC = () => {
       N: (fatherAgg.N + motherAgg.N + sonAgg.N) / 3,
       P: (fatherAgg.P + motherAgg.P + sonAgg.P) / 3,
     };
-    const rri = (data as any)?.rri?.rri ?? 1.47;
+    const rri = rriState?.rri ?? (data as any)?.rri?.rri ?? 1.47;
     const directF = Math.max(0, 0.65 - (rri - 1.0) * 0.1);
     const directN = Math.max(0, 0.58 - (rri - 1.0) * 0.08);
     const directP = Math.max(0, 0.46 - (rri - 1.0) * 0.12);
@@ -1093,7 +1103,7 @@ export const TRGMDashboard: React.FC = () => {
     const N = alpha * directN + beta * childMean.N;
     const P = alpha * directP + beta * childMean.P;
     return computeGSI(F, N, P);
-  }, [data, fatherAgg, motherAgg, sonAgg]);
+  }, [data, rriState, fatherAgg, motherAgg, sonAgg]);
 
   // Set TRGM state from GSI
   useEffect(() => {
@@ -1167,17 +1177,17 @@ export const TRGMDashboard: React.FC = () => {
         Father: {
           agg: fatherAgg,
           branch: LAYER1_BRANCHES.Father,
-          nodes: TUNISIA_NODES.filter((n) => n.pole === "Father"),
+          nodes: dynamicNodes.filter((n) => n.pole === "Father"),
         },
         Mother: {
           agg: motherAgg,
           branch: LAYER1_BRANCHES.Mother,
-          nodes: TUNISIA_NODES.filter((n) => n.pole === "Mother"),
+          nodes: dynamicNodes.filter((n) => n.pole === "Mother"),
         },
         Son: {
           agg: sonAgg,
           branch: LAYER1_BRANCHES.Son,
-          nodes: TUNISIA_NODES.filter((n) => n.pole === "Son"),
+          nodes: dynamicNodes.filter((n) => n.pole === "Son"),
         },
       }[selectedPole]
     : null;
@@ -1751,7 +1761,7 @@ export const TRGMDashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {TUNISIA_NODES.map((node, i) => {
+                    {dynamicNodes.map((node, i) => {
                       const gsi = computeGSI(node.F, node.N, node.P);
                       const info = gsiLabel(gsi);
                       const poleColor =

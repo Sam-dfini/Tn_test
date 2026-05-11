@@ -10,12 +10,14 @@ import { generateAgentInsights } from '../services/agents';
 import { computeMII, detectCabinetEventsFromArticles } from '../services/miiEngine';
 import { analyzeActorNetwork } from '../services/actorNetwork';
 import { detectArticleVolumePatterns } from '../services/temporalAnalysisService';
+import { resolveEntitiesFromArticles } from '../services/entityResolution';
 
 interface AIAnalysisContextType {
   aiAnalysis: AIAnalysis | null;
   forecast: ForecastResult | null;
   miiProfile: any;
   actorNetwork: any;
+  entityNetwork: any;
   temporalAnalysis: any;
   isAIAnalysisLoading: boolean;
   runAIAnalysis: () => Promise<void>;
@@ -41,6 +43,7 @@ export const AIAnalysisProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   }, [articles]);
 
   const actorNetwork = useMemo(() => analyzeActorNetwork(articles), [articles]);
+  const entityNetwork = useMemo(() => resolveEntitiesFromArticles(articles), [articles]);
   
   const temporalAnalysis = useMemo(() => {
     return {
@@ -113,6 +116,7 @@ export const AIAnalysisProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     forecast,
     miiProfile,
     actorNetwork,
+    entityNetwork,
     temporalAnalysis,
     isAIAnalysisLoading,
     runAIAnalysis

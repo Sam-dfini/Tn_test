@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, Shield, Eye, Download, Home, Settings, Zap, Search, Bell, HelpCircle, Loader2, Printer, Menu, MoreVertical, Calendar, TerminalSquare, AlertTriangle } from 'lucide-react';
+import { Clock, Shield, Eye, Download, Home, Settings, Zap, Search, Bell, HelpCircle, Loader2, Printer, Menu, MoreVertical, Calendar, TerminalSquare, AlertTriangle, ChevronDown, Check } from 'lucide-react';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
-import { NotificationBell } from '../shared/NotificationPanel';
+import { NotificationBell } from './NotificationPanel';
 import { WeatherMini } from '../tactical/WeatherMini';
+import { useViewMode, ViewMode } from '../../hooks/useViewMode';
 
 interface ProfessionalHeaderProps {
   onOpenAI: () => void;
@@ -22,9 +23,12 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
   onOpenAI, onOpenPipeline, onGoHome, onOpenReport, onOpenCalendar, onOpenTerminal, onToggleDebug, onToggleSidebar, sidebarOpen = true, children
 }) => {
   const { rriState, fullData: data } = useRiskMetrics();
+  const { viewMode, setViewMode } = useViewMode();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const modeSelectorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -38,6 +42,9 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setMobileMenuOpen(false);
+      }
+      if (modeSelectorRef.current && !modeSelectorRef.current.contains(event.target as Node)) {
+        setShowModeSelector(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -85,11 +92,55 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-sm font-bold text-white tracking-[0.2em] uppercase">Tunisia Intel</h1>
-              <span className="text-[8px] px-1.5 py-0.5 rounded bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan font-mono font-bold">PROFESSIONAL</span>
+              <div className="relative" ref={modeSelectorRef}>
+                <button 
+                  onClick={() => setShowModeSelector(!showModeSelector)}
+                  className={`text-[8px] px-1.5 py-0.5 rounded font-mono font-bold transition-all flex items-center space-x-1 ${
+                    viewMode === 'STRATEGIC' ? 'bg-intel-red/10 border border-intel-red/20 text-intel-red shadow-[0_0_10px_rgba(239,68,68,0.1)]' :
+                    viewMode === 'ANALYST' ? 'bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan' :
+                    'bg-intel-green/10 border border-intel-green/20 text-intel-green'
+                  }`}
+                >
+                  <span>{viewMode}</span>
+                  <ChevronDown className={`w-2 h-2 transition-transform ${showModeSelector ? 'rotate-180' : ''}`} />
+                </button>
+                
+                <AnimatePresence>
+                  {showModeSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                      className="absolute top-full left-0 mt-2 w-36 bg-[#0a0c10] border border-intel-border rounded-lg shadow-2xl overflow-hidden z-[200]"
+                    >
+                      {(['PUBLIC', 'ANALYST', 'STRATEGIC'] as ViewMode[]).map((mode) => (
+                        <button
+                          key={mode}
+                          onClick={() => { setViewMode(mode); setShowModeSelector(false); }}
+                          className={`w-full px-3 py-2 text-[9px] font-mono uppercase tracking-wider text-left transition-colors flex items-center justify-between ${
+                            viewMode === mode ? 'bg-intel-cyan/10 text-intel-cyan' : 'text-slate-500 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <span>{mode}</span>
+                          {viewMode === mode && <Check className="w-2.5 h-2.5" />}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-intel-green shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">System Operational // Node 04</span>
+              <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] ${
+                viewMode === 'STRATEGIC' ? 'bg-intel-red' : 
+                viewMode === 'ANALYST' ? 'bg-intel-cyan' : 
+                'bg-intel-green'
+              }`}></div>
+              <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+                {viewMode === 'STRATEGIC' ? 'Strategic Intelligence Tier' : 
+                 viewMode === 'ANALYST' ? 'Professional Analyst Mode' : 
+                 'Public OSINT Access'}
+              </span>
             </div>
           </div>
         </div>

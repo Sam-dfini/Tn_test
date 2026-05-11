@@ -259,7 +259,7 @@ export async function runSatelliteIngestion(
       supabase,
       'agri_readings',
       rows,
-      'governorate,fetched_at'
+      'governorate'
     );
 
     if (!success) {

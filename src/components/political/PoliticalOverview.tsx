@@ -599,7 +599,7 @@ export const PoliticalOverview: React.FC = () => {
                     return null;
                   }}
                 />
-                <Scatter name="Parties" data={filteredCompassData}>
+                <Scatter isAnimationActive={false} name="Parties" data={filteredCompassData}>
                   {filteredCompassData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}

@@ -22,8 +22,8 @@ import {
   CheckCircle2,
   X
 } from 'lucide-react';
-import { CornerAccent } from '../shared/ProfessionalShared';
-import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
+import { CornerAccent } from './ProfessionalShared';
+import { BackgroundGrid, ModuleHeader } from './ProfessionalShared';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { processArticleForRRI } from '../../math/rri/engine';
 import { generateStableKey, assertKey, getRenderKey, prepareList } from '../../lib/keyUtils';

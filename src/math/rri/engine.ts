@@ -538,7 +538,8 @@ function eq17_cascadeProbability(vars: RRIVariable[]): number {
     productTerm *= (1 - p_gov);
   }
 
-  return Math.max(0, Math.min(1, 1 - productTerm));
+  const cogwar_cascade_delta = (overridesOrVars as any)?._cogwar_cascade_risk_delta ?? 0;
+  return Math.max(0, Math.min(1, (1 - productTerm) + cogwar_cascade_delta));
 }
 
 function eq18_eliteDefectionDynamics(
@@ -696,10 +697,12 @@ export function calculateRRI(
   const _oci_multiplier = PARAMS.OCI_FLOOR + (1 - PARAMS.OCI_FLOOR) * _oci;
   const _cpg_amplifier = (overridesOrVars as any)?._cpg_amplifier ?? 1.20;
 
-  // Pass combined modifier — food stress + radicalization both boost salience
+  const cogwar_salience_nudge = (overridesOrVars as any)?._cogwar_salience_nudge ?? 0;
+  
+  // Pass combined modifier — food stress + radicalization + cogwar boost salience
   const salience = eq3_salience(
     w_t, cp_t, dp_t, rm_normalized, rr_normalized, cr_t, p_t, dd_t,
-    rde_modifier + sei_salience_boost
+    rde_modifier + sei_salience_boost + cogwar_salience_nudge
   );
 
   // OCI multiplier: opposition fragmentation reduces how much
@@ -731,6 +734,8 @@ export function calculateRRI(
     { weight: 0.3, magnitude: gaussianRandom(0, 0.02) },
     // SEI shock: deterministic shortage-driven component
     { weight: PARAMS.SEI_SHOCK_WEIGHT, magnitude: _sei_shock },
+    // CogWar shock: ε(t) magnitude from campaign intensity
+    { weight: 0.25, magnitude: (overridesOrVars as any)?._cogwar_epsilon_magnitude ?? 0 },
   ]);
 
   const r_final = Math.max(0, r_t + shock);

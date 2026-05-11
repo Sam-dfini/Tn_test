@@ -200,16 +200,11 @@ const KpiCard: React.FC<{ label: string; value: string; sub: string; warn?: bool
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 
 export const SocietalFractureMonitor: React.FC = () => {
-  const { data } = usePipeline();
+  const { sbdeResult } = usePipeline();
   const [activeTab, setActiveTab] = useState<TabId>('MASTER');
 
-  // Compute live SBDE indices
-  const sbde: SBDEResult = useMemo(() => {
-    const econStress = (data as any)?.rri?.rri
-      ? Math.min(1, (data as any).rri.rri / 3.0)
-      : DEFAULT_SBDE_INPUTS.economic_stress;
-    return computeSBDE({ ...DEFAULT_SBDE_INPUTS, economic_stress: econStress });
-  }, [data]);
+  // Use live SBDE results from context, with fallback for safety
+  const sbde: SBDEResult = useMemo(() => sbdeResult || computeSBDE(), [sbdeResult]);
 
   const alertCfg = ALERT_COLORS[sbde.alertLevel];
 

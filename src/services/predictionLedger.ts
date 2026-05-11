@@ -84,7 +84,7 @@ export interface PredictionRecord {
   analyst_note?: string;
 
   // Source
-  triggered_by: 'RECALCULATE' | 'THRESHOLD_BREACH' | 'MANUAL';
+  triggered_by: 'RECALCULATE' | 'THRESHOLD_BREACH' | 'MANUAL' | 'SCHEDULED';
 }
 
 export interface AnalystCorrection {
