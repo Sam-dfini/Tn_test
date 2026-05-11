@@ -111,6 +111,7 @@ import { RealTimeNewsFeed } from "../tactical/RealTimeNewsFeed";
 import { LiveSignalFeed } from "../tactical/LiveSignalFeed";
 import { EventsIntelligence } from "../geopolitical/EventsIntelligence";
 import { GeopoliticalNetworkGraph } from "../political/GeopoliticalNetworkGraph";
+import { NationalActorNetwork } from "../political/NationalActorNetwork";
 import { RTEE } from "../system/RTEE";
 import { TemporalAnalysisTab } from "../predictive/TemporalAnalysisTab";
 import { Timeline } from "../shared/Timeline";
@@ -196,7 +197,8 @@ const getSidebarCategories = (viewMode: ViewMode) => {
         { id: "political", label: "Political", icon: Users, restricted: 'ANALYST' },
         { id: "social", label: "Social Dynamics", icon: Users, restricted: 'ANALYST' },
         { id: "geopolitical", label: "Geopolitical", icon: Globe, restricted: 'ANALYST' },
-        { id: "geopolitical-network", label: "Int'l Actors", icon: Globe, restricted: 'ANALYST' },
+        { id: "geopolitical-network", label: "Int'l Actor Network", icon: Globe, restricted: 'ANALYST' },
+        { id: "national-actor-network", label: "Domestic Power Map", icon: Users, restricted: 'ANALYST' },
         { id: "narrative", label: "Narrative", icon: Brain, restricted: 'ANALYST' },
         { id: "societal-fracture", label: "Societal Fracture", icon: Brain, restricted: 'STRATEGIC' },
       ],
@@ -709,6 +711,7 @@ export const ProfessionalIntel: React.FC<{
     | "strategic"
     | "geopolitical"
     | "geopolitical-network"
+    | "national-actor-network"
     | "simulation"
     | "methodology"
     | "civilizational"
@@ -875,6 +878,26 @@ Return only the 3-sentence briefing.`;
     }, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const quickAccessItems = [
+    { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
+    { id: "command-center", label: "National Command", icon: Target },
+    { id: "briefing", label: "Daily Briefing", icon: FileText },
+    { id: "economy", label: "Macro Dashboard", icon: TrendingUp },
+    { id: "geopolitical", label: "Geopolitical", icon: Globe },
+    { id: "geopolitical-network", label: "Int'l Actor Network", icon: Globe },
+    { id: "national-actor-network", label: "Domestic Power Map", icon: Users },
+    { id: "narrative", label: "Narrative", icon: Brain },
+    { id: "social", label: "Social Dynamics", icon: Users },
+    { id: "political", label: "Political", icon: Users },
+    { id: "security", label: "Security & Borders", icon: ShieldCheck },
+    { id: "events", label: "Event Telemetry", icon: Radio },
+    { id: "strategic", label: "Strategic Modeling", icon: Telescope },
+    { id: "simulation", label: "Simulation Sandbox", icon: FlaskConical },
+    { id: "trgm", label: "TRGM Matrix", icon: Triangle },
+    { id: "calendar", label: "Threat Calendar", icon: Calendar },
+    { id: "alerts", label: "Alert Hub", icon: Bell },
+  ];
 
   const tabs = [
     { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
@@ -2396,6 +2419,8 @@ Return only the 3-sentence briefing.`;
             <GeopoliticalIntelligence />
           ) : activeTab === "geopolitical-network" ? (
             <GeopoliticalNetworkGraph />
+          ) : activeTab === "national-actor-network" ? (
+            <NationalActorNetwork />
           ) : activeTab === "political" ? (
             <PoliticalIntelligence context={context} />
           ) : activeTab === "alerts" ? (

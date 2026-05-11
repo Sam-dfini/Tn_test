@@ -5,3 +5,7 @@ coverage/
 *.log
 .env*
 !.env.example
+venv/
+env/
+ENV/
+temp_venv/
