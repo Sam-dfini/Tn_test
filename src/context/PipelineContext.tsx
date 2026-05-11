@@ -901,6 +901,17 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       miiProfile, actorNetwork, temporalAnalysis, agriSummary, agroSummary, seiResult,
       sbdeResult,
       runAIAnalysis,
+      loadPipelineData: () => {
+        // Load pipeline data from local storage or initialize defaults
+        try {
+          const saved = safeStorage.getItem('ti_platform_data');
+          if (saved) {
+            setData(JSON.parse(saved));
+          }
+        } catch (e) {
+          console.error('Failed to load pipeline data:', e);
+        }
+      },
       isPaused,
       togglePause,
       injectSignal,

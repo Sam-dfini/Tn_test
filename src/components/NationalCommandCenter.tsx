@@ -374,7 +374,7 @@ const ArcGauge: React.FC<{
   const MAX_RRI = 3.0;
   const clampedRRI = Math.max(0, Math.min(MAX_RRI, rri));
   const pct = clampedRRI / MAX_RRI;
-  const angle = -135 + pct * 270;
+  const angle = Math.max(-135, Math.min(135, -135 + pct * 270));
 
   const cx = 200,
     cy = 180,
@@ -521,7 +521,7 @@ const ArcGauge: React.FC<{
         <motion.g
           initial={{ rotate: -135 }}
           animate={{ rotate: angle }}
-          transition={{ type: "spring", stiffness: 20, damping: 12, mass: 1.2, delay: 0.3 }}
+          transition={{ type: "spring", stiffness: 200, damping: 30, mass: 2, delay: 0.3 }}
           style={{ 
             transformOrigin: "center", 
             transformBox: "fill-box",
@@ -768,7 +768,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
     return () => clearInterval(t);
   }, []);
 
-  const rri = (data as any)?.rri?.rri ?? rriState?.rri ?? 1.47;
+  const rri = Math.round(((data as any)?.rri?.rri ?? rriState?.rri ?? 1.47) * 100) / 100;
   const pRev =
     (data as any)?.rri?.pRevolution ?? rriState?.cascade_probability ?? 0.12;
   const fxDays = (data as any)?.economy?.fx_reserves_days ?? 60;
