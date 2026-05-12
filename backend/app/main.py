@@ -18,18 +18,19 @@ async def lifespan(app: FastAPI):
     print("Starting automated backend data pipeline (Cron Scrapers & Intelligence Mode)...")
     
     # Start the orchestrator's continuous loop in the background (runs every 10 minutes)
-    task = asyncio.create_task(orchestrator.start_continuous_intelligence(interval_seconds=600))
+    # Disabled due to OpenRouter payment issues; backend API routes still work independently
+    # task = asyncio.create_task(orchestrator.start_continuous_intelligence(interval_seconds=600))
     
     yield
     
     # Shutdown: Clean up task
     print("Stopping automated backend data pipeline...")
-    orchestrator.stop_continuous_intelligence()
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        pass
+    # orchestrator.stop_continuous_intelligence()
+    # task.cancel()
+    # try:
+    #     await task
+    # except asyncio.CancelledError:
+    #     pass
 
 # Initialize FastAPI application
 app = FastAPI(

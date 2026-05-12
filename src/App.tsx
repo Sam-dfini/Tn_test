@@ -1,5 +1,5 @@
 import { safeStorage } from './utils/storage';
-import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldAlert, RefreshCw, Terminal, Activity } from 'lucide-react';
@@ -16,6 +16,11 @@ const BusinessInvestigator = lazy(() => import('./components/economy/BusinessInv
 const DataPipeline = lazy(() => import('./components/system/DataPipeline').then(m => ({ default: m.DataPipeline })));
 const ObservabilityDashboard = lazy(() => import('./pages/ObservabilityDashboard').then(m => ({ default: m.ObservabilityDashboard })));
 const RRIMethodology = lazy(() => import('./components/system/RRIMethodology').then(m => ({ default: m.RRIMethodology })));
+const TestMode = lazy(() => import('./components/modes/TestMode').then(m => ({ default: m.TestMode })));
+const TunisiaAgricultureDashboard = lazy(() => import('./components/agriculture_dashboard/index').then(m => ({ default: m.default })));
+
+// Import BrainMode component
+const BrainMode = lazy(() => import('./brain/components/BrainMode'));
 
 import { Authentication } from './components/shared/Authentication';
 import { IntelligenceDossierExporterModal } from './components/shared/IntelligenceDossierExporterModal';
@@ -36,12 +41,9 @@ import { NotificationPanel } from './components/shared/NotificationPanel';
 import { TacticalLoading } from './components/shared/TacticalLoading';
 import { AIAnalystPanel } from './components/system/AIAnalystPanel';
 
-const TestMode = lazy(() => import('./components/modes/TestMode').then(m => ({ default: m.TestMode })));
-const TunisiaAgricultureDashboard = lazy(() => import('./components/agriculture_dashboard/index').then(m => ({ default: m.default })));
-
 // Data imports
 import govData from './data/governorates.json';
-import eventData from './data/events.json';
+import eventData from './data/events.json'
 
 import { initializeVariables } from './services/pipelineService';
 import { useEventsStore } from './store/useEventsStore';
@@ -59,16 +61,19 @@ const AppContent: React.FC = () => {
   // Activate automatic notification triggers
   useNotificationTriggers();
 
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture'>(
+  // Add 'brain' to the mode type
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture' | 'brain'>(
     (safeGetItem('ti_current_mode') as any) || 'selection'
   );
   const [isAuthenticated, setIsAuthenticated] = useState(safeGetItem('ti_authenticated') === 'true');
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingLogs, setLoadingLogs] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingMode, setPendingMode] = useState<string | null>(null);
   const [showAIAnalyst, setShowAIAnalyst] = useState(false);
   const [showPipeline, setShowPipeline] = useState(false);
-  const [pipelineTab, setPipelineTab] = useState<'status' | 'pipeline' | 'logs'>('status');
+  const [pipelineTab, setPipelineTab] = useState<'pipeline' | 'sources' | 'ai-api'>('pipeline');
   const [showReport, setShowReport] = useState(false);
   const [showMethodology, setShowMethodology] = useState(false);
   const [methodologyEquation, setMethodologyEquation] = useState<string | undefined>(undefined);
@@ -95,18 +100,61 @@ const AppContent: React.FC = () => {
       
       // Seed initial events if store is empty
       if (liveEvents.length === 0) {
-        const initialEvents = seedInitialEvents();
+        const initialEvents = seedInitialEvents(govData.governorates, eventData.events);
         setEvents(initialEvents);
       }
     };
     checkSession();
   }, [setEvents, liveEvents.length]);
 
-  useEffect(() => {
-    // Initial data load
-    loadPipelineData();
-    initializeVariables();
+  const dataLoadedRef = useRef(false);
+
+  const runLoadPipelineData = useCallback(async () => {
+    if (dataLoadedRef.current) return;
+    dataLoadedRef.current = true;
+    console.log('Starting loadPipelineDataWithProgress');
+    setLoadingLogs(prev => [...prev, 'LOADING_RRI_ENGINE_v4.2...']);
+    setLoadingProgress(20);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setLoadingLogs(prev => [...prev, 'ESTABLISHING_SECURE_UPLINK... [OK]']);
+    setLoadingProgress(40);
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setLoadingLogs(prev => [...prev, 'DECRYPTING_INTELLIGENCE_LEDGER... [OK]']);
+    setLoadingProgress(60);
+
+    try {
+      await loadPipelineData();
+      setLoadingLogs(prev => [...prev, 'SYNCING_PREDICTIVE_MODEL_STATE... [OK]']);
+      setLoadingProgress(80);
+
+      await initializeVariables();
+      setLoadingLogs(prev => [...prev, 'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]']);
+    } catch (e) {
+      console.error('Pipeline data loading failed:', e);
+      setLoadingLogs(prev => [...prev, 'DATA_LOAD_WARNING... [CONTINUING]']);
+    }
+    setLoadingProgress(100);
   }, [loadPipelineData]);
+
+  const runLoadRef = useRef(runLoadPipelineData);
+  runLoadRef.current = runLoadPipelineData;
+
+  // Trigger loading when user selects a mode (pendingMode + isLoading)
+  useEffect(() => {
+    if (pendingMode && isLoading) {
+      dataLoadedRef.current = false;
+      runLoadRef.current();
+    }
+  }, [pendingMode, isLoading]);
+
+  // Trigger loading when mode is restored from localStorage on page load
+  useEffect(() => {
+    if (mode !== 'selection') {
+      runLoadRef.current();
+    }
+  }, [mode]);
 
   const handleAuthenticate = () => {
     setIsAuthenticated(true);
@@ -120,6 +168,7 @@ const AppContent: React.FC = () => {
 
   const handleModeSelect = (newMode: any) => {
     if (newMode === mode) return;
+    console.log('Mode selected:', newMode);
     setPendingMode(newMode);
     setIsLoading(true);
   };
@@ -133,7 +182,7 @@ const AppContent: React.FC = () => {
     setIsLoading(false);
   };
 
-  const handleOpenPipeline = (tab: 'status' | 'pipeline' | 'logs' = 'pipeline') => {
+  const handleOpenPipeline = (tab: 'pipeline' | 'sources' | 'ai-api' = 'pipeline') => {
     setPipelineTab(tab);
     setShowPipeline(true);
   };
@@ -295,6 +344,17 @@ const AppContent: React.FC = () => {
             <TunisiaAgricultureDashboard />
           </motion.div>
         );
+      case 'brain':
+        return (
+          <motion.div key="brain" initial={{ opacity: 0, filter: 'blur(10px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, filter: 'blur(10px)' }} transition={{ duration: 0.6 }} className="h-full">
+            <BrainMode 
+              onOpenAI={() => setShowAIAnalyst(true)} 
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
+            />
+          </motion.div>
+        );
       default:
         return (
           <motion.div key="selection" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="h-full">
@@ -326,6 +386,8 @@ const AppContent: React.FC = () => {
             key="tactical-loading"
             onComplete={handleLoadingComplete} 
             mode={pendingMode || mode as any} 
+            progress={loadingProgress} 
+            logs={loadingLogs} 
           />
         )}
         {showMethodology && (
@@ -337,7 +399,7 @@ const AppContent: React.FC = () => {
         )}
         {showPipeline && (
           <DataPipeline 
-            initialTab={pipelineTab} 
+            initialTab={pipelineTab as 'ingestion' | 'processing' | 'storage' | 'analysis'} 
             onClose={() => setShowPipeline(false)} 
           />
         )}
@@ -450,7 +512,11 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
               </button>
               <button
                 onClick={() => {
-                  try { safeStorage.clear(); } catch(e) {}
+                   try {
+                     Object.keys(safeStorage).forEach(key => {
+                       try { safeStorage.removeItem(key); } catch(e) {}
+                     });
+                   } catch(e) {}
                   window.location.reload();
                 }}
                 className="text-[10px] text-slate-500 hover:text-white transition-colors uppercase tracking-widest underline underline-offset-4"

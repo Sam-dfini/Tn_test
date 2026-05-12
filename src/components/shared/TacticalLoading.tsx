@@ -52,30 +52,18 @@ const MODE_MESSAGES: Record<string, string[]> = {
 export const TacticalLoading: React.FC<{
   onComplete: () => void;
   mode?: 'simplified' | 'advanced' | 'professional' | null;
-}> = ({ onComplete, mode }) => {
-  const [progress, setProgress] = useState(0);
-  const [logs, setLogs] = useState<string[]>([]);
+  progress: number;
+  logs: string[];
+}> = ({ onComplete, mode, progress, logs }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const statusMessages =
-    MODE_MESSAGES[mode ?? 'default'] ?? MODE_MESSAGES.default;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (progress >= 100) {
-      const timeout = setTimeout(onComplete, 1200);
+      const timeout = setTimeout(() => onCompleteRef.current(), 1200);
       return () => clearTimeout(timeout);
     }
-
-    const timer = setInterval(() => {
-      setProgress(prev => Math.min(100, prev + Math.random() * 9));
-    }, 200);
-
-    return () => clearInterval(timer);
-  }, [progress, onComplete]);
-
-  useEffect(() => {
-    const messageIndex = Math.floor((progress / 100) * statusMessages.length);
-    setLogs(statusMessages.slice(0, messageIndex + 1));
   }, [progress]);
 
   useEffect(() => {
