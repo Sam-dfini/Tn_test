@@ -14,10 +14,14 @@ import 'dotenv/config';
 import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
 import { createClient } from '@supabase/supabase-js';
 import { initializeAllSchemas } from './src/utils/schemaValidator.ts';
+import { logBootEvent, logSection, BootMarkers, printBootSummary } from './src/utils/bootSequence.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import { spawn } from 'child_process';
+
+logSection('=== TUNISIAINTEL BOOT SEQUENCE ===');
+BootMarkers.BACKEND_START();
 
 // Initialize Gemini API
 if (!process.env.GEMINI_API_KEY) {
@@ -40,6 +44,7 @@ if (!genAI) {
 
 // Start the Python FastAPI backend on port 8000
 function startPythonBackend() {
+  logBootEvent('BACKEND', 'Python Backend Starting', Date.now());
   console.log('Starting Python backend intelligence engine...');
   const backendPath = path.join(__dirname, 'backend');
   
@@ -127,8 +132,10 @@ const insecureHttpAgent = new http.Agent({
 });
 
 async function startServer() {
+  logBootEvent('BACKEND', 'Express Server Init Starting', Date.now());
   const app = express();
   app.use(express.json({ limit: '10mb' }));
+  logBootEvent('BACKEND', 'Express Server Init Complete', Date.now());
 
   // Safe Supabase initialization
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -161,6 +168,7 @@ async function startServer() {
   const io = new SocketIOServer(httpServer, {
     cors: { origin: '*' }
   });
+  BootMarkers.BACKEND_SOCKETIO_INIT();
 
   // Live Intelligence Streaming Simulation
   io.on('connection', (socket) => {
@@ -676,11 +684,28 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
+    try {
+      logBootEvent('APP_INIT', 'Vite Starting', Date.now());
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      logBootEvent('APP_INIT', 'Vite Ready', Date.now());
+      app.use(vite.middlewares);
+    } catch (viteError) {
+      console.error('Vite initialization failed:', viteError);
+      app.get('*', (req, res) => {
+        res.status(503).send(`
+          <html>
+            <head><title>TunisiaIntel - Loading</title></head>
+            <body style="background:#0a0c10;color:#00f2ff;font-family:monospace;text-align:center;padding:50px;">
+              <h1>INITIALIZING INTELLIGENCE CORE...</h1>
+              <p>Please refresh the page in a moment.</p>
+            </body>
+          </html>
+        `);
+      });
+    }
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
@@ -732,6 +757,8 @@ async function startServer() {
   setInterval(runAgriPipeline, 6 * 60 * 60 * 1000);
 
   httpServer.listen(PORT, '0.0.0.0', () => {
+    BootMarkers.BACKEND_READY();
+    logSection('>>> SERVER READY - FRONTEND BOOT CAN BEGIN');
     console.log(`Server running on http://localhost:${PORT}`);
   });
 }

@@ -3,6 +3,10 @@ import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 
 import { supabase } from './lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShieldAlert, RefreshCw, Terminal, Activity } from 'lucide-react';
+import { logBootEvent, BootMarkers, printBootSummary } from './utils/bootSequence';
+import { BootMarkers as BM } from './utils/bootSequence';
+
+const appStart = Date.now();
 
 // Lazy load mode components
 const ModeSelection = lazy(() => import('./components/modes/ModeSelection').then(m => ({ default: m.ModeSelection })));
@@ -20,7 +24,6 @@ const TestMode = lazy(() => import('./components/modes/TestMode').then(m => ({ d
 const TunisiaAgricultureDashboard = lazy(() => import('./components/agriculture_dashboard/index').then(m => ({ default: m.default })));
 
 // Import BrainMode component
-const BrainMode = lazy(() => import('./brain/components/BrainMode'));
 
 import { Authentication } from './components/shared/Authentication';
 import { IntelligenceDossierExporterModal } from './components/shared/IntelligenceDossierExporterModal';
@@ -61,8 +64,12 @@ const AppContent: React.FC = () => {
   // Activate automatic notification triggers
   useNotificationTriggers();
 
+  // Track boot sequence
+  BootMarkers.APP_MOUNT();
+  logBootEvent('APP_INIT', 'App Component Mounted', appStart);
+
   // Add 'brain' to the mode type
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture' | 'brain'>(
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture'>(
     (safeGetItem('ti_current_mode') as any) || 'selection'
   );
   const [isAuthenticated, setIsAuthenticated] = useState(safeGetItem('ti_authenticated') === 'true');
@@ -87,21 +94,28 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const checkSession = async () => {
+      const authStart = Date.now();
+      logBootEvent('AUTH', 'Auth Check Started', authStart);
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setIsAuthenticated(true);
       } else {
-        // If no session but we have local storage flag, trust it for dev
         if (safeGetItem('ti_authenticated') === 'true') {
           setIsAuthenticated(true);
         }
       }
       setIsLoadingAuth(false);
+      logBootEvent('AUTH', 'Auth Check Complete', authStart);
       
-      // Seed initial events if store is empty
       if (liveEvents.length === 0) {
-        const initialEvents = seedInitialEvents(govData.governorates, eventData.events);
+        const seedStart = Date.now();
+        logBootEvent('DATA_LOADING', 'Seeding Initial Events', seedStart);
+        // seedInitialEvents expects { rri, velocity, ... } and { social, economy, ... }
+        const rriData = { rri: rriState.rri || 1.5, velocity: rriState.velocity || 0 };
+        const contextData = { social: pipelineData.social, economy: pipelineData.economy };
+        const initialEvents = seedInitialEvents(rriData, contextData);
         setEvents(initialEvents);
+        logBootEvent('DATA_LOADING', 'Events Seeded', seedStart);
       }
     };
     checkSession();
@@ -112,9 +126,11 @@ const AppContent: React.FC = () => {
   const runLoadPipelineData = useCallback(async () => {
     if (dataLoadedRef.current) return;
     dataLoadedRef.current = true;
+    const pipelineStart = Date.now();
     console.log('Starting loadPipelineDataWithProgress');
     setLoadingLogs(prev => [...prev, 'LOADING_RRI_ENGINE_v4.2...']);
     setLoadingProgress(20);
+    logBootEvent('PIPELINE', 'RRI Engine Load Started', pipelineStart);
 
     await new Promise(resolve => setTimeout(resolve, 500));
     setLoadingLogs(prev => [...prev, 'ESTABLISHING_SECURE_UPLINK... [OK]']);
@@ -128,14 +144,21 @@ const AppContent: React.FC = () => {
       await loadPipelineData();
       setLoadingLogs(prev => [...prev, 'SYNCING_PREDICTIVE_MODEL_STATE... [OK]']);
       setLoadingProgress(80);
+      logBootEvent('PIPELINE', 'Pipeline Data Loaded', pipelineStart, { success: true });
 
+      const initStart = Date.now();
+      logBootEvent('PIPELINE', 'Initializing Variables', initStart);
       await initializeVariables();
+      logBootEvent('PIPELINE', 'Variables Initialized', initStart);
       setLoadingLogs(prev => [...prev, 'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]']);
     } catch (e) {
       console.error('Pipeline data loading failed:', e);
+      logBootEvent('PIPELINE', 'Pipeline Load Failed', pipelineStart, { error: String(e) });
       setLoadingLogs(prev => [...prev, 'DATA_LOAD_WARNING... [CONTINUING]']);
     }
     setLoadingProgress(100);
+    BootMarkers.BOOT_COMPLETE();
+    printBootSummary();
   }, [loadPipelineData]);
 
   const runLoadRef = useRef(runLoadPipelineData);
@@ -210,12 +233,17 @@ const AppContent: React.FC = () => {
     
     const handleObservability = () => setShowObservability(true);
     window.addEventListener('navigate-to-observability', handleObservability);
-    
+    BootMarkers.REALTIME_CONNECT();
+
+    const handleGoHome = () => setMode('selection');
+    window.addEventListener('navigate-to-home', handleGoHome);
+
     return () => {
       window.removeEventListener('navigate-to-methodology', handleMethodology);
       window.removeEventListener('navigate-to-pipeline', handlePipeline);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('navigate-to-observability', handleObservability);
+      window.removeEventListener('navigate-to-home', handleGoHome);
     };
   }, []);
 
@@ -344,17 +372,7 @@ const AppContent: React.FC = () => {
             <TunisiaAgricultureDashboard />
           </motion.div>
         );
-      case 'brain':
-        return (
-          <motion.div key="brain" initial={{ opacity: 0, filter: 'blur(10px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, filter: 'blur(10px)' }} transition={{ duration: 0.6 }} className="h-full">
-            <BrainMode 
-              onOpenAI={() => setShowAIAnalyst(true)} 
-              onOpenPipeline={handleOpenPipeline}
-              onGoHome={() => handleModeSelect('selection')}
-              onOpenReport={() => setShowReport(true)}
-            />
-          </motion.div>
-        );
+
       default:
         return (
           <motion.div key="selection" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.5 }} className="h-full">

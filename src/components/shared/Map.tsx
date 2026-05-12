@@ -383,12 +383,12 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           ))}
         </MapContainer>
 
-        {/* Overlay UI */}
-        <div className="absolute top-6 left-6 z-[1000] hidden md:flex flex-col space-y-2">
+        {/* Overlay UI - Bottom of Map */}
+        <div className="absolute bottom-4 left-4 right-4 z-[1000] flex flex-wrap items-center justify-between gap-2">
           <div className="glass px-4 py-2 rounded-lg flex items-center space-x-3">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Active Layer</span>
-              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{activeLayer} Choropleth</span>
+              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{renderLayer} Choropleth</span>
             </div>
             
             {externalActiveLayer === 'Agricultural Stress' ? (
@@ -420,7 +420,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
               </div>
             ) : (
               <div className="px-3 py-2 bg-intel-cyan/10 border border-intel-cyan/20 rounded-lg">
-                <span className="text-[10px] text-white font-bold uppercase tracking-widest">{activeLayer}</span>
+                <span className="text-[10px] text-white font-bold uppercase tracking-widest">{renderLayer}</span>
               </div>
             )}
           </div>

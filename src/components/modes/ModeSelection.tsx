@@ -8,12 +8,12 @@ import { ModePageLayout } from '../modes/ModePageLayout';
 import { usePipeline } from '../../context/PipelineContext';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid') => void;
+  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | 'brain') => void;
   onLogoff: () => void;
 }
 
 interface ModeCard {
-  id: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid';
+  id: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | 'brain';
   node: string;
   label: string;
   description: string;
@@ -95,14 +95,14 @@ const MODES: ModeCard[] = [
     tier: 'strategic',
   },
   {
-    id: 'test',
-    node: 'DEBUG_NODE_08',
-    label: 'TEST MODE',
-    description: 'Experimental Plexus Triangle Network visualization. High-performance particle mesh engine for testing visual telemetry rendering.',
-    icon: Box,
-    accentColor: 'text-slate-500 border-slate-700 hover:border-slate-500',
-    accentHex: '#64748b',
-    tier: 'public',
+    id: 'brain',
+    node: 'BRAIN_NODE_09',
+    label: 'BRAIN MODE',
+    description: 'Cognitive Interface. Immersive 3D visualization of Tunisia’s political, economic, and social dynamics. Experience real-time data as a living neural network.',
+    icon: Globe,
+    accentColor: 'text-intel-purple border-intel-purple/30 hover:border-intel-purple',
+    accentHex: '#a78bfa',
+    tier: 'strategic',
   },
 ];
 
@@ -112,7 +112,7 @@ const TIER_BADGE: Record<string, { label: string; color: string }> = {
   strategic: { label: 'CLASSIFIED', color: 'text-intel-purple bg-intel-purple/10 border-intel-purple/20' },
 };
 
-export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect, onLogoff }) => {
+export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelect, onLogoff }) => {
   const { rriState, data } = usePipeline();
 
   const rriColor = rriState.rri > 2.7
@@ -224,8 +224,8 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect, onLogoff
                       style={{ background: `${m.accentHex}15`, border: `1px solid ${m.accentHex}30` }}
                     >
                       {isStrategic
-                        ? <Lock className="w-4 h-4" style={{ color: m.accentHex }} />
-                        : <Icon className="w-4 h-4" style={{ color: m.accentHex }} />
+                        ? <Lock className="w-4 h-4" style={{ color: m.accentHex as string }} />
+                        : <Icon className="w-4 h-4" style={{ color: m.accentHex as string }} />
                       }
                     </div>
                     <span className="text-[8px] font-mono text-slate-600 uppercase">{m.node}</span>
@@ -293,4 +293,4 @@ export const ModeSelection: React.FC<ModeSelectionProps> = ({ onSelect, onLogoff
       </div>
     </ModePageLayout>
   );
-};
+});

@@ -1301,3 +1301,5 @@ export const SecurityIntelligence: React.FC = () => {
 </div>
 );
 };
+
+export default SecurityIntelligence;

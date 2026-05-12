@@ -1,5 +1,6 @@
 import { safeStorage } from "../../utils/storage";
 import React, { Suspense, useState, useEffect, useMemo, useCallback } from "react";
+import { MISSIONS } from "../../config/missions";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -84,6 +85,7 @@ const PoliticalIntelligence = React.lazy(() => import("../political/PoliticalInt
 const PoliticalStabilityIntelligence = React.lazy(() => import("../political/PoliticalStabilityIntelligence").then(m => ({ default: m.PoliticalStabilityIntelligence })));
 const SecurityIntelligence = React.lazy(() => import("../security/SecurityIntelligence").then(m => ({ default: m.SecurityIntelligence })));
 const EconomyIntelligence = React.lazy(() => import("../economy/EconomyIntelligence").then(m => ({ default: m.EconomyIntelligence })));
+const EconomicReality = React.lazy(() => import("../economy/EconomicReality").then(m => ({ default: m.EconomicReality })));
 const EnergyIntelligence = React.lazy(() => import("../energy/EnergyIntelligence").then(m => ({ default: m.EnergyIntelligence })));
 const EnvironmentalIntelligence = React.lazy(() => import("../agriculture/EnvironmentalIntelligence").then(m => ({ default: m.EnvironmentalIntelligence })));
 const SocialPoliticalIntelligence = React.lazy(() => import("../social/SocialIntelligence").then(m => ({ default: m.SocialPoliticalIntelligence })));
@@ -158,7 +160,8 @@ const getSidebarCategories = (viewMode: ViewMode) => {
       id: "economical",
       label: "Tier 2: Economic Intelligence",
       items: [
-        { id: "economy", label: "Macro Dashboard", icon: TrendingUp },
+        { id: "economy-real", label: "Economic Reality", icon: TrendingUp },
+        { id: "market-dynamics", label: "Market Dynamics", icon: TrendingUp },
         { id: "industry", label: "Industry & Energy", icon: Box, restricted: 'ANALYST' },
         { id: "black-market", label: "Informal Economy", icon: ShoppingBag, restricted: 'ANALYST' },
         { id: "reports", label: "Investor Dossiers", icon: FileText, restricted: 'STRATEGIC' },
@@ -880,7 +883,7 @@ Return only the 3-sentence briefing.`;
     { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
     { id: "command-center", label: "National Command", icon: Target },
     { id: "briefing", label: "Daily Briefing", icon: FileText },
-    { id: "economy", label: "Macro Dashboard", icon: TrendingUp },
+    { id: "economy-real", label: "Economic Reality", icon: TrendingUp },
     { id: "geopolitical", label: "Geopolitical", icon: Globe },
     { id: "geopolitical-network", label: "Int'l Actor Network", icon: Globe },
     { id: "national-actor-network", label: "Domestic Power Map", icon: Users },
@@ -905,7 +908,8 @@ Return only the 3-sentence briefing.`;
     { id: "political", label: "Political", icon: Users },
     { id: "radicalisation", label: "Radicalisation", icon: AlertTriangle },
     { id: "cognitive", label: "Cognitive Warfare", icon: ShieldAlert },
-    { id: "economy", label: "Economy", icon: TrendingUp },
+    { id: "economy-real", label: "Economic Reality", icon: TrendingUp },
+    { id: "market-dynamics", label: "Market Dynamics", icon: TrendingUp },
     { id: "geopolitical", label: "Geopolitical", icon: Globe },
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "security", label: "Security", icon: ShieldCheck },
@@ -1179,6 +1183,7 @@ Return only the 3-sentence briefing.`;
                                   }),
                                 );
                               } else {
+                                console.log('Setting active tab to:', item.id);
                                 setActiveTab(item.id as any);
                               }
                               // auto-close when a link is clicked (overlay behavior)
@@ -1215,6 +1220,20 @@ Return only the 3-sentence briefing.`;
                 </AnimatePresence>
               </div>
             ))}
+          </div>
+
+          {/* Exit Button */}
+          <div className="p-3 border-t border-white/10">
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('navigate-to-home'));
+                setSidebarOpen(false);
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all tracking-wide text-slate-400 hover:bg-intel-red/10 hover:text-intel-red border border-white/10 hover:border-intel-red/30"
+            >
+              <span>Exit to Mode Selection</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </div>
@@ -1879,7 +1898,7 @@ Return only the 3-sentence briefing.`;
                 </div>
 
                 {/* Map */}
-                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[400px]">
+                <div className="lg:col-span-4 glass rounded-xl border border-intel-border/50 overflow-hidden flex flex-col h-[550px]">
                   <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-white/5 shrink-0">
                     <div className="text-[9px] font-mono uppercase tracking-widest text-slate-300 flex items-center space-x-2">
                       <MapPin className="w-3 h-3 text-intel-cyan" />
@@ -2388,7 +2407,6 @@ Return only the 3-sentence briefing.`;
                   </div>
                 </div>
 
-                <SocialThreatIntelligence />
                 <div className="mt-4 pb-12">
                   <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">
                     Live Signal Intelligence (Σε(t)=+0.360)
@@ -2457,6 +2475,14 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "social" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <SocialPoliticalIntelligence />
+            </Suspense>
+          ) : activeTab === "economy-real" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <EconomicReality />
+            </Suspense>
+          ) : activeTab === "market-dynamics" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <EconomyIntelligence />
             </Suspense>
           ) : activeTab === "strategic" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>

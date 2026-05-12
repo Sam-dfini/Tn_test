@@ -36,13 +36,17 @@ function runRuleBasedProcessing(data: any) {
 /**
  * MOCK: Seed initial events for the system.
  */
-export function seedInitialEvents(rriState: any, data: any) {
+export function seedInitialEvents(rriData: any, contextData: any) {
+  const rri = rriData?.rri ?? 1.5;
+  const velocity = rriData?.velocity ?? 0;
+  const ugtt_level = contextData?.social?.ugtt_mobilisation_level || 'LOW';
+  
   // Static seed to ensure stability
   return [
     {
       title: "RRI Baseline Calibrated",
       source: "SYSTEM_ENGINE",
-      content: `National Risk Index stabilized at ${rriState.rri.toFixed(2)}`,
+      content: `National Risk Index stabilized at ${rri.toFixed(2)}`,
       date: new Date().toISOString(),
       governorate: "National",
       severity: 1
@@ -50,7 +54,7 @@ export function seedInitialEvents(rriState: any, data: any) {
     {
       title: "Social Stability Monitor Active",
       source: "SYSTEM_ENGINE",
-      content: `Monitoring mobilization levels. Current: ${data.social?.ugtt_mobilisation_level || 'LOW'}`,
+      content: `Monitoring mobilization levels. Current: ${ugtt_level}`,
       date: new Date().toISOString(),
       governorate: "Tunis",
       severity: 1

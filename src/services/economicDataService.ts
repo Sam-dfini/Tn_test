@@ -66,12 +66,16 @@ export const fetchExchangeRate = async () => {
  * Synthesizes real-time data into the format expected by the UI
  */
 export const getRealTimeMacroIndicators = async (): Promise<MacroIndicator[]> => {
+  console.log('Fetching real-time macroeconomic indicators...');
+  
   const [gdp, inflation, unemployment, exchangeRate] = await Promise.all([
     fetchWorldBankData(WB_INDICATORS.GDP_GROWTH),
     fetchWorldBankData(WB_INDICATORS.INFLATION),
     fetchWorldBankData(WB_INDICATORS.UNEMPLOYMENT),
     fetchExchangeRate(),
   ]);
+
+  console.log('Fetched data:', { gdp, inflation, unemployment, exchangeRate });
 
   return [
     { 
