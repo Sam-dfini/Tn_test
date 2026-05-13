@@ -100,6 +100,18 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     accuracy: 'float8',
     status: 'text'
   },
+  notifications: {
+    id: 'text',
+    type: 'text',
+    priority: 'text',
+    title: 'text',
+    message: 'text',
+    action_label: 'text',
+    action_event: 'text',
+    action_detail: 'jsonb',
+    read: 'boolean',
+    created_at: 'timestamp'
+  },
 };
 
 /**

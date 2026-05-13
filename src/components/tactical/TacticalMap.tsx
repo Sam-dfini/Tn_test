@@ -235,10 +235,10 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
   }, []);
 
   const [layers, setLayers] = useState({
-    grid: true,
+    grid: false,
     events: true,
     riskZones: true,
-    scanning: true,
+    scanning: false,
     geofences: true,
     cascade: false,
     fire: false,
@@ -440,23 +440,6 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           setPanelOpen(true);
         }
       });
-
-      layer.bindPopup(`
-        <div class="p-2 bg-[#0a0e14] text-slate-300 font-mono text-[10px] border border-intel-cyan/30">
-          <div class="font-bold text-intel-cyan border-b border-intel-cyan/20 mb-1 pb-1 uppercase">
-            ${gov.name.en} // ${gov.id.toUpperCase()}
-          </div>
-          <div class="space-y-1">
-            <div class="flex justify-between"><span>RISK:</span> <span class="text-intel-orange">${gov.risk_level}</span></div>
-            <div class="flex justify-between"><span>RRI:</span> <span class="text-white">${gov.rri_score.toFixed(2)}</span></div>
-            <div class="flex justify-between"><span>UNEMP:</span> <span class="text-white">${gov.unemp}%</span></div>
-            <div class="flex justify-between"><span>WATER:</span> <span class="text-white">${24-gov.water_cut_hours}h/day</span></div>
-          </div>
-          <div class="mt-2 pt-1 border-t border-intel-cyan/10 text-[8px] text-slate-500 italic">
-            Click for full tactical dossier
-          </div>
-        </div>
-      `, { className: 'tactical-popup' });
     }
   };
 
@@ -647,7 +630,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
         {/* Region Selector Wheel */}
         {!hideRegionWheel && (
-          <div className="absolute top-[8vh] right-4 z-40 pointer-events-auto hidden sm:block">
+          <div className="absolute top-[8vh] right-3 z-40 pointer-events-auto hidden sm:block">
           <div className="relative w-28 h-28 rounded-full bg-black/40 border border-intel-cyan/20 backdrop-blur-md flex items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.05)]">
             {/* Center: National */}
             <button 
@@ -725,7 +708,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
         {/* Layer Control Panel (Compacted) */}
         {!hideControls && (
-          <div className="absolute top-[22vh] right-3 z-40 bg-black/70 backdrop-blur-md border border-intel-cyan/30 p-1 rounded-sm shadow-[0_0_10px_rgba(0,242,255,0.05)] w-24 pointer-events-auto">
+          <div className="absolute top-[22vh] right-3 z-40 bg-black/70 backdrop-blur-md border border-intel-cyan/30 p-1 rounded-sm shadow-[0_0_10px_rgba(0,242,255,0.05)] w-28 pointer-events-auto">
           <div className="flex items-center justify-between mb-1 border-b border-intel-cyan/20 pb-0.5">
             <div className="flex items-center space-x-1">
               <Layers className="w-2.5 h-2.5 text-intel-cyan" />
@@ -735,10 +718,10 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           
           <div className="space-y-0.5">
               {[
+                { id: 'riskZones', label: 'Choropleth', icon: AlertTriangle },
                 { id: 'grid', label: 'Grid', icon: Grid3X3 },
                 { id: 'scanning', label: 'Scan', icon: Activity },
                 { id: 'events', label: 'Intel', icon: MapPin },
-                { id: 'riskZones', label: 'Data', icon: AlertTriangle },
                 { id: 'geofences', label: 'Zones', icon: Target },
                 { id: 'fire', label: 'Fires', icon: FireIcon },
                 { id: 'cascade', label: 'Paths', icon: TrendingUp },
@@ -806,30 +789,15 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           </div>
         )}
 
-        {/* Tactical Overlay: Legend (Compacted) */}
-        {!hideLegend && (
-          <div className="absolute bottom-4 left-1/2 translate-x-[5px] z-40 bg-black/70 backdrop-blur-md border border-intel-cyan/25 p-1.5 rounded-lg shadow-xl pointer-events-auto w-[150px] h-[85px] flex flex-col">
-            <div className="text-[7px] font-mono text-intel-cyan uppercase border-b border-intel-cyan/20 pb-1 mb-0.5 font-bold tracking-widest">
-              {LAYER_LEGENDS[activeLayer]?.title || 'Legend'}
-            </div>
-            {prepareList(LAYER_LEGENDS[activeLayer]?.items || []).map((item: any, idx: number) => (
-              <div key={generateStableKey(item, idx, 'leg-it')} className="flex items-center space-x-1">
-                <div className={`w-1.5 h-1.5 ${item.color}`} />
-                <span className="text-[6px] font-mono text-slate-300 uppercase leading-none">{item.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Top Status Bar (Bottom Center) */}
+        {/* Bottom Status Bar — RRI + P_rev */}
         {!hideStatus && (
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-4 bg-black/70 backdrop-blur-sm border border-intel-cyan/20 px-3 py-1 rounded-sm z-40 pointer-events-none text-[8px] font-mono">
-            <span className="text-intel-cyan uppercase flex items-center whitespace-nowrap">
-              <div className="w-1 h-1 rounded-full bg-intel-cyan animate-pulse mr-1"></div>
-              SYNC: ACTIVE
+            <span className={`uppercase flex items-center whitespace-nowrap font-bold ${rriState.rri >= 2.625 ? 'text-intel-red' : rriState.rri >= 2.0 ? 'text-intel-orange' : 'text-intel-cyan'}`}>
+              <div className="w-1 h-1 rounded-full bg-current animate-pulse mr-1" />
+              RRI: {rriState.rri.toFixed(2)}
             </span>
-            <span className="text-slate-400 whitespace-nowrap">SECTOR: TUNISIA-01</span>
-            <span className="text-slate-500 whitespace-nowrap">COORD: 33.88N / 9.53E</span>
+            <span className="text-slate-400 whitespace-nowrap">P_rev: {(rriState.p_rev * 100).toFixed(1)}%</span>
+            <span className="text-slate-500 whitespace-nowrap">Velocity: {rriState.velocity_label || 'STABLE'}</span>
           </div>
         )}
 
@@ -844,7 +812,6 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 { id: 'poverty', label: 'Poverty', icon: DollarSign },
                 { id: 'unemployment', label: 'Jobs', icon: Users },
                 { id: 'protests', label: 'Protests', icon: Flame },
-                { id: 'accidents', label: 'Accidents', icon: WarningIcon },
                 { id: 'migration', label: 'Migration', icon: Navigation },
                 { id: 'cascade', label: 'Cascade', icon: Grid3X3 },
                 { id: 'elections', label: 'Elections', icon: CheckSquare },
@@ -869,49 +836,6 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                   <layer.icon className="w-4 h-4" />
                 </button>
               ))}
-            </div>
-          </div>
-
-          {/* Event Type Filter & Search */}
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 bg-black/80 backdrop-blur-sm border border-intel-border rounded-xl p-1 pointer-events-auto max-w-full">
-            <div className="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-[300px] sm:max-w-none">
-              <button
-                onClick={() => setSelectedEventType('all')}
-                aria-label="Filter by all event types"
-                aria-pressed={selectedEventType === 'all'}
-                className={cn(
-                  "px-3 py-1 rounded-lg text-[8px] font-mono font-bold uppercase transition-all whitespace-nowrap",
-                  selectedEventType === 'all' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30" : "text-slate-500 hover:text-slate-300"
-                )}
-              >
-                ALL EVENTS
-              </button>
-              {prepareList(['protest', 'arrest', 'economic', 'water', 'migration', 'internet', 'political', 'detention', 'infrastructure', 'rights', 'labor']).map((type: any, idx: number) => (
-                <button
-                  key={generateStableKey(type, idx, 'ty-sel')}
-                  onClick={() => setSelectedEventType(type)}
-                  aria-label={`Filter by ${type} events`}
-                  aria-pressed={selectedEventType === type}
-                  className={cn(
-                    "px-3 py-1 rounded-lg text-[8px] font-mono font-bold uppercase transition-all whitespace-nowrap",
-                    selectedEventType === type ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan/30" : "text-slate-500 hover:text-slate-300"
-                  )}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-            <div className="h-4 w-px bg-intel-border hidden sm:block"></div>
-            <div className="relative w-full sm:w-40">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500" />
-              <input 
-                type="text"
-                value={eventSearch}
-                onChange={(e) => setEventSearch(e.target.value)}
-                placeholder="SEARCH INTEL..."
-                aria-label="Search intelligence events"
-                className="w-full bg-black/40 border border-intel-border rounded-lg pl-7 pr-2 py-1 text-[8px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-colors"
-              />
             </div>
           </div>
         </div>

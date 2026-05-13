@@ -186,28 +186,7 @@ export const LiveMediaStreams: React.FC = () => {
   const filteredStreams = STREAMS.filter(s => s.category === activeCategory);
 
   return (
-    <div className="glass rounded-lg border border-intel-border overflow-hidden flex flex-col h-[650px] relative">
-      {/* Header */}
-      <div className="bg-black/40 border-b border-intel-border p-3 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            <Radio className="w-4 h-4 text-intel-red" />
-            <motion.div 
-              animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="absolute inset-0 bg-intel-red rounded-full"
-            />
-          </div>
-          <h3 className="text-xs font-mono text-intel-cyan uppercase font-bold tracking-widest">Tactical Media Monitor</h3>
-        </div>
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-intel-green animate-pulse" />
-            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Signal: Locked</span>
-          </div>
-        </div>
-      </div>
-
+    <div className="glass rounded-lg border border-intel-border overflow-hidden flex flex-col h-full relative">
       {/* Main Player Area */}
       <div className="p-4 flex-1 overflow-y-auto space-y-4">
         {/* TOP SECTION — Active stream viewer */}
@@ -378,24 +357,6 @@ export const LiveMediaStreams: React.FC = () => {
               </button>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Footer Info */}
-      <div className="bg-black/80 p-3 flex items-center justify-between border-t border-intel-border">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1.5">
-            <Eye className="w-3 h-3 text-intel-cyan" />
-            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Uplink: ACTIVE</span>
-          </div>
-          <div className="flex items-center space-x-1.5">
-            <Eye className="w-3 h-3 text-slate-500" />
-            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Active Monitoring</span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-1 text-[8px] font-mono text-intel-cyan uppercase font-bold tracking-widest">
-          <span>Source: Tactical OSINT Network</span>
-          <ArrowUpRight className="w-2.5 h-2.5" />
         </div>
       </div>
     </div>

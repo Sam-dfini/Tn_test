@@ -10,8 +10,9 @@ export async function addNotification(
   }).select().single();
 
   if (!error && data) {
-    // Play sound based on priority
+    // Play sound based on priority and type
     const soundType: SoundType = 
+      notification.type === 'SHOCK' ? 'shock' :
       notification.priority === 'CRITICAL' ? 'critical' :
       notification.priority === 'HIGH' ? 'warning' : 'info';
     
@@ -20,6 +21,16 @@ export async function addNotification(
     // Dispatch window event so Toast components can show it immediately
     window.dispatchEvent(new CustomEvent('ti:notification:new', {
       detail: data
+    }));
+  } else {
+    // Even if Supabase insert fails, dispatch locally so it still appears in the panel
+    window.dispatchEvent(new CustomEvent('ti:notification:new', {
+      detail: {
+        ...notification,
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        read: false,
+        created_at: new Date().toISOString(),
+      }
     }));
   }
 }

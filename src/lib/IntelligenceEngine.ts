@@ -20,7 +20,13 @@ export class IntelligencePipeline {
 
     const sysSource = rawEvent.source || source;
     const title = rawEvent.title || rawEvent.content || "Unknown";
-    const dateObj = new Date(rawEvent.date || rawEvent.timestamp || rawEvent.time || Date.now());
+    let dateObj: Date;
+    try {
+      dateObj = new Date(rawEvent.date || rawEvent.timestamp || rawEvent.time || Date.now());
+      if (isNaN(dateObj.getTime())) dateObj = new Date(Date.now());
+    } catch {
+      dateObj = new Date(Date.now());
+    }
     const dateStr = dateObj.toISOString();
 
     // Step 2: Use stable deterministic ID if not already a pipeline ID

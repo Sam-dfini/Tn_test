@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import { Wheat, Droplets, Zap, Package, Leaf } from 'lucide-react';
+import { Wheat, Droplets, Zap, Package } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { NationalAgriculturalPulse } from '../modes/NationalAgriculturalPulse';
 import { FeedIntelligenceHub } from './FeedIntelligenceHub';
 import { PoultryEggsIntelligence } from './PoultryEggsIntelligence';
 import { LivestockMeatIntelligence } from './LivestockMeatIntelligence';
 import { MilkDairyIntelligence } from './MilkDairyIntelligence';
 
 export const FoodSupplyChains: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'pulse' | 'feed' | 'poultry' | 'livestock' | 'dairy'>('pulse');
+  const [activeTab, setActiveTab] = useState<'feed' | 'poultry' | 'livestock' | 'dairy'>('feed');
 
   const tabs = [
-    { id: 'pulse', label: 'Agricultural Pulse', icon: Leaf },
     { id: 'feed', label: 'Feed Intelligence', icon: Wheat },
     { id: 'poultry', label: 'Poultry & Eggs', icon: Zap },
     { id: 'livestock', label: 'Livestock & Meat', icon: Package },
@@ -50,7 +48,6 @@ export const FoodSupplyChains: React.FC = () => {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
         >
-          {activeTab === 'pulse' && <NationalAgriculturalPulse />}
           {activeTab === 'feed' && <FeedIntelligenceHub />}
           {activeTab === 'poultry' && <PoultryEggsIntelligence />}
           {activeTab === 'livestock' && <LivestockMeatIntelligence />}

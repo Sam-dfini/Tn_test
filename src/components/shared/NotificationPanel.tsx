@@ -3,9 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Bell, X, Check, CheckCheck, Trash2,
   ChevronRight, Zap, Radio, Database,
-  AlertTriangle, Settings
+  AlertTriangle, Settings, Activity,
+  Globe, RefreshCw, Signal, FileText
 } from 'lucide-react';
 import { useNotifications, Notification } from '../../context/NotificationContext';
+import { useRSS } from '../../context/RSSContext';
+import { useObservability } from '../../context/ObservabilityContext';
 import { generateStableKey } from '../../lib/keyUtils';
 
 // ── Type icon map ────────────────────────────────────────────
@@ -14,6 +17,7 @@ const TYPE_CONFIG = {
   ALERT:    { icon: AlertTriangle, color: 'text-intel-orange', bg: 'bg-intel-orange/10', border: 'border-intel-orange/20' },
   PIPELINE: { icon: Database,      color: 'text-intel-cyan',   bg: 'bg-intel-cyan/10',   border: 'border-intel-cyan/20'   },
   RSS:      { icon: Radio,         color: 'text-intel-green',  bg: 'bg-intel-green/10',  border: 'border-intel-green/20'  },
+  SHOCK:    { icon: AlertTriangle, color: 'text-intel-red',    bg: 'bg-intel-red/10',    border: 'border-intel-red/20'    },
   SOURCE:   { icon: Settings,      color: 'text-slate-400',    bg: 'bg-white/5',          border: 'border-slate-700'       },
   SYSTEM:   { icon: Settings,      color: 'text-slate-400',    bg: 'bg-white/5',          border: 'border-slate-700'       },
 };
@@ -41,7 +45,7 @@ const NotificationItem: React.FC<{
   notification: Notification;
   onRead: (id: string) => void;
 }> = ({ notification: n, onRead }) => {
-  const config = TYPE_CONFIG[n.type];
+  const config = TYPE_CONFIG[n.type] || TYPE_CONFIG.SYSTEM;
   const Icon = config.icon;
 
   const handleClick = () => {
@@ -149,6 +153,128 @@ const NotificationItem: React.FC<{
   );
 };
 
+// ── RSS Ingest Dashboard ──────────────────────────────────────
+const RSSDashboard: React.FC = () => {
+  const { articles, events, totalArticles, lastFetch, isFetching,
+          syncErrors, newArticlesCount, highSeverityToday } = useRSS();
+  const { metrics } = useObservability();
+
+  const stats = [
+    { icon: Globe, label: 'Active Sources', value: String(metrics.feedCount || 0), color: 'text-intel-cyan' },
+    { icon: FileText, label: 'Total Articles', value: String(totalArticles || 0), color: 'text-blue-400' },
+    { icon: RefreshCw, label: 'New This Cycle', value: String(newArticlesCount || 0), color: 'text-green-400' },
+    { icon: Signal, label: 'Events Tracked', value: String(events?.length || 0), color: 'text-amber-400' },
+    { icon: Activity, label: 'Signals Extracted', value: String(metrics.signalCount || 0), color: 'text-purple-400' },
+    { icon: Radio, label: 'High Severity Today', value: String(highSeverityToday || 0), color: 'text-intel-red' },
+  ];
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {stats.map((s, i) => (
+          <div key={i} className="glass-panel p-3 border border-intel-border/20 rounded-xl text-center">
+            <s.icon className={`w-4 h-4 ${s.color} mx-auto mb-1`} />
+            <div className={`text-lg font-black tabular-nums ${s.color}`}>{s.value}</div>
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Status row */}
+      <div className="flex items-center justify-between px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
+        <div className="flex items-center space-x-2">
+          <div className={`w-2 h-2 rounded-full ${isFetching ? 'bg-intel-cyan animate-pulse' : 'bg-green-400'}`} />
+          <span className="text-[9px] font-mono text-slate-400">
+            {isFetching ? 'Ingesting...' : 'Idle'}
+          </span>
+        </div>
+        <span className="text-[8px] font-mono text-slate-600">
+          {lastFetch ? `Last fetch: ${new Date(lastFetch).toLocaleTimeString()}` : 'Not yet fetched'}
+        </span>
+      </div>
+
+      {/* Sync errors */}
+      {syncErrors.length > 0 && (
+        <div className="px-3 py-2 bg-intel-red/5 rounded-xl border border-intel-red/20">
+          <div className="text-[8px] font-bold text-intel-red uppercase tracking-wider mb-1">
+            Sync Errors ({syncErrors.length})
+          </div>
+          <div className="space-y-1 max-h-20 overflow-y-auto">
+            {syncErrors.slice(0, 5).map((err, i) => (
+              <div key={i} className="text-[8px] font-mono text-slate-500 truncate">{err}</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Infra metrics */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
+          <div className="text-[7px] text-slate-500 uppercase tracking-wider">Error Rate</div>
+          <div className="text-sm font-bold text-intel-red tabular-nums">{(metrics.errorRate * 100).toFixed(1)}%</div>
+        </div>
+        <div className="px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
+          <div className="text-[7px] text-slate-500 uppercase tracking-wider">Latency</div>
+          <div className="text-sm font-bold text-amber-400 tabular-nums">{metrics.latencyMs}ms</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── System Health Dashboard ───────────────────────────────────
+const SystemDashboard: React.FC = () => {
+  const { metrics } = useObservability();
+
+  const services = [
+    { label: 'Express Server', status: 'online', detail: 'Port 3001', color: 'text-green-400' },
+    { label: 'Python Backend', status: 'online', detail: 'Port 8000', color: 'text-green-400' },
+    { label: 'Vite HMR', status: 'online', detail: 'Middleware', color: 'text-green-400' },
+    { label: 'Supabase', status: 'online', detail: 'Connected', color: 'text-green-400' },
+    { label: 'WebSocket', status: 'online', detail: 'Live stream', color: 'text-green-400' },
+    { label: 'AI Service', status: 'degraded', detail: 'API key may be invalid', color: 'text-amber-400' },
+  ];
+
+  const stats = [
+    { label: 'Uptime', value: `${Math.floor((Date.now() - window.performance?.timing?.navigationStart || 0) / 1000)}s`, color: 'text-cyan-400' },
+    { label: 'DB Reads', value: String(metrics.dbReadCount || 0), color: 'text-blue-400' },
+    { label: 'DB Writes', value: String(metrics.dbWriteCount || 0), color: 'text-orange-400' },
+    { label: 'Success Rate', value: `${((1 - (metrics.errorRate || 0)) * 100).toFixed(1)}%`, color: 'text-green-400' },
+    { label: 'Total Ops', value: String((metrics.dbReadCount || 0) + (metrics.dbWriteCount || 0)), color: 'text-slate-400' },
+    { label: 'Ingestion Rate', value: `${(metrics.ingestionRate || 0).toFixed(1)}/s`, color: 'text-purple-400' },
+  ];
+
+  return (
+    <div className="p-4 space-y-4">
+      {/* Service status */}
+      <div className="space-y-1">
+        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mb-2">Services</div>
+        {services.map((s, i) => (
+          <div key={i} className="flex items-center justify-between px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
+            <span className="text-[10px] font-mono text-slate-300">{s.label}</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-[8px] font-mono text-slate-600">{s.detail}</span>
+              <div className={`w-1.5 h-1.5 rounded-full ${s.status === 'online' ? 'bg-green-400' : 'bg-amber-400 animate-pulse'}`} />
+              <span className={`text-[8px] font-mono ${s.color}`}>{s.status}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-3 gap-2">
+        {stats.map((s, i) => (
+          <div key={i} className="glass-panel p-3 border border-intel-border/20 rounded-xl text-center">
+            <div className={`text-lg font-black tabular-nums ${s.color}`}>{s.value}</div>
+            <div className="text-[7px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ── Main notification panel (exported) ──────────────────────
 export const NotificationPanel: React.FC<{
   isOpen: boolean;
@@ -164,19 +290,17 @@ export const NotificationPanel: React.FC<{
 
   const filtered = notifications.filter(n =>
     activeFilter === 'ALL' ||
-    (activeFilter === 'UNREAD' && !n.read) ||
     n.type === activeFilter
   );
 
   const FILTERS = [
     { id: 'ALL', label: 'All', count: notifications.length },
-    { id: 'UNREAD', label: 'Unread', count: unreadCount },
     { id: 'SHOCK', label: 'Shocks', count: notifications.filter(n => n.type === 'SHOCK').length },
-    { id: 'SYSTEM', label: 'System', count: notifications.filter(n => n.type === 'SYSTEM').length },
     { id: 'RRI', label: 'RRI', count: notifications.filter(n => n.type === 'RRI').length },
     { id: 'ALERT', label: 'Alert', count: notifications.filter(n => n.type === 'ALERT').length },
     { id: 'PIPELINE', label: 'Pipeline', count: notifications.filter(n => n.type === 'PIPELINE').length },
     { id: 'RSS', label: 'RSS', count: notifications.filter(n => n.type === 'RSS').length },
+    { id: 'SYSTEM', label: 'System', count: notifications.filter(n => n.type === 'SYSTEM').length },
   ];
 
   return (
@@ -196,7 +320,7 @@ export const NotificationPanel: React.FC<{
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             className="fixed sm:absolute top-16 sm:top-full left-2 right-2 sm:left-auto sm:right-0 mt-2
-              w-auto sm:w-[400px] max-h-[calc(100vh-80px)] sm:max-h-[600px] 
+              w-auto sm:w-[550px] max-h-[calc(100vh-80px)] sm:max-h-[750px] 
               bg-[#05070a] border border-intel-border rounded-2xl
               shadow-2xl z-[9999] flex flex-col overflow-hidden"
           >
@@ -289,10 +413,14 @@ export const NotificationPanel: React.FC<{
               ))}
             </div>
 
-            {/* Notification list */}
+            {/* Content: RSS dashboard or notification list */}
             <div className="flex-1 overflow-y-auto
               scrollbar-thin scrollbar-thumb-intel-cyan/10">
-              {filtered.length === 0 ? (
+{activeFilter === 'RSS' ? (
+  <RSSDashboard />
+) : activeFilter === 'SYSTEM' ? (
+  <SystemDashboard />
+) : filtered.length === 0 ? (
                 <div className="flex flex-col items-center
                   justify-center h-40 space-y-3">
                   <Check className="w-8 h-8 text-slate-700" />

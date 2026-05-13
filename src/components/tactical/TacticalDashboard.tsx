@@ -31,7 +31,6 @@ import { LeverageableIdeas } from './LeverageableIdeas';
 import { IntelligenceBriefPanel } from '../system/IntelligenceBriefPanel';
 
 import { WeatherWidget } from './WeatherWidget';
-import { FireIncidentsWidget, WaterCutsWidget, RoadAccidentsWidget, SuicidesWidget, ViolenceWidget } from './IncidentWidgets';
 
 import { Governorate, IntelEvent } from '../../types/intel';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
@@ -62,15 +61,16 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   const [activeRegion, setActiveRegion] = React.useState('National');
   const [viewMode, setViewMode] = React.useState<'MAP' | 'INTEL'>('MAP');
   const [leftCollapsed, setLeftCollapsed] = React.useState(isSmallScreen);
+  const [rightCollapsed, setRightCollapsed] = React.useState(false);
   
   useEffect(() => {
     setLeftCollapsed(width < 768);
   }, [width]);
 
   const [leftTab, setLeftTab] = useState<
-    'status' | 'intel' | 'economy' | 'social' | 'signals' | 'weather'
+    'status' | 'economy' | 'social' | 'signals' | 'weather'
   >('status');
-  const [rightTab, setRightTab] = React.useState<'media' | 'fire' | 'water' | 'accidents' | 'suicides' | 'violence'>('media');
+  const [rightTab, setRightTab] = React.useState<'media' | 'brief' | 'intel'>('intel');
   const [showAnalysis, setShowAnalysis] = React.useState(false);
 
   const addGeofenceAlert = (alert: any) => {
@@ -80,7 +80,6 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   // Sidebar tabs config
   const leftTabs = [
     { id: 'status', label: 'STATUS', shortLabel: 'STA', icon: Activity },
-    { id: 'intel', label: 'INTEL & FEEDS', shortLabel: 'INT', icon: Radio },
     { id: 'economy', label: 'ECONOMY', shortLabel: 'ECO', icon: BarChart3 },
     { id: 'social', label: 'SOCIAL & IDEO', shortLabel: 'SOC', icon: MessageSquare },
     { id: 'weather', label: 'WEATHER', shortLabel: 'WTH', icon: Cloud },
@@ -88,12 +87,9 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   ];
 
   const rightTabs = [
-    { id: 'media', label: 'MEDIA', shortLabel: 'MED', icon: Eye },
-    { id: 'fire', label: 'FIRE', shortLabel: 'FIR', icon: Zap },
-    { id: 'water', label: 'WATER', shortLabel: 'H2O', icon: Cloud },
-    { id: 'accidents', label: 'ACCIDENTS', shortLabel: 'ACC', icon: AlertTriangle },
-    { id: 'suicides', label: 'SUICIDES', shortLabel: 'SUI', icon: Target },
-    { id: 'violence', label: 'VIOLENCE', shortLabel: 'VIO', icon: Activity },
+    { id: 'intel', label: 'INTEL & FEEDS', shortLabel: 'INT', icon: Radio },
+    { id: 'brief', label: 'BRIEF', shortLabel: 'BRF', icon: Activity },
+    { id: 'media', label: 'MEDIA MONITOR', shortLabel: 'MED', icon: Eye },
   ];
 
   return (
@@ -212,14 +208,6 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                   </div>
                 )}
                 
-                {leftTab === 'intel' && (
-                  <div className="space-y-4">
-                    <LiveSignalFeed />
-                    <BreakingIntelFeed externalAlerts={geofenceAlerts} />
-                    <OSINTStream />
-                  </div>
-                )}
-                
                 {leftTab === 'economy' && (
                   <div className="space-y-4">
                     <MacroMarkets />
@@ -313,43 +301,84 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
         </div>
 
         {/* ============================================
-            RIGHT SIDEBAR — tabbed intelligence panel
+            RIGHT SIDEBAR — collapsible (rail on right)
         ============================================ */}
-        <div className="flex border-t md:border-t-0 md:border-l border-intel-border/30 bg-black/20 w-full md:w-[300px] lg:w-[22vw] xl:w-[20vw] h-[350px] md:h-auto shrink-0 min-h-0 z-30">
-          
-          {/* Right Sidebar Content */}
-          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-intel-cyan/10 min-h-0">
-            <div className="p-3 space-y-4">
-              <IntelligenceBriefPanel compact={true} />
+        <div
+          className={cn(
+            "flex border-t md:border-t-0 md:border-l border-intel-border/30 bg-black/20 transition-all duration-300 shrink-0 min-h-0 z-30",
+            rightCollapsed ? 'w-12' : 'w-full md:w-[300px] lg:w-[22vw] xl:w-[20vw]',
+            'h-[350px] md:h-auto'
+          )}
+        >
+          {/* Right Sidebar Content (always mounted so media keeps playing) */}
+          <div className={cn(
+            "flex-1 flex flex-col overflow-hidden bg-surface-container-low transition-all duration-300",
+            rightCollapsed ? 'w-0 opacity-0 min-w-0 p-0 overflow-hidden' : ''
+          )}>
+            <div className="h-12 border-b border-outline-variant flex items-center px-4 justify-between shrink-0">
+              <span className="text-[10px] font-mono font-bold text-white uppercase tracking-[0.2em]">
+                {rightTabs.find(t => t.id === rightTab)?.label}
+              </span>
+              <div className="flex items-center space-x-1">
+                <div className="w-1 h-1 rounded-full bg-intel-cyan animate-pulse" />
+                <span className="text-[8px] font-mono text-intel-cyan/50 uppercase">Live Node</span>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3 space-y-4 scrollbar-thin scrollbar-thumb-intel-cyan/10">
+              {rightTab === 'intel' && (
+                <div className="space-y-4">
+                  <LiveSignalFeed />
+                  <BreakingIntelFeed externalAlerts={geofenceAlerts} />
+                  <OSINTStream />
+                </div>
+              )}
+              {rightTab === 'brief' && <IntelligenceBriefPanel compact={true} />}
               {rightTab === 'media' && <LiveMediaStreams />}
-              {rightTab === 'fire' && <FireIncidentsWidget />}
-              {rightTab === 'water' && <WaterCutsWidget />}
-              {rightTab === 'accidents' && <RoadAccidentsWidget />}
-              {rightTab === 'suicides' && <SuicidesWidget />}
-              {rightTab === 'violence' && <ViolenceWidget />}
             </div>
           </div>
 
-          {/* Right Sidebar Tabs */}
-          <div className="w-12 shrink-0 border-l border-intel-border/30 bg-black/40 flex flex-col">
+          {/* Right Vertical Navigation Rail (on right edge) */}
+          <div className="w-12 shrink-0 border-l border-outline-variant flex flex-col items-center py-4 space-y-4 bg-surface-container">
+            <button
+              onClick={() => setRightCollapsed(!rightCollapsed)}
+              aria-label={rightCollapsed ? "Expand Panel" : "Collapse Panel"}
+              aria-expanded={!rightCollapsed}
+              className="p-2 text-slate-500 hover:text-intel-cyan transition-colors mb-4"
+              title={rightCollapsed ? "Expand Panel" : "Collapse Panel"}
+            >
+              {rightCollapsed ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </button>
+
             {prepareList(rightTabs).map((tab: any) => (
               <button
                 key={tab.id}
-                onClick={() => setRightTab(tab.id as any)}
+                onClick={() => {
+                  setRightTab(tab.id as any);
+                  if (rightCollapsed) setRightCollapsed(false);
+                }}
                 aria-label={tab.label}
                 aria-selected={rightTab === tab.id}
                 role="tab"
-                className={`h-16 flex flex-col items-center justify-center space-y-1 border-b border-intel-border/30 transition-colors relative ${
-                  rightTab === tab.id 
-                    ? 'text-intel-cyan bg-intel-cyan/10' 
-                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                className={`p-2.5 rounded-xl transition-all duration-300 relative group ${
+                  rightTab === tab.id
+                    ? 'bg-intel-cyan/10 text-intel-cyan shadow-[0_0_15px_rgba(0,242,255,0.1)] border border-intel-cyan/30'
+                    : 'text-slate-500 hover:text-white hover:bg-white/5'
                 }`}
+                title={tab.label}
               >
+                <tab.icon className="w-5 h-5" />
                 {rightTab === tab.id && (
-                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-intel-cyan shadow-[0_0_8px_#00f2ff]" />
+                  <motion.div
+                    layoutId="rightTabIndicator"
+                    className="absolute -right-1 top-1/4 bottom-1/4 w-1 bg-intel-cyan rounded-l-full"
+                  />
                 )}
-                <tab.icon className="w-4 h-4" />
-                <span className="text-[8px] font-mono font-bold tracking-widest">{tab.shortLabel}</span>
+                {rightCollapsed && (
+                  <div className="absolute left-14 px-2 py-1 bg-black border border-intel-border rounded text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                    {tab.label}
+                  </div>
+                )}
               </button>
             ))}
           </div>

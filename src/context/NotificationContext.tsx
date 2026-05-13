@@ -99,6 +99,38 @@ export const NotificationProvider: React.FC<{
     );
   }, [notifications]);
 
+  // Listen for notifications from external sources (notificationService)
+  useEffect(() => {
+    const handler = (e: any) => {
+      const raw = e.detail;
+      if (!raw || !raw.title) return;
+      const n: Notification = {
+        id: raw.id || generateRandomId('notif'),
+        type: raw.type || 'SYSTEM',
+        priority: raw.priority || 'LOW',
+        title: raw.title,
+        message: raw.message || '',
+        timestamp: raw.timestamp || (raw.created_at ? new Date(raw.created_at).getTime() : Date.now()),
+        read: raw.read || false,
+        action: raw.action ? raw.action : (raw.action_label ? {
+          label: raw.action_label,
+          event: raw.action_event || '',
+          detail: raw.action_detail,
+        } : undefined),
+        sourceUrl: raw.sourceUrl,
+        sourceName: raw.sourceName,
+      };
+      setNotifications(prev => {
+        const fiveMinAgo = Date.now() - 5 * 60 * 1000;
+        const dup = prev.find(p => p.title === n.title && p.timestamp > fiveMinAgo);
+        if (dup) return prev;
+        return [n, ...prev].slice(0, 100);
+      });
+    };
+    window.addEventListener('ti:notification:new', handler);
+    return () => window.removeEventListener('ti:notification:new', handler);
+  }, []);
+
   const addNotification = useCallback((
     n: Omit<Notification, 'id' | 'timestamp' | 'read'>
   ) => {

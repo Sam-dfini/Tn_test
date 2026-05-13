@@ -88,6 +88,7 @@ const EconomyIntelligence = React.lazy(() => import("../economy/EconomyIntellige
 const EconomicReality = React.lazy(() => import("../economy/EconomicReality").then(m => ({ default: m.EconomicReality })));
 const EnergyIntelligence = React.lazy(() => import("../energy/EnergyIntelligence").then(m => ({ default: m.EnergyIntelligence })));
 const EnvironmentalIntelligence = React.lazy(() => import("../agriculture/EnvironmentalIntelligence").then(m => ({ default: m.EnvironmentalIntelligence })));
+const NationalAgriculturalPulse = React.lazy(() => import("./NationalAgriculturalPulse").then(m => ({ default: m.NationalAgriculturalPulse })));
 const SocialPoliticalIntelligence = React.lazy(() => import("../social/SocialIntelligence").then(m => ({ default: m.SocialPoliticalIntelligence })));
 const RadicalisationIntelligence = React.lazy(() => import("../security/RadicalisationIntelligence").then(m => ({ default: m.RadicalisationIntelligence })));
 const CognitiveSecurityIntelligence = React.lazy(() => import("../security/CognitiveSecurityIntelligence").then(m => ({ default: m.CognitiveSecurityIntelligence })));
@@ -201,6 +202,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
       label: "Tier 2: Environment & Food",
       items: [
         { id: "environment", label: "Climate & Water", icon: Sprout, restricted: 'ANALYST' },
+        { id: "green-pulse", label: "Green Pulse", icon: Leaf },
         { id: "agriculture", label: "Agriculture", icon: Leaf },
         { id: "food-supply", label: "Food Supply Chains", icon: Wheat, restricted: 'ANALYST' },
         { id: "fire", label: "Fire Intel", icon: Flame, restricted: 'ANALYST' },
@@ -695,6 +697,7 @@ export const ProfessionalIntel: React.FC<{
     | "trgm"
     | "briefing"
     | "overview"
+    | "green-pulse"
     | "clusters"
     | "events"
     | "narrative"
@@ -1287,19 +1290,25 @@ Return only the 3-sentence briefing.`;
                 transition={{ duration: 0.3 }}
               >
                 {activeTab === "briefing" ? (
-                  <DailyBriefing />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+                    <DailyBriefing />
+                  </Suspense>
                 ) : activeTab === "pipeline-control" ? (
                   <ObservabilityDashboard onBack={() => setActiveTab("overview")} />
                 ) : activeTab === "govagent" ? (
-                  <GovernmentAgentPanel />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+                    <GovernmentAgentPanel />
+                  </Suspense>
                 ) : activeTab === "methodology" ? (
-                  <RRIMethodology inline={true} onNavigateToPipeline={(tab) => {
-                     window.dispatchEvent(
-                       new CustomEvent("navigate-to-pipeline", {
-                         detail: { tab },
-                       })
-                     );
-                  }} />
+                  <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+                    <RRIMethodology inline={true} onNavigateToPipeline={(tab) => {
+                       window.dispatchEvent(
+                         new CustomEvent("navigate-to-pipeline", {
+                           detail: { tab },
+                         })
+                       );
+                    }} />
+                  </Suspense>
                 ) : activeTab === "events" ? (
                   <div className="space-y-6">
                     <ModuleHeader
@@ -1378,18 +1387,28 @@ Return only the 3-sentence briefing.`;
               </div>
               {eventsSubTab === "news" ? (
                 <div className="space-y-6">
-                  <RealTimeNewsFeed />
+                  <Suspense fallback={<div className="flex items-center justify-center h-24"><Loader2 className="h-6 w-6 animate-spin text-intel-cyan" /></div>}>
+                    <RealTimeNewsFeed />
+                  </Suspense>
                 </div>
               ) : eventsSubTab === "temporal" ? (
-                <TemporalAnalysisTab />
+                <Suspense fallback={<div className="flex items-center justify-center h-24"><Loader2 className="h-6 w-6 animate-spin text-intel-cyan" /></div>}>
+                  <TemporalAnalysisTab />
+                </Suspense>
               ) : eventsSubTab === "timeline" ? (
                 <Timeline />
               ) : eventsSubTab === "signal" ? (
-                <LiveSignalFeed maxItems={15} showFilter={true} />
+                <Suspense fallback={<div className="flex items-center justify-center h-24"><Loader2 className="h-6 w-6 animate-spin text-intel-cyan" /></div>}>
+                  <LiveSignalFeed maxItems={15} showFilter={true} />
+                </Suspense>
               ) : eventsSubTab === "rtee" ? (
-                <RTEE />
+                <Suspense fallback={<div className="flex items-center justify-center h-24"><Loader2 className="h-6 w-6 animate-spin text-intel-cyan" /></div>}>
+                  <RTEE />
+                </Suspense>
               ) : (
-                <EventsIntelligence />
+                <Suspense fallback={<div className="flex items-center justify-center h-24"><Loader2 className="h-6 w-6 animate-spin text-intel-cyan" /></div>}>
+                  <EventsIntelligence />
+                </Suspense>
               )}
             </div>
           ) : activeTab === "radicalisation" ? (
@@ -2469,6 +2488,10 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "environment" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <EnvironmentalIntelligence />
+            </Suspense>
+          ) : activeTab === "green-pulse" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <NationalAgriculturalPulse />
             </Suspense>
           ) : activeTab === "agriculture" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
