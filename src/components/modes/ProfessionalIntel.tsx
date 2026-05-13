@@ -1912,11 +1912,17 @@ Return only the 3-sentence briefing.`;
                     </div>
                   </div>
                   <div className="flex-1 relative bg-black/60 isolate overflow-hidden">
-                    <Map
-                      governorates={context?.governorates || []}
-                      events={context?.events || []}
-                      activeLayer="Regional Risk"
-                    />
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center h-full min-h-[300px]">
+                        <div className="w-8 h-8 border-2 border-intel-cyan border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    }>
+                      <Map
+                        governorates={context?.governorates || []}
+                        events={context?.events || []}
+                        activeLayer="Regional Risk"
+                      />
+                    </Suspense>
                   </div>
                 </div>
               </div>
@@ -2407,23 +2413,31 @@ Return only the 3-sentence briefing.`;
                   </div>
                 </div>
 
-                <div className="mt-4 pb-12">
-                  <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">
-                    Live Signal Intelligence (Σε(t)=+0.360)
+                  <div className="mt-4 pb-12">
+                    <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3">
+                      Live Signal Intelligence (Σε(t)=+0.360)
+                    </div>
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center h-24">
+                        <div className="w-6 h-6 border-2 border-intel-cyan border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    }>
+                      <LiveSignalFeed
+                        maxItems={4}
+                        showFilter={false}
+                        compact={true}
+                        title="Live Signal Ticker"
+                      />
+                    </Suspense>
                   </div>
-                  <LiveSignalFeed
-                    maxItems={4}
-                    showFilter={false}
-                    compact={true}
-                    title="Live Signal Ticker"
-                  />
-                </div>
               </div>
             </div>
           ) : activeTab === "command-center" ? (
-            <NationalCommandCenter
-              onNavigate={(tab) => setActiveTab(tab as any)}
-            />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <NationalCommandCenter
+                onNavigate={(tab) => setActiveTab(tab as any)}
+              />
+            </Suspense>
           ) : activeTab === "performance" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <ModelPerformance />
