@@ -84,6 +84,22 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     coordinated_phrases: 'jsonb',
     narrative_shift: 'boolean'
   },
+  predictions: {
+    id: 'text',
+    created_at: 'timestamp',
+    evaluate_after: 'timestamp',
+    evaluated_at: 'timestamp',
+    target_date: 'timestamp',
+    governorate: 'text',
+    event_type: 'text',
+    probability: 'float8',
+    confidence: 'float8',
+    model_version: 'text',
+    features: 'jsonb',
+    outcome: 'text',
+    accuracy: 'float8',
+    status: 'text'
+  },
 };
 
 /**
@@ -97,6 +113,16 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
   if (!requiredFields) return;
 
   try {
+    // 0. Ensure table exists first (safe when table already exists)
+    const columnDefs = Object.entries(requiredFields)
+      .map(([col, type]) => `${col} ${type.toUpperCase()}`)
+      .join(', ');
+    const createSql = `CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefs});`;
+    const { error: createError } = await supabase.rpc('exec_sql_admin', { sql_query: createSql });
+    if (createError) {
+      console.warn(`[SCHEMA] Could not create ${tableName}:`, createError.message);
+    }
+
     // 1. Query existing columns
     const { data: cols, error: queryError } = await supabase
       .rpc('get_table_columns', { t_name: tableName });

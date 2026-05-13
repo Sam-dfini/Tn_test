@@ -222,7 +222,13 @@ async def get_agri_summary():
             "dam_level_pct": pipeline_data.get("environment.dam_levels", 35) * 100,
         }
 
-        # 4. Generate summary
+        # 4. Inject national BCI inputs into each governorate's agro_inputs
+        for gov in agro_inputs:
+            agro_inputs[gov]["groundwater_stress"] = bci_inputs.get("groundwater_stress", 0.55)
+            agro_inputs[gov]["dam_level_pct"] = bci_inputs.get("dam_level_pct", 35)
+            agro_inputs[gov]["inflation"] = bci_inputs.get("inflation", 7.1)
+
+        # 5. Generate summary
         summary = orchestrator.agro_engine.process_all_national(agro_inputs, bci_inputs)
         return summary
     except Exception as e:

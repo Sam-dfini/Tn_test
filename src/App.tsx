@@ -60,17 +60,23 @@ const safeGetItem = (key: string) => {
   try { return safeStorage.getItem(key); } catch (e) { return null; }
 };
 
-const AppContent: React.FC = () => {
-  // Activate automatic notification triggers
+// Only mounts when a real mode is active — keeps notifications silent during auth/selection
+const ActiveModeServices: React.FC = () => {
   useNotificationTriggers();
+  return null;
+};
 
-  // Track boot sequence
-  BootMarkers.APP_MOUNT();
-  logBootEvent('APP_INIT', 'App Component Mounted', appStart);
+const AppContent: React.FC = () => {
+
+  // Track boot sequence (once on mount only)
+  useEffect(() => {
+    BootMarkers.APP_MOUNT();
+    logBootEvent('APP_INIT', 'App Component Mounted', appStart);
+  }, []);
 
   // Add 'brain' to the mode type
-  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture'>(
-    (safeGetItem('ti_current_mode') as any) || 'selection'
+  const [mode, setMode] = useState<'selection' | 'simplified' | 'professional' | 'advanced' | 'palantir' | 'bloomberg' | 'business_investigator' | 'terminal' | 'test' | 'agriculture' | 'brain'>(
+    'selection'
   );
   const [isAuthenticated, setIsAuthenticated] = useState(safeGetItem('ti_authenticated') === 'true');
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -127,16 +133,13 @@ const AppContent: React.FC = () => {
     if (dataLoadedRef.current) return;
     dataLoadedRef.current = true;
     const pipelineStart = Date.now();
-    console.log('Starting loadPipelineDataWithProgress');
     setLoadingLogs(prev => [...prev, 'LOADING_RRI_ENGINE_v4.2...']);
     setLoadingProgress(20);
     logBootEvent('PIPELINE', 'RRI Engine Load Started', pipelineStart);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
     setLoadingLogs(prev => [...prev, 'ESTABLISHING_SECURE_UPLINK... [OK]']);
     setLoadingProgress(40);
 
-    await new Promise(resolve => setTimeout(resolve, 500));
     setLoadingLogs(prev => [...prev, 'DECRYPTING_INTELLIGENCE_LEDGER... [OK]']);
     setLoadingProgress(60);
 
@@ -172,13 +175,6 @@ const AppContent: React.FC = () => {
     }
   }, [pendingMode, isLoading]);
 
-  // Trigger loading when mode is restored from localStorage on page load
-  useEffect(() => {
-    if (mode !== 'selection') {
-      runLoadRef.current();
-    }
-  }, [mode]);
-
   const handleAuthenticate = () => {
     setIsAuthenticated(true);
     try { safeStorage.setItem('ti_authenticated', 'true'); } catch(e) {}
@@ -202,6 +198,7 @@ const AppContent: React.FC = () => {
       try { safeStorage.setItem('ti_current_mode', pendingMode); } catch(e) {}
       setPendingMode(null);
     }
+    setRSSEnabled(true);
     setIsLoading(false);
   };
 
@@ -394,6 +391,8 @@ const AppContent: React.FC = () => {
           </div>
         }>
           {renderMode()}
+          {/* Notification triggers only active once a real mode is running */}
+          {isAuthenticated && mode !== 'selection' && <ActiveModeServices />}
         </Suspense>
       </AnimatePresence>
 
@@ -421,7 +420,7 @@ const AppContent: React.FC = () => {
             onClose={() => setShowPipeline(false)} 
           />
         )}
-        <IntelligenceDossierExporterModal 
+        <IntelligenceDossierExporterModal key="dossier-exporter"
           isOpen={showReport}
           onClose={() => setShowReport(false)}
         />
@@ -431,11 +430,11 @@ const AppContent: React.FC = () => {
             try { safeStorage.setItem('ti_onboarding_done', 'true'); } catch(e) {}
           }} />
         )}
-        <NotificationPanel 
+        <NotificationPanel key="notification-panel"
           isOpen={showNotifications}
           onClose={() => setShowNotifications(false)} 
         />
-        <AIAnalystPanel 
+        <AIAnalystPanel key="ai-analyst"
           isOpen={showAIAnalyst}
           onClose={() => setShowAIAnalyst(false)}
         />
@@ -557,6 +556,12 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+// Event-based RSS activation — avoids polling that causes remount cascade
+const RSS_ENABLE_EVENT = 'ti-rss-enable';
+export const setRSSEnabled = (v: boolean) => {
+  if (v) window.dispatchEvent(new CustomEvent(RSS_ENABLE_EVENT));
+};
+
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
@@ -593,8 +598,16 @@ const NotificationProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ 
 
 const RSSProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { rriState } = usePipeline();
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setEnabled(true);
+    window.addEventListener(RSS_ENABLE_EVENT, handler);
+    return () => window.removeEventListener(RSS_ENABLE_EVENT, handler);
+  }, []);
+
   return (
-    <RSSProvider rriState={rriState}>
+    <RSSProvider rriState={rriState} enabled={enabled}>
       <ArticleCacheConnector />
       {children}
     </RSSProvider>

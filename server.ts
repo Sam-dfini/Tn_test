@@ -119,7 +119,7 @@ const pythonBackendRequirements = async () => {
   startPythonBackend();
 };
 
-// pythonBackendRequirements();
+startPythonBackend();
 
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({

@@ -44,7 +44,8 @@ const RSSContext = createContext<RSSContextType | null>(null);
 export const RSSProvider: React.FC<{
   children: React.ReactNode;
   rriState?: any;
-}> = ({ children, rriState }) => {
+  enabled?: boolean;
+}> = ({ children, rriState, enabled = false }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -276,6 +277,7 @@ export const RSSProvider: React.FC<{
   // CORE LOOP CONTROL
   const hasInit = useRef(false);
   useEffect(() => {
+    if (!enabled) return;  // don't start until a mode is active
     if (!hasInit.current) {
       loadData();
       loadNotifications();
@@ -297,12 +299,14 @@ export const RSSProvider: React.FC<{
     return () => {
       if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     };
-  }, [isPaused, fetchNow, loadData, loadNotifications]);
+  }, [enabled, isPaused, fetchNow, loadData, loadNotifications]);
 
-  // Realtime subscription via WebSocket
+  // Realtime subscription via WebSocket — only when enabled, with exponential backoff
   useEffect(() => {
+    if (!enabled) return;
     let ws: WebSocket | null = null;
     let reconnectTimeout: any = null;
+    let attempt = 0;
 
     const connect = () => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -337,8 +341,13 @@ export const RSSProvider: React.FC<{
         }
       };
 
+      ws.onopen = () => { attempt = 0; }; // reset backoff on success
+
       ws.onclose = () => {
-        reconnectTimeout = setTimeout(connect, 2000);
+        attempt++;
+        // Exponential backoff: 2s, 4s, 8s, 16s, max 60s
+        const delay = Math.min(2000 * Math.pow(2, attempt - 1), 60000);
+        reconnectTimeout = setTimeout(connect, delay);
       };
     };
 
@@ -348,7 +357,7 @@ export const RSSProvider: React.FC<{
       if (ws) ws.close();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
-  }, []);
+  }, [enabled]);
 
   const highSeverityToday = articles.filter(
     a => a.severity >= 4 &&

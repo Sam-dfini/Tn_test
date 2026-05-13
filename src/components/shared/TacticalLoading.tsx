@@ -61,7 +61,7 @@ export const TacticalLoading: React.FC<{
 
   useEffect(() => {
     if (progress >= 100) {
-      const timeout = setTimeout(() => onCompleteRef.current(), 1200);
+      const timeout = setTimeout(() => onCompleteRef.current(), 300);
       return () => clearTimeout(timeout);
     }
   }, [progress]);

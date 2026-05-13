@@ -683,9 +683,19 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       try {
         const { results: satResults, rri_overrides: satOverrides } = e.detail;
 
-        // Fetch consolidated summary from the new Python-backed API
-        const response = await fetch('/api/agri/summary');
-        if (response.ok) {
+        // Fetch consolidated summary — 2s timeout, backend may be cold
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        let response: Response | null = null;
+        try {
+          response = await fetch('/api/agri/summary', { signal: controller.signal });
+          clearTimeout(timeoutId);
+        } catch (fetchErr: any) {
+          clearTimeout(timeoutId);
+          if (fetchErr.name !== 'AbortError') console.warn('[Pipeline] agri/summary fetch failed:', fetchErr.message);
+          response = null;
+        }
+        if (response?.ok) {
           const summary = await response.json();
           setAgroSummary(summary);
 
@@ -762,7 +772,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     window.addEventListener('ti:agri_update', handler);
     return () => window.removeEventListener('ti:agri_update', handler);
-  }, [data, seiResult, agroSummary?.bci?.BCI, updateField, recalculateRRI]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateField, recalculateRRI]);
 
   const resetToDefaults = useCallback(() => {
     setData(DEFAULT_DATA);
@@ -892,6 +903,20 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimeout(() => recalculateRRI(), 100);
   }, [addNotification, recalculateRRI]);
 
+  const updateArticleCache = useCallback((articles: any) => {
+    if (!articles) return;
+    setArticleCache(articles);
+
+    // Instant Layer-1 detection for RPI and CogWar to keep dashboard fresh
+    const rpi = analyzeRadicalisation(articles, rriState.w_t ?? 0.35);
+    const cog = quickScan(articles, rriState);
+    const sei = analyzeSEI(articles);
+
+    setRpiProfile(rpi);
+    setCognitiveEnvironment(cog);
+    setSeiResult(sei);
+  }, [rriState]);
+
   return (
     <PipelineContext.Provider value={{
       data, updateField, pushApprovedChanges, 
@@ -917,19 +942,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       injectSignal,
       injectShock,
       activeSignals: data.active_signals,
-      updateArticleCache: (articles: any) => {
-        if (!articles) return;
-        setArticleCache(articles);
-        
-        // Instant Layer-1 detection for RPI and CogWar to keep dashboard fresh
-        const rpi = analyzeRadicalisation(articles, rriState.w_t ?? 0.35);
-        const cog = quickScan(articles, rriState);
-        const sei = analyzeSEI(articles);
-        
-        setRpiProfile(rpi);
-        setCognitiveEnvironment(cog);
-        setSeiResult(sei);
-      },
+      updateArticleCache,
       rpiProfile,
       cognitiveEnvironment
     }}>
