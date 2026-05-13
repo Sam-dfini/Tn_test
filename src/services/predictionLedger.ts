@@ -16,6 +16,11 @@ import { safeStorage } from '../utils/storage';
 
 import { supabase } from '../lib/supabase';
 
+// Circuit breaker — if predictions table returns 404, disable silently
+// Prevents Supabase hammering when table hasn't been created yet
+let _tableExists = true;
+let _tableChecked = false;
+
 // ── Types ──────────────────────────────────────────────────────
 
 export type PredictionHorizon = 7 | 14 | 30 | 60;
@@ -330,6 +335,7 @@ export async function storePrediction(
   horizon: PredictionHorizon = 14,
   triggeredBy: PredictionRecord['triggered_by'] = 'RECALCULATE'
 ): Promise<string | null> {
+  if (!_tableExists) return null;
   try {
     const predictions = generatePredictions(rriState, data, engines);
     const now = new Date().toISOString();
@@ -383,10 +389,10 @@ export async function storePrediction(
 export async function evaluatePendingPredictions(
   currentData: any
 ): Promise<number> {
+  if (!_tableExists) return 0;
   try {
     const now = new Date().toISOString();
 
-    // Fetch predictions past their evaluate_after date
     const { data: pending, error } = await supabase
       .from('predictions')
       .select('*')
@@ -394,7 +400,14 @@ export async function evaluatePendingPredictions(
       .is('evaluated_at', null)
       .limit(20);
 
-    if (error || !pending) return 0;
+    if (error) {
+      // 404 = table doesn't exist yet — disable permanently this session
+      if ((error as any)?.code === 'PGRST116' || error.message?.includes('relation') || error.message?.includes('404')) {
+        _tableExists = false;
+        console.warn('[PredictionLedger] predictions table not found — disabling learning loop');
+      }
+      return 0;
+    }
 
     let evaluatedCount = 0;
 

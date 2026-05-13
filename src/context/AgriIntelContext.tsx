@@ -36,8 +36,15 @@ export const AgriIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       try {
         const { results: satResults, rri_overrides: satOverrides, articleCache } = e.detail || {};
 
-        const response = await fetch('/api/agri/summary');
-        if (response.ok) {
+        // 2s timeout — backend may be cold or unavailable
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        let fetchOk = false;
+        try {
+          const response = await fetch('/api/agri/summary', { signal: controller.signal });
+          clearTimeout(timeoutId);
+          fetchOk = response.ok;
+          if (response.ok) {
           const summary = await response.json();
           setAgroSummary(summary);
 
@@ -72,8 +79,15 @@ export const AgriIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               action_detail: { tab: 'agri' },
             });
           }
-        } else {
-          console.warn('Backend agro summary failed, falling back to local calculation');
+          }
+        } catch (fetchErr: any) {
+          clearTimeout(timeoutId);
+          if (fetchErr.name !== 'AbortError') {
+            console.warn('Backend agro summary failed, falling back to local calculation');
+          }
+          fetchOk = false;
+        }
+        if (!fetchOk) {
           const agroInputs: Record<string, any> = {};
           const wheatStress: Record<string, number> = {};
 
@@ -113,7 +127,9 @@ export const AgriIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     window.addEventListener('ti:agri_update', handler);
     return () => window.removeEventListener('ti:agri_update', handler);
-  }, [data, seiResult, agroSummary?.bci?.BCI, updateField, recalculateRRI]);
+  // Stable deps only — removing data/seiResult/agroSummary prevents re-registration on every RRI recalc
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateField, recalculateRRI]);
 
   const value = useMemo(() => ({
     agriSummary,
