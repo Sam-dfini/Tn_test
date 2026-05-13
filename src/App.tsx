@@ -107,7 +107,7 @@ const AppContent: React.FC = () => {
       setIsLoadingAuth(false);
       logBootEvent('AUTH', 'Auth Check Complete', authStart);
       
-      if (liveEvents.length === 0) {
+      if (pipelineData && liveEvents.length === 0) {
         const seedStart = Date.now();
         logBootEvent('DATA_LOADING', 'Seeding Initial Events', seedStart);
         // seedInitialEvents expects { rri, velocity, ... } and { social, economy, ... }
