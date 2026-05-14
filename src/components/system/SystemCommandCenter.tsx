@@ -1631,22 +1631,47 @@ const RRIDataTab: React.FC = () => {
     'N219': 'Internal Security', 'N221': 'Police Presence',
     'O151': 'Public Anger', 'O232': 'Youth Bulge',
     'P164': 'Youth Unemployment Rate', 'P169': 'Youth Disenfranchisement',
+    'A01': 'GDP Growth', 'H04': 'Energy Production', 'B24': 'Environmental Risk',
+    'H_UGTT': 'UGTT Union Power',
+    'M_UGTT': 'UGTT Union Power',
+    'A251': 'Structural Economic Signal',
     'SEI_A01': 'Shortage Escalation Index',
     'D_MII': 'Ministerial Instability Index',
   };
 
   const getLabel = (varId: string): string => {
+    // Try direct cached label
     const cached = varLabels.get(varId);
     if (cached) return cached;
+    
+    // Try fallback map
     const fallback = FALLBACK_LABELS[varId];
     if (fallback) return fallback;
+
+    // Try without leading zero (A01 → A1) or with leading zero (A1 → A01)
+    const altId = varId.length > 2 && /^\D0/.test(varId)
+      ? varId[0] + varId.slice(2)
+      : varId.length >= 2 && /^\D\d$/.test(varId)
+        ? varId[0] + '0' + varId[1]
+        : null;
+    if (altId) {
+      const alt = varLabels.get(altId);
+      if (alt) return alt;
+      const fb = FALLBACK_LABELS[altId];
+      if (fb) return fb;
+    }
+
     // Try to generate from cache pipeline_field
     if (cache) {
-      const match = cache.find((v: any) => (v.id === varId || `${v.code}${v.number}` === varId));
+      const matchId = altId || varId;
+      const match = cache.find((v: any) => {
+        const vid = v.id || `${v.code}${v.number}`;
+        return vid === matchId || `${v.code}${String(v.number).padStart(2, '0')}` === varId;
+      });
       if (match && match.pipeline_field) {
         const parts = match.pipeline_field.split('.');
-        if (parts.length > 1) return parts[parts.length - 1].replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        return match.pipeline_field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        if (parts.length > 1) return parts[parts.length - 1].replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+        return match.pipeline_field.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
       }
     }
     return '';
