@@ -427,6 +427,7 @@ const ArcGauge: React.FC<{
           key={`percentage-display-${rri}`}
           initial={{ opacity: 0, filter: "blur(10px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
           x="200"
           y="135"
           textAnchor="middle"
@@ -522,7 +523,7 @@ const ArcGauge: React.FC<{
         <motion.g
           initial={{ rotate: -135 }}
           animate={{ rotate: angle }}
-          transition={{ type: "spring", stiffness: 200, damping: 30, mass: 2, delay: 0.3 }}
+          transition={{ duration: 1.8, ease: "easeOut", delay: 0.3 }}
           style={{ 
             transformOrigin: "center", 
             transformBox: "fill-box",
