@@ -66,21 +66,41 @@ export async function computeHistoricalRRI(days = 60): Promise<HistoricalResult>
   }
   variableCounts.sort((a, b) => b.articles - a.articles);
 
-  // Compute RRI with accumulated nudges
+  // Compute RRI by mutating variables directly
   const liveVars = getVarCache();
-  const overrides: Record<string, number> = {};
-
-  // For each variable with article data, compute a normalized value
-  // Use the ratio of articles for this variable vs total as a proxy
-  for (const vc of variableCounts) {
-    const variableId = vc.variable;
-    // Normalize: cap at 1.0 based on expected max articles per variable
-    const expectedMax = Math.max(100, articles.length * 0.1);
-    const normalizedValue = Math.min(1, vc.articles / expectedMax);
-    overrides[variableId] = normalizedValue;
+  // Clone base variables from cache or fall back to empty
+  let workingVars: any[] = [];
+  try {
+    workingVars = JSON.parse(JSON.stringify(liveVars || []));
+  } catch (e) {
+    workingVars = [];
   }
 
-  const rriState = calculateRRI(overrides, 0, liveVars ?? undefined);
+  // For each variable with article data, set its value_2026 directly
+  for (const vc of variableCounts) {
+    const variableId = vc.variable;
+    const expectedMax = Math.max(100, articles.length * 0.1);
+    const normalizedValue = Math.min(1, vc.articles / expectedMax);
+
+    // Find the variable in working vars and set its value
+    const match = workingVars.find((v: any) =>
+      (v.id === variableId || `${v.code}${v.number}` === variableId ||
+       `${v.code}${String(v.number).padStart(2, '0')}` === variableId)
+    );
+    if (match) {
+      // Convert normalized article score (0-1) to variable's natural raw scale
+      const minVal = match.min_value ?? 0;
+      const maxVal = match.max_value ?? 100;
+      const invert = match.invert ?? false;
+      const rawValue = invert
+        ? maxVal - (maxVal - minVal) * normalizedValue
+        : minVal + (maxVal - minVal) * normalizedValue;
+      match.value_2026 = rawValue;
+    }
+  }
+
+  // Pass the mutated array to calculateRRI (array path bypasses override logic)
+  const rriState = calculateRRI(workingVars, 0);
 
   return {
     rriState,
