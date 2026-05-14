@@ -17,6 +17,7 @@ import {
   RefreshCw, ZoomIn, ZoomOut, Target, Users,
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { ModuleHeader } from '../shared/ProfessionalShared';
 import { useRSS } from '../../context/RSSContext';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useAIAnalysis } from '../../context/AIAnalysisContext';
@@ -262,6 +263,7 @@ export const NationalActorNetwork: React.FC = () => {
   const [selectedEdge, setSelectedEdge] = useState<RelEdge | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [filters, setFilters] = useState({ type: 'all' as EdgeType | 'all', tier: 'all' as number | 'all' });
 
   const W = 1200, H = 850;
   const CX = W / 2, CY = H / 2;
@@ -592,18 +594,16 @@ export const NationalActorNetwork: React.FC = () => {
     <div className="flex flex-col h-full space-y-4 p-3 md:p-6 relative overflow-hidden bg-dot-white/[0.02]">
 
       {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-intel-cyan" />
-          <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest">National Actor Network — Domestic Power Map</h2>
-            <p className="text-[8px] font-mono text-slate-600">16 actors · 36 directed relationships · 6 game theory models · PRES as gravity well</p>
-          </div>
-        </div>
-      </div>
+      <ModuleHeader 
+        title="National Actor Network" 
+        subtitle="Domestic Power Map — 16 actors · 36 directed relationships · 6 game theory models · PRES as gravity well" 
+        icon={Users}
+        statusLabel="UPLINK SECURE"
+        nodeId="DOM-NODE-01"
+      />
 
       {/* Status strip */}
-      <div className="glass rounded-xl border border-intel-border/50 overflow-hidden shrink-0">
+      <div className="glass rounded-xl border border-intel-border/30 overflow-hidden shrink-0 bg-white/[0.01]">
         <div className="flex items-center gap-0 divide-x divide-white/5 overflow-x-auto no-scrollbar">
           <div className="px-4 py-2.5 shrink-0">
             <div className="text-[8px] font-mono text-slate-600 uppercase">Presidency Posture</div>
@@ -628,41 +628,41 @@ export const NationalActorNetwork: React.FC = () => {
         </div>
       </div>
 
-      {/* Filter bar */}
-      <div className="flex items-center gap-3 flex-wrap shrink-0">
-        <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 uppercase">
-          <Filter className="w-3 h-3" /> Filter:
-        </div>
-        <select
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
-          value={filters.type}
-          onChange={e => setFilters(f => ({ ...f, type: e.target.value as EdgeType | 'all' }))}
-        >
-          <option value="all">All Edge Types</option>
-          {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-        <select
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
-          value={filters.tier}
-          onChange={e => setFilters(f => ({ ...f, tier: e.target.value === 'all' ? 'all' : parseInt(e.target.value) }))}
-        >
-          <option value="all">All Tiers</option>
-          {[1, 2, 3, 4].map(t => <option key={t} value={t}>Tier {t}</option>)}
-        </select>
-        <div className="flex items-center gap-3 ml-auto flex-wrap">
-          {Object.entries(EDGE_STYLE).map(([type, style]) => (
-            <span key={type} className="flex items-center gap-1 text-[8px] font-mono" style={{ color: style.color }}>
-              <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: style.color }} />
-              {type}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* Main interaction layout */}
       <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-hidden">
         {/* Left Column: Network Map */}
         <div className="flex-1 flex flex-col gap-4">
+          {/* Filter bar */}
+          <div className="flex items-center gap-3 flex-wrap shrink-0">
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 uppercase">
+              <Filter className="w-3 h-3" /> Filter:
+            </div>
+            <select
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              value={filters.type}
+              onChange={e => setFilters(f => ({ ...f, type: e.target.value as EdgeType | 'all' }))}
+            >
+              <option value="all">All Edge Types</option>
+              {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+            <select
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              value={filters.tier}
+              onChange={e => setFilters(f => ({ ...f, tier: e.target.value === 'all' ? 'all' : parseInt(e.target.value) }))}
+            >
+              <option value="all">All Tiers</option>
+              {[1, 2, 3, 4].map(t => <option key={t} value={t}>Tier {t}</option>)}
+            </select>
+            <div className="flex items-center gap-3 ml-auto flex-wrap">
+              {Object.entries(EDGE_STYLE).map(([type, style]) => (
+                <span key={type} className="flex items-center gap-1 text-[8px] font-mono" style={{ color: style.color }}>
+                  <span className="w-4 h-0.5 inline-block" style={{ backgroundColor: style.color }} />
+                  {type}
+                </span>
+              ))}
+            </div>
+          </div>
+
           {/* Graph Stage */}
           <div className="glass rounded-3xl border border-intel-border/30 overflow-hidden relative flex-1 bg-black/40">
             <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
