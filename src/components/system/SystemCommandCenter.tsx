@@ -5,7 +5,7 @@ import {
   Trash2, Pause, Play, Filter, AlertTriangle, ArrowRight,
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
   Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
-  FileText, BarChart3, TrendingUp
+  FileText, BarChart3, TrendingUp, RotateCcw, Server
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -863,12 +863,12 @@ const MissionControl: React.FC<{
         </div>
 
         {/* Recent terminal logs */}
-        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5 flex flex-col min-h-0 flex-1">
-          <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2 shrink-0">
-            <Terminal className="w-3.5 h-3.5" />
-            Recent Pipeline Events
-          </div>
-          <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[9px] min-h-0">
+          <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5 flex flex-col min-h-0 flex-1 max-h-[50vh]">
+            <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2 shrink-0">
+              <Terminal className="w-3.5 h-3.5" />
+              Recent Pipeline Events
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[9px] min-h-0">
             {prepareList(logs).map((log: any, i: number) => (
               <div key={generateStableKey(log, i, 'recent-log')} className="flex gap-3 py-1 border-b border-white/[0.03] hover:bg-white/[0.02]">
                 <span className="text-white/20 shrink-0">{String(log.timestamp).split('T')[1]?.slice(0, 8) || '—'}</span>
@@ -1572,6 +1572,8 @@ const ADMTab: React.FC<{
 const RRIDataTab: React.FC = () => {
   const [historyResult, setHistoryResult] = useState<{ rriState: any; variableCounts: any[]; totalArticles: number; elapsedMs: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const { rriState: liveRRI } = useRiskMetrics();
+  const live = liveRRI;
 
   const loadHistory = async () => {
     setLoading(true);
@@ -1589,6 +1591,16 @@ const RRIDataTab: React.FC = () => {
 
   const hist = historyResult?.rriState;
   const counts = historyResult?.variableCounts || [];
+
+  // Build variable label map from cache
+  const varLabels = new Map<string, string>();
+  const cache = getVarCache();
+  if (cache) {
+    for (const v of cache) {
+      const id = v.id || `${v.code}${v.number}`;
+      if (v.label) varLabels.set(id, v.label);
+    }
+  }
 
   return (
     <div className="space-y-4 h-full overflow-y-auto">
@@ -1632,38 +1644,42 @@ const RRIDataTab: React.FC = () => {
         </div>
 
         {/* Fresh (from pipeline) */}
+        {live && (
         <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
           <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-2">
             <Activity className="w-3.5 h-3.5" />
             Fresh (Pipeline)
           </div>
           <div className="space-y-2">
-            <MetricRow label="RRI" value="From rriState" color="text-slate-400" />
-            <MetricRow label="P(REV)" value="From rriState" color="text-slate-400" />
-            <MetricRow label="Salience" value="From rriState" color="text-slate-400" />
-            <MetricRow label="Cascade" value="From rriState" color="text-slate-400" />
-            <MetricRow label="Velocity" value="From rriState" color="text-slate-400" />
+            <MetricRow label="RRI" value={live.rri?.toFixed(4)} color={live.rri >= 2.625 ? 'text-red-400' : live.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
+            <MetricRow label="P(REV)" value={(live.p_rev * 100).toFixed(1) + '%'} color={live.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
+            <MetricRow label="Salience" value={live.salience?.toFixed(4)} color="text-cyan-400" />
+            <MetricRow label="Cascade" value={live.cascade_probability?.toFixed(4)} color="text-amber-400" />
+            <MetricRow label="Velocity" value={live.velocity_label || 'N/A'} color="text-slate-400" />
+            <MetricRow label="Compound Stress" value={live.compound_stress?.toFixed(4)} color="text-purple-400" />
+            <MetricRow label="Info Amp" value={live.info_amplification?.toFixed(4)} color="text-blue-400" />
             <MetricRow label="Variables" value={`${getVarCache()?.length || 0} cached`} color="text-slate-400" />
-            <MetricRow label="OCP" value="From pipeline" color="text-slate-400" />
           </div>
         </div>
+        )}
       </div>
 
-      {/* Top variables table */}
+      {/* Variables table — all with labels */}
       <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
         <div className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
           <TrendingUp className="w-3.5 h-3.5" />
-          Top Variables by Article Count
+          Variables by Article Count ({counts.length} total)
         </div>
-        <div className="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
-          {counts.slice(0, 30).map((vc, i) => (
-            <div key={vc.variable} className="flex items-center justify-between py-1 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono">
-              <div className="flex items-center gap-3">
-                <span className="text-slate-600 w-5">{i + 1}.</span>
-                <span className="font-bold text-white">{vc.variable}</span>
-                <span className="text-slate-500">{vc.articles} articles</span>
+        <div className="space-y-1 max-h-[50vh] overflow-y-auto custom-scrollbar">
+          {counts.map((vc, i) => (
+            <div key={vc.variable} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <span className="text-slate-600 w-5 shrink-0">{i + 1}.</span>
+                <span className="font-bold text-white shrink-0">{vc.variable}</span>
+                <span className="text-slate-500 truncate text-[9px]">{varLabels.get(vc.variable) || ''}</span>
               </div>
-              <div className="flex items-center gap-4 text-[9px]">
+              <div className="flex items-center gap-4 text-[9px] shrink-0">
+                <span className="text-slate-600">{vc.articles} arts</span>
                 <span className="text-slate-600">sev: {vc.avgSeverity.toFixed(1)}</span>
                 <span className="text-intel-cyan">nudge: {vc.totalNudge.toFixed(3)}</span>
               </div>
