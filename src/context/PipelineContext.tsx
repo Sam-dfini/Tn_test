@@ -477,6 +477,25 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const mediaSalience = computeMediaSalience(articleCache, 72);
       overrides['_media_salience_norm'] = mediaSalience;
       overrides['_battle_deaths_norm'] = mediaSalience * 0.7 + 0.1;
+
+      // EQ.3 inputs — derived from pipeline data (previously hardcoded fallbacks)
+      overrides['_cp_t'] = Math.min(1, (data.social?.press_freedom_rank ?? 118) / 180);
+      overrides['_dp_t'] = Math.min(1, (data.economy?.remittances_total_bnd ?? 8.8) / 15);
+      overrides['_p_t'] = 1 - Math.min(0.8, (data.social?.press_freedom_rank ?? 118) / 180);
+      overrides['_dd_t'] = 1 - Math.min(1, (data.social?.street_signal ?? 0.78));
+      overrides['_cr_t'] = Math.min(1, ((data.social?.engineers_leaving_per_year ?? 3500) / 5000) * 0.5 + 0.2);
+      overrides['_r_total_usd'] = (data.economy?.remittances_total_bnd ?? 8.8) * 1000;
+
+      // EQ.19 — Info Amplification inputs
+      overrides['_press_freedom'] = data.social?.press_freedom_rank ?? 118;
+      overrides['_internet_censorship'] = 1 - Math.min(1, (data.social?.street_signal ?? 0.78));
+      overrides['_social_media_pen'] = 1 - Math.min(1, (data.social?.happiness_index ?? 4.2) / 10);
+      overrides['_throttling'] = (data.social?.decree54_charged ?? 67) > 50 ? 14 : 5;
+
+      // EQ.18 — Elite defection inputs
+      overrides['_parallel_premium'] = data.economy?.parallel_market_premium ?? 18;
+      overrides['_decree54'] = data.social?.decree54_charged ?? 67;
+      overrides['_fdi_change'] = (data.economy?.fdi_inflow_usd ?? 0.9) - 1;
       // ─────────────────────────────────────────────────────────────────────
 
       // ── EQ.10 — Ψ_soc(t) SBDE Integration ──────────────────────────────

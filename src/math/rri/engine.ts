@@ -672,7 +672,7 @@ export function calculateRRI(
     : eq8_warIntensity(battle_deaths_norm, media_salience_norm);
 
   const remitVar = vars.find(v => (v.id === 'A_REMIT_URBAN' || `${v.code}${v.number}` === 'A11'));
-  const r_total_usd = 2850;
+  const r_total_usd = (overridesOrVars as any)?._r_total_usd ?? 2850;
   const remitDist = eq10_remittanceDistribution(r_total_usd);
 
   const cpVar = vars.find(v => (v.id === 'H_CP' || `${v.code}${v.number}` === 'H116'));
@@ -681,11 +681,11 @@ export function calculateRRI(
   const ddVar = vars.find(v => (v.id === 'C_DD' || `${v.code}${v.number}` === 'C40'));
   const ruralConnVar = vars.find(v => (v.id === 'C31' || `${v.code}${v.number}` === 'C31'));
 
-  const cp_t = cpVar ? cpVar.value_2026 : 0.42;
-  const dp_t = dpVar ? dpVar.value_2026 : 0.38;
-  const p_t = propVar ? propVar.value_2026 : 0.72;
-  const dd_t = ddVar ? ddVar.value_2026 : 0.65;
-  const cr_t = ruralConnVar ? (1 - eq1_normalize(ruralConnVar)) : 0.30;
+  const cp_t = (overridesOrVars as any)?._cp_t ?? (cpVar ? cpVar.value_2026 : 0.42);
+  const dp_t = (overridesOrVars as any)?._dp_t ?? (dpVar ? dpVar.value_2026 : 0.38);
+  const p_t = (overridesOrVars as any)?._p_t ?? (propVar ? propVar.value_2026 : 0.72);
+  const dd_t = (overridesOrVars as any)?._dd_t ?? (ddVar ? ddVar.value_2026 : 0.65);
+  const cr_t = (overridesOrVars as any)?._cr_t ?? (ruralConnVar ? (1 - eq1_normalize(ruralConnVar)) : 0.30);
   const rm_normalized = Math.min(1, remitDist.urban / 3000);
   const rr_normalized = Math.min(1, remitDist.rural / 800);
 
@@ -807,9 +807,9 @@ export function calculateRRI(
   const decree54Var = vars.find(v => (v.id === 'G71' || `${v.code}${v.number}` === 'G101'));
   const ec_t_base = eq18_eliteDefectionDynamics(
     0.65,
-    parallelPremiumVar ? parallelPremiumVar.value_2026 : 18,
-    decree54Var ? decree54Var.value_2026 * 100 : 23,
-    -5
+    (overridesOrVars as any)?._parallel_premium ?? (parallelPremiumVar ? parallelPremiumVar.value_2026 : 18),
+    (overridesOrVars as any)?._decree54 ?? (decree54Var ? decree54Var.value_2026 * 100 : 23),
+    (overridesOrVars as any)?._fdi_change ?? -5
   );
   // MII adds to delta_defection in EQ.18
   const ec_t = Math.max(0.10, ec_t_base - _mii_ec_addon);
@@ -818,10 +818,10 @@ export function calculateRRI(
   const censorVar = vars.find(v => (v.id === 'C37' || `${v.code}${v.number}` === 'C37'));
   const socialMediaVar = vars.find(v => (v.id === 'C26' || `${v.code}${v.number}` === 'C26'));
   const a_t = eq19_infoAmplification(
-    pressVar ? pressVar.value_2026 : 31,
-    censorVar ? censorVar.value_2026 / 100 : 0.72,
-    socialMediaVar ? 1 - eq1_normalize(socialMediaVar) : 0.75,
-    14
+    (overridesOrVars as any)?._press_freedom ?? (pressVar ? pressVar.value_2026 : 31),
+    (overridesOrVars as any)?._internet_censorship ?? (censorVar ? censorVar.value_2026 / 100 : 0.72),
+    (overridesOrVars as any)?._social_media_pen ?? (socialMediaVar ? 1 - eq1_normalize(socialMediaVar) : 0.75),
+    (overridesOrVars as any)?._throttling ?? 14
   );
 
   const currentStateVector = getCurrentStateVector(vars);
