@@ -527,7 +527,55 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       // ─────────────────────────────────────────────────────────────────────
 
-      const newState = calculateRRI(overrides, 0, getVarCache() ?? undefined);
+      // Clone vars from cache and inject CS baselines for compound stress
+      let csVars: any[] = [];
+      try { csVars = JSON.parse(JSON.stringify(getVarCache() || [])); } catch (e) { csVars = []; }
+
+      // CS variable aliases mapping to their code+number in the cache
+      const CS_ALIASES: Record<string, { code: string; num: number; label: string; pf: string }> = {
+        'A_FX':  { code: 'A', num: 7,   label: 'Foreign Reserves', pf: 'economy.foreign_reserves' },
+        'M_UGTT':{ code: 'M', num: 207, label: 'Union Power',      pf: 'opp.union_strength' },
+        'I92':   { code: 'I', num: 92,  label: 'IMF Deal',         pf: 'geopolitical.imf_deal' },
+        'D50':   { code: 'D', num: 79,  label: 'Trust in Gov',     pf: 'politics.trust' },
+        'M133':  { code: 'M', num: 133, label: 'Opposition Frag',   pf: 'opp.fragmentation' },
+        'B21':   { code: 'B', num: 21,  label: 'Water Stress',     pf: 'environment.water_stress' },
+        'L123':  { code: 'L', num: 189, label: 'Elite Cohesion',   pf: 'regime.elite_cohesion' },
+        'M215':  { code: 'M', num: 215, label: 'Opposition Coord', pf: 'opp.oci' },
+        'A251':  { code: 'A', num: 251, label: 'Structural Signal',pf: 'economy.structural_signal' },
+        'N142':  { code: 'N', num: 142, label: 'Riot Control',     pf: 'security.riot_control' },
+        'E51':   { code: 'E', num: 51,  label: 'Protest Mobiliz.', pf: 'social.protest_mobilization' },
+        'D_MII': { code: 'D', num: 250, label: 'Ministerial Instab.', pf: 'politics.ministerial_instability' },
+        'SEI_A01': { code: 'A', num: 250, label: 'Shortage Escalat.', pf: 'economy.shortage_index' },
+        'A02':   { code: 'A', num: 2,   label: 'Inflation',         pf: 'economy.inflation' },
+      };
+
+      for (const [varId, alias] of Object.entries(CS_ALIASES)) {
+        let match = csVars.find((v: any) => v.code === alias.code && v.number === alias.num);
+        if (!match) {
+          // Create synthetic entry for missing variables
+          match = {
+            id: varId, code: alias.code, number: alias.num, label: alias.label,
+            pipeline_field: alias.pf, value_2026: 85, min_value: 0, max_value: 100,
+            invert: false, weight: 0.05, threshold: null, threshold_weight: 1.2,
+            volatility: 0.1, value: 0.85, history: [85, 85, 85],
+            last_updated: new Date().toISOString().slice(0, 10), source: 'pipeline',
+            category: alias.code,
+          };
+          csVars.push(match);
+        } else {
+          // Inject baseline for existing variables
+          match.value_2026 = 85;
+        }
+      }
+
+      // Apply pipeline overrides on top of CS-baselined vars
+      for (const v of csVars) {
+        if (v && v.pipeline_field && overrides[v.pipeline_field] !== undefined) {
+          v.value_2026 = overrides[v.pipeline_field]!;
+        }
+      }
+
+      const newState = calculateRRI(csVars, 0);
       newState.active_signals = data.active_signals;
       setRriState(newState);
 
