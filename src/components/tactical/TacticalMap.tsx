@@ -4,10 +4,10 @@ import {
   Maximize2, Navigation, Target, 
   Crosshair, AlertTriangle, Grid3X3, MapPin, 
   Activity, Layers, X, ChevronRight, BarChart3, Users,
-  Droplets, Wifi, DollarSign, Heart,
+  Droplets, Wifi, DollarSign,
   GraduationCap, Eye, TrendingUp,
   AlertTriangle as WarningIcon, Flame, Globe, Search,
-  Shield, CheckSquare, Flame as FireIcon
+  Shield, CheckSquare, Flame as FireIcon, Frown
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, Tooltip as LeafletTooltip, useMap, GeoJSON } from 'react-leaflet';
 import L from 'leaflet';
@@ -221,9 +221,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
   useEffect(() => {
     const loadGeoJSON = async () => {
       try {
-        const targetUrl = 'https://raw.githubusercontent.com/sammmeeeh/tunisia-immigration-analytics-dashboard/main/TN-gouvernorat.geojson';
-        const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
-        const response = await fetch(proxyUrl);
+        const response = await fetch('/data/tunisia_governorates.geojson');
         if (!response.ok) throw new Error('GeoJSON fetch failed');
         const data = await response.json();
         setGeoJsonData(data);
@@ -789,15 +787,23 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           </div>
         )}
 
-        {/* Bottom Status Bar — RRI + P_rev */}
+        {/* Bottom Incident Buttons — Accidents, Suicide, Crimes */}
         {!hideStatus && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-4 bg-black/70 backdrop-blur-sm border border-intel-cyan/20 px-3 py-1 rounded-sm z-40 pointer-events-none text-[8px] font-mono">
-            <span className={`uppercase flex items-center whitespace-nowrap font-bold ${rriState.rri >= 2.625 ? 'text-intel-red' : rriState.rri >= 2.0 ? 'text-intel-orange' : 'text-intel-cyan'}`}>
-              <div className="w-1 h-1 rounded-full bg-current animate-pulse mr-1" />
-              RRI: {rriState.rri.toFixed(2)}
-            </span>
-            <span className="text-slate-400 whitespace-nowrap">P_rev: {(rriState.p_rev * 100).toFixed(1)}%</span>
-            <span className="text-slate-500 whitespace-nowrap">Velocity: {rriState.velocity_label || 'STABLE'}</span>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-3 bg-black/70 backdrop-blur-sm border border-intel-cyan/20 px-3 py-1.5 rounded-sm z-40 pointer-events-auto">
+            <button className="flex-1 flex items-center justify-center gap-2 px-3 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all">
+              <AlertTriangle className="w-4 h-4" />
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider">Accidents</span>
+            </button>
+            <div className="w-px h-5 bg-white/10" />
+            <button className="flex-1 flex items-center justify-center gap-2 px-3 py-1 rounded bg-slate-500/10 border border-slate-500/30 text-slate-400 hover:bg-slate-500/20 transition-all">
+              <Frown className="w-4 h-4" />
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider">Suicide</span>
+            </button>
+            <div className="w-px h-5 bg-white/10" />
+            <button className="flex-1 flex items-center justify-center gap-2 px-3 py-1 rounded bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-all">
+              <Shield className="w-4 h-4" />
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider">Crimes</span>
+            </button>
           </div>
         )}
 
