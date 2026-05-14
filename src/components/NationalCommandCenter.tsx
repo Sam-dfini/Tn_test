@@ -91,27 +91,28 @@ function computeNBS(rri: number, pRev: number): number {
 }
 
 // ─── STATUS LABEL ─────────────────────────────────────────────────────────────
-function getStatusLabel(rri: number): {
+function getStatusLabel(rri: number, maxRri = 3.0): {
   label: string;
   sub: string;
   color: string;
   zone: string;
 } {
-  if (rri >= 2.5)
+  const pct = rri / maxRri;
+  if (pct >= 0.75)
     return {
       label: "CRITICAL",
       sub: "Regime rupture threshold approaching",
       color: "#ef4444",
       zone: "RED",
     };
-  if (rri >= 1.8)
+  if (pct >= 0.50)
     return {
-      label: "STRAINED / ESCALATING",
+      label: "STRAINED",
       sub: "Primary Pressure: Narrative + Regional Instability",
       color: "#f97316",
       zone: "ORANGE",
     };
-  if (rri >= 1.2)
+  if (pct >= 0.25)
     return {
       label: "ELEVATED",
       sub: "Multiple structural stress indicators active",
@@ -119,7 +120,7 @@ function getStatusLabel(rri: number): {
       zone: "YELLOW",
     };
   return {
-    label: "MONITORED",
+    label: "NORMAL",
     sub: "System stable — standard monitoring active",
     color: "#10b981",
     zone: "GREEN",
@@ -430,11 +431,11 @@ const ArcGauge: React.FC<{
           y="135"
           textAnchor="middle"
           fill={status.color}
-          className="text-6xl md:text-[80px] font-mono font-bold tracking-tighter pointer-events-none"
+          className="text-4xl md:text-[55px] font-mono font-bold tracking-tighter pointer-events-none"
           style={{ textShadow: `0 0 45px ${status.color}` }}
         >
           {Math.round(pct * 100)}
-          <tspan className="text-2xl md:text-3xl" fill="rgba(255,255,255,0.5)">
+          <tspan className="text-xl md:text-2xl" fill="rgba(255,255,255,0.5)">
             %
           </tspan>
         </motion.text>
@@ -502,9 +503,9 @@ const ArcGauge: React.FC<{
                 className="transition-all duration-1000"
               />
               <text
-                {...polar(z.textDeg, r + 10)}
+                {...polar(z.textDeg, r + 50)}
                 fill={sectionActive ? z.color : "rgba(255,255,255,0.6)"}
-                className="text-[12px] md:text-sm font-mono font-black tracking-widest pointer-events-none"
+                className="text-[9px] md:text-[11px] font-mono font-black tracking-widest pointer-events-none"
                 textAnchor="middle"
                 style={{
                   opacity: sectionActive ? 1 : 0.6,
