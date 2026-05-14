@@ -51,6 +51,9 @@ const PARAMS = {
   // EQ.7 — Elite Defection
   SIGMA: 0.05,   // elite risk tolerance
   DEFECT_THRESHOLD: 10, // utility threshold for defection
+  DEFECT_B: 0.4,  // benefit of defection
+  DEFECT_C: 0.8,  // cost of defection
+  DEFECT_LAMBDA: 0.15, // social proof multiplier
 
   // EQ.8 — War Intensity
   W_BATTLE_WEIGHT: 0.6,
@@ -353,11 +356,7 @@ function eq7_eliteDefection(
   defection_probability: number;
   nash_threshold: number;
 } {
-  const B_i = 0.4;
-  const C_i = 0.8;
-  const lambda_i = 0.15;
-
-  const utility = B_i - C_i * (1 - p_rev) + lambda_i * current_defections;
+  const utility = PARAMS.DEFECT_B - PARAMS.DEFECT_C * (1 - p_rev) + PARAMS.DEFECT_LAMBDA * current_defections;
   const nash_threshold = PARAMS.DEFECT_THRESHOLD + PARAMS.SIGMA * r_t;
 
   const defection_probability = sigmoid((utility - nash_threshold) * 2);
@@ -519,12 +518,8 @@ function eq17_cascadeProbability(vars: RRIVariable[]): number {
   const unemployment = unemployVar ? eq1_normalize(unemployVar) : 0.65;
   const securityCapacity = securityVar ? eq1_normalize(securityVar) : 0.5;
 
-  const govWeights = {
-    sfax: 1.4,
-    kasserine: 1.2,
-    sidi_bouzid: 1.1,
-    gafsa: 1.2,
-    gabes: 1.0
+  const govWeights = (overridesOrVars as any)?._cascade_gov_weights ?? {
+    sfax: 1.4, kasserine: 1.2, sidi_bouzid: 1.1, gafsa: 1.2, gabes: 1.0
   };
 
   let productTerm = 1.0;
@@ -633,7 +628,16 @@ function eq20_historicalPatternSimilarity(
   return { score: maxSimilarity, closest_match: closestMatch, label };
 }
 
-const REGIME_AGE = { age_pct: 0.29, years: 5 };
+const REGIME_ORIGIN = new Date('2021-07-25').getTime();
+
+function getRegimeAge(): { age_pct: number; years: number } {
+  const now = Date.now();
+  const years = (now - REGIME_ORIGIN) / (365.25 * 24 * 60 * 60 * 1000);
+  return {
+    years: parseFloat(years.toFixed(1)),
+    age_pct: Math.min(1, years / 15),
+  };
+}
 
 export function calculateRRI(
   overridesOrVars?: Partial<Record<string, number>> | RRIVariable[],
@@ -850,7 +854,7 @@ export function calculateRRI(
     : 0.02;
   const sirResult = eq4_sir(initial_infected);
 
-  const mcResult = eq14_monteCarlo(vars, w_t, 1000);
+  const mcResult = eq14_monteCarlo(vars, w_t, PARAMS.MONTE_CARLO_RUNS);
 
   const now = new Date();
   const freshness = vars.reduce((sum, v) => {
@@ -906,7 +910,7 @@ export function calculateRRI(
     ci_low: parseFloat(safeVal(mcResult.ci_low, 0.598).toFixed(4)),
     ci_high: parseFloat(safeVal(mcResult.ci_high, 0.687).toFixed(4)),
     p_rev_mean: parseFloat(safeVal(mcResult.mean, 0.643).toFixed(4)),
-    simulations_run: 1000,
+    simulations_run: PARAMS.MONTE_CARLO_RUNS,
 
     category_scores,
 
@@ -938,7 +942,7 @@ export function calculateRRI(
     // Legacy fields for backward compatibility
     prev: parseFloat(p_rev_final.toFixed(4)),
     W: parseFloat(w_t.toFixed(4)),
-    regime_age: REGIME_AGE, // Calibrated for current Tunisia
+    regime_age: getRegimeAge(),
     monte_carlo_runs: 1000
   };
 }
