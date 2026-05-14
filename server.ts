@@ -320,22 +320,39 @@ async function startServer() {
         return res.status(404).json({ success: false, error: 'Variables file not found' });
       }
 
-      // Ensure the variables table exists
+      // Ensure the variables table exists (drop stale version if any, then recreate)
+      const { error: dropError } = await supabaseServer.rpc('exec_sql_admin', {
+        sql_query: 'DROP TABLE IF EXISTS variables CASCADE;'
+      });
+      if (dropError) console.warn('[VARIABLE SEED] Drop failed:', dropError.message);
+
+      await new Promise(r => setTimeout(r, 500));
+
       const { error: tableError } = await supabaseServer.rpc('exec_sql_admin', {
         sql_query: `
-          CREATE TABLE IF NOT EXISTS variables (
-            id TEXT PRIMARY KEY, code TEXT, number INT8, value_2026 FLOAT8,
-            value FLOAT8, min_value FLOAT8, max_value FLOAT8, invert BOOLEAN,
-            weight FLOAT8, threshold FLOAT8, threshold_weight FLOAT8,
-            volatility FLOAT8, pipeline_field TEXT, label TEXT, source TEXT,
-            category TEXT, last_updated TEXT,
-            nlp_keywords JSONB DEFAULT '[]', nlp_nudge FLOAT8 DEFAULT 0
+          CREATE TABLE "variables" (
+            "id" TEXT PRIMARY KEY,
+            "code" TEXT,
+            "number" INT8,
+            "value_2026" FLOAT8,
+            "value" FLOAT8,
+            "min_value" FLOAT8,
+            "max_value" FLOAT8,
+            "invert" BOOLEAN,
+            "weight" FLOAT8,
+            "threshold" FLOAT8,
+            "threshold_weight" FLOAT8,
+            "volatility" FLOAT8,
+            "pipeline_field" TEXT,
+            "label" TEXT,
+            "source" TEXT,
+            "category" TEXT,
+            "last_updated" TEXT,
+            "nlp_keywords" JSONB DEFAULT '[]',
+            "nlp_nudge" FLOAT8 DEFAULT 0
           );
         `
       });
-      if (tableError) {
-        console.warn('[VARIABLE SEED] Could not create table:', tableError.message);
-      }
 
       const raw = fs.readFileSync(dataPath, 'utf8');
       const data = JSON.parse(raw);
@@ -367,16 +384,30 @@ async function startServer() {
         nlp_nudge: v.nlp_nudge ?? 0,
       }));
 
-      // Upsert in batches of 50 to avoid payload limits
+      // Upsert in batches using raw SQL (bypasses schema cache)
       let seeded = 0;
-      for (let i = 0; i < rows.length; i += 50) {
-        const batch = rows.slice(i, i + 50);
-        const { error } = await supabaseServer
-          .from('variables')
-          .upsert(batch, { onConflict: 'id', ignoreDuplicates: false });
-
+      for (let i = 0; i < rows.length; i += 25) {
+        const batch = rows.slice(i, i + 25);
+        const valueStrings = batch.map((r: any) => {
+          const esc = (v: any) => {
+            if (v === null || v === undefined) return 'NULL';
+            if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+            if (typeof v === 'number') return v;
+            if (typeof v === 'object') return `'${JSON.stringify(v).replace(/'/g, "''")}'`;
+            return `'${String(v).replace(/'/g, "''")}'`;
+          };
+          return `(${Object.values(r).map(esc).join(',')})`;
+        }).join(',');
+        const cols = Object.keys(rows[0]).join(',');
+        const sql = `
+          INSERT INTO variables (${cols}) VALUES ${valueStrings}
+          ON CONFLICT (id) DO UPDATE SET
+            value_2026 = EXCLUDED.value_2026,
+            last_updated = EXCLUDED.last_updated;
+        `;
+        const { error } = await supabaseServer.rpc('exec_sql_admin', { sql_query: sql });
         if (error) {
-          console.error(`[VARIABLE SEED] Batch ${i / 50 + 1} failed:`, error.message);
+          console.error(`[VARIABLE SEED] Batch ${i / 25 + 1} failed:`, error.message);
         } else {
           seeded += batch.length;
         }
