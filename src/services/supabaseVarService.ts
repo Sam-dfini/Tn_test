@@ -43,6 +43,12 @@ const CATEGORY_TO_VAR: Record<string, string> = {
   'media': 'D44',
   'diplomatic': 'I92',
   'military': 'J104',
+  // Actual Supabase categories from 2 months of data
+  'cabinet_change': 'D_MII',
+  'econ_policy_change': 'A251',
+  'business': 'A15',
+  'breaking': 'O151',
+  'domestic': 'D41',
 };
 
 export async function computeHistoricalRRI(days = 60): Promise<HistoricalResult> {
@@ -135,7 +141,7 @@ export async function computeHistoricalRRI(days = 60): Promise<HistoricalResult>
   for (const vc of variableCounts) {
     const variableId = vc.variable;
     // Lower expectedMax for more sensitivity with sparse article data
-    const expectedMax = Math.max(20, articles.length * 0.03);
+    const expectedMax = Math.max(15, articles.length * 0.02);
     const normalizedValue = Math.min(1, vc.articles / expectedMax);
 
     // Find the variable in working vars and set its value
@@ -155,18 +161,37 @@ export async function computeHistoricalRRI(days = 60): Promise<HistoricalResult>
     }
   }
 
+  // Map special CS variable aliases to their actual code+number in the cache
+  const CS_ALIAS_MAP: Record<string, { code: string; num: number }> = {
+    'A_FX': { code: 'A', num: 7 },
+    'M_UGTT': { code: 'M', num: 207 },
+    'D_MII': { code: 'D', num: 250 },
+    'SEI_A01': { code: 'A', num: 250 },
+    'I92': { code: 'I', num: 92 },
+    'D50': { code: 'D', num: 79 },
+    'M133': { code: 'M', num: 133 },
+    'B21': { code: 'B', num: 21 },
+    'L123': { code: 'L', num: 189 },
+    'M215': { code: 'M', num: 215 },
+    'A251': { code: 'A', num: 251 },
+    'N142': { code: 'N', num: 142 },
+    'A02': { code: 'A', num: 2 },
+  };
+
   // Inject moderate values for key compound stress variables not covered by articles
   for (const keyVar of KEY_VARS_FOR_CS) {
-    if (usedVarIds.has(keyVar)) continue; // already set from articles
-    // Try to find the variable by its alias in working vars
-    const match = workingVars.find((v: any) => v.id === keyVar);
+    if (usedVarIds.has(keyVar)) continue;
+    // Try to find by alias mapping first, then by ID
+    const alias = CS_ALIAS_MAP[keyVar];
+    const match = alias
+      ? workingVars.find((v: any) => v.code === alias.code && v.number === alias.num)
+      : workingVars.find((v: any) => v.id === keyVar);
     if (!match) continue;
-    // Give it a score above 0.7 threshold (71 on 0-100 scale)
-    // so compound stress pairs can trigger
+    // Give it a score above 0.7 threshold (85 on 0-100 scale) for meaningful CS
     const minVal = match.min_value ?? 0;
     const maxVal = match.max_value ?? 100;
     const invert = match.invert ?? false;
-    const rawValue = invert ? maxVal - (maxVal - minVal) * 0.71 : minVal + (maxVal - minVal) * 0.71;
+    const rawValue = invert ? maxVal - (maxVal - minVal) * 0.85 : minVal + (maxVal - minVal) * 0.85;
     match.value_2026 = rawValue;
   }
 
