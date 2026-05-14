@@ -153,9 +153,11 @@ async function startServer() {
       console.log('[Supabase] Server-side client initialized with URL:', supabaseUrl);
       
       // Self-healing: Initialize and fix schemas on startup
-      initializeAllSchemas(supabaseServer).catch(err => {
-        console.error('[Supabase] Schema initialization failed:', err);
-      });
+      // Disabled — all tables already have columns from initial setup.
+      // Re-enable if new tables/columns are added to SCHEMA_MAP in schemaValidator.ts
+      // initializeAllSchemas(supabaseServer).catch(err => {
+      //   console.error('[Supabase] Schema initialization failed:', err);
+      // });
     } catch (err) {
       console.error('[Supabase] Failed to initialize client:', err);
     }

@@ -6,7 +6,7 @@ from datetime import datetime
 from .core.config import settings
 from .api.routes import router as api_router
 from .api.ws import router as ws_router
-from .orchestrator import orchestrator
+# orchestrator imported lazily in lifespan to speed up startup
 # from .services.rss_service import rss_service
 
 
