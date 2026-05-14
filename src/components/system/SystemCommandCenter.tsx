@@ -1592,7 +1592,7 @@ const RRIDataTab: React.FC = () => {
   const hist = historyResult?.rriState;
   const counts = historyResult?.variableCounts || [];
 
-  // Build variable label map from cache
+  // Build variable label map from cache with fallback
   const varLabels = new Map<string, string>();
   const cache = getVarCache();
   if (cache) {
@@ -1601,6 +1601,43 @@ const RRIDataTab: React.FC = () => {
       if (v.label) varLabels.set(id, v.label);
     }
   }
+  // Fallback labels for common variables if cache has empty labels
+  const FALLBACK_LABELS: Record<string, string> = {
+    'A1': 'GDP Growth', 'A2': 'Inflation', 'A3': 'Unemployment',
+    'A4': 'Youth Unemployment', 'A6': 'Public Debt/GDP', 'A7': 'Foreign Reserves',
+    'A9': 'Industrial Production', 'A11': 'Remittances Inflow',
+    'A13': 'Trade Balance', 'A16': 'Parallel Market Premium',
+    'A19': 'CPI Score', 'A21': 'Heritage Economic Freedom',
+    'A22': 'Purchasing Power',
+    'B21': 'Water Stress', 'B26': 'Environmental Degradation',
+    'C26': 'Social Media Penetration', 'C31': 'Rural Connectivity',
+    'C37': 'Internet Censorship', 'C40': 'Digital Divide',
+    'D41': 'Trust in Government', 'D44': 'Press Freedom',
+    'D50': 'Government Legitimacy', 'D54': 'Freedom of Expression',
+    'D71': 'Political Rights', 'D78': 'Political Polarization',
+    'E51': 'Protest Mobilization', 'E61': 'Strike Activity',
+    'E95': 'Social Cohesion',
+    'F66': 'Social Trust', 'F81': 'Diaspora Engagement',
+    'G71': 'Decree 54 Cases', 'G101': 'Rule of Law',
+    'H116': 'Counter-Propaganda', 'H117': 'Gov Propaganda',
+    'I92': 'IMF Agreement Probability',
+    'J104': 'War / Conflict Intensity',
+    'L121': 'Regime Cohesion', 'L123': 'Elite Unity',
+    'L189': 'Ruling Party Cohesion', 'L199': 'Extrajudicial Actions',
+    'M133': 'Opposition Fragmentation', 'M201': 'Opposition Strength',
+    'M202': 'Protest Capacity', 'M207': 'UGTT / Union Power',
+    'M215': 'Opposition Coordination',
+    'N141': 'Security Force Loyalty', 'N142': 'Riot Control Capacity',
+    'N219': 'Internal Security', 'N221': 'Police Presence',
+    'O151': 'Public Anger', 'O232': 'Youth Bulge',
+    'P164': 'Youth Unemployment Rate', 'P169': 'Youth Disenfranchisement',
+    'SEI_A01': 'Shortage Escalation Index',
+    'D_MII': 'Ministerial Instability Index',
+  };
+
+  const getLabel = (varId: string): string => {
+    return varLabels.get(varId) || FALLBACK_LABELS[varId] || '';
+  };
 
   return (
     <div className="space-y-4 h-full overflow-y-auto">
@@ -1676,7 +1713,7 @@ const RRIDataTab: React.FC = () => {
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span className="text-slate-600 w-5 shrink-0">{i + 1}.</span>
                 <span className="font-bold text-white shrink-0">{vc.variable}</span>
-                <span className="text-slate-500 truncate text-[9px]">{varLabels.get(vc.variable) || ''}</span>
+                <span className="text-slate-500 truncate text-[9px]">{getLabel(vc.variable)}</span>
               </div>
               <div className="flex items-center gap-4 text-[9px] shrink-0">
                 <span className="text-slate-600">{vc.articles} arts</span>
