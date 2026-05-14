@@ -261,8 +261,6 @@ export const NationalActorNetwork: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<NationalActorNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<RelEdge | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
-  const [filters, setFilters] = useState<{ tier: number | 'all'; type: EdgeType | 'all' }>({ tier: 'all', type: 'all' });
-  const [gameMode, setGameMode] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   const W = 1200, H = 850;
@@ -446,7 +444,7 @@ export const NationalActorNetwork: React.FC = () => {
         setSelectedGame(null);
       });
 
-    if (gameMode && selectedGame) {
+    if (selectedGame) {
       const gamePair = new Set(selectedGame.players);
       edgePaths.attr('opacity', d => {
         const s = (d.source as NationalActorNode).id || d.source;
@@ -469,7 +467,7 @@ export const NationalActorNetwork: React.FC = () => {
         event.stopPropagation();
         setSelectedNode(d);
         setSelectedEdge(null);
-        setSelectedGame(gameMode ? GAMES.find(g => g.players.includes(d.id)) || null : null);
+        setSelectedGame(GAMES.find(g => g.players.includes(d.id)) || null);
       })
       .on('mouseover', (_, d) => setHoveredNode(d.id))
       .on('mouseout', () => setHoveredNode(null));
@@ -569,7 +567,7 @@ export const NationalActorNetwork: React.FC = () => {
     });
 
     return () => { sim.stop(); };
-  }, [visibleNodes, visibleEdges, gameMode, selectedGame]);
+  }, [visibleNodes, visibleEdges, selectedGame]);
 
   // ─── HOVER HIGHLIGHTING ───────────────────────────────────────────────────
   useEffect(() => {
@@ -591,33 +589,20 @@ export const NationalActorNetwork: React.FC = () => {
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
   return (
-    <div className="flex flex-col space-y-4 p-3 md:p-4 relative">
+    <div className="flex flex-col h-full space-y-4 p-3 md:p-6 relative overflow-hidden bg-dot-white/[0.02]">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 shrink-0">
-        <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <Users className="w-5 h-5 text-intel-cyan" />
-            National Actor Network — Domestic Power Map
-          </h2>
-          <p className="text-[9px] font-mono text-slate-600 uppercase tracking-widest mt-1">
-            16 actors · 36 directed relationships · 6 game theory models · PRES as gravity well
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={() => { setGameMode(!gameMode); setSelectedNode(null); setSelectedEdge(null); }}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[9px] font-mono font-bold uppercase transition-all',
-              gameMode ? 'border-purple-500/50 bg-purple-500/20 text-purple-400' : 'border-white/10 text-slate-500 hover:text-white'
-            )}
-          >
-            <Zap className="w-3 h-3" /> Game Theory
-          </button>
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-2">
+          <Users className="w-5 h-5 text-intel-cyan" />
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-widest">National Actor Network — Domestic Power Map</h2>
+            <p className="text-[8px] font-mono text-slate-600">16 actors · 36 directed relationships · 6 game theory models · PRES as gravity well</p>
+          </div>
         </div>
       </div>
 
-      {/* Presidential gravity well strip */}
+      {/* Status strip */}
       <div className="glass rounded-xl border border-intel-border/50 overflow-hidden shrink-0">
         <div className="flex items-center gap-0 divide-x divide-white/5 overflow-x-auto no-scrollbar">
           <div className="px-4 py-2.5 shrink-0">
@@ -674,228 +659,210 @@ export const NationalActorNetwork: React.FC = () => {
         </div>
       </div>
 
-      {/* Main graph */}
-      <div className="glass rounded-2xl border border-intel-border/30 overflow-hidden relative" style={{ minHeight: 650 }}>
-        <svg ref={svgRef} width="100%" height="650px" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
+      {/* Main interaction layout */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-hidden">
+        {/* Left Column: Network Map */}
+        <div className="flex-1 flex flex-col gap-4">
+          {/* Graph Stage */}
+          <div className="glass rounded-3xl border border-intel-border/30 overflow-hidden relative flex-1 bg-black/40">
+            <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
 
-        {/* Zoom controls */}
-        <div className="absolute left-6 bottom-6 flex flex-col gap-2">
-          <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3); }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
-            <ZoomIn className="w-5 h-5" />
-          </button>
-          <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1 / 1.3); }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
-            <ZoomOut className="w-5 h-5" />
-          </button>
-          <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(0, 0).scale(0.85)); }}
-            className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
-            <RefreshCw className="w-4 h-4" />
-          </button>
+            {/* Zoom controls */}
+            <div className="absolute left-6 bottom-6 flex flex-col gap-2">
+              <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3); }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
+                <ZoomIn className="w-5 h-5" />
+              </button>
+              <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1 / 1.3); }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
+                <ZoomOut className="w-5 h-5" />
+              </button>
+              <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(0, 0).scale(0.85)); }}
+                className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl">
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Interaction overlays */}
+            <AnimatePresence>
+              {(selectedNode || selectedEdge) && (
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                  className="absolute top-6 left-6 w-72 glass rounded-2xl border border-intel-border/50 bg-[#050a10]/95 p-5 space-y-4 text-[10px] font-mono shadow-2xl backdrop-blur-xl pointer-events-auto">
+                  {selectedNode ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-base font-bold tracking-tight text-white">{selectedNode.label}</div>
+                          <div className="text-slate-600 uppercase text-[8px] font-black">Tier {selectedNode.tier} · {selectedNode.powerType}</div>
+                        </div>
+                        <button onClick={() => setSelectedNode(null)} className="text-slate-600 hover:text-white transition-colors p-1"><X className="w-4 h-4" /></button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        {Object.entries(selectedNode.resources).map(([k, v]) => (
+                          <div key={k} className="space-y-1">
+                            <div className="text-[7px] text-slate-600 uppercase font-black">{k}</div>
+                            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                              <div className="h-full bg-intel-cyan rounded-full" style={{ width: `${v * 10}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="space-y-3 pt-2 border-t border-white/5">
+                        <div className="space-y-1">
+                          <div className="text-[7px] text-slate-600 uppercase font-black">Strategic Goals</div>
+                          {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400 flex gap-2"><span>→</span> {g}</div>)}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[7px] text-red-500/60 uppercase font-black">Constraints</div>
+                          {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80 flex gap-2"><span>⚠</span> {c}</div>)}
+                        </div>
+                      </div>
+                    </>
+                  ) : selectedEdge ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-base font-bold tracking-tight text-white">{selectedEdge.source as string} → {selectedEdge.target as string}</div>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: EDGE_STYLE[selectedEdge.type].color }} />
+                            <span className="text-slate-500 text-[8px] uppercase font-black">{selectedEdge.type} VECTOR</span>
+                          </div>
+                        </div>
+                        <button onClick={() => setSelectedEdge(null)} className="text-slate-600 hover:text-white p-1"><X className="w-4 h-4" /></button>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-slate-400">{selectedEdge.description}</div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <div className="text-[7px] text-slate-600 uppercase font-black">Conditionality</div>
+                          <div className="text-amber-400 font-medium">{selectedEdge.conditionality}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-[7px] text-slate-600 uppercase font-black">Weight</div>
+                          <div className="text-white font-bold">{selectedEdge.weight} / 10</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                        <span className="text-slate-600 text-[7px] uppercase font-black">Trend</span>
+                        <span className={cn("px-2 py-0.5 rounded-full text-[8px] font-black uppercase",
+                          selectedEdge.trend === 'rising' ? 'bg-red-500/20 text-red-500' :
+                          selectedEdge.trend === 'declining' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-500/20 text-slate-500'
+                        )}>{selectedEdge.trend}</span>
+                      </div>
+                    </>
+                  ) : null}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Node info panel */}
-        <AnimatePresence>
-          {selectedNode && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-              className="absolute top-4 right-4 w-72 glass rounded-xl border border-intel-border bg-[#050a10]/95 p-4 space-y-3 text-[10px] font-mono"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-bold" style={{ color: selectedNode.color }}>{selectedNode.label}</div>
-                  <div className="text-slate-600 uppercase text-[8px]">Tier {selectedNode.tier} · {selectedNode.powerType}</div>
-                </div>
-                <button onClick={() => setSelectedNode(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>
+        {/* Right Column: Game Theory Panel (Permanent) */}
+        <div className="w-full lg:w-[540px] flex flex-col gap-4 overflow-hidden pr-1">
+          <div className="flex-1 glass rounded-3xl border border-purple-500/20 overflow-hidden bg-white/[0.01] flex flex-col">
+            <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.03] shrink-0">
+              <div className="flex items-center gap-2.5 text-xs font-bold text-white uppercase tracking-widest font-mono">
+                <Zap className="w-4 h-4 text-purple-400" />
+                Strategic Game Engine
               </div>
+              {selectedGame && <button onClick={() => setSelectedGame(null)} className="text-slate-600 hover:text-white p-1"><X className="w-4 h-4" /></button>}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar">
               <div className="grid grid-cols-2 gap-2">
-                {Object.entries(selectedNode.resources).map(([k, v]) => (
-                  <div key={k}>
-                    <div className="text-[8px] text-slate-600 uppercase">{k}</div>
-                    <div className="flex items-center gap-1">
-                      <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full bg-intel-cyan" style={{ width: `${(v as number) * 10}%` }} />
-                      </div>
-                      <span className="text-white">{v}</span>
+                {GAMES.map(g => (
+                  <button key={g.id} onClick={() => setSelectedGame(selectedGame?.id === g.id ? null : g)}
+                    className={cn('text-left p-3 rounded-2xl border text-[9px] font-mono transition-all flex flex-col gap-1 relative overflow-hidden group',
+                      selectedGame?.id === g.id
+                        ? 'border-purple-500/50 bg-purple-500/20 text-white shadow-lg'
+                        : 'border-white/5 bg-white/[0.02] text-slate-500 hover:border-white/20 hover:bg-white/[0.04]'
+                    )}>
+                    <div className="font-bold text-[10px] truncate">{g.name}</div>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-[7px] uppercase text-purple-400 font-black">{g.type.replace('_',' ')}</span>
+                      {selectedGame?.id === g.id && <div className="w-1 h-1 rounded-full bg-purple-400 animate-pulse" />}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Goals</div>
-                {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400">→ {g}</div>)}
-              </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Constraints</div>
-                {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80">⚠ {c}</div>)}
-              </div>
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-[8px]">
-                <div><span className="text-slate-600">Risk: </span><span className={selectedNode.riskTolerance === 'high' ? 'text-red-400' : selectedNode.riskTolerance === 'medium' ? 'text-amber-400' : 'text-emerald-400'}>{selectedNode.riskTolerance}</span></div>
-                <div><span className="text-slate-600">Horizon: </span><span className="text-slate-300">{selectedNode.timeHorizon}</span></div>
-                <div><span className="text-slate-600">Tier: </span><span className="text-slate-300">{selectedNode.tier}</span></div>
-              </div>
-              {/* Related game */}
-              {(() => {
-                const game = GAMES.find(g => g.players.includes(selectedNode.id));
-                return game ? (
-                  <button onClick={() => { setSelectedGame(game); setGameMode(true); }}
-                    className="w-full mt-1 px-2 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-400 text-[9px] font-mono uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-purple-500/20 transition-all">
-                    <Zap className="w-3 h-3" /> View Game: {game.name}
-                  </button>
-                ) : null;
-              })()}
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-        {/* Edge info panel */}
-        <AnimatePresence>
-          {selectedEdge && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-              className="absolute top-4 right-4 w-72 glass rounded-xl border border-intel-border bg-[#050a10]/95 p-4 space-y-3 text-[10px] font-mono"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[9px] text-slate-500 uppercase">Relationship</div>
-                  <div className="text-sm font-bold" style={{ color: EDGE_STYLE[selectedEdge.type].color }}>
-                    {typeof selectedEdge.source === 'object' ? (selectedEdge.source as any).id : selectedEdge.source} → {typeof selectedEdge.target === 'object' ? (selectedEdge.target as any).id : selectedEdge.target}
+              {selectedGame && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30">
+                    <div className="text-[7px] text-purple-400 uppercase font-black mb-1.5 tracking-[0.2em]">Projection Summary</div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">"{selectedGame.description}"</p>
+                  </div>
+
+                  <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md">
+                    <table className="text-[9px] font-mono min-w-[300px] w-full border-collapse">
+                      <thead>
+                        <tr className="bg-white/5 text-[7px] text-slate-500 font-black uppercase">
+                          <th className="px-2 py-2 text-center">VECTOR</th>
+                          {selectedGame.labels.cols.map((c, i) => (
+                            <th key={i} className="px-2 py-2 text-center border-l border-white/5">{c}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedGame.labels.rows.map((row, ri) => (
+                          <tr key={ri} className="border-t border-white/5">
+                            <td className="px-2 py-4 bg-white/[0.02] text-slate-500 text-[7px] font-black uppercase text-center">{row}</td>
+                            {selectedGame.labels.cols.map((_, ci) => {
+                              const idx = ri * selectedGame.labels.cols.length + ci;
+                              const vals = selectedGame.matrix[idx] || [0, 0];
+                              return (
+                                <td key={ci} className="px-2 py-4 text-center border-l border-white/5 text-[10px] font-bold">
+                                  <span className={ri === 0 && ci === 0 ? 'text-emerald-400' : ri === 1 && ci === 1 ? 'text-red-400' : 'text-slate-300'}>
+                                    {vals[0]},{vals[1]}
+                                  </span>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                      <div className="text-[7px] text-emerald-400 uppercase font-black mb-1">Nash Equilibrium</div>
+                      <div className="text-[10px] text-slate-300">{selectedGame.nashEquilibrium}</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      <div className="text-[7px] text-amber-400 uppercase font-black mb-1">Current Outcome</div>
+                      <div className="text-[10px] text-slate-300">{selectedGame.currentOutcome}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-red-500/8 border border-red-500/20 rounded-xl p-3">
+                    <div className="text-[7px] text-red-400 uppercase font-black mb-1">Tunisia Impact</div>
+                    <div className="text-[10px] text-red-300/90">{selectedGame.tunisiaImpact}</div>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </div>
+
+          {/* Institutional Stress Dashboard */}
+          <div className="glass rounded-2xl border border-intel-border/30 p-4 shrink-0">
+            <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mb-3">Institutional Stress Dashboard</div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'Democratic Backsliding', value: Math.round((EDGES.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0) / 40) * 100), color: '#ef4444' },
+                { label: 'Economic Vulnerability', value: Math.round(((EDGES.find(e => e.source === 'BCT' && e.target === 'INFORMAL')?.weight || 7) / 10 + (EDGES.find(e => e.source === 'PRES' && e.target === 'BCT')?.weight || 7) / 10) * 50), color: '#f97316' },
+                { label: 'Social Cohesion', value: Math.round(100 - (EDGES.find(e => e.source === 'UGTT' && e.target === 'PRES')?.weight || 6) * 10), color: '#f59e0b' },
+                { label: 'Default Probability', value: 45, color: '#dc2626' },
+              ].map((m, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="text-[7px] font-mono text-slate-600 uppercase">{m.label}</div>
+                  <div className="text-lg font-bold font-mono" style={{ color: m.color }}>{m.value}%</div>
+                  <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${m.value}%`, background: m.color }} />
                   </div>
                 </div>
-                <button onClick={() => setSelectedEdge(null)} className="text-slate-600 hover:text-white"><X className="w-3.5 h-3.5" /></button>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase" style={{ background: `${EDGE_STYLE[selectedEdge.type].color}22`, color: EDGE_STYLE[selectedEdge.type].color, border: `1px solid ${EDGE_STYLE[selectedEdge.type].color}44` }}>{selectedEdge.type}</span>
-                <span className="text-slate-500">weight: <span className="text-white">{selectedEdge.weight}</span></span>
-                <span className={`ml-auto text-[8px] ${selectedEdge.trend === 'rising' ? 'text-red-400' : selectedEdge.trend === 'declining' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                  {selectedEdge.trend === 'rising' ? '↑' : selectedEdge.trend === 'declining' ? '↓' : '→'} {selectedEdge.trend}
-                </span>
-              </div>
-              <div className="text-slate-300">{selectedEdge.description}</div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Conditionality</div>
-                <div className="text-slate-400 italic">{selectedEdge.conditionality}</div>
-              </div>
-              <div>
-                <div className="text-[8px] text-slate-600 uppercase mb-1">Evidence</div>
-                {selectedEdge.evidence.map((e, i) => <div key={i} className="text-slate-500">· {e}</div>)}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Game Theory Panel */}
-      <AnimatePresence>
-        {gameMode && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
-            {/* Game selector */}
-            <div className="flex items-center gap-2 flex-wrap mb-3">
-              <span className="text-[9px] font-mono text-slate-500 uppercase">Game Models:</span>
-              {GAMES.map(g => (
-                <button key={g.id} onClick={() => setSelectedGame(selectedGame?.id === g.id ? null : g)}
-                  className={cn('px-3 py-1 rounded-xl border text-[9px] font-mono uppercase tracking-wider transition-all',
-                    selectedGame?.id === g.id ? 'border-purple-500/50 bg-purple-500/20 text-purple-300' : 'border-white/10 text-slate-500 hover:text-white'
-                  )}>
-                  {g.name}
-                </button>
               ))}
             </div>
-
-            {selectedGame && (
-              <div className="glass rounded-xl border border-purple-500/30 p-5 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="text-[9px] font-mono text-purple-400 uppercase tracking-widest">Game Theory Model · {selectedGame.type.replace('_', ' ')}</div>
-                    <h3 className="text-base font-bold text-white mt-1">{selectedGame.name}</h3>
-                    <div className="text-[9px] font-mono text-slate-500 mt-0.5">
-                      Players: <span className="text-purple-300">{selectedGame.players.join(' vs ')}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setSelectedGame(null)} className="text-slate-600 hover:text-white"><X className="w-4 h-4" /></button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Payoff matrix */}
-                  <div>
-                    <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">Payoff Matrix (Player1, Player2)</div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-[9px] font-mono border-collapse">
-                        <thead>
-                          <tr>
-                            <th className="p-2 text-slate-600 text-left border border-white/5" />
-                            {selectedGame.labels.cols.map((col, i) => (
-                              <th key={i} className="p-2 text-slate-400 border border-white/5 whitespace-nowrap">{col}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedGame.matrix.map((row, ri) => (
-                            <tr key={ri}>
-                              <td className="p-2 text-slate-400 border border-white/5 whitespace-nowrap">{selectedGame.labels.rows[ri]}</td>
-                              {row.map((cell, ci) => {
-                                const isNash = ri === 0 && ci === 0 && selectedGame.nashEquilibrium.includes('Cooperate, Cooperate');
-                                const isCurrent = selectedGame.currentOutcome.toLowerCase().includes('defect') && ri === 1;
-                                return (
-                                  <td key={ci} className={cn('p-2 text-center border border-white/5 font-bold',
-                                    isNash ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/30' :
-                                      isCurrent ? 'bg-red-500/10 text-red-400' : 'text-slate-300'
-                                  )}>
-                                    {typeof cell === 'number' ? `(${cell},${selectedGame.matrix[ri === 0 ? 1 : 0][ci]})` : cell}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  {/* Analysis */}
-                  <div className="space-y-3 text-[10px] font-mono">
-                    <div>
-                      <div className="text-[8px] text-emerald-500 uppercase mb-1">Nash Equilibrium</div>
-                      <div className="text-slate-300">{selectedGame.nashEquilibrium}</div>
-                    </div>
-                    <div>
-                      <div className="text-[8px] text-amber-400 uppercase mb-1">Current Outcome</div>
-                      <div className="text-slate-300">{selectedGame.currentOutcome}</div>
-                    </div>
-                    <div>
-                      <div className="text-[8px] text-slate-500 uppercase mb-1">Mechanics</div>
-                      <div className="text-slate-400 leading-relaxed">{selectedGame.description}</div>
-                    </div>
-                    <div className="bg-red-500/8 border border-red-500/20 rounded-lg p-3">
-                      <div className="text-[8px] text-red-400 uppercase mb-1">Tunisia Impact</div>
-                      <div className="text-red-300/90 leading-relaxed">{selectedGame.tunisiaImpact}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Institutional Stress Dashboard */}
-      <div className="glass rounded-xl border border-intel-border/50 p-4">
-        <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mb-3">Institutional Stress Dashboard</div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Democratic Backsliding', value: Math.round((EDGES.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0) / 40) * 100), color: '#ef4444' },
-            { label: 'Economic Vulnerability', value: Math.round(((EDGES.find(e => e.source === 'BCT' && e.target === 'INFORMAL')?.weight || 7) / 10 + (EDGES.find(e => e.source === 'PRES' && e.target === 'BCT')?.weight || 7) / 10) * 50), color: '#f97316' },
-            { label: 'Social Cohesion', value: Math.round(100 - (EDGES.find(e => e.source === 'UGTT' && e.target === 'PRES')?.weight || 6) * 10), color: '#f59e0b' },
-            { label: 'Default Probability', value: 45, color: '#dc2626' },
-          ].map((m, i) => (
-            <div key={i} className="space-y-2">
-              <div className="text-[8px] font-mono text-slate-600 uppercase">{m.label}</div>
-              <div className="text-2xl font-bold font-mono" style={{ color: m.color }}>{m.value}%</div>
-              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${m.value}%`, background: m.color }} />
-              </div>
-            </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
