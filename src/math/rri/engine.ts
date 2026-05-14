@@ -257,6 +257,11 @@ function getCurrentStateVector(vars: RRIVariable[]): Record<string, number> {
   state['L123'] = getNorm('L', 189); // Ruling Party Cohesion (reusing L189)
   state['A251'] = getNorm('A', 251); // Structural Economic Signal
 
+  // D_MII and SEI_A01 are dynamically created in calculateRRI()
+  // These entries ensure they participate in compound stress (CS_PAIRS)
+  state['D_MII'] = getNorm('D', 250); // Ministerial Instability Index
+  state['SEI_A01'] = getNorm('A', 250); // Shortage Escalation Index
+
   return state;
 }
 

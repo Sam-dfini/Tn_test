@@ -531,22 +531,23 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       let csVars: any[] = [];
       try { csVars = JSON.parse(JSON.stringify(getVarCache() || [])); } catch (e) { csVars = []; }
 
-      // CS variable aliases mapping to their code+number in the cache
+      // CS variable aliases mapping to their actual code+number in the engine
       const CS_ALIASES: Record<string, { code: string; num: number; label: string; pf: string }> = {
         'A_FX':  { code: 'A', num: 7,   label: 'Foreign Reserves', pf: 'economy.foreign_reserves' },
         'M_UGTT':{ code: 'M', num: 207, label: 'Union Power',      pf: 'opp.union_strength' },
-        'I92':   { code: 'I', num: 92,  label: 'IMF Deal',         pf: 'geopolitical.imf_deal' },
+        'E51':   { code: 'M', num: 202, label: 'Protest Mobiliz.', pf: 'social.protest_mobilization' },
+        'I92':   { code: 'A', num: 6,   label: 'Public Debt/GDP',  pf: 'economy.public_debt' },
+        'N142':  { code: 'N', num: 219, label: 'Riot Control',     pf: 'security.riot_control' },
+        'M133':  { code: 'M', num: 201, label: 'Opposition Frag',   pf: 'opp.fragmentation' },
+        'B21':   { code: 'B', num: 26,  label: 'Water Stress',     pf: 'environment.water_stress' },
         'D50':   { code: 'D', num: 79,  label: 'Trust in Gov',     pf: 'politics.trust' },
-        'M133':  { code: 'M', num: 133, label: 'Opposition Frag',   pf: 'opp.fragmentation' },
-        'B21':   { code: 'B', num: 21,  label: 'Water Stress',     pf: 'environment.water_stress' },
         'L123':  { code: 'L', num: 189, label: 'Elite Cohesion',   pf: 'regime.elite_cohesion' },
         'M215':  { code: 'M', num: 215, label: 'Opposition Coord', pf: 'opp.oci' },
         'A251':  { code: 'A', num: 251, label: 'Structural Signal',pf: 'economy.structural_signal' },
-        'N142':  { code: 'N', num: 142, label: 'Riot Control',     pf: 'security.riot_control' },
-        'E51':   { code: 'E', num: 51,  label: 'Protest Mobiliz.', pf: 'social.protest_mobilization' },
-        'D_MII': { code: 'D', num: 250, label: 'Ministerial Instab.', pf: 'politics.ministerial_instability' },
-        'SEI_A01': { code: 'A', num: 250, label: 'Shortage Escalat.', pf: 'economy.shortage_index' },
-        'A02':   { code: 'A', num: 2,   label: 'Inflation',         pf: 'economy.inflation' },
+        'A02':   { code: 'A', num: 2,   label: 'Inflation',        pf: 'economy.inflation' },
+        'A01':   { code: 'A', num: 1,   label: 'GDP Growth',       pf: 'economy.gdp_growth' },
+        'D_MII': { code: 'D', num: 250, label: 'Ministerial Instab.', pf: 'politics.mii' },
+        'SEI_A01': { code: 'A', num: 250, label: 'Shortage Escalat.', pf: 'economy.sei' },
       };
 
       for (const [varId, alias] of Object.entries(CS_ALIASES)) {
