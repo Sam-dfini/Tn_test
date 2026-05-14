@@ -948,6 +948,29 @@ Return only the 3-sentence briefing.`;
     }
   }, []);
 
+  const [animatedRRI, setAnimatedRRI] = useState(0);
+  const [animatedRev, setAnimatedRev] = useState(0);
+  const [animatedCascade, setAnimatedCascade] = useState(0);
+  const [animatedPattern, setAnimatedPattern] = useState(0);
+
+  useEffect(() => {
+    const duration = 1500;
+    const steps = 60;
+    const interval = duration / steps;
+    let step = 0;
+    const timer = setInterval(() => {
+      step++;
+      const progress = Math.min(step / steps, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setAnimatedRRI(ease * (rriState.rri || 0));
+      setAnimatedRev(ease * (rriState.p_rev || 0));
+      setAnimatedCascade(ease * (rriState.cascade_probability || 0));
+      setAnimatedPattern(ease * (rriState.pattern_similarity || 0));
+      if (progress >= 1) clearInterval(timer);
+    }, interval);
+    return () => clearInterval(timer);
+  }, []);
+
   const stabilityRisk = useMemo(() => {
     return Math.min(100, Math.max(0, Math.round(rriState.p_rev * 100)));
   }, [rriState.p_rev]);
@@ -1419,23 +1442,39 @@ Return only the 3-sentence briefing.`;
               )}
             </div>
           ) : activeTab === "radicalisation" ? (
-            <RadicalisationIntelligence />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <RadicalisationIntelligence />
+            </Suspense>
           ) : activeTab === "actor-network" ? (
             <ActorNetworkIntelligence />
           ) : activeTab === "reports" ? (
-            <InvestmentIntelligenceReportGenerator />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <InvestmentIntelligenceReportGenerator />
+            </Suspense>
           ) : activeTab === "industry" ? (
-            <IndustrialIntelligencePanel />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <IndustrialIntelligencePanel />
+            </Suspense>
           ) : activeTab === "strategic-energy" ? (
-            <StrategicEnergyIntelligencePanel />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <StrategicEnergyIntelligencePanel />
+            </Suspense>
           ) : activeTab === "black-market" ? (
-            <BlackMarketIntelligencePanel />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <BlackMarketIntelligencePanel />
+            </Suspense>
           ) : activeTab === "cognitive" ? (
-            <CognitiveWarfare />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <CognitiveWarfare />
+            </Suspense>
           ) : activeTab === "clusters" ? (
-            <ClusterIntelligence />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <ClusterIntelligence />
+            </Suspense>
           ) : activeTab === "trgm" ? (
-            <TRGMDashboard />
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <TRGMDashboard />
+            </Suspense>
           ) : activeTab === "overview" ? (
             <div className="space-y-4 pb-6 w-full max-w-7xl mx-auto text-white">
               <ModuleHeader 
@@ -1455,7 +1494,7 @@ Return only the 3-sentence briefing.`;
                     <div
                       className={`text-6xl lg:text-7xl font-black font-mono tracking-tighter leading-none ${rriState.rri >= 2.625 ? "text-intel-red" : "text-intel-orange"}`}
                     >
-                      {rriState.rri.toFixed(2)}
+                      {animatedRRI.toFixed(2)}
                     </div>
                     <div className="flex items-center space-x-2 mt-2">
                       <span
@@ -1479,30 +1518,30 @@ Return only the 3-sentence briefing.`;
                   </div>
 
                   {/* 3 Gauges row */}
-                  <div className="flex-1 grid grid-cols-3 gap-2 lg:gap-4 lg:border-l lg:border-white/10 lg:pl-6 lg:border-r lg:pr-6">
+                  <div className="flex-1 grid grid-cols-3 gap-2 lg:gap-10 lg:border-l lg:border-white/10 lg:pl-6 lg:border-r lg:pr-6">
                     {[
                       {
                         label: "P(REVOLUTION)",
-                        value: (rriState.p_rev * 100).toFixed(1) + "%",
+                        value: (animatedRev * 100).toFixed(1) + "%",
                         sub: `CI [${(rriState.ci_low * 100).toFixed(1)}–${(rriState.ci_high * 100).toFixed(1)}%]`,
                         color: rriState.p_rev > 0.7 ? "#ef4444" : "#f59e0b",
-                        percent: rriState.p_rev * 100,
+                        percent: animatedRev * 100,
                       },
                       {
                         label: "CASCADE RISK",
                         value:
-                          (rriState.cascade_probability * 100).toFixed(0) + "%",
+                          (animatedCascade * 100).toFixed(0) + "%",
                         sub: "P_cascade EQ.17",
                         color:
                           rriState.cascade_probability > 0.6
                             ? "#ef4444"
                             : "#f59e0b",
-                        percent: rriState.cascade_probability * 100,
+                        percent: animatedCascade * 100,
                       },
                       {
                         label: "PATTERN MATCH",
                         value:
-                          (rriState.pattern_similarity * 100).toFixed(0) + "%",
+                          (animatedPattern * 100).toFixed(0) + "%",
                         sub: "MODERATE-PARTIAL",
                         color:
                           rriState.pattern_similarity > 0.65
@@ -1510,7 +1549,7 @@ Return only the 3-sentence briefing.`;
                             : rriState.pattern_similarity > 0.5
                               ? "#f59e0b"
                               : "#38bdf8",
-                        percent: rriState.pattern_similarity * 100,
+                        percent: animatedPattern * 100,
                       },
                     ].map((g, i) => (
                       <div
@@ -1519,7 +1558,7 @@ Return only the 3-sentence briefing.`;
                       >
                         <svg
                           viewBox="0 0 100 60"
-                          className="w-[120px] lg:w-[160px] drop-shadow-md lg:mb-1 overflow-visible"
+                          className="w-[120px] lg:w-[200px] drop-shadow-md lg:mb-1 overflow-visible"
                         >
                           <path
                             d="M 10 50 A 40 40 0 0 1 90 50"
@@ -1528,17 +1567,18 @@ Return only the 3-sentence briefing.`;
                             strokeWidth="10"
                             strokeLinecap="round"
                           />
-                          <path
+                          <motion.path
                             d="M 10 50 A 40 40 0 0 1 90 50"
                             fill="none"
                             stroke={g.color}
                             strokeWidth="10"
                             strokeLinecap="round"
                             strokeDasharray="125.66"
-                            strokeDashoffset={
-                              125.66 - (g.percent / 100) * 125.66
-                            }
-                            className="transition-all duration-1000 ease-out"
+                            initial={{ strokeDashoffset: 125.66 }}
+                            animate={{
+                              strokeDashoffset: 125.66 - (g.percent / 100) * 125.66,
+                            }}
+                            transition={{ duration: 1.5, ease: "easeOut" }}
                           />
                           <text
                             x="50"

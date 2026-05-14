@@ -186,16 +186,16 @@ const FlowDiagram: React.FC<{
   // Arrow direction: top goes →, bottom goes ← (flow returns left)
 
   const topDefs = [
-    { id: 'rss', label: 'RSS+TG+API', sub: '18 RSS·9 TG·3 APIs', icon: '📡', color: '#3b82f6', stage: 'FEED', xi: 0 },
-    { id: 'parser', label: 'Parser+Norm.', sub: 'XML/JSON→RSSContext', icon: '📄', color: '#8b5cf6', stage: 'FEED', xi: 1 },
-    { id: 'classifier', label: 'Classifier+Geo', sub: 'Entities·Sev·🌍Filter', icon: '🧠', color: '#f59e0b', stage: 'NEWS', xi: 2 },
-    { id: 'supabase', label: 'Supabase DB', sub: 'articles+events+vec', icon: '🗄', color: '#10b981', stage: 'NEWS', xi: 3 },
+    { id: 'rss', label: 'RSS+TG+API', sub: `${metrics.feedCount || 0} feeds`, icon: '📡', color: '#3b82f6', stage: 'FEED', xi: 0 },
+    { id: 'parser', label: 'Parser+Norm.', sub: `${metrics.newsCount || 0} articles`, icon: '📄', color: '#8b5cf6', stage: 'FEED', xi: 1 },
+    { id: 'classifier', label: 'Classifier+Geo', sub: `${metrics.signalCount || 0} signals`, icon: '🧠', color: '#f59e0b', stage: 'NEWS', xi: 2 },
+    { id: 'supabase', label: 'Supabase DB', sub: `${(metrics.dbWriteCount || 0) + (metrics.dbReadCount || 0)} ops`, icon: '🗄', color: '#10b981', stage: 'NEWS', xi: 3 },
   ];
   const botDefs = [
-    { id: 'signals',    label: 'Signal Engine', sub: 'Atomic Signal Gen.',  icon: '⚡', color: '#f97316', stage: 'SIGNALS',  xi: 0 },
-    { id: 'events',     label: 'Event Engine',  sub: 'Who·What·Where·Impact', icon: '📡', color: '#a78bfa', stage: 'EVENTS',  xi: 1 },
-    { id: 'rri',        label: 'RRI Engine',    sub: 'Escalation·Poles·RPI', icon: '📊', color: '#ef4444', stage: 'PIPELINE', xi: 2 },
-    { id: 'ui',         label: 'Dashboard',     sub: 'Intel·Tactical·Live',  icon: '🖥', color: '#00f2ff', stage: 'PIPELINE', xi: 3 },
+    { id: 'signals',    label: 'Signal Engine', sub: `${metrics.signalCount || 0} classified`,  icon: '⚡', color: '#f97316', stage: 'SIGNALS',  xi: 0 },
+    { id: 'events',     label: 'Event Engine',  sub: `${metrics.eventCount || 0} tracked`, icon: '📡', color: '#a78bfa', stage: 'EVENTS',  xi: 1 },
+    { id: 'rri',        label: 'RRI Engine',    sub: `R(t) live`, icon: '📊', color: '#ef4444', stage: 'PIPELINE', xi: 2 },
+    { id: 'ui',         label: 'Dashboard',     sub: `${metrics.ingestionRate?.toFixed(1) || '0'}/s rate`,  icon: '🖥', color: '#00f2ff', stage: 'PIPELINE', xi: 3 },
   ];
 
   const getCount = (id: string) => {
@@ -205,6 +205,7 @@ const FlowDiagram: React.FC<{
       case 'rss': 
         current = metrics.feedCount || 0; 
         break;
+      case 'parser':
       case 'classifier': 
       case 'supabase':
         current = metrics.newsCount || 0; 
@@ -218,22 +219,20 @@ const FlowDiagram: React.FC<{
         current = metrics.eventCount || 0; 
         delta = metrics.deltas?.eventCount || 0;
         break;
-      case 'rri': 
-        current = metrics.eventCount || 0; 
-        delta = metrics.deltas?.eventCount || 0;
-        break;
+      case 'rri':
       case 'ui': 
-        current = metrics.eventCount || 0; 
-        delta = metrics.deltas?.eventCount || 0;
-        break;
-      default: return '0';
+        return '—';
+      default: return '—';
     }
     
     if (delta > 0) {
       const prev = Math.max(0, current - delta);
-      return `${prev.toLocaleString()} + ${delta.toLocaleString()}`;
+      if (prev > 0) {
+        return `${prev.toLocaleString()} +${delta.toLocaleString()}`;
+      }
+      return current.toLocaleString();
     }
-    return current.toLocaleString();
+    return current > 0 ? current.toLocaleString() : '—';
   };
 
   // Node box component inside SVG
@@ -864,13 +863,13 @@ const MissionControl: React.FC<{
         </div>
 
         {/* Recent terminal logs */}
-        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5 flex flex-col">
-          <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-5 flex flex-col min-h-0 flex-1">
+          <div className="text-[10px] font-mono text-white/30 uppercase tracking-widest mb-4 flex items-center gap-2 shrink-0">
             <Terminal className="w-3.5 h-3.5" />
             Recent Pipeline Events
           </div>
-          <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[9px]">
-            {prepareList(logs.slice(0, 12)).map((log: any, i: number) => (
+          <div className="flex-1 overflow-y-auto space-y-1 font-mono text-[9px] min-h-0">
+            {prepareList(logs).map((log: any, i: number) => (
               <div key={generateStableKey(log, i, 'recent-log')} className="flex gap-3 py-1 border-b border-white/[0.03] hover:bg-white/[0.02]">
                 <span className="text-white/20 shrink-0">{String(log.timestamp).split('T')[1]?.slice(0, 8) || '—'}</span>
                 <span className={`w-16 shrink-0 font-bold ${log.level === 'ERROR' ? 'text-red-500' : log.level === 'WARN' ? 'text-amber-500' : 'text-emerald-500'}`}>[{log.stage}]</span>
