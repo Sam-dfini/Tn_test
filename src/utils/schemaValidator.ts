@@ -112,6 +112,27 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     read: 'boolean',
     created_at: 'timestamp'
   },
+  variables: {
+    id: 'text',
+    code: 'text',
+    number: 'int8',
+    value_2026: 'float8',
+    value: 'float8',
+    min_value: 'float8',
+    max_value: 'float8',
+    invert: 'boolean',
+    weight: 'float8',
+    threshold: 'float8',
+    threshold_weight: 'float8',
+    volatility: 'float8',
+    pipeline_field: 'text',
+    label: 'text',
+    source: 'text',
+    category: 'text',
+    last_updated: 'text',
+    nlp_keywords: 'jsonb',
+    nlp_nudge: 'float8'
+  },
 };
 
 /**

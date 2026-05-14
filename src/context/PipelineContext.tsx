@@ -39,6 +39,7 @@ import { detectShortagesInArticles } from '../services/shortageDetector';
 import { computeSBDE, DEFAULT_SBDE_INPUTS, W_PSI_RRI } from '../services/sbdeEngine';
 import { storePrediction, evaluatePendingPredictions } from '../services/predictionLedger';
 import { computeMediaSalience } from '../services/mediaSalienceService';
+import { getVarCache } from '../services/pipelineService';
 
 interface EconomyData {
   gdp_growth: number;        // % e.g. 0.4
@@ -526,7 +527,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
       // ─────────────────────────────────────────────────────────────────────
 
-      const newState = calculateRRI(overrides);
+      const newState = calculateRRI(overrides, 0, getVarCache() ?? undefined);
       newState.active_signals = data.active_signals;
       setRriState(newState);
 

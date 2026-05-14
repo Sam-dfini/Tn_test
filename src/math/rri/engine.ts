@@ -641,7 +641,8 @@ function getRegimeAge(): { age_pct: number; years: number } {
 
 export function calculateRRI(
   overridesOrVars?: Partial<Record<string, number>> | RRIVariable[],
-  rpi_t: number = 0
+  rpi_t: number = 0,
+  liveData?: RRIVariable[]
 ): RRIState {
   let vars: RRIVariable[];
   
@@ -660,6 +661,21 @@ export function calculateRRI(
           v.value_2026 = (overridesOrVars as any)[v.pipeline_field]!;
           v.value = eq1_normalize(v);
         }
+      }
+    }
+  }
+
+  // Merge live values from Supabase on top of JSON schema
+  if (liveData && liveData.length > 0) {
+    for (const live of liveData) {
+      if (!live.code || !live.number) continue;
+      const key = `${live.code}${live.number}`;
+      const match = vars.find(v =>
+        v.id === key || v.id === live.id || `${v.code}${v.number}` === key
+      );
+      if (match && live.value_2026 !== undefined) {
+        match.value_2026 = live.value_2026;
+        match.value = eq1_normalize(match);
       }
     }
   }

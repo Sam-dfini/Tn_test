@@ -10,6 +10,11 @@ export let FIELD_MAP: Record<string, any> = {
   'economy.inflation':  { label: 'Inflation Rate', unit: '%', module: 'Economy' }
 };
 
+// RRI Variable cache — populated by initializeVariables() from /api/variables
+// Used by PipelineContext.recalculateRRI() for live RRI computation
+let RV_CACHE: any[] | null = null;
+export function getVarCache(): any[] | null { return RV_CACHE; }
+
 export const DOCUMENT_TYPES = [
   { 
     id: 'bct', 
@@ -79,6 +84,13 @@ export const initializeVariables = async (retries = 8, delay = 3000) => {
           };
         });
         FIELD_MAP = newMap;
+
+        // Populate RRI variable cache for the engine
+        RV_CACHE = variables.map((v: any) => ({
+          ...v,
+          id: v.id || `${v.code}${v.number}`,
+        }));
+
         return true;
       }
       
