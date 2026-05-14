@@ -95,7 +95,10 @@ export async function getSoilMoisture(
   });
 
   try {
-    const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) {
       console.warn(`[SoilMoisture] Open-Meteo failed for ${gov.id}: ${res.status}`);
       return null;
@@ -169,7 +172,10 @@ export async function getSoilMoistureBatch(
   });
 
   try {
-    const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) {
       console.warn(`[SoilMoisture] Batch Open-Meteo failed: ${res.status}`);
       return [];

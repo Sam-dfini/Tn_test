@@ -60,7 +60,10 @@ async function fetchCurrent30dBatch(govs: GovCoord[]): Promise<Record<string, nu
   });
 
   try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
     if (!res.ok) {
       console.warn(`[Rainfall] Batch Open-Meteo failed: ${res.status}`);
       return {};
@@ -115,7 +118,10 @@ async function fetchHistorical30dAvgBatch(govs: GovCoord[]): Promise<Record<stri
     });
 
     try {
-      const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(`${OPEN_METEO_ARCHIVE}?${params}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (!res.ok) continue;
       const data = await res.json() as any;
       const dataList = Array.isArray(data) ? data : [data];

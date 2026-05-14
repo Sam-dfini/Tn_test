@@ -69,7 +69,13 @@ export async function fetchNDVIProxy(
   const url = `${OPEN_METEO_ARCHIVE}?${params}`;
 
   try {
-    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(url, { 
+      headers: { 'Accept': 'application/json' },
+      signal: controller.signal 
+    });
+    clearTimeout(timeoutId);
     if (!res.ok) {
       if (res.status === 401) return null;
       const errorText = await res.text();
@@ -129,6 +135,8 @@ async function getCopernicusToken(): Promise<string | null> {
   }
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(COPERNICUS_TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -137,7 +145,9 @@ async function getCopernicusToken(): Promise<string | null> {
         client_id:     clientId,
         client_secret: clientSecret,
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       if (res.status === 401) return null; // Silent skip for invalid credentials
@@ -246,6 +256,8 @@ function evaluatePixel(samples) {
   };
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(COPERNICUS_STATS_URL, {
       method:  'POST',
       headers: {
@@ -254,7 +266,9 @@ function evaluatePixel(samples) {
         'Accept':        'application/json',
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const text = await res.text();
