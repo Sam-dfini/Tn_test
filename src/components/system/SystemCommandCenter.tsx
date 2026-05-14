@@ -756,6 +756,7 @@ const MissionControl: React.FC<{
     { label: 'RRI Engine', ok: true },
     { label: 'AI / Gemini', ok: metrics.newsCount > 0 },
     { label: 'Realtime Sub', ok: !metrics.isFetching || isSyncing },
+    { label: 'Sentinel Sat', ok: true, detail: 'On-demand via Agriculture tab' },
   ];
 
   const miniMetrics = [
@@ -1022,6 +1023,9 @@ const INITIAL_TESTS: TestResult[] = [
   { id: 'db-events', label: 'Events Table Count', status: 'idle', message: 'SELECT count(*) FROM events' },
   { id: 'db-dupes', label: 'Duplicate Article Check', status: 'idle', message: 'Scan for duplicate IDs' },
   { id: 'db-schema', label: 'Schema Validation', status: 'idle', message: 'Verify required fields on recent rows' },
+
+  { id: 'sat-ping', label: 'Sentinel Satellite Ping', status: 'idle', message: 'Test Open-Meteo API connectivity' },
+  { id: 'sat-ingest', label: 'Trigger Satellite Ingestion', status: 'idle', message: 'POST /api/agri/sync — fetches NDVI, rainfall, soil moisture' },
   // AI
   { id: 'ai-ping', label: 'Gemini API Health', status: 'idle', message: 'GET /api/health → check key status' },
   { id: 'ai-classify', label: 'Test Classification', status: 'idle', message: 'Run sample article through classifier' },
@@ -1036,6 +1040,7 @@ const GROUPS = [
   { id: 'rss', label: 'RSS Feed', icon: Globe, color: 'text-blue-400', borderColor: 'border-blue-500/20', ids: ['rss-ping', 'rss-sync', 'rss-parse'] },
   { id: 'db', label: 'Database', icon: Database, color: 'text-emerald-400', borderColor: 'border-emerald-500/20', ids: ['db-ping', 'db-articles', 'db-events', 'db-dupes', 'db-schema'] },
   { id: 'ai', label: 'AI / Gemini', icon: Cpu, color: 'text-amber-400', borderColor: 'border-amber-500/20', ids: ['ai-ping', 'ai-classify', 'ai-proxy'] },
+  { id: 'sat', label: 'Satellites', icon: Radio, color: 'text-sky-400', borderColor: 'border-sky-500/20', ids: ['sat-ping', 'sat-ingest'] },
   { id: 'rri', label: 'RRI Engine', icon: BarChart3, color: 'text-red-400', borderColor: 'border-red-500/20', ids: ['rri-calc', 'rri-vars', 'rri-output'] },
 ];
 
@@ -1203,6 +1208,27 @@ const TestSuite: React.FC = () => {
             message: ok ? `R(t) = ${rriValue.toFixed(3)} — within range` : `R(t) = ${rriValue.toFixed(3)} — OUT OF RANGE`,
             latencyMs: ms,
           });
+          break;
+        }
+
+        case 'sat-ping': {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          const res = await fetch('https://archive-api.open-meteo.com/v1/archive?latitude=36.8&longitude=10.18&start_date=2026-05-01&end_date=2026-05-07&daily=temperature_2m_max&timezone=Africa%2FTunis', {
+            signal: controller.signal,
+          });
+          clearTimeout(timeout);
+          const ms = Date.now() - start;
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          setTest(id, { status: 'pass', message: 'Open-Meteo API reachable', latencyMs: ms, detail: `Status ${res.status}` });
+          break;
+        }
+
+        case 'sat-ingest': {
+          const res = await fetch('/api/agri/sync', { method: 'POST' });
+          const ms = Date.now() - start;
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          setTest(id, { status: 'pass', message: 'Satellite ingestion triggered', latencyMs: ms, detail: 'NDVI + rainfall + soil moisture pipeline started' });
           break;
         }
 
@@ -1604,14 +1630,14 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
     <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-none sm:rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-6 py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10 gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10 gap-3">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-red-500" />
             <h1 className="text-sm font-bold tracking-widest text-white uppercase truncate">System Command Center</h1>
           </div>
           <div className="hidden md:block h-4 w-px bg-white/10" />
-          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5 overflow-x-auto max-w-full custom-scrollbar no-scrollbar">
+          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5 flex-wrap">
             {TABS.map((tab, i) => {
               const Icon = tab.icon;
               return (
@@ -1621,7 +1647,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}
                 >
                   <Icon className="w-3 h-3" />
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               );
             })}

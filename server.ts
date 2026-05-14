@@ -748,12 +748,8 @@ async function startServer() {
     }
   };
 
-  // Initial run after 10 seconds (allow server to fully start)
-  if (process.env.CORE_NODE_ENV === 'production' || process.env.VITE_SUPABASE_URL) {
-    setTimeout(runAgriPipeline, 10_000);
-  }
-
-  // Re-run every 6 hours (rainfall) — NDVI uses 3-day cache internally
+  // Satellite ingestion runs every 6 hours. First trigger happens
+  // on-demand when the user opens the Agriculture page in the app.
   setInterval(runAgriPipeline, 6 * 60 * 60 * 1000);
 
   httpServer.listen(PORT, '0.0.0.0', () => {

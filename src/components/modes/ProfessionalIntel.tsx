@@ -882,6 +882,13 @@ Return only the 3-sentence briefing.`;
     return () => clearInterval(interval);
   }, []);
 
+  // Trigger satellite ingestion when Agriculture tab opens
+  useEffect(() => {
+    if (activeTab === 'agriculture') {
+      fetch('/api/agri/sync', { method: 'POST' }).catch(() => {});
+    }
+  }, [activeTab]);
+
   const quickAccessItems = [
     { id: "overview", label: "Core Intelligence", icon: LayoutDashboard },
     { id: "command-center", label: "National Command", icon: Target },
@@ -2558,7 +2565,9 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "strategic-explorer" ? (
             <div>Business Investigator Placeholder</div>
           ) : activeTab === "calendar" ? (
-            <div>Political Calendar Placeholder</div>
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <PoliticalCalendar />
+            </Suspense>
           ) : (
             <div>Simulation Intelligence Placeholder</div>
           )}

@@ -234,6 +234,7 @@ const SystemDashboard: React.FC = () => {
     { label: 'Supabase', status: 'online', detail: 'Connected', color: 'text-green-400' },
     { label: 'WebSocket', status: 'online', detail: 'Live stream', color: 'text-green-400' },
     { label: 'AI Service', status: 'degraded', detail: 'API key may be invalid', color: 'text-amber-400' },
+    { label: 'Sentinel Sat', status: 'standby', detail: 'Triggers on Agri tab', color: 'text-slate-400' },
   ];
 
   const stats = [
