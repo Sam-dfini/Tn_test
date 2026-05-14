@@ -412,15 +412,6 @@ const ArcGauge: React.FC<{
             <feGaussianBlur stdDeviation="6" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
-
-          {/* Fluid gauge gradient: green → yellow → orange → red */}
-          <linearGradient id="gaugeGradient" x1="0" y1="0.5" x2="1" y2="0.5">
-            <stop offset="0%" stopColor="#10b981" />
-            <stop offset="25%" stopColor="#10b981" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="75%" stopColor="#f97316" />
-            <stop offset="100%" stopColor="#ef4444" />
-          </linearGradient>
         </defs>
 
         {/* Ambient background ring */}
@@ -472,26 +463,7 @@ const ArcGauge: React.FC<{
           );
         })}
 
-        {/* Fluid gauge arc — single gradient path */}
-        <path
-          d={arcPath(-135, 135)}
-          fill="none"
-          stroke="url(#gaugeGradient)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          opacity={0.35}
-        />
-        <path
-          d={arcPath(-135, -135 + pct * 270)}
-          fill="none"
-          stroke="url(#gaugeGradient)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          opacity={0.8}
-          className="transition-all duration-1000 ease-out"
-        />
-
-        {/* Level labels */}
+        {/* Level Segments */}
         {[
           {
             start: -135,
@@ -525,6 +497,12 @@ const ArcGauge: React.FC<{
           const sectionActive = pct * 270 > z.start + 135;
           return (
             <g key={`segment-${i}`}>
+              <path
+                d={arcPath(z.start + 1.5, z.end - 1.5)}
+                fill={sectionActive ? z.color : "rgba(255,255,255,0.03)"}
+                fillOpacity={sectionActive ? 0.35 : 0.05}
+                className="transition-all duration-1000"
+              />
               <text
                 {...polar(z.textDeg, r + 50)}
                 fill={sectionActive ? z.color : "rgba(255,255,255,0.6)"}
