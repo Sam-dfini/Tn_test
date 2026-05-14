@@ -665,8 +665,8 @@ export function calculateRRI(
   const category_scores = eq2_categoryScores(vars);
 
   const warVar = vars.find(v => (v.id === 'J_WAR' || `${v.code}${v.number}` === 'J104'));
-  const battle_deaths_norm = 0.35;
-  const media_salience_norm = 0.45;
+  const battle_deaths_norm = (overridesOrVars as any)?._battle_deaths_norm ?? 0.35;
+  const media_salience_norm = (overridesOrVars as any)?._media_salience_norm ?? 0.45;
   const w_t = warVar
     ? warVar.value_2026
     : eq8_warIntensity(battle_deaths_norm, media_salience_norm);

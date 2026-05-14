@@ -38,6 +38,7 @@ import {
 import { detectShortagesInArticles } from '../services/shortageDetector';
 import { computeSBDE, DEFAULT_SBDE_INPUTS, W_PSI_RRI } from '../services/sbdeEngine';
 import { storePrediction, evaluatePendingPredictions } from '../services/predictionLedger';
+import { computeMediaSalience } from '../services/mediaSalienceService';
 
 interface EconomyData {
   gdp_growth: number;        // % e.g. 0.4
@@ -471,6 +472,13 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       const overrides = { ...baseOverrides, ...signalOverrides };
 
+      // ── EQ.3 — War Distraction / Media Salience ──────────────────────────
+      // Compute dynamic conflict distraction from recent RSS articles
+      const mediaSalience = computeMediaSalience(articleCache, 72);
+      overrides['_media_salience_norm'] = mediaSalience;
+      overrides['_battle_deaths_norm'] = mediaSalience * 0.7 + 0.1;
+      // ─────────────────────────────────────────────────────────────────────
+
       // ── EQ.10 — Ψ_soc(t) SBDE Integration ──────────────────────────────
       // Compute live SBDE with economic stress from current pipeline data
       const econStress = Math.min(1, (data.economy?.inflation ?? 7.1) / 15);
@@ -542,6 +550,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const parts = path.split('.');
       let obj = next;
       for (let i = 0; i < parts.length - 1; i++) {
+        if (!obj[parts[i]]) obj[parts[i]] = {};
         obj = obj[parts[i]];
       }
       const oldValue = obj[parts[parts.length - 1]];
