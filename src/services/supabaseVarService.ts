@@ -161,11 +161,12 @@ export async function computeHistoricalRRI(days = 60): Promise<HistoricalResult>
     // Try to find the variable by its alias in working vars
     const match = workingVars.find((v: any) => v.id === keyVar);
     if (!match) continue;
-    // Give it a moderate score (0.55) so it can participate in compound stress
+    // Give it a score above 0.7 threshold (71 on 0-100 scale)
+    // so compound stress pairs can trigger
     const minVal = match.min_value ?? 0;
     const maxVal = match.max_value ?? 100;
     const invert = match.invert ?? false;
-    const rawValue = invert ? maxVal - (maxVal - minVal) * 0.55 : minVal + (maxVal - minVal) * 0.55;
+    const rawValue = invert ? maxVal - (maxVal - minVal) * 0.71 : minVal + (maxVal - minVal) * 0.71;
     match.value_2026 = rawValue;
   }
 
