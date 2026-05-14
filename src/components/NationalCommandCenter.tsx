@@ -414,10 +414,11 @@ const ArcGauge: React.FC<{
           </filter>
 
           {/* Fluid gauge gradient: green → yellow → orange → red */}
-          <linearGradient id="gaugeGradient" x1="0" y1="1" x2="1" y2="0">
+          <linearGradient id="gaugeGradient" x1="0" y1="0.5" x2="1" y2="0.5">
             <stop offset="0%" stopColor="#10b981" />
-            <stop offset="33%" stopColor="#f59e0b" />
-            <stop offset="66%" stopColor="#f97316" />
+            <stop offset="25%" stopColor="#10b981" />
+            <stop offset="50%" stopColor="#f59e0b" />
+            <stop offset="75%" stopColor="#f97316" />
             <stop offset="100%" stopColor="#ef4444" />
           </linearGradient>
         </defs>
