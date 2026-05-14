@@ -294,6 +294,102 @@ async function startServer() {
     }
   });
 
+  // Seed intelligence variables into Supabase
+  app.post('/api/variables/seed', async (req, res) => {
+    if (!supabaseServer) {
+      return res.status(503).json({ success: false, error: 'Database unavailable' });
+    }
+
+    try {
+      const pathsToTry = [
+        path.join(__dirname, 'backend', 'app', 'data', 'rri_variables.json'),
+        path.join(process.cwd(), 'backend', 'app', 'data', 'rri_variables.json'),
+        path.resolve('backend/app/data/rri_variables.json'),
+        path.join(__dirname, 'src', 'data', 'rri_variables.json'),
+      ];
+
+      let dataPath = null;
+      for (const p of pathsToTry) {
+        if (fs.existsSync(p)) {
+          dataPath = p;
+          break;
+        }
+      }
+
+      if (!dataPath) {
+        return res.status(404).json({ success: false, error: 'Variables file not found' });
+      }
+
+      // Ensure the variables table exists
+      const { error: tableError } = await supabaseServer.rpc('exec_sql_admin', {
+        sql_query: `
+          CREATE TABLE IF NOT EXISTS variables (
+            id TEXT PRIMARY KEY, code TEXT, number INT8, value_2026 FLOAT8,
+            value FLOAT8, min_value FLOAT8, max_value FLOAT8, invert BOOLEAN,
+            weight FLOAT8, threshold FLOAT8, threshold_weight FLOAT8,
+            volatility FLOAT8, pipeline_field TEXT, label TEXT, source TEXT,
+            category TEXT, last_updated TEXT,
+            nlp_keywords JSONB DEFAULT '[]', nlp_nudge FLOAT8 DEFAULT 0
+          );
+        `
+      });
+      if (tableError) {
+        console.warn('[VARIABLE SEED] Could not create table:', tableError.message);
+      }
+
+      const raw = fs.readFileSync(dataPath, 'utf8');
+      const data = JSON.parse(raw);
+      const variables = data.variables || [];
+
+      if (!Array.isArray(variables) || variables.length === 0) {
+        return res.status(400).json({ success: false, error: 'No variables found in file' });
+      }
+
+      const rows = variables.map((v: any) => ({
+        id: v.id || `${v.code}${v.number}`,
+        code: v.code,
+        number: v.number,
+        value_2026: v.value_2026 ?? 0,
+        value: v.value ?? 0,
+        min_value: v.min_value ?? 0,
+        max_value: v.max_value ?? 100,
+        invert: v.invert ?? false,
+        weight: v.weight ?? 0.05,
+        threshold: v.threshold ?? null,
+        threshold_weight: v.threshold_weight ?? 1.2,
+        volatility: v.volatility ?? 0.1,
+        pipeline_field: v.pipeline_field || null,
+        label: v.label || '',
+        source: v.source || 'rri_variables.json',
+        category: v.category || v.code || '',
+        last_updated: new Date().toISOString().slice(0, 10),
+        nlp_keywords: v.nlp_keywords || [],
+        nlp_nudge: v.nlp_nudge ?? 0,
+      }));
+
+      // Upsert in batches of 50 to avoid payload limits
+      let seeded = 0;
+      for (let i = 0; i < rows.length; i += 50) {
+        const batch = rows.slice(i, i + 50);
+        const { error } = await supabaseServer
+          .from('variables')
+          .upsert(batch, { onConflict: 'id', ignoreDuplicates: false });
+
+        if (error) {
+          console.error(`[VARIABLE SEED] Batch ${i / 50 + 1} failed:`, error.message);
+        } else {
+          seeded += batch.length;
+        }
+      }
+
+      console.log(`[VARIABLE SEED] Successfully seeded ${seeded}/${variables.length} variables into Supabase`);
+      res.json({ success: true, seeded, total: variables.length });
+    } catch (error: any) {
+      console.error('[VARIABLE SEED] Error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // AI Proxy Endpoint
   app.post('/api/ai', async (req, res) => {
     console.log('Received request to /api/ai');
@@ -758,6 +854,23 @@ async function startServer() {
     BootMarkers.BACKEND_READY();
     logSection('>>> SERVER READY - FRONTEND BOOT CAN BEGIN');
     console.log(`Server running on http://localhost:${PORT}`);
+
+    // Auto-seed variables into Supabase after server starts
+    setTimeout(async () => {
+      try {
+        const protocol = 'http';
+        const host = 'localhost';
+        const res = await fetch(`${protocol}://${host}:${PORT}/api/variables/seed`, { method: 'POST' });
+        const result = await res.json();
+        if (result.success) {
+          console.log(`[AUTO-SEED] ${result.seeded} variables seeded into Supabase`);
+        } else {
+          console.warn('[AUTO-SEED] Seed failed:', result.error);
+        }
+      } catch (e: any) {
+        console.warn('[AUTO-SEED] Seed request failed:', e.message);
+      }
+    }, 2000);
   });
 }
 
