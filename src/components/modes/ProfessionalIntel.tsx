@@ -1518,7 +1518,7 @@ Return only the 3-sentence briefing.`;
                   </div>
 
                   {/* 3 Gauges row */}
-                  <div className="flex-1 grid grid-cols-3 gap-2 lg:gap-10 lg:border-l lg:border-white/10 lg:pl-6 lg:border-r lg:pr-6">
+                  <div className="flex-1 flex items-center justify-center gap-4 lg:gap-8 lg:border-l lg:border-white/10 lg:pl-6 lg:border-r lg:pr-6">
                     {[
                       {
                         label: "P(REVOLUTION)",
@@ -1554,11 +1554,11 @@ Return only the 3-sentence briefing.`;
                     ].map((g, i) => (
                       <div
                         key={i}
-                        className="flex flex-col items-center justify-center mt-2 group"
+                        className="flex flex-col items-center group"
                       >
                         <svg
                           viewBox="0 0 100 60"
-                          className="w-[120px] lg:w-[200px] drop-shadow-md lg:mb-1 overflow-visible"
+                          className="w-[110px] lg:w-[170px] drop-shadow-md lg:mb-1"
                         >
                           <path
                             d="M 10 50 A 40 40 0 0 1 90 50"
