@@ -1636,7 +1636,20 @@ const RRIDataTab: React.FC = () => {
   };
 
   const getLabel = (varId: string): string => {
-    return varLabels.get(varId) || FALLBACK_LABELS[varId] || '';
+    const cached = varLabels.get(varId);
+    if (cached) return cached;
+    const fallback = FALLBACK_LABELS[varId];
+    if (fallback) return fallback;
+    // Try to generate from cache pipeline_field
+    if (cache) {
+      const match = cache.find((v: any) => (v.id === varId || `${v.code}${v.number}` === varId));
+      if (match && match.pipeline_field) {
+        const parts = match.pipeline_field.split('.');
+        if (parts.length > 1) return parts[parts.length - 1].replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        return match.pipeline_field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+    }
+    return '';
   };
 
   return (
