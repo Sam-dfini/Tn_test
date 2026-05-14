@@ -1640,90 +1640,98 @@ const RRIDataTab: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 h-full overflow-y-auto">
-      {/* Top controls */}
-      <div className="flex items-center gap-3">
-        <button onClick={loadHistory} disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-mono font-bold uppercase hover:bg-intel-cyan/20 transition-all">
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-          Recalculate from History
-        </button>
-        {historyResult && (
-          <span className="text-[9px] font-mono text-slate-500">
-            {historyResult.totalArticles} articles · {historyResult.elapsedMs}ms
-          </span>
-        )}
-      </div>
-
-      {/* Main grid: Historical vs Fresh */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Historical (from Supabase) */}
-        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
-          <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest font-bold flex items-center gap-2">
-            <Database className="w-3.5 h-3.5" />
-            Historical (60d Supabase)
-          </div>
-          {hist ? (
-            <div className="space-y-2">
-              <MetricRow label="RRI" value={hist.rri?.toFixed(4)} color={hist.rri >= 2.625 ? 'text-red-400' : hist.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
-              <MetricRow label="P(REV)" value={(hist.p_rev * 100).toFixed(1) + '%'} color={hist.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
-              <MetricRow label="Salience" value={hist.salience?.toFixed(4)} color="text-cyan-400" />
-              <MetricRow label="Cascade" value={hist.cascade_probability?.toFixed(4)} color="text-amber-400" />
-              <MetricRow label="Velocity" value={hist.velocity_label || 'N/A'} color="text-slate-400" />
-              <MetricRow label="Compound Stress" value={hist.compound_stress?.toFixed(4)} color="text-purple-400" />
-              <MetricRow label="Info Amp" value={hist.info_amplification?.toFixed(4)} color="text-blue-400" />
-            </div>
-          ) : (
-            <div className="text-[10px] font-mono text-slate-600 italic py-4 text-center">
-              {loading ? 'Computing...' : 'No data'}
-            </div>
+    <div className="flex flex-col h-full space-y-4">
+      {/* Top section — fixed */}
+      <div className="shrink-0 space-y-4">
+        {/* Top controls */}
+        <div className="flex items-center gap-3">
+          <button onClick={loadHistory} disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-mono font-bold uppercase hover:bg-intel-cyan/20 transition-all">
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            Recalculate from History
+          </button>
+          {historyResult && (
+            <span className="text-[9px] font-mono text-slate-500">
+              {historyResult.totalArticles} articles · {historyResult.elapsedMs}ms
+            </span>
           )}
         </div>
 
-        {/* Fresh (from pipeline) */}
-        {live && (
-        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
-          <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-2">
-            <Activity className="w-3.5 h-3.5" />
-            Fresh (Pipeline)
+        {/* Main grid: Historical vs Fresh */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Historical (from Supabase) */}
+          <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
+            <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest font-bold flex items-center gap-2">
+              <Database className="w-3.5 h-3.5" />
+              Historical (60d Supabase)
+            </div>
+            {hist ? (
+              <div className="space-y-2">
+                <MetricRow label="RRI" value={hist.rri?.toFixed(4)} color={hist.rri >= 2.625 ? 'text-red-400' : hist.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
+                <MetricRow label="P(REV)" value={(hist.p_rev * 100).toFixed(1) + '%'} color={hist.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
+                <MetricRow label="Salience" value={hist.salience?.toFixed(4)} color="text-cyan-400" />
+                <MetricRow label="Cascade" value={hist.cascade_probability?.toFixed(4)} color="text-amber-400" />
+                <MetricRow label="Velocity" value={hist.velocity_label || 'N/A'} color="text-slate-400" />
+                <MetricRow label="Compound Stress" value={hist.compound_stress?.toFixed(4)} color="text-purple-400" />
+                <MetricRow label="Info Amp" value={hist.info_amplification?.toFixed(4)} color="text-blue-400" />
+              </div>
+            ) : (
+              <div className="text-[10px] font-mono text-slate-600 italic py-4 text-center">
+                {loading ? 'Computing...' : 'No data'}
+              </div>
+            )}
           </div>
-          <div className="space-y-2">
-            <MetricRow label="RRI" value={live.rri?.toFixed(4)} color={live.rri >= 2.625 ? 'text-red-400' : live.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
-            <MetricRow label="P(REV)" value={(live.p_rev * 100).toFixed(1) + '%'} color={live.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
-            <MetricRow label="Salience" value={live.salience?.toFixed(4)} color="text-cyan-400" />
-            <MetricRow label="Cascade" value={live.cascade_probability?.toFixed(4)} color="text-amber-400" />
-            <MetricRow label="Velocity" value={live.velocity_label || 'N/A'} color="text-slate-400" />
-            <MetricRow label="Compound Stress" value={live.compound_stress?.toFixed(4)} color="text-purple-400" />
-            <MetricRow label="Info Amp" value={live.info_amplification?.toFixed(4)} color="text-blue-400" />
-            <MetricRow label="Variables" value={`${getVarCache()?.length || 0} cached`} color="text-slate-400" />
+
+          {/* Fresh (from pipeline) */}
+          {live && (
+          <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
+            <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5" />
+              Fresh (Pipeline)
+            </div>
+            <div className="space-y-2">
+              <MetricRow label="RRI" value={live.rri?.toFixed(4)} color={live.rri >= 2.625 ? 'text-red-400' : live.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
+              <MetricRow label="P(REV)" value={(live.p_rev * 100).toFixed(1) + '%'} color={live.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
+              <MetricRow label="Salience" value={live.salience?.toFixed(4)} color="text-cyan-400" />
+              <MetricRow label="Cascade" value={live.cascade_probability?.toFixed(4)} color="text-amber-400" />
+              <MetricRow label="Velocity" value={live.velocity_label || 'N/A'} color="text-slate-400" />
+              <MetricRow label="Compound Stress" value={live.compound_stress?.toFixed(4)} color="text-purple-400" />
+              <MetricRow label="Info Amp" value={live.info_amplification?.toFixed(4)} color="text-blue-400" />
+              <MetricRow label="Variables" value={`${getVarCache()?.length || 0} cached`} color="text-slate-400" />
+            </div>
           </div>
+          )}
         </div>
-        )}
       </div>
 
-      {/* Variables table — all with labels */}
-      <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
-        <div className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
+      {/* Variables table — scrollable, fills remaining height */}
+      <div className="flex-1 min-h-0 bg-[#0a0a0c] border border-white/5 rounded-xl flex flex-col">
+        <div className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold px-4 pt-4 pb-2 shrink-0 flex items-center gap-2">
           <TrendingUp className="w-3.5 h-3.5" />
           Variables by Article Count ({counts.length} total)
         </div>
-        <div className="space-y-1 max-h-[50vh] overflow-y-auto custom-scrollbar">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4">
+          {/* Table header */}
+          <div className="flex items-center gap-3 py-1.5 px-2 text-[8px] font-mono text-slate-600 uppercase tracking-wider border-b border-white/5 mb-1 shrink-0">
+            <span className="w-5 shrink-0">#</span>
+            <span className="w-12 shrink-0">VARIABLE</span>
+            <span className="flex-1 min-w-0">DESCRIPTION</span>
+            <span className="w-12 text-right">ARTICLES</span>
+            <span className="w-12 text-right">SEVERITY</span>
+            <span className="w-16 text-right">NUDGE</span>
+          </div>
           {counts.map((vc, i) => (
-            <div key={vc.variable} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <span className="text-slate-600 w-5 shrink-0">{i + 1}.</span>
-                <span className="font-bold text-white shrink-0">{vc.variable}</span>
-                <span className="text-slate-500 truncate text-[9px]">{getLabel(vc.variable)}</span>
-              </div>
-              <div className="flex items-center gap-4 text-[9px] shrink-0">
-                <span className="text-slate-600">{vc.articles} arts</span>
-                <span className="text-slate-600">sev: {vc.avgSeverity.toFixed(1)}</span>
-                <span className="text-intel-cyan">nudge: {vc.totalNudge.toFixed(3)}</span>
-              </div>
+            <div key={vc.variable} className="flex items-center gap-3 py-1.5 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono border-b border-white/[0.02]">
+              <span className="text-slate-600 w-5 shrink-0">{i + 1}.</span>
+              <span className="font-bold text-white w-12 shrink-0">{vc.variable}</span>
+              <span className="text-slate-500 truncate text-[9px] flex-1 min-w-0">{getLabel(vc.variable)}</span>
+              <span className="text-slate-400 w-12 text-right shrink-0">{vc.articles}</span>
+              <span className="text-slate-500 w-12 text-right shrink-0">{vc.avgSeverity.toFixed(1)}</span>
+              <span className="text-intel-cyan w-16 text-right shrink-0">{vc.totalNudge.toFixed(3)}</span>
             </div>
           ))}
           {counts.length === 0 && !loading && (
-            <div className="text-[10px] font-mono text-slate-600 italic py-4 text-center">
+            <div className="text-[10px] font-mono text-slate-600 italic py-8 text-center">
               No variable-linked articles found in Supabase
             </div>
           )}
