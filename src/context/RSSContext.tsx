@@ -229,10 +229,10 @@ export const RSSProvider: React.FC<{
               action_detail: { tab: 'newsfeed' },
             });
           } else if (combinedNew > 0) {
-            // LOW priority for "grey or other" - no toast but plays sound
+            // MEDIUM priority — shows as yellow toast with auto-dismiss
             await addNotification({
               type: 'RSS',
-              priority: 'LOW',
+              priority: 'MEDIUM',
               title: `${combinedNew} New Signals Extracted`,
               message: 'Intelligence feed updated with low-priority signals.',
             });

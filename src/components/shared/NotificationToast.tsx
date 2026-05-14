@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, AlertTriangle, Zap, Shield, Radio, TrendingUp, AlertCircle } from 'lucide-react';
+import { X, AlertTriangle, Zap, Shield, Radio, TrendingUp, AlertCircle, Database, Globe } from 'lucide-react';
 import { Notification } from '../../context/NotificationContext';
 import { audioService } from '../../services/audioService';
 
@@ -10,6 +10,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
   THRESHOLD: Shield,
   SIGNAL: Radio,
   ALERT: AlertTriangle,
+  PIPELINE: Database,
+  RSS: Radio,
+  SOURCE: Globe,
   SYSTEM: AlertCircle,
 };
 
@@ -31,12 +34,12 @@ const PRIORITY_STYLES = {
     glow: 'shadow-[0_8px_32px_rgba(255,159,10,0.15)]',
   },
   MEDIUM: {
-    card: 'bg-white/5 border-white/10',
-    iconBg: 'bg-white/10 border-white/10',
-    iconColor: 'text-white/70',
-    title: 'text-white/90',
-    bar: 'bg-white/30',
-    glow: 'shadow-[0_8px_32px_rgba(0,0,0,0.4)]',
+    card: 'bg-yellow-500/10 border-yellow-500/30',
+    iconBg: 'bg-yellow-500/15 border-yellow-500/25',
+    iconColor: 'text-yellow-400',
+    title: 'text-yellow-400',
+    bar: 'bg-yellow-500/60',
+    glow: 'shadow-[0_8px_32px_rgba(255,214,10,0.2)]',
   },
 };
 
