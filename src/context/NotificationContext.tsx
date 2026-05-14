@@ -131,6 +131,49 @@ export const NotificationProvider: React.FC<{
     return () => window.removeEventListener('ti:notification:new', handler);
   }, []);
 
+  // System health monitoring — check backend every 5 minutes
+  useEffect(() => {
+    let wasHealthy = true;
+    const checkHealth = async () => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch('/api/health', { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!wasHealthy) {
+          setNotifications(prev => {
+            const n: Notification = {
+              id: generateRandomId('sys'),
+              type: 'SYSTEM', priority: 'LOW',
+              title: 'Backend Connection Restored',
+              message: 'Express server and API endpoints are reachable.',
+              timestamp: Date.now(), read: false,
+            };
+            return [n, ...prev].slice(0, 100);
+          });
+        }
+        wasHealthy = true;
+      } catch {
+        if (wasHealthy) {
+          setNotifications(prev => {
+            const n: Notification = {
+              id: generateRandomId('sys'),
+              type: 'SYSTEM', priority: 'HIGH',
+              title: 'Backend Connection Lost',
+              message: 'Cannot reach /api/health. Some features may be unavailable.',
+              timestamp: Date.now(), read: false,
+            };
+            return [n, ...prev].slice(0, 100);
+          });
+        }
+        wasHealthy = false;
+      }
+    };
+    checkHealth();
+    const interval = setInterval(checkHealth, 300_000);
+    return () => clearInterval(interval);
+  }, []);
+
   const addNotification = useCallback((
     n: Omit<Notification, 'id' | 'timestamp' | 'read'>
   ) => {

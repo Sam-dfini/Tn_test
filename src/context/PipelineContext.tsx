@@ -580,6 +580,32 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       newState.active_signals = data.active_signals;
       setRriState(newState);
 
+      // ── Notification: RRI threshold breach ───────────────────────────────
+      if (newState.rri >= 2.625) {
+        const rri = newState.rri.toFixed(2);
+        addNotification({
+          type: 'RRI', priority: 'CRITICAL',
+          title: `RRI Threshold Breached: ${rri}`,
+          message: `Revolution Risk Index at ${rri} — above 2.625 revolution threshold. Velocity: ${newState.velocity_label || 'N/A'}.`,
+          action: { label: 'View Risk Model', event: 'navigate-to-methodology' },
+        });
+      } else if (newState.compound_stress >= 0.4) {
+        const cs = (newState.compound_stress * 100).toFixed(0);
+        addNotification({
+          type: 'ALERT', priority: 'HIGH',
+          title: `Compound Stress Elevated: ${cs}%`,
+          message: `Systemic pressure at ${cs}% — multiple indicators exceeding thresholds. P_rev: ${(newState.p_rev * 100).toFixed(1)}%.`,
+          action: { label: 'View Analysis', event: 'navigate-to-methodology' },
+        });
+      } else if (newState.rri >= 2.0) {
+        addNotification({
+          type: 'RRI', priority: 'HIGH',
+          title: `RRI Elevated: ${newState.rri.toFixed(2)}`,
+          message: `Risk Index at ${newState.rri.toFixed(2)} — elevated pressure. P_rev: ${(newState.p_rev * 100).toFixed(1)}%.`,
+        });
+      }
+      // ─────────────────────────────────────────────────────────────────────
+
       // Run AgriIntel satellite engine
       const agriInputs = generateMockInputs('drought'); // Mock for dev baseline
       const summary = processAllGovernorates(agriInputs);
