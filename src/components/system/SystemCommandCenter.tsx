@@ -4,9 +4,8 @@ import {
   X, Activity, Database, Radio, Zap, Layers, Terminal,
   Trash2, Pause, Play, Filter, AlertTriangle, ArrowRight,
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
-  Cpu, Globe, FileText, FlaskConical, Wifi, Server,
-  BarChart3, TrendingUp, AlertCircle, Info, ChevronRight,
-  RotateCcw, Send, Eye, Loader2, Camera,
+  Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
+  FileText, BarChart3, TrendingUp
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -24,10 +23,11 @@ import { NewsColumn } from '../debug/NewsColumn';
 import { SignalsColumn } from '../debug/SignalsColumn';
 import { EventsColumn } from '../debug/EventsColumn';
 import { PipelineLogColumn } from '../debug/PipelineLogColumn';
+import { getVarCache } from '../../services/pipelineService';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA';
 
 interface TestResult {
   id: string;
@@ -1568,6 +1568,126 @@ const ADMTab: React.FC<{
   );
 };
 
+// ─── RRI & DATA TAB ───────────────────────────────────────────────────────────────────
+const RRIDataTab: React.FC = () => {
+  const [historyResult, setHistoryResult] = useState<{ rriState: any; variableCounts: any[]; totalArticles: number; elapsedMs: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadHistory = async () => {
+    setLoading(true);
+    try {
+      const { computeHistoricalRRI } = await import('../../services/supabaseVarService');
+      const result = await computeHistoricalRRI(60);
+      setHistoryResult(result);
+    } catch (e: any) {
+      console.error('[RRI_DATA] Failed to compute historical RRI:', e);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { loadHistory(); }, []);
+
+  const hist = historyResult?.rriState;
+  const counts = historyResult?.variableCounts || [];
+
+  return (
+    <div className="space-y-4 h-full overflow-y-auto">
+      {/* Top controls */}
+      <div className="flex items-center gap-3">
+        <button onClick={loadHistory} disabled={loading}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-mono font-bold uppercase hover:bg-intel-cyan/20 transition-all">
+          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+          Recalculate from History
+        </button>
+        {historyResult && (
+          <span className="text-[9px] font-mono text-slate-500">
+            {historyResult.totalArticles} articles · {historyResult.elapsedMs}ms
+          </span>
+        )}
+      </div>
+
+      {/* Main grid: Historical vs Fresh */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Historical (from Supabase) */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
+          <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest font-bold flex items-center gap-2">
+            <Database className="w-3.5 h-3.5" />
+            Historical (60d Supabase)
+          </div>
+          {hist ? (
+            <div className="space-y-2">
+              <MetricRow label="RRI" value={hist.rri?.toFixed(4)} color={hist.rri >= 2.625 ? 'text-red-400' : hist.rri >= 2.0 ? 'text-orange-400' : 'text-cyan-400'} />
+              <MetricRow label="P(REV)" value={(hist.p_rev * 100).toFixed(1) + '%'} color={hist.p_rev > 0.7 ? 'text-red-400' : 'text-orange-400'} />
+              <MetricRow label="Salience" value={hist.salience?.toFixed(4)} color="text-cyan-400" />
+              <MetricRow label="Cascade" value={hist.cascade_probability?.toFixed(4)} color="text-amber-400" />
+              <MetricRow label="Velocity" value={hist.velocity_label || 'N/A'} color="text-slate-400" />
+              <MetricRow label="Compound Stress" value={hist.compound_stress?.toFixed(4)} color="text-purple-400" />
+              <MetricRow label="Info Amp" value={hist.info_amplification?.toFixed(4)} color="text-blue-400" />
+            </div>
+          ) : (
+            <div className="text-[10px] font-mono text-slate-600 italic py-4 text-center">
+              {loading ? 'Computing...' : 'No data'}
+            </div>
+          )}
+        </div>
+
+        {/* Fresh (from pipeline) */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4 space-y-3">
+          <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-widest font-bold flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5" />
+            Fresh (Pipeline)
+          </div>
+          <div className="space-y-2">
+            <MetricRow label="RRI" value="From rriState" color="text-slate-400" />
+            <MetricRow label="P(REV)" value="From rriState" color="text-slate-400" />
+            <MetricRow label="Salience" value="From rriState" color="text-slate-400" />
+            <MetricRow label="Cascade" value="From rriState" color="text-slate-400" />
+            <MetricRow label="Velocity" value="From rriState" color="text-slate-400" />
+            <MetricRow label="Variables" value={`${getVarCache()?.length || 0} cached`} color="text-slate-400" />
+            <MetricRow label="OCP" value="From pipeline" color="text-slate-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* Top variables table */}
+      <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
+        <div className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold mb-3 flex items-center gap-2">
+          <TrendingUp className="w-3.5 h-3.5" />
+          Top Variables by Article Count
+        </div>
+        <div className="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
+          {counts.slice(0, 30).map((vc, i) => (
+            <div key={vc.variable} className="flex items-center justify-between py-1 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono">
+              <div className="flex items-center gap-3">
+                <span className="text-slate-600 w-5">{i + 1}.</span>
+                <span className="font-bold text-white">{vc.variable}</span>
+                <span className="text-slate-500">{vc.articles} articles</span>
+              </div>
+              <div className="flex items-center gap-4 text-[9px]">
+                <span className="text-slate-600">sev: {vc.avgSeverity.toFixed(1)}</span>
+                <span className="text-intel-cyan">nudge: {vc.totalNudge.toFixed(3)}</span>
+              </div>
+            </div>
+          ))}
+          {counts.length === 0 && !loading && (
+            <div className="text-[10px] font-mono text-slate-600 italic py-4 text-center">
+              No variable-linked articles found in Supabase
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Helper metric row
+const MetricRow: React.FC<{ label: string; value: string; color: string }> = ({ label, value, color }) => (
+  <div className="flex items-center justify-between py-1 px-2 rounded bg-white/[0.02]">
+    <span className="text-[10px] font-mono text-slate-500">{label}</span>
+    <span className={`text-[11px] font-mono font-bold ${color}`}>{value}</span>
+  </div>
+);
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface SystemCommandCenterProps {
@@ -1620,6 +1740,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'MISSION', label: 'Mission Control', icon: ShieldAlert },
     { id: 'ADM', label: 'Intelligence Pipeline (ADM)', icon: Database },
+    { id: 'RRI_DATA', label: 'RRI & Data', icon: BarChart3 },
     { id: 'DEBUGGER', label: 'Pipeline Debug', icon: Layers },
     { id: 'NEWS_DEBUG', label: 'News Debug', icon: Send },
     { id: 'TESTS', label: 'Test Suite', icon: FlaskConical },
@@ -1686,6 +1807,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
           >
             {activeTab === 'MISSION' && <MissionControl onJumpToDebugger={handleJumpToDebugger} />}
             {activeTab === 'ADM' && <ADMTab onJumpToDebugger={handleJumpToDebugger} />}
+            {activeTab === 'RRI_DATA' && <RRIDataTab />}
             {activeTab === 'DEBUGGER' && <DebuggerTab jumpToStage={jumpStage} />}
             {activeTab === 'NEWS_DEBUG' && <SourceDebuggerTab />}
             {activeTab === 'TESTS' && <TestSuite />}
