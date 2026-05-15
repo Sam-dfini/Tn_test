@@ -24,6 +24,7 @@ const TestMode = lazy(() => import('./components/modes/TestMode').then(m => ({ d
 const TunisiaAgricultureDashboard = lazy(() => import('./components/agriculture_dashboard/index').then(m => ({ default: m.default })));
 
 // Import BrainMode component
+const BrainMode = lazy(() => import('./brain/components/BrainMode'));
 
 import { Authentication } from './components/shared/Authentication';
 import { IntelligenceDossierExporterModal } from './components/shared/IntelligenceDossierExporterModal';
@@ -360,6 +361,17 @@ const AppContent: React.FC = () => {
             <TunisiaTerminal
               onGoHome={() => handleModeSelect('selection')}
               governorates={govData.governorates as any}
+            />
+          </motion.div>
+        );
+      case 'brain':
+        return (
+          <motion.div key="brain" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }} className="h-full">
+            <BrainMode
+              onOpenAI={() => setShowAIAnalyst(true)}
+              onOpenPipeline={handleOpenPipeline}
+              onGoHome={() => handleModeSelect('selection')}
+              onOpenReport={() => setShowReport(true)}
             />
           </motion.div>
         );
