@@ -886,22 +886,31 @@ async function startServer() {
     logSection('>>> SERVER READY - FRONTEND BOOT CAN BEGIN');
     console.log(`Server running on http://localhost:${PORT}`);
 
-    // Auto-seed variables into Supabase after server starts
+    // Auto-seed variables and knowledge graph into Supabase after server starts
     setTimeout(async () => {
       try {
         const protocol = 'http';
         const host = 'localhost';
-        const res = await fetch(`${protocol}://${host}:${PORT}/api/variables/seed`, { method: 'POST' });
-        const result = await res.json();
-        if (result.success) {
-          console.log(`[AUTO-SEED] ${result.seeded} variables seeded into Supabase`);
+
+        // Seed RRI variables
+        const varRes = await fetch(`${protocol}://${host}:${PORT}/api/variables/seed`, { method: 'POST' });
+        const varResult = await varRes.json();
+        if (varResult.success) {
+          console.log(`[AUTO-SEED] ${varResult.seeded} variables seeded into Supabase`);
         } else {
-          console.warn('[AUTO-SEED] Seed failed:', result.error);
+          console.warn('[AUTO-SEED] Variables seed failed:', varResult.error);
+        }
+
+        // Seed Knowledge Graph (via Python backend proxy)
+        const graphRes = await fetch(`${protocol}://${host}:${PORT}/api/graph/seed`, { method: 'POST' });
+        const graphResult = await graphRes.json();
+        if (graphResult.entities_seeded !== undefined) {
+          console.log(`[AUTO-SEED] ${graphResult.entities_seeded} entities, ${graphResult.relations_seeded} relations seeded into Knowledge Graph`);
         }
       } catch (e: any) {
         console.warn('[AUTO-SEED] Seed request failed:', e.message);
       }
-    }, 2000);
+    }, 3000);
   });
 }
 
