@@ -24,6 +24,7 @@ import { useAIAnalysis } from '../../context/AIAnalysisContext';
 import { classifySignals, SignalClassification, SignalTier } from '../../services/signalClassifier';
 import { assessGovernmentAgent } from '../../services/govAgent';
 import { ModuleHeader } from '../shared/ProfessionalShared';
+import { fetchEntities, fetchRelations } from '../../services/knowledgeGraphService';
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ interface GameModel {
   description: string; tunisiaImpact: string;
 }
 
-const NODES: ActorNode[] = [
+const FALLBACK_NODES: ActorNode[] = [
   { id: 'TUN', label: 'Tunisia', tier: 1, domain: ['security', 'finance', 'diplomatic'], powerType: 'structural', resources: { economic: 4, military: 4, diplomatic: 5, informational: 4 }, goals: ['Maintain sovereignty', 'Secure financing', 'Prevent social explosion'], constraints: ['Democratic backsliding', 'Foreign debt $40B+', 'Youth unemployment 35%+'], riskTolerance: 'low', timeHorizon: 'short', color: '#1F4E78', size: 60 },
   { id: 'DZA', label: 'Algeria', tier: 1, domain: ['energy', 'security'], powerType: 'structural', resources: { economic: 7, military: 8, diplomatic: 5, informational: 4 }, goals: ['Gas pipeline monopoly', 'Prevent spillover', 'Maghreb depth'], constraints: ['Tebboune succession', 'Economic diversification failure'], riskTolerance: 'medium', timeHorizon: 'long', color: '#C00000', size: 55 },
   { id: 'ITA', label: 'Italy', tier: 1, domain: ['migration', 'energy'], powerType: 'structural', resources: { economic: 8, military: 6, diplomatic: 7, informational: 6 }, goals: ['Block migration', 'Diversify gas', 'ENI partnerships'], constraints: ['Meloni coalition fragility', 'Budget deficit'], riskTolerance: 'low', timeHorizon: 'short', color: '#C00000', size: 55 },
@@ -107,7 +108,7 @@ const NODES: ActorNode[] = [
   { id: 'LBY', label: 'Libya', tier: 4, domain: ['security', 'migration'], powerType: 'extractive', resources: { economic: 3, military: 6, diplomatic: 2, informational: 3 }, goals: ['Territorial consolidation', 'Resource control', 'Proxy equilibrium'], constraints: ['State collapse', 'Arms embargo violations', 'Humanitarian crisis'], riskTolerance: 'high', timeHorizon: 'short', color: '#A6A6A6', size: 48 },
 ];
 
-const EDGES: RelEdge[] = [
+const FALLBACK_EDGES: RelEdge[] = [
   // Tunisia hub — incoming
   { source: 'DZA', target: 'TUN', type: 'coercive', weight: 9, domain: 'energy', description: 'Algeria controls Trans-Med gas pipeline — can throttle supply', conditionality: 'Border security cooperation; non-interference', trend: 'stable', evidence: ['SONATRACH pricing', 'Pipeline flow data'] },
   { source: 'ITA', target: 'TUN', type: 'coercive', weight: 8, domain: 'migration', description: 'Italy conditions aid and energy deals on migration control', conditionality: 'Coast guard interdiction rates; detention cooperation', trend: 'rising', evidence: ['Italian MOI funding', 'ENI migration clauses'] },
@@ -232,7 +233,45 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const [selectedEdge, setSelectedEdge] = useState<RelEdge | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
   const [filters, setFilters] = useState<{ domain: Domain | 'all'; tier: number | 'all'; type: EdgeType | 'all' }>({ domain: 'all', tier: 'all', type: 'all' });
+  const [nodes, setNodes] = useState<ActorNode[]>(FALLBACK_NODES);
+  const [edges, setEdges] = useState<RelEdge[]>(FALLBACK_EDGES);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetchEntities('geopolitical').catch(() => null),
+      fetchRelations('geopolitical').catch(() => null),
+    ]).then(([entities, relations]) => {
+      if (entities && entities.length > 0) {
+        setNodes(entities.map(e => ({
+          id: e.id, label: e.label, tier: e.tier || 2,
+          domain: (e.domain || []) as Domain[],
+          color: e.color || '#6366f1', size: e.size || 25,
+          resourceType: (e.power_type || 'structural') as ActorNode['resourceType'],
+          resources: {
+            economic: e.resources?.economic ?? 5,
+            military: e.resources?.military ?? 5,
+            diplomatic: e.resources?.diplomatic ?? 5,
+            informational: e.resources?.informational ?? 5,
+          },
+          goals: e.goals || [], constraints: e.constraints || [],
+          riskTolerance: e.risk_tolerance || 'medium',
+          timeHorizon: e.time_horizon || 'medium',
+          fixedX: e.fixed_x ?? undefined, fixedY: e.fixed_y ?? undefined,
+        })));
+      }
+      if (relations && relations.length > 0) {
+        setEdges(relations.map(r => ({
+          source: r.source_id, target: r.target_id,
+          type: r.type as EdgeType, weight: r.weight || 5,
+          domain: (r.domain || 'strategic') as Domain,
+          description: r.description || '',
+          conditionality: r.conditionality || 'conditional',
+          trend: (r.trend || 'stable') as 'rising' | 'stable' | 'declining',
+        })));
+      }
+    });
+  }, []);
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Scroll to panel's active content when a game is selected
@@ -387,11 +426,11 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   const CX = W / 2, CY = H / 2;
 
   // Filtered edges
-  const visibleEdges = useMemo(() => EDGES.filter(e => {
+  const visibleEdges = useMemo(() => edges.filter(e => {
     if (filters.domain !== 'all' && e.domain !== filters.domain) return false;
     if (filters.type !== 'all' && e.type !== filters.type) return false;
     return true;
-  }), [filters]);
+  }), [filters, edges]);
 
   const visibleNodeIds = useMemo(() => {
     const ids = new Set<string>(['TUN']);
@@ -400,9 +439,9 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   }, [visibleEdges]);
 
   const visibleNodes = useMemo(() => {
-    if (filters.tier === 'all') return NODES.filter(n => visibleNodeIds.has(n.id));
-    return NODES.filter(n => (n.tier === filters.tier || n.id === 'TUN') && visibleNodeIds.has(n.id));
-  }, [visibleNodeIds, filters.tier]);
+    if (filters.tier === 'all') return nodes.filter(n => visibleNodeIds.has(n.id));
+    return nodes.filter(n => (n.tier === filters.tier || n.id === 'TUN') && visibleNodeIds.has(n.id));
+  }, [visibleNodeIds, filters.tier, nodes]);
 
   // Build graph
   useEffect(() => {
@@ -625,7 +664,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     // Tunisia stress gauge
     const tunNode = nodes.find(n => n.id === 'TUN');
     if (tunNode) {
-      const incomingWeight = EDGES.filter(e => e.target === 'TUN').reduce((s, e) => s + e.weight, 0);
+      const incomingWeight = edges.filter(e => e.target === 'TUN').reduce((s, e) => s + e.weight, 0);
       const stressMax = 90;
       const stress = Math.min(1, incomingWeight / stressMax);
       const stressGroup = container.append('g').attr('class', 'tun-stress');
@@ -754,7 +793,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       });
   }, [hoveredNode, selectedGame, visibleEdges]);
 
-  const tunIncomingEdges = EDGES.filter(e => e.target === 'TUN');
+  const tunIncomingEdges = edges.filter(e => e.target === 'TUN');
   const dominantActor = tunIncomingEdges.sort((a, b) => b.weight - a.weight)[0];
 
   const DOMAINS: Domain[] = ['energy', 'migration', 'security', 'finance', 'infrastructure', 'media', 'diplomatic', 'ideological', 'strategic'];

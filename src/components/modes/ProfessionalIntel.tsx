@@ -128,6 +128,7 @@ const RealTimeNewsFeed = React.lazy(() => import("../tactical/RealTimeNewsFeed")
 const LiveSignalFeed = React.lazy(() => import("../tactical/LiveSignalFeed").then(m => ({ default: m.LiveSignalFeed })));
 const EventsIntelligence = React.lazy(() => import("../geopolitical/EventsIntelligence").then(m => ({ default: m.EventsIntelligence })));
 const ObservabilityDashboard = React.lazy(() => import("../../pages/ObservabilityDashboard").then(m => ({ default: m.ObservabilityDashboard })));
+const KnowledgeGraphExplorer = React.lazy(() => import("../political/KnowledgeGraphExplorer").then(m => ({ default: m.default })));
 
 // Categories for sidebar grouping - now dynamic
 const getSidebarCategories = (viewMode: ViewMode) => {
@@ -219,6 +220,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
         { id: "govagent", label: "Gov. Agent", icon: Brain, restricted: 'STRATEGIC' },
         { id: "performance", label: "Model Performance", icon: Activity },
         { id: "methodology", label: "Methodology", icon: BookOpen },
+        { id: "knowledge-graph", label: "Knowledge Graph", icon: Globe },
         { id: "civilizational", label: "Civilizational Analysis", icon: Hourglass, restricted: 'STRATEGIC' },
       ],
     },
@@ -715,6 +717,7 @@ export const ProfessionalIntel: React.FC<{
     | "geopolitical"
     | "geopolitical-network"
     | "national-actor-network"
+    | "knowledge-graph"
     | "simulation"
     | "methodology"
     | "civilizational"
@@ -1338,6 +1341,10 @@ Return only the 3-sentence briefing.`;
                          })
                        );
                     }} />
+                  </Suspense>
+                ) : activeTab === "knowledge-graph" ? (
+                  <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+                    <KnowledgeGraphExplorer />
                   </Suspense>
                 ) : activeTab === "events" ? (
                   <div className="space-y-6">

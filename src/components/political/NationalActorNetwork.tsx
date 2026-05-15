@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { ModuleHeader } from '../shared/ProfessionalShared';
+import { fetchEntities, fetchRelations } from '../../services/knowledgeGraphService';
 import { useRSS } from '../../context/RSSContext';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useAIAnalysis } from '../../context/AIAnalysisContext';
@@ -77,7 +78,7 @@ interface GameModel {
 
 // ─── NODE DATA ────────────────────────────────────────────────────────────────
 
-const NODES: NationalActorNode[] = [
+const FALLBACK_NODES: NationalActorNode[] = [
   // TIER 1
   { id: 'PRES', label: 'Presidency (Saied)', tier: 1, domain: ['sovereignty', 'constitutional_power'], powerType: 'coercive', resources: { popular: 6, institutional: 9, economic: 4, informational: 7 }, goals: ['Consolidate hyper-presidential system', 'Eliminate horizontal accountability', 'Control narrative via media pressure', 'Secure Gulf/IMF financing without reform'], constraints: ['No parliamentary majority or party apparatus', 'Dependent on UGTT acquiescence', 'Limited economic policy expertise', 'International isolation risk'], riskTolerance: 'high', timeHorizon: 'short', color: '#1F4E78', size: 60 },
   { id: 'UGTT', label: 'UGTT (Labour Union)', tier: 1, domain: ['wage_bargaining', 'social_dialogue', 'general_strikes'], powerType: 'mobilizational', resources: { popular: 9, institutional: 7, economic: 5, informational: 6 }, goals: ['Preserve public sector wage bill', 'Maintain tripartite social dialogue', 'Block IMF structural reforms', 'Position UGTT as national arbiter'], constraints: ['Internal generational divide', 'Membership decline in informal economy', 'Reputational damage from corruption', 'Cannot sustain indefinite strikes'], riskTolerance: 'medium', timeHorizon: 'medium', color: '#C00000', size: 55 },
@@ -102,7 +103,7 @@ const NODES: NationalActorNode[] = [
 
 // ─── EDGE DATA ────────────────────────────────────────────────────────────────
 
-const EDGES: RelEdge[] = [
+const FALLBACK_EDGES: RelEdge[] = [
   // Presidency-centric
   { source: 'PRES', target: 'JUD', type: 'coercive', weight: 9, domain: 'constitutional_power', description: 'Saied dissolved Supreme Judicial Council and subordinated prosecutors to executive', conditionality: 'Loyalty oaths; politically motivated prosecutions; travel bans', trend: 'stable', evidence: ['Decree-Law 2022-11', '57 judge dismissals', 'Prosecutor general appointments'] },
   { source: 'PRES', target: 'ENN', type: 'coercive', weight: 9, domain: 'political_repression', description: 'Systematic dismantlement of Ennahda via arrests, asset freezes, and media demonization', conditionality: 'None — zero-sum elimination strategy', trend: 'rising', evidence: ['Ghannouchi imprisonment', 'Party office closures', 'Bank account seizures'] },
@@ -264,6 +265,43 @@ export const NationalActorNetwork: React.FC = () => {
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [filters, setFilters] = useState({ type: 'all' as EdgeType | 'all', tier: 'all' as number | 'all' });
+  const [nodes, setNodes] = useState<NationalActorNode[]>(FALLBACK_NODES);
+  const [edges, setEdges] = useState<RelEdge[]>(FALLBACK_EDGES);
+
+  useEffect(() => {
+    Promise.all([
+      fetchEntities('national').catch(() => null),
+      fetchRelations('national').catch(() => null),
+    ]).then(([entities, relations]) => {
+      if (entities && entities.length > 0) {
+        setNodes(entities.map(e => ({
+          id: e.id, label: e.label, tier: e.tier || 2,
+          domain: (e.domain || []) as string[],
+          color: e.color || '#6366f1', size: e.size || 25,
+          powerType: (e.power_type || 'institutional') as NationalActorNode['powerType'],
+          resources: {
+            popular: e.resources?.popular ?? 5,
+            institutional: e.resources?.institutional ?? 5,
+            economic: e.resources?.economic ?? 5,
+            informational: e.resources?.informational ?? 5,
+          },
+          goals: e.goals || [], constraints: e.constraints || [],
+          riskTolerance: e.risk_tolerance || 'medium',
+          timeHorizon: e.time_horizon || 'medium',
+        })));
+      }
+      if (relations && relations.length > 0) {
+        setEdges(relations.map(r => ({
+          source: r.source_id, target: r.target_id,
+          type: r.type as EdgeType, weight: r.weight || 5,
+          domain: r.domain || 'political',
+          description: r.description || '',
+          conditionality: r.conditionality || 'conditional',
+          trend: (r.trend || 'stable') as 'rising' | 'stable' | 'declining',
+        })));
+      }
+    });
+  }, []);
 
   const W = 1200, H = 850;
   const CX = W / 2, CY = H / 2;
@@ -340,10 +378,10 @@ export const NationalActorNetwork: React.FC = () => {
   }, [pops]);
 
   // ─── FILTERED GRAPH DATA ──────────────────────────────────────────────────
-  const visibleEdges = useMemo(() => EDGES.filter(e => {
+  const visibleEdges = useMemo(() => edges.filter(e => {
     if (filters.type !== 'all' && e.type !== filters.type) return false;
     return true;
-  }), [filters]);
+  }), [filters, edges]);
 
   const visibleNodeIds = useMemo(() => {
     const ids = new Set<string>(['PRES']);
@@ -352,9 +390,9 @@ export const NationalActorNetwork: React.FC = () => {
   }, [visibleEdges]);
 
   const visibleNodes = useMemo(() => {
-    if (filters.tier === 'all') return NODES.filter(n => visibleNodeIds.has(n.id));
-    return NODES.filter(n => (n.tier === filters.tier || n.id === 'PRES') && visibleNodeIds.has(n.id));
-  }, [visibleNodeIds, filters.tier]);
+    if (filters.tier === 'all') return nodes.filter(n => visibleNodeIds.has(n.id));
+    return nodes.filter(n => (n.tier === filters.tier || n.id === 'PRES') && visibleNodeIds.has(n.id));
+  }, [visibleNodeIds, filters.tier, nodes]);
 
   // ─── D3 GRAPH BUILD ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -509,8 +547,8 @@ export const NationalActorNetwork: React.FC = () => {
     // PRES gravity well stress gauge
     const presNode = nodes.find(n => n.id === 'PRES');
     if (presNode) {
-      const incomingWeight = EDGES.filter(e => e.target === 'PRES').reduce((s, e) => s + e.weight, 0);
-      const outgoingCoercive = EDGES.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0);
+      const incomingWeight = edges.filter(e => e.target === 'PRES').reduce((s, e) => s + e.weight, 0);
+      const outgoingCoercive = edges.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0);
       const stress = Math.min(1, outgoingCoercive / 60);
       const stressArc = d3.arc()({ innerRadius: (presNode.size * 0.45) + 12, outerRadius: (presNode.size * 0.45) + 18, startAngle: -Math.PI, endAngle: -Math.PI + stress * Math.PI * 2 });
       container.append('g').attr('class', 'pres-stress').append('path')
@@ -584,9 +622,7 @@ export const NationalActorNetwork: React.FC = () => {
   }, [hoveredNode]);
 
   // ─── DERIVED STATS ────────────────────────────────────────────────────────
-  const presOutCoercive = EDGES.filter(e => e.source === 'PRES' && e.type === 'coercive');
-  const ugttvPresEdge = EDGES.find(e => e.source === 'UGTT' && e.target === 'PRES');
-  const criticalGame = GAMES[0];
+  const presOutCoercive = edges.filter(e => e.source === 'PRES' && e.type === 'coercive');
 
   const EDGE_TYPES: EdgeType[] = ['coercive', 'cooperative', 'competitive', 'dependent', 'extractive', 'spillover'];
 
@@ -848,9 +884,9 @@ export const NationalActorNetwork: React.FC = () => {
             <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mb-3">Institutional Stress Dashboard</div>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: 'Democratic Backsliding', value: Math.round((EDGES.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0) / 40) * 100), color: '#ef4444' },
-                { label: 'Economic Vulnerability', value: Math.round(((EDGES.find(e => e.source === 'BCT' && e.target === 'INFORMAL')?.weight || 7) / 10 + (EDGES.find(e => e.source === 'PRES' && e.target === 'BCT')?.weight || 7) / 10) * 50), color: '#f97316' },
-                { label: 'Social Cohesion', value: Math.round(100 - (EDGES.find(e => e.source === 'UGTT' && e.target === 'PRES')?.weight || 6) * 10), color: '#f59e0b' },
+                { label: 'Democratic Backsliding', value: Math.round((edges.filter(e => e.source === 'PRES' && e.type === 'coercive').reduce((s, e) => s + e.weight, 0) / 40) * 100), color: '#ef4444' },
+                { label: 'Economic Vulnerability', value: Math.round(((edges.find(e => e.source === 'BCT' && e.target === 'INFORMAL')?.weight || 7) / 10 + (edges.find(e => e.source === 'PRES' && e.target === 'BCT')?.weight || 7) / 10) * 50), color: '#f97316' },
+                { label: 'Social Cohesion', value: Math.round(100 - (edges.find(e => e.source === 'UGTT' && e.target === 'PRES')?.weight || 6) * 10), color: '#f59e0b' },
                 { label: 'Default Probability', value: 45, color: '#dc2626' },
               ].map((m, i) => (
                 <div key={i} className="space-y-1">

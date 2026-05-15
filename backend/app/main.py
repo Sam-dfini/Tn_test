@@ -43,7 +43,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(api_router, prefix="/api")
-app.include_router(graph_router)
+app.include_router(graph_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS

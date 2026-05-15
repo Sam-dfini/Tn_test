@@ -64,7 +64,7 @@ const SimulationView: React.FC = () => {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#0a0a0f', display: 'flex' }}>
+    <div style={{ width: '100vw', height: '100%', backgroundColor: '#0a0a0f', display: 'flex' }}>
       {/* Parameters Panel */}
       <div style={{ width: '300px', padding: '20px', background: 'rgba(0, 0, 0, 0.7)', color: 'white' }}>
         <h3>Simulation Parameters</h3>

@@ -5,6 +5,12 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 from ..orchestrator import orchestrator, MissionState
 from ..core.database import db
+from ..intelligence.state_machine import get_state_machine
+from ..services.telegram_service import get_telegram_collector
+from ..intelligence.narrative_warfare import get_narrative_engine, FRAMES
+from ..intelligence.sci import get_sci_engine
+from ..intelligence.emotional_heatmap import get_heatmap_engine
+from ..intelligence.calibration import get_calibration_engine
 
 # from ..services.rss_service import rss_service
 
@@ -292,3 +298,183 @@ async def get_agent_observability():
         "system_health": orchestrator.observability.get_health_status(),
         "timestamp": datetime.now().isoformat()
     }
+
+
+# ── State Machine ─────────────────────────────────────────────
+
+from pydantic import BaseModel
+
+class StateInput(BaseModel):
+    rri: float = 2.0
+    velocity: float = 0.0
+    cascade_prob: float = 0.3
+    coercion_idx: float = 0.3
+    narrative_divergence: float = 0.3
+    elite_cohesion: float = 0.6
+    sir_infected: float = 0.0
+    compound_stress: float = 0.3
+
+@router.post("/state/classify")
+async def classify_state(inputs: StateInput):
+    sm = get_state_machine()
+    result = sm.classify(**inputs.model_dump())
+    return result
+
+@router.get("/state/current")
+async def current_state():
+    sm = get_state_machine()
+    if not sm.history:
+        return {"phase": "unknown", "phase_label": "Unknown"}
+    return sm.history[-1]
+
+@router.get("/state/history")
+async def state_history(limit: int = 100):
+    sm = get_state_machine()
+    return sm.get_history(limit)
+
+@router.get("/state/transitions")
+async def state_transitions(limit: int = 50):
+    sm = get_state_machine()
+    return sm.get_transition_log(limit)
+
+
+# ── Telegram Collection ─────────────────────────────────────────
+
+@router.post("/telegram/collect")
+async def telegram_collect():
+    """Trigger a one-time collection cycle."""
+    collector = get_telegram_collector()
+    result = await collector.collect()
+    return result
+
+@router.post("/telegram/start")
+async def telegram_start():
+    """Start background collection loop (5 min interval)."""
+    collector = get_telegram_collector()
+    if collector.running:
+        return {"status": "already_running"}
+    asyncio.ensure_future(collector.run_loop(300))
+    return {"status": "started"}
+
+@router.post("/telegram/stop")
+async def telegram_stop():
+    collector = get_telegram_collector()
+    collector.stop()
+    return {"status": "stopped"}
+
+@router.get("/telegram/status")
+async def telegram_status():
+    collector = get_telegram_collector()
+    return collector.get_status()
+
+@router.get("/telegram/messages")
+async def telegram_messages(limit: int = 50, category: Optional[str] = None, alert_only: bool = False):
+    query = db.table("telegram_messages").select("*").order("date", desc=True).limit(limit)
+    if category:
+        query = query.eq("channel_category", category)
+    if alert_only:
+        query = query.gt("alert_count", 0)
+    res = query.execute()
+    return res.data or []
+
+
+# ── Narrative Warfare ──────────────────────────────────────────
+
+class NarrativeAnalyzeRequest(BaseModel):
+    hours: int = 720  # 30 days default to capture historical articles
+
+@router.post("/narrative/analyze")
+async def narrative_analyze(req: NarrativeAnalyzeRequest):
+    engine = get_narrative_engine()
+    result = await engine.get_or_analyze(req.hours)
+    return result
+
+@router.get("/narrative/current")
+async def narrative_current():
+    engine = get_narrative_engine()
+    return engine.get_current_state()
+
+@router.get("/narrative/history")
+async def narrative_history(limit: int = 50):
+    engine = get_narrative_engine()
+    return engine.get_history(limit)
+
+@router.get("/narrative/frames")
+async def narrative_frames():
+    """Return all frame definitions with metadata."""
+    return [
+        {"id": fid, **fdata}
+        for fid, fdata in FRAMES.items()
+    ]
+
+@router.get("/narrative/trend/{frame_id}")
+async def narrative_trend(frame_id: str, window: int = 20):
+    engine = get_narrative_engine()
+    return {"frame_id": frame_id, "trend": engine.get_frame_trend(frame_id, window)}
+
+
+# ── Signal Credibility Index ──────────────────────────────────
+
+@router.post("/sci/score")
+async def sci_score_text(text: str = "", source_id: str = "unknown", source_category: str = ""):
+    engine = get_sci_engine()
+    return engine.score_text(text, source_id, source_category)
+
+class SCIBatchRequest(BaseModel):
+    hours: int = 24
+
+@router.post("/sci/score-all")
+async def sci_score_all(req: SCIBatchRequest):
+    engine = get_sci_engine()
+    engine.score_recent_signals(req.hours)
+    all_results = engine.get_all_scores()
+    return {"total": len(all_results), "results": all_results[:200], "stats": engine.get_stats()}
+
+@router.get("/sci/status")
+async def sci_status():
+    engine = get_sci_engine()
+    return engine.get_stats()
+
+@router.get("/sci/sources")
+async def sci_sources():
+    engine = get_sci_engine()
+    return engine.get_source_table()
+
+
+# ── Emotional Heatmap ─────────────────────────────────────────
+
+class HeatmapRequest(BaseModel):
+    hours: int = 720
+
+@router.get("/heatmap/current")
+async def heatmap_current():
+    engine = get_heatmap_engine()
+    cached = engine.get_cached()
+    if cached:
+        return cached
+    result = await engine.fetch_and_compute(720)
+    return result
+
+@router.post("/heatmap/refresh")
+async def heatmap_refresh(req: HeatmapRequest):
+    engine = get_heatmap_engine()
+    result = await engine.fetch_and_compute(req.hours)
+    return result
+
+
+# ── Calibration Dashboard ────────────────────────────────────
+
+@router.get("/calibration/summary")
+async def calibration_summary():
+    engine = get_calibration_engine()
+    cached = engine.get_cached()
+    if cached:
+        return cached
+    result = await engine.compute()
+    return result
+
+@router.post("/calibration/refresh")
+async def calibration_refresh():
+    engine = get_calibration_engine()
+    result = await engine.compute()
+    return result

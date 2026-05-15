@@ -71,7 +71,7 @@ const TerrainView: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#0a0a0f' }}>
+    <div style={{ width: '100vw', height: '100%', backgroundColor: '#0a0a0f' }}>
       <Canvas camera={{ position: [0, 20, 30], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />

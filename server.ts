@@ -153,11 +153,10 @@ async function startServer() {
       console.log('[Supabase] Server-side client initialized with URL:', supabaseUrl);
       
       // Self-healing: Initialize and fix schemas on startup
-      // Disabled — all tables already have columns from initial setup.
       // Re-enable if new tables/columns are added to SCHEMA_MAP in schemaValidator.ts
-      // initializeAllSchemas(supabaseServer).catch(err => {
-      //   console.error('[Supabase] Schema initialization failed:', err);
-      // });
+      initializeAllSchemas(supabaseServer).catch(err => {
+        console.error('[Supabase] Schema initialization failed:', err);
+      });
     } catch (err) {
       console.error('[Supabase] Failed to initialize client:', err);
     }
@@ -778,12 +777,29 @@ async function startServer() {
     }
   });
 
+  // POST body forwarder — express.json() consumes the body before the proxy can read it
+  // This handler explicitly forwards POST bodies to the Python backend
+  app.post('/api/*', async (req, res) => {
+    try {
+      const targetUrl = `http://localhost:8000${req.originalUrl}`;
+      const response = await fetch(targetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body || {}),
+      });
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } catch (err: any) {
+      res.status(502).json({ error: 'Backend inaccessible', message: err.message });
+    }
+  });
+
   // 2. Generic Proxy API - Integrated middleware to ensure prefix stability
   const apiProxy = createProxyMiddleware({
     target: 'http://localhost:8000',
     changeOrigin: true,
     ws: true,
-    pathFilter: ['/api', '/ws'], // Prevents stripping prefixes by default
+    pathFilter: ['/api', '/ws'],
     on: {
       error: (err, req, res: any) => {
         console.error('[Proxy Error]:', err.message);
@@ -794,7 +810,6 @@ async function startServer() {
             details: err.message
           });
         } else if (res && typeof res.destroy === 'function') {
-          // It's a net.Socket from a WebSocket upgrade
           res.destroy();
         }
       }
@@ -911,6 +926,23 @@ async function startServer() {
         console.warn('[AUTO-SEED] Seed request failed:', e.message);
       }
     }, 3000);
+
+    // Auto-start Telegram collection after backend is up
+    setTimeout(async () => {
+      try {
+        const res = await fetch(`http://localhost:${PORT}/api/telegram/collect`, { method: 'POST' });
+        const result = await res.json();
+        if (result.status === 'ok') {
+          console.log(`[TELEGRAM] Collected ${result.stored} new messages from ${result.channels_active} channels`);
+        } else if (result.status === 'no_credentials') {
+          console.log('[TELEGRAM] No credentials — skipping Telegram collection');
+        } else {
+          console.warn('[TELEGRAM] Collection result:', result);
+        }
+      } catch (e: any) {
+        console.warn('[TELEGRAM] Initial collect failed:', e.message);
+      }
+    }, 8000);
   });
 }
 

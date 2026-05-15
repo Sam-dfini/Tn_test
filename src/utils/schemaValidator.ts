@@ -155,6 +155,23 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     fixed_x: 'float8',
     fixed_y: 'float8'
   },
+  telegram_messages: {
+    id: 'int8',
+    message_id: 'int8',
+    channel_username: 'text',
+    channel_name: 'text',
+    channel_category: 'text',
+    sender_id: 'text',
+    text: 'text',
+    date: 'text',
+    views: 'int8',
+    forwards: 'int8',
+    reply_to: 'int8',
+    has_media: 'bool',
+    alerts: 'jsonb',
+    alert_count: 'int8',
+    fetched_at: 'text'
+  },
   graph_relations: {
     id: 'text',
     source_id: 'text',
