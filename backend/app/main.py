@@ -6,6 +6,7 @@ from datetime import datetime
 from .core.config import settings
 from .api.routes import router as api_router
 from .api.ws import router as ws_router
+from .knowledge_graph.api import router as graph_router
 # orchestrator imported lazily in lifespan to speed up startup
 # from .services.rss_service import rss_service
 
@@ -42,6 +43,7 @@ app = FastAPI(
 
 # Include routers
 app.include_router(api_router, prefix="/api")
+app.include_router(graph_router)
 app.include_router(ws_router)
 
 # Configure CORS

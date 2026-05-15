@@ -133,6 +133,42 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     nlp_keywords: 'jsonb',
     nlp_nudge: 'float8'
   },
+  graph_entities: {
+    id: 'text',
+    type: 'text',
+    label: 'text',
+    aliases: 'jsonb',
+    first_seen: 'text',
+    last_seen: 'text',
+    confidence: 'float8',
+    metadata: 'jsonb',
+    tier: 'int8',
+    domain: 'jsonb',
+    power_type: 'text',
+    color: 'text',
+    size: 'int8',
+    resources: 'jsonb',
+    goals: 'jsonb',
+    constraints: 'jsonb',
+    risk_tolerance: 'text',
+    time_horizon: 'text',
+    fixed_x: 'float8',
+    fixed_y: 'float8'
+  },
+  graph_relations: {
+    id: 'text',
+    source_id: 'text',
+    target_id: 'text',
+    type: 'text',
+    weight: 'float8',
+    domain: 'text',
+    description: 'text',
+    conditionality: 'text',
+    trend: 'text',
+    valid_from: 'text',
+    valid_to: 'text',
+    confidence: 'float8'
+  },
 };
 
 /**
