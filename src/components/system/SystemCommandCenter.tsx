@@ -5,7 +5,7 @@ import {
   Trash2, Pause, Play, Filter, AlertTriangle, ArrowRight,
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
   Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
-  FileText, BarChart3, TrendingUp, RotateCcw, Server
+  FileText, BarChart3, TrendingUp, RotateCcw, Server, AlertCircle
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../../lib/supabase';

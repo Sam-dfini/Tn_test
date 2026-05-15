@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, Text } from '@react-three/drei';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment, Text, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { usePipeline } from '../../context/PipelineContext';
 import {
@@ -43,63 +43,35 @@ const Scene: React.FC<{
   result: PropagationResult | null; animDay: number; isAnimating: boolean;
   hoveredId: string | null; setHoveredId: (id: string | null) => void;
   selectedId: string; onSelect: (id: string) => void;
-  geoJSONPaths: number[][][];
-}> = ({ govs, adj, result, animDay, isAnimating, hoveredId, setHoveredId, selectedId, onSelect, geoJSONPaths }) => {
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.001;
-    }
-  });
-
+}> = ({ govs, adj, result, animDay, isAnimating, hoveredId, setHoveredId, selectedId, onSelect }) => {
   return (
-    <group ref={groupRef}>
-      {/* Ambient light */}
+    <group>
       <ambientLight intensity={0.4} />
       <directionalLight position={[10, 20, 10]} intensity={0.8} />
       <pointLight position={[-10, -10, 5]} intensity={0.3} color="#a78bfa" />
 
-      {/* Gov polygon outlines */}
-      {geoJSONPaths.map((rings, fi) => rings.map((ring, ri) => (
-        <line key={`poly-${fi}-${ri}`}>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              count={ring.length / 3}
-              array={new Float32Array(ring)}
-              itemSize={3}
-            />
-          </bufferGeometry>
-          <lineBasicMaterial color="rgba(71,85,105,0.25)" transparent opacity={0.25} />
-        </line>
-      )))}
+      {/* Ground glow */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.1, 0]}>
+        <planeGeometry args={[120, 100]} />
+        <meshBasicMaterial color="#0a0a0f" />
+      </mesh>
 
-      {/* Edges */}
+      {/* Edges as lines */}
       {govs.map((gov) =>
         (adj[gov.id] || []).map((nId) => {
           if (nId < gov.id) return null;
           const n = GOV_MAP[nId];
           if (!n) return null;
-          const rNode = result?.nodes[gov.id];
-          const rNeighbor = result?.nodes[nId];
-          const hasRNode = rNode && rNode.status !== 'unreachable' && animDay >= (isAnimating ? (rNode.expectedDays || 0) : 0);
-          const hasRNeighbor = rNeighbor && rNeighbor.status !== 'unreachable' && animDay >= (isAnimating ? (rNeighbor.expectedDays || 0) : 0);
-          const active = hasRNode || hasRNeighbor;
-          const p1 = new THREE.Vector3(gov.x, 0, gov.y);
-          const p2 = new THREE.Vector3(n.x, 0, n.y);
+          const rq = result?.nodes[gov.id];
+          const rs = result?.nodes[nId];
+          const active = (rq && rq.status !== 'unreachable') || (rs && rs.status !== 'unreachable');
           return (
-            <line key={`edge-${gov.id}-${nId}`}>
-              <bufferGeometry>
-                <bufferAttribute
-                  attach="attributes-position"
-                  count={2}
-                  array={new Float32Array([p1.x, p1.y, p1.z, p2.x, p2.y, p2.z])}
-                  itemSize={3}
-                />
-              </bufferGeometry>
-              <lineBasicMaterial color={active ? '#6366f1' : '#1e293b'} transparent opacity={active ? 0.5 : 0.2} />
-            </line>
+            <Line key={`e-${gov.id}-${nId}`}
+              points={[[gov.x, 0, gov.y], [n.x, 0, n.y]]}
+              color={active ? '#6366f1' : '#1e293b'}
+              transparent opacity={active ? 0.5 : 0.2}
+              lineWidth={0.5}
+            />
           );
         })
       )}
@@ -117,15 +89,15 @@ const Scene: React.FC<{
 
         return (
           <group key={gov.id}>
+            {/* Highlight ring for high-risk */}
             {node?.status === 'high' && show && (
-              <mesh position={[gov.x, -0.05, gov.y]}>
+              <mesh position={[gov.x, -0.05, gov.y]} rotation={[-Math.PI / 2, 0, 0]}>
                 <ringGeometry args={[r * 1.3, r * 1.8, 16]} />
                 <meshBasicMaterial color="#ef4444" transparent opacity={0.2} side={THREE.DoubleSide} />
               </mesh>
             )}
-            <mesh
-              position={[gov.x, 0, gov.y]}
-              scale={scale}
+            {/* Main sphere */}
+            <mesh position={[gov.x, 0, gov.y]} scale={scale}
               onClick={() => onSelect(gov.id)}
               onPointerOver={() => setHoveredId(gov.id)}
               onPointerOut={() => setHoveredId(null)}
@@ -133,13 +105,14 @@ const Scene: React.FC<{
               <sphereGeometry args={[r, 16, 16]} />
               <meshStandardMaterial color={s} emissive={s} emissiveIntensity={isSel ? 0.5 : 0.1} />
             </mesh>
+            {/* Risk ring */}
             <mesh position={[gov.x, -0.01, gov.y]} rotation={[-Math.PI / 2, 0, 0]}>
               <ringGeometry args={[r * 1.1, r * 1.4, 16]} />
               <meshBasicMaterial color={rc} transparent opacity={0.4} side={THREE.DoubleSide} />
             </mesh>
-            <Text position={[gov.x, -0.35, gov.y]} fontSize={0.12} color={show ? '#cbd5e1' : '#475569'} anchorX="center" anchorY="middle">
-              {gov.name}
-            </Text>
+            {/* Label */}
+            <Text position={[gov.x, -0.35, gov.y]} fontSize={0.12} color={show ? '#cbd5e1' : '#475569'} anchorX="center" anchorY="middle">{gov.name}</Text>
+            {/* Probability */}
             {node && show && node.status !== 'unreachable' && (
               <Text position={[gov.x, 0.05, gov.y]} fontSize={0.08} color="white" anchorX="center" anchorY="middle">
                 {Math.round(node.probability * 100)}%
@@ -165,32 +138,6 @@ const ShockPropagationView: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeTab, setActiveTab] = useState<'map' | 'sir' | 'history'>('map');
   const [hoveredGov, setHoveredGov] = useState<string | null>(null);
-  const [geoData, setGeoData] = useState<number[][][]>([]);
-
-  useEffect(() => {
-    fetch('/data/tunisia_governorates.geojson')
-      .then((r) => r.json())
-      .then((data: any) => {
-        if (!data?.features) return;
-        const paths: number[][][] = [];
-        for (const feat of data.features) {
-          const geom = feat.geometry;
-          if (!geom?.coordinates) continue;
-          const rings = geom.type === 'MultiPolygon' ? geom.coordinates.flat() : geom.coordinates;
-          for (const ring of rings) {
-            const pts: number[][] = [];
-            for (const p of ring) {
-              const x = (p[0] - 7.5) / (11.6 - 7.5) * 100 - 50;
-              const z = -((p[1] - 30.2) / (37.5 - 30.2) * 80 - 40);
-              pts.push([x, -0.02, z]);
-            }
-            paths.push(pts);
-          }
-        }
-        setGeoData(paths);
-      })
-      .catch(() => {});
-  }, []);
 
   const runSim = useCallback(() => {
     const origin = GOV_MAP[originId];
@@ -285,7 +232,6 @@ const ShockPropagationView: React.FC = () => {
               animDay={animDay} isAnimating={isAnimating}
               hoveredId={hoveredGov} setHoveredId={setHoveredGov}
               selectedId={originId} onSelect={(id) => setOriginId(id)}
-              geoJSONPaths={geoData}
             />
           </Canvas>
 
