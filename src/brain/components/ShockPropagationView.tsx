@@ -14,6 +14,14 @@ import govData from '../../data/governorates.json';
 const PROJECT_X = (lon: number) => ((lon - 7.5) / (11.6 - 7.5)) * 800 - 400;
 const PROJECT_Y = (lat: number) => -(((lat - 30.2) / (37.5 - 30.2)) * 600 - 300);
 
+function projectPolygon(ring: number[][]): string {
+  return ring.map((p) => {
+    const x = PROJECT_X(p[0]);
+    const y = PROJECT_Y(p[1]);
+    return `${x},${y}`;
+  }).join(' ');
+}
+
 interface GovPosition {
   id: string;
   name: string;
@@ -63,6 +71,34 @@ const ShockPropagationView: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeTab, setActiveTab] = useState<'map' | 'sir' | 'history'>('map');
   const [hoveredGov, setHoveredGov] = useState<string | null>(null);
+  const [geoPaths, setGeoPaths] = useState<string[]>([]);
+
+  // Load Tunisia governorate boundaries from GeoJSON
+  useEffect(() => {
+    fetch('/data/tunisia_governorates.geojson')
+      .then((res) => res.json())
+      .then((data: any) => {
+        if (!data || !data.features) return;
+        const paths: string[] = [];
+        for (const feat of data.features) {
+          const geometry = feat.geometry;
+          if (!geometry || !geometry.coordinates) continue;
+          if (geometry.type === 'Polygon') {
+            for (const ring of geometry.coordinates) {
+              paths.push(projectPolygon(ring));
+            }
+          } else if (geometry.type === 'MultiPolygon') {
+            for (const polygon of geometry.coordinates) {
+              for (const ring of polygon) {
+                paths.push(projectPolygon(ring));
+              }
+            }
+          }
+        }
+        setGeoPaths(paths);
+      })
+      .catch((err) => console.error('[ShockPropagation] GeoJSON load failed:', err));
+  }, []);
 
   const runSim = useCallback(() => {
     const origin = GOV_MAP[originId];
@@ -211,6 +247,14 @@ const ShockPropagationView: React.FC = () => {
           <>
             <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
               <svg width="100%" height="100%" viewBox="-450 -330 900 660" style={{ display: 'block' }}>
+                {/* Tunisia map outline from GeoJSON */}
+                {geoPaths.map((d, i) => (
+                  <polygon key={i} points={d}
+                    fill="rgba(30,41,59,0.3)"
+                    stroke="rgba(71,85,105,0.35)"
+                    strokeWidth={0.5}
+                  />
+                ))}
                 {/* Edges */}
                 {GOV_POSITIONS.map((gov) =>
                   (ADJACENCY[gov.id] || []).map((nId) => {
