@@ -267,10 +267,10 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
 }
 
 /**
- * initializeAllSchemas
+ * initializeAllSchemas — runs all table checks in parallel.
+ * Sequential waterfall was causing 5-15s boot delay (9 tables × 2 RPC calls each).
  */
 export async function initializeAllSchemas(supabase: SupabaseClient) {
-  for (const tableName of Object.keys(SCHEMA_MAP)) {
-    await checkAndFixSchema(supabase, tableName);
-  }
+  const tables = Object.keys(SCHEMA_MAP);
+  await Promise.allSettled(tables.map(tableName => checkAndFixSchema(supabase, tableName)));
 }

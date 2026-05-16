@@ -152,11 +152,14 @@ async function startServer() {
       });
       console.log('[Supabase] Server-side client initialized with URL:', supabaseUrl);
       
-      // Self-healing: Initialize and fix schemas on startup
-      // Re-enable if new tables/columns are added to SCHEMA_MAP in schemaValidator.ts
-      initializeAllSchemas(supabaseServer).catch(err => {
-        console.error('[Supabase] Schema initialization failed:', err);
-      });
+      // Self-healing schema check — deferred 15s so it never blocks boot.
+      // Only runs once per process. Comment out once all tables are stable.
+      setTimeout(() => {
+        console.log('[SCHEMA] Starting background schema validation…');
+        initializeAllSchemas(supabaseServer)
+          .then(() => console.log('[SCHEMA] Background schema validation complete.'))
+          .catch(err => console.error('[SCHEMA] Background schema validation failed:', err));
+      }, 15000);
     } catch (err) {
       console.error('[Supabase] Failed to initialize client:', err);
     }
