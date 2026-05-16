@@ -523,7 +523,7 @@ function eq17_cascadeProbability(vars: RRIVariable[]): number {
   const unemployment = unemployVar ? eq1_normalize(unemployVar) : 0.65;
   const securityCapacity = securityVar ? eq1_normalize(securityVar) : 0.5;
 
-  const govWeights = (overridesOrVars as any)?._cascade_gov_weights ?? {
+  const govWeights = {
     sfax: 1.4, kasserine: 1.2, sidi_bouzid: 1.1, gafsa: 1.2, gabes: 1.0
   };
 
@@ -538,7 +538,7 @@ function eq17_cascadeProbability(vars: RRIVariable[]): number {
     productTerm *= (1 - p_gov);
   }
 
-  const cogwar_cascade_delta = (overridesOrVars as any)?._cogwar_cascade_risk_delta ?? 0;
+  const cogwar_cascade_delta = 0;
   return Math.max(0, Math.min(1, (1 - productTerm) + cogwar_cascade_delta));
 }
 
