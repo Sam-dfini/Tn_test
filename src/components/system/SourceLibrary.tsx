@@ -6,7 +6,7 @@ import {
   Globe, RefreshCw, Check, AlertTriangle, Clock,
   Edit2, Trash2, ExternalLink, Search, Filter,
   Wifi, WifiOff, Loader, ChevronDown, ChevronRight,
-  Shield, Activity, Settings, Download, Zap
+  Shield, Activity, Settings, Download, Zap, MessageCircle
 } from 'lucide-react';
 import { useRSS } from '../../context/RSSContext';
 import { prepareList, assertKey, getRenderKey } from '../../lib/keyUtils';
@@ -697,6 +697,31 @@ export const SourceLibrary: React.FC<{
   onNavigateToPipeline?: (url: string) => void;
 }> = ({ onClose, isEmbedded = false, onNavigateToPipeline }) => {
   const { articles, fetchNow, isFetching } = useRSS();
+
+  const [telegramStatus, setTelegramStatus] = useState<any>(null);
+  const [sciStatus, setSciStatus] = useState<any>(null);
+  const [lastArticleDate, setLastArticleDate] = useState('');
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const [tg, sc, art] = await Promise.all([
+          fetch('/api/telegram/status').then(r => r.ok ? r.json() : null),
+          fetch('/api/sci/status').then(r => r.ok ? r.json() : null),
+          fetch('/api/articles?limit=1').then(r => r.ok ? r.json() : []),
+        ]);
+        if (tg) setTelegramStatus(tg);
+        if (sc) setSciStatus(sc);
+        if (Array.isArray(art) && art.length > 0) {
+          setLastArticleDate(art[0].published_at || '');
+        }
+      } catch {}
+    };
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const [sources, setSources] = useState<Source[]>(() => {
     try {
       const saved = safeStorage.getItem('ti_sources');
@@ -863,6 +888,52 @@ export const SourceLibrary: React.FC<{
           </div>
         </div>
       )}
+
+      {/* ── Collection Status Bar ───────────────────────────────────── */}
+      <div className="px-6 py-2 border-b border-intel-border bg-black/30 shrink-0">
+        <div className="flex items-center gap-6 text-[9px] font-mono">
+          {/* RSS */}
+          <div className="flex items-center gap-2">
+            <Rss className="w-3 h-3 text-intel-orange" />
+            <span className="text-slate-500 uppercase tracking-wider">RSS</span>
+            <span className="text-slate-300">{articles.length} articles</span>
+            {lastArticleDate && (
+              <span className="text-slate-600">
+                last: {new Date(lastArticleDate).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          {/* Telegram */}
+          <div className="flex items-center gap-2">
+            <MessageCircle className="w-3 h-3 text-blue-400" />
+            <span className="text-slate-500 uppercase tracking-wider">Telegram</span>
+            <span className="text-slate-300">
+              {telegramStatus?.total_messages ?? 0} msgs
+            </span>
+            <span className="text-slate-600">
+              {telegramStatus?.channels_total ?? 18} ch
+            </span>
+            <span className={`${telegramStatus?.running ? 'text-intel-green' : 'text-slate-600'}`}>
+              {telegramStatus?.running ? '● active' : '○ idle'}
+            </span>
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          {/* SCI */}
+          <div className="flex items-center gap-2">
+            <Shield className="w-3 h-3 text-purple-400" />
+            <span className="text-slate-500 uppercase tracking-wider">SCI</span>
+            <span className="text-slate-300">
+              {sciStatus ? Object.values(sciStatus.classifications || {}).reduce((a: number, b: any) => a + (typeof b === 'number' ? b : 0), 0) : 0} scored
+            </span>
+            {sciStatus?.sources_tracked && (
+              <span className="text-slate-600">
+                {sciStatus.sources_tracked} sources
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Type tabs + search */}
       <div className={`flex items-center justify-between px-6 py-3

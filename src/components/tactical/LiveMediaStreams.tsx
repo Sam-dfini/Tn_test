@@ -188,15 +188,15 @@ export const LiveMediaStreams: React.FC = () => {
   return (
     <div className="glass rounded-lg border border-intel-border overflow-hidden flex flex-col h-full relative">
       {/* Main Player Area */}
-      <div className="p-4 flex-1 overflow-y-auto space-y-4">
+      <div className="p-2 flex-1 overflow-y-auto space-y-2">
         {/* TOP SECTION — Active stream viewer */}
         <div className="w-full">
           {activeStream.type === 'TV' ? (
             activeStream.embedId || activeStream.iframeUrl ? (
-              <div className="relative bg-black aspect-video w-full overflow-hidden rounded-lg border border-intel-cyan/20 shadow-[0_0_20px_rgba(0,242,255,0.05)]">
+              <div className="relative bg-black w-full overflow-hidden rounded-lg border border-intel-cyan/20 shadow-[0_0_20px_rgba(0,242,255,0.05)]" style={{ height: '140px' }}>
                 <iframe
                   key={activeStream.id}
-                  src={activeStream.embedId ? `https://www.youtube.com/embed/${activeStream.embedId}?autoplay=1&mute=1&controls=1&rel=0` : activeStream.iframeUrl}
+                  src={activeStream.embedId ? `https://www.youtube.com/embed/${activeStream.embedId}?autoplay=1&mute=1&controls=0&rel=0` : activeStream.iframeUrl}
                   className="absolute inset-0 w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -211,7 +211,7 @@ export const LiveMediaStreams: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="aspect-video w-full bg-black/80 border border-intel-border rounded-lg flex flex-col items-center justify-center space-y-3">
+              <div className="w-full bg-black/80 border border-intel-border rounded-lg flex flex-col items-center justify-center space-y-3" style={{ height: '140px' }}>
                 <div className="w-3 h-3 border-2 border-intel-cyan/40 border-t-intel-cyan rounded-full animate-spin"/>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Signal Acquisition</div>
                 <div className="text-[9px] font-mono text-intel-cyan">{activeStream.name}</div>
@@ -219,13 +219,13 @@ export const LiveMediaStreams: React.FC = () => {
               </div>
             )
           ) : (
-            <div className="w-full bg-black/80 border border-intel-border rounded-lg p-6 flex flex-col items-center space-y-4">
+            <div className="w-full bg-black/80 border border-intel-border rounded-lg p-3 flex flex-col items-center space-y-2">
               {/* Animated radio wave visualization */}
-              <div className="flex items-end space-x-1 h-12">
+              <div className="flex items-end space-x-1 h-10">
                 {[...Array(20)].map((_, i) => (
                   <div
                     key={`wave-${i}`}
-                    className={`w-1.5 bg-intel-cyan rounded-full transition-all ${isPlaying ? 'animate-pulse' : ''}`}
+                    className={`w-1 bg-intel-cyan rounded-full transition-all ${isPlaying ? 'animate-pulse' : ''}`}
                     style={{
                       height: isPlaying 
                         ? `${20 + Math.sin(i * 0.8) * 15 + Math.random() * 10}px` 
@@ -237,10 +237,10 @@ export const LiveMediaStreams: React.FC = () => {
               </div>
               
               <div className="text-center">
-                <div className="text-sm font-bold font-mono text-white uppercase tracking-tighter">
+                <div className="text-xs font-bold font-mono text-white uppercase tracking-tighter">
                   {activeStream.name}
                 </div>
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mt-1">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">
                   {activeStream.freq} · {activeStream.location}
                 </div>
               </div>
@@ -253,15 +253,15 @@ export const LiveMediaStreams: React.FC = () => {
               />
               
               {/* Controls row */}
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center justify-center space-x-4 w-full">
                 <button 
                   onClick={togglePlay} 
-                  className="w-10 h-10 rounded-full bg-intel-cyan/10 border border-intel-cyan/30 flex items-center justify-center text-intel-cyan hover:bg-intel-cyan/20 transition-all"
+                  className="w-9 h-9 rounded-full bg-intel-cyan/10 border border-intel-cyan/30 flex items-center justify-center text-intel-cyan hover:bg-intel-cyan/20 transition-all"
                 >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                 </button>
-                <div className="flex items-center space-x-3">
-                  <Volume2 className="w-4 h-4 text-slate-500" />
+                <div className="flex items-center space-x-2">
+                  <Volume2 className="w-3 h-3 text-slate-500" />
                   <input 
                     type="range" 
                     min="0" 
@@ -269,7 +269,7 @@ export const LiveMediaStreams: React.FC = () => {
                     step="0.05"
                     value={volume}
                     onChange={(e) => setVolume(parseFloat(e.target.value))}
-                    className="w-24 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-intel-cyan"
+                    className="w-16 h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-intel-cyan"
                   />
                 </div>
               </div>
@@ -278,81 +278,91 @@ export const LiveMediaStreams: React.FC = () => {
         </div>
 
         {/* Stream info bar below viewer */}
-        <div className="flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-xl">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 rounded-full bg-intel-red animate-pulse" />
-              <span className="text-[10px] font-mono text-white font-bold uppercase tracking-widest">Live</span>
+        <div className="flex items-center justify-between bg-white/5 border border-white/10 p-2 rounded-xl">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
+              <span className="text-[9px] font-mono text-white font-bold uppercase tracking-widest">Live</span>
             </div>
-            <div className="w-px h-4 bg-white/10" />
+            <div className="w-px h-3 bg-white/10" />
             <div>
-              <div className="text-[10px] font-bold text-white uppercase tracking-tighter">{activeStream.name}</div>
-              <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">{activeStream.location} · {activeStream.lang}</div>
+              <div className="text-[9px] font-bold text-white uppercase tracking-tighter">{activeStream.name}</div>
+              <div className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">{activeStream.location} · {activeStream.lang}</div>
             </div>
           </div>
-          <div className="px-2 py-1 bg-intel-cyan/10 border border-intel-cyan/20 rounded text-[8px] font-mono text-intel-cyan uppercase font-bold tracking-widest">
+          <div className="px-1.5 py-0.5 bg-intel-cyan/10 border border-intel-cyan/20 rounded text-[7px] font-mono text-intel-cyan uppercase font-bold tracking-widest">
             {activeStream.category.replace('_', ' ')}
           </div>
         </div>
 
         {/* BOTTOM SECTION — Category tabs + stream selector */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-2 pb-2">
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {[
-              { id: 'INTERNATIONAL', label: 'International', icon: Globe },
-              { id: 'LOCAL_TV', label: 'Local TV', icon: Tv },
-              { id: 'RADIO', label: 'Radio', icon: Radio },
+              { id: 'INTERNATIONAL', label: 'Intl', icon: Globe },
+              { id: 'LOCAL_TV', label: 'TV', icon: Tv },
             ].map(cat => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id as StreamCategory)}
-                className={`flex items-center justify-center space-x-2 px-3 py-1.5 rounded-xl transition-all duration-300 border ${
+                className={`flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg transition-all duration-300 border text-[8px] font-mono font-bold uppercase tracking-widest ${
                   activeCategory === cat.id 
-                    ? 'bg-intel-cyan/10 border-intel-cyan text-intel-cyan shadow-[0_0_15px_rgba(0,242,255,0.1)]' 
+                    ? 'bg-intel-cyan/10 border-intel-cyan text-intel-cyan' 
                     : 'bg-white/5 border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
-                } ${cat.id === 'RADIO' ? 'col-span-2' : ''}`}
+                }`}
               >
-                <cat.icon className={`w-3 h-3 ${activeCategory === cat.id ? 'text-intel-cyan' : 'text-slate-500'}`} />
-                <span className="text-[9px] font-mono font-bold uppercase tracking-widest">{cat.label}</span>
+                <cat.icon className="w-2.5 h-2.5" />
+                {cat.label}
               </button>
             ))}
           </div>
+          <button
+            onClick={() => setActiveCategory('RADIO')}
+            className={`w-full flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-lg transition-all duration-300 border text-[8px] font-mono font-bold uppercase tracking-widest ${
+              activeCategory === 'RADIO' 
+                ? 'bg-intel-cyan/10 border-intel-cyan text-intel-cyan' 
+                : 'bg-white/5 border-intel-border text-slate-500 hover:border-white/20 hover:text-white'
+            }`}
+          >
+            <Radio className="w-2.5 h-2.5" />
+            Radio
+          </button>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2 overflow-y-auto">
             {filteredStreams.map((stream, index) => (
               <button
                 key={`${stream.id}-${index}`}
                 onClick={() => handleStreamSelect(stream)}
-                className={`p-3 rounded-xl border transition-all flex flex-col items-start text-left relative group ${
+                className={`p-2 rounded-lg border transition-all flex flex-col items-start text-left relative group ${
                   activeStream.id === stream.id 
-                    ? 'bg-intel-cyan/10 border-intel-cyan/50 shadow-[0_0_15px_rgba(0,242,255,0.1)]' 
+                    ? 'bg-intel-cyan/10 border-intel-cyan/50' 
                     : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
                 }`}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <div className="flex items-center space-x-1.5">
+                <div className="flex items-center justify-between w-full mb-0.5">
+                  <div className="flex items-center space-x-1">
                     {brokenStreams.includes(stream.id) && (
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]" title="Stream offline" />
+                      <div className="w-1 h-1 rounded-full bg-red-500" title="Stream offline" />
                     )}
-                    <span className={`text-[10px] font-bold font-mono tracking-tighter uppercase ${activeStream.id === stream.id ? 'text-intel-cyan' : 'text-slate-300'}`}>
+                    <span className={`text-[9px] font-bold font-mono tracking-tighter uppercase ${activeStream.id === stream.id ? 'text-intel-cyan' : 'text-slate-300'}`}>
                       {stream.name}
                     </span>
                   </div>
                   {activeStream.id === stream.id && !brokenStreams.includes(stream.id) && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse" />
+                    <div className="w-1 h-1 rounded-full bg-intel-cyan animate-pulse" />
                   )}
                 </div>
-                <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest truncate w-full">
+                <div className="text-[7px] font-mono text-slate-500 uppercase tracking-widest truncate w-full">
                   {stream.location}
                 </div>
-                <div className="flex items-center justify-between w-full mt-2">
-                  <span className="text-[7px] font-mono text-slate-600 uppercase tracking-widest">{stream.lang}</span>
+                <div className="flex items-center justify-between w-full mt-1">
+                  <span className="text-[6px] font-mono text-slate-600 uppercase tracking-widest">{stream.lang}</span>
                   {stream.type === 'RADIO' && (
-                    <span className="text-[7px] font-mono text-intel-cyan/60 uppercase">{stream.freq}</span>
+                    <span className="text-[6px] font-mono text-intel-cyan/60 uppercase">{stream.freq}</span>
                   )}
                 </div>
                 {activeStream.id === stream.id && (
-                  <div className="absolute top-0 right-0 w-1 h-full bg-intel-cyan rounded-r-xl" />
+                  <div className="absolute top-0 right-0 w-0.5 h-full bg-intel-cyan rounded-r-lg" />
                 )}
               </button>
             ))}
