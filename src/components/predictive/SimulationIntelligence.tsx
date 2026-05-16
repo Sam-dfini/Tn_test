@@ -1159,7 +1159,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         </div>
         
         {/* Main Content Area */}
-        <div className="relative min-h-[600px]">
+        <div className="relative min-h-[1200px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -1176,98 +1176,117 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               {activeTab === 'backtesting' && renderBacktesting()}
               {activeTab === 'propagation' && (
                 <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="intel-card p-6 rounded-2xl border border-intel-border">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center">
-                      <Target className="w-4 h-4 mr-2 text-intel-cyan" />
-                      Sandbox: Inject Shock
-                    </h3>
+                  <div className="bg-gradient-to-br from-red-950/10 to-transparent border border-red-500/20 rounded-2xl p-6">
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-red-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Shock Injection Sandbox</h3>
+                          <p className="text-[10px] font-mono text-slate-500">Configure and inject synthetic shock events to simulate propagation</p>
+                        </div>
+                      </div>
+                      {activeShock && (
+                        <button onClick={() => setActiveShock(null)} className="text-[10px] font-mono text-slate-500 hover:text-white px-3 py-1 bg-white/5 border border-white/10 rounded-lg transition-colors">
+                          CLEAR SHOCK
+                        </button>
+                      )}
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       <div>
-                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Domain</label>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Domain</label>
                         <select 
-                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.domain}
                           onChange={e => setShockParams({...shockParams, domain: e.target.value as any})}
                         >
-                          <option value="SOCIAL">Social/Labor</option>
-                          <option value="ECON">Economic</option>
-                          <option value="AGRI">Agriculture</option>
-                          <option value="SEC">Security</option>
+                          <option value="SOCIAL">Social / Labor</option>
+                          <option value="ECON">Economic / Fiscal</option>
+                          <option value="AGRI">Agriculture / Water</option>
+                          <option value="SEC">Security / Military</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Target Variable</label>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Target Variable</label>
                         <select 
-                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.variable}
                           onChange={e => setShockParams({...shockParams, variable: e.target.value})}
                         >
                           <option value="social.protest_events_30d">Protest Events (30d)</option>
-                          <option value="social.ugtt_strike_count_2025">UGTT Strikes</option>
-                          <option value="economy.inflation">Inflation</option>
-                          <option value="social.water_crisis_govs">Water Crisis (Govs)</option>
+                          <option value="social.ugtt_strike_count_2025">UGTT Strike Count</option>
+                          <option value="economy.inflation">Inflation Rate</option>
+                          <option value="social.water_crisis_govs">Water Crisis Govs</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Epicenter</label>
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Epicenter Governorate</label>
                         <select 
-                          className="w-full bg-white/5 border border-white/10 rounded px-2 py-1.5 text-xs text-white"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.governorate}
                           onChange={e => setShockParams({...shockParams, governorate: e.target.value})}
                         >
-                          <option value="kasserine">Kasserine</option>
                           <option value="sidi_bouzid">Sidi Bouzid</option>
+                          <option value="kasserine">Kasserine</option>
                           <option value="gafsa">Gafsa</option>
                           <option value="tunis">Tunis</option>
                           <option value="sfax">Sfax</option>
+                          <option value="gabes">Gabès</option>
+                          <option value="kebili">Kébili</option>
+                          <option value="jendouba">Jendouba</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1">Intensity: {shockParams.intensity}</label>
-                        <input 
-                          type="range" min="0.1" max="1" step="0.1" 
-                          value={shockParams.intensity}
-                          onChange={e => setShockParams({...shockParams, intensity: parseFloat(e.target.value)})}
-                          className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-intel-red mt-2"
-                        />
+                        <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Intensity: {shockParams.intensity.toFixed(1)}</label>
+                        <div className="flex items-center space-x-3 mt-2">
+                          <span className="text-[9px] font-mono text-slate-600">0.1</span>
+                          <input 
+                            type="range" min="0.1" max="1" step="0.1" 
+                            value={shockParams.intensity}
+                            onChange={e => setShockParams({...shockParams, intensity: parseFloat(e.target.value)})}
+                            className="flex-1 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-red-500"
+                          />
+                          <span className="text-[9px] font-mono text-slate-600">1.0</span>
+                        </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        const shock = createManualShock(shockParams.domain, shockParams.variable, shockParams.intensity, shockParams.governorate, `Manual Sandbox Injection: ${shockParams.variable}`);
-                        setActiveShock(shock);
-                        injectShock(shock);
-                      }}
-                      className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg text-xs font-bold font-mono hover:bg-red-500/30 transition-colors"
-                    >
-                      INJECT SHOCK & RUN SIMULATION
-                    </button>
+                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                      <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-600">
+                        <Info className="w-3 h-3" />
+                        <span>Injects a shock into the RRI engine and simulates inter-governorate propagation over {shockParams.intensity > 0.7 ? '30' : shockParams.intensity > 0.4 ? '21' : '14'} days</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const shock = createManualShock(shockParams.domain, shockParams.variable, shockParams.intensity, shockParams.governorate, `Manual Sandbox Injection: ${shockParams.variable}`);
+                          setActiveShock(shock);
+                          injectShock(shock);
+                        }}
+                        className="flex items-center space-x-2 px-6 py-2.5 bg-red-500/20 text-red-300 border border-red-500/40 rounded-xl text-xs font-bold font-mono hover:bg-red-500/30 hover:text-red-200 transition-all"
+                      >
+                        <Play className="w-4 h-4 fill-current" />
+                        <span>INJECT & SIMULATE</span>
+                      </button>
+                    </div>
                   </div>
 
-                  {activeShock && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                      <div className="lg:col-span-4">
-                        <PropagationFlowchart shock={activeShock} rriDelta={activeShock.intensity * 0.15} />
-                      </div>
-                      <div className="lg:col-span-8">
-                        <PropagationVisualizer 
-                          originId={activeShock.governorates?.[0] || "kasserine"} 
-                          originName={activeShock.governorates?.[0]?.toUpperCase() || "KASSERINE"}
-                          cascadeProbability={Math.min(0.99, (context?.pRev || 0.643) + (activeShock.intensity * 0.2))}
-                          activeEventTitle={activeShock.message}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {!activeShock && (
-                    <div className="h-[600px] border border-white/10 rounded-xl overflow-hidden relative">
-                       <PropagationVisualizer 
-                          originId="sidi_bouzid" 
-                          originName="Sidi Bouzid"
-                          cascadeProbability={context?.pRev || 0.643}
-                        />
-                    </div>
-                  )}
+                  <div className="border border-white/10 rounded-2xl bg-[#0a0a0a]">
+                    {activeShock ? (
+                      <PropagationVisualizer 
+                        originId={activeShock.governorates?.[0] || shockParams.governorate} 
+                        originName={(activeShock.governorates?.[0] || shockParams.governorate).replace(/_/g, ' ').toUpperCase()}
+                        cascadeProbability={Math.min(0.99, (rriState.p_rev || 0.643) + (activeShock.intensity * 0.2))}
+                        activeEventTitle={activeShock.message}
+                        flowchart={<PropagationFlowchart shock={activeShock} rriDelta={activeShock.intensity * 0.15} />}
+                      />
+                    ) : (
+                      <PropagationVisualizer 
+                        originId="sidi_bouzid" 
+                        originName="SIDI BOUZID"
+                        cascadeProbability={rriState.p_rev || 0.643}
+                      />
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>

@@ -16,6 +16,7 @@ from .intelligence_stream import intelligence_stream
 # or we just use a callback/signal if needed.
 # However, ws.py is quite isolated.
 from ..api.ws import manager
+from .variable_pipeline import variable_pipeline
 
 RSS_SOURCES = [
     # ── English ──────────────────────────────────────────────────
@@ -396,6 +397,19 @@ class RSSService:
                     "type": "NEW_ARTICLES",
                     "payload": articles_to_insert
                 })
+                # Run variable pipeline on new articles
+                try:
+                    pipeline_result = variable_pipeline.process_articles_batch(articles_to_insert)
+                    if pipeline_result["variables_nudged"] > 0:
+                        await manager.broadcast({
+                            "type": "VARIABLE_NUDGE",
+                            "payload": {
+                                "nudged": pipeline_result["variables_nudged"],
+                                "total_processed": pipeline_result["total_articles_processed"]
+                            }
+                        })
+                except Exception as pe:
+                    print(f"[RSS] Variable pipeline error: {pe}")
             
             if events_to_upsert:
                 db.table("events").upsert(events_to_upsert).execute()

@@ -5,4003 +5,5299 @@
       "number": 1,
       "name": "GDP_growth_rate",
       "label": "GDP growth rate",
-      "value_2026": 0,
-      "weight": 0,
+      "value_2026": 1.2,
+      "weight": 0.15,
       "pipeline_field": "economy.gdp_growth",
       "keywords": [
         "GDP",
         "growth",
         "economy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.0,
+        1.1,
+        1.2
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "A",
       "number": 2,
       "name": "Inflation_rate",
       "label": "Inflation rate",
-      "value_2026": 0,
-      "weight": 0,
+      "value_2026": 8.5,
+      "weight": 0.2,
       "pipeline_field": "economy.inflation",
       "keywords": [
         "inflation",
-        "CPI"
+        "CPI",
+        "prices"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        7.8,
+        8.2,
+        8.5
+      ],
+      "volatility": 0.12,
+      "threshold": 10.0
     },
     {
       "code": "A",
       "number": 3,
       "name": "Unemployment_rate",
       "label": "Unemployment rate",
-      "value_2026": 0,
-      "weight": 0,
+      "value_2026": 16.2,
+      "weight": 0.18,
       "pipeline_field": "economy.unemployment",
       "keywords": [
         "unemployment",
-        "jobs"
+        "jobs",
+        "labor"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        15.8,
+        16.0,
+        16.2
+      ],
+      "volatility": 0.08,
+      "threshold": 20.0
     },
     {
       "code": "A",
       "number": 4,
-      "name": "Economic_Var_4",
-      "label": "Economic Var 4",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_4.value",
+      "name": "Youth_Unemployment",
+      "label": "Youth Unemployment",
+      "value_2026": 38.5,
+      "weight": 0.25,
+      "pipeline_field": "economy.youth_unemployment",
       "keywords": [
-        "economic",
-        "var_4"
+        "youth",
+        "unemployment",
+        "graduates"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        37.0,
+        38.0,
+        38.5
+      ],
+      "volatility": 0.15,
+      "threshold": 45.0
     },
     {
       "code": "A",
       "number": 5,
-      "name": "Economic_Var_5",
-      "label": "Economic Var 5",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_5.value",
+      "name": "Fiscal_Deficit",
+      "label": "Fiscal Deficit",
+      "value_2026": 7.2,
+      "weight": 0.12,
+      "pipeline_field": "economy.fiscal_deficit",
       "keywords": [
-        "economic",
-        "var_5"
+        "deficit",
+        "budget",
+        "debt"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        6.5,
+        6.8,
+        7.2
+      ],
+      "volatility": 0.1,
+      "threshold": 10.0
     },
     {
       "code": "A",
       "number": 6,
-      "name": "Economic_Var_6",
-      "label": "Economic Var 6",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_6.value",
+      "name": "Public_Debt_GDP",
+      "label": "Public Debt GDP",
+      "value_2026": 85.0,
+      "weight": 0.15,
+      "pipeline_field": "economy.public_debt",
       "keywords": [
-        "economic",
-        "var_6"
+        "debt",
+        "sovereign",
+        "GDP"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        82.0,
+        84.0,
+        85.0
+      ],
+      "volatility": 0.05,
+      "threshold": 90.0
     },
     {
       "code": "A",
       "number": 7,
-      "name": "Economic_Var_7",
-      "label": "Economic Var 7",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_7.value",
+      "name": "Foreign_Reserves",
+      "label": "Foreign Reserves",
+      "value_2026": 23.5,
+      "weight": 0.1,
+      "pipeline_field": "economy.foreign_reserves",
       "keywords": [
-        "economic",
-        "var_7"
+        "reserves",
+        "BCT",
+        "currency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        22.0,
+        23.0,
+        23.5
+      ],
+      "volatility": 0.08,
+      "threshold": 15.0
     },
     {
       "code": "A",
       "number": 8,
-      "name": "Economic_Var_8",
-      "label": "Economic Var 8",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_8.value",
+      "name": "Trade_Balance",
+      "label": "Trade Balance",
+      "value_2026": -12.5,
+      "weight": 0.08,
+      "pipeline_field": "economy.trade_balance",
       "keywords": [
-        "economic",
-        "var_8"
+        "trade",
+        "exports",
+        "imports"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -11.0,
+        -12.0,
+        -12.5
+      ],
+      "volatility": 0.15,
+      "threshold": -20.0
     },
     {
       "code": "A",
       "number": 9,
-      "name": "Economic_Var_9",
-      "label": "Economic Var 9",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_9.value",
+      "name": "FDI_Inflow",
+      "label": "FDI Inflow",
+      "value_2026": 1.2,
+      "weight": 0.07,
+      "pipeline_field": "economy.fdi",
       "keywords": [
-        "economic",
-        "var_9"
+        "FDI",
+        "investment",
+        "foreign"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.5,
+        1.3,
+        1.2
+      ],
+      "volatility": 0.2,
+      "threshold": 0.5
     },
     {
       "code": "A",
       "number": 10,
-      "name": "Economic_Var_10",
-      "label": "Economic Var 10",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_10.value",
+      "name": "Currency_Value_TND_USD",
+      "label": "Currency Value TND USD",
+      "value_2026": 3.15,
+      "weight": 0.12,
+      "pipeline_field": "economy.exchange_rate",
       "keywords": [
-        "economic",
-        "var_10"
+        "dinar",
+        "TND",
+        "exchange"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.05,
+        3.1,
+        3.15
+      ],
+      "volatility": 0.05,
+      "threshold": 3.5
     },
     {
       "code": "A",
       "number": 11,
-      "name": "Economic_Var_11",
-      "label": "Economic Var 11",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_11.value",
+      "name": "Remittances",
+      "label": "Remittances",
+      "value_2026": 2.8,
+      "weight": 0.1,
+      "pipeline_field": "economy.remittances",
       "keywords": [
-        "economic",
-        "var_11"
+        "remittances",
+        "TRE",
+        "diaspora"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.5,
+        2.7,
+        2.8
+      ],
+      "volatility": 0.05,
+      "threshold": 2.0
     },
     {
       "code": "A",
       "number": 12,
-      "name": "Economic_Var_12",
-      "label": "Economic Var 12",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_12.value",
+      "name": "Tourism_Revenue",
+      "label": "Tourism Revenue",
+      "value_2026": 5.2,
+      "weight": 0.15,
+      "pipeline_field": "economy.tourism",
       "keywords": [
-        "economic",
-        "var_12"
+        "tourism",
+        "revenue",
+        "visitors"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        4.8,
+        5.0,
+        5.2
+      ],
+      "volatility": 0.25,
+      "threshold": 3.0
     },
     {
       "code": "A",
       "number": 13,
-      "name": "Economic_Var_13",
-      "label": "Economic Var 13",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_13.value",
+      "name": "Phosphate_Production",
+      "label": "Phosphate Production",
+      "value_2026": 4.5,
+      "weight": 0.1,
+      "pipeline_field": "economy.phosphate",
       "keywords": [
-        "economic",
-        "var_13"
+        "phosphate",
+        "mining",
+        "CPG"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.8,
+        4.2,
+        4.5
+      ],
+      "volatility": 0.3,
+      "threshold": 2.0
     },
     {
       "code": "A",
       "number": 14,
-      "name": "Economic_Var_14",
-      "label": "Economic Var 14",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_14.value",
+      "name": "Agricultural_Output",
+      "label": "Agricultural Output",
+      "value_2026": 12.0,
+      "weight": 0.08,
+      "pipeline_field": "economy.agriculture",
       "keywords": [
-        "economic",
-        "var_14"
+        "agriculture",
+        "crops",
+        "olive oil"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        11.5,
+        11.8,
+        12.0
+      ],
+      "volatility": 0.4,
+      "threshold": 8.0
     },
     {
       "code": "A",
       "number": 15,
-      "name": "Economic_Var_15",
-      "label": "Economic Var 15",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_15.value",
+      "name": "Industrial_Production",
+      "label": "Industrial Production",
+      "value_2026": 2.5,
+      "weight": 0.07,
+      "pipeline_field": "economy.industry",
       "keywords": [
-        "economic",
-        "var_15"
+        "industry",
+        "manufacturing",
+        "output"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.2,
+        2.4,
+        2.5
+      ],
+      "volatility": 0.1,
+      "threshold": 1.0
     },
     {
       "code": "A",
       "number": 16,
-      "name": "Economic_Var_16",
-      "label": "Economic Var 16",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_16.value",
+      "name": "Informal_Economy_Size",
+      "label": "Informal Economy Size",
+      "value_2026": 45.0,
+      "weight": 0.18,
+      "pipeline_field": "economy.informal_sector",
       "keywords": [
-        "economic",
-        "var_16"
+        "informal",
+        "parallel",
+        "smuggling"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        42.0,
+        44.0,
+        45.0
+      ],
+      "volatility": 0.05,
+      "threshold": 50.0
     },
     {
       "code": "A",
       "number": 17,
-      "name": "Economic_Var_17",
-      "label": "Economic Var 17",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_17.value",
+      "name": "Tax_Revenue_Efficiency",
+      "label": "Tax Revenue Efficiency",
+      "value_2026": 65.0,
+      "weight": 0.08,
+      "pipeline_field": "economy.tax_efficiency",
       "keywords": [
-        "economic",
-        "var_17"
+        "tax",
+        "revenue",
+        "collection"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        68.0,
+        66.0,
+        65.0
+      ],
+      "volatility": 0.05,
+      "threshold": 50.0
     },
     {
       "code": "A",
       "number": 18,
-      "name": "Economic_Var_18",
-      "label": "Economic Var 18",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_18.value",
+      "name": "Energy_Subsidy_Cost",
+      "label": "Energy Subsidy Cost",
+      "value_2026": 4.2,
+      "weight": 0.12,
+      "pipeline_field": "economy.energy_subsidies",
       "keywords": [
-        "economic",
-        "var_18"
+        "subsidies",
+        "energy",
+        "fuel"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.8,
+        4.0,
+        4.2
+      ],
+      "volatility": 0.15,
+      "threshold": 6.0
     },
     {
       "code": "A",
       "number": 19,
-      "name": "Economic_Var_19",
-      "label": "Economic Var 19",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_19.value",
+      "name": "Food_Subsidy_Cost",
+      "label": "Food Subsidy Cost",
+      "value_2026": 2.5,
+      "weight": 0.1,
+      "pipeline_field": "economy.food_subsidies",
       "keywords": [
-        "economic",
-        "var_19"
+        "subsidies",
+        "food",
+        "bread"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.2,
+        2.4,
+        2.5
+      ],
+      "volatility": 0.1,
+      "threshold": 4.0
     },
     {
       "code": "A",
       "number": 20,
-      "name": "Economic_Var_20",
-      "label": "Economic Var 20",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_20.value",
+      "name": "Banking_Sector_Liquidity",
+      "label": "Banking Sector Liquidity",
+      "value_2026": 78.0,
+      "weight": 0.08,
+      "pipeline_field": "economy.banking_liquidity",
       "keywords": [
-        "economic",
-        "var_20"
+        "banking",
+        "liquidity",
+        "credit"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        82.0,
+        80.0,
+        78.0
+      ],
+      "volatility": 0.05,
+      "threshold": 60.0
     },
     {
       "code": "A",
       "number": 21,
-      "name": "Economic_Var_21",
-      "label": "Economic Var 21",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_21.value",
+      "name": "Stock_Market_Index_TUNINDEX",
+      "label": "Stock Market Index TUNINDEX",
+      "value_2026": 8200,
+      "weight": 0.05,
+      "pipeline_field": "economy.stock_market",
       "keywords": [
-        "economic",
-        "var_21"
+        "stock",
+        "TUNINDEX",
+        "BVMT"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8000,
+        8100,
+        8200
+      ],
+      "volatility": 0.1,
+      "threshold": 7000
     },
     {
       "code": "A",
       "number": 22,
-      "name": "Economic_Var_22",
-      "label": "Economic Var 22",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_22.value",
+      "name": "Purchasing_Power_Parity",
+      "label": "Purchasing Power Parity",
+      "value_2026": 0.65,
+      "weight": 0.15,
+      "pipeline_field": "economy.purchasing_power",
       "keywords": [
-        "economic",
-        "var_22"
+        "PPP",
+        "purchasing",
+        "power"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.72,
+        0.68,
+        0.65
+      ],
+      "volatility": 0.08,
+      "threshold": 0.5
     },
     {
       "code": "A",
       "number": 23,
-      "name": "Economic_Var_23",
-      "label": "Economic Var 23",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_23.value",
+      "name": "Minimum_Wage_SMIG",
+      "label": "Minimum Wage SMIG",
+      "value_2026": 450,
+      "weight": 0.1,
+      "pipeline_field": "economy.min_wage",
       "keywords": [
-        "economic",
-        "var_23"
+        "SMIG",
+        "wage",
+        "minimum"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        430,
+        430,
+        450
+      ],
+      "volatility": 0.02,
+      "threshold": 400
     },
     {
       "code": "A",
       "number": 24,
-      "name": "Economic_Var_24",
-      "label": "Economic Var 24",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_24.value",
+      "name": "Household_Debt",
+      "label": "Household Debt",
+      "value_2026": 35.0,
+      "weight": 0.08,
+      "pipeline_field": "economy.household_debt",
       "keywords": [
-        "economic",
-        "var_24"
+        "debt",
+        "household",
+        "loans"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        32.0,
+        34.0,
+        35.0
+      ],
+      "volatility": 0.05,
+      "threshold": 50.0
     },
     {
       "code": "A",
       "number": 25,
-      "name": "Economic_Var_25",
-      "label": "Economic Var 25",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "a_25.value",
+      "name": "Economic_Complexity_Index",
+      "label": "Economic Complexity Index",
+      "value_2026": 0.42,
+      "weight": 0.05,
+      "pipeline_field": "economy.complexity",
       "keywords": [
-        "economic",
-        "var_25"
+        "complexity",
+        "diversification",
+        "exports"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.43,
+        0.42
+      ],
+      "volatility": 0.02,
+      "threshold": 0.3
     },
     {
       "code": "B",
       "number": 26,
       "name": "Water_stress",
       "label": "Water stress",
-      "value_2026": 0,
-      "weight": 0,
+      "value_2026": 82.0,
+      "weight": 0.2,
       "pipeline_field": "environment.water_stress",
       "keywords": [
         "water",
-        "scarcity"
+        "scarcity",
+        "drought"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        78.0,
+        80.0,
+        82.0
+      ],
+      "volatility": 0.1,
+      "threshold": 90.0
     },
     {
       "code": "B",
       "number": 27,
-      "name": "Air_pollution_index",
-      "label": "Air pollution index",
-      "value_2026": 0,
-      "weight": 0,
+      "name": "Air_pollution",
+      "label": "Air pollution",
+      "value_2026": 45.0,
+      "weight": 0.08,
       "pipeline_field": "environment.air_pollution",
       "keywords": [
+        "pollution",
         "air",
-        "pollution"
+        "PM2.5"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        42.0,
+        44.0,
+        45.0
+      ],
+      "volatility": 0.05,
+      "threshold": 60.0
     },
     {
       "code": "B",
       "number": 28,
-      "name": "Environmental_Var_28",
-      "label": "Environmental Var 28",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_28.value",
+      "name": "Drought_Severity_Index",
+      "label": "Drought Severity Index",
+      "value_2026": 0.75,
+      "weight": 0.18,
+      "pipeline_field": "environment.drought",
       "keywords": [
-        "environmental",
-        "var_28"
+        "drought",
+        "rainfall",
+        "climate"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.7,
+        0.75
+      ],
+      "volatility": 0.2,
+      "threshold": 0.85
     },
     {
       "code": "B",
       "number": 29,
-      "name": "Environmental_Var_29",
-      "label": "Environmental Var 29",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_29.value",
+      "name": "Dam_Filling_Rate",
+      "label": "Dam Filling Rate",
+      "value_2026": 28.5,
+      "weight": 0.22,
+      "pipeline_field": "environment.dam_levels",
       "keywords": [
-        "environmental",
-        "var_29"
+        "dams",
+        "water",
+        "storage"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        35.0,
+        32.0,
+        28.5
+      ],
+      "volatility": 0.15,
+      "threshold": 20.0
     },
     {
       "code": "B",
       "number": 30,
-      "name": "Environmental_Var_30",
-      "label": "Environmental Var 30",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_30.value",
+      "name": "Soil_Degradation_Rate",
+      "label": "Soil Degradation Rate",
+      "value_2026": 1.5,
+      "weight": 0.07,
+      "pipeline_field": "environment.soil_degradation",
       "keywords": [
-        "environmental",
-        "var_30"
+        "soil",
+        "erosion",
+        "agriculture"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.2,
+        1.4,
+        1.5
+      ],
+      "volatility": 0.05,
+      "threshold": 2.5
     },
     {
       "code": "B",
       "number": 31,
-      "name": "Environmental_Var_31",
-      "label": "Environmental Var 31",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_31.value",
+      "name": "Coastal_Erosion_Rate",
+      "label": "Coastal Erosion Rate",
+      "value_2026": 0.8,
+      "weight": 0.06,
+      "pipeline_field": "environment.coastal_erosion",
       "keywords": [
-        "environmental",
-        "var_31"
+        "coast",
+        "erosion",
+        "sea level"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.7,
+        0.75,
+        0.8
+      ],
+      "volatility": 0.05,
+      "threshold": 1.5
     },
     {
       "code": "B",
       "number": 32,
-      "name": "Environmental_Var_32",
-      "label": "Environmental Var 32",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_32.value",
+      "name": "Waste_Management_Efficiency",
+      "label": "Waste Management Efficiency",
+      "value_2026": 42.0,
+      "weight": 0.08,
+      "pipeline_field": "environment.waste_management",
       "keywords": [
-        "environmental",
-        "var_32"
+        "waste",
+        "trash",
+        "recycling"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        45.0,
+        43.0,
+        42.0
+      ],
+      "volatility": 0.05,
+      "threshold": 30.0
     },
     {
       "code": "B",
       "number": 33,
-      "name": "Environmental_Var_33",
-      "label": "Environmental Var 33",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_33.value",
+      "name": "Renewable_Energy_Share",
+      "label": "Renewable Energy Share",
+      "value_2026": 4.5,
+      "weight": 0.1,
+      "pipeline_field": "environment.renewable_energy",
       "keywords": [
-        "environmental",
-        "var_33"
+        "renewable",
+        "solar",
+        "wind"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.5,
+        4.0,
+        4.5
+      ],
+      "volatility": 0.05,
+      "threshold": 10.0
     },
     {
       "code": "B",
       "number": 34,
-      "name": "Environmental_Var_34",
-      "label": "Environmental Var 34",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_34.value",
+      "name": "Forest_Cover_Change",
+      "label": "Forest Cover Change",
+      "value_2026": -0.2,
+      "weight": 0.05,
+      "pipeline_field": "environment.forest_cover",
       "keywords": [
-        "environmental",
-        "var_34"
+        "forest",
+        "trees",
+        "deforestation"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.1,
+        -0.15,
+        -0.2
+      ],
+      "volatility": 0.1,
+      "threshold": -1.0
     },
     {
       "code": "B",
       "number": 35,
-      "name": "Environmental_Var_35",
-      "label": "Environmental Var 35",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_35.value",
+      "name": "Biodiversity_Loss_Index",
+      "label": "Biodiversity Loss Index",
+      "value_2026": 0.35,
+      "weight": 0.04,
+      "pipeline_field": "environment.biodiversity",
       "keywords": [
-        "environmental",
-        "var_35"
+        "biodiversity",
+        "species",
+        "wildlife"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.34,
+        0.35
+      ],
+      "volatility": 0.02,
+      "threshold": 0.5
     },
     {
       "code": "B",
       "number": 36,
-      "name": "Environmental_Var_36",
-      "label": "Environmental Var 36",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_36.value",
+      "name": "Average_Temperature_Anomaly",
+      "label": "Average Temperature Anomaly",
+      "value_2026": 1.8,
+      "weight": 0.12,
+      "pipeline_field": "environment.temperature",
       "keywords": [
-        "environmental",
-        "var_36"
+        "temperature",
+        "heat",
+        "climate"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.5,
+        1.6,
+        1.8
+      ],
+      "volatility": 0.1,
+      "threshold": 2.5
     },
     {
       "code": "B",
       "number": 37,
-      "name": "Environmental_Var_37",
-      "label": "Environmental Var 37",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_37.value",
+      "name": "Extreme_Weather_Events_Count",
+      "label": "Extreme Weather Events Count",
+      "value_2026": 12,
+      "weight": 0.15,
+      "pipeline_field": "environment.extreme_weather",
       "keywords": [
-        "environmental",
-        "var_37"
+        "weather",
+        "floods",
+        "storms"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8,
+        10,
+        12
+      ],
+      "volatility": 0.3,
+      "threshold": 20
     },
     {
       "code": "B",
       "number": 38,
-      "name": "Environmental_Var_38",
-      "label": "Environmental Var 38",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_38.value",
+      "name": "Marine_Pollution_Index",
+      "label": "Marine Pollution Index",
+      "value_2026": 0.48,
+      "weight": 0.06,
+      "pipeline_field": "environment.marine_pollution",
       "keywords": [
-        "environmental",
-        "var_38"
+        "marine",
+        "sea",
+        "pollution"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.46,
+        0.48
+      ],
+      "volatility": 0.05,
+      "threshold": 0.7
     },
     {
       "code": "B",
       "number": 39,
-      "name": "Environmental_Var_39",
-      "label": "Environmental Var 39",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_39.value",
+      "name": "Groundwater_Depletion_Rate",
+      "label": "Groundwater Depletion Rate",
+      "value_2026": 2.5,
+      "weight": 0.18,
+      "pipeline_field": "environment.groundwater",
       "keywords": [
-        "environmental",
-        "var_39"
+        "groundwater",
+        "aquifer",
+        "wells"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.1,
+        2.3,
+        2.5
+      ],
+      "volatility": 0.1,
+      "threshold": 4.0
     },
     {
       "code": "B",
       "number": 40,
-      "name": "Environmental_Var_40",
-      "label": "Environmental Var 40",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_40.value",
+      "name": "Urban_Heat_Island_Effect",
+      "label": "Urban Heat Island Effect",
+      "value_2026": 3.2,
+      "weight": 0.05,
+      "pipeline_field": "environment.urban_heat",
       "keywords": [
-        "environmental",
-        "var_40"
+        "urban",
+        "heat",
+        "city"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.8,
+        3.0,
+        3.2
+      ],
+      "volatility": 0.05,
+      "threshold": 5.0
     },
     {
       "code": "B",
       "number": 41,
-      "name": "Environmental_Var_41",
-      "label": "Environmental Var 41",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_41.value",
+      "name": "Pesticide_Use_Intensity",
+      "label": "Pesticide Use Intensity",
+      "value_2026": 4.8,
+      "weight": 0.07,
+      "pipeline_field": "environment.pesticides",
       "keywords": [
-        "environmental",
-        "var_41"
+        "pesticides",
+        "agriculture",
+        "chemicals"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        4.5,
+        4.6,
+        4.8
+      ],
+      "volatility": 0.05,
+      "threshold": 7.0
     },
     {
       "code": "B",
       "number": 42,
-      "name": "Environmental_Var_42",
-      "label": "Environmental Var 42",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_42.value",
+      "name": "Industrial_Effluent_Treatment",
+      "label": "Industrial Effluent Treatment",
+      "value_2026": 55.0,
+      "weight": 0.08,
+      "pipeline_field": "environment.effluent_treatment",
       "keywords": [
-        "environmental",
-        "var_42"
+        "industrial",
+        "water",
+        "treatment"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        58.0,
+        56.0,
+        55.0
+      ],
+      "volatility": 0.05,
+      "threshold": 40.0
     },
     {
       "code": "B",
       "number": 43,
-      "name": "Environmental_Var_43",
-      "label": "Environmental Var 43",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_43.value",
+      "name": "Environmental_Regulation_Stringency",
+      "label": "Environmental Regulation Stringency",
+      "value_2026": 0.38,
+      "weight": 0.06,
+      "pipeline_field": "environment.regulations",
       "keywords": [
-        "environmental",
-        "var_43"
+        "regulations",
+        "policy",
+        "environment"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.4,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "B",
       "number": 44,
-      "name": "Environmental_Var_44",
-      "label": "Environmental Var 44",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_44.value",
+      "name": "Public_Awareness_Climate_Change",
+      "label": "Public Awareness Climate Change",
+      "value_2026": 62.0,
+      "weight": 0.05,
+      "pipeline_field": "environment.awareness",
       "keywords": [
-        "environmental",
-        "var_44"
+        "awareness",
+        "climate",
+        "public"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        55.0,
+        58.0,
+        62.0
+      ],
+      "volatility": 0.08,
+      "threshold": 40.0
     },
     {
       "code": "B",
       "number": 45,
-      "name": "Environmental_Var_45",
-      "label": "Environmental Var 45",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_45.value",
+      "name": "Green_Investment_Share_GDP",
+      "label": "Green Investment Share GDP",
+      "value_2026": 0.8,
+      "weight": 0.07,
+      "pipeline_field": "environment.green_investment",
       "keywords": [
-        "environmental",
-        "var_45"
+        "green",
+        "investment",
+        "GDP"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.6,
+        0.7,
+        0.8
+      ],
+      "volatility": 0.1,
+      "threshold": 2.0
     },
     {
       "code": "B",
       "number": 46,
-      "name": "Environmental_Var_46",
-      "label": "Environmental Var 46",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_46.value",
+      "name": "Desertification_Risk_Index",
+      "label": "Desertification Risk Index",
+      "value_2026": 0.88,
+      "weight": 0.2,
+      "pipeline_field": "environment.desertification",
       "keywords": [
-        "environmental",
-        "var_46"
+        "desert",
+        "land",
+        "risk"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.82,
+        0.85,
+        0.88
+      ],
+      "volatility": 0.05,
+      "threshold": 0.95
     },
     {
       "code": "B",
       "number": 47,
-      "name": "Environmental_Var_47",
-      "label": "Environmental Var 47",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_47.value",
+      "name": "Air_Quality_Index_AQI_Avg",
+      "label": "Air Quality Index AQI Avg",
+      "value_2026": 75,
+      "weight": 0.08,
+      "pipeline_field": "environment.aqi",
       "keywords": [
-        "environmental",
-        "var_47"
+        "AQI",
+        "air",
+        "quality"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        68,
+        72,
+        75
+      ],
+      "volatility": 0.15,
+      "threshold": 150
     },
     {
       "code": "B",
       "number": 48,
-      "name": "Environmental_Var_48",
-      "label": "Environmental Var 48",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_48.value",
+      "name": "Water_Recycling_Rate",
+      "label": "Water Recycling Rate",
+      "value_2026": 12.0,
+      "weight": 0.1,
+      "pipeline_field": "environment.water_recycling",
       "keywords": [
-        "environmental",
-        "var_48"
+        "water",
+        "recycling",
+        "reuse"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        10.0,
+        11.0,
+        12.0
+      ],
+      "volatility": 0.05,
+      "threshold": 25.0
     },
     {
       "code": "B",
       "number": 49,
-      "name": "Environmental_Var_49",
-      "label": "Environmental Var 49",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_49.value",
+      "name": "Carbon_Intensity_Economy",
+      "label": "Carbon Intensity Economy",
+      "value_2026": 0.55,
+      "weight": 0.05,
+      "pipeline_field": "environment.carbon_intensity",
       "keywords": [
-        "environmental",
-        "var_49"
+        "carbon",
+        "emissions",
+        "economy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.58,
+        0.56,
+        0.55
+      ],
+      "volatility": 0.02,
+      "threshold": 0.4
     },
     {
       "code": "B",
       "number": 50,
-      "name": "Environmental_Var_50",
-      "label": "Environmental Var 50",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "b_50.value",
+      "name": "Natural_Disaster_Preparedness_Index",
+      "label": "Natural Disaster Preparedness Index",
+      "value_2026": 0.45,
+      "weight": 0.12,
+      "pipeline_field": "environment.disaster_preparedness",
       "keywords": [
-        "environmental",
-        "var_50"
+        "disaster",
+        "preparedness",
+        "emergency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.46,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.7
     },
     {
       "code": "C",
       "number": 51,
-      "name": "Internet_penetration",
-      "label": "Internet penetration",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "digital.internet_penetration",
+      "name": "Internet_Penetration",
+      "label": "Internet Penetration",
+      "value_2026": 72.5,
+      "weight": 0.15,
+      "pipeline_field": "tech.internet_penetration",
       "keywords": [
         "internet",
-        "digital",
-        "penetration"
+        "web",
+        "connectivity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        68.0,
+        70.5,
+        72.5
+      ],
+      "volatility": 0.05,
+      "threshold": 50.0
     },
     {
       "code": "C",
       "number": 52,
-      "name": "Mobile_subscriptions",
-      "label": "Mobile subscriptions",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "digital.mobile_subs",
+      "name": "Mobile_Connectivity",
+      "label": "Mobile Connectivity",
+      "value_2026": 125.0,
+      "weight": 0.12,
+      "pipeline_field": "tech.mobile_connectivity",
       "keywords": [
         "mobile",
-        "telecom"
+        "sim",
+        "phone"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        120.0,
+        122.0,
+        125.0
+      ],
+      "volatility": 0.03,
+      "threshold": 100.0
     },
     {
       "code": "C",
       "number": 53,
-      "name": "Digital_&_Tech_Var_53",
-      "label": "Digital & Tech Var 53",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_53.value",
+      "name": "Digital_Literacy",
+      "label": "Digital Literacy",
+      "value_2026": 58.0,
+      "weight": 0.1,
+      "pipeline_field": "tech.digital_literacy",
       "keywords": [
-        "digital & tech",
-        "var_53"
+        "literacy",
+        "skills",
+        "digital"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        52.0,
+        55.0,
+        58.0
+      ],
+      "volatility": 0.05,
+      "threshold": 40.0
     },
     {
       "code": "C",
       "number": 54,
-      "name": "Digital_&_Tech_Var_54",
-      "label": "Digital & Tech Var 54",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_54.value",
+      "name": "E_Government_Index",
+      "label": "E Government Index",
+      "value_2026": 0.62,
+      "weight": 0.12,
+      "pipeline_field": "tech.e_gov",
       "keywords": [
-        "digital & tech",
-        "var_54"
+        "e-gov",
+        "services",
+        "digital"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.58,
+        0.62
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "C",
       "number": 55,
-      "name": "Digital_&_Tech_Var_55",
-      "label": "Digital & Tech Var 55",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_55.value",
+      "name": "Cybersecurity_Readiness",
+      "label": "Cybersecurity Readiness",
+      "value_2026": 0.45,
+      "weight": 0.15,
+      "pipeline_field": "tech.cybersecurity",
       "keywords": [
-        "digital & tech",
-        "var_55"
+        "cyber",
+        "security",
+        "hacking"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.38,
+        0.42,
+        0.45
+      ],
+      "volatility": 0.1,
+      "threshold": 0.6
     },
     {
       "code": "C",
       "number": 56,
-      "name": "Digital_&_Tech_Var_56",
-      "label": "Digital & Tech Var 56",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_56.value",
+      "name": "Tech_Startup_Density",
+      "label": "Tech Startup Density",
+      "value_2026": 12.5,
+      "weight": 0.08,
+      "pipeline_field": "tech.startups",
       "keywords": [
-        "digital & tech",
-        "var_56"
+        "startups",
+        "tech",
+        "innovation"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8.0,
+        10.5,
+        12.5
+      ],
+      "volatility": 0.2,
+      "threshold": 5.0
     },
     {
       "code": "C",
       "number": 57,
-      "name": "Digital_&_Tech_Var_57",
-      "label": "Digital & Tech Var 57",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_57.value",
+      "name": "R_D_Expenditure_GDP",
+      "label": "R D Expenditure GDP",
+      "value_2026": 0.65,
+      "weight": 0.1,
+      "pipeline_field": "tech.rd_expenditure",
       "keywords": [
-        "digital & tech",
-        "var_57"
+        "R&D",
+        "research",
+        "development"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.6,
+        0.62,
+        0.65
+      ],
+      "volatility": 0.05,
+      "threshold": 1.0
     },
     {
       "code": "C",
       "number": 58,
-      "name": "Digital_&_Tech_Var_58",
-      "label": "Digital & Tech Var 58",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_58.value",
+      "name": "STEM_Graduates_Rate",
+      "label": "STEM Graduates Rate",
+      "value_2026": 22.0,
+      "weight": 0.08,
+      "pipeline_field": "tech.stem_graduates",
       "keywords": [
-        "digital & tech",
-        "var_58"
+        "STEM",
+        "education",
+        "graduates"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        20.0,
+        21.0,
+        22.0
+      ],
+      "volatility": 0.05,
+      "threshold": 15.0
     },
     {
       "code": "C",
       "number": 59,
-      "name": "Digital_&_Tech_Var_59",
-      "label": "Digital & Tech Var 59",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_59.value",
+      "name": "Digital_Divide_Index",
+      "label": "Digital Divide Index",
+      "value_2026": 0.42,
+      "weight": 0.18,
+      "pipeline_field": "tech.digital_divide",
       "keywords": [
-        "digital & tech",
-        "var_59"
+        "divide",
+        "inequality",
+        "access"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.45,
+        0.42
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "C",
       "number": 60,
-      "name": "Digital_&_Tech_Var_60",
-      "label": "Digital & Tech Var 60",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_60.value",
+      "name": "Social_Media_Active_Users",
+      "label": "Social Media Active Users",
+      "value_2026": 8.2,
+      "weight": 0.15,
+      "pipeline_field": "tech.social_media",
       "keywords": [
-        "digital & tech",
-        "var_60"
+        "facebook",
+        "tiktok",
+        "social"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        7.5,
+        7.9,
+        8.2
+      ],
+      "volatility": 0.1,
+      "threshold": 5.0
     },
     {
       "code": "C",
       "number": 61,
-      "name": "Digital_&_Tech_Var_61",
-      "label": "Digital & Tech Var 61",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_61.value",
+      "name": "Cloud_Adoption_Rate",
+      "label": "Cloud Adoption Rate",
+      "value_2026": 28.0,
+      "weight": 0.07,
+      "pipeline_field": "tech.cloud_adoption",
       "keywords": [
-        "digital & tech",
-        "var_61"
+        "cloud",
+        "SaaS",
+        "hosting"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        22.0,
+        25.0,
+        28.0
+      ],
+      "volatility": 0.15,
+      "threshold": 15.0
     },
     {
       "code": "C",
       "number": 62,
-      "name": "Digital_&_Tech_Var_62",
-      "label": "Digital & Tech Var 62",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_62.value",
+      "name": "AI_Readiness_Index",
+      "label": "AI Readiness Index",
+      "value_2026": 0.35,
+      "weight": 0.1,
+      "pipeline_field": "tech.ai_readiness",
       "keywords": [
-        "digital & tech",
-        "var_62"
+        "AI",
+        "automation",
+        "future"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.28,
+        0.32,
+        0.35
+      ],
+      "volatility": 0.2,
+      "threshold": 0.5
     },
     {
       "code": "C",
       "number": 63,
-      "name": "Digital_&_Tech_Var_63",
-      "label": "Digital & Tech Var 63",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_63.value",
+      "name": "Tech_Infrastructure_Quality",
+      "label": "Tech Infrastructure Quality",
+      "value_2026": 0.52,
+      "weight": 0.12,
+      "pipeline_field": "tech.infrastructure",
       "keywords": [
-        "digital & tech",
-        "var_63"
+        "fiber",
+        "5G",
+        "broadband"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.48,
+        0.52
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "C",
       "number": 64,
-      "name": "Digital_&_Tech_Var_64",
-      "label": "Digital & Tech Var 64",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_64.value",
+      "name": "Digital_Payment_Adoption",
+      "label": "Digital Payment Adoption",
+      "value_2026": 35.0,
+      "weight": 0.1,
+      "pipeline_field": "tech.digital_payments",
       "keywords": [
-        "digital & tech",
-        "var_64"
+        "payments",
+        "cashless",
+        "fintech"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        28.0,
+        32.0,
+        35.0
+      ],
+      "volatility": 0.15,
+      "threshold": 20.0
     },
     {
       "code": "C",
       "number": 65,
-      "name": "Digital_&_Tech_Var_65",
-      "label": "Digital & Tech Var 65",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "c_65.value",
+      "name": "Data_Privacy_Regulation_Score",
+      "label": "Data Privacy Regulation Score",
+      "value_2026": 0.68,
+      "weight": 0.06,
+      "pipeline_field": "tech.data_privacy",
       "keywords": [
-        "digital & tech",
-        "var_65"
+        "privacy",
+        "GDPR",
+        "regulation"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.65,
+        0.68
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "D",
       "number": 66,
-      "name": "Regime_approval_rating",
-      "label": "Regime approval rating",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "political.approval",
+      "name": "Political_Stability_Index",
+      "label": "Political Stability Index",
+      "value_2026": -0.85,
+      "weight": 0.25,
+      "pipeline_field": "politics.stability",
       "keywords": [
-        "regime",
-        "approval"
+        "stability",
+        "unrest",
+        "regime"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.75,
+        -0.8,
+        -0.85
+      ],
+      "volatility": 0.15,
+      "threshold": -1.5
     },
     {
       "code": "D",
       "number": 67,
-      "name": "Political_Var_67",
-      "label": "Political Var 67",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_67.value",
+      "name": "Government_Effectiveness",
+      "label": "Government Effectiveness",
+      "value_2026": -0.42,
+      "weight": 0.2,
+      "pipeline_field": "politics.effectiveness",
       "keywords": [
-        "political",
-        "var_67"
+        "effectiveness",
+        "policy",
+        "governance"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.35,
+        -0.38,
+        -0.42
+      ],
+      "volatility": 0.1,
+      "threshold": -1.0
     },
     {
       "code": "D",
       "number": 68,
-      "name": "Political_Var_68",
-      "label": "Political Var 68",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_68.value",
+      "name": "Regulatory_Quality",
+      "label": "Regulatory Quality",
+      "value_2026": -0.28,
+      "weight": 0.15,
+      "pipeline_field": "politics.regulatory_quality",
       "keywords": [
-        "political",
-        "var_68"
+        "regulatory",
+        "business",
+        "rules"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.22,
+        -0.25,
+        -0.28
+      ],
+      "volatility": 0.08,
+      "threshold": -0.8
     },
     {
       "code": "D",
       "number": 69,
-      "name": "Political_Var_69",
-      "label": "Political Var 69",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_69.value",
+      "name": "Rule_of_Law_Score",
+      "label": "Rule of Law Score",
+      "value_2026": -0.55,
+      "weight": 0.22,
+      "pipeline_field": "politics.rule_of_law",
       "keywords": [
-        "political",
-        "var_69"
+        "law",
+        "justice",
+        "courts"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.48,
+        -0.52,
+        -0.55
+      ],
+      "volatility": 0.05,
+      "threshold": -1.2
     },
     {
       "code": "D",
       "number": 70,
-      "name": "Political_Var_70",
-      "label": "Political Var 70",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_70.value",
+      "name": "Control_of_Corruption",
+      "label": "Control of Corruption",
+      "value_2026": -0.72,
+      "weight": 0.2,
+      "pipeline_field": "politics.corruption",
       "keywords": [
-        "political",
-        "var_70"
+        "corruption",
+        "bribery",
+        "transparency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.65,
+        -0.68,
+        -0.72
+      ],
+      "volatility": 0.12,
+      "threshold": -1.5
     },
     {
       "code": "D",
       "number": 71,
-      "name": "Political_Var_71",
-      "label": "Political Var 71",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_71.value",
+      "name": "Press_Freedom_Index",
+      "label": "Press Freedom Index",
+      "value_2026": 42.5,
+      "weight": 0.18,
+      "pipeline_field": "politics.press_freedom",
       "keywords": [
-        "political",
-        "var_71"
+        "press",
+        "media",
+        "freedom"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        48.0,
+        45.0,
+        42.5
+      ],
+      "volatility": 0.15,
+      "threshold": 30.0
     },
     {
       "code": "D",
       "number": 72,
-      "name": "Political_Var_72",
-      "label": "Political Var 72",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_72.value",
+      "name": "Civil_Liberties_Score",
+      "label": "Civil Liberties Score",
+      "value_2026": 3.5,
+      "weight": 0.2,
+      "pipeline_field": "politics.civil_liberties",
       "keywords": [
-        "political",
-        "var_72"
+        "liberties",
+        "rights",
+        "freedom"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        4.2,
+        3.8,
+        3.5
+      ],
+      "volatility": 0.1,
+      "threshold": 2.0
     },
     {
       "code": "D",
       "number": 73,
-      "name": "Political_Var_73",
-      "label": "Political Var 73",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_73.value",
+      "name": "Political_Rights_Score",
+      "label": "Political Rights Score",
+      "value_2026": 2.8,
+      "weight": 0.2,
+      "pipeline_field": "politics.political_rights",
       "keywords": [
-        "political",
-        "var_73"
+        "rights",
+        "voting",
+        "democracy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.5,
+        3.2,
+        2.8
+      ],
+      "volatility": 0.12,
+      "threshold": 1.5
     },
     {
       "code": "D",
       "number": 74,
-      "name": "Political_Var_74",
-      "label": "Political Var 74",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_74.value",
+      "name": "Election_Integrity_Index",
+      "label": "Election Integrity Index",
+      "value_2026": 0.48,
+      "weight": 0.15,
+      "pipeline_field": "politics.election_integrity",
       "keywords": [
-        "political",
-        "var_74"
+        "election",
+        "voting",
+        "integrity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.52,
+        0.48
+      ],
+      "volatility": 0.1,
+      "threshold": 0.3
     },
     {
       "code": "D",
       "number": 75,
-      "name": "Political_Var_75",
-      "label": "Political Var 75",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_75.value",
+      "name": "Judicial_Independence",
+      "label": "Judicial Independence",
+      "value_2026": 0.32,
+      "weight": 0.18,
+      "pipeline_field": "politics.judicial_independence",
       "keywords": [
-        "political",
-        "var_75"
+        "judicial",
+        "courts",
+        "independence"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.38,
+        0.32
+      ],
+      "volatility": 0.15,
+      "threshold": 0.2
     },
     {
       "code": "D",
       "number": 76,
-      "name": "Political_Var_76",
-      "label": "Political Var 76",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_76.value",
+      "name": "Legislative_Efficiency",
+      "label": "Legislative Efficiency",
+      "value_2026": 0.45,
+      "weight": 0.1,
+      "pipeline_field": "politics.legislative_efficiency",
       "keywords": [
-        "political",
-        "var_76"
+        "legislative",
+        "parliament",
+        "laws"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.48,
+        0.45
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "D",
       "number": 77,
-      "name": "Political_Var_77",
-      "label": "Political Var 77",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_77.value",
+      "name": "Local_Governance_Quality",
+      "label": "Local Governance Quality",
+      "value_2026": 0.38,
+      "weight": 0.12,
+      "pipeline_field": "politics.local_governance",
       "keywords": [
-        "political",
-        "var_77"
+        "local",
+        "municipal",
+        "governance"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "D",
       "number": 78,
-      "name": "Political_Var_78",
-      "label": "Political Var 78",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_78.value",
+      "name": "Political_Polarization_Index",
+      "label": "Political Polarization Index",
+      "value_2026": 0.78,
+      "weight": 0.15,
+      "pipeline_field": "politics.polarization",
       "keywords": [
-        "political",
-        "var_78"
+        "polarization",
+        "division",
+        "factions"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.68,
+        0.72,
+        0.78
+      ],
+      "volatility": 0.1,
+      "threshold": 0.9
     },
     {
       "code": "D",
       "number": 79,
-      "name": "Political_Var_79",
-      "label": "Political Var 79",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_79.value",
+      "name": "Trust_in_Government",
+      "label": "Trust in Government",
+      "value_2026": 28.0,
+      "weight": 0.22,
+      "pipeline_field": "politics.trust",
       "keywords": [
-        "political",
-        "var_79"
+        "trust",
+        "approval",
+        "government"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        35.0,
+        32.0,
+        28.0
+      ],
+      "volatility": 0.15,
+      "threshold": 20.0
     },
     {
       "code": "D",
       "number": 80,
-      "name": "Political_Var_80",
-      "label": "Political Var 80",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "d_80.value",
+      "name": "Transparency_Index",
+      "label": "Transparency Index",
+      "value_2026": 42.0,
+      "weight": 0.12,
+      "pipeline_field": "politics.transparency",
       "keywords": [
-        "political",
-        "var_80"
+        "transparency",
+        "openness",
+        "data"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        48.0,
+        45.0,
+        42.0
+      ],
+      "volatility": 0.08,
+      "threshold": 30.0
     },
     {
       "code": "E",
       "number": 81,
-      "name": "Social_Var_81",
-      "label": "Social Var 81",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_81.value",
+      "name": "Poverty_Headcount_Ratio",
+      "label": "Poverty Headcount Ratio",
+      "value_2026": 18.5,
+      "weight": 0.2,
+      "pipeline_field": "social.poverty",
       "keywords": [
-        "social",
-        "var_81"
+        "poverty",
+        "poor",
+        "income"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        16.5,
+        17.5,
+        18.5
+      ],
+      "volatility": 0.08,
+      "threshold": 25.0
     },
     {
       "code": "E",
       "number": 82,
-      "name": "Social_Var_82",
-      "label": "Social Var 82",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_82.value",
+      "name": "Gini_Coefficient",
+      "label": "Gini Coefficient",
+      "value_2026": 34.8,
+      "weight": 0.18,
+      "pipeline_field": "social.gini",
       "keywords": [
-        "social",
-        "var_82"
+        "gini",
+        "inequality",
+        "wealth"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        33.5,
+        34.2,
+        34.8
+      ],
+      "volatility": 0.02,
+      "threshold": 40.0
     },
     {
       "code": "E",
       "number": 83,
-      "name": "Social_Var_83",
-      "label": "Social Var 83",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_83.value",
+      "name": "Human_Development_Index",
+      "label": "Human Development Index",
+      "value_2026": 0.73,
+      "weight": 0.15,
+      "pipeline_field": "social.hdi",
       "keywords": [
-        "social",
-        "var_83"
+        "HDI",
+        "development",
+        "human"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.74,
+        0.735,
+        0.73
+      ],
+      "volatility": 0.01,
+      "threshold": 0.65
     },
     {
       "code": "E",
       "number": 84,
-      "name": "Social_Var_84",
-      "label": "Social Var 84",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_84.value",
+      "name": "Literacy_Rate",
+      "label": "Literacy Rate",
+      "value_2026": 82.5,
+      "weight": 0.1,
+      "pipeline_field": "social.literacy",
       "keywords": [
-        "social",
-        "var_84"
+        "literacy",
+        "education",
+        "reading"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        81.5,
+        82.0,
+        82.5
+      ],
+      "volatility": 0.01,
+      "threshold": 75.0
     },
     {
       "code": "E",
       "number": 85,
-      "name": "Social_Var_85",
-      "label": "Social Var 85",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_85.value",
+      "name": "Life_Expectancy",
+      "label": "Life Expectancy",
+      "value_2026": 76.5,
+      "weight": 0.08,
+      "pipeline_field": "social.life_expectancy",
       "keywords": [
-        "social",
-        "var_85"
+        "life",
+        "expectancy",
+        "health"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        76.8,
+        76.6,
+        76.5
+      ],
+      "volatility": 0.01,
+      "threshold": 70.0
     },
     {
       "code": "E",
       "number": 86,
-      "name": "Social_Var_86",
-      "label": "Social Var 86",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_86.value",
+      "name": "Healthcare_Access_Index",
+      "label": "Healthcare Access Index",
+      "value_2026": 0.58,
+      "weight": 0.15,
+      "pipeline_field": "social.healthcare_access",
       "keywords": [
-        "social",
-        "var_86"
+        "healthcare",
+        "doctors",
+        "hospitals"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.62,
+        0.58
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "E",
       "number": 87,
-      "name": "Social_Var_87",
-      "label": "Social Var 87",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_87.value",
+      "name": "Education_Quality_Index",
+      "label": "Education Quality Index",
+      "value_2026": 0.45,
+      "weight": 0.12,
+      "pipeline_field": "social.education_quality",
       "keywords": [
-        "social",
-        "var_87"
+        "education",
+        "schools",
+        "quality"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.48,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "E",
       "number": 88,
-      "name": "Social_Var_88",
-      "label": "Social Var 88",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_88.value",
+      "name": "Social_Mobility_Index",
+      "label": "Social Mobility Index",
+      "value_2026": 0.38,
+      "weight": 0.1,
+      "pipeline_field": "social.mobility",
       "keywords": [
-        "social",
-        "var_88"
+        "mobility",
+        "opportunity",
+        "class"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "E",
       "number": 89,
-      "name": "Social_Var_89",
-      "label": "Social Var 89",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_89.value",
+      "name": "Gender_Equality_Index",
+      "label": "Gender Equality Index",
+      "value_2026": 0.65,
+      "weight": 0.08,
+      "pipeline_field": "social.gender_equality",
       "keywords": [
-        "social",
-        "var_89"
+        "gender",
+        "equality",
+        "women"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.68,
+        0.66,
+        0.65
+      ],
+      "volatility": 0.02,
+      "threshold": 0.5
     },
     {
       "code": "E",
       "number": 90,
-      "name": "Social_Var_90",
-      "label": "Social Var 90",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_90.value",
+      "name": "Child_Mortality_Rate",
+      "label": "Child Mortality Rate",
+      "value_2026": 12.5,
+      "weight": 0.07,
+      "pipeline_field": "social.child_mortality",
       "keywords": [
-        "social",
-        "var_90"
+        "child",
+        "mortality",
+        "infant"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        13.5,
+        13.0,
+        12.5
+      ],
+      "volatility": 0.05,
+      "threshold": 20.0
     },
     {
       "code": "E",
       "number": 91,
-      "name": "Social_Var_91",
-      "label": "Social Var 91",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_91.value",
+      "name": "Maternal_Mortality_Ratio",
+      "label": "Maternal Mortality Ratio",
+      "value_2026": 42.0,
+      "weight": 0.06,
+      "pipeline_field": "social.maternal_mortality",
       "keywords": [
-        "social",
-        "var_91"
+        "maternal",
+        "mortality",
+        "birth"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        45.0,
+        43.0,
+        42.0
+      ],
+      "volatility": 0.05,
+      "threshold": 60.0
     },
     {
       "code": "E",
       "number": 92,
-      "name": "Social_Var_92",
-      "label": "Social Var 92",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_92.value",
+      "name": "Social_Safety_Net_Coverage",
+      "label": "Social Safety Net Coverage",
+      "value_2026": 45.0,
+      "weight": 0.15,
+      "pipeline_field": "social.safety_net",
       "keywords": [
-        "social",
-        "var_92"
+        "safety net",
+        "welfare",
+        "support"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        48.0,
+        46.0,
+        45.0
+      ],
+      "volatility": 0.05,
+      "threshold": 30.0
     },
     {
       "code": "E",
       "number": 93,
-      "name": "Social_Var_93",
-      "label": "Social Var 93",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_93.value",
+      "name": "Housing_Affordability_Index",
+      "label": "Housing Affordability Index",
+      "value_2026": 0.42,
+      "weight": 0.12,
+      "pipeline_field": "social.housing",
       "keywords": [
-        "social",
-        "var_93"
+        "housing",
+        "rent",
+        "affordability"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.48,
+        0.42
+      ],
+      "volatility": 0.1,
+      "threshold": 0.3
     },
     {
       "code": "E",
       "number": 94,
-      "name": "Social_Var_94",
-      "label": "Social Var 94",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_94.value",
+      "name": "Food_Security_Index",
+      "label": "Food Security Index",
+      "value_2026": 0.55,
+      "weight": 0.18,
+      "pipeline_field": "social.food_security",
       "keywords": [
-        "social",
-        "var_94"
+        "food",
+        "hunger",
+        "security"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.6,
+        0.55
+      ],
+      "volatility": 0.12,
+      "threshold": 0.4
     },
     {
       "code": "E",
       "number": 95,
-      "name": "Social_Var_95",
-      "label": "Social Var 95",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "e_95.value",
+      "name": "Social_Cohesion_Index",
+      "label": "Social Cohesion Index",
+      "value_2026": 0.48,
+      "weight": 0.15,
+      "pipeline_field": "social.cohesion",
       "keywords": [
-        "social",
-        "var_95"
+        "cohesion",
+        "unity",
+        "social"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.58,
+        0.52,
+        0.48
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "F",
       "number": 96,
-      "name": "Socio-Cultural_Var_96",
-      "label": "Socio-Cultural Var 96",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_96.value",
+      "name": "Cultural_Heritage_Preservation",
+      "label": "Cultural Heritage Preservation",
+      "value_2026": 0.72,
+      "weight": 0.05,
+      "pipeline_field": "culture.heritage",
       "keywords": [
-        "socio-cultural",
-        "var_96"
+        "heritage",
+        "culture",
+        "history"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.73,
+        0.72
+      ],
+      "volatility": 0.02,
+      "threshold": 0.5
     },
     {
       "code": "F",
       "number": 97,
-      "name": "Socio-Cultural_Var_97",
-      "label": "Socio-Cultural Var 97",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_97.value",
+      "name": "Religious_Tolerance_Index",
+      "label": "Religious Tolerance Index",
+      "value_2026": 0.65,
+      "weight": 0.08,
+      "pipeline_field": "culture.religious_tolerance",
       "keywords": [
-        "socio-cultural",
-        "var_97"
+        "religion",
+        "tolerance",
+        "faith"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.68,
+        0.66,
+        0.65
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "F",
       "number": 98,
-      "name": "Socio-Cultural_Var_98",
-      "label": "Socio-Cultural Var 98",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_98.value",
+      "name": "Ethnic_Diversity_Index",
+      "label": "Ethnic Diversity Index",
+      "value_2026": 0.15,
+      "weight": 0.04,
+      "pipeline_field": "culture.ethnic_diversity",
       "keywords": [
-        "socio-cultural",
-        "var_98"
+        "ethnic",
+        "diversity",
+        "minority"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.15,
+        0.15,
+        0.15
+      ],
+      "volatility": 0.01,
+      "threshold": 0.5
     },
     {
       "code": "F",
       "number": 99,
-      "name": "Socio-Cultural_Var_99",
-      "label": "Socio-Cultural Var 99",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_99.value",
+      "name": "Social_Trust_Level",
+      "label": "Social Trust Level",
+      "value_2026": 32.0,
+      "weight": 0.15,
+      "pipeline_field": "culture.social_trust",
       "keywords": [
-        "socio-cultural",
-        "var_99"
+        "trust",
+        "social",
+        "people"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        38.0,
+        35.0,
+        32.0
+      ],
+      "volatility": 0.1,
+      "threshold": 20.0
     },
     {
       "code": "F",
       "number": 100,
-      "name": "Socio-Cultural_Var_100",
-      "label": "Socio-Cultural Var 100",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_100.value",
+      "name": "Civic_Engagement_Rate",
+      "label": "Civic Engagement Rate",
+      "value_2026": 25.0,
+      "weight": 0.12,
+      "pipeline_field": "culture.civic_engagement",
       "keywords": [
-        "socio-cultural",
-        "var_100"
+        "civic",
+        "engagement",
+        "voting"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        32.0,
+        28.0,
+        25.0
+      ],
+      "volatility": 0.15,
+      "threshold": 15.0
     },
     {
       "code": "F",
       "number": 101,
-      "name": "Socio-Cultural_Var_101",
-      "label": "Socio-Cultural Var 101",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_101.value",
+      "name": "Volunteerism_Index",
+      "label": "Volunteerism Index",
+      "value_2026": 12.5,
+      "weight": 0.06,
+      "pipeline_field": "culture.volunteerism",
       "keywords": [
-        "socio-cultural",
-        "var_101"
+        "volunteer",
+        "charity",
+        "help"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        10.0,
+        11.5,
+        12.5
+      ],
+      "volatility": 0.1,
+      "threshold": 5.0
     },
     {
       "code": "F",
       "number": 102,
-      "name": "Socio-Cultural_Var_102",
-      "label": "Socio-Cultural Var 102",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_102.value",
+      "name": "Cultural_Participation_Rate",
+      "label": "Cultural Participation Rate",
+      "value_2026": 42.0,
+      "weight": 0.05,
+      "pipeline_field": "culture.participation",
       "keywords": [
-        "socio-cultural",
-        "var_102"
+        "culture",
+        "events",
+        "arts"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        45.0,
+        43.0,
+        42.0
+      ],
+      "volatility": 0.05,
+      "threshold": 20.0
     },
     {
       "code": "F",
       "number": 103,
-      "name": "Socio-Cultural_Var_103",
-      "label": "Socio-Cultural Var 103",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_103.value",
+      "name": "Language_Diversity_Index",
+      "label": "Language Diversity Index",
+      "value_2026": 0.22,
+      "weight": 0.03,
+      "pipeline_field": "culture.language_diversity",
       "keywords": [
-        "socio-cultural",
-        "var_103"
+        "language",
+        "diversity",
+        "dialects"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.22,
+        0.22
+      ],
+      "volatility": 0.01,
+      "threshold": 0.5
     },
     {
       "code": "F",
       "number": 104,
-      "name": "Socio-Cultural_Var_104",
-      "label": "Socio-Cultural Var 104",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_104.value",
+      "name": "Traditional_Values_Score",
+      "label": "Traditional Values Score",
+      "value_2026": 0.78,
+      "weight": 0.08,
+      "pipeline_field": "culture.traditional_values",
       "keywords": [
-        "socio-cultural",
-        "var_104"
+        "traditional",
+        "values",
+        "family"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.76,
+        0.78
+      ],
+      "volatility": 0.02,
+      "threshold": 0.5
     },
     {
       "code": "F",
       "number": 105,
-      "name": "Socio-Cultural_Var_105",
-      "label": "Socio-Cultural Var 105",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_105.value",
+      "name": "Modernity_Index",
+      "label": "Modernity Index",
+      "value_2026": 0.45,
+      "weight": 0.08,
+      "pipeline_field": "culture.modernity",
       "keywords": [
-        "socio-cultural",
-        "var_105"
+        "modernity",
+        "progress",
+        "change"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.43,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.6
     },
     {
       "code": "F",
       "number": 106,
-      "name": "Socio-Cultural_Var_106",
-      "label": "Socio-Cultural Var 106",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_106.value",
+      "name": "National_Identity_Strength",
+      "label": "National Identity Strength",
+      "value_2026": 0.82,
+      "weight": 0.1,
+      "pipeline_field": "culture.national_identity",
       "keywords": [
-        "socio-cultural",
-        "var_106"
+        "national",
+        "identity",
+        "pride"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.83,
+        0.82
+      ],
+      "volatility": 0.05,
+      "threshold": 0.6
     },
     {
       "code": "F",
       "number": 107,
-      "name": "Socio-Cultural_Var_107",
-      "label": "Socio-Cultural Var 107",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_107.value",
+      "name": "Minority_Rights_Protection",
+      "label": "Minority Rights Protection",
+      "value_2026": 0.48,
+      "weight": 0.12,
+      "pipeline_field": "culture.minority_rights",
       "keywords": [
-        "socio-cultural",
-        "var_107"
+        "minority",
+        "rights",
+        "protection"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.52,
+        0.48
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "F",
       "number": 108,
-      "name": "Socio-Cultural_Var_108",
-      "label": "Socio-Cultural Var 108",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_108.value",
+      "name": "Social_Media_Sentiment_Index",
+      "label": "Social Media Sentiment Index",
+      "value_2026": -0.35,
+      "weight": 0.15,
+      "pipeline_field": "culture.sentiment",
       "keywords": [
-        "socio-cultural",
-        "var_108"
+        "sentiment",
+        "opinion",
+        "social"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.15,
+        -0.25,
+        -0.35
+      ],
+      "volatility": 0.2,
+      "threshold": -0.7
     },
     {
       "code": "F",
       "number": 109,
-      "name": "Socio-Cultural_Var_109",
-      "label": "Socio-Cultural Var 109",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_109.value",
+      "name": "Public_Opinion_Stability",
+      "label": "Public Opinion Stability",
+      "value_2026": 0.42,
+      "weight": 0.1,
+      "pipeline_field": "culture.opinion_stability",
       "keywords": [
-        "socio-cultural",
-        "var_109"
+        "opinion",
+        "stability",
+        "public"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.48,
+        0.42
+      ],
+      "volatility": 0.15,
+      "threshold": 0.3
     },
     {
       "code": "F",
       "number": 110,
-      "name": "Socio-Cultural_Var_110",
-      "label": "Socio-Cultural Var 110",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "f_110.value",
+      "name": "Cultural_Export_Value",
+      "label": "Cultural Export Value",
+      "value_2026": 120,
+      "weight": 0.04,
+      "pipeline_field": "culture.exports",
       "keywords": [
-        "socio-cultural",
-        "var_110"
+        "culture",
+        "exports",
+        "arts"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        110,
+        115,
+        120
+      ],
+      "volatility": 0.1,
+      "threshold": 50
     },
     {
       "code": "G",
       "number": 111,
-      "name": "Legal_&_Structural_Var_111",
-      "label": "Legal & Structural Var 111",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_111.value",
+      "name": "Constitution_Adherence_Score",
+      "label": "Constitution Adherence Score",
+      "value_2026": 0.45,
+      "weight": 0.2,
+      "pipeline_field": "legal.constitution",
       "keywords": [
-        "legal & structural",
-        "var_111"
+        "constitution",
+        "legality",
+        "decree"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.5,
+        0.45
+      ],
+      "volatility": 0.1,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 112,
-      "name": "Legal_&_Structural_Var_112",
-      "label": "Legal & Structural Var 112",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_112.value",
+      "name": "Property_Rights_Protection",
+      "label": "Property Rights Protection",
+      "value_2026": 0.52,
+      "weight": 0.15,
+      "pipeline_field": "legal.property_rights",
       "keywords": [
-        "legal & structural",
-        "var_112"
+        "property",
+        "ownership",
+        "rights"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.53,
+        0.52
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "G",
       "number": 113,
-      "name": "Legal_&_Structural_Var_113",
-      "label": "Legal & Structural Var 113",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_113.value",
+      "name": "Contract_Enforcement_Efficiency",
+      "label": "Contract Enforcement Efficiency",
+      "value_2026": 0.48,
+      "weight": 0.12,
+      "pipeline_field": "legal.contracts",
       "keywords": [
-        "legal & structural",
-        "var_113"
+        "contracts",
+        "enforcement",
+        "legal"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.5,
+        0.49,
+        0.48
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 114,
-      "name": "Legal_&_Structural_Var_114",
-      "label": "Legal & Structural Var 114",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_114.value",
+      "name": "Business_Registration_Ease",
+      "label": "Business Registration Ease",
+      "value_2026": 0.65,
+      "weight": 0.08,
+      "pipeline_field": "legal.business_ease",
       "keywords": [
-        "legal & structural",
-        "var_114"
+        "business",
+        "registration",
+        "startup"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.6,
+        0.62,
+        0.65
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "G",
       "number": 115,
-      "name": "Legal_&_Structural_Var_115",
-      "label": "Legal & Structural Var 115",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_115.value",
+      "name": "Labor_Market_Flexibility",
+      "label": "Labor Market Flexibility",
+      "value_2026": 0.35,
+      "weight": 0.1,
+      "pipeline_field": "legal.labor_flexibility",
       "keywords": [
-        "legal & structural",
-        "var_115"
+        "labor",
+        "market",
+        "flexibility"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.38,
+        0.36,
+        0.35
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "G",
       "number": 116,
-      "name": "Legal_&_Structural_Var_116",
-      "label": "Legal & Structural Var 116",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_116.value",
+      "name": "Intellectual_Property_Rights",
+      "label": "Intellectual Property Rights",
+      "value_2026": 0.42,
+      "weight": 0.08,
+      "pipeline_field": "legal.ipr",
       "keywords": [
-        "legal & structural",
-        "var_116"
+        "IPR",
+        "intellectual",
+        "patents"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.43,
+        0.42
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 117,
-      "name": "Legal_&_Structural_Var_117",
-      "label": "Legal & Structural Var 117",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_117.value",
+      "name": "Antitrust_Regulation_Quality",
+      "label": "Antitrust Regulation Quality",
+      "value_2026": 0.38,
+      "weight": 0.07,
+      "pipeline_field": "legal.antitrust",
       "keywords": [
-        "legal & structural",
-        "var_117"
+        "antitrust",
+        "competition",
+        "monopoly"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.4,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "G",
       "number": 118,
-      "name": "Legal_&_Structural_Var_118",
-      "label": "Legal & Structural Var 118",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_118.value",
+      "name": "Financial_Regulation_Strength",
+      "label": "Financial Regulation Strength",
+      "value_2026": 0.55,
+      "weight": 0.12,
+      "pipeline_field": "legal.financial_reg",
       "keywords": [
-        "legal & structural",
-        "var_118"
+        "financial",
+        "regulation",
+        "banking"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.58,
+        0.56,
+        0.55
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "G",
       "number": 119,
-      "name": "Legal_&_Structural_Var_119",
-      "label": "Legal & Structural Var 119",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_119.value",
+      "name": "Bankruptcy_Law_Efficiency",
+      "label": "Bankruptcy Law Efficiency",
+      "value_2026": 0.45,
+      "weight": 0.06,
+      "pipeline_field": "legal.bankruptcy",
       "keywords": [
-        "legal & structural",
-        "var_119"
+        "bankruptcy",
+        "insolvency",
+        "law"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.46,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 120,
-      "name": "Legal_&_Structural_Var_120",
-      "label": "Legal & Structural Var 120",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_120.value",
+      "name": "Trade_Openness_Index",
+      "label": "Trade Openness Index",
+      "value_2026": 0.58,
+      "weight": 0.1,
+      "pipeline_field": "legal.trade_openness",
       "keywords": [
-        "legal & structural",
-        "var_120"
+        "trade",
+        "openness",
+        "tariffs"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.6,
+        0.58
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "G",
       "number": 121,
-      "name": "Legal_&_Structural_Var_121",
-      "label": "Legal & Structural Var 121",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_121.value",
+      "name": "Foreign_Investment_Protection",
+      "label": "Foreign Investment Protection",
+      "value_2026": 0.42,
+      "weight": 0.15,
+      "pipeline_field": "legal.fdi_protection",
       "keywords": [
-        "legal & structural",
-        "var_121"
+        "FDI",
+        "investment",
+        "protection"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.45,
+        0.42
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 122,
-      "name": "Legal_&_Structural_Var_122",
-      "label": "Legal & Structural Var 122",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_122.value",
+      "name": "Dispute_Resolution_Speed",
+      "label": "Dispute Resolution Speed",
+      "value_2026": 0.32,
+      "weight": 0.1,
+      "pipeline_field": "legal.dispute_speed",
       "keywords": [
-        "legal & structural",
-        "var_122"
+        "dispute",
+        "resolution",
+        "courts"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.38,
+        0.35,
+        0.32
+      ],
+      "volatility": 0.1,
+      "threshold": 0.2
     },
     {
       "code": "G",
       "number": 123,
-      "name": "Legal_&_Structural_Var_123",
-      "label": "Legal & Structural Var 123",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_123.value",
+      "name": "Legal_Aid_Accessibility",
+      "label": "Legal Aid Accessibility",
+      "value_2026": 0.45,
+      "weight": 0.08,
+      "pipeline_field": "legal.legal_aid",
       "keywords": [
-        "legal & structural",
-        "var_123"
+        "legal aid",
+        "justice",
+        "access"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.46,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "G",
       "number": 124,
-      "name": "Legal_&_Structural_Var_124",
-      "label": "Legal & Structural Var 124",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_124.value",
+      "name": "Prison_Population_Rate",
+      "label": "Prison Population Rate",
+      "value_2026": 185,
+      "weight": 0.12,
+      "pipeline_field": "legal.prison_rate",
       "keywords": [
-        "legal & structural",
-        "var_124"
+        "prison",
+        "inmates",
+        "detention"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        170,
+        178,
+        185
+      ],
+      "volatility": 0.05,
+      "threshold": 250
     },
     {
       "code": "G",
       "number": 125,
-      "name": "Legal_&_Structural_Var_125",
-      "label": "Legal & Structural Var 125",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "g_125.value",
+      "name": "Crime_Rate_Index",
+      "label": "Crime Rate Index",
+      "value_2026": 52.0,
+      "weight": 0.15,
+      "pipeline_field": "legal.crime_rate",
       "keywords": [
-        "legal & structural",
-        "var_125"
+        "crime",
+        "safety",
+        "violence"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        48.0,
+        50.0,
+        52.0
+      ],
+      "volatility": 0.08,
+      "threshold": 70.0
     },
     {
       "code": "H",
       "number": 126,
-      "name": "Energy_Security_Var_126",
-      "label": "Energy Security Var 126",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_126.value",
+      "name": "Energy_Import_Dependency",
+      "label": "Energy Import Dependency",
+      "value_2026": 92.0,
+      "weight": 0.22,
+      "pipeline_field": "energy.import_dependency",
       "keywords": [
-        "energy security",
-        "var_126"
+        "energy",
+        "import",
+        "gas"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        88.0,
+        90.0,
+        92.0
+      ],
+      "volatility": 0.05,
+      "threshold": 95.0
     },
     {
       "code": "H",
       "number": 127,
-      "name": "Energy_Security_Var_127",
-      "label": "Energy Security Var 127",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_127.value",
+      "name": "Electricity_Access_Rate",
+      "label": "Electricity Access Rate",
+      "value_2026": 99.8,
+      "weight": 0.05,
+      "pipeline_field": "energy.electricity_access",
       "keywords": [
-        "energy security",
-        "var_127"
+        "electricity",
+        "grid",
+        "access"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        99.8,
+        99.8,
+        99.8
+      ],
+      "volatility": 0.01,
+      "threshold": 95.0
     },
     {
       "code": "H",
       "number": 128,
-      "name": "Energy_Security_Var_128",
-      "label": "Energy Security Var 128",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_128.value",
+      "name": "Power_Outage_Frequency",
+      "label": "Power Outage Frequency",
+      "value_2026": 4.5,
+      "weight": 0.18,
+      "pipeline_field": "energy.outages",
       "keywords": [
-        "energy security",
-        "var_128"
+        "outages",
+        "blackout",
+        "STEG"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.5,
+        3.8,
+        4.5
+      ],
+      "volatility": 0.3,
+      "threshold": 10.0
     },
     {
       "code": "H",
       "number": 129,
-      "name": "Energy_Security_Var_129",
-      "label": "Energy Security Var 129",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_129.value",
+      "name": "Fuel_Price_Stability",
+      "label": "Fuel Price Stability",
+      "value_2026": 0.45,
+      "weight": 0.15,
+      "pipeline_field": "energy.fuel_stability",
       "keywords": [
-        "energy security",
-        "var_129"
+        "fuel",
+        "petrol",
+        "prices"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.55,
+        0.45
+      ],
+      "volatility": 0.2,
+      "threshold": 0.3
     },
     {
       "code": "H",
       "number": 130,
-      "name": "Energy_Security_Var_130",
-      "label": "Energy Security Var 130",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_130.value",
+      "name": "Natural_Gas_Reserves",
+      "label": "Natural Gas Reserves",
+      "value_2026": 12.5,
+      "weight": 0.1,
+      "pipeline_field": "energy.gas_reserves",
       "keywords": [
-        "energy security",
-        "var_130"
+        "gas",
+        "reserves",
+        "energy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        13.5,
+        13.0,
+        12.5
+      ],
+      "volatility": 0.05,
+      "threshold": 5.0
     },
     {
       "code": "H",
       "number": 131,
-      "name": "Energy_Security_Var_131",
-      "label": "Energy Security Var 131",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_131.value",
+      "name": "Oil_Production_Rate",
+      "label": "Oil Production Rate",
+      "value_2026": 32.0,
+      "weight": 0.1,
+      "pipeline_field": "energy.oil_production",
       "keywords": [
-        "energy security",
-        "var_131"
+        "oil",
+        "production",
+        "energy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        35.0,
+        33.5,
+        32.0
+      ],
+      "volatility": 0.08,
+      "threshold": 20.0
     },
     {
       "code": "H",
       "number": 132,
-      "name": "Energy_Security_Var_132",
-      "label": "Energy Security Var 132",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_132.value",
+      "name": "Energy_Efficiency_Index",
+      "label": "Energy Efficiency Index",
+      "value_2026": 0.52,
+      "weight": 0.08,
+      "pipeline_field": "energy.efficiency",
       "keywords": [
-        "energy security",
-        "var_132"
+        "efficiency",
+        "energy",
+        "consumption"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.53,
+        0.52
+      ],
+      "volatility": 0.02,
+      "threshold": 0.4
     },
     {
       "code": "H",
       "number": 133,
-      "name": "Energy_Security_Var_133",
-      "label": "Energy Security Var 133",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_133.value",
+      "name": "Grid_Stability_Score",
+      "label": "Grid Stability Score",
+      "value_2026": 0.68,
+      "weight": 0.12,
+      "pipeline_field": "energy.grid_stability",
       "keywords": [
-        "energy security",
-        "var_133"
+        "grid",
+        "stability",
+        "electricity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.72,
+        0.68
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "H",
       "number": 134,
-      "name": "Energy_Security_Var_134",
-      "label": "Energy Security Var 134",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_134.value",
+      "name": "Strategic_Fuel_Reserves",
+      "label": "Strategic Fuel Reserves",
+      "value_2026": 45,
+      "weight": 0.15,
+      "pipeline_field": "energy.strategic_reserves",
       "keywords": [
-        "energy security",
-        "var_134"
+        "reserves",
+        "fuel",
+        "strategic"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        60,
+        52,
+        45
+      ],
+      "volatility": 0.15,
+      "threshold": 30
     },
     {
       "code": "H",
       "number": 135,
-      "name": "Energy_Security_Var_135",
-      "label": "Energy Security Var 135",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_135.value",
+      "name": "Energy_Diversification_Score",
+      "label": "Energy Diversification Score",
+      "value_2026": 0.32,
+      "weight": 0.1,
+      "pipeline_field": "energy.diversification",
       "keywords": [
-        "energy security",
-        "var_135"
+        "diversification",
+        "energy",
+        "mix"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.28,
+        0.3,
+        0.32
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "H",
       "number": 136,
-      "name": "Energy_Security_Var_136",
-      "label": "Energy Security Var 136",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_136.value",
+      "name": "Nuclear_Energy_Potential",
+      "label": "Nuclear Energy Potential",
+      "value_2026": 0.15,
+      "weight": 0.02,
+      "pipeline_field": "energy.nuclear",
       "keywords": [
-        "energy security",
-        "var_136"
+        "nuclear",
+        "energy",
+        "potential"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.15,
+        0.15,
+        0.15
+      ],
+      "volatility": 0.01,
+      "threshold": 0.5
     },
     {
       "code": "H",
       "number": 137,
-      "name": "Energy_Security_Var_137",
-      "label": "Energy Security Var 137",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_137.value",
+      "name": "Solar_Energy_Capacity",
+      "label": "Solar Energy Capacity",
+      "value_2026": 250,
+      "weight": 0.12,
+      "pipeline_field": "energy.solar_capacity",
       "keywords": [
-        "energy security",
-        "var_137"
+        "solar",
+        "energy",
+        "capacity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        180,
+        220,
+        250
+      ],
+      "volatility": 0.15,
+      "threshold": 1000
     },
     {
       "code": "H",
       "number": 138,
-      "name": "Energy_Security_Var_138",
-      "label": "Energy Security Var 138",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_138.value",
+      "name": "Wind_Energy_Capacity",
+      "label": "Wind Energy Capacity",
+      "value_2026": 180,
+      "weight": 0.08,
+      "pipeline_field": "energy.wind_capacity",
       "keywords": [
-        "energy security",
-        "var_138"
+        "wind",
+        "energy",
+        "capacity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        150,
+        170,
+        180
+      ],
+      "volatility": 0.1,
+      "threshold": 500
     },
     {
       "code": "H",
       "number": 139,
-      "name": "Energy_Security_Var_139",
-      "label": "Energy Security Var 139",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_139.value",
+      "name": "Biomass_Energy_Usage",
+      "label": "Biomass Energy Usage",
+      "value_2026": 12.5,
+      "weight": 0.04,
+      "pipeline_field": "energy.biomass",
       "keywords": [
-        "energy security",
-        "var_139"
+        "biomass",
+        "energy",
+        "usage"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        12.0,
+        12.2,
+        12.5
+      ],
+      "volatility": 0.02,
+      "threshold": 20.0
     },
     {
       "code": "H",
       "number": 140,
-      "name": "Energy_Security_Var_140",
-      "label": "Energy Security Var 140",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "h_140.value",
+      "name": "Energy_Poverty_Rate",
+      "label": "Energy Poverty Rate",
+      "value_2026": 15.0,
+      "weight": 0.12,
+      "pipeline_field": "energy.poverty",
       "keywords": [
-        "energy security",
-        "var_140"
+        "energy",
+        "poverty",
+        "bills"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        12.0,
+        13.5,
+        15.0
+      ],
+      "volatility": 0.1,
+      "threshold": 25.0
     },
     {
       "code": "I",
       "number": 141,
-      "name": "Infrastructure_Var_141",
-      "label": "Infrastructure Var 141",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_141.value",
+      "name": "Road_Network_Quality",
+      "label": "Road Network Quality",
+      "value_2026": 0.58,
+      "weight": 0.12,
+      "pipeline_field": "infra.road_quality",
       "keywords": [
-        "infrastructure",
-        "var_141"
+        "roads",
+        "highway",
+        "infrastructure"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.6,
+        0.58
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "I",
       "number": 142,
-      "name": "Infrastructure_Var_142",
-      "label": "Infrastructure Var 142",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_142.value",
+      "name": "Railway_Connectivity_Index",
+      "label": "Railway Connectivity Index",
+      "value_2026": 0.35,
+      "weight": 0.1,
+      "pipeline_field": "infra.railway",
       "keywords": [
-        "infrastructure",
-        "var_142"
+        "railway",
+        "train",
+        "SNCFT"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.38,
+        0.35
+      ],
+      "volatility": 0.1,
+      "threshold": 0.2
     },
     {
       "code": "I",
       "number": 143,
-      "name": "Infrastructure_Var_143",
-      "label": "Infrastructure Var 143",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_143.value",
+      "name": "Port_Efficiency_Score",
+      "label": "Port Efficiency Score",
+      "value_2026": 0.48,
+      "weight": 0.15,
+      "pipeline_field": "infra.port_efficiency",
       "keywords": [
-        "infrastructure",
-        "var_143"
+        "port",
+        "shipping",
+        "Rades"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.52,
+        0.48
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "I",
       "number": 144,
-      "name": "Infrastructure_Var_144",
-      "label": "Infrastructure Var 144",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_144.value",
+      "name": "Airport_Connectivity_Index",
+      "label": "Airport Connectivity Index",
+      "value_2026": 0.62,
+      "weight": 0.1,
+      "pipeline_field": "infra.airport",
       "keywords": [
-        "infrastructure",
-        "var_144"
+        "airport",
+        "aviation",
+        "flights"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.63,
+        0.62
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "I",
       "number": 145,
-      "name": "Infrastructure_Var_145",
-      "label": "Infrastructure Var 145",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_145.value",
+      "name": "Public_Transport_Accessibility",
+      "label": "Public Transport Accessibility",
+      "value_2026": 0.55,
+      "weight": 0.12,
+      "pipeline_field": "infra.public_transport",
       "keywords": [
-        "infrastructure",
-        "var_145"
+        "transport",
+        "bus",
+        "metro"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.58,
+        0.55
+      ],
+      "volatility": 0.08,
+      "threshold": 0.4
     },
     {
       "code": "I",
       "number": 146,
-      "name": "Infrastructure_Var_146",
-      "label": "Infrastructure Var 146",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_146.value",
+      "name": "Logistics_Performance_Index",
+      "label": "Logistics Performance Index",
+      "value_2026": 2.8,
+      "weight": 0.1,
+      "pipeline_field": "infra.logistics",
       "keywords": [
-        "infrastructure",
-        "var_146"
+        "logistics",
+        "supply chain",
+        "trade"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        3.1,
+        2.9,
+        2.8
+      ],
+      "volatility": 0.05,
+      "threshold": 2.0
     },
     {
       "code": "I",
       "number": 147,
-      "name": "Infrastructure_Var_147",
-      "label": "Infrastructure Var 147",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_147.value",
+      "name": "Water_Supply_Reliability",
+      "label": "Water Supply Reliability",
+      "value_2026": 0.65,
+      "weight": 0.2,
+      "pipeline_field": "infra.water_reliability",
       "keywords": [
-        "infrastructure",
-        "var_147"
+        "water",
+        "SONEDE",
+        "supply"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.78,
+        0.72,
+        0.65
+      ],
+      "volatility": 0.15,
+      "threshold": 0.4
     },
     {
       "code": "I",
       "number": 148,
-      "name": "Infrastructure_Var_148",
-      "label": "Infrastructure Var 148",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_148.value",
+      "name": "Sanitation_Service_Coverage",
+      "label": "Sanitation Service Coverage",
+      "value_2026": 85.0,
+      "weight": 0.12,
+      "pipeline_field": "infra.sanitation",
       "keywords": [
-        "infrastructure",
-        "var_148"
+        "sanitation",
+        "sewage",
+        "ONAS"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        88.0,
+        86.0,
+        85.0
+      ],
+      "volatility": 0.02,
+      "threshold": 70.0
     },
     {
       "code": "I",
       "number": 149,
-      "name": "Infrastructure_Var_149",
-      "label": "Infrastructure Var 149",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_149.value",
+      "name": "Irrigation_System_Efficiency",
+      "label": "Irrigation System Efficiency",
+      "value_2026": 0.42,
+      "weight": 0.15,
+      "pipeline_field": "infra.irrigation",
       "keywords": [
-        "infrastructure",
-        "var_149"
+        "irrigation",
+        "agriculture",
+        "water"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.45,
+        0.42
+      ],
+      "volatility": 0.1,
+      "threshold": 0.3
     },
     {
       "code": "I",
       "number": 150,
-      "name": "Infrastructure_Var_150",
-      "label": "Infrastructure Var 150",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_150.value",
+      "name": "Telecommunications_Infrastructure",
+      "label": "Telecommunications Infrastructure",
+      "value_2026": 0.72,
+      "weight": 0.1,
+      "pipeline_field": "infra.telecom",
       "keywords": [
-        "infrastructure",
-        "var_150"
+        "telecom",
+        "network",
+        "fiber"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.68,
+        0.7,
+        0.72
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "I",
       "number": 151,
-      "name": "Infrastructure_Var_151",
-      "label": "Infrastructure Var 151",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_151.value",
+      "name": "Postal_Service_Reliability",
+      "label": "Postal Service Reliability",
+      "value_2026": 0.85,
+      "weight": 0.05,
+      "pipeline_field": "infra.postal",
       "keywords": [
-        "infrastructure",
-        "var_151"
+        "postal",
+        "mail",
+        "post"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.88,
+        0.86,
+        0.85
+      ],
+      "volatility": 0.02,
+      "threshold": 0.7
     },
     {
       "code": "I",
       "number": 152,
-      "name": "Infrastructure_Var_152",
-      "label": "Infrastructure Var 152",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_152.value",
+      "name": "Urban_Planning_Quality",
+      "label": "Urban Planning Quality",
+      "value_2026": 0.38,
+      "weight": 0.08,
+      "pipeline_field": "infra.urban_planning",
       "keywords": [
-        "infrastructure",
-        "var_152"
+        "urban",
+        "planning",
+        "city"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "I",
       "number": 153,
-      "name": "Infrastructure_Var_153",
-      "label": "Infrastructure Var 153",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_153.value",
+      "name": "Rural_Infrastructure_Index",
+      "label": "Rural Infrastructure Index",
+      "value_2026": 0.42,
+      "weight": 0.15,
+      "pipeline_field": "infra.rural_infra",
       "keywords": [
+        "rural",
         "infrastructure",
-        "var_153"
+        "access"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.48,
+        0.45,
+        0.42
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "I",
       "number": 154,
-      "name": "Infrastructure_Var_154",
-      "label": "Infrastructure Var 154",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_154.value",
+      "name": "Industrial_Zone_Quality",
+      "label": "Industrial Zone Quality",
+      "value_2026": 0.55,
+      "weight": 0.1,
+      "pipeline_field": "infra.industrial_zone",
       "keywords": [
-        "infrastructure",
-        "var_154"
+        "industrial",
+        "zone",
+        "factories"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.58,
+        0.56,
+        0.55
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "I",
       "number": 155,
-      "name": "Infrastructure_Var_155",
-      "label": "Infrastructure Var 155",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "i_155.value",
+      "name": "Infrastructure_Maintenance_Budget",
+      "label": "Infrastructure Maintenance Budget",
+      "value_2026": 1.2,
+      "weight": 0.12,
+      "pipeline_field": "infra.maintenance_budget",
       "keywords": [
-        "infrastructure",
-        "var_155"
+        "maintenance",
+        "budget",
+        "repairs"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.5,
+        1.3,
+        1.2
+      ],
+      "volatility": 0.1,
+      "threshold": 0.8
     },
     {
       "code": "J",
       "number": 156,
-      "name": "War_&_External_Var_156",
-      "label": "War & External Var 156",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_156.value",
+      "name": "Border_Security_Index",
+      "label": "Border Security Index",
+      "value_2026": 0.78,
+      "weight": 0.2,
+      "pipeline_field": "security.border",
       "keywords": [
-        "war & external",
-        "var_156"
+        "border",
+        "security",
+        "smuggling"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.82,
+        0.8,
+        0.78
+      ],
+      "volatility": 0.08,
+      "threshold": 0.6
     },
     {
       "code": "J",
       "number": 157,
-      "name": "War_&_External_Var_157",
-      "label": "War & External Var 157",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_157.value",
+      "name": "Regional_Conflict_Proximity",
+      "label": "Regional Conflict Proximity",
+      "value_2026": 0.85,
+      "weight": 0.25,
+      "pipeline_field": "security.regional_conflict",
       "keywords": [
-        "war & external",
-        "var_157"
+        "conflict",
+        "libya",
+        "war"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.8,
+        0.85
+      ],
+      "volatility": 0.15,
+      "threshold": 0.9
     },
     {
       "code": "J",
       "number": 158,
-      "name": "War_&_External_Var_158",
-      "label": "War & External Var 158",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_158.value",
+      "name": "Foreign_Military_Presence",
+      "label": "Foreign Military Presence",
+      "value_2026": 0.12,
+      "weight": 0.08,
+      "pipeline_field": "security.foreign_military",
       "keywords": [
-        "war & external",
-        "var_158"
+        "military",
+        "foreign",
+        "bases"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.1,
+        0.11,
+        0.12
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "J",
       "number": 159,
-      "name": "War_&_External_Var_159",
-      "label": "War & External Var 159",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_159.value",
+      "name": "Arms_Import_Value",
+      "label": "Arms Import Value",
+      "value_2026": 450,
+      "weight": 0.1,
+      "pipeline_field": "security.arms_imports",
       "keywords": [
-        "war & external",
-        "var_159"
+        "arms",
+        "weapons",
+        "imports"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        380,
+        420,
+        450
+      ],
+      "volatility": 0.2,
+      "threshold": 1000
     },
     {
       "code": "J",
       "number": 160,
-      "name": "War_&_External_Var_160",
-      "label": "War & External Var 160",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_160.value",
+      "name": "Defense_Spending_GDP",
+      "label": "Defense Spending GDP",
+      "value_2026": 2.8,
+      "weight": 0.15,
+      "pipeline_field": "security.defense_spending",
       "keywords": [
-        "war & external",
-        "var_160"
+        "defense",
+        "spending",
+        "military"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.5,
+        2.7,
+        2.8
+      ],
+      "volatility": 0.05,
+      "threshold": 4.0
     },
     {
       "code": "J",
       "number": 161,
-      "name": "War_&_External_Var_161",
-      "label": "War & External Var 161",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_161.value",
+      "name": "Cyber_Warfare_Readiness",
+      "label": "Cyber Warfare Readiness",
+      "value_2026": 0.38,
+      "weight": 0.12,
+      "pipeline_field": "security.cyber_warfare",
       "keywords": [
-        "war & external",
-        "var_161"
+        "cyber",
+        "warfare",
+        "defense"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.35,
+        0.38
+      ],
+      "volatility": 0.1,
+      "threshold": 0.6
     },
     {
       "code": "J",
       "number": 162,
-      "name": "War_&_External_Var_162",
-      "label": "War & External Var 162",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_162.value",
+      "name": "Terrorism_Impact_Index",
+      "label": "Terrorism Impact Index",
+      "value_2026": 2.5,
+      "weight": 0.22,
+      "pipeline_field": "security.terrorism",
       "keywords": [
-        "war & external",
-        "var_162"
+        "terrorism",
+        "attacks",
+        "threat"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.8,
+        2.2,
+        2.5
+      ],
+      "volatility": 0.25,
+      "threshold": 5.0
     },
     {
       "code": "J",
       "number": 163,
-      "name": "War_&_External_Var_163",
-      "label": "War & External Var 163",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_163.value",
+      "name": "Refugee_Inflow_Rate",
+      "label": "Refugee Inflow Rate",
+      "value_2026": 12.5,
+      "weight": 0.18,
+      "pipeline_field": "security.refugees",
       "keywords": [
-        "war & external",
-        "var_163"
+        "refugees",
+        "migration",
+        "asylum"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8.0,
+        10.5,
+        12.5
+      ],
+      "volatility": 0.3,
+      "threshold": 25.0
     },
     {
       "code": "J",
       "number": 164,
-      "name": "War_&_External_Var_164",
-      "label": "War & External Var 164",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_164.value",
+      "name": "International_Sanctions_Impact",
+      "label": "International Sanctions Impact",
+      "value_2026": 0.05,
+      "weight": 0.15,
+      "pipeline_field": "security.sanctions",
       "keywords": [
-        "war & external",
-        "var_164"
+        "sanctions",
+        "international",
+        "embargo"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.0,
+        0.02,
+        0.05
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "J",
       "number": 165,
-      "name": "War_&_External_Var_165",
-      "label": "War & External Var 165",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_165.value",
+      "name": "Diplomatic_Isolation_Score",
+      "label": "Diplomatic Isolation Score",
+      "value_2026": 0.32,
+      "weight": 0.12,
+      "pipeline_field": "security.diplomatic_isolation",
       "keywords": [
-        "war & external",
-        "var_165"
+        "diplomatic",
+        "isolation",
+        "relations"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.28,
+        0.32
+      ],
+      "volatility": 0.1,
+      "threshold": 0.6
     },
     {
       "code": "J",
       "number": 166,
-      "name": "War_&_External_Var_166",
-      "label": "War & External Var 166",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_166.value",
+      "name": "Alliance_Strength_Index",
+      "label": "Alliance Strength Index",
+      "value_2026": 0.55,
+      "weight": 0.1,
+      "pipeline_field": "security.alliances",
       "keywords": [
-        "war & external",
-        "var_166"
+        "alliances",
+        "treaty",
+        "partners"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.65,
+        0.6,
+        0.55
+      ],
+      "volatility": 0.08,
+      "threshold": 0.3
     },
     {
       "code": "J",
       "number": 167,
-      "name": "War_&_External_Var_167",
-      "label": "War & External Var 167",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_167.value",
+      "name": "Foreign_Aid_Dependency",
+      "label": "Foreign Aid Dependency",
+      "value_2026": 12.0,
+      "weight": 0.15,
+      "pipeline_field": "security.foreign_aid",
       "keywords": [
-        "war & external",
-        "var_167"
+        "aid",
+        "dependency",
+        "grants"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8.0,
+        10.0,
+        12.0
+      ],
+      "volatility": 0.15,
+      "threshold": 20.0
     },
     {
       "code": "J",
       "number": 168,
-      "name": "War_&_External_Var_168",
-      "label": "War & External Var 168",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_168.value",
+      "name": "Transnational_Crime_Index",
+      "label": "Transnational Crime Index",
+      "value_2026": 0.58,
+      "weight": 0.12,
+      "pipeline_field": "security.transnational_crime",
       "keywords": [
-        "war & external",
-        "var_168"
+        "crime",
+        "smuggling",
+        "trafficking"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.55,
+        0.58
+      ],
+      "volatility": 0.08,
+      "threshold": 0.8
     },
     {
       "code": "J",
       "number": 169,
-      "name": "War_&_External_Var_169",
-      "label": "War & External Var 169",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_169.value",
+      "name": "Maritime_Security_Score",
+      "label": "Maritime Security Score",
+      "value_2026": 0.65,
+      "weight": 0.08,
+      "pipeline_field": "security.maritime",
       "keywords": [
-        "war & external",
-        "var_169"
+        "maritime",
+        "sea",
+        "coastguard"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.72,
+        0.68,
+        0.65
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "J",
       "number": 170,
-      "name": "War_&_External_Var_170",
-      "label": "War & External Var 170",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "j_170.value",
+      "name": "CPG_Disruption_Index",
+      "label": "CPG Disruption Index",
+      "value_2026": 35,
+      "weight": 0.18,
+      "pipeline_field": "economy.cpg_disruption",
       "keywords": [
-        "war & external",
-        "var_170"
+        "CPG",
+        "Compagnie des Phosphates",
+        "phosphate Gafsa",
+        "فسفاط قفصة",
+        "شركة فسفاط",
+        "Metlaoui",
+        "مطلوي",
+        "Redeyef",
+        "الرديف",
+        "grève CPG",
+        "إضراب عمال الفسفاط",
+        "توقف إنتاج",
+        "blocus phosphate"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        20,
+        28,
+        35
+      ],
+      "volatility": 0.25,
+      "threshold": 65
     },
     {
       "code": "K",
       "number": 171,
-      "name": "Institutional_Var_171",
-      "label": "Institutional Var 171",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_171.value",
+      "name": "Civil_Service_Quality",
+      "label": "Civil Service Quality",
+      "value_2026": 0.48,
+      "weight": 0.15,
+      "pipeline_field": "inst.civil_service",
       "keywords": [
-        "institutional",
-        "var_171"
+        "civil service",
+        "bureaucracy",
+        "administration"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.5,
+        0.48
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "K",
       "number": 172,
-      "name": "Institutional_Var_172",
-      "label": "Institutional Var 172",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_172.value",
+      "name": "Public_Procurement_Transparency",
+      "label": "Public Procurement Transparency",
+      "value_2026": 0.35,
+      "weight": 0.12,
+      "pipeline_field": "inst.procurement",
       "keywords": [
-        "institutional",
-        "var_172"
+        "procurement",
+        "tenders",
+        "transparency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.38,
+        0.35
+      ],
+      "volatility": 0.1,
+      "threshold": 0.2
     },
     {
       "code": "K",
       "number": 173,
-      "name": "Institutional_Var_173",
-      "label": "Institutional Var 173",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_173.value",
+      "name": "Meritocracy_Index",
+      "label": "Meritocracy Index",
+      "value_2026": 0.32,
+      "weight": 0.1,
+      "pipeline_field": "inst.meritocracy",
       "keywords": [
-        "institutional",
-        "var_173"
+        "meritocracy",
+        "hiring",
+        "nepotism"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.38,
+        0.35,
+        0.32
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "K",
       "number": 174,
-      "name": "Institutional_Var_174",
-      "label": "Institutional Var 174",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_174.value",
+      "name": "Institutional_Memory_Strength",
+      "label": "Institutional Memory Strength",
+      "value_2026": 0.55,
+      "weight": 0.08,
+      "pipeline_field": "inst.memory",
       "keywords": [
-        "institutional",
-        "var_174"
+        "memory",
+        "archives",
+        "continuity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.6,
+        0.58,
+        0.55
+      ],
+      "volatility": 0.02,
+      "threshold": 0.4
     },
     {
       "code": "K",
       "number": 175,
-      "name": "Institutional_Var_175",
-      "label": "Institutional Var 175",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_175.value",
+      "name": "Inter_Agency_Coordination",
+      "label": "Inter Agency Coordination",
+      "value_2026": 0.38,
+      "weight": 0.1,
+      "pipeline_field": "inst.coordination",
       "keywords": [
-        "institutional",
-        "var_175"
+        "coordination",
+        "agencies",
+        "silos"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.08,
+      "threshold": 0.2
     },
     {
       "code": "K",
       "number": 176,
-      "name": "Institutional_Var_176",
-      "label": "Institutional Var 176",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_176.value",
+      "name": "Policy_Consistency_Index",
+      "label": "Policy Consistency Index",
+      "value_2026": 0.42,
+      "weight": 0.12,
+      "pipeline_field": "inst.policy_consistency",
       "keywords": [
-        "institutional",
-        "var_176"
+        "policy",
+        "consistency",
+        "flip-flop"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.48,
+        0.42
+      ],
+      "volatility": 0.12,
+      "threshold": 0.3
     },
     {
       "code": "K",
       "number": 177,
-      "name": "Institutional_Var_177",
-      "label": "Institutional Var 177",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_177.value",
+      "name": "Crisis_Management_Capacity",
+      "label": "Crisis Management Capacity",
+      "value_2026": 0.45,
+      "weight": 0.18,
+      "pipeline_field": "inst.crisis_mgmt",
       "keywords": [
-        "institutional",
-        "var_177"
+        "crisis",
+        "emergency",
+        "response"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.5,
+        0.45
+      ],
+      "volatility": 0.15,
+      "threshold": 0.3
     },
     {
       "code": "K",
       "number": 178,
-      "name": "Institutional_Var_178",
-      "label": "Institutional Var 178",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_178.value",
+      "name": "Public_Service_Innovation",
+      "label": "Public Service Innovation",
+      "value_2026": 0.28,
+      "weight": 0.06,
+      "pipeline_field": "inst.innovation",
       "keywords": [
-        "institutional",
-        "var_178"
+        "innovation",
+        "modernization",
+        "public"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.25,
+        0.28
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "K",
       "number": 179,
-      "name": "Institutional_Var_179",
-      "label": "Institutional Var 179",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_179.value",
+      "name": "Digital_Transformation_Maturity",
+      "label": "Digital Transformation Maturity",
+      "value_2026": 0.42,
+      "weight": 0.1,
+      "pipeline_field": "inst.digital_transformation",
       "keywords": [
-        "institutional",
-        "var_179"
+        "digital",
+        "transformation",
+        "paperless"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.35,
+        0.38,
+        0.42
+      ],
+      "volatility": 0.05,
+      "threshold": 0.6
     },
     {
       "code": "K",
       "number": 180,
-      "name": "Institutional_Var_180",
-      "label": "Institutional Var 180",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_180.value",
+      "name": "Anti_Bureaucracy_Index",
+      "label": "Anti Bureaucracy Index",
+      "value_2026": 0.35,
+      "weight": 0.08,
+      "pipeline_field": "inst.anti_bureaucracy",
       "keywords": [
-        "institutional",
-        "var_180"
+        "bureaucracy",
+        "red tape",
+        "efficiency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.34,
+        0.35
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "K",
       "number": 181,
-      "name": "Institutional_Var_181",
-      "label": "Institutional Var 181",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_181.value",
+      "name": "Whistleblower_Protection_Score",
+      "label": "Whistleblower Protection Score",
+      "value_2026": 0.25,
+      "weight": 0.07,
+      "pipeline_field": "inst.whistleblower",
       "keywords": [
-        "institutional",
-        "var_181"
+        "whistleblower",
+        "protection",
+        "reporting"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.28,
+        0.25
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "K",
       "number": 182,
-      "name": "Institutional_Var_182",
-      "label": "Institutional Var 182",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_182.value",
+      "name": "Ombudsman_Effectiveness",
+      "label": "Ombudsman Effectiveness",
+      "value_2026": 0.38,
+      "weight": 0.06,
+      "pipeline_field": "inst.ombudsman",
       "keywords": [
-        "institutional",
-        "var_182"
+        "ombudsman",
+        "complaints",
+        "rights"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "K",
       "number": 183,
-      "name": "Institutional_Var_183",
-      "label": "Institutional Var 183",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_183.value",
+      "name": "Audit_Institution_Independence",
+      "label": "Audit Institution Independence",
+      "value_2026": 0.42,
+      "weight": 0.1,
+      "pipeline_field": "inst.audit_independence",
       "keywords": [
-        "institutional",
-        "var_183"
+        "audit",
+        "independence",
+        "oversight"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.48,
+        0.42
+      ],
+      "volatility": 0.12,
+      "threshold": 0.3
     },
     {
       "code": "K",
       "number": 184,
-      "name": "Institutional_Var_184",
-      "label": "Institutional Var 184",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_184.value",
+      "name": "Statistical_Capacity_Index",
+      "label": "Statistical Capacity Index",
+      "value_2026": 0.72,
+      "weight": 0.05,
+      "pipeline_field": "inst.stats_capacity",
       "keywords": [
-        "institutional",
-        "var_184"
+        "statistics",
+        "data",
+        "INS"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.73,
+        0.72
+      ],
+      "volatility": 0.02,
+      "threshold": 0.6
     },
     {
       "code": "K",
       "number": 185,
-      "name": "Institutional_Var_185",
-      "label": "Institutional Var 185",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "k_185.value",
+      "name": "Institutional_Trust_Index",
+      "label": "Institutional Trust Index",
+      "value_2026": 32.0,
+      "weight": 0.15,
+      "pipeline_field": "inst.trust",
       "keywords": [
-        "institutional",
-        "var_185"
+        "trust",
+        "institutions",
+        "public"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        42.0,
+        38.0,
+        32.0
+      ],
+      "volatility": 0.15,
+      "threshold": 20.0
     },
     {
       "code": "L",
       "number": 186,
-      "name": "Regime_Characteristics_Var_186",
-      "label": "Regime Characteristics Var 186",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_186.value",
+      "name": "Executive_Power_Concentration",
+      "label": "Executive Power Concentration",
+      "value_2026": 0.85,
+      "weight": 0.25,
+      "pipeline_field": "regime.power_concentration",
       "keywords": [
-        "regime characteristics",
-        "var_186"
+        "power",
+        "executive",
+        "presidency"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.72,
+        0.78,
+        0.85
+      ],
+      "volatility": 0.1,
+      "threshold": 0.9
     },
     {
       "code": "L",
       "number": 187,
-      "name": "Regime_Characteristics_Var_187",
-      "label": "Regime Characteristics Var 187",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_187.value",
+      "name": "Term_Limit_Adherence",
+      "label": "Term Limit Adherence",
+      "value_2026": 0.45,
+      "weight": 0.2,
+      "pipeline_field": "regime.term_limits",
       "keywords": [
-        "regime characteristics",
-        "var_187"
+        "term limits",
+        "elections",
+        "constitution"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.65,
+        0.45
+      ],
+      "volatility": 0.2,
+      "threshold": 0.1
     },
     {
       "code": "L",
       "number": 188,
-      "name": "Regime_Characteristics_Var_188",
-      "label": "Regime Characteristics Var 188",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_188.value",
+      "name": "Succession_Clarity_Index",
+      "label": "Succession Clarity Index",
+      "value_2026": 0.22,
+      "weight": 0.18,
+      "pipeline_field": "regime.succession",
       "keywords": [
-        "regime characteristics",
-        "var_188"
+        "succession",
+        "leader",
+        "transition"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.32,
+        0.22
+      ],
+      "volatility": 0.15,
+      "threshold": 0.5
     },
     {
       "code": "L",
       "number": 189,
-      "name": "Regime_Characteristics_Var_189",
-      "label": "Regime Characteristics Var 189",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_189.value",
+      "name": "Ruling_Party_Cohesion",
+      "label": "Ruling Party Cohesion",
+      "value_2026": 0.75,
+      "weight": 0.15,
+      "pipeline_field": "regime.party_cohesion",
       "keywords": [
-        "regime characteristics",
-        "var_189"
+        "party",
+        "cohesion",
+        "factions"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.8,
+        0.75
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "L",
       "number": 190,
-      "name": "Regime_Characteristics_Var_190",
-      "label": "Regime Characteristics Var 190",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_190.value",
+      "name": "Patronage_Network_Extent",
+      "label": "Patronage Network Extent",
+      "value_2026": 0.68,
+      "weight": 0.12,
+      "pipeline_field": "regime.patronage",
       "keywords": [
-        "regime characteristics",
-        "var_190"
+        "patronage",
+        "clientelism",
+        "networks"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.62,
+        0.68
+      ],
+      "volatility": 0.08,
+      "threshold": 0.8
     },
     {
       "code": "L",
       "number": 191,
-      "name": "Regime_Characteristics_Var_191",
-      "label": "Regime Characteristics Var 191",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_191.value",
+      "name": "Ideological_Rigidity_Score",
+      "label": "Ideological Rigidity Score",
+      "value_2026": 0.72,
+      "weight": 0.1,
+      "pipeline_field": "regime.ideology",
       "keywords": [
-        "regime characteristics",
-        "var_191"
+        "ideology",
+        "rigidity",
+        "populism"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.65,
+        0.72
+      ],
+      "volatility": 0.1,
+      "threshold": 0.8
     },
     {
       "code": "L",
       "number": 192,
-      "name": "Regime_Characteristics_Var_192",
-      "label": "Regime Characteristics Var 192",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_192.value",
+      "name": "Regime_Longevity_Years",
+      "label": "Regime Longevity Years",
+      "value_2026": 4.5,
+      "weight": 0.05,
+      "pipeline_field": "regime.longevity",
       "keywords": [
-        "regime characteristics",
-        "var_192"
+        "longevity",
+        "years",
+        "regime"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.5,
+        3.5,
+        4.5
+      ],
+      "volatility": 0.01,
+      "threshold": 10.0
     },
     {
       "code": "L",
       "number": 193,
-      "name": "Regime_Characteristics_Var_193",
-      "label": "Regime Characteristics Var 193",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_193.value",
+      "name": "Leader_Popularity_Index",
+      "label": "Leader Popularity Index",
+      "value_2026": 42.0,
+      "weight": 0.22,
+      "pipeline_field": "regime.popularity",
       "keywords": [
-        "regime characteristics",
-        "var_193"
+        "popularity",
+        "approval",
+        "leader"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        65.0,
+        52.0,
+        42.0
+      ],
+      "volatility": 0.2,
+      "threshold": 30.0
     },
     {
       "code": "L",
       "number": 194,
-      "name": "Regime_Characteristics_Var_194",
-      "label": "Regime Characteristics Var 194",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_194.value",
+      "name": "Cult_of_Personality_Score",
+      "label": "Cult of Personality Score",
+      "value_2026": 0.55,
+      "weight": 0.08,
+      "pipeline_field": "regime.cult",
       "keywords": [
-        "regime characteristics",
-        "var_194"
+        "cult",
+        "personality",
+        "leader"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.45,
+        0.55
+      ],
+      "volatility": 0.15,
+      "threshold": 0.8
     },
     {
       "code": "L",
       "number": 195,
-      "name": "Regime_Characteristics_Var_195",
-      "label": "Regime Characteristics Var 195",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_195.value",
+      "name": "Media_Control_Intensity",
+      "label": "Media Control Intensity",
+      "value_2026": 0.78,
+      "weight": 0.18,
+      "pipeline_field": "regime.media_control",
       "keywords": [
-        "regime characteristics",
-        "var_195"
+        "media",
+        "censorship",
+        "control"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.68,
+        0.78
+      ],
+      "volatility": 0.12,
+      "threshold": 0.9
     },
     {
       "code": "L",
       "number": 196,
-      "name": "Regime_Characteristics_Var_196",
-      "label": "Regime Characteristics Var 196",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_196.value",
+      "name": "Internet_Censorship_Level",
+      "label": "Internet Censorship Level",
+      "value_2026": 0.45,
+      "weight": 0.15,
+      "pipeline_field": "regime.internet_censorship",
       "keywords": [
-        "regime characteristics",
-        "var_196"
+        "internet",
+        "censorship",
+        "blocking"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.35,
+        0.45
+      ],
+      "volatility": 0.15,
+      "threshold": 0.7
     },
     {
       "code": "L",
       "number": 197,
-      "name": "Regime_Characteristics_Var_197",
-      "label": "Regime Characteristics Var 197",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_197.value",
+      "name": "Surveillance_Capacity_Index",
+      "label": "Surveillance Capacity Index",
+      "value_2026": 0.62,
+      "weight": 0.12,
+      "pipeline_field": "regime.surveillance",
       "keywords": [
-        "regime characteristics",
-        "var_197"
+        "surveillance",
+        "monitoring",
+        "intelligence"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.55,
+        0.62
+      ],
+      "volatility": 0.1,
+      "threshold": 0.8
     },
     {
       "code": "L",
       "number": 198,
-      "name": "Regime_Characteristics_Var_198",
-      "label": "Regime Characteristics Var 198",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_198.value",
+      "name": "Political_Prisoners_Count",
+      "label": "Political Prisoners Count",
+      "value_2026": 125,
+      "weight": 0.2,
+      "pipeline_field": "regime.political_prisoners",
       "keywords": [
-        "regime characteristics",
-        "var_198"
+        "prisoners",
+        "detention",
+        "opposition"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        45,
+        82,
+        125
+      ],
+      "volatility": 0.25,
+      "threshold": 200
     },
     {
       "code": "L",
       "number": 199,
-      "name": "Regime_Characteristics_Var_199",
-      "label": "Regime Characteristics Var 199",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_199.value",
+      "name": "Extrajudicial_Actions_Index",
+      "label": "Extrajudicial Actions Index",
+      "value_2026": 0.32,
+      "weight": 0.15,
+      "pipeline_field": "regime.extrajudicial",
       "keywords": [
-        "regime characteristics",
-        "var_199"
+        "extrajudicial",
+        "rights",
+        "abuse"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.15,
+        0.22,
+        0.32
+      ],
+      "volatility": 0.18,
+      "threshold": 0.5
     },
     {
       "code": "L",
       "number": 200,
-      "name": "Regime_Characteristics_Var_200",
-      "label": "Regime Characteristics Var 200",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "l_200.value",
+      "name": "Regime_Resilience_Score",
+      "label": "Regime Resilience Score",
+      "value_2026": 0.58,
+      "weight": 0.15,
+      "pipeline_field": "regime.resilience",
       "keywords": [
-        "regime characteristics",
-        "var_200"
+        "resilience",
+        "survival",
+        "regime"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.68,
+        0.58
+      ],
+      "volatility": 0.1,
+      "threshold": 0.4
     },
     {
       "code": "M",
       "number": 201,
-      "name": "Opposition_Dynamics_Var_201",
-      "label": "Opposition Dynamics Var 201",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_201.value",
+      "name": "Opposition_Fragmentation_Index",
+      "label": "Opposition Fragmentation Index",
+      "value_2026": 0.82,
+      "weight": 0.2,
+      "pipeline_field": "opp.fragmentation",
       "keywords": [
-        "opposition dynamics",
-        "var_201"
+        "fragmentation",
+        "opposition",
+        "divisions"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.83,
+        0.82
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "M",
       "number": 202,
-      "name": "Opposition_Dynamics_Var_202",
-      "label": "Opposition Dynamics Var 202",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_202.value",
+      "name": "Protest_Mobilization_Capacity",
+      "label": "Protest Mobilization Capacity",
+      "value_2026": 0.45,
+      "weight": 0.22,
+      "pipeline_field": "opp.mobilization",
       "keywords": [
-        "opposition dynamics",
-        "var_202"
+        "protest",
+        "mobilization",
+        "crowds"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.32,
+        0.38,
+        0.45
+      ],
+      "volatility": 0.15,
+      "threshold": 0.7
     },
     {
       "code": "M",
       "number": 203,
-      "name": "Opposition_Dynamics_Var_203",
-      "label": "Opposition Dynamics Var 203",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_203.value",
+      "name": "Strike_Frequency_Index",
+      "label": "Strike Frequency Index",
+      "value_2026": 0.55,
+      "weight": 0.18,
+      "pipeline_field": "opp.strikes",
       "keywords": [
-        "opposition dynamics",
-        "var_203"
+        "strikes",
+        "labor",
+        "UGTT"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.48,
+        0.55
+      ],
+      "volatility": 0.12,
+      "threshold": 0.8
     },
     {
       "code": "M",
       "number": 204,
-      "name": "Opposition_Dynamics_Var_204",
-      "label": "Opposition Dynamics Var 204",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_204.value",
+      "name": "Civil_Society_Vibrancy",
+      "label": "Civil Society Vibrancy",
+      "value_2026": 0.38,
+      "weight": 0.15,
+      "pipeline_field": "opp.civil_society",
       "keywords": [
-        "opposition dynamics",
-        "var_204"
+        "civil society",
+        "NGOs",
+        "activism"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.45,
+        0.38
+      ],
+      "volatility": 0.1,
+      "threshold": 0.2
     },
     {
       "code": "M",
       "number": 205,
-      "name": "Opposition_Dynamics_Var_205",
-      "label": "Opposition Dynamics Var 205",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_205.value",
+      "name": "NGO_Freedom_Index",
+      "label": "NGO Freedom Index",
+      "value_2026": 0.42,
+      "weight": 0.12,
+      "pipeline_field": "opp.ngo_freedom",
       "keywords": [
-        "opposition dynamics",
-        "var_205"
+        "NGO",
+        "freedom",
+        "regulation"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.52,
+        0.42
+      ],
+      "volatility": 0.15,
+      "threshold": 0.3
     },
     {
       "code": "M",
       "number": 206,
-      "name": "Opposition_Dynamics_Var_206",
-      "label": "Opposition Dynamics Var 206",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_206.value",
+      "name": "Student_Activism_Level",
+      "label": "Student Activism Level",
+      "value_2026": 0.35,
+      "weight": 0.1,
+      "pipeline_field": "opp.student_activism",
       "keywords": [
-        "opposition dynamics",
-        "var_206"
+        "students",
+        "university",
+        "activism"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.25,
+        0.3,
+        0.35
+      ],
+      "volatility": 0.12,
+      "threshold": 0.6
     },
     {
       "code": "M",
       "number": 207,
-      "name": "Opposition_Dynamics_Var_207",
-      "label": "Opposition Dynamics Var 207",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_207.value",
+      "name": "Labor_Union_Strength",
+      "label": "Labor Union Strength",
+      "value_2026": 0.62,
+      "weight": 0.15,
+      "pipeline_field": "opp.union_strength",
       "keywords": [
-        "opposition dynamics",
-        "var_207"
+        "union",
+        "UGTT",
+        "labor"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.68,
+        0.62
+      ],
+      "volatility": 0.1,
+      "threshold": 0.4
     },
     {
       "code": "M",
       "number": 208,
-      "name": "Opposition_Dynamics_Var_208",
-      "label": "Opposition Dynamics Var 208",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_208.value",
+      "name": "Underground_Network_Maturity",
+      "label": "Underground Network Maturity",
+      "value_2026": 0.28,
+      "weight": 0.12,
+      "pipeline_field": "opp.underground",
       "keywords": [
-        "opposition dynamics",
-        "var_208"
+        "underground",
+        "networks",
+        "clandestine"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.15,
+        0.22,
+        0.28
+      ],
+      "volatility": 0.15,
+      "threshold": 0.6
     },
     {
       "code": "M",
       "number": 209,
-      "name": "Opposition_Dynamics_Var_209",
-      "label": "Opposition Dynamics Var 209",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_209.value",
+      "name": "Exile_Opposition_Influence",
+      "label": "Exile Opposition Influence",
+      "value_2026": 0.32,
+      "weight": 0.08,
+      "pipeline_field": "opp.exile",
       "keywords": [
-        "opposition dynamics",
-        "var_209"
+        "exile",
+        "diaspora",
+        "opposition"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.28,
+        0.32
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "M",
       "number": 210,
-      "name": "Opposition_Dynamics_Var_210",
-      "label": "Opposition Dynamics Var 210",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_210.value",
+      "name": "Digital_Activism_Intensity",
+      "label": "Digital Activism Intensity",
+      "value_2026": 0.58,
+      "weight": 0.15,
+      "pipeline_field": "opp.digital_activism",
       "keywords": [
-        "opposition dynamics",
-        "var_210"
+        "digital",
+        "activism",
+        "hashtags"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.5,
+        0.58
+      ],
+      "volatility": 0.18,
+      "threshold": 0.8
     },
     {
       "code": "M",
       "number": 211,
-      "name": "Opposition_Dynamics_Var_211",
-      "label": "Opposition Dynamics Var 211",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_211.value",
+      "name": "Opposition_Funding_Access",
+      "label": "Opposition Funding Access",
+      "value_2026": 0.25,
+      "weight": 0.1,
+      "pipeline_field": "opp.funding",
       "keywords": [
-        "opposition dynamics",
-        "var_211"
+        "funding",
+        "money",
+        "opposition"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.35,
+        0.3,
+        0.25
+      ],
+      "volatility": 0.12,
+      "threshold": 0.5
     },
     {
       "code": "M",
       "number": 212,
-      "name": "Opposition_Dynamics_Var_212",
-      "label": "Opposition Dynamics Var 212",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_212.value",
+      "name": "Cross_Class_Alliance_Prob",
+      "label": "Cross Class Alliance Prob",
+      "value_2026": 0.38,
+      "weight": 0.2,
+      "pipeline_field": "opp.alliance_prob",
       "keywords": [
-        "opposition dynamics",
-        "var_212"
+        "alliance",
+        "classes",
+        "unity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.22,
+        0.3,
+        0.38
+      ],
+      "volatility": 0.15,
+      "threshold": 0.6
     },
     {
       "code": "M",
       "number": 213,
-      "name": "Opposition_Dynamics_Var_213",
-      "label": "Opposition Dynamics Var 213",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_213.value",
+      "name": "Defection_Incentive_Index",
+      "label": "Defection Incentive Index",
+      "value_2026": 0.42,
+      "weight": 0.18,
+      "pipeline_field": "opp.defection_incentive",
       "keywords": [
-        "opposition dynamics",
-        "var_213"
+        "defection",
+        "incentive",
+        "elite"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.28,
+        0.35,
+        0.42
+      ],
+      "volatility": 0.12,
+      "threshold": 0.7
     },
     {
       "code": "M",
       "number": 214,
-      "name": "Opposition_Dynamics_Var_214",
-      "label": "Opposition Dynamics Var 214",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_214.value",
+      "name": "Alternative_Leadership_Clarity",
+      "label": "Alternative Leadership Clarity",
+      "value_2026": 0.25,
+      "weight": 0.15,
+      "pipeline_field": "opp.leadership_clarity",
       "keywords": [
-        "opposition dynamics",
-        "var_214"
+        "leadership",
+        "alternative",
+        "clarity"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.35,
+        0.3,
+        0.25
+      ],
+      "volatility": 0.1,
+      "threshold": 0.6
     },
     {
       "code": "M",
       "number": 215,
-      "name": "Opposition_Dynamics_Var_215",
-      "label": "Opposition Dynamics Var 215",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "m_215.value",
+      "name": "Opposition_Coordination_Index",
+      "label": "Opposition Coordination Index",
+      "value_2026": 0.22,
+      "weight": 0.22,
+      "pipeline_field": "opp.oci",
       "keywords": [
-        "opposition dynamics",
-        "var_215"
+        "coalition opposition",
+        "front uni",
+        "opposition unie",
+        "تنسيق المعارضة",
+        "تحالف معارضة",
+        "وحدة المعارضة",
+        "bloc opposition",
+        "coordination civile"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.35,
+        0.28,
+        0.22
+      ],
+      "volatility": 0.08,
+      "threshold": 0.55
     },
     {
       "code": "N",
       "number": 216,
-      "name": "Security_Apparatus_Var_216",
-      "label": "Security Apparatus Var 216",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_216.value",
+      "name": "Police_Professionalism_Index",
+      "label": "Police Professionalism Index",
+      "value_2026": 0.45,
+      "weight": 0.12,
+      "pipeline_field": "sec.police_prof",
       "keywords": [
-        "security apparatus",
-        "var_216"
+        "police",
+        "professionalism",
+        "training"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.52,
+        0.48,
+        0.45
+      ],
+      "volatility": 0.05,
+      "threshold": 0.3
     },
     {
       "code": "N",
       "number": 217,
-      "name": "Security_Apparatus_Var_217",
-      "label": "Security Apparatus Var 217",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_217.value",
+      "name": "Military_Neutrality_Score",
+      "label": "Military Neutrality Score",
+      "value_2026": 0.72,
+      "weight": 0.25,
+      "pipeline_field": "sec.military_neutrality",
       "keywords": [
-        "security apparatus",
-        "var_217"
+        "military",
+        "neutrality",
+        "politics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.78,
+        0.72
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "N",
       "number": 218,
-      "name": "Security_Apparatus_Var_218",
-      "label": "Security Apparatus Var 218",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_218.value",
+      "name": "Intelligence_Service_Reach",
+      "label": "Intelligence Service Reach",
+      "value_2026": 0.82,
+      "weight": 0.18,
+      "pipeline_field": "sec.intel_reach",
       "keywords": [
-        "security apparatus",
-        "var_218"
+        "intelligence",
+        "reach",
+        "monitoring"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.72,
+        0.78,
+        0.82
+      ],
+      "volatility": 0.08,
+      "threshold": 0.9
     },
     {
       "code": "N",
       "number": 219,
-      "name": "Security_Apparatus_Var_219",
-      "label": "Security Apparatus Var 219",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_219.value",
+      "name": "Riot_Control_Capacity",
+      "label": "Riot Control Capacity",
+      "value_2026": 0.75,
+      "weight": 0.15,
+      "pipeline_field": "sec.riot_control",
       "keywords": [
-        "security apparatus",
-        "var_219"
+        "riot",
+        "control",
+        "crowd"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.82,
+        0.78,
+        0.75
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "N",
       "number": 220,
-      "name": "Security_Apparatus_Var_220",
-      "label": "Security Apparatus Var 220",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_220.value",
+      "name": "Internal_Security_Budget",
+      "label": "Internal Security Budget",
+      "value_2026": 3.2,
+      "weight": 0.12,
+      "pipeline_field": "sec.security_budget",
       "keywords": [
-        "security apparatus",
-        "var_220"
+        "budget",
+        "security",
+        "interior"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.8,
+        3.0,
+        3.2
+      ],
+      "volatility": 0.05,
+      "threshold": 4.5
     },
     {
       "code": "N",
       "number": 221,
-      "name": "Security_Apparatus_Var_221",
-      "label": "Security Apparatus Var 221",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_221.value",
+      "name": "Security_Force_Loyalty",
+      "label": "Security Force Loyalty",
+      "value_2026": 0.78,
+      "weight": 0.22,
+      "pipeline_field": "sec.loyalty",
       "keywords": [
-        "security apparatus",
-        "var_221"
+        "loyalty",
+        "forces",
+        "regime"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.85,
+        0.82,
+        0.78
+      ],
+      "volatility": 0.1,
+      "threshold": 0.6
     },
     {
       "code": "N",
       "number": 222,
-      "name": "Security_Apparatus_Var_222",
-      "label": "Security Apparatus Var 222",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_222.value",
+      "name": "Paramilitary_Group_Presence",
+      "label": "Paramilitary Group Presence",
+      "value_2026": 0.15,
+      "weight": 0.1,
+      "pipeline_field": "sec.paramilitary",
       "keywords": [
-        "security apparatus",
-        "var_222"
+        "paramilitary",
+        "militia",
+        "groups"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.05,
+        0.1,
+        0.15
+      ],
+      "volatility": 0.15,
+      "threshold": 0.5
     },
     {
       "code": "N",
       "number": 223,
-      "name": "Security_Apparatus_Var_223",
-      "label": "Security Apparatus Var 223",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_223.value",
+      "name": "Surveillance_Tech_Sophistication",
+      "label": "Surveillance Tech Sophistication",
+      "value_2026": 0.65,
+      "weight": 0.12,
+      "pipeline_field": "sec.surveillance_tech",
       "keywords": [
-        "security apparatus",
-        "var_223"
+        "surveillance",
+        "tech",
+        "facial recognition"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.55,
+        0.65
+      ],
+      "volatility": 0.15,
+      "threshold": 0.8
     },
     {
       "code": "N",
       "number": 224,
-      "name": "Security_Apparatus_Var_224",
-      "label": "Security Apparatus Var 224",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_224.value",
+      "name": "Human_Rights_Training_Score",
+      "label": "Human Rights Training Score",
+      "value_2026": 0.38,
+      "weight": 0.08,
+      "pipeline_field": "sec.hr_training",
       "keywords": [
-        "security apparatus",
-        "var_224"
+        "human rights",
+        "training",
+        "ethics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "volatility": 0.05,
+      "threshold": 0.2
     },
     {
       "code": "N",
       "number": 225,
-      "name": "Security_Apparatus_Var_225",
-      "label": "Security Apparatus Var 225",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_225.value",
+      "name": "Security_Sector_Corruption",
+      "label": "Security Sector Corruption",
+      "value_2026": 0.55,
+      "weight": 0.15,
+      "pipeline_field": "sec.corruption",
       "keywords": [
-        "security apparatus",
-        "var_225"
+        "corruption",
+        "security",
+        "police"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.42,
+        0.48,
+        0.55
+      ],
+      "volatility": 0.12,
+      "threshold": 0.7
     },
     {
       "code": "N",
       "number": 226,
-      "name": "Security_Apparatus_Var_226",
-      "label": "Security Apparatus Var 226",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_226.value",
+      "name": "Inter_Service_Rivalry_Index",
+      "label": "Inter Service Rivalry Index",
+      "value_2026": 0.62,
+      "weight": 0.1,
+      "pipeline_field": "sec.rivalry",
       "keywords": [
-        "security apparatus",
-        "var_226"
+        "rivalry",
+        "interior",
+        "defense"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.55,
+        0.62
+      ],
+      "volatility": 0.1,
+      "threshold": 0.8
     },
     {
       "code": "N",
       "number": 227,
-      "name": "Security_Apparatus_Var_227",
-      "label": "Security Apparatus Var 227",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_227.value",
+      "name": "Military_Business_Interests",
+      "label": "Military Business Interests",
+      "value_2026": 0.28,
+      "weight": 0.08,
+      "pipeline_field": "sec.military_business",
       "keywords": [
-        "security apparatus",
-        "var_227"
+        "military",
+        "business",
+        "economy"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.15,
+        0.22,
+        0.28
+      ],
+      "volatility": 0.1,
+      "threshold": 0.5
     },
     {
       "code": "N",
       "number": 228,
-      "name": "Security_Apparatus_Var_228",
-      "label": "Security Apparatus Var 228",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_228.value",
+      "name": "Police_Public_Relations",
+      "label": "Police Public Relations",
+      "value_2026": 0.32,
+      "weight": 0.1,
+      "pipeline_field": "sec.police_pr",
       "keywords": [
-        "security apparatus",
-        "var_228"
+        "police",
+        "public",
+        "relations"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.45,
+        0.38,
+        0.32
+      ],
+      "volatility": 0.12,
+      "threshold": 0.2
     },
     {
       "code": "N",
       "number": 229,
-      "name": "Security_Apparatus_Var_229",
-      "label": "Security Apparatus Var 229",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_229.value",
+      "name": "Intelligence_Accuracy_Index",
+      "label": "Intelligence Accuracy Index",
+      "value_2026": 0.68,
+      "weight": 0.12,
+      "pipeline_field": "sec.intel_accuracy",
       "keywords": [
-        "security apparatus",
-        "var_229"
+        "intelligence",
+        "accuracy",
+        "reports"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.72,
+        0.68
+      ],
+      "volatility": 0.08,
+      "threshold": 0.5
     },
     {
       "code": "N",
       "number": 230,
-      "name": "Security_Apparatus_Var_230",
-      "label": "Security Apparatus Var 230",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "n_230.value",
+      "name": "Security_Apparatus_Resilience",
+      "label": "Security Apparatus Resilience",
+      "value_2026": 0.72,
+      "weight": 0.15,
+      "pipeline_field": "sec.resilience",
       "keywords": [
-        "security apparatus",
-        "var_230"
+        "resilience",
+        "security",
+        "apparatus"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.82,
+        0.78,
+        0.72
+      ],
+      "volatility": 0.05,
+      "threshold": 0.5
     },
     {
       "code": "O",
       "number": 231,
-      "name": "Demographic_Var_231",
-      "label": "Demographic Var 231",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_231.value",
+      "name": "Population_Growth_Rate",
+      "label": "Population Growth Rate",
+      "value_2026": 1.1,
+      "weight": 0.08,
+      "pipeline_field": "demo.pop_growth",
       "keywords": [
-        "demographic",
-        "var_231"
+        "population",
+        "growth",
+        "demographics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.2,
+        1.15,
+        1.1
+      ],
+      "volatility": 0.01,
+      "threshold": 2.0
     },
     {
       "code": "O",
       "number": 232,
-      "name": "Demographic_Var_232",
-      "label": "Demographic Var 232",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_232.value",
+      "name": "Youth_Bulge_Index",
+      "label": "Youth Bulge Index",
+      "value_2026": 0.65,
+      "weight": 0.2,
+      "pipeline_field": "demo.youth_bulge",
       "keywords": [
-        "demographic",
-        "var_232"
+        "youth",
+        "bulge",
+        "demographics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.64,
+        0.65
+      ],
+      "volatility": 0.02,
+      "threshold": 0.7
     },
     {
       "code": "O",
       "number": 233,
-      "name": "Demographic_Var_233",
-      "label": "Demographic Var 233",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_233.value",
+      "name": "Urbanization_Rate",
+      "label": "Urbanization Rate",
+      "value_2026": 69.5,
+      "weight": 0.12,
+      "pipeline_field": "demo.urbanization",
       "keywords": [
-        "demographic",
-        "var_233"
+        "urbanization",
+        "city",
+        "rural"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        68.0,
+        68.8,
+        69.5
+      ],
+      "volatility": 0.05,
+      "threshold": 75.0
     },
     {
       "code": "O",
       "number": 234,
-      "name": "Demographic_Var_234",
-      "label": "Demographic Var 234",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_234.value",
+      "name": "Fertility_Rate",
+      "label": "Fertility Rate",
+      "value_2026": 2.1,
+      "weight": 0.05,
+      "pipeline_field": "demo.fertility",
       "keywords": [
-        "demographic",
-        "var_234"
+        "fertility",
+        "births",
+        "children"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        2.2,
+        2.15,
+        2.1
+      ],
+      "volatility": 0.01,
+      "threshold": 1.5
     },
     {
       "code": "O",
       "number": 235,
-      "name": "Demographic_Var_235",
-      "label": "Demographic Var 235",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_235.value",
+      "name": "Dependency_Ratio",
+      "label": "Dependency Ratio",
+      "value_2026": 48.0,
+      "weight": 0.1,
+      "pipeline_field": "demo.dependency_ratio",
       "keywords": [
-        "demographic",
-        "var_235"
+        "dependency",
+        "workforce",
+        "elderly"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        46.0,
+        47.0,
+        48.0
+      ],
+      "volatility": 0.02,
+      "threshold": 60.0
     },
     {
       "code": "O",
       "number": 236,
-      "name": "Demographic_Var_236",
-      "label": "Demographic Var 236",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_236.value",
+      "name": "Median_Age",
+      "label": "Median Age",
+      "value_2026": 32.5,
+      "weight": 0.08,
+      "pipeline_field": "demo.median_age",
       "keywords": [
-        "demographic",
-        "var_236"
+        "age",
+        "median",
+        "demographics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        31.5,
+        32.0,
+        32.5
+      ],
+      "volatility": 0.01,
+      "threshold": 40.0
     },
     {
       "code": "O",
       "number": 237,
-      "name": "Demographic_Var_237",
-      "label": "Demographic Var 237",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_237.value",
+      "name": "Net_Migration_Rate",
+      "label": "Net Migration Rate",
+      "value_2026": -1.5,
+      "weight": 0.15,
+      "pipeline_field": "demo.net_migration",
       "keywords": [
-        "demographic",
-        "var_237"
+        "migration",
+        "emigration",
+        "immigration"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        -0.8,
+        -1.2,
+        -1.5
+      ],
+      "volatility": 0.1,
+      "threshold": -3.0
     },
     {
       "code": "O",
       "number": 238,
-      "name": "Demographic_Var_238",
-      "label": "Demographic Var 238",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_238.value",
+      "name": "Brain_Drain_Index",
+      "label": "Brain Drain Index",
+      "value_2026": 0.72,
+      "weight": 0.18,
+      "pipeline_field": "demo.brain_drain",
       "keywords": [
-        "demographic",
-        "var_238"
+        "brain drain",
+        "talents",
+        "migration"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.62,
+        0.68,
+        0.72
+      ],
+      "volatility": 0.08,
+      "threshold": 0.8
     },
     {
       "code": "O",
       "number": 239,
-      "name": "Demographic_Var_239",
-      "label": "Demographic Var 239",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_239.value",
+      "name": "Internal_Displacement_Count",
+      "label": "Internal Displacement Count",
+      "value_2026": 12000,
+      "weight": 0.12,
+      "pipeline_field": "demo.displacement",
       "keywords": [
-        "demographic",
-        "var_239"
+        "displacement",
+        "internal",
+        "migration"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        8000,
+        10000,
+        12000
+      ],
+      "volatility": 0.15,
+      "threshold": 50000
     },
     {
       "code": "O",
       "number": 240,
-      "name": "Demographic_Var_240",
-      "label": "Demographic Var 240",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_240.value",
+      "name": "Life_Expectancy_At_Birth",
+      "label": "Life Expectancy At Birth",
+      "value_2026": 76.5,
+      "weight": 0.05,
+      "pipeline_field": "demo.life_expectancy",
       "keywords": [
-        "demographic",
-        "var_240"
+        "life",
+        "expectancy",
+        "birth"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        76.8,
+        76.6,
+        76.5
+      ],
+      "volatility": 0.01,
+      "threshold": 70.0
     },
     {
       "code": "O",
       "number": 241,
-      "name": "Demographic_Var_241",
-      "label": "Demographic Var 241",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_241.value",
+      "name": "Gender_Ratio_At_Birth",
+      "label": "Gender Ratio At Birth",
+      "value_2026": 1.05,
+      "weight": 0.02,
+      "pipeline_field": "demo.gender_ratio",
       "keywords": [
-        "demographic",
-        "var_241"
+        "gender",
+        "ratio",
+        "birth"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        1.05,
+        1.05,
+        1.05
+      ],
+      "volatility": 0.01,
+      "threshold": 1.1
     },
     {
       "code": "O",
       "number": 242,
-      "name": "Demographic_Var_242",
-      "label": "Demographic Var 242",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_242.value",
+      "name": "Aging_Population_Share",
+      "label": "Aging Population Share",
+      "value_2026": 12.5,
+      "weight": 0.06,
+      "pipeline_field": "demo.aging_pop",
       "keywords": [
-        "demographic",
-        "var_242"
+        "aging",
+        "elderly",
+        "share"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        11.5,
+        12.0,
+        12.5
+      ],
+      "volatility": 0.02,
+      "threshold": 20.0
     },
     {
       "code": "O",
       "number": 243,
-      "name": "Demographic_Var_243",
-      "label": "Demographic Var 243",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_243.value",
+      "name": "Workforce_Participation_Rate",
+      "label": "Workforce Participation Rate",
+      "value_2026": 48.0,
+      "weight": 0.15,
+      "pipeline_field": "demo.workforce_participation",
       "keywords": [
-        "demographic",
-        "var_243"
+        "workforce",
+        "participation",
+        "labor"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        52.0,
+        50.0,
+        48.0
+      ],
+      "volatility": 0.05,
+      "threshold": 40.0
     },
     {
       "code": "O",
       "number": 244,
-      "name": "Demographic_Var_244",
-      "label": "Demographic Var 244",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_244.value",
+      "name": "Literacy_Rate_Youth",
+      "label": "Literacy Rate Youth",
+      "value_2026": 96.5,
+      "weight": 0.1,
+      "pipeline_field": "demo.youth_literacy",
       "keywords": [
-        "demographic",
-        "var_244"
+        "youth",
+        "literacy",
+        "education"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        96.0,
+        96.2,
+        96.5
+      ],
+      "volatility": 0.01,
+      "threshold": 90.0
     },
     {
       "code": "O",
       "number": 245,
-      "name": "Demographic_Var_245",
-      "label": "Demographic Var 245",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "o_245.value",
+      "name": "Demographic_Dividend_Potential",
+      "label": "Demographic Dividend Potential",
+      "value_2026": 0.55,
+      "weight": 0.1,
+      "pipeline_field": "demo.dividend_potential",
       "keywords": [
-        "demographic",
-        "var_245"
+        "dividend",
+        "potential",
+        "demographics"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.6,
+        0.58,
+        0.55
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
     },
     {
       "code": "X",
       "number": 246,
-      "name": "Innovation_index",
-      "label": "Innovation index",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "future.innovation",
+      "name": "NGO_Narrative_Capacity",
+      "label": "NGO Narrative Capacity",
+      "value_2026": 0.55,
+      "weight": 0.14,
+      "pipeline_field": "politics.ngo_capacity",
       "keywords": [
-        "innovation",
-        "R&D"
+        "Al Katiba",
+        "الكتيبة",
+        "Alert économique",
+        "Inkyfada",
+        "إنكيفادة",
+        "Nawaat",
+        "نواة",
+        "LTDH",
+        "société civile",
+        "تحقيق صحفي",
+        "اقتصاد ريعي",
+        "journalisme indépendant",
+        "investigation civile",
+        "NGO freedom Tunisia"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.75,
+        0.65,
+        0.55
+      ],
+      "volatility": 0.12,
+      "threshold": 0.3
     },
     {
       "code": "X",
       "number": 247,
-      "name": "Climate_adaptation_score",
-      "label": "Climate adaptation score",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "future.climate_adaptation",
+      "name": "Space_Economy_Share",
+      "label": "Space Economy Share",
+      "value_2026": 0.02,
+      "weight": 0.05,
+      "pipeline_field": "future.space_economy",
       "keywords": [
-        "climate",
-        "adaptation"
+        "space",
+        "economy",
+        "future"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.01,
+        0.015,
+        0.02
+      ],
+      "volatility": 0.1,
+      "threshold": 0.1
     },
     {
       "code": "X",
       "number": 248,
-      "name": "Youth_tech_engagement",
-      "label": "Youth tech engagement",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "future.youth_tech",
+      "name": "Quantum_Computing_Readiness",
+      "label": "Quantum Computing Readiness",
+      "value_2026": 0.05,
+      "weight": 0.05,
+      "pipeline_field": "future.quantum_readiness",
       "keywords": [
-        "youth",
-        "tech",
-        "engagement"
+        "quantum",
+        "computing",
+        "future"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.01,
+        0.03,
+        0.05
+      ],
+      "volatility": 0.2,
+      "threshold": 0.2
     },
     {
       "code": "X",
       "number": 249,
-      "name": "Global_influence_index",
-      "label": "Global influence index",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "future.global_influence",
+      "name": "Synthetic_Biology_Regulation",
+      "label": "Synthetic Biology Regulation",
+      "value_2026": 0.12,
+      "weight": 0.05,
+      "pipeline_field": "future.synbio_reg",
       "keywords": [
-        "global",
-        "influence"
+        "synbio",
+        "biology",
+        "regulation"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.05,
+        0.08,
+        0.12
+      ],
+      "volatility": 0.15,
+      "threshold": 0.5
     },
     {
       "code": "X",
       "number": 250,
-      "name": "Emerging_risk_score",
-      "label": "Emerging risk score",
-      "value_2026": 0,
-      "weight": 0,
-      "pipeline_field": "future.emerging_risk",
+      "name": "Global_Integration_Score",
+      "label": "Global Integration Score",
+      "value_2026": 0.52,
+      "weight": 0.1,
+      "pipeline_field": "future.global_integration",
       "keywords": [
-        "emerging",
-        "risk"
+        "global",
+        "integration",
+        "future"
       ],
-      "history": [],
-      "volatility": 0,
-      "threshold": 0
+      "history": [
+        0.55,
+        0.53,
+        0.52
+      ],
+      "volatility": 0.05,
+      "threshold": 0.4
+    },
+    {
+      "code": "A",
+      "number": 251,
+      "name": "Structural_Economic_Signal",
+      "label": "Structural Economic Signal",
+      "value_2026": 0.15,
+      "weight": 0.25,
+      "pipeline_field": "economy.structural_signal",
+      "keywords": [
+        "bread",
+        "subsidy",
+        "extraction",
+        "staple",
+        "policy shift"
+      ],
+      "history": [
+        0.1,
+        0.12,
+        0.15
+      ],
+      "volatility": 0.15,
+      "threshold": 0.65
     }
   ]
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Network, 
@@ -23,9 +23,77 @@ import {
   PropagationResult,
   PropagationNode
 } from '../../services/propagationEngine';
-import { Map } from '../shared/Map';
 import { Governorate } from '../../types/intel';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+
+// ── Tunisia projection (lon/lat → SVG x/y) ────────────────────
+// Correct for latitude: at ~34°N, 1° lon ≈ 92km vs 1° lat ≈ 111km
+const MID_LAT = 33.85;
+const COS_MID = Math.cos(MID_LAT * Math.PI / 180);
+const SVG_W = Math.round(760 * ((11.6 - 7.5) / (37.5 - 30.2)) * COS_MID); // ≈ 354
+const SVG_H = 760;
+const PX = (lon: number) => (lon - 7.5) / (11.6 - 7.5) * SVG_W;
+const PY = (lat: number) => SVG_H - (lat - 30.2) / (37.5 - 30.2) * SVG_H;
+
+function ringToPath(ring: number[][]): string {
+  return ring.map((p, i) => {
+    const cmd = i === 0 ? 'M' : 'L';
+    return `${cmd}${PX(p[0]).toFixed(1)},${PY(p[1]).toFixed(1)}`;
+  }).join('') + 'Z';
+}
+
+function featureCenter(coords: number[][][]): { cx: number; cy: number } {
+  const ring = coords[0];
+  let sx = 0, sy = 0;
+  for (const p of ring) { sx += PX(p[0]); sy += PY(p[1]); }
+  return { cx: sx / ring.length, cy: sy / ring.length };
+}
+
+async function loadGovPaths(): Promise<Record<string, { path: string; cx: number; cy: number }>> {
+  const res = await fetch('/data/tunisia_governorates.geojson');
+  const data = await res.json();
+  const map: Record<string, { path: string; cx: number; cy: number }> = {};
+  for (const feat of data.features || []) {
+    const props = feat.properties;
+    const name = (props.gouv_fr || props.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_');
+    const geom = feat.geometry;
+    if (!geom || !geom.coordinates) continue;
+    if (geom.type === 'Polygon') {
+      map[name] = { path: ringToPath(geom.coordinates[0]), ...featureCenter(geom.coordinates) };
+    } else if (geom.type === 'MultiPolygon') {
+      let largest = geom.coordinates[0][0];
+      for (const poly of geom.coordinates) {
+        if (poly[0].length > largest.length) largest = poly[0];
+      }
+      map[name] = { path: ringToPath(largest), ...featureCenter(geom.coordinates[0]) };
+    }
+  }
+  const idMap: Record<string, string> = {
+    'tunis': 'tunis', 'ben_arous': 'ben_arous', 'ariana': 'ariana',
+    'nabeul': 'nabeul', 'manouba': 'manouba', 'bizerte': 'bizerte',
+    'zaghouan': 'zaghouan', 'jendouba': 'jendouba', 'beja': 'beja',
+    'le_kef': 'kef', 'siliana': 'siliana', 'kairouan': 'kairouan',
+    'kasserine': 'kasserine', 'sidi_bouzid': 'sidi_bouzid',
+    'sousse': 'sousse', 'monastir': 'monastir', 'mahdia': 'mahdia',
+    'sfax': 'sfax', 'gafsa': 'gafsa', 'tozeur': 'tozeur',
+    'kebili': 'kebili', 'gabes': 'gabes', 'medenine': 'medenine',
+    'tataouine': 'tataouine',
+  };
+  const result: Record<string, any> = {};
+  for (const [french, eng] of Object.entries(idMap)) {
+    if (map[french]) result[eng] = map[french];
+  }
+  return result;
+}
+
+// ── Inject CSS once ────────────────────────────────────────────
+let _cssInjected = false;
+function injectCSS() {
+  if (_cssInjected) return; _cssInjected = true;
+  const s = document.createElement('style');
+  s.textContent = `@keyframes pv-dash { to{stroke-dashoffset:-16} }`;
+  document.head.appendChild(s);
+}
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -34,6 +102,7 @@ interface PropagationVisualizerProps {
   originName?: string;
   cascadeProbability?: number;
   activeEventTitle?: string;
+  flowchart?: React.ReactNode;
   onClose?: () => void;
 }
 
@@ -44,13 +113,35 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
   originName = 'Sidi Bouzid',
   cascadeProbability = 0.65,
   activeEventTitle,
+  flowchart,
   onClose
 }) => {
+  injectCSS();
+  const [activeOriginId, setActiveOriginId] = useState(originId);
+  const [activeOriginName, setActiveOriginName] = useState(originName);
   const [maxDays, setMaxDays] = useState(21);
   const [simulation, setSimulation] = useState<PropagationResult | null>(null);
   const [selectedNode, setSelectedNode] = useState<PropagationNode | null>(null);
-  const [viewMode, setViewMode] = useState<'graph' | 'timeline' | 'map' | 'sir'>('graph');
+  const [viewMode, setViewMode] = useState<'graph' | 'timeline' | 'map' | 'sir'>('map');
   const [historicalMatches, setHistoricalMatches] = useState<Array<{ name: string, score: number }>>([]);
+  const [govPaths, setGovPaths] = useState<Record<string, { path: string; cx: number; cy: number }>>({});
+  const [simTrigger, setSimTrigger] = useState(0);
+  const [clickShock, setClickShock] = useState<string | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [animDay, setAnimDay] = useState(0);
+
+  // Load GeoJSON paths for the SVG map
+  useEffect(() => {
+    loadGovPaths().then(paths => {
+      if (Object.keys(paths).length > 0) setGovPaths(paths);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!clickShock) return;
+    const t = setTimeout(() => setClickShock(null), 1500);
+    return () => clearTimeout(t);
+  }, [clickShock]);
 
   // ── Simulation logic ─────────────────────────────────────────
 
@@ -59,14 +150,29 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
     const graph = governorateData.adjacency_graph as Record<string, string[]>;
 
     const result = simulatePropagation(
-      originId,
-      originName,
+      activeOriginId,
+      activeOriginName,
       graph,
       govs,
       cascadeProbability,
       maxDays,
       activeEventTitle
     );
+
+    // Fill in all 24 governorates (unreachable for missing ones)
+    (govs as any[]).forEach((g: any) => {
+      if (!result.nodes[g.id]) {
+        result.nodes[g.id] = {
+          governorateId: g.id,
+          governorateName: g.name?.en || g.id,
+          probability: 0,
+          expectedDays: maxDays + 1,
+          path: [],
+          status: 'unreachable',
+          cascadeRisk: 0,
+        } as PropagationNode;
+      }
+    });
 
     setSimulation(result);
 
@@ -77,7 +183,23 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
     })).sort((a, b) => b.score - a.score);
 
     setHistoricalMatches(matches);
-  }, [originId, originName, cascadeProbability, maxDays, activeEventTitle]);
+  }, [activeOriginId, activeOriginName, cascadeProbability, maxDays, activeEventTitle, simTrigger]);
+
+  // ── Animation (play one-by-one) ────────────────────────────
+  useEffect(() => {
+    if (!playing || !simulation) return;
+    if (animDay >= maxDays) { setPlaying(false); return; }
+    const t = setTimeout(() => setAnimDay(d => d + 1), 100);
+    return () => clearTimeout(t);
+  }, [playing, animDay, maxDays, simulation]);
+
+  const visibleIds = simulation
+    ? new Set(
+        Object.values(simulation.nodes)
+          .filter(n => !playing || n.expectedDays <= animDay || n.status === 'origin')
+          .map(n => n.governorateId)
+      )
+    : new Set<string>();
 
   // ── Derived data ─────────────────────────────────────────────
 
@@ -166,7 +288,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
               </span>
             </div>
             <h2 className="text-2xl font-light tracking-tight">
-              Propagation Simulation: <span className="text-red-400">{originName}</span>
+              Propagation Simulation: <span className="text-red-400">{activeOriginName}</span>
             </h2>
             {activeEventTitle && (
               <p className="text-sm text-gray-400 mt-1 italic">
@@ -246,18 +368,144 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-full w-full"
+                className="h-full w-full relative overflow-hidden"
+                style={{background:'radial-gradient(ellipse at 45% 35%,rgba(8,18,45,0.95) 0%,#05070f 70%)'}}
               >
-                <Map 
-                  governorates={simulatedGovernorates} 
-                  events={[]} 
-                  activeLayer="Political" 
-                  focusedGovId={selectedNode?.governorateId}
-                  onSelectGovernorate={(gov) => {
-                    const node = simulation.nodes[gov.id];
-                    if (node) setSelectedNode(node);
-                  }}
-                />
+                {Object.keys(govPaths).length > 0 ? (
+                  <svg width="100%" height="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} preserveAspectRatio="xMidYMid meet" style={{display:'block',userSelect:'none'}}>
+                    <defs>
+                      <filter id="pv-glow-edge" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                      <filter id="pv-glow-shock" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                      </filter>
+                    </defs>
+                    {/* Propagation routes (active only, like Brain mode) */}
+                    <g style={{pointerEvents:'none'}}>
+                    {Object.entries(governorateData.adjacency_graph as Record<string, string[]>).map(([fromId, neighbors]) =>
+                      neighbors.map(toId => {
+                        if (toId < fromId) return null;
+                        const fromGeo = govPaths[fromId];
+                        const toGeo = govPaths[toId];
+                        if (!fromGeo || !toGeo) return null;
+                        const fromNode = simulation.nodes[fromId];
+                        const toNode = simulation.nodes[toId];
+                        const active = visibleIds.has(fromId) && visibleIds.has(toId)
+                          && fromNode?.status !== 'unreachable' && toNode?.status !== 'unreachable';
+                        if (!active) return null;
+                        return (
+                          <line key={`r-${fromId}-${toId}`}
+                            x1={fromGeo.cx} y1={fromGeo.cy}
+                            x2={toGeo.cx} y2={toGeo.cy}
+                            stroke="rgba(255,107,53,0.5)" strokeWidth={1.5}
+                            strokeDasharray="5 3"
+                          filter="url(#pv-glow-shock)"
+                            style={{animation:'pv-dash 0.8s linear infinite',pointerEvents:'none'}}
+                          />
+                        );
+                      })
+                    )}
+                    </g>
+                    {/* Governorate shapes */}
+                    {(governorateData.governorates as any[]).map((g: any) => {
+                      const gid = g.id;
+                      const geo = govPaths[gid];
+                      if (!geo) return null;
+                      const node = simulation.nodes[gid];
+                      const status = node?.status ?? 'unreachable';
+                      const vis = visibleIds.has(gid);
+                      let fill = vis ? 'rgba(15,23,42,0.3)' : 'rgba(8,16,35,0.4)';
+                      let stroke = vis ? 'rgba(255,255,255,0.25)' : 'rgba(25,45,75,0.5)';
+                      let labelColor = vis ? 'rgba(100,130,160,0.7)' : 'rgba(60,90,120,0.7)';
+                      if (status === 'origin') { fill = 'rgba(239,68,68,0.6)'; stroke = '#ef4444'; labelColor = '#fff'; }
+                      else if (status === 'high') { fill = 'rgba(255,107,53,0.45)'; stroke = '#ffffff'; labelColor = '#fff'; }
+                      else if (status === 'medium') { fill = 'rgba(255,214,10,0.30)'; stroke = '#ffffff'; labelColor = '#fff'; }
+                      else if (status === 'low') { fill = 'rgba(48,209,88,0.20)'; stroke = '#ffffff'; labelColor = '#fff'; }
+                      return (
+                        <g key={gid}
+                          onClick={() => {
+                            setActiveOriginId(gid);
+                            setActiveOriginName(g.name.en);
+                            setClickShock(gid);
+                            const n = simulation.nodes[gid];
+                            setSelectedNode(n ? { ...n, governorateName: g.name.en } : {
+                              governorateId: gid,
+                              governorateName: g.name.en,
+                              status: 'unreachable',
+                              probability: 0,
+                              expectedDays: 99,
+                              path: [],
+                              cascadeRisk: 0,
+                            });
+                          }}
+                          style={{cursor:'pointer'}}
+                        >
+                          <path
+                            d={geo.path}
+                            fill={fill}
+                            stroke={stroke}
+                            strokeWidth={status === 'origin' ? 2 : 1}
+                            opacity={vis ? 1 : 0.6}
+                            style={{pointerEvents:'visible'}}
+                          />
+                          <text x={geo.cx} y={geo.cy}
+                            textAnchor="middle" dominantBaseline="middle"
+                            fontSize={9} fontWeight={vis && status !== 'unreachable' ? 700 : 400}
+                            fill={labelColor}
+                            fontFamily="IBM Plex Mono,monospace"
+                            style={{pointerEvents:'none',userSelect:'none'}}
+                          >
+                            {g.name.en.toUpperCase().slice(0,8)}
+                          </text>
+                          {node && status !== 'unreachable' && (
+                            <text x={geo.cx} y={geo.cy + 12}
+                              textAnchor="middle" dominantBaseline="middle"
+                              fontSize={8} fill={labelColor} fontWeight={700}
+                              fontFamily="IBM Plex Mono,monospace"
+                              style={{pointerEvents:'none'}}
+                            >
+                              {Math.round(node.probability * 100)}%
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
+                    {/* Origin pulse rings (3 concentric, staggered — like Brain mode) */}
+                    {govPaths[activeOriginId] && (() => {
+                      const meta = govPaths[activeOriginId];
+                      return [0,1,2].map(i => (
+                        <circle key={`pulse-${i}`}
+                          cx={meta.cx} cy={meta.cy}
+                          r={0} fill="none"
+                          stroke="rgba(239,68,68,0.7)" strokeWidth={2}
+                        >
+                          <animate attributeName="r" values="0;100" dur="2.4s" begin={`${i*0.7}s`} repeatCount="indefinite" />
+                          <animate attributeName="opacity" values="0.9;0" dur="2.4s" begin={`${i*0.7}s`} repeatCount="indefinite" />
+                        </circle>
+                      ));
+                    })()}
+                    {/* Click shock wave (bigger, glowy, distinct from origin red) */}
+                    {clickShock && govPaths[clickShock] && (() => {
+                      const meta = govPaths[clickShock];
+                      return [0,1,2].map(i => (
+                        <circle key={`shock-${i}`}
+                          cx={meta.cx} cy={meta.cy}
+                          r={0} fill="none"
+                          stroke="rgba(0,200,255,0.7)" strokeWidth={2.5}
+                          filter="url(#pv-glow-edge)"
+                        >
+                          <animate attributeName="r" from="0" to="100" dur="1.5s" begin={`${i*0.25}s`} fill="freeze" />
+                          <animate attributeName="opacity" from="0.9" to="0" dur="1.5s" begin={`${i*0.25}s`} fill="freeze" />
+                        </circle>
+                      ));
+                    })()}
+                  </svg>
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-500 text-sm">
+                    Loading governorate boundaries...
+                  </div>
+                )}
               </motion.div>
             ) : viewMode === 'graph' ? (
               <motion.div 
@@ -320,6 +568,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                             {(node.probability * 100).toFixed(0)}%
                           </div>
                         </div>
+
                         <h3 className="text-lg font-medium">{node.governorateName}</h3>
                         <div className="mt-2 h-1 w-full bg-white/10 rounded-full overflow-hidden relative">
                           <motion.div 
@@ -627,7 +876,47 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
               <span>1 WEEK</span>
               <span>2 MONTHS</span>
             </div>
+            <button
+              onClick={() => {
+                setAnimDay(0);
+                setSimTrigger(s => s + 1);
+                setViewMode('map');
+                setPlaying(true);
+              }}
+              disabled={playing}
+              className="mt-4 w-full px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              {playing ? (
+                <>
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Simulating...
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5" />
+                  Run Simulation
+                </>
+              )}
+            </button>
+            {playing && (
+              <div className="mt-3 space-y-1">
+                <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-red-500 to-orange-400 rounded-full transition-all duration-100" style={{ width: `${(animDay / maxDays) * 100}%` }} />
+                </div>
+                <div className="flex justify-between text-[10px] font-mono text-gray-500">
+                  <span className="text-red-400">D{animDay}</span>
+                  <span>D{maxDays}</span>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Shock Propagation Path — below Controls */}
+          {flowchart && (
+            <div className="mt-6 pt-6 border-t border-white/10">
+              {flowchart}
+            </div>
+          )}
         </div>
       </div>
 

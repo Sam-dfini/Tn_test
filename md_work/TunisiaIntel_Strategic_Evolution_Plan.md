@@ -1,8 +1,8 @@
 # TunisiaIntel v2.0 — Strategic Evolution Plan
 ## From Risk Dashboard to National Cognition System
 
-**Version:** 2.1-STRATEGIC  
-**Date:** 2026-05-15  
+**Version:** 2.2-STRATEGIC  
+**Date:** 2026-05-16  
 **Status:** Phases 1, 2, 4 Substantially Complete. Phase 3, 5, 6 Pending.  
 **Horizon:** 24–36 weeks full buildout  
 
@@ -12,7 +12,7 @@
 
 TunisiaIntel v2.0 has a powerful risk-monitoring architecture (RRI engine, Monte Carlo, SIR protest spread, AI briefs, Supabase real-time sync). The next evolution is not "more dashboards" — it is the transition from a powerful prototype into a **continuously learning national cognition system**.
 
-This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, Phases 1, 2, and 4 are substantially built.**
+This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, Phases 1, 2, and 4 are substantially built. The RRI Variable Pipeline is now live — 251 variables with real values, keyword-matched from article ingestion.**
 
 ---
 
@@ -20,14 +20,14 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 
 | Phase | Progress | Key Items |
 |-------|----------|-----------|
-| **Phase 0** Foundation & Debt | **~60%** | Notification system, health monitoring. Tests/workers pending. |
+| **Phase 0** Foundation & Debt | **~65%** | Notification system, health monitoring, Sources tab status bar (RSS/Telegram/SCI/Pipeline live stats). Tests/workers pending. |
 | **Phase 1** Knowledge Graph + SCI | **~95%** | KG (50 entities, 46 relations, API, D3 explorer, graph components refactored). SCI (source reliability, 6-tier classification, 200+ signals scored). Missing: SCI governorate integration, infrastructure entity graph. |
 | **Phase 2** Temporal Intelligence | **~90%** | State Machine (7-state classifier), Narrative Warfare (10 frames, 6 emotions, slogans, convergence), Emotional Heatmap (24 governorates, GeoJSON map, emotion glow), ShockPropagationView (SIR model, GeoJSON, animation). Complete. |
 | **Phase 3** Multi-Agent | **0%** | Not started. 6 domain agents + meta-agent + policy simulator. |
-| **Phase 4** Simulation & Calibration | **~60%** | RRI engine fully dynamic, Monte Carlo 10K, compound stress. Calibration Dashboard (per-variable accuracy, calibration curve, bias detection, Brier scores). |
+| **Phase 4** Simulation & Calibration | **~65%** | RRI engine fully dynamic, Monte Carlo 10K, compound stress. Calibration Dashboard (per-variable accuracy, calibration curve, bias detection, Brier scores). **RRI Variable Pipeline live** — 251 variables now seeded with real values and keyword-matched from article ingestion. |
 | **Phase 5** Strategic Doctrine | **0%** | Not started. |
 | **Phase 6** Cognitive UX | **~20%** | Brain Mode icon sidebar, interactive D3 graphs, animated shock propagation, emotional heatmap with glow. Missing: time-travel, narrative drift, ambient intelligence. |
-| **Collection Infrastructure** | **~40%** | RSS + Satellite + Telegram (18 channels, alert keywords, feed view). TikTok/Gov/Social feeds pending. |
+| **Collection Infrastructure** | **~45%** | RSS + Satellite + Telegram (18 channels, alert keywords, feed view). TikTok/Gov/Social feeds pending. **Variable pipeline now wired into RSS + Telegram ingestion.** |
 
 ---
 
@@ -120,6 +120,25 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 ### Infrastructure Fixes
 - Proxy POST body forwarding: added explicit `app.post('/api/*', ...)` handler to forward POST bodies consumed by `express.json()`
 - Server process management: used `setsid` for persistent background processes
+
+### RRI Variable Pipeline (New)
+- **Problem**: 251 RRI variables were seeded to Supabase with all values at 0, making RRI calculations meaningless and compound stress computations degenerate
+- **Backend seed data fix**: Synced `backend/app/data/rri_variables.json` from frontend's real values — all 251 variables now have real values (GDP 1.2%, inflation 8.5%, unemployment 16.2%, etc.), non-zero weights (0.05–0.25), thresholds, pipeline fields, and keyword lists
+- **Python pipeline service** (`backend/app/services/variable_pipeline.py`):
+  - Loads variables from Supabase (fallback: JSON file with real values)
+  - Keyword-matches article title+content against each variable's keyword list
+  - Applies `nlp_nudge × (severity/3)` to matched variables' normalized values
+  - Denormalizes with correct min/max/invert handling, updates `value_2026` and history
+  - Upserts updated values to Supabase `variables` table
+  - Tracks `articles_processed` and `variables_nudged` cumulative stats
+- **Ingestion wiring**:
+  - RSS: `rss_service.py` calls `variable_pipeline.process_articles_batch()` after each fetch cycle, broadcasts `VARIABLE_NUDGE` via WebSocket
+  - Telegram: `telegram_service.py` runs pipeline on stored messages
+- **API endpoints**: `GET /api/variables/pipeline/status`, `POST /api/variables/pipeline/process`, `POST /api/variables/pipeline/reset`
+- **Frontend integration**:
+  - `PipelineContext.tsx` listens for `ti:VARIABLE_NUDGE` events, re-fetches variables, triggers `recalculateRRI()`
+  - `SourceLibrary.tsx` status bar shows live Pipeline stats (articles processed, variables nudged, last run)
+- **Re-seeded**: `POST /api/variables/seed` → 251/251 variables with non-zero values and weights
 
 ---
 
@@ -220,4 +239,4 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 
 ---
 
-*Document generated 2026-05-13. Updated 2026-05-15 — full May 2026 build session documented.*
+*Document generated 2026-05-13. Updated 2026-05-16 — Variable Pipeline (251 real-valued variables, article keyword matching, RSS/Telegram wiring, frontend polling/WebSocket sync).*

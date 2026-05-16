@@ -18,6 +18,7 @@ from telethon.tl.types import Message, Channel, Chat, User
 
 from ..core.database import db
 from ..core.config import settings
+from .variable_pipeline import variable_pipeline
 
 # ── Channels to monitor ─────────────────────────────────────────────
 # Tunisian political / activist / news Telegram channels
@@ -210,6 +211,16 @@ class TelegramCollector:
                 await self.join_channels()
             messages = await self.fetch_recent_messages()
             stored = await self.store_messages(messages)
+            if stored > 0:
+                try:
+                    pipeline_result = variable_pipeline.process_articles_batch([
+                        {"title": m.get("text", "")[:80], "content": m.get("text", ""), "severity": 2}
+                        for m in messages
+                    ])
+                    if pipeline_result["variables_nudged"] > 0:
+                        print(f"[Telegram] Variable pipeline nudged {pipeline_result['variables_nudged']} variables")
+                except Exception as pe:
+                    print(f"[Telegram] Variable pipeline error: {pe}")
             return {
                 "status": "ok",
                 "fetched": len(messages),

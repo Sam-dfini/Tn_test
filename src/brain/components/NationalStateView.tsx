@@ -19,21 +19,57 @@ interface StateResult {
   velocity_category: string; rri_category: string;
 }
 
-function classifyLocal(rri: number, vel: number, cp: number, ci: number, nd: number, ec: number, si: number, cs: number): string {
-  if (rri >= 3.0 && cp > 0.6 && si > 0.15) return 'cascade';
-  if (rri >= 2.5 && vel > 0.3 && si > 0.05) return 'ignition';
-  if (rri >= 2.5 && ci > 0.6 && cs > 0.5) return 'suppression';
-  if (rri >= 2.0 && nd > 0.6 && ec < 0.4) return 'fracture';
-  if (rri >= 2.0 && Math.abs(vel) < 0.01 && nd > 0.5) return 'stagnation';
-  if (rri >= 1.5 && vel > 0.01 && cp < 0.3) return 'accumulation';
-  if (rri < 1.5 && cs < 0.3) return 'accumulation';
-  if (vel < -0.1 && cp < 0.3) return 'exhaustion';
-  return 'accumulation';
+// ── Local HMM fallback (mirrors backend HMMStateMachine) ────────────
+
+const SIG_KEYS = ['rri','velocity','cascade_prob','coercion_idx','narrative_divergence','elite_cohesion','sir_infected','compound_stress'];
+
+const EMISSION_MEANS: number[][] = [
+  [1.5, 0.03, 0.20, 0.20, 0.30, 0.70, 0.02, 0.25],
+  [2.0, 0.00, 0.30, 0.40, 0.50, 0.55, 0.05, 0.40],
+  [2.7, 0.05, 0.35, 0.75, 0.40, 0.65, 0.08, 0.55],
+  [2.5, 0.15, 0.45, 0.50, 0.70, 0.35, 0.10, 0.50],
+  [3.0, 0.35, 0.55, 0.55, 0.60, 0.30, 0.20, 0.60],
+  [3.5, 0.20, 0.70, 0.50, 0.55, 0.35, 0.35, 0.70],
+  [1.8,-0.15, 0.25, 0.30, 0.35, 0.50, 0.10, 0.35],
+];
+
+const EMISSION_STDS: number[][] = [
+  [0.4, 0.08, 0.10, 0.10, 0.10, 0.10, 0.03, 0.10],
+  [0.4, 0.08, 0.10, 0.15, 0.10, 0.10, 0.04, 0.10],
+  [0.5, 0.08, 0.10, 0.10, 0.10, 0.10, 0.04, 0.10],
+  [0.4, 0.10, 0.10, 0.15, 0.10, 0.10, 0.04, 0.10],
+  [0.4, 0.15, 0.10, 0.15, 0.10, 0.10, 0.06, 0.10],
+  [0.5, 0.10, 0.10, 0.15, 0.10, 0.10, 0.10, 0.10],
+  [0.4, 0.15, 0.10, 0.10, 0.10, 0.10, 0.04, 0.10],
+];
+
+function gaussianLogProb(x: number, mu: number, sigma: number): number {
+  if (sigma < 1e-6) sigma = 1e-6;
+  return -0.5 * Math.log(2 * Math.PI) - Math.log(sigma) - 0.5 * ((x - mu) / sigma) ** 2;
+}
+
+function computeLogEmission(obs: number[]): number[] {
+  return EMISSION_MEANS.map((means, s) =>
+    means.reduce((sum, mu, i) => sum + gaussianLogProb(obs[i], mu, EMISSION_STDS[s][i]), 0)
+  );
+}
+
+function classifyLocalHMM(obs: number[]): { phase: string; probs: number[] } {
+  const logEmit = computeLogEmission(obs);
+  const maxL = Math.max(...logEmit);
+  const posterior = logEmit.map(l => Math.exp(l - maxL));
+  const sumP = posterior.reduce((a, b) => a + b, 0);
+  const normalized = posterior.map(p => p / sumP);
+  const bestIdx = normalized.indexOf(Math.max(...normalized));
+  return { phase: PHASES[bestIdx].id, probs: normalized };
 }
 
 function makeLocalResult(rri: number, vel: number, cp: number, ci: number, nd: number, ec: number, si: number, cs: number): StateResult {
-  const phase = classifyLocal(rri, vel, cp, ci, nd, ec, si, cs);
+  const obs = [rri, vel, cp, ci, nd, ec, si, cs];
+  const { phase, probs } = classifyLocalHMM(obs);
   const p = PHASES.find(x => x.id === phase) || PHASES[0];
+  const probMap: Record<string, number> = {};
+  PHASES.forEach((ph, i) => { probMap[ph.id] = Math.round(probs[i] * 1000) / 1000; });
   return {
     phase, phase_label: p.label, phase_signature: p.sig, phase_color: p.color,
     dwell_days: 0, phase_index: PHASES.indexOf(p), transitions: [],

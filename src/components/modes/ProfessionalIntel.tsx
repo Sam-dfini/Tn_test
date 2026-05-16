@@ -375,6 +375,7 @@ import {
 } from "../../services/ai";
 import { ModelPerformance } from "../system/ModelPerformance";
 import { usePipeline } from "../../context/PipelineContext";
+import { getVarCache } from "../../services/pipelineService";
 import { useViewMode } from "../../hooks/useViewMode";
 import { useRSS } from "../../context/RSSContext";
 import { ModuleHeader } from "../shared/ProfessionalShared";
@@ -2589,7 +2590,7 @@ Return only the 3-sentence briefing.`;
             </Suspense>
           ) : MISSIONS.find(m => m.id === activeTab) ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
-              <MissionWorkspace />
+              <MissionWorkspace mission={MISSIONS.find(m => m.id === activeTab)!} onOpenSandbox={setSandboxOverrides} />
             </Suspense>
           ) : activeTab === "fire" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
@@ -2614,6 +2615,10 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "calendar" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <PoliticalCalendar />
+            </Suspense>
+          ) : activeTab === "simulation" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <SimulationIntelligence context={data} variables={getVarCache() || []} />
             </Suspense>
           ) : (
             <div>Simulation Intelligence Placeholder</div>

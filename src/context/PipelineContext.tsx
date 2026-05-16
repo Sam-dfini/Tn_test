@@ -633,6 +633,23 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [data.economy, data.social, data.geopolitical, data.energy]);
 
+  const [pipelineStats, setPipelineStats] = useState<any>(null);
+
+  const fetchPipelineStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/variables/pipeline/status');
+      if (res.ok) setPipelineStats(await res.json());
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    const handler = () => { fetchPipelineStats(); recalculateRRI(); };
+    window.addEventListener('ti:VARIABLE_NUDGE', handler);
+    const interval = setInterval(fetchPipelineStats, 30000);
+    fetchPipelineStats();
+    return () => { window.removeEventListener('ti:VARIABLE_NUDGE', handler); clearInterval(interval); };
+  }, [fetchPipelineStats, recalculateRRI]);
+
   const addAuditEntry = useCallback((entry: Omit<AuditEntry, 'id'>) => {
     setAuditLog(prev => [{
       ...entry,

@@ -700,18 +700,21 @@ export const SourceLibrary: React.FC<{
 
   const [telegramStatus, setTelegramStatus] = useState<any>(null);
   const [sciStatus, setSciStatus] = useState<any>(null);
+  const [pipeStatus, setPipeStatus] = useState<any>(null);
   const [lastArticleDate, setLastArticleDate] = useState('');
 
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const [tg, sc, art] = await Promise.all([
+        const [tg, sc, art, ps] = await Promise.all([
           fetch('/api/telegram/status').then(r => r.ok ? r.json() : null),
           fetch('/api/sci/status').then(r => r.ok ? r.json() : null),
           fetch('/api/articles?limit=1').then(r => r.ok ? r.json() : []),
+          fetch('/api/variables/pipeline/status').then(r => r.ok ? r.json() : null),
         ]);
         if (tg) setTelegramStatus(tg);
         if (sc) setSciStatus(sc);
+        if (ps) setPipeStatus(ps);
         if (Array.isArray(art) && art.length > 0) {
           setLastArticleDate(art[0].published_at || '');
         }
@@ -929,6 +932,23 @@ export const SourceLibrary: React.FC<{
             {sciStatus?.sources_tracked && (
               <span className="text-slate-600">
                 {sciStatus.sources_tracked} sources
+              </span>
+            )}
+          </div>
+          <div className="w-px h-4 bg-white/10" />
+          {/* Variable Pipeline */}
+          <div className="flex items-center gap-2">
+            <Zap className="w-3 h-3 text-yellow-400" />
+            <span className="text-slate-500 uppercase tracking-wider">Pipeline</span>
+            <span className="text-slate-300">
+              {pipeStatus?.articles_processed ?? 0} articles
+            </span>
+            <span className="text-slate-600">
+              {pipeStatus?.variables_nudged ?? 0} nudged
+            </span>
+            {pipeStatus?.last_run && (
+              <span className="text-slate-600">
+                last: {new Date(pipeStatus.last_run).toLocaleTimeString()}
               </span>
             )}
           </div>

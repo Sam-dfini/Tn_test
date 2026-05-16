@@ -11,6 +11,7 @@ from ..intelligence.narrative_warfare import get_narrative_engine, FRAMES
 from ..intelligence.sci import get_sci_engine
 from ..intelligence.emotional_heatmap import get_heatmap_engine
 from ..intelligence.calibration import get_calibration_engine
+from ..services.variable_pipeline import variable_pipeline
 
 # from ..services.rss_service import rss_service
 
@@ -265,6 +266,28 @@ async def get_variables():
     
     return []
 
+class PipelineProcessRequest(BaseModel):
+    articles: List[Dict[str, Any]] = []
+
+@router.get("/variables/pipeline/status")
+async def get_variable_pipeline_status():
+    """Returns stats from the variable pipeline."""
+    return variable_pipeline.get_stats()
+
+@router.post("/variables/pipeline/process")
+async def run_variable_pipeline(payload: PipelineProcessRequest):
+    """Manually process articles through the variable pipeline."""
+    if not payload.articles:
+        return {"status": "no_articles", "processed": 0}
+    result = variable_pipeline.process_articles_batch(payload.articles)
+    return {"status": "ok", **result}
+
+@router.post("/variables/pipeline/reset")
+async def reset_variable_pipeline():
+    """Reset pipeline stats."""
+    variable_pipeline.reset_stats()
+    return {"status": "ok"}
+
 @router.get("/observability/agents")
 async def get_agent_observability():
     """
@@ -336,6 +359,18 @@ async def state_history(limit: int = 100):
 async def state_transitions(limit: int = 50):
     sm = get_state_machine()
     return sm.get_transition_log(limit)
+
+@router.get("/state/viterbi")
+async def state_viterbi():
+    """Run Viterbi decoding on full history for smoothed state path."""
+    sm = get_state_machine()
+    return sm.decode_history_path()
+
+@router.get("/state/emission-table")
+async def state_emission_table():
+    """Return current learned emission parameters (means & stds)."""
+    sm = get_state_machine()
+    return sm.get_emission_table()
 
 
 # ── Telegram Collection ─────────────────────────────────────────
