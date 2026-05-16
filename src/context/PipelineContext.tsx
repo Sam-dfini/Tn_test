@@ -311,6 +311,7 @@ interface PipelineContextType {
   updateArticleCache: (articles: any) => void;
   injectSignal: (signalId: string) => void;
   injectShock: (shock: ShockSignal) => void;
+  clearShocks: () => void;
   activeSignals: ShockSignal[];
   miiProfile?: any;
   sbdeResult?: ReturnType<typeof computeSBDE>;
@@ -1007,6 +1008,11 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimeout(() => recalculateRRI(), 100);
   }, [addNotification, recalculateRRI]);
 
+  const clearShocks = useCallback(() => {
+    setData(prev => ({ ...prev, active_signals: [] }));
+    setTimeout(() => recalculateRRI(), 100);
+  }, [recalculateRRI]);
+
   const updateArticleCache = useCallback((articles: any) => {
     if (!articles) return;
     setArticleCache(articles);
@@ -1045,6 +1051,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       togglePause,
       injectSignal,
       injectShock,
+      clearShocks,
       activeSignals: data.active_signals,
       updateArticleCache,
       rpiProfile,

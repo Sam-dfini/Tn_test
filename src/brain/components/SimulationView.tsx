@@ -349,7 +349,7 @@ function localClassifyPhase(rri: number, cascadeP: number, eliteCohesion: number
 
 // ── Component ──────────────────────────────────────────────────
 const ScenarioSandbox: React.FC = () => {
-  const { rriState, injectShock, activeSignals } = usePipeline();
+  const { rriState, injectShock, clearShocks, activeSignals } = usePipeline();
 
   const baseline = useRef({
     rri:      rriState?.rri ?? 2.31,
@@ -528,7 +528,7 @@ const ScenarioSandbox: React.FC = () => {
               {injectedIds.size} SHOCK{injectedIds.size>1?'S':''} ACTIVE
             </div>
           )}
-          <button onClick={()=>{setInjectedIds(new Set());}} style={{
+          <button onClick={()=>{setInjectedIds(new Set()); clearShocks();}} style={{
             background:'transparent',border:'1px solid rgba(255,255,255,0.07)',
             color:'#3a4a5a',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
           }}>RESET</button>
