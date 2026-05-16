@@ -50,8 +50,8 @@ async def query_graph(query: GraphQuery):
 @router.post("/seed")
 async def seed_graph():
     """Seed the graph from predefined entity and relation data."""
-    from .seed_data import GEOPOLITICAL_ENTITIES, GEOPOLITICAL_RELATIONS, NATIONAL_ENTITIES, NATIONAL_RELATIONS
-    all_entities = GEOPOLITICAL_ENTITIES + NATIONAL_ENTITIES
-    all_relations = GEOPOLITICAL_RELATIONS + NATIONAL_RELATIONS
+    from .seed_data import GEOPOLITICAL_ENTITIES, GEOPOLITICAL_RELATIONS, NATIONAL_ENTITIES, NATIONAL_RELATIONS, INFRASTRUCTURE_ENTITIES, INFRASTRUCTURE_RELATIONS
+    all_entities = GEOPOLITICAL_ENTITIES + NATIONAL_ENTITIES + INFRASTRUCTURE_ENTITIES
+    all_relations = GEOPOLITICAL_RELATIONS + NATIONAL_RELATIONS + INFRASTRUCTURE_RELATIONS
     result = await graph_db.seed_from_data(all_entities, all_relations)
     return result
