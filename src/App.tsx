@@ -179,8 +179,10 @@ const AppContent: React.FC = () => {
     const pipelineStart = Date.now();
 
     const messages = getModeMessages(pendingMode);
+    const loadingDoneRef = { current: false };
     messages.forEach((msg, i) => {
       setTimeout(() => {
+        if (loadingDoneRef.current) return;
         setLoadingLogs(prev => [...prev, msg]);
         setLoadingProgress(Math.round(((i + 1) / messages.length) * 90));
       }, i * 300);
@@ -200,6 +202,7 @@ const AppContent: React.FC = () => {
       console.error('Pipeline data loading failed:', e);
       logBootEvent('PIPELINE', 'Pipeline Load Failed', pipelineStart, { error: String(e) });
     }
+    loadingDoneRef.current = true;
     setLoadingProgress(100);
     BootMarkers.BOOT_COMPLETE();
     printBootSummary();
