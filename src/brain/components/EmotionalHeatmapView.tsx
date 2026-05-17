@@ -24,7 +24,8 @@ const EMOTION_LABELS: Record<string, string> = {
   defiance: 'Defiance', resignation: 'Resignation', surprise: 'Surprise',
 };
 
-const PX = (lon: number) => (lon - 7.5) / (11.6 - 7.5) * 520;
+const SVG_W = Math.round(760 * (4.1 / 7.3) * Math.cos(33.85 * Math.PI / 180));
+const PX = (lon: number) => (lon - 7.5) / (11.6 - 7.5) * SVG_W;
 const PY = (lat: number) => 760 - (lat - 30.2) / (37.5 - 30.2) * 760;
 
 const EmotionalHeatmapView: React.FC = () => {
@@ -102,7 +103,7 @@ const EmotionalHeatmapView: React.FC = () => {
       <div style={{ flex: 1, display: 'flex', gap: 16, overflow: 'hidden' }}>
         {/* Map */}
         <div style={{ flex: 1, position: 'relative', background: 'radial-gradient(ellipse at 45% 35%,rgba(8,18,45,0.95) 0%,#05070f 70%)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-          <svg viewBox="0 0 520 760" style={{ width: '100%', height: '100%', display: 'block' }}>
+          <svg viewBox={`0 0 ${SVG_W} 760`} style={{ width: '100%', height: '100%', display: 'block' }}>
             <defs>
               <filter id="glow-anger" x="-40%" y="-40%" width="180%" height="180%">
                 <feGaussianBlur stdDeviation="6" result="b1"/>
