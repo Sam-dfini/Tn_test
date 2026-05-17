@@ -1161,7 +1161,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
             </div>
           </div>
           {/* ── INDEX TAB SELECTOR ── */}
-          <div className="flex gap-1 px-4 pt-3 pb-1 overflow-x-auto no-scrollbar border-b border-white/5">
+          <div className="flex gap-1 px-4 pt-3 pb-1 overflow-x-auto no-scrollbar border-b border-white/5 justify-center">
             {INDEX_TABS.map(tab => (
               <button
                 key={tab.id}
