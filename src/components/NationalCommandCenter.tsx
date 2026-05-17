@@ -76,10 +76,12 @@ const normalizeName = (name: string) => {
 };
 
 // ─── NBS CALCULATION ─────────────────────────────────────────────────────────
-function computeNBS(rri: number, pRev: number): number {
-  const sentiment_divergence = Math.min(1, rri / 3.0) * 0.35;
-  const spread_velocity = Math.min(1, pRev * 2.5) * 0.25;
-  const source_authority_gap = 0.42 * 0.2; // calibrated static
+function computeNBS(rri: number, pRev: number, opts?: { cogEnv?: any; sbdePsi?: number }): number {
+  const cogFactor = opts?.cogEnv?.narrative_intent?.campaigns?.length ? Math.min(1, opts.cogEnv.narrative_intent.campaigns.length * 0.08) : 0;
+  const psiFactor = opts?.sbdePsi ?? 0;
+  const sentiment_divergence = Math.min(1, rri / 3.0) * 0.35 + cogFactor * 0.1;
+  const spread_velocity = Math.min(1, pRev * 2.5) * 0.25 + psiFactor * 0.1;
+  const source_authority_gap = 0.42 * 0.2;
   const opp_gov_gap = Math.min(1, rri / 2.5) * 0.2;
   return Math.round(
     (sentiment_divergence +
@@ -744,7 +746,7 @@ interface NationalCommandCenterProps {
 export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   onNavigate,
 }) => {
-  const { data, rriState } = usePipeline();
+  const { data, rriState, seiResult, miiProfile, agroSummary, cognitiveEnvironment, sbdeResult } = usePipeline();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [now, setNow] = useState(new Date());
   const [geoData, setGeoData] = useState<any>(null);
@@ -774,10 +776,31 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   const pRev =
     (data as any)?.rri?.pRevolution ?? rriState?.cascade_probability ?? 0.12;
   const fxDays = (data as any)?.economy?.fx_reserves_days ?? 60;
-  const bmi = 0.68;
-  const fsi = Math.max(0, Math.min(1, 1 - rri / 3)) * 100;
-  const nbs = computeNBS(rri, pRev);
-  const rsi = Math.max(0, 100 - (rri / 3) * 100 * 0.8);
+
+  // Real index: BMI from parallel market premium
+  const parallelPremium = data.economy?.parallel_market_premium ?? 18;
+  const bmi = Math.min(100, Math.round((parallelPremium / 50) * 100));
+
+  // Real index: FSI from Bread Crisis Index (agroSummary)
+  const bciValue = agroSummary?.bci?.BCI ?? 0.35;
+  const fsi = Math.round((1 - bciValue) * 100);
+
+  // Real index: RSI from compound stress + cascade probability
+  const cs = rriState?.compound_stress ?? 0.3;
+  const cp = rriState?.cascade_probability ?? 0.2;
+  const rsi = Math.max(0, Math.round(100 - ((cs + cp) / 2) * 150));
+
+  // NBS with real narrative data if available
+  const nbs = computeNBS(rri, pRev, {
+    cogEnv: cognitiveEnvironment,
+    sbdePsi: sbdeResult?.psi_soc,
+  });
+
+  // SEI and MII — from context
+  const seiScore = seiResult?.maxSEI != null ? Math.round(seiResult.maxSEI * 100) : Math.round((rriState?._sei_cascade_boost ?? 0.3) * 100);
+  const seiPhase = seiResult?.dominantPhase ?? 1;
+  const miiScore = miiProfile?.mii != null ? Math.round(miiProfile.mii * 100) : Math.round((rriState?._mii_score ?? 0.4) * 100);
+  const miiPhase = miiProfile?.phase ?? 'STABLE';
 
   const status = getStatusLabel(rri);
 
@@ -876,9 +899,9 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       id: "BMI",
       label: "BMI",
       desc: "Black Market",
-      value: Math.round(bmi * 100),
+      value: bmi,
       delta: +2,
-      status: "Orange",
+      status: bmi > 60 ? "Orange" : "Yellow",
     },
     {
       id: "FSI",
@@ -886,7 +909,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Food Security",
       value: Math.round(fsi),
       delta: -1,
-      status: "Low",
+      status: fsi < 40 ? "Red" : fsi < 65 ? "Orange" : "Low",
     },
     {
       id: "RSI",
@@ -895,6 +918,22 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       value: Math.round(rsi),
       delta: +2,
       status: rsi < 50 ? "Red" : "Orange",
+    },
+    {
+      id: "SEI",
+      label: "SEI",
+      desc: "Shortage Escalation",
+      value: seiScore,
+      delta: +1,
+      status: seiScore > 70 ? "Red" : seiScore > 45 ? "Orange" : "Yellow",
+    },
+    {
+      id: "MII",
+      label: "MII",
+      desc: "Ministerial Instability",
+      value: miiScore,
+      delta: +3,
+      status: miiPhase === 'CHAOTIC' || miiPhase === 'FREEZE' ? "Red" : "Orange",
     },
   ];
 
@@ -990,13 +1029,15 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
               color: "#ef4444",
             },
             { id: "NBS", value: String(nbs), delta: "↑+12", color: "#f97316" },
-            { id: "BMI", value: "54", delta: "↑", color: "#f97316" },
+            { id: "BMI", value: String(bmi), delta: "↑", color: bmi > 60 ? "#ef4444" : "#f97316" },
             {
               id: "FSI",
               value: Math.round(fsi).toString(),
               delta: "⟷",
-              color: "#10b981",
+              color: fsi < 40 ? "#ef4444" : fsi < 65 ? "#f59e0b" : "#10b981",
             },
+            { id: "SEI", value: String(seiScore), delta: "↑", color: seiScore > 70 ? "#ef4444" : seiScore > 45 ? "#f97316" : "#f59e0b" },
+            { id: "MII", value: String(miiScore), delta: miiPhase === 'CHAOTIC' || miiPhase === 'FREEZE' ? '↑' : '⟷', color: miiPhase === 'CHAOTIC' || miiPhase === 'FREEZE' ? '#ef4444' : '#a855f7' },
           ].map((m, i) => (
             <div
               key={`metric-header-${m.id}-${i}`}

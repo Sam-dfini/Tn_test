@@ -526,6 +526,12 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         overrides['_cogwar_amplification_delta'] = cogwarRRI.amplification_delta;
         overrides['_cogwar_cascade_risk_delta'] = cogwarRRI.cascade_risk_delta;
       }
+      // ── EQ.21 — MII (Ministerial Instability Index) Injection ─────────
+      if (miiProfile) {
+        overrides['_mii_score'] = miiProfile.mii ?? 0.4;
+        overrides['_mii_eq7_defections'] = miiProfile.eq7_defections ?? 0;
+        overrides['_mii_eq18_addon'] = miiProfile.eq18_delta_defection ?? 0;
+      }
       // ─────────────────────────────────────────────────────────────────────
 
       // Clone vars from cache and inject CS baselines for compound stress
