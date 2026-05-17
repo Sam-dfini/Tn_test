@@ -647,9 +647,9 @@ const PressureRow: React.FC<{
   status: string;
 }> = ({ id, label, desc, value, delta, status }) => {
   const statusColors: Record<string, string> = {
-    Red: "#ef4444",
-    Orange: "#f97316",
-    Yellow: "#f59e0b",
+    Critical: "#ef4444",
+    Strained: "#f97316",
+    Elevated: "#f59e0b",
     Low: "#10b981",
   };
   const color = statusColors[status] || "#64748b";
@@ -878,6 +878,9 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   ];
 
   // Pressure index rows
+  const pctToStatus = (v: number) =>
+    v >= 75 ? 'Critical' : v >= 50 ? 'Strained' : v >= 25 ? 'Elevated' : 'Low';
+
   const pressureRows = [
     {
       id: "RRI",
@@ -885,7 +888,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Revolution Risk",
       value: Math.round((rri / 3) * 100),
       delta: +2,
-      status: rri >= 1.8 ? "Red" : "Orange",
+      status: pctToStatus(Math.round((rri / 3) * 100)),
     },
     {
       id: "NBS",
@@ -893,7 +896,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Narrative Battlefield",
       value: nbs,
       delta: +12,
-      status: nbs > 70 ? "Orange" : "Yellow",
+      status: pctToStatus(nbs),
     },
     {
       id: "BMI",
@@ -901,7 +904,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Black Market",
       value: bmi,
       delta: +2,
-      status: bmi > 60 ? "Orange" : "Yellow",
+      status: pctToStatus(bmi),
     },
     {
       id: "FSI",
@@ -909,7 +912,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Food Security",
       value: Math.round(fsi),
       delta: -1,
-      status: fsi < 40 ? "Red" : fsi < 65 ? "Orange" : "Low",
+      status: fsi < 25 ? 'Critical' : fsi < 50 ? 'Strained' : fsi < 75 ? 'Elevated' : 'Low',
     },
     {
       id: "RSI",
@@ -917,7 +920,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Regional Stability",
       value: Math.round(rsi),
       delta: +2,
-      status: rsi < 50 ? "Red" : "Orange",
+      status: pctToStatus(Math.round(rsi)),
     },
     {
       id: "SEI",
@@ -925,7 +928,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Shortage Escalation",
       value: seiScore,
       delta: +1,
-      status: seiScore > 70 ? "Red" : seiScore > 45 ? "Orange" : "Yellow",
+      status: pctToStatus(seiScore),
     },
     {
       id: "MII",
@@ -933,7 +936,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       desc: "Ministerial Instability",
       value: miiScore,
       delta: +3,
-      status: miiPhase === 'CHAOTIC' || miiPhase === 'FREEZE' ? "Red" : "Orange",
+      status: pctToStatus(miiScore),
     },
   ];
 
