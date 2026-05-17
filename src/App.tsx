@@ -103,14 +103,23 @@ const AppContent: React.FC = () => {
     const checkSession = async () => {
       const authStart = Date.now();
       logBootEvent('AUTH', 'Auth Check Started', authStart);
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsAuthenticated(true);
-      } else {
+
+      try {
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+        const result = await Promise.race([sessionPromise, timeoutPromise]);
+
+        if (result && (result as any).data?.session) {
+          setIsAuthenticated(true);
+        } else if (safeGetItem('ti_authenticated') === 'true') {
+          setIsAuthenticated(true);
+        }
+      } catch {
         if (safeGetItem('ti_authenticated') === 'true') {
           setIsAuthenticated(true);
         }
       }
+
       setIsLoadingAuth(false);
       logBootEvent('AUTH', 'Auth Check Complete', authStart);
       
@@ -130,40 +139,71 @@ const AppContent: React.FC = () => {
 
   const dataLoadedRef = useRef(false);
 
+  const getModeMessages = (m: string | null) => {
+    const map: Record<string, string[]> = {
+      professional: [
+        'VERIFYING_ANALYST_CLEARANCE... [OK]',
+        'LOADING_RRI_ENGINE_v4.2... [OK]',
+        'ESTABLISHING_SECURE_UPLINK... [OK]',
+        'DECRYPTING_INTELLIGENCE_LEDGER... [OK]',
+        'SYNCING_PREDICTIVE_MODEL_STATE... [OK]',
+        'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]',
+      ],
+      brain: [
+        'INIT_COGNITIVE_INTERFACE... [OK]',
+        'LOADING_NEURAL_TOPOLOGY_ENGINE... [OK]',
+        'SYNCING_STATE_MACHINE_PHASES... [OK]',
+        'CALIBRATING_PROPAGATION_GRAPH... [OK]',
+      ],
+      advanced: [
+        'INIT_OSINT_RECONNAISSANCE_MODE... [OK]',
+        'CONNECTING_RSS_INTEL_STREAMS... [OK]',
+        'SCANNING_SOCIAL_SIGNAL_CLUSTERS... [OK]',
+      ],
+      agriculture: [
+        'INIT_AGRI_CLIMATE_SYSTEM... [OK]',
+        'CONNECTING_SATELLITE_NDVI_FEEDS... [OK]',
+        'LOADING_CROP_STRESS_INDICES... [OK]',
+      ],
+    };
+    return map[m || ''] || [
+      'ESTABLISHING_SECURE_UPLINK... [OK]',
+      'LOADING_INTELLIGENCE_CORE... [OK]',
+      'CALIBRATING_SENSOR_GRID... [OK]',
+    ];
+  };
+
   const runLoadPipelineData = useCallback(async () => {
     if (dataLoadedRef.current) return;
     dataLoadedRef.current = true;
     const pipelineStart = Date.now();
-    setLoadingLogs(prev => [...prev, 'LOADING_RRI_ENGINE_v4.2...']);
-    setLoadingProgress(20);
-    logBootEvent('PIPELINE', 'RRI Engine Load Started', pipelineStart);
 
-    setLoadingLogs(prev => [...prev, 'ESTABLISHING_SECURE_UPLINK... [OK]']);
-    setLoadingProgress(40);
+    const messages = getModeMessages(pendingMode);
+    messages.forEach((msg, i) => {
+      setTimeout(() => {
+        setLoadingLogs(prev => [...prev, msg]);
+        setLoadingProgress(Math.round(((i + 1) / messages.length) * 90));
+      }, i * 300);
+    });
 
-    setLoadingLogs(prev => [...prev, 'DECRYPTING_INTELLIGENCE_LEDGER... [OK]']);
-    setLoadingProgress(60);
+    logBootEvent('PIPELINE', 'Pipeline Load Started', pipelineStart);
 
     try {
       await loadPipelineData();
-      setLoadingLogs(prev => [...prev, 'SYNCING_PREDICTIVE_MODEL_STATE... [OK]']);
-      setLoadingProgress(80);
       logBootEvent('PIPELINE', 'Pipeline Data Loaded', pipelineStart, { success: true });
 
       const initStart = Date.now();
       logBootEvent('PIPELINE', 'Initializing Variables', initStart);
       await initializeVariables();
       logBootEvent('PIPELINE', 'Variables Initialized', initStart);
-      setLoadingLogs(prev => [...prev, 'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]']);
     } catch (e) {
       console.error('Pipeline data loading failed:', e);
       logBootEvent('PIPELINE', 'Pipeline Load Failed', pipelineStart, { error: String(e) });
-      setLoadingLogs(prev => [...prev, 'DATA_LOAD_WARNING... [CONTINUING]']);
     }
     setLoadingProgress(100);
     BootMarkers.BOOT_COMPLETE();
     printBootSummary();
-  }, [loadPipelineData]);
+  }, [loadPipelineData, pendingMode]);
 
   const runLoadRef = useRef(runLoadPipelineData);
   runLoadRef.current = runLoadPipelineData;
@@ -187,8 +227,15 @@ const AppContent: React.FC = () => {
   };
 
   const handleModeSelect = (newMode: any) => {
+    // Going home never needs a loading screen
+    if (newMode === 'selection') {
+      setMode('selection');
+      return;
+    }
     if (newMode === mode) return;
-    console.log('Mode selected:', newMode);
+    setLoadingProgress(0);
+    setLoadingLogs([]);
+    dataLoadedRef.current = false;
     setPendingMode(newMode);
     setIsLoading(true);
   };
@@ -199,8 +246,8 @@ const AppContent: React.FC = () => {
       try { safeStorage.setItem('ti_current_mode', pendingMode); } catch(e) {}
       setPendingMode(null);
     }
-    setRSSEnabled(true);
     setIsLoading(false);
+    setTimeout(() => setRSSEnabled(true), 500);
   };
 
   const handleOpenPipeline = (tab: 'pipeline' | 'sources' | 'ai-api' = 'pipeline') => {

@@ -18,7 +18,8 @@ export const Authentication: React.FC<AuthenticationProps> = ({ onAuthenticate }
     setError('');
     setLoading(true);
 
-    if (!isSignUp && email === 'operator' && password === 'pass') {
+    const DEMO_CODE = import.meta.env.VITE_DEMO_CODE || '';
+    if (!isSignUp && DEMO_CODE && password === DEMO_CODE && email.includes('@')) {
       safeStorage.setItem('ti_authenticated', 'true');
       onAuthenticate();
       setLoading(false);

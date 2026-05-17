@@ -8,12 +8,12 @@ import { ModePageLayout } from '../modes/ModePageLayout';
 import { usePipeline } from '../../context/PipelineContext';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | 'brain') => void;
+  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'brain') => void;
   onLogoff: () => void;
 }
 
 interface ModeCard {
-  id: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'pyramid' | 'brain';
+  id: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'brain';
   node: string;
   label: string;
   description: string;
@@ -83,16 +83,6 @@ const MODES: ModeCard[] = [
     accentColor: 'text-[#3b82f6] border-[#3b82f6]/30 hover:border-[#3b82f6]',
     accentHex: '#3b82f6',
     tier: 'analyst',
-  },
-  {
-    id: 'pyramid',
-    node: 'INTEL_NODE_07',
-    label: 'PYRAMID HIERARCHY',
-    description: 'Strategic Command Visualization. Hierarchical flow distribution mapping intelligence cascade from strategic command to data acquisition tiers.',
-    icon: Cpu,
-    accentColor: 'text-intel-cyan border-intel-cyan/30 hover:border-intel-cyan',
-    accentHex: '#00f2ff',
-    tier: 'strategic',
   },
   {
     id: 'brain',
