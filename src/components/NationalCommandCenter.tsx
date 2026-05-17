@@ -371,12 +371,13 @@ const SignalLog: React.FC<{ signals: any[] }> = ({ signals }) => {
 
 // ─── ARC GAUGE ───────────────────────────────────────────────────────────────
 const ArcGauge: React.FC<{
-  rri: number;
+  value: number;
   status: ReturnType<typeof getStatusLabel>;
-}> = ({ rri, status }) => {
-  const MAX_RRI = 3.0;
-  const clampedRRI = Math.max(0, Math.min(MAX_RRI, rri));
-  const pct = clampedRRI / MAX_RRI;
+  label: string;
+}> = ({ value, status, label }) => {
+  const MAX_VALUE = 100;
+  const clampedValue = Math.max(0, Math.min(MAX_VALUE, value));
+  const pct = clampedValue / MAX_VALUE;
   const angle = Math.max(-135, Math.min(135, -135 + pct * 270));
 
   const cx = 200,
@@ -426,7 +427,7 @@ const ArcGauge: React.FC<{
 
         {/* Percentage Display - SVG Native */}
         <motion.text
-          key={`percentage-display-${rri}`}
+          key={`percentage-display-${value}`}
           initial={{ opacity: 0, filter: "blur(10px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
@@ -593,7 +594,7 @@ const ArcGauge: React.FC<{
           />
         </g>
 
-        {/* Crisis Pressure Label - Positioned Inside the gauge arc gap at bottom */}
+        {/* Bottom label */}
         <text
           x="200"
           y="325"
@@ -601,7 +602,7 @@ const ArcGauge: React.FC<{
           className="text-[11px] md:text-sm font-mono font-black uppercase tracking-[0.8em]"
           textAnchor="middle"
         >
-          Crisis Pressure
+          {label}
         </text>
       </svg>
 
@@ -803,6 +804,41 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   const miiPhase = miiProfile?.phase ?? 'STABLE';
 
   const status = getStatusLabel(rri);
+
+  // ─── Multi-Index Gauge (Phase 2) ──────────────────────────────────────────
+  const INDEX_TABS = [
+    { id: 'RRI', label: 'RRI', value: Math.round((rri / 3) * 100), color: '#ef4444' },
+    { id: 'NBS', label: 'NBS', value: nbs, color: '#f97316' },
+    { id: 'BMI', label: 'BMI', value: bmi, color: '#f59e0b' },
+    { id: 'FSI', label: 'FSI', value: Math.round(fsi), color: '#10b981' },
+    { id: 'RSI', label: 'RSI', value: Math.round(rsi), color: '#8b5cf6' },
+    { id: 'SEI', label: 'SEI', value: seiScore, color: '#f97316' },
+    { id: 'MII', label: 'MII', value: miiScore, color: '#a855f7' },
+  ];
+
+  const INDEX_STATUS_DESCRIPTIONS: Record<string, string[]> = {
+    RRI: ['System stable — standard monitoring active', 'Multiple structural stress indicators active', 'Primary Pressure: Narrative + Regional Instability', 'Regime rupture threshold approaching'],
+    NBS: ['Narrative landscape stable', 'Sentiment divergence detected across governorates', 'Coordinated narrative campaigns amplifying stress', 'Information warfare at peak intensity'],
+    BMI: ['Parallel market activity within normal range', 'Currency premium widening beyond threshold', 'Black market distortion accelerating', 'Informal economy dominance — state capacity undermined'],
+    FSI: ['Food supply chains stable', 'Price pressure detected on staples', 'Bread supply stress — intervention likely needed', 'Food crisis imminent — supply collapse risk'],
+    RSI: ['Regional stability maintained', 'Localized unrest in interior governorates', 'Multiple governorates exhibiting synchronized stress', 'Regional cascade risk — systemic collapse potential'],
+    SEI: ['Commodity supply chains functioning normally', 'Early shortage signals detected in key goods', 'Shortage escalation accelerating — anger window approaching', 'Critical shortage phase — civil anger ignition risk'],
+    MII: ['Cabinet stability normal', 'Ministerial reshuffles indicating stress', 'Chaotic reshuffle pattern — pre-crisis signal', 'Government freeze — highest fragility signal'],
+  };
+
+  const [activeIndex, setActiveIndex] = useState('RRI');
+  const activeTab = INDEX_TABS.find(t => t.id === activeIndex) ?? INDEX_TABS[0];
+
+  function getIndexGaugeStatus(indexId: string, value: number, maxVal = 100) {
+    const pct = value / maxVal;
+    const descs = INDEX_STATUS_DESCRIPTIONS[indexId] ?? INDEX_STATUS_DESCRIPTIONS['RRI'];
+    if (pct >= 0.75) return { label: 'CRITICAL', sub: descs[3], color: '#ef4444', zone: 'RED' };
+    if (pct >= 0.50) return { label: 'STRAINED', sub: descs[2], color: '#f97316', zone: 'ORANGE' };
+    if (pct >= 0.25) return { label: 'ELEVATED', sub: descs[1], color: '#f59e0b', zone: 'YELLOW' };
+    return { label: 'NORMAL', sub: descs[0], color: '#10b981', zone: 'GREEN' };
+  }
+
+  const gaugeStatus = getIndexGaugeStatus(activeIndex, activeTab.value);
 
   // Top active threats
   const threats: ThreatCard[] = useMemo(
@@ -1085,46 +1121,65 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
           <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
             <div className="flex items-center gap-2 text-[9px] font-mono text-slate-600 uppercase tracking-widest">
               <Activity className="w-3.5 h-3.5 text-intel-cyan" />
-              Integrated National Resilience
+              <span style={{ color: gaugeStatus.color }}>{activeTab.id}</span>
+              <span className="text-slate-600">— {activeTab.id === 'RRI' ? 'Revolution Risk' : activeTab.id === 'NBS' ? 'Narrative Battlefield' : activeTab.id === 'BMI' ? 'Black Market' : activeTab.id === 'FSI' ? 'Food Security' : activeTab.id === 'RSI' ? 'Regional Stability' : activeTab.id === 'SEI' ? 'Shortage Escalation' : 'Ministerial Instability'}</span>
             </div>
             {/* Mini sparkline */}
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">10-Day Trend</div>
-                <div className="text-[10px] font-mono font-bold" style={{ color: status.color }}>+14.8% Δ</div>
+                <div className="text-[10px] font-mono font-bold" style={{ color: gaugeStatus.color }}>+14.8% Δ</div>
               </div>
               <div className="h-10 w-32">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={SPARK_DATA}>
                     <defs>
-                      <linearGradient id={`sparkGradient-${status.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={status.color} stopOpacity={0.4} />
-                        <stop offset="95%" stopColor={status.color} stopOpacity={0} />
+                      <linearGradient id={`sparkGradient-${gaugeStatus.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={gaugeStatus.color} stopOpacity={0.4} />
+                        <stop offset="95%" stopColor={gaugeStatus.color} stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <Tooltip 
                       contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '4px' }}
-                      itemStyle={{ color: status.color, fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold' }}
+                      itemStyle={{ color: gaugeStatus.color, fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold' }}
                       labelStyle={{ color: '#64748b', fontSize: '9px', fontFamily: 'monospace', marginBottom: '2px' }}
-                      formatter={(val: number) => [`${val} RRI`, '']}
+                      formatter={(val: number) => [`${val} ${activeTab.id}`, '']}
                     />
                     <YAxis domain={['dataMin - 0.05', 'dataMax + 0.05']} hide />
                     <XAxis dataKey="time" hide />
                     <Area
                       type="monotone"
                       dataKey="v"
-                      stroke={status.color}
-                      fill={`url(#sparkGradient-${status.color.replace('#', '')})`}
+                      stroke={gaugeStatus.color}
+                      fill={`url(#sparkGradient-${gaugeStatus.color.replace('#', '')})`}
                       strokeWidth={2}
-                      activeDot={{ r: 3, fill: status.color, stroke: '#000', strokeWidth: 1 }}
+                      activeDot={{ r: 3, fill: gaugeStatus.color, stroke: '#000', strokeWidth: 1 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
           </div>
+          {/* ── INDEX TAB SELECTOR ── */}
+          <div className="flex gap-1 px-4 pt-3 pb-1 overflow-x-auto no-scrollbar border-b border-white/5">
+            {INDEX_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveIndex(tab.id)}
+                className={cn(
+                  'px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg transition-all shrink-0',
+                  activeIndex === tab.id
+                    ? 'bg-white/10 text-white shadow-sm border border-white/20'
+                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                )}
+                style={activeIndex === tab.id ? { borderColor: `${tab.color}40`, color: tab.color } : {}}
+              >
+                {tab.id}
+              </button>
+            ))}
+          </div>
           <div className="px-4 py-2">
-            <ArcGauge rri={rri} status={status} />
+            <ArcGauge value={activeTab.value} status={gaugeStatus} label={activeTab.label} />
           </div>
         </div>
 
