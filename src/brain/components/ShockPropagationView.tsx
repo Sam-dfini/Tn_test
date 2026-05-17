@@ -7,8 +7,9 @@ import {
 import govData from '../../data/governorates.json';
 
 // ── Tunisia projection (lon/lat → SVG x/y) ────────────────────
-// Map bounds: lon 7.5–11.6, lat 30.2–37.5 → viewBox 0 0 520 760
-const PX = (lon: number) => (lon - 7.5) / (11.6 - 7.5) * 520;
+// Map bounds: lon 7.5–11.6, lat 30.2–37.5 → viewBox 0 0 <SVG_W> 760
+const SVG_W = Math.round(760 * (4.1 / 7.3) * Math.cos(33.85 * Math.PI / 180));
+const PX = (lon: number) => (lon - 7.5) / (11.6 - 7.5) * SVG_W;
 const PY = (lat: number) => 760 - (lat - 30.2) / (37.5 - 30.2) * 760;
 
 function ringToPath(ring: number[][]): string {
@@ -332,7 +333,7 @@ const ShockPropagationView: React.FC = () => {
               <svg
                 ref={svgRef}
                 width="100%" height="100%"
-                viewBox="0 0 520 760"
+                viewBox={`0 0 ${SVG_W} 760`}
                 style={{display:'block',userSelect:'none'}}
                 onWheel={onWheel}
                 onMouseDown={onMouseDown}
