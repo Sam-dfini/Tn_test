@@ -273,9 +273,26 @@ class PipelineProcessRequest(BaseModel):
 async def get_variable_pipeline_status():
     """Returns stats from the variable pipeline."""
     try:
-        return variable_pipeline.get_stats()
+        stats = variable_pipeline.get_stats()
+        return stats
     except Exception as e:
+        import traceback, sys
+        traceback.print_exc(file=sys.stderr)
+        sys.stderr.flush()
         raise HTTPException(status_code=500, detail=f"Pipeline status error: {str(e)}")
+
+@router.get("/variables/pipeline/diag")
+async def variable_pipeline_diag():
+    """Diagnostic endpoint — no DB calls, verifies router is mounted."""
+    import sys
+    py_version = sys.version
+    module_ok = variable_pipeline is not None
+    return {
+        "status": "ok",
+        "python_version": py_version,
+        "module_loaded": module_ok,
+        "timestamp": datetime.now().isoformat(),
+    }
 
 @router.post("/variables/pipeline/process")
 async def run_variable_pipeline(payload: PipelineProcessRequest):

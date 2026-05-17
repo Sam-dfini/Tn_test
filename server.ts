@@ -263,6 +263,11 @@ async function startServer() {
     });
   });
 
+  // Proxy diagnostic — confirms Express handles this directly (not forwarded to Python)
+  app.get('/api/proxy-ping', (req, res) => {
+    res.json({ status: 'ok', source: 'express', timestamp: new Date().toISOString() });
+  });
+
   // Intelligence Variables Endpoint (Node implementation fallback)
   app.get('/api/variables', (req, res) => {
     try {
@@ -423,13 +428,16 @@ async function startServer() {
     }
   });
 
-  // AI rate limiter: max 1 request per 1500ms per client IP
-  const aiRateLimitMap = new Map<string, number>();
+  // AI rate limiter: sliding window — max 3 requests per 2000ms per client IP
+  const AI_LIMIT = { windowMs: 2000, maxReqs: 3 };
+  const aiRateLimitMap = new Map<string, number[]>();
   function checkAiRateLimit(ip: string): boolean {
     const now = Date.now();
-    const last = aiRateLimitMap.get(ip) || 0;
-    if (now - last < 1500) return false;
-    aiRateLimitMap.set(ip, now);
+    let timestamps = aiRateLimitMap.get(ip) || [];
+    timestamps = timestamps.filter(t => now - t < AI_LIMIT.windowMs);
+    if (timestamps.length >= AI_LIMIT.maxReqs) return false;
+    timestamps.push(now);
+    aiRateLimitMap.set(ip, timestamps);
     return true;
   }
 

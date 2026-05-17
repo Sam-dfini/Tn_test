@@ -26,6 +26,9 @@ export async function callAI(
     ? `[SYSTEM INSTRUCTION]\n${params.system}\n\n[USER PROMPT]\n${params.user}` 
     : params;
 
+  // Jitter: spread concurrent calls by 0-200ms to avoid simultaneous rate-limit hits
+  await new Promise(r => setTimeout(r, Math.random() * 200));
+
   while (attempt <= maxRetries) {
     try {
       const response = await fetch('/api/ai', {
