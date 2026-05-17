@@ -423,8 +423,22 @@ async function startServer() {
     }
   });
 
+  // AI rate limiter: max 1 request per 1500ms per client IP
+  const aiRateLimitMap = new Map<string, number>();
+  function checkAiRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const last = aiRateLimitMap.get(ip) || 0;
+    if (now - last < 1500) return false;
+    aiRateLimitMap.set(ip, now);
+    return true;
+  }
+
   // AI Proxy Endpoint
   app.post('/api/ai', async (req, res) => {
+    const clientIp = req.ip || req.socket?.remoteAddress || 'unknown';
+    if (!checkAiRateLimit(clientIp)) {
+      return res.status(429).json({ error: 'AI rate limited. Please wait before sending another request.' });
+    }
     console.log('Received request to /api/ai');
     const { prompt, config } = req.body;
     if (!prompt) {
@@ -834,7 +848,10 @@ async function startServer() {
     try {
       logBootEvent('APP_INIT', 'Vite Starting', Date.now());
       const vite = await createViteServer({
-        server: { middlewareMode: true },
+        server: {
+          middlewareMode: true,
+          watch: { ignored: ['**/log_terminal.txt'] },
+        },
         appType: 'spa',
       });
       logBootEvent('APP_INIT', 'Vite Ready', Date.now());

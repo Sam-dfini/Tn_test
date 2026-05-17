@@ -138,7 +138,10 @@ def process_articles_batch(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 def get_pipeline_stats() -> Dict[str, Any]:
-    _ensure_variable_cache()
+    try:
+        _ensure_variable_cache()
+    except Exception:
+        pass
     return {
         "articles_processed": ARTICLES_PROCESSED,
         "variables_nudged": VARIABLES_NUDGED,

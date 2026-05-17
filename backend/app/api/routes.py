@@ -272,7 +272,10 @@ class PipelineProcessRequest(BaseModel):
 @router.get("/variables/pipeline/status")
 async def get_variable_pipeline_status():
     """Returns stats from the variable pipeline."""
-    return variable_pipeline.get_stats()
+    try:
+        return variable_pipeline.get_stats()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline status error: {str(e)}")
 
 @router.post("/variables/pipeline/process")
 async def run_variable_pipeline(payload: PipelineProcessRequest):

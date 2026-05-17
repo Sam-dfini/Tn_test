@@ -1,10 +1,10 @@
 # TunisiaIntel v2.0 — Strategic Evolution Plan
 ## From Risk Dashboard to National Cognition System
 
-**Version:** 2.2-STRATEGIC  
-**Date:** 2026-05-16  
-**Status:** Phases 1, 2, 4 Substantially Complete. Phase 3, 5, 6 Pending.  
-**Horizon:** 24–36 weeks full buildout  
+**Version:** 2.3-STRATEGIC  
+**Date:** 2026-05-17  
+**Status:** Phases 1, 2, 4 Substantially Complete. Phase 6 ~40%. Phase 3, 5 Pending.  
+**Horizon:** 20–32 weeks full buildout  
 
 ---
 
@@ -20,13 +20,13 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 
 | Phase | Progress | Key Items |
 |-------|----------|-----------|
-| **Phase 0** Foundation & Debt | **~65%** | Notification system, health monitoring, Sources tab status bar (RSS/Telegram/SCI/Pipeline live stats). Tests/workers pending. |
+| **Phase 0** Foundation & Debt | **~75%** | Notification system, health monitoring, Sources tab status bar (RSS/Telegram/SCI/Pipeline live stats). Loading/auth bugs fixed (8-step spec). Vite reload loop fixed. AI rate limiting added. Tests/workers pending. |
 | **Phase 1** Knowledge Graph + SCI | **~95%** | KG (50 entities, 46 relations, API, D3 explorer, graph components refactored). SCI (source reliability, 6-tier classification, 200+ signals scored). Missing: SCI governorate integration, infrastructure entity graph. |
-| **Phase 2** Temporal Intelligence | **~90%** | State Machine (7-state classifier), Narrative Warfare (10 frames, 6 emotions, slogans, convergence), Emotional Heatmap (24 governorates, GeoJSON map, emotion glow), ShockPropagationView (SIR model, GeoJSON, animation). Complete. |
+| **Phase 2** Temporal Intelligence | **~95%** | State Machine (7-state classifier), Narrative Warfare (10 frames, 6 emotions, slogans, convergence), Emotional Heatmap (24 governorates, GeoJSON map, emotion glow), ShockPropagationView (SIR model, GeoJSON, animation), multi-index gauge with tab selector, domain polygon wired to real data. |
 | **Phase 3** Multi-Agent | **0%** | Not started. 6 domain agents + meta-agent + policy simulator. |
 | **Phase 4** Simulation & Calibration | **~65%** | RRI engine fully dynamic, Monte Carlo 10K, compound stress. Calibration Dashboard (per-variable accuracy, calibration curve, bias detection, Brier scores). **RRI Variable Pipeline live** — 251 variables now seeded with real values and keyword-matched from article ingestion. |
 | **Phase 5** Strategic Doctrine | **0%** | Not started. |
-| **Phase 6** Cognitive UX | **~20%** | Brain Mode icon sidebar, interactive D3 graphs, animated shock propagation, emotional heatmap with glow. Missing: time-travel, narrative drift, ambient intelligence. |
+| **Phase 6** Cognitive UX | **~40%** | Brain Mode icon sidebar, interactive D3 graphs, animated shock propagation, emotional heatmap with glow, multi-index gauge with tab selector, domain instability polygon wired to real RRI data, per-governorate map colored by RRI stress. Missing: time-travel, narrative drift, ambient intelligence. |
 | **Collection Infrastructure** | **~45%** | RSS + Satellite + Telegram (18 channels, alert keywords, feed view). TikTok/Gov/Social feeds pending. **Variable pipeline now wired into RSS + Telegram ingestion.** |
 
 ---
@@ -121,6 +121,78 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 - Proxy POST body forwarding: added explicit `app.post('/api/*', ...)` handler to forward POST bodies consumed by `express.json()`
 - Server process management: used `setsid` for persistent background processes
 
+### Loading Screen + Auth Fixes (Bugfix Spec — 8 Steps)
+- `handleModeSelect` now resets `loadingProgress`, `loadingLogs`, `dataLoadedRef` before loading
+- Removed `pyramid` card from ModeSelection.tsx (feature replaced by Brain Mode)
+- Added 4s `Promise.race` timeout to `checkSession()` auth check to prevent hang
+- Replaced hardcoded `operator`/`pass` backdoor with `VITE_DEMO_CODE` env var
+- Mode-specific loading messages via `getModeMessages()`; TacticalLoading minimum display 300→1200ms
+- Deleted stale `PipelineContext_backup.tsx` and `PipelineContext_fixed.tsx`
+- Verified `'selection'` in mode type union
+- `setRSSEnabled(true)` delayed 500ms after `handleLoadingComplete`
+- Fixed loading screen stuck race: `loadingDoneRef` prevents late setTimeout from overwriting `progress=100`
+
+### Phase 1 — All Indices Wired to Real Data
+- PipelineContext.tsx: MII overrides (`_mii_score`, `_mii_eq7_defections`, `_mii_eq18_addon`) injected into `recalculateRRI()`
+- NationalCommandCenter.tsx: destructured `seiResult`, `miiProfile`, `agroSummary`, `cognitiveEnvironment`, `sbdeResult` from `usePipeline()`
+- **BMI**: hardcoded `0.68` → `Math.min(100, (parallel_market_premium / 50) * 100)`
+- **FSI**: inverted RRI → `Math.round((1 - agroSummary.bci.BCI) * 100)`
+- **RSI**: `Math.max(0, Math.round(100 - ((compound_stress + cascade_probability) / 2) * 150))`
+- **NBS**: accepts `cognitiveEnvironment` campaign count + `sbdeResult.psi_soc`
+- **SEI**: from `seiResult.maxSEI * 100` with phase color
+- **MII**: from `miiProfile.mii * 100` with phase color
+- Pressure rows: `"Red"/"Orange"/"Yellow"/"Low"` → `"Low"/"Elevated"/"Strained"/"Critical"` via `pctToStatus()` helper
+
+### Phase 2 — Multi-Index Gauge System
+- Added `activeIndex` state, `INDEX_TABS` (7 indices: RRI, NBS, BMI, FSI, RSI, SEI, MII), `INDEX_STATUS_DESCRIPTIONS` map, `getIndexGaugeStatus()` function
+- ArcGauge refactored: `rri` prop → `value` (0–100) + `label` prop; bottom label dynamic per index
+- Centered pill tab bar above arc gauge with index-color highlighting
+- Section header shows active index ID + full description name
+- Sparkline color tracks gauge status (red/orange/yellow/green)
+
+### Map Aspect Ratio Fixes (cos 34°N Correction)
+- ShockPropagationView.tsx: `SVG_W = Math.round(760 * (4.1 / 7.3) * Math.cos(33.85°))` for proper Tunisia proportions
+- EmotionalHeatmapView.tsx: same correction applied
+
+### Infrastructure — Log Issues (4 Fixes)
+1. **Vite reload loop**: added `watch: { ignored: ['**/log_terminal.txt'] }` to `createViteServer` config to stop page reload on log writes
+2. **`/api/graph/seed` 500**: root cause was `graph_entities` / `graph_relations` tables missing at auto-seed time (3s vs schema validation at 15s). Added `CREATE TABLE IF NOT EXISTS` for both tables via `exec_sql_admin` before seeding, wrapped endpoint in try/except
+3. **`/api/variables/pipeline/status` 500**: added try/except around `_ensure_variable_cache()` in `get_pipeline_stats()` and in the endpoint handler
+4. **AI request spam**: added in-memory rate limiter (1 request per 1500ms per client IP) returning 429 when throttled; prevents hammering OpenAI/Gemini/NVIDIA/OpenRouter
+
+### DomainPolygon Spider Chart — Wired to Real RRI Data
+- Replaced 8 hardcoded radar values with dynamic computation from `rriState.category_scores` (24 letter-category keys, 0–1 scale)
+- Weighted domain mapping using engine `CATEGORY_WEIGHTS`:
+  - economy ← A (Economic) + W (Economic Resilience)
+  - water ← B (Environmental) + V (Environmental Sustainability)
+  - governance ← D (Political) + G (Legal) + L (Regime)
+  - security ← N (Security Apparatus) + J (Conflict)
+  - narrative ← H (Media) + O (Public Sentiment)
+  - socialCohesion ← E (Social) + F (Socio-Cultural) + S (Health)
+  - youthStress ← P (Youth) + T (Education)
+  - externalPressure ← I (International) + R (Global) + Q (Regional)
+- 0–1 → 0–10 scaling, trend computed from `velocity × 2` with 0–10 clamp
+
+### Top Active Threats — Wired to Real Smart Alerts
+- Replaced 4-item hardcoded threat array with real `activeSignals` from `usePipeline()`
+- Maps `ShockSignal.type` → domain string, icon (lucide-react), color
+- Maps `ShockSignal.intensity` → confidence %, delta %, delta direction
+- Maps `ShockSignal.governorates` → region field
+- Decision window derived from intensity level (12h–7d)
+
+### Tactical Map — Per-Governorate RRI Stress Coloring
+- Replaced hardcoded hotspot colors (Tunis/Sfax orange, Nabeul/Kasserine/Gafsa red) with computed stress per governorate
+- 24 governorates each have a sensitivity profile (which RRI category letters affect them most + amplification factor)
+- Base stress: national RRI / 3.0; each matched category adds `catVal × 0.15 × amplify`
+- Stress mapped to fill color: ≥7.5 red, ≥5 orange, ≥2.5 yellow, ≥1 green, else dark
+- Tooltips show numeric stress score + status label per governorate
+
+### 10-Day Trend Sparkline — Wired to Real RRI History
+- Replaced `SPARK_DATA` hardcoded 10-point array with dynamic data from `rriState.rri_history`
+- `buildSparkFromHistory()` sorts history by date, maps to `{ time, v }` format (dates → "MM-DD", last → "Now")
+- Delta percentage computed as `(last - first) / first × 100`
+- InstabilityTimeline also wired to `rri_history` for 7-point chart
+
 ### RRI Variable Pipeline (New)
 - **Problem**: 251 RRI variables were seeded to Supabase with all values at 0, making RRI calculations meaningless and compound stress computations degenerate
 - **Backend seed data fix**: Synced `backend/app/data/rri_variables.json` from frontend's real values — all 251 variables now have real values (GDP 1.2%, inflation 8.5%, unemployment 16.2%, etc.), non-zero weights (0.05–0.25), thresholds, pipeline fields, and keyword lists
@@ -187,6 +259,7 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 - [ ] National Digital Twin v0.1: unified state vector, interaction model
 
 ### Phase 6 — Cognitive UX (Weeks 41-48)
+- [x] NationalCommandCenter gauge cluster (7-index gauge, domain polygon, per-gov map, threat cards, sparkline)
 - [ ] Time-travel slider for knowledge graph evolution
 - [ ] Narrative drift tracker (animated embedding space)
 - [ ] AI Analyst Companion (conversational query over causal graph)
@@ -239,4 +312,4 @@ This plan maps the 12 strategic gaps into 6 execution phases. **As of May 2026, 
 
 ---
 
-*Document generated 2026-05-13. Updated 2026-05-16 — Variable Pipeline (251 real-valued variables, article keyword matching, RSS/Telegram wiring, frontend polling/WebSocket sync).*
+*Document generated 2026-05-13. Updated 2026-05-17 — Phase 1 index wiring complete (BMI/FSI/RSI/NBS/SEI/MII all live), Phase 2 multi-index gauge + domain polygon + threat cards + per-gov map + sparkline wired to real data, loading/auth/Infra bugs resolved (log_terminal loop, graph seed 500, pipeline status 500, AI rate limiting).*

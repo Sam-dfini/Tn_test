@@ -129,19 +129,15 @@ function getStatusLabel(rri: number, maxRri = 3.0): {
   };
 }
 
-// ─── MINI SPARKLINE DATA ─────────────────────────────────────────────────────
-const SPARK_DATA = [
-  { time: "-9d", v: 1.28 },
-  { time: "-8d", v: 1.31 },
-  { time: "-7d", v: 1.29 },
-  { time: "-6d", v: 1.34 },
-  { time: "-5d", v: 1.38 },
-  { time: "-4d", v: 1.35 },
-  { time: "-3d", v: 1.41 },
-  { time: "-2d", v: 1.44 },
-  { time: "-1d", v: 1.42 },
-  { time: "Now", v: 1.47 },
-];
+// ─── MINI SPARKLINE DATA (built from real RRI history) ──────────────────────
+function buildSparkFromHistory(history?: { date: string; rri: number }[]): { time: string; v: number }[] {
+  if (!history || history.length < 2) return [];
+  const sorted = [...history].sort((a, b) => a.date.localeCompare(b.date));
+  return sorted.map((h, i) => ({
+    time: i === sorted.length - 1 ? 'Now' : h.date.slice(5),
+    v: Math.round(h.rri * 100) / 100,
+  }));
+}
 
 // ─── VELOCITY INDEX V(t) ───────────────────────────────────────────────────
 const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
@@ -747,7 +743,7 @@ interface NationalCommandCenterProps {
 export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
   onNavigate,
 }) => {
-  const { data, rriState, seiResult, miiProfile, agroSummary, cognitiveEnvironment, sbdeResult } = usePipeline();
+  const { data, rriState, seiResult, miiProfile, agroSummary, cognitiveEnvironment, sbdeResult, activeSignals } = usePipeline();
   const [analystOpen, setAnalystOpen] = useState(false);
   const [now, setNow] = useState(new Date());
   const [geoData, setGeoData] = useState<any>(null);
@@ -840,56 +836,119 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
 
   const gaugeStatus = getIndexGaugeStatus(activeIndex, activeTab.value);
 
-  // Top active threats
-  const threats: ThreatCard[] = useMemo(
-    () => [
-      {
-        domain: "NARRATIVE",
-        icon: Brain,
-        color: "#a855f7",
-        title: "Nabeul protest probability +15%",
-        confidence: 98,
-        delta: "+15%",
-        deltaDir: "up",
-        region: "Nabeul",
-        decisionWindow: "18h",
-      },
-      {
-        domain: "ECONOMIC",
-        icon: DollarSign,
-        color: "#f59e0b",
-        title: "Fuel smuggling pressure +32% South corridor",
-        confidence: 22,
-        delta: "+32%",
-        deltaDir: "up",
-        region: "Tataouine",
-        decisionWindow: "72h",
-      },
-      {
-        domain: "AGRICULTURE",
-        icon: Wheat,
-        color: "#10b981",
-        title: "Poultry feed stress rising (+11%)",
-        confidence: 18,
-        delta: "+11%",
-        deltaDir: "up",
-        region: "National",
-        decisionWindow: "7d",
-      },
-      {
-        domain: "WATER",
-        icon: Droplets,
-        color: "#00f2ff",
-        title: "Regional water cut escalation — Kasserine",
-        confidence: 79,
-        delta: "→ STABLE",
-        deltaDir: "stable",
-        region: "Kasserine",
-        decisionWindow: "48h",
-      },
-    ],
-    [],
-  );
+  // ─── Domain Polygon data from real RRI category_scores ────────────
+  const categoryScores = rriState?.category_scores ?? {};
+  const velocity = rriState?.velocity ?? 0;
+  const domainWeights: Record<string, number> = { A: 0.20, B: 0.04, W: 0.01, V: 0.01, D: 0.08, G: 0.05, L: 0.06, N: 0.06, J: 0.04, H: 0.04, O: 0.04, E: 0.07, F: 0.05, S: 0.02, P: 0.04, T: 0.02, I: 0.05, R: 0.02, Q: 0.02 };
+  const weightedDomain = (keys: string[]) => {
+    const total = keys.reduce((s, k) => s + (domainWeights[k] ?? 0), 0);
+    if (total === 0) return 5;
+    return keys.reduce((s, k) => s + (domainWeights[k] ?? 0) * ((categoryScores[k] ?? 0.5) * 10), 0) / total;
+  };
+  const trendDomain = (val: number) => Math.max(0, Math.min(10, val + velocity * 2));
+  const domainData = {
+    economy: Math.round(weightedDomain(['A', 'W']) * 10) / 10,
+    water: Math.round(weightedDomain(['B', 'V']) * 10) / 10,
+    governance: Math.round(weightedDomain(['D', 'G', 'L']) * 10) / 10,
+    security: Math.round(weightedDomain(['N', 'J']) * 10) / 10,
+    narrative: Math.round(weightedDomain(['H', 'O']) * 10) / 10,
+    socialCohesion: Math.round(weightedDomain(['E', 'F', 'S']) * 10) / 10,
+    youthStress: Math.round(weightedDomain(['P', 'T']) * 10) / 10,
+    externalPressure: Math.round(weightedDomain(['I', 'R', 'Q']) * 10) / 10,
+  };
+  const domainTrend = Object.fromEntries(
+    Object.entries(domainData).map(([k, v]) => [k, Math.round(trendDomain(v as number) * 10) / 10])
+  ) as typeof domainData;
+
+  // ─── Governorate-level stress from RRI category_scores ───────────
+  const govState = useMemo(() => {
+    const cs = categoryScores;
+    const base = (rriState?.rri ?? 1.5) / 3;
+    const stress = (gov: string, sensitivity: string[], amplify = 1) => {
+      let score = base;
+      for (const cat of sensitivity) {
+        const catVal = cs[cat] ?? 0.5;
+        score += catVal * 0.15 * amplify;
+      }
+      return Math.round(Math.min(1, Math.max(0, score)) * 10 * 10) / 10;
+    };
+    return {
+      tunis:       stress('tunis',       ['D', 'L', 'O', 'H'], 1.2),
+      ariana:      stress('ariana',      ['D', 'H'], 0.8),
+      ben_arous:   stress('ben_arous',   ['D', 'H'], 0.8),
+      manouba:     stress('manouba',     ['D'], 0.7),
+      nabeul:      stress('nabeul',      ['E', 'P', 'O', 'A'], 1.3),
+      zaghouan:    stress('zaghouan',    ['B', 'V'], 0.9),
+      bizerte:     stress('bizerte',     ['A', 'U', 'I'], 1.0),
+      beja:        stress('beja',        ['B', 'A', 'S'], 1.0),
+      jendouba:    stress('jendouba',    ['B', 'V', 'S'], 1.1),
+      kef:         stress('kef',         ['B', 'V', 'E'], 1.1),
+      siliana:     stress('siliana',     ['B', 'V'], 0.9),
+      sousse:      stress('sousse',      ['A', 'E', 'I'], 1.0),
+      monastir:    stress('monastir',    ['A', 'E'], 0.9),
+      mahdia:      stress('mahdia',      ['A', 'B', 'E'], 1.0),
+      sfax:        stress('sfax',        ['A', 'I', 'U', 'E'], 1.3),
+      kairouan:    stress('kairouan',    ['B', 'V', 'E', 'P'], 1.2),
+      kasserine:   stress('kasserine',   ['E', 'P', 'B', 'V', 'O'], 1.5),
+      sidi_bouzid: stress('sidi_bouzid', ['E', 'P', 'B', 'O'], 1.5),
+      gafsa:       stress('gafsa',       ['E', 'P', 'B', 'A'], 1.4),
+      tozeur:      stress('tozeur',      ['B', 'V', 'H'], 0.9),
+      kebili:      stress('kebili',      ['B', 'V', 'E', 'P'], 1.3),
+      gabes:       stress('gabes',       ['A', 'B', 'E', 'I'], 1.1),
+      medenine:    stress('medenine',    ['A', 'B', 'I'], 1.0),
+      tataouine:   stress('tataouine',   ['B', 'I', 'E'], 1.2),
+    } as Record<string, number>;
+  }, [categoryScores, rriState?.rri]);
+
+  const govStressColor = (score: number) =>
+    score >= 7.5 ? '#ef4444' : score >= 5 ? '#f97316' : score >= 2.5 ? '#f59e0b' : score >= 1 ? '#10b981' : '#1e293b';
+
+  const govStressFill = (score: number) =>
+    score >= 7.5 ? 0.6 : score >= 5 ? 0.5 : score >= 2.5 ? 0.35 : score >= 1 ? 0.25 : 0.15;
+
+  const govStressLabel = (score: number) =>
+    score >= 7.5 ? 'CRITICAL' : score >= 5 ? 'STRAINED' : score >= 2.5 ? 'ELEVATED' : score >= 1 ? 'NORMAL' : '';
+
+  const govNav = { tunis: 'tunis', ariana: 'ariana', ben_arous: 'ben_arous', manouba: 'manouba', nabeul: 'nabeul', zaghouan: 'zaghouan', bizerte: 'bizerte', beja: 'beja', jendouba: 'jendouba', kef: 'kef', siliana: 'siliana', sousse: 'sousse', monastir: 'monastir', mahdia: 'mahdia', sfax: 'sfax', kairouan: 'kairouan', kasserine: 'kasserine', sidi_bouzid: 'sidi_bouzid', gafsa: 'gafsa', tozeur: 'tozeur', kebili: 'kebili', gabes: 'gabes', medenine: 'medenine', tataouine: 'tataouine' };
+
+  // ─── 10-Day Trend sparkline from real RRI history ────────────────
+  const sparkData = useMemo(() => buildSparkFromHistory(rriState?.rri_history), [rriState?.rri_history]);
+  const sparkDelta = sparkData.length >= 2
+    ? `${((sparkData[sparkData.length - 1].v - sparkData[0].v) / sparkData[0].v * 100).toFixed(1)}% Δ`
+    : '+0.0% Δ';
+
+  // Top active threats from smart alerts
+  const iconByType: Record<string, React.ElementType> = {
+    ECON: DollarSign, SEC: ShieldAlert, AGRI: Wheat, SOCIAL: Users, SYSTEM: Zap, POLITICAL: Brain, CLIMATE: Droplets,
+  };
+  const colorByType: Record<string, string> = {
+    ECON: '#f59e0b', SEC: '#ef4444', AGRI: '#10b981', SOCIAL: '#a855f7', SYSTEM: '#00f2ff', POLITICAL: '#f97316', CLIMATE: '#06b6d4',
+  };
+  const domainByType: Record<string, string> = {
+    ECON: 'ECONOMIC', SEC: 'SECURITY', AGRI: 'AGRICULTURE', SOCIAL: 'SOCIAL', SYSTEM: 'SYSTEM', POLITICAL: 'POLITICAL', CLIMATE: 'WATER',
+  };
+  const decisionByIntensity = (i: number) =>
+    i >= 0.8 ? '12h' : i >= 0.6 ? '24h' : i >= 0.4 ? '48h' : i >= 0.2 ? '72h' : '7d';
+
+  const threats: ThreatCard[] = useMemo(() => {
+    const signals = activeSignals ?? [];
+    if (signals.length === 0) return [];
+    return signals.map((s) => {
+      const Icon = iconByType[s.type] ?? AlertTriangle;
+      const deltaDir = s.intensity > 0.55 ? 'up' as const : s.intensity < 0.25 ? 'down' as const : 'stable' as const;
+      return {
+        domain: domainByType[s.type] ?? s.type,
+        icon: Icon,
+        color: colorByType[s.type] ?? '#8a9bb0',
+        title: s.message,
+        confidence: Math.round(s.intensity * 100),
+        delta: deltaDir === 'up' ? `+${Math.round(s.intensity * 100)}%` : deltaDir === 'down' ? `-${Math.round((1 - s.intensity) * 100)}%` : '→ STABLE',
+        deltaDir,
+        region: s.governorates?.[0] ?? 'National',
+        decisionWindow: decisionByIntensity(s.intensity),
+      };
+    });
+  }, [activeSignals]);
 
   // Strategic response panel
   const responses = [
@@ -1128,11 +1187,11 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">10-Day Trend</div>
-                <div className="text-[10px] font-mono font-bold" style={{ color: gaugeStatus.color }}>+14.8% Δ</div>
+                <div className="text-[10px] font-mono font-bold" style={{ color: gaugeStatus.color }}>{sparkDelta}</div>
               </div>
               <div className="h-10 w-32">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={SPARK_DATA}>
+                  <AreaChart data={sparkData.length > 0 ? sparkData : [{ time: '-', v: 0 }]}>
                     <defs>
                       <linearGradient id={`sparkGradient-${gaugeStatus.color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={gaugeStatus.color} stopOpacity={0.4} />
@@ -1185,28 +1244,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
 
         {/* Enhancement 2: Domain Instability Polygon */}
         <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
-          <DomainPolygon 
-            data={{
-              economy: 6.4,
-              water: 4.2,
-              governance: 5.1,
-              security: 3.8,
-              narrative: 7.2,
-              socialCohesion: 5.5,
-              youthStress: 6.8,
-              externalPressure: 4.5
-            }} 
-            trend={{
-              economy: 7.1,
-              water: 4.5,
-              governance: 5.8,
-              security: 4.2,
-              narrative: 8.5,
-              socialCohesion: 6.1,
-              youthStress: 7.4,
-              externalPressure: 5.2
-            }}
-          />
+          <DomainPolygon data={domainData} trend={domainTrend} />
         </div>
       </div>
 
@@ -1409,45 +1447,28 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                     style={(feature: any) => {
                       const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
                       const normalized = normalizeName(name);
-
-                      let color = '#1e293b';
-                      let isHotspot = false;
-
-                      if (normalized === 'tunis' || normalized === 'sfax') {
-                        color = '#f97316';
-                        isHotspot = true;
-                      } else if (normalized === 'nabeul' || normalized === 'kasserine' || normalized === 'gafsa') {
-                        color = '#ef4444';
-                        isHotspot = true;
-                      }
-
+                      const score = govState[normalized] ?? govState[(govNav as any)[normalized]] ?? 0;
+                      const color = govStressColor(score);
+                      const hasScore = score > 0;
                       return {
                         fillColor: color,
-                        weight: isHotspot ? 1.5 : 0.5,
+                        weight: hasScore ? 1.5 : 0.5,
                         opacity: 1,
-                        color: isHotspot ? color : '#334155',
-                        fillOpacity: isHotspot ? 0.5 : 0.2,
+                        color: hasScore ? color : '#334155',
+                        fillOpacity: govStressFill(score),
                       };
                     }}
                     onEachFeature={(feature: any, layer: L.Layer) => {
                       const name = feature.properties.name || feature.properties.NAME_1 || feature.properties.name_en || feature.properties.gouv_fr || feature.properties.ADM_GOV || '';
                       const normalized = normalizeName(name);
-                      
-                      let label = '';
-                      let val = '';
-                      if (normalized === 'tunis' || normalized === 'sfax') {
-                        label = 'STRAINED';
-                        val = 'High Risk';
-                      } else if (normalized === 'nabeul' || normalized === 'kasserine' || normalized === 'gafsa') {
-                        label = 'CRITICAL';
-                        val = 'Extreme Risk';
-                      }
-                      
+                      const score = govState[normalized] ?? govState[(govNav as any)[normalized]] ?? 0;
+                      const label = govStressLabel(score);
                       if (label) {
                         layer.bindTooltip(`
                           <div style="font-family: monospace; text-align: center;">
                             <strong style="color: #00D2FF; font-size: 11px;">${name.toUpperCase()}</strong><br/>
-                            <span style="font-size: 10px; color: #aaa;">STATUS:</span> ${label}
+                            <span style="font-size: 10px; color: #aaa;">STRESS:</span> <span style="font-size: 10px; color: ${govStressColor(score)};">${score.toFixed(1)}</span><br/>
+                            <span style="font-size: 10px; color: #aaa;">STATUS:</span> <span style="font-size: 10px; color: ${govStressColor(score)};">${label}</span>
                           </div>
                         `, {
                           className: 'intel-tooltip',
@@ -1485,15 +1506,14 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
 
       {/* Enhancement 3 & 4 & 5 Stack */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <InstabilityTimeline data={[
-          { time: '00:00', value: 2.1 },
-          { time: '04:00', value: 2.4 },
-          { time: '08:00', value: 4.8 },
-          { time: '12:00', value: 6.2 },
-          { time: '16:00', value: 7.4 },
-          { time: '20:00', value: 6.8 },
-          { time: '23:00', value: 7.1 },
-        ]} />
+        <InstabilityTimeline data={(() => {
+          const h = rriState?.rri_history ?? [];
+          if (h.length === 0) return [{ time: '00:00', value: 0 }];
+          return [...h].sort((a, b) => a.date.localeCompare(b.date)).map(entry => ({
+            time: entry.date.slice(5),
+            value: Math.round((entry.rri / 3) * 10 * 10) / 10,
+          }));
+        })()} />
         <NarrativeWarfareMonitor metrics={{
           oppositionSync: 7.8,
           rumorVelocity: 8.2,

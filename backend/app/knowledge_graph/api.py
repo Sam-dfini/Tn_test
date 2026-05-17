@@ -50,8 +50,60 @@ async def query_graph(query: GraphQuery):
 @router.post("/seed")
 async def seed_graph():
     """Seed the graph from predefined entity and relation data."""
-    from .seed_data import GEOPOLITICAL_ENTITIES, GEOPOLITICAL_RELATIONS, NATIONAL_ENTITIES, NATIONAL_RELATIONS, INFRASTRUCTURE_ENTITIES, INFRASTRUCTURE_RELATIONS
-    all_entities = GEOPOLITICAL_ENTITIES + NATIONAL_ENTITIES + INFRASTRUCTURE_ENTITIES
-    all_relations = GEOPOLITICAL_RELATIONS + NATIONAL_RELATIONS + INFRASTRUCTURE_RELATIONS
-    result = await graph_db.seed_from_data(all_entities, all_relations)
-    return result
+    try:
+        # Ensure tables exist before seeding
+        for sql in [
+            """
+            CREATE TABLE IF NOT EXISTS graph_entities (
+                id TEXT PRIMARY KEY,
+                type TEXT,
+                label TEXT,
+                aliases JSONB DEFAULT '[]',
+                first_seen TEXT DEFAULT '',
+                last_seen TEXT DEFAULT '',
+                confidence FLOAT8 DEFAULT 1.0,
+                metadata JSONB DEFAULT '{}',
+                tier INT8 DEFAULT 1,
+                domain JSONB DEFAULT '[]',
+                power_type TEXT DEFAULT '',
+                color TEXT DEFAULT '#6366f1',
+                size INT8 DEFAULT 25,
+                resources JSONB DEFAULT '{}',
+                goals JSONB DEFAULT '[]',
+                constraints JSONB DEFAULT '[]',
+                risk_tolerance TEXT DEFAULT 'medium',
+                time_horizon TEXT DEFAULT 'medium',
+                fixed_x FLOAT8,
+                fixed_y FLOAT8
+            );
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS graph_relations (
+                id TEXT PRIMARY KEY,
+                source_id TEXT,
+                target_id TEXT,
+                type TEXT,
+                weight FLOAT8 DEFAULT 1.0,
+                domain TEXT DEFAULT '',
+                description TEXT DEFAULT '',
+                conditionality TEXT DEFAULT '',
+                trend TEXT DEFAULT 'stable',
+                valid_from TEXT DEFAULT '',
+                valid_to TEXT DEFAULT '',
+                confidence FLOAT8 DEFAULT 1.0
+            );
+            """
+        ]:
+            try:
+                db.rpc("exec_sql_admin", {"sql_query": sql}).execute()
+            except Exception:
+                pass  # table may already exist
+
+        from .seed_data import GEOPOLITICAL_ENTITIES, GEOPOLITICAL_RELATIONS, NATIONAL_ENTITIES, NATIONAL_RELATIONS, INFRASTRUCTURE_ENTITIES, INFRASTRUCTURE_RELATIONS
+        all_entities = GEOPOLITICAL_ENTITIES + NATIONAL_ENTITIES + INFRASTRUCTURE_ENTITIES
+        all_relations = GEOPOLITICAL_RELATIONS + NATIONAL_RELATIONS + INFRASTRUCTURE_RELATIONS
+        result = await graph_db.seed_from_data(all_entities, all_relations)
+        return result
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=f"Graph seed failed: {str(e)}")
