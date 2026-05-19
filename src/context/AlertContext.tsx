@@ -160,8 +160,12 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
   }, [alerts]);
 
+  const value = useMemo(() => ({
+    alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll
+  }), [alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll]);
+
   return (
-    <AlertContext.Provider value={{ alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll }}>
+    <AlertContext.Provider value={value}>
       {children}
     </AlertContext.Provider>
   );

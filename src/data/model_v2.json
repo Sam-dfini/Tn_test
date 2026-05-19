@@ -4,8 +4,8 @@
     "version": "2.0",
     "last_updated": "2026-04-03",
     "target_period": "2025-2026",
-    "baseline_r_t": 2.8,
-    "baseline_p_rev": "90-92%"
+    "baseline_r_t": 2.31,
+    "baseline_p_rev": "43-44%"
   },
   "equations_registry": {
     "EQ1_RRI": "R(t) = sum(w_ij * F_ij) + epsilon(t)",

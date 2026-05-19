@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { PipelineMetrics, alertEngine, Alert } from '../lib/alertEngine.ts';
 import { logger, LogEvent } from '../utils/logger.ts';
 
@@ -140,17 +140,19 @@ export const ObservabilityProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
+  const value = useMemo(() => ({
+    metrics, 
+    history,
+    logs, 
+    alerts, 
+    dbOps,
+    healthScore, 
+    updateMetrics,
+    trackTrace
+  }), [metrics, history, logs, alerts, dbOps, healthScore, updateMetrics, trackTrace]);
+
   return (
-    <ObservabilityContext.Provider value={{ 
-      metrics, 
-      history,
-      logs, 
-      alerts, 
-      dbOps,
-      healthScore, 
-      updateMetrics,
-      trackTrace
-    }}>
+    <ObservabilityContext.Provider value={value}>
       {children}
     </ObservabilityContext.Provider>
   );

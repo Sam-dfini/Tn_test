@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { 
@@ -45,7 +45,7 @@ import {
   Legend
 } from 'recharts';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from '../shared/ProfessionalShared';
-import { Map } from '../shared/Map';
+const Map = React.lazy(() => import('../shared/Map').then(m => ({ default: m.Map })));
 import governoratesData from '../../data/governorates.json';
 
 type EnergyTab = 'overview' | 'hydrocarbons' | 'renewables' | 'grid' | 'subsidies';
@@ -273,18 +273,20 @@ export const EnergyIntelligence: React.FC = () => {
           </div>
         </div>
         <div className="h-[400px] w-full rounded-xl overflow-hidden border border-white/5 relative">
-          <Map 
-            governorates={governoratesData.governorates as any} 
-            events={[]}
-            heatmapPoints={vulnerabilityPoints.map(p => ({
-              lat: p.lat,
-              lon: p.lng,
-              intensity: p.intensity,
-              label: p.label,
-              risk: p.type
-            }))}
-            activeLayer="energy"
-          />
+          <Suspense fallback={<div className="h-full w-full bg-black/20 animate-pulse" />}>
+            <Map 
+              governorates={governoratesData.governorates as any} 
+              events={[]}
+              heatmapPoints={vulnerabilityPoints.map(p => ({
+                lat: p.lat,
+                lon: p.lng,
+                intensity: p.intensity,
+                label: p.label,
+                risk: p.type
+              }))}
+              activeLayer="energy"
+            />
+          </Suspense>
           <div className="absolute bottom-4 right-4 glass p-3 rounded-lg border border-white/10 space-y-2 z-10">
             <h4 className="text-[10px] font-bold text-white uppercase tracking-widest border-b border-white/10 pb-1">Legend</h4>
             <div className="space-y-1">

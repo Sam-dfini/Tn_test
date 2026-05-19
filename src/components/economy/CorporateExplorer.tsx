@@ -7,7 +7,9 @@
  */
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import { zoom } from 'd3-zoom';
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide } from 'd3-force';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, 
@@ -56,13 +58,13 @@ export const CorporateExplorer: React.FC = () => {
     const width = containerRef.current?.clientWidth || 800;
     const height = 500;
 
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll('*').remove();
 
     const g = svg.append('g');
 
     // Zoom behavior
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 3])
       .on('zoom', (event) => {
         g.attr('transform', event.transform);
@@ -71,14 +73,14 @@ export const CorporateExplorer: React.FC = () => {
     svg.call(zoom);
 
     // Forces
-    const simulation = d3.forceSimulation<any>(filteredNodes)
-      .force('link', d3.forceLink<any, any>(entityNetwork.links)
+    const simulation = forceSimulation<any>(filteredNodes)
+      .force('link', forceLink<any, any>(entityNetwork.links)
         .id(d => d.id)
         .distance(120)
       )
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(50));
+      .force('charge', forceManyBody().strength(-300))
+      .force('center', forceCenter(width / 2, height / 2))
+      .force('collision', forceCollide().radius(50));
 
     // Links
     const link = g.append('g')

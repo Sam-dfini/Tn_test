@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import { zoom, zoomIdentity } from 'd3-zoom';
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, type Simulation, type SimulationLinkDatum } from 'd3-force';
+import { drag } from 'd3-drag';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, Filter, ZoomIn, ZoomOut, RefreshCw, Globe, Users, Activity, Info, ArrowRight, AlertTriangle, RotateCw } from 'lucide-react';
 import { cn } from '../../utils/cn';
@@ -15,7 +18,7 @@ type GraphNode = Entity & {
   group: 'geopolitical' | 'national';
 };
 
-type GraphLink = d3.SimulationLinkDatum<GraphNode> & {
+type GraphLink = SimulationLinkDatum<GraphNode> & {
   type: string; weight: number; description?: string;
   trend?: string; conditionality?: string;
 };
@@ -127,8 +130,8 @@ const W = 1200, H = 850, CX = W / 2, CY = H / 2;
 
 const KnowledgeGraphExplorer: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
-  const simRef = useRef<d3.Simulation<GraphNode, undefined> | null>(null);
-  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const simRef = useRef<Simulation<GraphNode, undefined> | null>(null);
+  const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
 
   const [entities, setEntities] = useState<Entity[]>(FALLBACK_ENTITIES);
@@ -215,7 +218,7 @@ const KnowledgeGraphExplorer: React.FC = () => {
   // Build D3 graph
   useEffect(() => {
     if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll('*').remove();
 
     svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#03080f');
@@ -243,11 +246,11 @@ const KnowledgeGraphExplorer: React.FC = () => {
     const container = svg.append('g').attr('class', 'zoom-container');
     gRef.current = container.node();
 
-    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.1, 4])
+    const zoom = zoom<SVGSVGElement, unknown>().scaleExtent([0.1, 4])
       .on('zoom', event => container.attr('transform', event.transform));
     zoomRef.current = zoom;
     svg.call(zoom);
-    svg.call(zoom.transform, d3.zoomIdentity.translate(0, 0).scale(0.85));
+    svg.call(zoom.transform, zoomIdentity.translate(0, 0).scale(0.85));
 
     const graphNodes: GraphNode[] = filteredNodes.map(n => ({ ...n }));
     const nodeMap = new Map(graphNodes.map(n => [n.id, n]));
@@ -255,11 +258,11 @@ const KnowledgeGraphExplorer: React.FC = () => {
       .filter(l => nodeMap.has(l.source as string) && nodeMap.has(l.target as string))
       .map(l => ({ ...l }));
 
-    const sim = d3.forceSimulation<GraphNode>(graphNodes)
-      .force('link', d3.forceLink<GraphNode, GraphLink>(graphLinks).id(d => d.id).distance(150).strength(0.3))
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(CX, CY))
-      .force('collision', d3.forceCollide<GraphNode>(d => (d.size || 20) + 10));
+    const sim = forceSimulation<GraphNode>(graphNodes)
+      .force('link', forceLink<GraphNode, GraphLink>(graphLinks).id(d => d.id).distance(150).strength(0.3))
+      .force('charge', forceManyBody().strength(-300))
+      .force('center', forceCenter(CX, CY))
+      .force('collision', forceCollide<GraphNode>(d => (d.size || 20) + 10));
     simRef.current = sim;
 
     const edgeG = container.append('g').attr('class', 'edges');
@@ -276,7 +279,7 @@ const KnowledgeGraphExplorer: React.FC = () => {
     const nodeG = container.append('g').attr('class', 'nodes');
     const nodeGroups = nodeG.selectAll<SVGGElement, GraphNode>('g')
       .data(graphNodes).join('g').style('cursor', 'pointer')
-      .call(d3.drag<SVGGElement, GraphNode>()
+      .call(drag<SVGGElement, GraphNode>()
         .on('start', (event, d) => { if (!event.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
         .on('drag', (event, d) => { d.fx = event.x; d.fy = event.y; })
         .on('end', (event, d) => { if (!event.active) sim.alphaTarget(0); d.fx = null; d.fy = null; })
@@ -327,7 +330,7 @@ const KnowledgeGraphExplorer: React.FC = () => {
   // Hover/select highlight
   useEffect(() => {
     if (!gRef.current) return;
-    const container = d3.select(gRef.current);
+    const container = select(gRef.current);
     container.selectAll<SVGPathElement, any>('g.edges path')
       .transition().duration(200).attr('opacity', (d) => {
         if (!d) return 0.4;
@@ -427,11 +430,11 @@ const KnowledgeGraphExplorer: React.FC = () => {
         <div className="flex-1 glass rounded-3xl border border-intel-border/30 overflow-hidden relative bg-black/40">
           <svg ref={svgRef} className="w-full h-full cursor-grab active:cursor-grabbing" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }} />
           <div className="absolute left-6 bottom-6 flex flex-col gap-2">
-            <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3); }}
+            <button onClick={() => { if (svgRef.current && zoomRef.current) select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3); }}
               className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan transition-all shadow-xl"><ZoomIn className="w-5 h-5" /></button>
-            <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1 / 1.3); }}
+            <button onClick={() => { if (svgRef.current && zoomRef.current) select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1 / 1.3); }}
               className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan transition-all shadow-xl"><ZoomOut className="w-5 h-5" /></button>
-            <button onClick={() => { if (svgRef.current && zoomRef.current) d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(0, 0).scale(0.85)); }}
+            <button onClick={() => { if (svgRef.current && zoomRef.current) select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, zoomIdentity.translate(0, 0).scale(0.85)); }}
               className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan transition-all shadow-xl"><RefreshCw className="w-4 h-4" /></button>
           </div>
 

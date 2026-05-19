@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Droplets, 
@@ -63,7 +63,7 @@ import {
   Scatter,
   ZAxis,
 } from 'recharts';
-import { Map } from '../shared/Map';
+const Map = React.lazy(() => import('../shared/Map').then(m => ({ default: m.Map })));
 import governoratesData from '../../data/governorates.json';
 import { CornerAccent, BackgroundGrid, ModuleHeader, LiveTicker } from '../shared/ProfessionalShared';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
@@ -474,12 +474,14 @@ export const EnvironmentalIntelligence: React.FC = () => {
               </div>
 
               <div className="glass rounded-xl border border-intel-border overflow-hidden h-[600px] relative">
-                <Map 
-                  governorates={mappedGovernorates}
-                  events={[]}
-                  activeLayer="Environmental"
-                  externalActiveLayer={activeMapLayer}
-                />
+                <Suspense fallback={<div className="h-full w-full bg-black/20 animate-pulse" />}>
+                  <Map 
+                    governorates={mappedGovernorates}
+                    events={[]}
+                    activeLayer="Environmental"
+                    externalActiveLayer={activeMapLayer}
+                  />
+                </Suspense>
                 
                 <div className="absolute bottom-6 right-6 glass p-4 rounded-xl border border-white/10 z-10 max-w-[200px] space-y-3">
                   <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest border-b border-white/5 pb-2">Layer Legend: {activeMapLayer}</div>

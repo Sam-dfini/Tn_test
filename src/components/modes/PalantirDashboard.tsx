@@ -1,7 +1,12 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Network, Search, Database, Shield, Activity, Eye, FileText, Zap, RefreshCw, Loader2 } from 'lucide-react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import { zoom } from 'd3-zoom';
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, type SimulationNodeDatum, type SimulationLinkDatum } from 'd3-force';
+import { drag } from 'd3-drag';
+import { scaleOrdinal } from 'd3-scale';
+import { schemeCategory10 } from 'd3-scale-chromatic';
 import { intelligenceGraph, GraphNode, GraphLink } from '../../services/intelligenceGraph';
 
 interface PalantirDashboardProps {
@@ -13,7 +18,7 @@ interface PalantirDashboardProps {
   context?: any;
 }
 
-interface Node extends d3.SimulationNodeDatum {
+interface Node extends SimulationNodeDatum {
   id: string;
   group: number;
   label: string;
@@ -23,7 +28,7 @@ interface Node extends d3.SimulationNodeDatum {
   category?: string;
 }
 
-interface Link extends d3.SimulationLinkDatum<Node> {
+interface Link extends SimulationLinkDatum<Node> {
   source: string | Node;
   target: string | Node;
   value: number;
@@ -123,21 +128,21 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
     const width = containerRef.current.clientWidth;
     const height = containerRef.current.clientHeight;
 
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous render
 
     svg.attr("viewBox", [0, 0, width, height]);
 
     // Create a simulation with several forces
-    const simulation = d3.forceSimulation<Node>(nodes)
-      .force("link", d3.forceLink<Node, Link>(links).id(d => d.id).distance(120))
-      .force("charge", d3.forceManyBody().strength(-400))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collide", d3.forceCollide().radius(40));
+    const simulation = forceSimulation<Node>(nodes)
+      .force("link", forceLink<Node, Link>(links).id(d => d.id).distance(120))
+      .force("charge", forceManyBody().strength(-400))
+      .force("center", forceCenter(width / 2, height / 2))
+      .force("collide", forceCollide().radius(40));
 
     // Handle zooming
     const g = svg.append("g");
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
@@ -145,7 +150,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
     svg.call(zoom as any);
 
     // Color scale for groups
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const color = scaleOrdinal(schemeCategory10);
 
     // Filter out invalid links (missing sources/targets)
     const validLinks = links.filter(l => 
@@ -163,7 +168,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
       .attr("stroke-width", d => Math.max(1, Math.sqrt(d.value)));
 
     // Define drag behavior
-    const drag = d3.drag<SVGGElement, Node>()
+    const drag = drag<SVGGElement, Node>()
       .on("start", (event, d) => {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;

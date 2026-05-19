@@ -10,7 +10,12 @@
 import React, {
   useState, useEffect, useRef, useCallback, useMemo,
 } from 'react';
-import * as d3 from 'd3';
+import { select } from 'd3-selection';
+import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom';
+import { forceSimulation, forceLink, forceManyBody, forceRadial, forceCollide, forceX, forceY, type SimulationNodeDatum, type Simulation, type SimulationLinkDatum } from 'd3-force';
+import { drag } from 'd3-drag';
+import { easeExpOut, easeCircleOut } from 'd3-ease';
+import { arc } from 'd3-shape';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, Filter, Zap, Info, ChevronRight, Target,
@@ -64,7 +69,7 @@ const ACTOR_MAP: Record<string, string> = {
 type EdgeType = 'coercive' | 'cooperative' | 'competitive' | 'dependent' | 'extractive' | 'spillover';
 type Domain = 'energy' | 'migration' | 'security' | 'finance' | 'infrastructure' | 'media' | 'diplomatic' | 'ideological' | 'strategic';
 
-interface ActorNode extends d3.SimulationNodeDatum {
+interface ActorNode extends SimulationNodeDatum {
   id: string; label: string; tier: 1 | 2 | 3 | 4;
   domain: Domain[]; powerType: 'hard' | 'soft' | 'structural' | 'extractive';
   resources: { economic: number; military: number; diplomatic: number; informational: number };
@@ -228,7 +233,7 @@ const ORBIT: Record<number, number> = { 1: 210, 2: 310, 3: 420, 4: 330 };
 
 export const GeopoliticalNetworkGraph: React.FC = () => {
   const svgRef    = useRef<SVGSVGElement>(null);
-  const simRef    = useRef<d3.Simulation<ActorNode, undefined> | null>(null);
+  const simRef    = useRef<Simulation<ActorNode, undefined> | null>(null);
   const [selectedNode, setSelectedNode] = useState<ActorNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<RelEdge | null>(null);
   const [selectedGame, setSelectedGame] = useState<GameModel | null>(null);
@@ -364,7 +369,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   // Handle pop animations using D3
   useEffect(() => {
     if (!svgRef.current || pops.length === 0) return;
-    const g = d3.select(svgRef.current).select('g.signal-pops');
+    const g = select(svgRef.current).select('g.signal-pops');
     if (g.empty()) return;
 
     const simulationNodes = simRef.current?.nodes() || [];
@@ -393,7 +398,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
 
         pulse.transition()
           .duration(duration)
-          .ease(d3.easeExpOut)
+          .ease(easeExpOut)
           .attr('r', node.size * 3.5)
           .attr('stroke-width', 0)
           .attr('opacity', 0)
@@ -413,14 +418,14 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
 
       ring.transition()
         .duration(duration * 0.8)
-        .ease(d3.easeCircleOut)
+        .ease(easeCircleOut)
         .attr('r', node.size * 3)
         .attr('stroke-width', 0)
         .attr('opacity', 0)
         .remove();
     });
   }, [pops]);
-  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const gRef = useRef<SVGGElement | null>(null);
   const W = 1200, H = 850;
   const CX = W / 2, CY = H / 2;
@@ -446,7 +451,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   // Build graph
   useEffect(() => {
     if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
+    const svg = select(svgRef.current);
     svg.selectAll('*').remove();
 
     const defs = svg.append('defs');
@@ -492,7 +497,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     gRef.current = container.node();
 
     // Zoom behavior
-    const zoom = d3.zoom<SVGSVGElement, unknown>()
+    const zoom = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
       .on('zoom', (event) => {
         container.attr('transform', event.transform);
@@ -505,7 +510,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     const initialScale = 0.95;
     const initialTx = W / 2 - (W / 2 * initialScale);
     const initialTy = H / 2 - (H / 2 * initialScale);
-    svg.call(zoom.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
+    svg.call(zoom.transform, zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
 
     // Orbital rings (decorative) - inside container
     [1, 2, 3].forEach(tier => {
@@ -529,14 +534,14 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
 
     // Links
-    type SimLink = d3.SimulationLinkDatum<ActorNode> & RelEdge;
+    type SimLink = SimulationLinkDatum<ActorNode> & RelEdge;
     const links: SimLink[] = visibleEdges
       .filter(e => nodeMap.has(e.source as string) && nodeMap.has(e.target as string))
       .map(e => ({ ...e }));
 
     // Force simulation
-    const sim = d3.forceSimulation<ActorNode>(nodes)
-      .force('link', d3.forceLink<ActorNode, SimLink>(links)
+    const sim = forceSimulation<ActorNode>(nodes)
+      .force('link', forceLink<ActorNode, SimLink>(links)
         .id(d => d.id)
         .distance(d => {
           const t = d.target as ActorNode;
@@ -544,14 +549,14 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
         })
         .strength(0.4)
       )
-      .force('charge', d3.forceManyBody().strength(-400)) // Stronger repulsion for bigger screen
-      .force('radial', d3.forceRadial<ActorNode>(
+      .force('charge', forceManyBody().strength(-400)) // Stronger repulsion for bigger screen
+      .force('radial', forceRadial<ActorNode>(
         d => d.id === 'TUN' ? 0 : ORBIT[d.tier],
         CX, CY
       ).strength(d => d.id === 'TUN' ? 1 : 0.7))
-      .force('collision', d3.forceCollide<ActorNode>(d => d.size + 15)) // More spacing
-      .force('x', d3.forceX<ActorNode>(CX).strength(d => d.id === 'TUN' ? 1 : 0.05))
-      .force('y', d3.forceY<ActorNode>(CY).strength(d => d.id === 'TUN' ? 1 : 0.05));
+      .force('collision', forceCollide<ActorNode>(d => d.size + 15)) // More spacing
+      .force('x', forceX<ActorNode>(CX).strength(d => d.id === 'TUN' ? 1 : 0.05))
+      .force('y', forceY<ActorNode>(CY).strength(d => d.id === 'TUN' ? 1 : 0.05));
 
     simRef.current = sim;
 
@@ -601,7 +606,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       .join('g')
       .style('cursor', 'pointer')
       .call(
-        d3.drag<SVGGElement, ActorNode>()
+        drag<SVGGElement, ActorNode>()
           .on('start', (event, d) => {
             if (!event.active) sim.alphaTarget(0.3).restart();
             d.fx = d.x; d.fy = d.y;
@@ -647,17 +652,17 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
 
     // Resource bars (economic/military) as arc segment
     nodeGroups.each(function (d) {
-      const g = d3.select(this);
+      const g = select(this);
       const r = d.size * 0.45;
       const econPct = d.resources.economic / 10;
       const milPct = d.resources.military / 10;
 
       // Econ arc (bottom)
-      const econArc = d3.arc()({ innerRadius: r + 3, outerRadius: r + 7, startAngle: Math.PI * 0.1, endAngle: Math.PI * 0.1 + Math.PI * econPct * 1.8 });
+      const econArc = arc()({ innerRadius: r + 3, outerRadius: r + 7, startAngle: Math.PI * 0.1, endAngle: Math.PI * 0.1 + Math.PI * econPct * 1.8 });
       g.append('path').attr('d', econArc!).attr('fill', '#f59e0b').attr('opacity', 0.7);
 
       // Mil arc (top)
-      const milArc = d3.arc()({ innerRadius: r + 3, outerRadius: r + 7, startAngle: -Math.PI * 0.1, endAngle: -Math.PI * 0.1 - Math.PI * milPct * 1.8 });
+      const milArc = arc()({ innerRadius: r + 3, outerRadius: r + 7, startAngle: -Math.PI * 0.1, endAngle: -Math.PI * 0.1 - Math.PI * milPct * 1.8 });
       g.append('path').attr('d', milArc!).attr('fill', '#ef4444').attr('opacity', 0.7);
     });
 
@@ -668,7 +673,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       const stressMax = 90;
       const stress = Math.min(1, incomingWeight / stressMax);
       const stressGroup = container.append('g').attr('class', 'tun-stress');
-      const stressArc = d3.arc()({
+      const stressArc = arc()({
         innerRadius: (tunNode.size * 0.45) + 12,
         outerRadius: (tunNode.size * 0.45) + 18,
         startAngle: -Math.PI,
@@ -739,7 +744,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
       // Sync pop positions in tick
       container.selectAll('.pop-ring, .pop-pulse')
         .each(function() {
-           const pop = d3.select(this);
+           const pop = select(this);
            const actorId = pop.attr('data-actor-id');
            const node = nodes.find(n => n.id === actorId);
            if (node && node.x && node.y) {
@@ -754,7 +759,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
   // Handle visual state updates (hover, game highlights) without rebuilding the whole graph
   useEffect(() => {
     if (!gRef.current) return;
-    const container = d3.select(gRef.current);
+    const container = select(gRef.current);
 
     // Update edge opacities based on hover/game state
     container.selectAll<SVGPathElement, any>('g.edges path')
@@ -900,7 +905,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
               <button 
                 onClick={() => {
                   if (svgRef.current && zoomRef.current) {
-                    d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3);
+                    select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1.3);
                   }
                 }}
                 className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
@@ -911,7 +916,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
               <button 
                 onClick={() => {
                   if (svgRef.current && zoomRef.current) {
-                    d3.select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1/1.3);
+                    select(svgRef.current).transition().duration(300).call(zoomRef.current.scaleBy, 1/1.3);
                   }
                 }}
                 className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"
@@ -925,7 +930,7 @@ export const GeopoliticalNetworkGraph: React.FC = () => {
                     const initialScale = 0.85;
                     const initialTx = (W / 2) * (1 - initialScale);
                     const initialTy = (H / 2) * (1 - initialScale);
-                    d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
+                    select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, zoomIdentity.translate(initialTx, initialTy).scale(initialScale));
                   }
                 }}
                 className="w-10 h-10 glass rounded-xl border border-white/10 flex items-center justify-center text-slate-400 hover:text-intel-cyan hover:border-intel-cyan/50 transition-all shadow-xl"

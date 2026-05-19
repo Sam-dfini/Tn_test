@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Sprout, Droplets, CloudRain, AlertTriangle, TrendingUp, Activity,
@@ -13,7 +13,7 @@ import {
   ComposedChart, PieChart, Pie, RadarChart, Radar, PolarGrid,
   PolarAngleAxis, PolarRadiusAxis, ScatterChart, Scatter, ZAxis,
 } from 'recharts';
-import { Map } from '../shared/Map';
+const Map = React.lazy(() => import('../shared/Map').then(m => ({ default: m.Map })));
 import { Governorate } from '../../types/intel';
 import governoratesData from '../../data/governorates.json';
 import { ModuleHeader, BackgroundGrid, CornerAccent, LiveTicker } from '../shared/ProfessionalShared';
@@ -552,13 +552,15 @@ export const AgriIntelDashboard: React.FC = () => {
               {/* Map */}
               <div className="glass rounded-xl border border-intel-border overflow-hidden">
                 <div className="h-[520px]">
-                  <Map
-                    governorates={mappedGovernorates}
-                    events={[]}
-                    activeLayer={activeMapLayer}
-                    externalActiveLayer="Agricultural Stress"
-                    onSelectGovernorate={(gov) => setSelectedGov((gov as any).id ?? null)}
-                  />
+                  <Suspense fallback={<div className="h-full w-full bg-black/20 animate-pulse" />}>
+                    <Map
+                      governorates={mappedGovernorates}
+                      events={[]}
+                      activeLayer={activeMapLayer}
+                      externalActiveLayer="Agricultural Stress"
+                      onSelectGovernorate={(gov) => setSelectedGov((gov as any).id ?? null)}
+                    />
+                  </Suspense>
                 </div>
               </div>
 

@@ -62,12 +62,12 @@ const safeGetItem = (key: string) => {
 };
 
 // Only mounts when a real mode is active — keeps notifications silent during auth/selection
-const ActiveModeServices: React.FC = () => {
+const ActiveModeServices: React.FC = React.memo(() => {
   useNotificationTriggers();
   return null;
-};
+});
 
-const AppContent: React.FC = () => {
+const AppContent: React.FC = React.memo(() => {
 
   // Track boot sequence (once on mount only)
   useEffect(() => {
@@ -219,7 +219,7 @@ const AppContent: React.FC = () => {
     }
   }, [pendingMode, isLoading]);
 
-  const handleAuthenticate = () => {
+  const handleAuthenticate = useCallback(() => {
     setIsAuthenticated(true);
     try { safeStorage.setItem('ti_authenticated', 'true'); } catch(e) {}
     
@@ -227,41 +227,42 @@ const AppContent: React.FC = () => {
     if (safeGetItem('ti_onboarding_done') !== 'true') {
       setShowOnboarding(true);
     }
-  };
+  }, []);
 
-  const handleModeSelect = (newMode: any) => {
+  const handleModeSelect = useCallback((newMode: any) => {
     // Going home never needs a loading screen
     if (newMode === 'selection') {
       setMode('selection');
       return;
     }
-    if (newMode === mode) return;
     setLoadingProgress(0);
     setLoadingLogs([]);
     dataLoadedRef.current = false;
     setPendingMode(newMode);
     setIsLoading(true);
-  };
+  }, []);
 
-  const handleLoadingComplete = () => {
-    if (pendingMode) {
-      setMode(pendingMode as any);
-      try { safeStorage.setItem('ti_current_mode', pendingMode); } catch(e) {}
-      setPendingMode(null);
-    }
+  const handleLoadingComplete = useCallback(() => {
+    setPendingMode(prev => {
+      if (prev) {
+        setMode(prev as any);
+        try { safeStorage.setItem('ti_current_mode', prev); } catch(e) {}
+        setTimeout(() => setRSSEnabled(true), 500);
+      }
+      return null;
+    });
     setIsLoading(false);
-    setTimeout(() => setRSSEnabled(true), 500);
-  };
+  }, []);
 
-  const handleOpenPipeline = (tab: 'pipeline' | 'sources' | 'ai-api' = 'pipeline') => {
+  const handleOpenPipeline = useCallback((tab: 'pipeline' | 'sources' | 'ai-api' = 'pipeline') => {
     setPipelineTab(tab);
     setShowPipeline(true);
-  };
+  }, []);
 
-  const handleOpenMethodology = (equation?: string) => {
+  const handleOpenMethodology = useCallback((equation?: string) => {
     setMethodologyEquation(equation);
     setShowMethodology(true);
-  };
+  }, []);
 
   useEffect(() => {
     const handleMethodology = (e: any) => {
@@ -538,7 +539,7 @@ const AppContent: React.FC = () => {
       </AnimatePresence>
     </div>
   );
-};
+});
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
   constructor(props: any) {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { connectBackendWebSocket } from '../services/backendClient';
 
 interface WebSocketContextType {
@@ -43,8 +43,12 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, []);
 
+  const value = useMemo(() => ({
+    isConnected, lastMessage, sendMessage
+  }), [isConnected, lastMessage, sendMessage]);
+
   return (
-    <WebSocketContext.Provider value={{ isConnected, lastMessage, sendMessage }}>
+    <WebSocketContext.Provider value={value}>
       {children}
     </WebSocketContext.Provider>
   );

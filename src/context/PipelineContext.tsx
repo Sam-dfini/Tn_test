@@ -1,5 +1,5 @@
 import { safeStorage } from '../utils/storage';
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ShockSignal } from '../types/intel';
 import { PRESET_SHOCKS } from '../config/shocks';
 import calculateRRI, {
@@ -417,6 +417,22 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   });
 
+  // Refs for latest state to avoid recreating callbacks
+  const dataRef = useRef(data);
+  const cognitiveEnvRef = useRef(cognitiveEnvironment);
+  const miiProfileRef = useRef(miiProfile);
+  const rpiProfileRef = useRef(rpiProfile);
+  const seiResultRef = useRef(seiResult);
+  const articleCacheRef = useRef(articleCache);
+  const rriStateRef = useRef(rriState);
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { cognitiveEnvRef.current = cognitiveEnvironment; }, [cognitiveEnvironment]);
+  useEffect(() => { miiProfileRef.current = miiProfile; }, [miiProfile]);
+  useEffect(() => { rpiProfileRef.current = rpiProfile; }, [rpiProfile]);
+  useEffect(() => { seiResultRef.current = seiResult; }, [seiResult]);
+  useEffect(() => { articleCacheRef.current = articleCache; }, [articleCache]);
+  useEffect(() => { rriStateRef.current = rriState; }, [rriState]);
+
   useEffect(() => {
     try {
       safeStorage.setItem('ti_platform_data', JSON.stringify(data));
@@ -430,43 +446,48 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [auditLog]);
 
   const recalculateRRI = useCallback(() => {
+    const d = dataRef.current;
+    const ce = cognitiveEnvRef.current;
+    const mp = miiProfileRef.current;
+    const ac = articleCacheRef.current;
+    if (!d) return;
     try {
       // Build base overrides from current pipeline data
       const baseOverrides: Record<string, number> = {
-        'economy.fx_reserves': data.economy.fx_reserves,
-        'economy.inflation': data.economy.inflation,
-        'economy.unemployment': data.economy.unemployment,
-        'economy.tnd_usd': data.economy.tnd_usd,
-        'economy.remittances_total_bnd': data.economy.remittances_total_bnd ?? 8.8,
-        'economy.parallel_market_premium': data.economy.parallel_market_premium ?? 18,
-        'economy.cpi_score': data.economy.cpi_score ?? 40,
-        'economy.heritage_freedom_score': data.economy.heritage_freedom_score ?? 49.8,
-        'economy.fdi_inflow_usd': data.economy.fdi_inflow_usd ?? 0.9,
-        'social.protest_events_30d': data.social.protest_events_30d,
-        'social.decree54_charged': data.social.decree54_charged,
+        'economy.fx_reserves': d.economy.fx_reserves,
+        'economy.inflation': d.economy.inflation,
+        'economy.unemployment': d.economy.unemployment,
+        'economy.tnd_usd': d.economy.tnd_usd,
+        'economy.remittances_total_bnd': d.economy.remittances_total_bnd ?? 8.8,
+        'economy.parallel_market_premium': d.economy.parallel_market_premium ?? 18,
+        'economy.cpi_score': d.economy.cpi_score ?? 40,
+        'economy.heritage_freedom_score': d.economy.heritage_freedom_score ?? 49.8,
+        'economy.fdi_inflow_usd': d.economy.fdi_inflow_usd ?? 0.9,
+        'social.protest_events_30d': d.social.protest_events_30d,
+        'social.decree54_charged': d.social.decree54_charged,
         'social.ugtt_mobilisation_level':
-          data.social.ugtt_mobilisation_level === 'HIGH' ? 80 :
-          data.social.ugtt_mobilisation_level === 'ELEVATED' ? 65 : 50,
-        'social.water_crisis_govs': data.social.water_crisis_govs,
-        'social.press_freedom_rank': data.social.press_freedom_rank ?? 118,
+          d.social.ugtt_mobilisation_level === 'HIGH' ? 80 :
+          d.social.ugtt_mobilisation_level === 'ELEVATED' ? 65 : 50,
+        'social.water_crisis_govs': d.social.water_crisis_govs,
+        'social.press_freedom_rank': d.social.press_freedom_rank ?? 118,
         'social.youth_emigration_aspiration_pct':
-          data.social.youth_emigration_aspiration_pct ?? 65,
+          d.social.youth_emigration_aspiration_pct ?? 65,
         'social.engineers_leaving_per_year':
-          data.social.engineers_leaving_per_year ?? 3500,
+          d.social.engineers_leaving_per_year ?? 3500,
         'social.coast_guard_interceptions':
-          data.social.coast_guard_interceptions ?? 23000,
+          d.social.coast_guard_interceptions ?? 23000,
         'social.smuggling_network_revenue_usd_m':
-          data.social.smuggling_network_revenue_usd_m ?? 57,
+          d.social.smuggling_network_revenue_usd_m ?? 57,
         'geopolitical.imf_deal_probability':
-          data.geopolitical?.imf_deal_probability ?? 31,
+          d.geopolitical?.imf_deal_probability ?? 31,
         'geopolitical.external_debt_2026':
-          data.geopolitical?.external_debt_2026 ?? 4.2,
-        'energy.steg_debt': data.energy?.steg_debt ?? 4.2,
+          d.geopolitical?.external_debt_2026 ?? 4.2,
+        'energy.steg_debt': d.energy?.steg_debt ?? 4.2,
       };
 
       // Apply overrides from active signals
       const signalOverrides: Record<string, number> = {};
-      data.active_signals.forEach(sig => {
+      d.active_signals.forEach(sig => {
         Object.entries(sig.overrides).forEach(([key, val]) => {
           signalOverrides[key] = val;
         });
@@ -476,41 +497,41 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       // ── EQ.3 — War Distraction / Media Salience ──────────────────────────
       // Compute dynamic conflict distraction from recent RSS articles
-      const mediaSalience = computeMediaSalience(articleCache, 72);
+      const mediaSalience = computeMediaSalience(ac, 72);
       overrides['_media_salience_norm'] = mediaSalience;
       overrides['_battle_deaths_norm'] = mediaSalience * 0.7 + 0.1;
 
       // EQ.3 inputs — derived from pipeline data (previously hardcoded fallbacks)
-      overrides['_cp_t'] = Math.min(1, (data.social?.press_freedom_rank ?? 118) / 180);
-      overrides['_dp_t'] = Math.min(1, (data.economy?.remittances_total_bnd ?? 8.8) / 15);
-      overrides['_p_t'] = 1 - Math.min(0.8, (data.social?.press_freedom_rank ?? 118) / 180);
-      overrides['_dd_t'] = 1 - Math.min(1, (data.social?.street_signal ?? 0.78));
-      overrides['_cr_t'] = Math.min(1, ((data.social?.engineers_leaving_per_year ?? 3500) / 5000) * 0.5 + 0.2);
-      overrides['_r_total_usd'] = (data.economy?.remittances_total_bnd ?? 8.8) * 1000;
+      overrides['_cp_t'] = Math.min(1, (d.social?.press_freedom_rank ?? 118) / 180);
+      overrides['_dp_t'] = Math.min(1, (d.economy?.remittances_total_bnd ?? 8.8) / 15);
+      overrides['_p_t'] = 1 - Math.min(0.8, (d.social?.press_freedom_rank ?? 118) / 180);
+      overrides['_dd_t'] = 1 - Math.min(1, (d.social?.street_signal ?? 0.78));
+      overrides['_cr_t'] = Math.min(1, ((d.social?.engineers_leaving_per_year ?? 3500) / 5000) * 0.5 + 0.2);
+      overrides['_r_total_usd'] = (d.economy?.remittances_total_bnd ?? 8.8) * 1000;
 
       // EQ.19 — Info Amplification inputs
-      overrides['_press_freedom'] = data.social?.press_freedom_rank ?? 118;
-      overrides['_internet_censorship'] = 1 - Math.min(1, (data.social?.street_signal ?? 0.78));
-      overrides['_social_media_pen'] = 1 - Math.min(1, (data.social?.happiness_index ?? 4.2) / 10);
-      overrides['_throttling'] = (data.social?.decree54_charged ?? 67) > 50 ? 14 : 5;
+      overrides['_press_freedom'] = d.social?.press_freedom_rank ?? 118;
+      overrides['_internet_censorship'] = 1 - Math.min(1, (d.social?.street_signal ?? 0.78));
+      overrides['_social_media_pen'] = 1 - Math.min(1, (d.social?.happiness_index ?? 4.2) / 10);
+      overrides['_throttling'] = (d.social?.decree54_charged ?? 67) > 50 ? 14 : 5;
 
       // EQ.18 — Elite defection inputs
-      overrides['_parallel_premium'] = data.economy?.parallel_market_premium ?? 18;
-      overrides['_decree54'] = data.social?.decree54_charged ?? 67;
-      overrides['_fdi_change'] = (data.economy?.fdi_inflow_usd ?? 0.9) - 1;
+      overrides['_parallel_premium'] = d.economy?.parallel_market_premium ?? 18;
+      overrides['_decree54'] = d.social?.decree54_charged ?? 67;
+      overrides['_fdi_change'] = (d.economy?.fdi_inflow_usd ?? 0.9) - 1;
       // ─────────────────────────────────────────────────────────────────────
 
       // ── EQ.10 — Ψ_soc(t) SBDE Integration ──────────────────────────────
       // Compute live SBDE with economic stress from current pipeline data
-      const econStress = Math.min(1, (data.economy?.inflation ?? 7.1) / 15);
+      const econStress = Math.min(1, (d.economy?.inflation ?? 7.1) / 15);
       const liveSbde = computeSBDE({
         ...DEFAULT_SBDE_INPUTS,
         economic_stress: econStress,
-        youth_unemployment_rate: (data.economy?.youth_unemployment ?? 37.8) / 100,
-        suicide_rate_normalized: Math.min(1, (data.social?.suicide_rate ?? 12.4) / 20),
-        mental_health_proxy: (data.social?.mental_health_stress ?? 68) / 100,
-        divorce_rate_normalized: Math.min(1, (data.social?.divorce_rate ?? 22.1) / 40),
-        street_crime_rate: Math.min(1, (data.social?.illegal_crossing_attempts ?? 36000) / 60000),
+        youth_unemployment_rate: (d.economy?.youth_unemployment ?? 37.8) / 100,
+        suicide_rate_normalized: Math.min(1, (d.social?.suicide_rate ?? 12.4) / 20),
+        mental_health_proxy: (d.social?.mental_health_stress ?? 68) / 100,
+        divorce_rate_normalized: Math.min(1, (d.social?.divorce_rate ?? 22.1) / 40),
+        street_crime_rate: Math.min(1, (d.social?.illegal_crossing_attempts ?? 36000) / 60000),
       });
       setSbdeResult(liveSbde);
 
@@ -518,8 +539,8 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       overrides['_psi_soc'] = liveSbde.psi_soc;
       overrides['_psi_soc_weight'] = W_PSI_RRI;
       // ── EQ.COG — Cognitive Warfare Injection ──────────────────────────
-      if (cognitiveEnvironment) {
-        const cogwarRRI = mapShockVectorToRRI(cognitiveEnvironment);
+      if (ce) {
+        const cogwarRRI = mapShockVectorToRRI(ce);
         overrides['_cogwar_epsilon_magnitude'] = cogwarRRI.epsilon_magnitude;
         overrides['_cogwar_epsilon_weight'] = cogwarRRI.epsilon_weight;
         overrides['_cogwar_salience_nudge'] = cogwarRRI.salience_nudge;
@@ -527,10 +548,10 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         overrides['_cogwar_cascade_risk_delta'] = cogwarRRI.cascade_risk_delta;
       }
       // ── EQ.21 — MII (Ministerial Instability Index) Injection ─────────
-      if (miiProfile) {
-        overrides['_mii_score'] = miiProfile.mii ?? 0.4;
-        overrides['_mii_eq7_defections'] = miiProfile.eq7_defections ?? 0;
-        overrides['_mii_eq18_addon'] = miiProfile.eq18_delta_defection ?? 0;
+      if (mp) {
+        overrides['_mii_score'] = mp.mii ?? 0.4;
+        overrides['_mii_eq7_defections'] = mp.eq7_defections ?? 0;
+        overrides['_mii_eq18_addon'] = mp.eq18_delta_defection ?? 0;
       }
       // ─────────────────────────────────────────────────────────────────────
 
@@ -584,7 +605,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
 
       const newState = calculateRRI(csVars, 0);
-      newState.active_signals = data.active_signals;
+      newState.active_signals = d.active_signals;
       setRriState(newState);
 
       // ── Notification: RRI threshold breach ───────────────────────────────
@@ -637,7 +658,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     } catch(e) {
       console.error('RRI recalculation failed:', e);
     }
-  }, [data.economy, data.social, data.geopolitical, data.energy]);
+  }, []);
 
   const [pipelineStats, setPipelineStats] = useState<any>(null);
 
@@ -783,12 +804,20 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Snapshot every 6 hours in background, or on significant RRI jump (>0.2)
     const SNAPSHOT_INTERVAL = 6 * 60 * 60 * 1000;
-    let lastRRI = rriState.rri;
+    let lastRRI = rriStateRef.current.rri;
 
     const runSnapshot = async (reason: 'RECALCULATE' | 'THRESHOLD_BREACH' | 'MANUAL' | 'SCHEDULED') => {
       try {
-        const engines = { miiProfile, rpiProfile, cognitiveEnvironment, seiResult };
-        await storePrediction(rriState, data, engines, 14, reason);
+        const d = dataRef.current;
+        const rs = rriStateRef.current;
+        const engines = {
+          miiProfile: miiProfileRef.current,
+          rpiProfile: rpiProfileRef.current,
+          cognitiveEnvironment: cognitiveEnvRef.current,
+          seiResult: seiResultRef.current,
+        };
+        if (!d || !rs) return;
+        await storePrediction(rs, d, engines, 14, reason);
         console.log(`[LEARNING_LOOP] Snapshot stored: ${reason}`);
       } catch (e) {
         console.warn('[LEARNING_LOOP] Snapshot failed:', e);
@@ -797,14 +826,14 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const interval = setInterval(() => {
       runSnapshot('SCHEDULED');
-      evaluatePendingPredictions(data).catch(console.error);
+      evaluatePendingPredictions(dataRef.current).catch(console.error);
     }, SNAPSHOT_INTERVAL);
 
     // Initial evaluation on load
-    evaluatePendingPredictions(data).catch(console.error);
+    evaluatePendingPredictions(dataRef.current).catch(console.error);
 
     return () => clearInterval(interval);
-  }, [isPaused, rriState.rri, data, miiProfile, rpiProfile, cognitiveEnvironment, seiResult]);
+  }, [isPaused, rriState.rri]);
 
   useEffect(() => {
     const handler = async (e: any) => {
@@ -1036,50 +1065,59 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setTimeout(() => recalculateRRI(), 100);
   }, [recalculateRRI]);
 
+  const loadPipelineData = useCallback(() => {
+    try {
+      const saved = safeStorage.getItem('ti_platform_data');
+      if (saved) {
+        setData(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Failed to load pipeline data:', e);
+    }
+  }, []);
+
   const updateArticleCache = useCallback((articles: any) => {
     if (!articles) return;
     setArticleCache(articles);
 
     // Instant Layer-1 detection for RPI and CogWar to keep dashboard fresh
-    const rpi = analyzeRadicalisation(articles, rriState.w_t ?? 0.35);
-    const cog = quickScan(articles, rriState);
+    const rs = rriStateRef.current;
+    if (!rs) return;
+    const rpi = analyzeRadicalisation(articles, rs.w_t ?? 0.35);
+    const cog = quickScan(articles, rs);
     const sei = analyzeSEI(articles);
 
     setRpiProfile(rpi);
     setCognitiveEnvironment(cog);
     setSeiResult(sei);
-  }, [rriState]);
+  }, []);
+
+  const value = useMemo(() => ({
+    data, updateField, pushApprovedChanges, 
+    resetToDefaults, addAuditEntry, auditLog,
+    rriState, recalculateRRI,
+    aiAnalysis, forecast, isAIAnalysisLoading,
+    miiProfile, actorNetwork, temporalAnalysis, agriSummary, agroSummary, seiResult,
+    sbdeResult,
+    runAIAnalysis,
+    loadPipelineData,
+    isPaused,
+    togglePause,
+    injectSignal,
+    injectShock,
+    clearShocks,
+    activeSignals: data.active_signals,
+    updateArticleCache,
+    rpiProfile,
+    cognitiveEnvironment
+  }), [data, auditLog, aiAnalysis, forecast, isAIAnalysisLoading, miiProfile, sbdeResult,
+      actorNetwork, temporalAnalysis, seiResult, rpiProfile, cognitiveEnvironment,
+      agriSummary, agroSummary, isPaused, rriState, updateField, pushApprovedChanges,
+      resetToDefaults, addAuditEntry, recalculateRRI, togglePause, injectSignal,
+      injectShock, clearShocks, updateArticleCache, loadPipelineData, runAIAnalysis]);
 
   return (
-    <PipelineContext.Provider value={{
-      data, updateField, pushApprovedChanges, 
-      resetToDefaults, addAuditEntry, auditLog,
-      rriState, recalculateRRI,
-      aiAnalysis, forecast, isAIAnalysisLoading,
-      miiProfile, actorNetwork, temporalAnalysis, agriSummary, agroSummary, seiResult,
-      sbdeResult,
-      runAIAnalysis,
-      loadPipelineData: () => {
-        // Load pipeline data from local storage or initialize defaults
-        try {
-          const saved = safeStorage.getItem('ti_platform_data');
-          if (saved) {
-            setData(JSON.parse(saved));
-          }
-        } catch (e) {
-          console.error('Failed to load pipeline data:', e);
-        }
-      },
-      isPaused,
-      togglePause,
-      injectSignal,
-      injectShock,
-      clearShocks,
-      activeSignals: data.active_signals,
-      updateArticleCache,
-      rpiProfile,
-      cognitiveEnvironment
-    }}>
+    <PipelineContext.Provider value={value}>
       {children}
     </PipelineContext.Provider>
   );

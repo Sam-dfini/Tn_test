@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { safeStorage } from '../utils/storage';
 
 import { generateRandomId } from '../utils/idUtils';
@@ -47,8 +47,12 @@ export const AuditProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAuditLog([]);
   }, []);
 
+  const value = useMemo(() => ({
+    auditLog, addAuditEntry, clearAuditLog
+  }), [auditLog, addAuditEntry, clearAuditLog]);
+
   return (
-    <AuditContext.Provider value={{ auditLog, addAuditEntry, clearAuditLog }}>
+    <AuditContext.Provider value={value}>
       {children}
     </AuditContext.Provider>
   );

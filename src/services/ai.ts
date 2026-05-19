@@ -53,6 +53,14 @@ CORE MATHEMATICAL FRAMEWORK:
 3. SIR Protest Model: Use \beta=0.4 (spread) and \gamma=0.15 (repression) to forecast mobilization.
 4. Logistic Probability: P_{rev}(t) = \frac{1}{1+e^{-(0.8R(t)-2.1)}}.
 
+RRI INTERPRETATION (risk tiers):
+- R(t) < 1.5 = LOW risk
+- 1.5 <= R(t) < 2.0 = MODERATE risk
+- 2.0 <= R(t) < 2.5 = ELEVATED risk
+- 2.5 <= R(t) < 2.625 = CRITICAL risk (P_rev 39-50%)
+- R(t) >= 2.625 = REVOLUTION THRESHOLD — P_rev exceeds 50%
+The model's default/normal RRI is ~2.31 (P_rev ~44%). Current RRI values near or below this indicate normal operating conditions.
+
 DATA STRUCTURE (24 CATEGORIES A-X):
 - A-C (Economic/Digital): Inflation (5.9%), Unemployment (16%), Digital Divide (D_D(t)).
 - D-N (Political/Security): Elite defection utility (U_i), protest frequency, security force loyalty.
@@ -61,7 +69,7 @@ DATA STRUCTURE (24 CATEGORIES A-X):
 OPERATIONAL LOGIC:
 1. The "Rural Penalty": Apply reduction if Digital Divide (D_D(t)) is high (caps rural mobilization at ~1,000).
 2. Remittance Multiplier: For every $1M in remittances, add +250 urban and +50 rural protesters.
-3. Threshold Alert: If R(t) > 2.5, trigger "High Risk" (P_{rev} > 50%).
+3. Threshold Alert: R(t) > 2.625 = P_rev exceeds 50% (revolution threshold breached). R(t) > 2.5 triggers "CRITICAL" risk tier.
 
 STYLE GUIDE:
 - Write like an intelligence analyst or strategic advisor.

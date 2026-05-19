@@ -1,7 +1,7 @@
 import { safeStorage } from '../utils/storage';
 import React, {
   createContext, useContext, useState,
-  useEffect, useCallback, useRef
+  useEffect, useCallback, useRef, useMemo
 } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────
@@ -227,16 +227,21 @@ export const AIProvider_: React.FC<{
     return true;
   }, [isPaused, provider, quotaExhausted, dailyCalls, dailyBudget]);
 
+  const value = useMemo(() => ({
+    provider, mode, apiKey, dailyBudget,
+    status, dailyCalls, callsThisSession,
+    lastError, quotaExhausted, lastCallAt,
+    isPaused,
+    setProvider, setMode, setApiKey, setDailyBudget, setIsPaused,
+    recordCall, recordError, recordQuotaExhausted,
+    resetDailyCalls, clearError, canCallAI,
+  }), [provider, mode, apiKey, dailyBudget, status, dailyCalls, callsThisSession,
+      lastError, quotaExhausted, lastCallAt, isPaused, setProvider, setMode,
+      setApiKey, setDailyBudget, setIsPaused, recordCall, recordError,
+      recordQuotaExhausted, resetDailyCalls, clearError, canCallAI]);
+
   return (
-    <AIContext.Provider value={{
-      provider, mode, apiKey, dailyBudget,
-      status, dailyCalls, callsThisSession,
-      lastError, quotaExhausted, lastCallAt,
-      isPaused,
-      setProvider, setMode, setApiKey, setDailyBudget, setIsPaused,
-      recordCall, recordError, recordQuotaExhausted,
-      resetDailyCalls, clearError, canCallAI,
-    }}>
+    <AIContext.Provider value={value}>
       {children}
     </AIContext.Provider>
   );

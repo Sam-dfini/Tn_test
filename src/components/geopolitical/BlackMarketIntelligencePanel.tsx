@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Lock, AlertCircle, ShoppingBag, TrendingUp, AlertTriangle,
@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { motion as m } from 'motion/react';
 import { ModuleHeader, BackgroundGrid, ScanlineOverlay } from '../shared/ProfessionalShared';
-import { Map } from '../shared/Map';
+const Map = React.lazy(() => import('../shared/Map').then(m => ({ default: m.Map })));
 import governoratesData from '../../data/governorates.json';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -634,15 +634,17 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                   </div>
                 </div>
                 <div className="h-[420px]">
-                  <Map
-                    governorates={(governoratesData.governorates as any[]).map(g => {
-                      const bmi = GOVERNORATE_BMI.find(b => b.id === g.id || b.name === g.name?.en);
-                      return { ...g, rri_score: bmi ? bmi.bmi * 3 : 1.2 };
-                    })}
-                    events={[]}
-                    activeLayer="Security"
-                    heatmapPoints={SMUGGLING_ROUTES.flatMap(r => [])}
-                  />
+                  <Suspense fallback={<div className="h-full w-full bg-black/20 animate-pulse" />}>
+                    <Map
+                      governorates={(governoratesData.governorates as any[]).map(g => {
+                        const bmi = GOVERNORATE_BMI.find(b => b.id === g.id || b.name === g.name?.en);
+                        return { ...g, rri_score: bmi ? bmi.bmi * 3 : 1.2 };
+                      })}
+                      events={[]}
+                      activeLayer="Security"
+                      heatmapPoints={SMUGGLING_ROUTES.flatMap(r => [])}
+                    />
+                  </Suspense>
                 </div>
               </div>
 

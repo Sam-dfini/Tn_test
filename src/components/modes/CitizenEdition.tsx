@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Home as HomeIcon,
@@ -34,7 +34,7 @@ import {
 import { CitizenIcon } from '../shared/Icons';
 import { Governorate, IntelEvent } from '../../types/intel';
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
-import { Map } from '../shared/Map';
+const Map = React.lazy(() => import('../shared/Map').then(m => ({ default: m.Map })));
 import { EconomicReality } from '../economy/EconomicReality';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useRSS } from '../../context/RSSContext';
@@ -653,18 +653,20 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
               </div>
 
               <div className="h-96 w-full relative">
-                <Map 
-                  governorates={governorates} 
-                  events={events} 
-                  activeLayer="Vulnerability" 
-                  heatmapPoints={heatmapPoints}
-                  onSelectGovernorate={(gov) => {
-                    // Navigate to govs tab if it existed, or just do nothing for citizen
-                  }}
-                  onSimulate={(id, name) => {
-                    // Navigate to propagation tab if it existed, or just do nothing for citizen
-                  }}
-                />
+                <Suspense fallback={<div className="h-full w-full bg-black/20 animate-pulse" />}>
+                  <Map 
+                    governorates={governorates} 
+                    events={events} 
+                    activeLayer="Vulnerability" 
+                    heatmapPoints={heatmapPoints}
+                    onSelectGovernorate={(gov) => {
+                      // Navigate to govs tab if it existed, or just do nothing for citizen
+                    }}
+                    onSimulate={(id, name) => {
+                      // Navigate to propagation tab if it existed, or just do nothing for citizen
+                    }}
+                  />
+                </Suspense>
               </div>
             </div>
 

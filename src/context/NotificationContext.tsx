@@ -2,7 +2,7 @@ import { generateRandomId } from '../utils/idUtils';
 import { safeStorage } from '../utils/storage';
 import React, {
   createContext, useContext, useState,
-  useEffect, useCallback
+  useEffect, useCallback, useMemo
 } from 'react';
 
 // ============================================================
@@ -224,17 +224,19 @@ export const NotificationProvider: React.FC<{
     n => !n.read && n.priority === 'CRITICAL'
   ).length;
 
+  const value = useMemo(() => ({
+    notifications,
+    unreadCount,
+    criticalCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+    clearRead,
+  }), [notifications, addNotification, markAsRead, markAllAsRead, clearAll, clearRead]);
+
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      unreadCount,
-      criticalCount,
-      addNotification,
-      markAsRead,
-      markAllAsRead,
-      clearAll,
-      clearRead,
-    }}>
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );

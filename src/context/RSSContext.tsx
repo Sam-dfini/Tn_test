@@ -359,23 +359,27 @@ export const RSSProvider: React.FC<{
     new Date(a.published_at) > new Date(Date.now() - 86400000)
   ).length;
 
+  const value = useMemo(() => ({
+    articles,
+    events,
+    totalArticles,
+    lastFetch,
+    isFetching,
+    fetchNow,
+    syncErrors,
+    notifications,
+    unreadCount,
+    addAlert: addNotification,
+    markRead: markAsRead,
+    markAllRead: markAllAsRead,
+    newArticlesCount,
+    highSeverityToday,
+  }), [articles, events, totalArticles, lastFetch, isFetching, fetchNow, syncErrors,
+      notifications, unreadCount, addNotification, markAsRead, markAllAsRead,
+      newArticlesCount, highSeverityToday]);
+
   return (
-    <RSSContext.Provider value={{
-      articles,
-      events,
-      totalArticles,
-      lastFetch,
-      isFetching,
-      fetchNow,
-      syncErrors,
-      notifications,
-      unreadCount,
-      addAlert: addNotification,
-      markRead: markAsRead,
-      markAllRead: markAllAsRead,
-      newArticlesCount,
-      highSeverityToday,
-    }}>
+    <RSSContext.Provider value={value}>
       {children}
     </RSSContext.Provider>
   );
