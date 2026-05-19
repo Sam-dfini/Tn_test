@@ -64,7 +64,7 @@ import { usePipeline } from '../../context/PipelineContext';
 
 // --- Types ---
 
-type Tab = 'monte-carlo' | 'scenario' | 'scenario-compare' | 'agent' | 'ai-multi' | 'backtesting' | 'propagation';
+type Tab = 'monte-carlo' | 'propagation' | 'scenario' | 'scenario-compare' | 'agent' | 'ai-multi' | 'backtesting';
 
 interface Scenario {
   id: string;
@@ -353,30 +353,54 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
     setAiResponses([]);
     
     try {
+      // 1. Determine which model to use (Prefer user-assigned Analysis role)
+      const aiConfigStr = localStorage.getItem('ti_ai_models');
+      const roleAssignStr = localStorage.getItem('ti_ai_roles');
+      const aiNodes: any[] = aiConfigStr ? JSON.parse(aiConfigStr) : [];
+      const roles: any = roleAssignStr ? JSON.parse(roleAssignStr) : {};
+      
+      const assignedNodeId = roles['ANALYSIS'];
+      const node = aiNodes.find(n => n.id === assignedNodeId);
+      
       const prompt = `Perform a multi-agent simulation for the following scenario: "${aiSeed}". 
       Analyze from 6 perspectives: Realist, Institutionalist, Constructivist, Security, Economist, and Civil Society.
-      Return a JSON array of objects with "id", "persona", "forecast" (0-100), "reasoning", and "dissent" (boolean).`;
+      Format your output as a valid JSON array of 6 objects with fields: "id" (one of: realist, inst, const, sec, econ, civil), "persona", "forecast" (0-100), "reasoning", and "dissent" (boolean). 
+      DO NOT INCLUDE MARKDOWN FORMATTING OR ANY TEXT OTHER THAN THE JSON.`;
       
-      const response = await generateAnalystResponse(prompt, context || {
-        rri: rriState.rri,
-        pRev: rriState.p_rev,
-        events: [],
-        governorates: [],
-        actors: [],
-        movements: []
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          config: {
+            provider: node?.provider || 'cerebras',
+            model: node?.modelName || 'llama3.1-8b',
+            temperature: 0.7
+          }
+        })
       });
-      // Mocking the structured response for now as geminiService returns text
-      // In a real app, we'd parse the JSON from the text
-      const mockResponses = ANALYST_PERSONAS.map(p => ({
-        id: p.id,
-        persona: p.name,
-        forecast: Math.floor(Math.random() * 40) + 40,
-        reasoning: `Based on the ${p.role} framework, this scenario suggests a significant shift in power dynamics. The primary risk factor is the decoupling of elite interests from security apparatus stability.`,
-        dissent: Math.random() > 0.8
-      }));
+
+      if (!response.ok) throw new Error('AI Analysis Request Failed');
+      const data = await response.json();
       
-      setAiResponses(mockResponses);
-      setAiForecast(Math.round(mockResponses.reduce((a, b) => a + b.forecast, 0) / mockResponses.length));
+      // Parse the JSON from the text response
+      let parsed;
+      try {
+        const cleanText = data.text.replace(/```json|```/g, '').trim();
+        parsed = JSON.parse(cleanText);
+      } catch (e) {
+        console.warn('Failed to parse AI JSON, falling back to mock UI data mapping');
+        parsed = ANALYST_PERSONAS.map(p => ({
+          id: p.id,
+          persona: p.name,
+          forecast: 50,
+          reasoning: data.text.substring(0, 150) + "...",
+          dissent: false
+        }));
+      }
+      
+      setAiResponses(parsed);
+      setAiForecast(Math.round(parsed.reduce((a: any, b: any) => a + (b.forecast || 50), 0) / parsed.length));
     } catch (error) {
       console.error('AI Simulation failed:', error);
     } finally {
@@ -1136,12 +1160,12 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="flex items-center space-x-1 bg-white/5 p-1 rounded-xl border border-white/10 w-fit max-w-full overflow-x-auto scrollbar-hide">
           {prepareList([
             { id: 'monte-carlo', label: 'Monte Carlo', icon: BarChart3 },
+            { id: 'propagation', label: 'Propagation', icon: Activity },
             { id: 'scenario', label: 'Scenario Simulator', icon: Settings2 },
             { id: 'scenario-compare', label: 'Scenario Compare', icon: Settings2 },
             { id: 'agent', label: 'Agent Simulation', icon: Users },
             { id: 'ai-multi', label: 'AI Multi-Agent', icon: Brain },
             { id: 'backtesting', label: 'Backtesting', icon: History },
-            { id: 'propagation', label: 'Propagation', icon: Activity },
           ]).map((tab: any, i: number) => (
             <button
               key={generateStableKey(tab, i, 'tab')}
@@ -1169,11 +1193,6 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               transition={{ duration: 0.3 }}
             >
               {activeTab === 'monte-carlo' && renderMonteCarlo()}
-              {activeTab === 'scenario' && renderScenarioSimulator()}
-              {activeTab === 'scenario-compare' && <ScenarioCompare variables={simVariables} />}
-              {activeTab === 'agent' && renderAgentSimulation()}
-              {activeTab === 'ai-multi' && renderAIMultiAgent()}
-              {activeTab === 'backtesting' && renderBacktesting()}
               {activeTab === 'propagation' && (
                 <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="bg-gradient-to-br from-red-950/10 to-transparent border border-red-500/20 rounded-2xl p-6">
@@ -1289,6 +1308,11 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   </div>
                 </div>
               )}
+              {activeTab === 'scenario' && renderScenarioSimulator()}
+              {activeTab === 'scenario-compare' && <ScenarioCompare variables={simVariables} />}
+              {activeTab === 'agent' && renderAgentSimulation()}
+              {activeTab === 'ai-multi' && renderAIMultiAgent()}
+              {activeTab === 'backtesting' && renderBacktesting()}
             </motion.div>
           </AnimatePresence>
         </div>

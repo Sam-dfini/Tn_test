@@ -286,12 +286,16 @@ const AppContent: React.FC = () => {
     const handleGoHome = () => setMode('selection');
     window.addEventListener('navigate-to-home', handleGoHome);
 
+    const handleSystemCommand = () => setShowDebug(prev => !prev);
+    window.addEventListener('navigate-to-system-command', handleSystemCommand);
+
     return () => {
       window.removeEventListener('navigate-to-methodology', handleMethodology);
       window.removeEventListener('navigate-to-pipeline', handlePipeline);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('navigate-to-observability', handleObservability);
       window.removeEventListener('navigate-to-home', handleGoHome);
+      window.removeEventListener('navigate-to-system-command', handleSystemCommand);
     };
   }, []);
 

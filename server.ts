@@ -23,24 +23,8 @@ import { spawn } from 'child_process';
 logSection('=== TUNISIAINTEL BOOT SEQUENCE ===');
 BootMarkers.BACKEND_START();
 
-// Initialize Gemini API
-if (!process.env.GEMINI_API_KEY) {
-  console.warn('WARNING: GEMINI_API_KEY is not defined in the environment.');
-  console.log('Available env keys:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('KEY') || k.includes('GEMINI')));
-} else {
-  console.log('GEMINI_API_KEY is defined. Length:', process.env.GEMINI_API_KEY.length);
-  if (process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY')) {
-    console.error('ERROR: GEMINI_API_KEY contains placeholder value "MY_GEMINI_API_KEY".');
-  }
-}
-
-const genAI = process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('MY_GEMINI_API_KEY') 
-  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
-  : null;
-
-if (!genAI) {
-  console.warn("AI disabled");
-}
+// AI is DISABLED by default. Enable from System Command Center.
+console.log('[AI] Server-side AI disabled. Use System Command Center to configure and enable.');
 
 // Start the Python FastAPI backend on port 8000
 function startPythonBackend() {
@@ -441,138 +425,200 @@ async function startServer() {
     return true;
   }
 
-  // AI Proxy Endpoint
-  app.post('/api/ai', async (req, res) => {
-    const clientIp = req.ip || req.socket?.remoteAddress || 'unknown';
-    if (!checkAiRateLimit(clientIp)) {
-      return res.status(429).json({ error: 'AI rate limited. Please wait before sending another request.' });
-    }
-    console.log('Received request to /api/ai');
-    const { prompt, config } = req.body;
-    if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
-    }
-
-    // 1. TRY OPENAI FIRST (User requested priority)
-    const openAIApiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
-    if (openAIApiKey && !openAIApiKey.includes('MY_OPENAI_API_KEY')) {
-      try {
-        console.log('Attempting OpenAI generation...');
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openAIApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: config?.model?.includes('gpt') ? config.model : 'gpt-4o',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: config?.temperature ?? 0.1,
-            top_p: config?.topP ?? 0.8,
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
-        } else if (response.status === 429) {
-          console.info('[AI] OpenAI rate limited. Falling back...');
-        } else {
-          const errorData = await response.text();
-          console.warn(`[AI] OpenAI failed (Status ${response.status}). Falling back to Gemini...`);
-        }
-      } catch (error: any) {
-        console.warn('OpenAI primary attempt errored. Falling back to Gemini...', error.message);
-      }
-    }
-
-    // 2. FALLBACK TO GEMINI (Primary fallback)
+  // GET /api/ai/models — expose configured AI models (keys never sent to client)
+  app.get('/api/ai/models', (req, res) => {
+    const configured: { id: string; name: string; provider: string; modelName: string; status: 'online' | 'offline'; env: boolean }[] = [];
+    const openAiKey = process.env.OPENAI_API_KEY;
+    if (openAiKey && !openAiKey.includes('MY_')) configured.push({ id: 'env-openai', name: 'GPT-4o', provider: 'openai', modelName: 'gpt-4o', status: 'online', env: true });
     const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && !geminiKey.includes('MY_GEMINI_API_KEY')) {
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      try {
-        console.log('Attempting Gemini generation...');
-        const model = genAI.getGenerativeModel({ 
-          model: config?.model?.includes('gemini') ? config.model : 'gemini-1.5-flash',
-          generationConfig: {
-            temperature: config?.temperature ?? 0.1,
-            topP: config?.topP ?? 0.8,
-            topK: config?.topK ?? 40,
-            responseMimeType: config?.responseMimeType || 'text/plain',
+    if (geminiKey && !geminiKey.includes('MY_')) configured.push({ id: 'env-gemini', name: 'Gemini Flash', provider: 'google', modelName: 'gemini-2.0-flash', status: 'online', env: true });
+    const nvidiaKey = process.env.NVIDIA_API_KEY;
+    if (nvidiaKey && !nvidiaKey.includes('MY_')) configured.push({ id: 'env-nvidia', name: 'NVIDIA NIM', provider: 'nvidia', modelName: 'meta/llama-3.1-70b-instruct', status: 'online', env: true });
+    const openRouterKey = process.env.OPENROUTER_API_KEY;
+    if (openRouterKey && !openRouterKey.includes('MY_')) configured.push({ id: 'env-openrouter', name: 'OpenRouter', provider: 'openrouter', modelName: 'google/gemini-2.0-flash-lite', status: 'online', env: true });
+    const cerebrasKey = process.env.CEREBRAS_API_KEY;
+    if (cerebrasKey && !cerebrasKey.includes('MY_')) configured.push({ id: 'env-cerebras', name: 'Cerebras', provider: 'cerebras', modelName: 'llama3.1-8b', status: 'online', env: true });
+    res.json({ models: configured });
+  });
+
+  // POST /api/ai/test — test a specific AI provider with a minimal call
+  app.post('/api/ai/test', async (req, res) => {
+    const { provider, modelName, apiKey: clientKey } = req.body;
+    const testPrompt = 'Reply with exactly one word: ok';
+    try {
+      let ok = false;
+      if (provider === 'openai') {
+        const key = clientKey || process.env.OPENAI_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'gpt-4o', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          ok = r.ok;
+        }
+      } else if (provider === 'google') {
+        const key = clientKey || process.env.GEMINI_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const genAI = new GoogleGenerativeAI(key);
+          const model = genAI.getGenerativeModel({ model: modelName || 'gemini-2.0-flash' });
+          const result = await model.generateContent(testPrompt);
+          const response = await result.response;
+          ok = !!response.text();
+        }
+      } else if (provider === 'nvidia') {
+        const key = clientKey || process.env.NVIDIA_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'meta/llama-3.1-70b-instruct', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          ok = r.ok;
+        }
+      } else if (provider === 'openrouter') {
+        const key = clientKey || process.env.OPENROUTER_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'HTTP-Referer': process.env.APP_URL || 'http://localhost:3001', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'google/gemini-2.0-flash-lite', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          ok = r.ok;
+        }
+      } else if (provider === 'cerebras') {
+        const key = clientKey || process.env.CEREBRAS_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const modelToTest = modelName || 'llama3.1-8b';
+          console.log(`[AI TEST] Testing Cerebras with model: ${modelToTest}`);
+          const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelToTest, messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          if (!r.ok) {
+            const errText = await r.text();
+            console.error(`[AI TEST] Cerebras Failed: ${r.status} - ${errText}`);
+            throw new Error(`Cerebras API Error (${r.status}): ${errText}`);
           }
-        });
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        return res.json({ text });
-      } catch (error: any) {
-        console.error('Gemini Error (fallback):', error);
-      }
-    }
-
-    // 3. TRY NVIDIA (NIM / CUDA)
-    const nvidiaKey = process.env.NVIDIA_AI_API_KEY || process.env.NVIDIA_API_KEY;
-    if (nvidiaKey && !nvidiaKey.includes('MY_NVIDIA_API_KEY')) {
-      try {
-        console.log('Attempting NVIDIA NIM generation...');
-        const isNvidiaModel = config?.model?.includes('nvidia') || config?.model?.includes('llama-3.1');
-        const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${nvidiaKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: isNvidiaModel ? config.model : 'meta/llama-3.1-70b-instruct',
-            messages: [{ role: 'user', content: prompt }],
-            temperature: config?.temperature ?? 0.1,
-            top_p: config?.topP ?? 0.7,
-            max_tokens: config?.maxTokens || 2048,
-          })
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
+          ok = r.ok;
         }
-      } catch (error: any) {
-        console.warn('NVIDIA check failed, continuing...', error.message);
-      }
-    }
-
-    // 4. SECONDARY FALLBACK: OpenRouter
-    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
-    if (openRouterApiKey && !openRouterApiKey.includes('MY_OPENROUTER_API_KEY')) {
-      try {
-        console.log('Attempting OpenRouter generation...');
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      } else if (clientKey) {
+        // Custom provider — try OpenAI-compatible endpoint
+        const r = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openRouterApiKey}`,
-            'HTTP-Referer': process.env.APP_URL || 'https://ais.studio',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: config?.model || 'google/gemini-2.0-flash-lite',
-            messages: [{ role: 'user', content: prompt }]
-          })
+          headers: { 'Authorization': `Bearer ${clientKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: modelName || 'gpt-4o', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          return res.json({ text: data.choices[0].message.content });
-        }
-      } catch (error: any) {
-        console.error('OpenRouter Error:', error);
+        ok = r.ok;
       }
+      res.json({ ok, checkedAt: new Date().toISOString() });
+    } catch (e: any) {
+      res.json({ ok: false, error: e.message, checkedAt: new Date().toISOString() });
+    }
+  });
+
+  // POST /api/ai/provider-models — fetch available models for a given provider + key
+  app.post('/api/ai/provider-models', async (req, res) => {
+    const { provider, apiKey: clientKey } = req.body;
+    if (!provider) {
+      return res.status(400).json({ error: 'provider required' });
     }
 
-    // 4. FINAL FAILSAFE
-    const isPlaceholder = (geminiKey && geminiKey.includes('MY_GEMINI_API_KEY')) || (openAIApiKey && openAIApiKey.includes('MY_OPENAI_API_KEY'));
-    
-    return res.status(200).json({ 
-      text: `[SYSTEM DIAGNOSTIC: AI engine is offline. ${isPlaceholder ? 'Placeholder API key detected.' : 'Missing API keys.'} Please verify your OPENAI_API_KEY or GEMINI_API_KEY in the environment settings.]`
+    try {
+      let models: string[] = [];
+      const apiKey = clientKey || (
+        provider === 'google' ? process.env.GEMINI_API_KEY :
+        provider === 'openai' ? process.env.OPENAI_API_KEY :
+        provider === 'anthropic' ? process.env.ANTHROPIC_API_KEY :
+        provider === 'cerebras' ? process.env.CEREBRAS_API_KEY :
+        provider === 'mistral' ? process.env.MISTRAL_API_KEY :
+        provider === 'nvidia' ? process.env.NVIDIA_API_KEY :
+        provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : null
+      );
+
+      if (!apiKey || apiKey.includes('MY_')) {
+        return res.status(400).json({ error: `API Key missing or invalid for provider: ${provider}` });
+      }
+
+      if (provider === 'google') {
+        const r = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+        );
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.models || [])
+          .map((m: any) => m.name?.replace('models/', '') || m.name)
+          .filter((m: string) => m.includes('gemini'));
+
+      } else if (provider === 'openai') {
+        const r = await fetch('https://api.openai.com/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || [])
+          .map((m: any) => m.id)
+          .filter((id: string) => id.startsWith('gpt'))
+          .sort();
+
+      } else if (provider === 'anthropic') {
+        const r = await fetch('https://api.anthropic.com/v1/models', {
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+          },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id);
+
+      } else if (provider === 'cerebras') {
+        const r = await fetch('https://api.cerebras.ai/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id);
+
+      } else if (provider === 'mistral') {
+        const r = await fetch('https://api.mistral.ai/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id).sort();
+
+      } else if (provider === 'nvidia') {
+        const r = await fetch('https://integrate.api.nvidia.com/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id);
+
+      } else if (provider === 'openrouter') {
+        const r = await fetch('https://openrouter.ai/api/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id).sort();
+
+      } else {
+        return res.status(400).json({ error: `Provider '${provider}' not supported for model discovery` });
+      }
+
+      res.json({ models });
+    } catch (e: any) {
+      res.status(400).json({ error: e.message || 'Failed to fetch models' });
+    }
+  });
+
+  // AI Proxy Endpoint — DISABLED by default. Enable from System Command Center.
+  app.post('/api/ai', async (req, res) => {
+    return res.status(503).json({ 
+      text: '[AI: Server-side intelligence disabled. Configure and enable models from System Command Center.]' 
     });
   });
 
@@ -929,48 +975,44 @@ async function startServer() {
     logSection('>>> SERVER READY - FRONTEND BOOT CAN BEGIN');
     console.log(`Server running on http://localhost:${PORT}`);
 
-    // Auto-seed variables and knowledge graph into Supabase after server starts
-    setTimeout(async () => {
-      try {
-        const protocol = 'http';
-        const host = 'localhost';
+    // Auto-seed variables and knowledge graph into Supabase after server starts (DISABLED - memory)
+    // setTimeout(async () => {
+    //   try {
+    //     const protocol = 'http';
+    //     const host = 'localhost';
+    //     const varRes = await fetch(`${protocol}://${host}:${PORT}/api/variables/seed`, { method: 'POST' });
+    //     const varResult = await varRes.json();
+    //     if (varResult.success) {
+    //       console.log(`[AUTO-SEED] ${varResult.seeded} variables seeded into Supabase`);
+    //     } else {
+    //       console.warn('[AUTO-SEED] Variables seed failed:', varResult.error);
+    //     }
+    //     const graphRes = await fetch(`${protocol}://${host}:${PORT}/api/graph/seed`, { method: 'POST' });
+    //     const graphResult = await graphRes.json();
+    //     if (graphResult.entities_seeded !== undefined) {
+    //       console.log(`[AUTO-SEED] ${graphResult.entities_seeded} entities, ${graphResult.relations_seeded} relations seeded into Knowledge Graph`);
+    //     }
+    //   } catch (e: any) {
+    //     console.warn('[AUTO-SEED] Seed request failed:', e.message);
+    //   }
+    // }, 3000);
 
-        // Seed RRI variables
-        const varRes = await fetch(`${protocol}://${host}:${PORT}/api/variables/seed`, { method: 'POST' });
-        const varResult = await varRes.json();
-        if (varResult.success) {
-          console.log(`[AUTO-SEED] ${varResult.seeded} variables seeded into Supabase`);
-        } else {
-          console.warn('[AUTO-SEED] Variables seed failed:', varResult.error);
-        }
-
-        // Seed Knowledge Graph (via Python backend proxy)
-        const graphRes = await fetch(`${protocol}://${host}:${PORT}/api/graph/seed`, { method: 'POST' });
-        const graphResult = await graphRes.json();
-        if (graphResult.entities_seeded !== undefined) {
-          console.log(`[AUTO-SEED] ${graphResult.entities_seeded} entities, ${graphResult.relations_seeded} relations seeded into Knowledge Graph`);
-        }
-      } catch (e: any) {
-        console.warn('[AUTO-SEED] Seed request failed:', e.message);
-      }
-    }, 3000);
-
-    // Auto-start Telegram collection after backend is up
-    setTimeout(async () => {
-      try {
-        const res = await fetch(`http://localhost:${PORT}/api/telegram/collect`, { method: 'POST' });
-        const result = await res.json();
-        if (result.status === 'ok') {
-          console.log(`[TELEGRAM] Collected ${result.stored} new messages from ${result.channels_active} channels`);
-        } else if (result.status === 'no_credentials') {
-          console.log('[TELEGRAM] No credentials — skipping Telegram collection');
-        } else {
-          console.warn('[TELEGRAM] Collection result:', result);
-        }
-      } catch (e: any) {
-        console.warn('[TELEGRAM] Initial collect failed:', e.message);
-      }
-    }, 8000);
+    // Auto-start Telegram collection after backend is up (DISABLED)
+    // setTimeout(async () => {
+    //   try {
+    //     const res = await fetch(`http://localhost:${PORT}/api/telegram/collect`, { method: 'POST' });
+    //     const result = await res.json();
+    //     if (result.status === 'ok') {
+    //       console.log(`[TELEGRAM] Collected ${result.stored} new messages from ${result.channels_active} channels`);
+    //     } else if (result.status === 'no_credentials') {
+    //       console.log('[TELEGRAM] No credentials — skipping Telegram collection');
+    //     } else {
+    //       console.warn('[TELEGRAM] Collection result:', result);
+    //     }
+    //   } catch (e: any) {
+    //     console.warn('[TELEGRAM] Initial collect failed:', e.message);
+    //   }
+    // }, 8000);
   });
 }
 

@@ -9,3 +9,7 @@ venv/
 env/
 ENV/
 temp_venv/
+__pycache__/
+*.pyc
+.venv/
+*.session

@@ -5,7 +5,9 @@ import {
   Trash2, Pause, Play, Filter, AlertTriangle, ArrowRight,
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
   Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
-  FileText, BarChart3, TrendingUp, RotateCcw, Server, AlertCircle
+  FileText, BarChart3, TrendingUp, RotateCcw, Server, AlertCircle,
+  Loader2, Wifi, Eye, Brain, Plus, Edit3, Save, Power, PowerOff, Key, Check, Link,
+  ChevronDown, Sparkles, TestTube2, Signal, Search
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -27,7 +29,7 @@ import { getVarCache } from '../../services/pipelineService';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA' | 'AI';
 
 interface TestResult {
   id: string;
@@ -646,9 +648,13 @@ const FlowDiagram: React.FC<{
 
 // ─── MISSION CONTROL TAB ─────────────────────────────────────────────────────
 
-const MissionControl: React.FC<{
-  onJumpToDebugger: (stage?: string) => void;
-}> = ({ onJumpToDebugger }) => {
+interface MissionControlProps {
+  onJumpToDebugger: (stage: string) => void;
+  aiModels: AIModel[];
+  roleAssign: Record<RoleType, string>;
+}
+
+const MissionControl: React.FC<MissionControlProps> = ({ onJumpToDebugger, aiModels, roleAssign }) => {
   const { metrics, history, alerts, healthScore, logs } = useObservability();
   const { articles, events, fetchNow } = useRSS();
   const { isPaused, togglePause, recalculateRRI } = useRiskMetrics();
@@ -748,12 +754,34 @@ const MissionControl: React.FC<{
     finally { setIsRecalculating(false); }
   };
 
+  const getModelForRole = (role: RoleType) => {
+    if (!roleAssign) return 'Loading...';
+    const assignedId = roleAssign[role];
+    if (!assignedId) return 'Not Assigned';
+    const model = (aiModels || []).find(m => m.id === assignedId);
+    if (!model) return 'Unknown';
+    return `${model.provider === 'google' ? 'Gemini' : model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}: ${model.modelName}`;
+  };
+
+  const getRoleHealth = (role: RoleType): 'online' | 'offline' | 'standby' => {
+    if (!roleAssign) return 'standby';
+    const assignedId = roleAssign[role];
+    if (!assignedId) return 'standby';
+    
+    // Check both local custom models and environment-provided models
+    const allPossibleModels = [...(aiModels || [])];
+    const model = allPossibleModels.find(m => m.id === assignedId);
+    
+    if (!model) return 'standby';
+    return model.status === 'online' ? 'online' : 'offline';
+  };
+
   const serviceChecks = [
     { label: 'RSS Feed', ok: metrics.lastIngestionTime > 0 && (Date.now() - metrics.lastIngestionTime < 600000) },
     { label: 'Supabase DB', ok: metrics.dbWriteCount > 0 || metrics.dbReadCount > 0 },
     { label: 'Signal Engine', ok: metrics.signalCount >= 0 },
-    { label: 'RRI Engine', ok: true },
-    { label: 'AI / Gemini', ok: metrics.newsCount > 0 },
+    { label: 'National Briefing', health: getRoleHealth('parsing'), detail: getModelForRole('parsing') },
+    { label: 'Predictive Analysis', health: getRoleHealth('analysis'), detail: getModelForRole('analysis') },
     { label: 'Realtime Sub', ok: !metrics.isFetching || isSyncing },
     { label: 'Sentinel Sat', ok: true, detail: 'On-demand via Agriculture tab' },
   ];
@@ -776,8 +804,8 @@ const MissionControl: React.FC<{
       <div className="flex flex-col sm:flex-row items-center justify-between bg-[#0a0a0c] border border-white/5 rounded-xl p-4 shrink-0 gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full sm:w-auto">
           <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${health.bg} ${health.border} w-full sm:w-auto justify-center sm:justify-start`}>
-            <div className={`w-2 h-2 rounded-full animate-pulse ${healthScore > 80 ? 'bg-emerald-500' : healthScore > 50 ? 'bg-amber-500' : 'bg-red-500'}`} />
-            <span className={`text-sm font-bold font-mono ${health.color}`}>{Math.round(healthScore)}%</span>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${(healthScore || 0) > 80 ? 'bg-emerald-500' : (healthScore || 0) > 50 ? 'bg-amber-500' : 'bg-red-500'}`} />
+            <span className={`text-sm font-bold font-mono ${health.color}`}>{Math.round(healthScore || 0)}%</span>
             <span className={`text-[9px] font-mono ${health.color} opacity-70 uppercase`}>{health.label}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-[9px] font-mono text-white/30 uppercase">
@@ -851,12 +879,25 @@ const MissionControl: React.FC<{
           </div>
           <div className="space-y-3">
             {prepareList(serviceChecks).map((s: any, i: number) => (
-              <div key={generateStableKey(s, i, 'service-check')} className="flex items-center justify-between">
-                <span className="text-[11px] text-white/60 font-mono">{s.label}</span>
-                <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${s.ok ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                  <span className={`text-[10px] font-bold font-mono ${s.ok ? 'text-emerald-400' : 'text-red-400'}`}>{s.ok ? 'OK' : 'ERROR'}</span>
+              <div key={generateStableKey(s, i, 'service-check')} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-white/60 font-mono">{s.label}</span>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${
+                      s.health === 'online' || s.ok ? 'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]' : 
+                      s.health === 'standby' ? 'bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]' :
+                      'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]'
+                    }`} />
+                    <span className={`text-[10px] font-bold font-mono ${
+                      s.health === 'online' || s.ok ? 'text-emerald-400' : 
+                      s.health === 'standby' ? 'text-amber-400' :
+                      'text-red-400'
+                    }`}>
+                      {s.health === 'online' || s.ok ? 'OK' : s.health === 'standby' ? 'STANDBY' : 'ERROR'}
+                    </span>
+                  </div>
                 </div>
+                {s.detail && <div className="text-[8px] font-mono text-white/20 uppercase tracking-tighter pl-1">{s.detail}</div>}
               </div>
             ))}
           </div>
@@ -1787,6 +1828,874 @@ const MetricRow: React.FC<{ label: string; value: string; color: string }> = ({ 
   </div>
 );
 
+// ─── AI TYPES & CATALOG ───────────────────────────────────────────────────────
+
+const MODEL_CATALOG: Record<string, { label: string; models: { id: string; label: string; desc: string }[] }> = {
+  google: {
+    label: 'Google Gemini',
+    models: [
+      { id: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', desc: 'Fast, high-performance for real-time analysis' },
+      { id: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro', desc: 'Complex reasoning and large context windows' },
+      { id: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', desc: 'Optimized for speed and efficiency' },
+    ]
+  },
+  openai: {
+    label: 'OpenAI',
+    models: [
+      { id: 'gpt-4o', label: 'GPT-4o', desc: 'Omni model, high intelligence and speed' },
+      { id: 'gpt-4o-mini', label: 'GPT-4o-mini', desc: 'Fast, affordable small model' },
+      { id: 'gpt-4-turbo', label: 'GPT-4 Turbo', desc: 'Previous flagship model' },
+    ]
+  },
+  anthropic: {
+    label: 'Anthropic',
+    models: [
+      { id: 'claude-3-5-sonnet-latest', label: 'Claude 3.5 Sonnet', desc: 'Most intelligent Claude model' },
+      { id: 'claude-3-haiku-latest', label: 'Claude 3 Haiku', desc: 'Fastest Claude model' },
+      { id: 'claude-3-opus-latest', label: 'Claude 3 Opus', desc: 'Deep reasoning flagship' },
+    ]
+  },
+  openrouter: {
+    label: 'OpenRouter',
+    models: [
+      { id: 'meta-llama/llama-3.1-405b', label: 'Llama 3.1 405B', desc: 'State-of-the-art open weights' },
+      { id: 'mistralai/mistral-large', label: 'Mistral Large', desc: 'Premier European LLM' },
+    ]
+  },
+  custom: {
+    label: 'Custom / Local',
+    models: [
+      { id: 'ollama', label: 'Ollama (Local)', desc: 'Run models on your own hardware' },
+      { id: 'vllm', label: 'vLLM', desc: 'High-throughput inference server' },
+    ]
+  },
+  cerebras: {
+    label: 'Cerebras',
+    models: [
+      { id: 'llama3.1-8b', label: 'Llama 3.1 8B', desc: 'Fastest inference on the market' },
+      { id: 'llama3.1-70b', label: 'Llama 3.1 70B', desc: 'CS-3 powered inference, ultra-fast' },
+      { id: 'qwen-3-235b-a22b-instruct-2507', label: 'Qwen 3 235B', desc: 'High-quality large model for complex briefs' },
+    ]
+  }
+};
+
+const PROVIDER_STYLE: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  google:    { color: '#4285F4', bg: 'bg-blue-500/10', border: 'border-l-blue-500/40', label: 'Google' },
+  openai:    { color: '#10A37F', bg: 'bg-emerald-500/10', border: 'border-l-emerald-500/40', label: 'OpenAI' },
+  anthropic: { color: '#D97757', bg: 'bg-orange-500/10', border: 'border-l-orange-500/40', label: 'Anthropic' },
+  cerebras:  { color: '#6C5CE7', bg: 'bg-purple-500/10', border: 'border-l-purple-500/40', label: 'Cerebras' },
+  openrouter:{ color: '#FF6B35', bg: 'bg-orange-500/10', border: 'border-l-orange-600/40', label: 'OpenRouter' },
+  nvidia:    { color: '#76B900', bg: 'bg-green-500/10', border: 'border-l-green-500/40', label: 'NVIDIA' },
+  mistral:   { color: '#FF6B6B', bg: 'bg-red-500/10', border: 'border-l-red-500/40', label: 'Mistral' },
+  custom:    { color: '#64748B', bg: 'bg-slate-500/10', border: 'border-l-slate-500/40', label: 'Custom' },
+};
+
+interface AIModel {
+  id: string;
+  name: string;
+  provider: string;
+  modelName: string;
+  apiKey: string;
+  status: 'online' | 'offline' | 'unknown';
+  lastChecked: string | null;
+  latencyMs?: number;
+  config?: any;
+}
+
+const MODEL_KEY = 'ti_ai_models';
+const ROLE_KEY = 'ti_ai_role_assignments';
+
+function loadModels(): AIModel[] {
+  try {
+    return JSON.parse(localStorage.getItem(MODEL_KEY) || '[]');
+  } catch { return []; }
+}
+
+type RoleType = 'parsing' | 'analysis' | 'answering';
+
+// ─── AI TAB ───────────────────────────────────────────────────────────────────
+
+const ROLE_LABELS: Record<RoleType, string> = {
+  parsing: 'Variable Parsing',
+  analysis: 'RRI Analysis',
+  answering: 'Question Answering',
+};
+
+const AITab: React.FC<{
+  aiModels: AIModel[];
+  roleAssign: Record<RoleType, string>;
+  onPersistModels: (models: AIModel[]) => void;
+  onPersistRoles: (roles: Record<RoleType, string>) => void;
+}> = ({ aiModels, roleAssign, onPersistModels, onPersistRoles }) => {
+  const [envModels, setEnvModels] = useState<AIModel[]>([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  // Provisioning Modal State
+  const [provisionStep, setProvisionStep] = useState<1 | 2 | 3>(1);
+  const [newProvData, setNewProvData] = useState({ provider: 'google', apiKey: '', baseUrl: '', selectedModels: [] as string[] });
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [autoFailover, setAutoFailover] = useState(() => localStorage.getItem('ti_auto_failover') === 'true');
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+
+  // Step 2 provisioning progress
+  const [provProgress, setProvProgress] = useState<{ label: string; status: 'pending' | 'loading' | 'done' | 'error' }[]>([
+    { label: 'Authenticating with provider', status: 'pending' },
+    { label: 'Scanning available intelligence models', status: 'pending' },
+  ]);
+
+  // Fire API calls when provisioning step advances to 2
+  useEffect(() => {
+    if (provisionStep !== 2) return;
+    setIsValidating(true);
+    setValidationError(null);
+    setProvProgress(p => p.map(s => s.label === 'Authenticating with provider' ? { ...s, status: 'loading' } : s));
+
+    const testModel = MODEL_CATALOG[newProvData.provider]?.models[0]?.id || 'gemini-2.0-flash';
+    const isCustom = newProvData.provider === 'custom';
+
+    const testBody: any = {
+      provider: newProvData.provider,
+      modelName: testModel,
+      apiKey: newProvData.apiKey,
+    };
+    if (isCustom && newProvData.baseUrl) testBody.baseUrl = newProvData.baseUrl;
+
+    const fetches: Promise<any>[] = [
+      fetch('/api/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(testBody),
+      }).then(r => r.json()),
+    ];
+
+    // Skip provider-models for custom endpoints
+    if (!isCustom) {
+      fetches.push(
+        fetch('/api/ai/provider-models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: newProvData.provider,
+            apiKey: newProvData.apiKey,
+          }),
+        }).then(r => r.json())
+      );
+    }
+
+    Promise.all(fetches)
+      .then(([testData, modelsData]) => {
+        setProvProgress(p => p.map(s =>
+          s.label === 'Authenticating with provider' ? { ...s, status: testData.ok ? 'done' : 'error' } : s
+        ));
+        setProvProgress(p => p.map(s =>
+          s.label === 'Scanning available intelligence models' ? { ...s, status: isCustom ? 'done' : 'loading' } : s
+        ));
+        if (!isCustom && modelsData?.models?.length > 0) {
+          setAvailableModels(modelsData.models);
+          setProvProgress(p => p.map(s =>
+            s.label === 'Scanning available intelligence models' ? { ...s, status: 'done' } : s
+          ));
+          setTimeout(() => setProvisionStep(3), 400);
+        } else {
+          setProvProgress(p => p.map(s =>
+            s.label === 'Scanning available intelligence models'
+              ? { ...s, status: 'done', label: isCustom ? 'Custom endpoint configured' : 'No models discovered — using catalog defaults' }
+              : s
+          ));
+          setTimeout(() => setProvisionStep(3), 600);
+        }
+        setIsValidating(false);
+      })
+      .catch(err => {
+        setProvProgress(p => p.map(s => ({ ...s, status: 'error' as const })));
+        setValidationError('Connection Refused');
+        setIsValidating(false);
+      });
+  }, [provisionStep]);
+
+  useEffect(() => {
+    fetch('/api/ai/models')
+      .then(r => r.json())
+      .then(data => {
+        if (data.models) {
+          const mapped: AIModel[] = data.models.map((m: any) => ({
+            id: m.id,
+            name: m.name,
+            provider: m.provider,
+            modelName: m.modelName,
+            apiKey: '********',
+            status: m.status,
+            lastChecked: null,
+          }));
+          setEnvModels(mapped);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const allModels = [...envModels, ...aiModels];
+
+  // Auto-failover: every 10s, reassign roles away from offline models
+  useEffect(() => {
+    if (!autoFailover) return;
+    const interval = setInterval(() => {
+      const onlineModels = allModels.filter(m => m.status === 'online');
+      const offlineModels = allModels.filter(m => m.status === 'offline');
+      if (onlineModels.length === 0 || offlineModels.length === 0) return;
+
+      const nextRoles = { ...roleAssign };
+      let changed = false;
+      for (const role of Object.keys(nextRoles) as RoleType[]) {
+        const assignedId = nextRoles[role];
+        if (!assignedId) continue;
+        const assigned = allModels.find(m => m.id === assignedId);
+        if (assigned && assigned.status === 'offline') {
+          const replacement = onlineModels.find(m => !Object.values(nextRoles).includes(m.id));
+          if (replacement) {
+            nextRoles[role] = replacement.id;
+            changed = true;
+          }
+        }
+      }
+      if (changed) {
+        onPersistRoles?.(nextRoles);
+        setRoleAssign(nextRoles);
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [autoFailover, allModels, roleAssign, onPersistRoles]);
+  
+  const modelsByProvider = useMemo(() => {
+    const grouped: Record<string, AIModel[]> = {};
+    allModels.forEach(m => {
+      if (!grouped[m.provider]) grouped[m.provider] = [];
+      grouped[m.provider].push(m);
+    });
+    return grouped;
+  }, [allModels]);
+
+  const [modelFilter, setModelFilter] = useState('');
+
+  const filteredModels = useMemo(() => {
+    if (!modelFilter.trim()) return allModels;
+    const q = modelFilter.toLowerCase();
+    return allModels.filter(m =>
+      m.name.toLowerCase().includes(q) ||
+      m.modelName.toLowerCase().includes(q) ||
+      m.provider.toLowerCase().includes(q)
+    );
+  }, [allModels, modelFilter]);
+
+  const testAllConnections = async () => {
+    for (const model of allModels) {
+      if (model.status === 'online') continue;
+      const isEnv = envModels.some(em => em.id === model.id);
+      await testConnection(model, isEnv);
+    }
+  };
+
+  const toggleFailover = () => {
+    const next = !autoFailover;
+    setAutoFailover(next);
+    localStorage.setItem('ti_auto_failover', String(next));
+  };
+
+  const handleRemove = (id: string) => {
+    onPersistModels(aiModels.filter(m => m.id !== id));
+    const nextRoles = { ...roleAssign };
+    for (const role of Object.keys(nextRoles) as RoleType[]) {
+      if (nextRoles[role] === id) nextRoles[role] = '';
+    }
+    onPersistRoles(nextRoles);
+  };
+
+  const updateModel = (id: string, patch: Partial<AIModel>) => {
+    onPersistModels(aiModels.map(m => m.id === id ? { ...m, ...patch } : m));
+  };
+
+  const testConnection = async (model: AIModel, isEnv: boolean) => {
+    setTestingId(model.id);
+    const updateFn = isEnv 
+      ? (id: string, p: Partial<AIModel>) => setEnvModels(prev => prev.map(m => m.id === id ? { ...m, ...p } : m))
+      : updateModel;
+
+    updateFn(model.id, { status: 'unknown' });
+
+    try {
+      const t0 = performance.now();
+      const body: any = {
+        provider: model.provider,
+        modelName: model.modelName,
+        apiKey: isEnv ? undefined : model.apiKey,
+      };
+      if (model.config?.baseUrl) body.baseUrl = model.config.baseUrl;
+      const res = await fetch('/api/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const latency = Math.round(performance.now() - t0);
+      const data = await res.json();
+      updateFn(model.id, {
+        status: data.ok ? 'online' : 'offline',
+        lastChecked: data.checkedAt,
+        latencyMs: data.ok ? (data.latencyMs || latency) : undefined,
+      });
+    } catch {
+      updateFn(model.id, {
+        status: 'offline',
+        lastChecked: new Date().toISOString(),
+      });
+    }
+    setTestingId(null);
+  };
+
+  const handleTestAndSave = async (model: AIModel, isEnv: boolean) => {
+    await testConnection(model, isEnv);
+    if (model.status === 'online' || model.status === 'unknown') {
+      setEditingId(null);
+    }
+  };
+
+  const usedInRole = (id: string): RoleType | null => {
+    for (const [role, assigned] of Object.entries(roleAssign)) {
+      if (assigned === id) return role as RoleType;
+    }
+    return null;
+  };
+
+  const isModelInUse = (id: string) => Object.values(roleAssign).includes(id);
+  const modelForRole = (role: RoleType) => allModels.find(m => m.id === roleAssign[role]);
+
+  return (
+    <div className="flex flex-col h-full pr-1 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-intel-cyan/10 border border-intel-cyan/20 flex items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.1)]">
+            <Brain className="w-5 h-5 text-intel-cyan" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+              AI Command Matrix
+              <Sparkles className="w-3 h-3 text-intel-cyan animate-pulse" />
+            </h2>
+            <p className="text-[9px] font-mono text-slate-500 uppercase tracking-tighter">
+              {allModels.length} active nodes across {Object.keys(modelsByProvider).length} clusters
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleFailover}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono transition-all border ${
+              autoFailover
+                ? 'border-intel-green/40 text-intel-green bg-intel-green/10 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+                : 'border-white/10 text-slate-500 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Activity className={`w-3.5 h-3.5 ${autoFailover ? 'animate-pulse' : ''}`} />
+            {autoFailover ? 'FAILOVER ACTIVE' : 'FAILOVER OFF'}
+          </button>
+        </div>
+      </div>
+
+      {/* Models List - Unified View */}
+      <div className="flex-1 overflow-y-auto min-h-0 space-y-4">
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] shrink-0">
+              AI Intelligence Nodes
+              <span className="ml-2 text-intel-cyan/60">{allModels.length}</span>
+            </span>
+            <div className="relative flex-1 max-w-[200px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
+              <input
+                value={modelFilter}
+                onChange={e => setModelFilter(e.target.value)}
+                placeholder="Filter nodes..."
+                className="w-full bg-black/40 border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all"
+              />
+              {modelFilter && (
+                <button onClick={() => setModelFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50">
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {allModels.some(m => m.status !== 'online') && (
+              <button
+                onClick={testAllConnections}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all"
+              >
+                <Zap className="w-3 h-3" />
+                Test All
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setProvisionStep(1);
+                setNewProvData({ provider: 'google', apiKey: '', selectedModels: [] });
+                setShowAdd(true);
+              }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-intel-cyan/30 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
+            >
+              <Plus className="w-3 h-3" />
+              Provision Node
+            </button>
+          </div>
+        </div>
+
+        {filteredModels.length === 0 ? (
+          <div className="bg-black/20 border border-dashed border-white/5 rounded-2xl p-10 text-center">
+            <Cpu className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
+            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+              {modelFilter ? 'No nodes match your filter' : 'No active nodes in this cluster'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            {filteredModels.map(model => {
+              const isEditing = editingId === model.id;
+              const isEnv = envModels.some(em => em.id === model.id);
+              const isTesting = testingId === model.id;
+              const role = usedInRole(model.id);
+              
+              return (
+                <motion.div 
+                  key={model.id}
+                  layout
+                  className={`bg-[#0a0a0c] border rounded-2xl p-4 transition-all border-l-2 ${
+                    isEditing
+                      ? 'border-intel-cyan/50 border-l-intel-cyan/50 shadow-[0_0_30px_rgba(0,242,255,0.1)]'
+                      : `border-white/5 hover:border-white/10 ${PROVIDER_STYLE[model.provider]?.border || 'border-l-slate-500/40'}`
+                  }`}
+                >
+                  {isEditing ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Instance Name</label>
+                          <input 
+                            defaultValue={model.name} 
+                            onChange={e => updateModel(model.id, { name: e.target.value })}
+                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Model Engine</label>
+                          <select 
+                            defaultValue={model.modelName}
+                            onChange={e => updateModel(model.id, { modelName: e.target.value })}
+                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                          >
+                            {MODEL_CATALOG[model.provider].models.map(m => (
+                              <option key={m.id} value={m.id}>{m.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Secret Key</label>
+                          <div className="relative">
+                            <input 
+                              defaultValue={model.apiKey} 
+                              onChange={e => updateModel(model.id, { apiKey: e.target.value })}
+                              type="password"
+                              className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                              placeholder="sk-..."
+                            />
+                            <Key className="absolute right-3 top-3 w-3 h-3 text-white/20" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3 pt-2">
+                        <button 
+                          onClick={() => setEditingId(null)} 
+                          className="px-4 py-2 text-[10px] font-bold uppercase font-mono text-slate-500 hover:text-white transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={() => handleTestAndSave(model, isEnv)}
+                          disabled={testingId === model.id}
+                          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all shadow-[0_0_15px_rgba(0,242,255,0.1)] disabled:opacity-40"
+                        >
+                          {testingId === model.id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                          {testingId === model.id ? 'Testing...' : 'Test & Save'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="relative">
+                          <div className={`w-3 h-3 rounded-full ${
+                            model.status === 'online' ? 'bg-intel-green shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 
+                            model.status === 'offline' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 
+                            'bg-slate-700 animate-pulse'
+                          }`} />
+                          {model.status === 'online' && <div className="absolute inset-0 bg-intel-green rounded-full animate-ping opacity-20" />}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className="text-sm font-bold text-white tracking-wide truncate">{model.name}</span>
+                            <span className="text-[8px] font-mono text-slate-500 border border-white/10 px-1.5 py-0.5 rounded uppercase">{model.modelName}</span>
+                            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider ${PROVIDER_STYLE[model.provider]?.bg || 'bg-slate-500/10'}`}
+                              style={{ color: PROVIDER_STYLE[model.provider]?.color || '#64748B' }}>
+                              {PROVIDER_STYLE[model.provider]?.label || model.provider}
+                            </span>
+                            {isEnv && <span className="text-[8px] font-mono text-intel-cyan bg-intel-cyan/10 px-1.5 py-0.5 rounded uppercase tracking-wider">ENV</span>}
+                            {role && <span className="text-[8px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{ROLE_LABELS[role]}</span>}
+                          </div>
+                          {(() => {
+                            const catModels = MODEL_CATALOG[model.provider]?.models;
+                            const entry = catModels?.find(m => m.id === model.modelName);
+                            return entry?.desc ? (
+                              <p className="text-[9px] font-mono text-slate-600 mb-1.5">{entry.desc}</p>
+                            ) : null;
+                          })()}
+                          <div className="flex items-center gap-3">
+                            <span className="text-[9px] font-mono text-slate-500 flex items-center gap-1">
+                              <Clock className="w-2.5 h-2.5" />
+                              {model.lastChecked ? `Sync: ${new Date(model.lastChecked).toLocaleTimeString()}` : 'No sync recorded'}
+                            </span>
+                            <span className={`text-[9px] font-mono flex items-center gap-1 ${
+                              model.latencyMs !== undefined
+                                ? model.latencyMs < 500 ? 'text-intel-green' : model.latencyMs < 2000 ? 'text-amber-500' : 'text-red-500'
+                                : 'text-slate-500'
+                            }`}>
+                              <Signal className="w-2.5 h-2.5" />
+                              {model.latencyMs !== undefined ? `${model.latencyMs}ms` : model.status === 'online' ? 'Live' : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => testConnection(model, isEnv)}
+                          disabled={testingId === model.id}
+                          className={`p-2 rounded-xl transition-all ${testingId === model.id ? 'text-intel-cyan bg-intel-cyan/5' : 'text-slate-500 hover:text-intel-cyan hover:bg-white/5'}`}
+                          title="Verify Intelligence Node"
+                        >
+                          {testingId === model.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                        </button>
+                        {!isEnv && (
+                          <>
+                            <button
+                              onClick={() => setEditingId(model.id)}
+                              className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+                              title="Recalibrate"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRemove(model.id)}
+                              disabled={isModelInUse(model.id)}
+                              className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-20"
+                              title={isModelInUse(model.id) ? 'Locked: Active in routing' : 'Decommission'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Role Assignment Strip */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 shrink-0 pt-4 border-t border-white/5">
+        {(Object.keys(ROLE_LABELS) as RoleType[]).map(role => (
+          <div key={role} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 space-y-2 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-intel-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center justify-between relative z-10">
+              <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">{ROLE_LABELS[role]}</span>
+              {modelForRole(role) && (
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${modelForRole(role)!.status === 'online' ? 'bg-intel-green animate-pulse' : 'bg-red-500'}`} />
+                  <span className={`text-[8px] font-mono uppercase ${modelForRole(role)!.status === 'online' ? 'text-intel-green' : 'text-red-400'}`}>
+                    {modelForRole(role)!.status === 'online' ? 'ACTIVE' : 'OFFLINE'}
+                  </span>
+                </div>
+              )}
+            </div>
+            <select
+              value={roleAssign[role]}
+              onChange={e => onPersistRoles({ ...roleAssign, [role]: e.target.value })}
+              className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none relative z-10 hover:border-white/20 transition-colors"
+            >
+              <option value="">— NO MODEL ASSIGNED —</option>
+              {allModels.map(m => (
+                <option key={m.id} value={m.id}>{m.name} ({m.modelName})</option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      {/* Provisioning Modal Overlay */}
+      {showAdd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAdd(false)}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+          />
+          <motion.div 
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="relative w-full max-w-lg bg-[#0c0c0e] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+          >
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Provision AI Intelligence Node</h3>
+                  <p className="text-[10px] text-slate-500 font-mono uppercase">Step {provisionStep} of 3 • {provisionStep === 1 ? 'Credentialing' : provisionStep === 2 ? 'Verification' : 'Select Models'}</p>
+                </div>
+                <button onClick={() => setShowAdd(false)} className="text-slate-500 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {provisionStep === 1 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Select Provider</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(MODEL_CATALOG).map(([id, p]) => (
+                        <button
+                          key={id}
+                          onClick={() => setNewProvData({ ...newProvData, provider: id })}
+                          className={`px-4 py-3 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all text-left ${
+                            newProvData.provider === id 
+                              ? 'bg-intel-cyan/10 border-intel-cyan/40 text-intel-cyan' 
+                              : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">API Secret Key</label>
+                    <div className="relative">
+                      <input 
+                        type="password"
+                        value={newProvData.apiKey}
+                        onChange={e => setNewProvData({ ...newProvData, apiKey: e.target.value })}
+                        className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                        placeholder="sk-..."
+                      />
+                      <Key className="absolute right-4 top-3.5 w-4 h-4 text-white/20" />
+                    </div>
+                  </div>
+                  {newProvData.provider === 'custom' && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Base Endpoint URL</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={newProvData.baseUrl}
+                          onChange={e => setNewProvData({ ...newProvData, baseUrl: e.target.value })}
+                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                          placeholder="https://api.yourendpoint.com/v1"
+                        />
+                        <Link className="absolute right-4 top-3.5 w-4 h-4 text-white/20" />
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    disabled={!newProvData.apiKey || isValidating || (newProvData.provider === 'custom' && !newProvData.baseUrl)}
+                    onClick={() => {
+                      setValidationError(null);
+                      setProvisionStep(2);
+                    }}
+                    className="w-full py-4 rounded-2xl bg-intel-cyan text-black text-[11px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                  >
+                    {isValidating ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Authorize & Continue'}
+                  </button>
+                  {validationError && (
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-mono text-center">
+                      ERROR: {validationError}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {provisionStep === 2 && (
+                <div className="space-y-6 py-8">
+                  <div className="flex justify-center">
+                    <div className="relative w-16 h-16">
+                      <div className="absolute inset-0 rounded-full border-2 border-intel-cyan/20 animate-ping" />
+                      <div className="absolute inset-2 rounded-full border-2 border-t-intel-cyan border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+                      <div className="absolute inset-4 rounded-full bg-intel-cyan/10 flex items-center justify-center">
+                        <Cpu className="w-4 h-4 text-intel-cyan" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3 max-w-sm mx-auto">
+                    {provProgress.map((step, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        {step.status === 'pending' && <div className="w-4 h-4 rounded-full border border-white/10" />}
+                        {step.status === 'loading' && <RefreshCw className="w-4 h-4 text-intel-cyan animate-spin shrink-0" />}
+                        {step.status === 'done' && <CheckCircle2 className="w-4 h-4 text-intel-green shrink-0" />}
+                        {step.status === 'error' && <XCircle className="w-4 h-4 text-red-500 shrink-0" />}
+                        <span className={`text-[10px] font-mono ${
+                          step.status === 'done' ? 'text-intel-green' :
+                          step.status === 'error' ? 'text-red-400' :
+                          step.status === 'loading' ? 'text-white' :
+                          'text-slate-600'
+                        }`}>
+                          {step.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {validationError && (
+                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-mono text-center">
+                      ERROR: {validationError}
+                    </div>
+                  )}
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={() => { setProvisionStep(1); setProvProgress(p => p.map(s => ({ ...s, status: 'pending' as const }))); }}
+                      className="px-6 py-3 rounded-xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                    >
+                      Back
+                    </button>
+                    {validationError && (
+                      <button
+                        onClick={() => setProvisionStep(2)}
+                        className="px-6 py-3 rounded-xl bg-intel-cyan text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all"
+                      >
+                        Retry
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {provisionStep === 3 && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    {newProvData.provider === 'custom' ? (
+                      <>
+                        <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Custom Model Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. my-custom-model-v1"
+                          value={newProvData.selectedModels[0] || ''}
+                          onChange={e => setNewProvData({ ...newProvData, selectedModels: e.target.value ? [e.target.value] : [] })}
+                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                          Select Intelligence Models to Provision
+                          {availableModels.length > 0 && <span className="ml-2 text-intel-cyan">({availableModels.length} discovered)</span>}
+                        </label>
+                        <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                          {(availableModels.length > 0
+                            ? availableModels.map(id => {
+                                const catalogEntry = MODEL_CATALOG[newProvData.provider]?.models.find(m => m.id === id);
+                                return {
+                                  id,
+                                  label: catalogEntry?.label || id,
+                                  desc: catalogEntry?.desc || 'Discovered model',
+                                };
+                              })
+                            : MODEL_CATALOG[newProvData.provider]?.models || []
+                          ).map(m => (
+                            <button
+                              key={m.id}
+                              onClick={() => {
+                                const exists = newProvData.selectedModels.includes(m.id);
+                                setNewProvData({
+                                  ...newProvData,
+                                  selectedModels: exists 
+                                    ? newProvData.selectedModels.filter(id => id !== m.id)
+                                    : [...newProvData.selectedModels, m.id]
+                                });
+                              }}
+                              className={`p-4 rounded-xl border transition-all text-left flex items-center justify-between group ${
+                                newProvData.selectedModels.includes(m.id)
+                                  ? 'bg-intel-cyan/10 border-intel-cyan/40'
+                                  : 'bg-white/5 border-white/5 hover:border-white/10'
+                              }`}
+                            >
+                              <div>
+                                <div className="text-[10px] font-bold text-white uppercase tracking-wider">{m.label}</div>
+                                <div className="text-[8px] text-slate-500 font-mono mt-1">{m.desc}</div>
+                              </div>
+                              <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                newProvData.selectedModels.includes(m.id)
+                                  ? 'bg-intel-cyan border-intel-cyan text-black'
+                                  : 'border-white/10 text-transparent'
+                              }`}>
+                                <Check className="w-3 h-3" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setProvisionStep(1)}
+                      className="flex-1 py-4 rounded-2xl border border-white/10 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                    >
+                      Back
+                    </button>
+                    <button
+                      disabled={newProvData.selectedModels.length === 0}
+                      onClick={() => {
+                        const catalogModels = MODEL_CATALOG[newProvData.provider]?.models || [];
+                        const isCustom = newProvData.provider === 'custom';
+                        const newNodes = newProvData.selectedModels.map(modelId => {
+                          const catalogModel = catalogModels.find(m => m.id === modelId);
+                          return {
+                            id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+                            name: catalogModel?.label || modelId,
+                            provider: newProvData.provider,
+                            modelName: modelId,
+                            apiKey: newProvData.apiKey,
+                            status: 'unknown' as const,
+                            lastChecked: null,
+                            config: isCustom && newProvData.baseUrl ? { baseUrl: newProvData.baseUrl } : undefined,
+                          } as AIModel;
+                        });
+                        onPersistModels([...aiModels, ...newNodes]);
+                        setShowAdd(false);
+                      }}
+                      className="flex-[2] py-4 rounded-2xl bg-intel-cyan text-black text-[11px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all disabled:opacity-30"
+                    >
+                      Provision {newProvData.selectedModels.length} Nodes
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 
 interface SystemCommandCenterProps {
@@ -1836,10 +2745,28 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
     setTimeout(() => setIsSnapshotting(false), 1000);
   };
 
+  const [aiModels, setAiModels] = useState<AIModel[]>(loadModels);
+  const [roleAssign, setRoleAssign] = useState<Record<RoleType, string>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(ROLE_KEY) || '{"parsing":"","analysis":"","answering":""}');
+    } catch { return { parsing: '', analysis: '', answering: '' }; }
+  });
+
+  const persistModels = (newModels: AIModel[]) => {
+    setAiModels(newModels);
+    localStorage.setItem(MODEL_KEY, JSON.stringify(newModels));
+  };
+
+  const persistRoles = (newRoles: Record<RoleType, string>) => {
+    setRoleAssign(newRoles);
+    localStorage.setItem(ROLE_KEY, JSON.stringify(newRoles));
+  };
+
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'MISSION', label: 'Mission Control', icon: ShieldAlert },
     { id: 'ADM', label: 'Intelligence Pipeline (ADM)', icon: Database },
     { id: 'RRI_DATA', label: 'RRI & Data', icon: BarChart3 },
+    { id: 'AI', label: 'AI Models', icon: Brain },
     { id: 'DEBUGGER', label: 'Pipeline Debug', icon: Layers },
     { id: 'NEWS_DEBUG', label: 'News Debug', icon: Send },
     { id: 'TESTS', label: 'Test Suite', icon: FlaskConical },
@@ -1904,9 +2831,23 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
             transition={{ duration: 0.18 }}
             className="h-full p-5"
           >
-            {activeTab === 'MISSION' && <MissionControl onJumpToDebugger={handleJumpToDebugger} />}
+            {activeTab === 'MISSION' && (
+              <MissionControl 
+                onJumpToDebugger={handleJumpToDebugger} 
+                aiModels={aiModels} 
+                roleAssign={roleAssign} 
+              />
+            )}
             {activeTab === 'ADM' && <ADMTab onJumpToDebugger={handleJumpToDebugger} />}
             {activeTab === 'RRI_DATA' && <RRIDataTab />}
+            {activeTab === 'AI' && (
+              <AITab 
+                aiModels={aiModels} 
+                roleAssign={roleAssign} 
+                onPersistModels={persistModels} 
+                onPersistRoles={persistRoles} 
+              />
+            )}
             {activeTab === 'DEBUGGER' && <DebuggerTab jumpToStage={jumpStage} />}
             {activeTab === 'NEWS_DEBUG' && <SourceDebuggerTab />}
             {activeTab === 'TESTS' && <TestSuite />}

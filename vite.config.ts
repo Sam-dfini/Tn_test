@@ -51,7 +51,6 @@ export default defineConfig(({ mode }) => {
             return 'app';
           },
         },
-        plugins: [visualizer()],
       },
     },
     define: {

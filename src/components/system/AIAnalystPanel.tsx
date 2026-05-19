@@ -148,8 +148,53 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                   <div>
                     <h2 className="text-sm font-bold text-white uppercase tracking-widest">AI Strategic Analyst</h2>
                     <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-intel-green animate-pulse"></span>
-                      <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Neural Link Active</span>
+                      {(() => {
+                        try {
+                          // 1. Load Custom Models
+                          const customModels = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          
+                          // 2. Fetch Environment Models (Mocked for sync check or fetched from session)
+                          // In a real scenario, we might want to sync this with a global state, 
+                          // but for now, we check the active assignment.
+                          const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
+                          const activeId = roles['answering'];
+                          
+                          if (!activeId) {
+                            return (
+                              <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+                                <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest">Neural Link Unassigned</span>
+                              </>
+                            );
+                          }
+
+                          // 3. Find Model in either Custom or Env list
+                          // We'll trust the activeId and check its status from the unified SCC state if possible,
+                          // but since we're in a separate component, we'll perform a robust check.
+                          const active = customModels.find((m: any) => m.id === activeId);
+                          
+                          // If it's an env model, it's generally 'online' unless the proxy fails.
+                          // For now, if we found it in custom, check its status. 
+                          // If not found in custom, we assume it's an ENV model (Cerebras/Gemini) which are online by default.
+                          const isOnline = active ? active.status === 'online' : true; 
+
+                          return (
+                            <>
+                              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-intel-green animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]'}`}></span>
+                              <span className={`text-[8px] font-mono uppercase tracking-widest ${isOnline ? 'text-intel-green/90 font-bold' : 'text-red-500/70'}`}>
+                                {isOnline ? 'Neural Link Active' : 'Neural Link Offline'}
+                              </span>
+                            </>
+                          );
+                        } catch {
+                          return (
+                            <>
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                              <span className="text-[8px] font-mono text-red-500/70 uppercase tracking-widest">Neural Link Sync Error</span>
+                            </>
+                          );
+                        }
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -244,8 +289,19 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-1.5">
-                    <Shield className="w-3 h-3 text-slate-500" />
-                    <span className="text-[8px] font-mono text-slate-600 uppercase">AES-256</span>
+                    <Shield className="w-3 h-3 text-intel-cyan/60" />
+                    <span className="text-[8px] font-mono text-intel-cyan/60 uppercase font-black tracking-tighter">
+                      {(() => {
+                        try {
+                          const models = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
+                          const activeId = roles['answering'];
+                          const active = models.find((m: any) => m.id === activeId);
+                          if (!active) return 'NEURAL: OFFLINE';
+                          return `${active.provider}: ${active.modelName}`;
+                        } catch { return 'AES-256'; }
+                      })()}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <Terminal className="w-3 h-3 text-slate-500" />

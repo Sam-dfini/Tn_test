@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Terminal, Shield, Activity, Globe, Zap } from 'lucide-react';
+import { Terminal, Activity, Globe, Zap } from 'lucide-react';
 import { generateStableKey } from '../../lib/keyUtils';
 
 const MODE_MESSAGES: Record<string, string[]> = {
@@ -100,13 +100,35 @@ export const TacticalLoading: React.FC<{
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="relative w-16 h-16 md:w-20 md:h-20"
+            className="relative w-20 h-20 md:w-24 md:h-24"
           >
-            <div className="absolute inset-0 border-2 border-intel-cyan/10 animate-ping rounded-full" />
-            <div className="absolute inset-0 border-t-2 border-intel-cyan animate-spin rounded-full" />
-            <div className="w-full h-full rounded-full border-2 border-intel-cyan/30 flex items-center justify-center bg-intel-cyan/5">
-              <Shield className="w-8 h-8 md:w-9 md:h-9 text-intel-cyan" />
-            </div>
+            <motion.svg
+              width="100%" height="100%" viewBox="0 0 100 100"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <defs>
+                <filter id="tri-outer">
+                  <feGaussianBlur stdDeviation="2" result="b"/>
+                  <feComposite in="SourceGraphic" in2="b" operator="over"/>
+                </filter>
+                <filter id="tri-mid">
+                  <feGaussianBlur stdDeviation="1.5" result="b"/>
+                  <feComposite in="SourceGraphic" in2="b" operator="over"/>
+                </filter>
+              </defs>
+              <path d="M50 15 L85 85 L15 85 Z" fill="none" stroke="#00f2ff" strokeWidth="3" strokeLinejoin="miter"
+                filter="url(#tri-outer)"
+                style={{ filter: 'drop-shadow(0 0 5px rgba(0,242,255,0.8)) drop-shadow(0 0 15px rgba(0,242,255,0.4))' }}
+              />
+              <path d="M50 25 L78 80 L22 80 Z" fill="none" stroke="#00f2ff" strokeWidth="1.8" strokeLinejoin="miter"
+                opacity="0.8" filter="url(#tri-mid)"
+                style={{ filter: 'drop-shadow(0 0 3px rgba(0,242,255,0.6)) drop-shadow(0 0 8px rgba(0,242,255,0.3))' }}
+              />
+              <path d="M50 35 L71 75 L29 75 Z" fill="none" stroke="#00f2ff" strokeWidth="1" strokeLinejoin="miter"
+                opacity="0.5"
+              />
+            </motion.svg>
           </motion.div>
 
           <div className="text-center space-y-1">

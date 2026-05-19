@@ -1,19 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import {
-  Box, Eye, ShieldAlert, Shield, Terminal, Leaf, BarChart3,
-  Cpu, Globe, TrendingUp, AlertTriangle, Network, Lock
+  Eye, ShieldAlert, Shield, Terminal,
+  Globe, Network, Lock
 } from 'lucide-react';
 import { ModePageLayout } from '../modes/ModePageLayout';
 import { usePipeline } from '../../context/PipelineContext';
 
 interface ModeSelectionProps {
-  onSelect: (mode: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'brain') => void;
+  onSelect: (mode: 'advanced' | 'professional' | 'terminal' | 'brain') => void;
   onLogoff: () => void;
 }
 
 interface ModeCard {
-  id: 'simplified' | 'advanced' | 'professional' | 'palantir' | 'bloomberg' | 'business_investigator' | 'test' | 'terminal' | 'agriculture' | 'brain';
+  id: 'advanced' | 'professional' | 'terminal' | 'brain';
   node: string;
   label: string;
   description: string;
@@ -45,26 +45,6 @@ const MODES: ModeCard[] = [
     tier: 'public',
   },
   {
-    id: 'business_investigator',
-    node: 'INTEL_NODE_03',
-    label: 'BUSINESS INVESTIGATOR',
-    description: 'Advanced Economic Intelligence in Bloomberg Mode. Transform macroeconomic data into actionable field-level intelligence for emerging markets.',
-    icon: BarChart3,
-    accentColor: 'text-intel-orange border-intel-orange/30 hover:border-intel-orange',
-    accentHex: '#ff9f0a',
-    tier: 'analyst',
-  },
-  {
-    id: 'palantir',
-    node: 'INTEL_NODE_04',
-    label: 'PALANTIR MODE',
-    description: 'Interactive node visualization. Physics-based network graphs for exploring deeply connected high-risk entity relationships and link intelligence.',
-    icon: Network,
-    accentColor: 'text-intel-purple border-intel-purple/30 hover:border-intel-purple',
-    accentHex: '#a78bfa',
-    tier: 'strategic',
-  },
-  {
     id: 'terminal',
     node: 'INTEL_NODE_05',
     label: 'TUNISIA TERMINAL',
@@ -72,16 +52,6 @@ const MODES: ModeCard[] = [
     icon: Terminal,
     accentColor: 'text-intel-cyan border-intel-cyan/30 hover:border-intel-cyan',
     accentHex: '#00f2ff',
-    tier: 'analyst',
-  },
-  {
-    id: 'agriculture',
-    node: 'AGRI_NODE_06',
-    label: 'AGRICULTURE ASIL',
-    description: 'Agro-Climate Intelligence System. Satellite-derived crop health, economic stress indices, protein markets, and regional food security forecasting.',
-    icon: Leaf,
-    accentColor: 'text-[#3b82f6] border-[#3b82f6]/30 hover:border-[#3b82f6]',
-    accentHex: '#3b82f6',
     tier: 'analyst',
   },
   {
@@ -133,18 +103,24 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
     >
       {/* Live Intelligence Ticker */}
       <div className="mb-8 overflow-hidden border border-intel-border/30 rounded-lg bg-black/30 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-intel-bg via-transparent to-intel-bg z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-transparent z-10 pointer-events-none" />
         <div className="flex items-center gap-3 px-4 py-2 border-b border-intel-border/20">
           <div className="w-1.5 h-1.5 rounded-full bg-intel-green animate-pulse" />
           <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Live Intelligence Feed</span>
           <span className="text-[9px] font-mono text-slate-600 ml-auto">{new Date().toUTCString().slice(0, 25)} UTC</span>
         </div>
         <div className="py-2 px-4 flex items-center gap-8 overflow-x-auto scrollbar-hide">
-          {ticker.map((t) => (
-            <div key={t.label} className="flex items-center gap-2 shrink-0">
+          {ticker.map((t, i) => (
+            <motion.div
+              key={t.label}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.15, duration: 0.35, ease: 'easeOut' }}
+              className="flex items-center gap-2 shrink-0"
+            >
               <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">{t.label}</span>
               <span className={`text-[11px] font-mono font-bold ${t.color}`}>{t.value}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -169,11 +145,11 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-observability'))}
-            className="flex items-center gap-2 px-4 py-2 border border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/5 transition-all text-[10px] font-mono rounded"
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-system-command'))}
+            className="flex items-center gap-2 px-4 py-2 border border-intel-cyan/20 text-intel-cyan/60 hover:text-intel-cyan hover:bg-intel-cyan/5 transition-all text-[10px] font-mono rounded"
           >
-            <ShieldAlert className="w-4 h-4" />
-            [ MISSION CONTROL ]
+            <Shield className="w-4 h-4" />
+            [ SYSTEM COMMAND ]
           </motion.button>
         </div>
 

@@ -8,7 +8,7 @@ import { AI_ENABLED } from '../config/ai';
 
 export async function callAI(
   params: { system: string; user: string } | string,
-  config?: { maxTokens?: number; responseMimeType?: string; retries?: number; model?: string }
+  config?: { maxTokens?: number; responseMimeType?: string; retries?: number; model?: string; provider?: string }
 ): Promise<string> {
   if (!AI_ENABLED) {
     throw new Error("AI Service is currently disabled in system configuration.");
@@ -37,7 +37,8 @@ export async function callAI(
         body: JSON.stringify({
           prompt: fullPrompt,
           config: {
-            model: config?.model || 'gemini-1.5-flash',
+            provider: config?.provider,
+            model: config?.model,
             responseMimeType: config?.responseMimeType || 'text/plain',
           }
         })

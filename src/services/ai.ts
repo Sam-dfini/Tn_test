@@ -261,6 +261,20 @@ export async function chatWithAnalyst(messages: any[], context?: any): Promise<s
     const history = messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Analyst'}: ${m.text}`).join('\n');
     const currentModel = coreLogicEngine.getModel();
     
+    // Fetch active AI configuration for the answering role
+    let aiConfig: { provider?: string, model?: string } = {};
+    try {
+      const models = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+      const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
+      const activeId = roles['answering'];
+      const active = models.find((m: any) => m.id === activeId);
+      if (active) {
+        aiConfig = { provider: active.provider, model: active.modelName };
+      }
+    } catch (e) {
+      console.warn("Failed to fetch AI config for analyst chat:", e);
+    }
+
     const fullPrompt = `${history}\n
 INTERNAL DATABASE (CURRENT STATE):
 ${JSON.stringify(currentModel, null, 2)}
@@ -272,7 +286,7 @@ User: ${lastMessage}`;
       () => callAI({
         system: "You are a senior geopolitical analyst. Engage in a professional, data-driven conversation about the current intelligence state. You have access to the internal database and can suggest updates to it based on provided information.",
         user: fullPrompt
-      }),
+      }, aiConfig),
       "I'm currently operating in restricted offline mode. Real-time neural analysis is partially disabled."
     );
   } catch (error) {

@@ -165,11 +165,11 @@ def reset_stats():
     LAST_PIPELINE_RUN = None
 
 variable_pipeline = type("VariablePipeline", (), {
-    "process_article": process_article,
-    "process_articles_batch": process_articles_batch,
-    "get_stats": get_pipeline_stats,
-    "get_variable": get_pipeline_variable,
-    "reset_stats": reset_stats,
+    "process_article": staticmethod(process_article),
+    "process_articles_batch": staticmethod(process_articles_batch),
+    "get_stats": staticmethod(get_pipeline_stats),
+    "get_variable": staticmethod(get_pipeline_variable),
+    "reset_stats": staticmethod(reset_stats),
 })()
 
 def get_variable_pipeline():

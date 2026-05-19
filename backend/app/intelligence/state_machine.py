@@ -180,6 +180,35 @@ class HMMStateMachine:
         for j in range(NUM_PHASES):
             for i in range(NUM_PHASES):
                 row_sum = max(sum(self.transition_counts[i]), 1e-10)
+                trans_lp = log(max(self.transition_counts[i][j] / row_sum, 1e-12))
+                if i == j:
+                    trans_lp += REGIME_PERSISTENCE_BONUS
+                val = log_prior[i] + trans_lp
+                log_pred[j] = self._logsumexp(log_pred[j], val)
+
+        return [log_pred[j] + log_emit[j] for j in range(NUM_PHASES)]
+
+    def _viterbi(self, observations: List[List[float]]) -> List[int]:
+        """Most likely phase sequence for a batch of observations."""
+        T = len(observations)
+        if T == 0:
+            return []
+        N = NUM_PHASES
+
+        delta = [[-float('inf')] * N for _ in range(T)]
+        psi = [[0] * N for _ in range(T)]
+
+        log_emit_0 = self._compute_log_emission(observations[0])
+        for j in range(N):
+            delta[0][j] = -log(N) + log_emit_0[j]
+
+        for t in range(1, T):
+            log_emit_t = self._compute_log_emission(observations[t])
+            for j in range(N):
+                best_val = -float('inf')
+                best_i = 0
+                for i in range(N):
+                    row_sum = max(sum(self.transition_counts[i]), 1e-10)
                     trans_lp = log(max(self.transition_counts[i][j] / row_sum, 1e-12))
                     if i == j:
                         trans_lp += REGIME_PERSISTENCE_BONUS
