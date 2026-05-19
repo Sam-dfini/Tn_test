@@ -150,33 +150,35 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                     <div className="flex items-center space-x-2">
                       {(() => {
                         try {
-                          // 1. Load Custom Models
+                          // 1. Load Custom Models + Env Models
                           const customModels = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          const envModels = JSON.parse(localStorage.getItem('ti_env_models') || '[]');
+                          const allModels = [...customModels, ...envModels];
                           
-                          // 2. Fetch Environment Models (Mocked for sync check or fetched from session)
-                          // In a real scenario, we might want to sync this with a global state, 
-                          // but for now, we check the active assignment.
+                          // 2. Fetch active assignment
                           const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
-                          const activeId = roles['answering'];
+                          const activeId = roles['answer'];
                           
                           if (!activeId) {
                             return (
                               <>
-                                <span className="w-1.5 h-1.5 rounded-full bg-white/20"></span>
-                                <span className="text-[8px] font-mono text-white/40 uppercase tracking-widest">Neural Link Unassigned</span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                                <span className="text-[8px] font-mono text-amber-400 uppercase tracking-widest font-bold">STANDBY</span>
                               </>
                             );
                           }
 
                           // 3. Find Model in either Custom or Env list
-                          // We'll trust the activeId and check its status from the unified SCC state if possible,
-                          // but since we're in a separate component, we'll perform a robust check.
-                          const active = customModels.find((m: any) => m.id === activeId);
-                          
-                          // If it's an env model, it's generally 'online' unless the proxy fails.
-                          // For now, if we found it in custom, check its status. 
-                          // If not found in custom, we assume it's an ENV model (Cerebras/Gemini) which are online by default.
-                          const isOnline = active ? active.status === 'online' : true; 
+                          const active = allModels.find((m: any) => m.id === activeId);
+                          if (!active) {
+                            return (
+                              <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span>
+                                <span className="text-[8px] font-mono text-amber-400 uppercase tracking-widest font-bold">STANDBY</span>
+                              </>
+                            );
+                          }
+                          const isOnline = active.status === 'online'; 
 
                           return (
                             <>
@@ -293,19 +295,32 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                     <span className="text-[8px] font-mono text-intel-cyan/60 uppercase font-black tracking-tighter">
                       {(() => {
                         try {
-                          const models = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          const customModels = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          const envModels = JSON.parse(localStorage.getItem('ti_env_models') || '[]');
                           const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
-                          const activeId = roles['answering'];
-                          const active = models.find((m: any) => m.id === activeId);
-                          if (!active) return 'NEURAL: OFFLINE';
+                          const activeId = roles['answer'];
+                          const active = [...customModels, ...envModels].find((m: any) => m.id === activeId);
+                          if (!active) return 'STANDBY';
                           return `${active.provider}: ${active.modelName}`;
-                        } catch { return 'AES-256'; }
+                        } catch { return '—'; }
                       })()}
                     </span>
                   </div>
                   <div className="flex items-center space-x-1.5">
                     <Terminal className="w-3 h-3 text-slate-500" />
-                    <span className="text-[8px] font-mono text-slate-600 uppercase">v2.0.4-STABLE</span>
+                    <span className="text-[8px] font-mono text-slate-600 uppercase">
+                      {(() => {
+                        try {
+                          const customModels = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+                          const envModels = JSON.parse(localStorage.getItem('ti_env_models') || '[]');
+                          const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
+                          const activeId = roles['answer'];
+                          const active = [...customModels, ...envModels].find((m: any) => m.id === activeId);
+                          if (!active) return '—';
+                          return `${active.provider}:${active.modelName}`;
+                        } catch { return '—'; }
+                      })()}
+                    </span>
                   </div>
                 </div>
                 <div className="text-[8px] font-mono text-slate-600 uppercase italic">

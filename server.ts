@@ -503,9 +503,30 @@ async function startServer() {
           }
           ok = r.ok;
         }
+      } else if (provider === 'mistral') {
+        const key = clientKey || process.env.MISTRAL_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://api.mistral.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'mistral-large-latest', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          ok = r.ok;
+        }
+      } else if (provider === 'anthropic') {
+        const key = clientKey || process.env.ANTHROPIC_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'claude-3-haiku-latest', max_tokens: 10, messages: [{ role: 'user', content: testPrompt }] }),
+          });
+          ok = r.ok;
+        }
       } else if (clientKey) {
-        // Custom provider — try OpenAI-compatible endpoint
-        const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Custom / OpenAI-compatible provider — use provided baseUrl or default
+        const baseUrl = (req.body.baseUrl || 'https://api.openai.com/v1').replace(/\/$/, '');
+        const r = await fetch(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${clientKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ model: modelName || 'gpt-4o', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
@@ -616,10 +637,130 @@ async function startServer() {
   });
 
   // AI Proxy Endpoint — DISABLED by default. Enable from System Command Center.
+  // Helper: try a single OpenAI-compatible provider with 30s timeout
+  async function tryProvider(url: string, apiKey: string | undefined, model: string, prompt: string): Promise<string> {
+    if (!apiKey || apiKey.includes('MY_')) return '';
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 30000);
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], max_tokens: 2048 }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!r.ok) { console.warn(`[AI] ${url} status=${r.status}`); return ''; }
+      const d = await r.json();
+      return d.choices?.[0]?.message?.content || '';
+    } catch (e: any) { console.warn(`[AI] ${url} error: ${e.message}`); return ''; }
+  }
+
+  // POST /api/ai — call an AI provider with a full prompt (with fallback chain)
   app.post('/api/ai', async (req, res) => {
-    return res.status(503).json({ 
-      text: '[AI: Server-side intelligence disabled. Configure and enable models from System Command Center.]' 
-    });
+    const { prompt, config } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'prompt required' });
+
+    // Build ordered provider list: requested provider first, then fallbacks
+    const requestedProvider = config?.provider || '';
+    const requestedModel = config?.model || '';
+    const fallbackChain: { p: string; k: string | undefined; m: string; url: string }[] = [];
+
+    function push(p: string, k: string | undefined, m: string, url: string) {
+      if (k && !k.includes('MY_')) fallbackChain.push({ p, k, m, url });
+    }
+
+    // Insert requested provider first if known
+    if (requestedProvider === 'openai') push('openai', process.env.OPENAI_API_KEY, requestedModel || 'gpt-4o', 'https://api.openai.com/v1/chat/completions');
+    else if (requestedProvider === 'cerebras') push('cerebras', process.env.CEREBRAS_API_KEY, requestedModel || 'llama3.1-8b', 'https://api.cerebras.ai/v1/chat/completions');
+    else if (requestedProvider === 'google') { /* handled separately below */ }
+    else if (requestedProvider === 'nvidia') push('nvidia', process.env.NVIDIA_API_KEY, requestedModel || 'meta/llama-3.1-70b-instruct', 'https://integrate.api.nvidia.com/v1/chat/completions');
+    else if (requestedProvider === 'openrouter') push('openrouter', process.env.OPENROUTER_API_KEY, requestedModel || 'google/gemini-2.0-flash-lite', 'https://openrouter.ai/api/v1/chat/completions');
+    else if (requestedProvider === 'mistral') push('mistral', process.env.MISTRAL_API_KEY, requestedModel || 'mistral-large-latest', 'https://api.mistral.ai/v1/chat/completions');
+
+    // Then add fallbacks in priority order
+    for (const entry of [
+      { p: 'cerebras', k: process.env.CEREBRAS_API_KEY, m: 'llama3.1-8b', url: 'https://api.cerebras.ai/v1/chat/completions' },
+      { p: 'openai', k: process.env.OPENAI_API_KEY, m: 'gpt-4o', url: 'https://api.openai.com/v1/chat/completions' },
+      { p: 'nvidia', k: process.env.NVIDIA_API_KEY, m: 'meta/llama-3.1-70b-instruct', url: 'https://integrate.api.nvidia.com/v1/chat/completions' },
+      { p: 'openrouter', k: process.env.OPENROUTER_API_KEY, m: 'google/gemini-2.0-flash-lite', url: 'https://openrouter.ai/api/v1/chat/completions' },
+      { p: 'mistral', k: process.env.MISTRAL_API_KEY, m: 'mistral-large-latest', url: 'https://api.mistral.ai/v1/chat/completions' },
+    ]) {
+      if (entry.k && !entry.k.includes('MY_') && !fallbackChain.some(f => f.p === entry.p)) {
+        fallbackChain.push(entry);
+      }
+    }
+
+    async function tryGoogle(model: string): Promise<string> {
+      const key = process.env.GEMINI_API_KEY;
+      if (!key || key.includes('MY_')) return '';
+      try {
+        console.log(`[AI] Trying google (${model})`);
+        const genAI = new GoogleGenerativeAI(key);
+        const gModel = genAI.getGenerativeModel({ model });
+        const result = await gModel.generateContent(prompt);
+        return (await result.response).text() || '';
+      } catch (e: any) { console.warn(`[AI] google error: ${e.message}`); return ''; }
+    }
+
+    async function tryAnthropic(model: string): Promise<string> {
+      const key = process.env.ANTHROPIC_API_KEY;
+      if (!key || key.includes('MY_')) return '';
+      try {
+        console.log(`[AI] Trying anthropic (${model})`);
+        const r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'user', content: prompt }] }),
+        });
+        if (!r.ok) { console.warn(`[AI] anthropic status=${r.status}`); return ''; }
+        const d = await r.json();
+        return d.content?.[0]?.text || '';
+      } catch (e: any) { console.warn(`[AI] anthropic error: ${e.message}`); return ''; }
+    }
+
+    try {
+      let text = '';
+      let usedProvider = '';
+      let usedModel = '';
+
+      // Try requested special providers first
+      if (requestedProvider === 'google') {
+        text = await tryGoogle(requestedModel || 'gemini-2.0-flash');
+        if (text) { usedProvider = 'google'; usedModel = requestedModel || 'gemini-2.0-flash'; }
+      } else if (requestedProvider === 'anthropic') {
+        text = await tryAnthropic(requestedModel || 'claude-3-haiku-latest');
+        if (text) { usedProvider = 'anthropic'; usedModel = requestedModel || 'claude-3-haiku-latest'; }
+      }
+
+      // Try OpenAI-compatible fallback chain
+      if (!text) {
+        for (const entry of fallbackChain) {
+          console.log(`[AI] Trying ${entry.p} (${entry.m})`);
+          text = await tryProvider(entry.url, entry.k, entry.m, prompt);
+          if (text) { usedProvider = entry.p; usedModel = entry.m; break; }
+        }
+      }
+
+      // Fallback to Google / Anthropic if not tried yet
+      if (!text) {
+        if (requestedProvider !== 'google') {
+          text = await tryGoogle('gemini-2.0-flash');
+          if (text) { usedProvider = 'google'; usedModel = 'gemini-2.0-flash'; }
+        }
+        if (!text && requestedProvider !== 'anthropic') {
+          text = await tryAnthropic('claude-3-haiku-latest');
+          if (text) { usedProvider = 'anthropic'; usedModel = 'claude-3-haiku-latest'; }
+        }
+      }
+
+      if (!text) text = `[AI: all providers returned empty response]`;
+      console.log(`[AI] Responding via ${usedProvider || 'none'} (${usedModel || '—'})`);
+      res.json({ text, provider: usedProvider, model: usedModel });
+    } catch (e: any) {
+      console.error(`[AI] Fatal: ${e.message}`);
+      res.json({ text: `[AI Error: ${e.message}]` });
+    }
   });
 
   // RSS Proxy API

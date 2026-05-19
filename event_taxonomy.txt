@@ -1,0 +1,23 @@
+SOCIAL_DISTRESS
+ ├── Suicide
+ ├── SelfImmolation
+ ├── FamilyTragedy
+ ├── PovertyCase
+
+PROTEST
+ ├── SitIn
+ ├── Strike
+ ├── RoadBlock
+ ├── Riot
+ ├── StudentProtest
+
+STATE_RESPONSE
+ ├── PoliceIntervention
+ ├── Arrest
+ ├── InternetRestriction
+
+RESOURCE_STRESS
+ ├── Water
+ ├── Electricity
+ ├── Fuel
+ ├── Bread

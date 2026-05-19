@@ -264,10 +264,11 @@ export async function chatWithAnalyst(messages: any[], context?: any): Promise<s
     // Fetch active AI configuration for the answering role
     let aiConfig: { provider?: string, model?: string } = {};
     try {
-      const models = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+      const customModels = JSON.parse(localStorage.getItem('ti_ai_models') || '[]');
+      const envModels = JSON.parse(localStorage.getItem('ti_env_models') || '[]');
       const roles = JSON.parse(localStorage.getItem('ti_ai_role_assignments') || '{}');
-      const activeId = roles['answering'];
-      const active = models.find((m: any) => m.id === activeId);
+      const activeId = roles['answer'];
+      const active = [...customModels, ...envModels].find((m: any) => m.id === activeId);
       if (active) {
         aiConfig = { provider: active.provider, model: active.modelName };
       }
@@ -275,9 +276,12 @@ export async function chatWithAnalyst(messages: any[], context?: any): Promise<s
       console.warn("Failed to fetch AI config for analyst chat:", e);
     }
 
+    const modelSummary = currentModel?.model_metadata
+      ? { metadata: currentModel.model_metadata, equations: currentModel.equations_registry, categoryCount: Object.keys(currentModel).filter(k => k !== 'model_metadata' && k !== 'equations_registry').length }
+      : 'Model unavailable';
     const fullPrompt = `${history}\n
-INTERNAL DATABASE (CURRENT STATE):
-${JSON.stringify(currentModel, null, 2)}
+INTERNAL DATABASE (SUMMARY):
+${JSON.stringify(modelSummary, null, 2)}
 
 Context: ${JSON.stringify(context || {})} 
 User: ${lastMessage}`;

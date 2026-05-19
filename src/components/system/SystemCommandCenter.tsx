@@ -7,7 +7,7 @@ import {
   Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
   FileText, BarChart3, TrendingUp, RotateCcw, Server, AlertCircle,
   Loader2, Wifi, Eye, Brain, Plus, Edit3, Save, Power, PowerOff, Key, Check, Link,
-  ChevronDown, Sparkles, TestTube2, Signal, Search
+  ChevronDown, Sparkles, TestTube2, Signal, Search, Shield
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
 import { supabase } from '../../lib/supabase';
@@ -754,24 +754,28 @@ const MissionControl: React.FC<MissionControlProps> = ({ onJumpToDebugger, aiMod
     finally { setIsRecalculating(false); }
   };
 
+  const getAllModels = (): AIModel[] => {
+    const custom = aiModels || [];
+    let env: AIModel[] = [];
+    try { env = JSON.parse(localStorage.getItem('ti_env_models') || '[]'); } catch {}
+    return [...custom, ...env];
+  };
+
   const getModelForRole = (role: RoleType) => {
     if (!roleAssign) return 'Loading...';
     const assignedId = roleAssign[role];
     if (!assignedId) return 'Not Assigned';
-    const model = (aiModels || []).find(m => m.id === assignedId);
+    const model = getAllModels().find(m => m.id === assignedId);
     if (!model) return 'Unknown';
-    return `${model.provider === 'google' ? 'Gemini' : model.provider.charAt(0).toUpperCase() + model.provider.slice(1)}: ${model.modelName}`;
+    const label = model.provider === 'google' ? 'Gemini' : model.provider.charAt(0).toUpperCase() + model.provider.slice(1);
+    return `${label}: ${model.modelName}`;
   };
 
   const getRoleHealth = (role: RoleType): 'online' | 'offline' | 'standby' => {
     if (!roleAssign) return 'standby';
     const assignedId = roleAssign[role];
     if (!assignedId) return 'standby';
-    
-    // Check both local custom models and environment-provided models
-    const allPossibleModels = [...(aiModels || [])];
-    const model = allPossibleModels.find(m => m.id === assignedId);
-    
+    const model = getAllModels().find(m => m.id === assignedId);
     if (!model) return 'standby';
     return model.status === 'online' ? 'online' : 'offline';
   };
@@ -780,8 +784,8 @@ const MissionControl: React.FC<MissionControlProps> = ({ onJumpToDebugger, aiMod
     { label: 'RSS Feed', ok: metrics.lastIngestionTime > 0 && (Date.now() - metrics.lastIngestionTime < 600000) },
     { label: 'Supabase DB', ok: metrics.dbWriteCount > 0 || metrics.dbReadCount > 0 },
     { label: 'Signal Engine', ok: metrics.signalCount >= 0 },
-    { label: 'National Briefing', health: getRoleHealth('parsing'), detail: getModelForRole('parsing') },
-    { label: 'Predictive Analysis', health: getRoleHealth('analysis'), detail: getModelForRole('analysis') },
+    { label: 'National Briefing', health: getRoleHealth('parser'), detail: getModelForRole('parser') },
+    { label: 'Predictive Analysis', health: getRoleHealth('analys'), detail: getModelForRole('analys') },
     { label: 'Realtime Sub', ok: !metrics.isFetching || isSyncing },
     { label: 'Sentinel Sat', ok: true, detail: 'On-demand via Agriculture tab' },
   ];
@@ -1876,6 +1880,24 @@ const MODEL_CATALOG: Record<string, { label: string; models: { id: string; label
       { id: 'llama3.1-70b', label: 'Llama 3.1 70B', desc: 'CS-3 powered inference, ultra-fast' },
       { id: 'qwen-3-235b-a22b-instruct-2507', label: 'Qwen 3 235B', desc: 'High-quality large model for complex briefs' },
     ]
+  },
+  nvidia: {
+    label: 'NVIDIA',
+    models: [
+      { id: 'meta/llama-3.1-70b-instruct', label: 'Llama 3.1 70B', desc: 'NVIDIA-optimized 70B Llama' },
+      { id: 'meta/llama-3.1-8b-instruct', label: 'Llama 3.1 8B', desc: 'Fast NVIDIA-optimized 8B Llama' },
+      { id: 'mistralai/mistral-7b-instruct-v0.3', label: 'Mistral 7B', desc: 'Lightweight Mistral on NVIDIA' },
+    ]
+  },
+  mistral: {
+    label: 'Mistral',
+    models: [
+      { id: 'mistral-large-latest', label: 'Mistral Large', desc: 'Flagship model, best reasoning' },
+      { id: 'mistral-medium', label: 'Mistral Medium', desc: 'Balanced performance and speed' },
+      { id: 'mistral-small-latest', label: 'Mistral Small', desc: 'Fast, lightweight, cost-effective' },
+      { id: 'codestral-latest', label: 'Codestral', desc: 'Code-specialized model' },
+      { id: 'open-mistral-nemo', label: 'Mistral Nemo', desc: 'Open-weights model' },
+    ]
   }
 };
 
@@ -1911,15 +1933,22 @@ function loadModels(): AIModel[] {
   } catch { return []; }
 }
 
-type RoleType = 'parsing' | 'analysis' | 'answering';
+type RoleType = string;
 
 // ─── AI TAB ───────────────────────────────────────────────────────────────────
 
-const ROLE_LABELS: Record<RoleType, string> = {
-  parsing: 'Variable Parsing',
-  analysis: 'RRI Analysis',
-  answering: 'Question Answering',
-};
+const CAPABILITIES: { id: string; name: string; icon: string; desc: string }[] = [
+  { id: 'briefing', name: 'Executive Briefing', icon: '🎯', desc: 'Daily/weekly intelligence briefs, executive summaries' },
+  { id: 'parsing', name: 'RSS Parsing', icon: '📰', desc: 'Article classification, entity extraction, sentiment' },
+  { id: 'reasoning', name: 'Geopolitical Reasoning', icon: '🧠', desc: 'Deep multi-hop queries, correlation, causal inference' },
+  { id: 'stream', name: 'Fast Realtime Chat', icon: '⚡', desc: 'Sub-second analyst Q&A, live narration' },
+  { id: 'entities', name: 'Entity Extraction', icon: '🔍', desc: 'Actor detection, governorate mapping, event typing' },
+  { id: 'translation', name: 'Translation', icon: '🌐', desc: 'Arabic/French/English document translation' },
+  { id: 'simulation', name: 'Simulation Narration', icon: '📊', desc: 'Scenario walkthroughs, Monte Carlo explanations' },
+  { id: 'alerting', name: 'Alert Synthesis', icon: '🚨', desc: 'Human-readable alert generation, escalation rationale' },
+  { id: 'memory', name: 'Memory Retrieval', icon: '💾', desc: 'RAG-based historical recall, timeline reconstruction' },
+  { id: 'fallback', name: 'System Fallback', icon: '🛡️', desc: 'Catch-all when primary models fail' },
+];
 
 const AITab: React.FC<{
   aiModels: AIModel[];
@@ -1939,6 +1968,27 @@ const AITab: React.FC<{
   const [autoFailover, setAutoFailover] = useState(() => localStorage.getItem('ti_auto_failover') === 'true');
   const [testingId, setTestingId] = useState<string | null>(null);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
+
+  // Sub-tab navigation
+  const [aiTabView, setAiTabView] = useState<'providers' | 'capabilities' | 'registry'>('providers');
+  const [expandedProvider, setExpandedProvider] = useState<string | null>(null);
+  const [expandedCap, setExpandedCap] = useState<string | null>(null);
+
+  // Capability config persisted in localStorage (primary + fallback model per capability)
+  const [capConfig, setCapConfig] = useState<Record<string, { primary: string; fallback: string }>>(() => {
+    try { return JSON.parse(localStorage.getItem('ti_ai_cap_config') || '{}'); } catch { return {}; }
+  });
+  useEffect(() => { localStorage.setItem('ti_ai_cap_config', JSON.stringify(capConfig)); }, [capConfig]);
+
+  const updateCap = (capId: string, patch: Partial<{ primary: string; fallback: string }>) => {
+    setCapConfig(prev => ({ ...prev, [capId]: { ...prev[capId] || { primary: '', fallback: '' }, ...patch } }));
+  };
+
+  // Provider discovery state
+  const [scanningProvider, setScanningProvider] = useState<string | null>(null);
+  const [discoveredModels, setDiscoveredModels] = useState<Record<string, {id: string, label: string}[]>>({});
+  const [testingDiscoveredId, setTestingDiscoveredId] = useState<string | null>(null);
+  const [discTestResults, setDiscTestResults] = useState<Record<string, 'pass' | 'fail' | null>>({});
 
   // Step 2 provisioning progress
   const [provProgress, setProvProgress] = useState<{ label: string; status: 'pending' | 'loading' | 'done' | 'error' }[]>([
@@ -2031,10 +2081,26 @@ const AITab: React.FC<{
             lastChecked: null,
           }));
           setEnvModels(mapped);
+          localStorage.setItem('ti_env_models', JSON.stringify(mapped));
         }
       })
       .catch(() => {});
   }, []);
+
+  // Auto-seed role assignments from env models on first launch
+  useEffect(() => {
+    if (envModels.length === 0) return;
+    const hasAnyRole = Object.values(roleAssign).some(v => v !== '');
+    if (hasAnyRole) return;
+    const nextRoles = { ...roleAssign };
+    const roleKeys = Object.keys(nextRoles) as RoleType[];
+    envModels.forEach((model, i) => {
+      if (i < roleKeys.length) {
+        nextRoles[roleKeys[i]] = model.id;
+      }
+    });
+    onPersistRoles(nextRoles);
+  }, [envModels, roleAssign, onPersistRoles]);
 
   const allModels = [...envModels, ...aiModels];
 
@@ -2062,7 +2128,6 @@ const AITab: React.FC<{
       }
       if (changed) {
         onPersistRoles?.(nextRoles);
-        setRoleAssign(nextRoles);
       }
     }, 10000);
     return () => clearInterval(interval);
@@ -2079,19 +2144,26 @@ const AITab: React.FC<{
 
   const [modelFilter, setModelFilter] = useState('');
 
-  const filteredModels = useMemo(() => {
-    if (!modelFilter.trim()) return allModels;
-    const q = modelFilter.toLowerCase();
-    return allModels.filter(m =>
-      m.name.toLowerCase().includes(q) ||
-      m.modelName.toLowerCase().includes(q) ||
-      m.provider.toLowerCase().includes(q)
-    );
-  }, [allModels, modelFilter]);
+  const filteredModelsByProvider = useMemo(() => {
+    const result: Record<string, AIModel[]> = {};
+    const q = modelFilter.toLowerCase().trim();
+    for (const [provider, models] of Object.entries(modelsByProvider)) {
+      const filtered = q
+        ? models.filter(m =>
+            m.name.toLowerCase().includes(q) ||
+            m.modelName.toLowerCase().includes(q) ||
+            m.provider.toLowerCase().includes(q)
+          )
+        : models;
+      if (filtered.length > 0) {
+        result[provider] = filtered;
+      }
+    }
+    return result;
+  }, [modelsByProvider, modelFilter]);
 
   const testAllConnections = async () => {
     for (const model of allModels) {
-      if (model.status === 'online') continue;
       const isEnv = envModels.some(em => em.id === model.id);
       await testConnection(model, isEnv);
     }
@@ -2101,6 +2173,73 @@ const AITab: React.FC<{
     const next = !autoFailover;
     setAutoFailover(next);
     localStorage.setItem('ti_auto_failover', String(next));
+  };
+
+  const handleScanProvider = async (provider: string) => {
+    setScanningProvider(provider);
+    const existing = allModels.find(m => m.provider === provider);
+    if (!existing) { setScanningProvider(null); return; }
+    try {
+      const res = await fetch('/api/ai/provider-models', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, apiKey: existing.apiKey.replace(/^\*+\*/, '') }),
+      });
+      const data = await res.json();
+      if (data.models?.length > 0) {
+        setDiscoveredModels(prev => ({
+          ...prev,
+          [provider]: data.models.map((id: string) => {
+            const catEntry = MODEL_CATALOG[provider]?.models?.find(m => m.id === id);
+            return { id, label: catEntry?.label || id };
+          }),
+        }));
+      }
+    } catch {}
+    setScanningProvider(null);
+  };
+
+  const provisionDiscoveredModel = (provider: string, modelId: string, label: string) => {
+    const existing = allModels.find(m => m.provider === provider);
+    const newNode: AIModel = {
+      id: crypto.randomUUID(),
+      name: label,
+      provider,
+      modelName: modelId,
+      apiKey: existing?.apiKey || '',
+      status: 'unknown',
+      lastChecked: null,
+      config: existing?.config,
+    };
+    onPersistModels([...aiModels, newNode]);
+    setDiscoveredModels(prev => {
+      const updated = { ...prev };
+      updated[provider] = (updated[provider] || []).filter(m => m.id !== modelId);
+      return updated;
+    });
+  };
+
+  const testDiscoveredModel = async (provider: string, modelId: string) => {
+    const testKey = `${provider}:${modelId}`;
+    setTestingDiscoveredId(testKey);
+    const existing = allModels.find(m => m.provider === provider);
+    try {
+      const res = await fetch('/api/ai/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          modelName: modelId,
+          apiKey: existing?.apiKey?.replace(/^\*+\*/, ''),
+          baseUrl: existing?.config?.baseUrl,
+        }),
+      });
+      const data = await res.json();
+      setDiscTestResults(prev => ({ ...prev, [testKey]: data.ok ? 'pass' : 'fail' }));
+    } catch {
+      setDiscTestResults(prev => ({ ...prev, [testKey]: 'fail' }));
+    }
+    setTestingDiscoveredId(null);
   };
 
   const handleRemove = (id: string) => {
@@ -2160,286 +2299,469 @@ const AITab: React.FC<{
     }
   };
 
-  const usedInRole = (id: string): RoleType | null => {
-    for (const [role, assigned] of Object.entries(roleAssign)) {
-      if (assigned === id) return role as RoleType;
-    }
-    return null;
-  };
-
   const isModelInUse = (id: string) => Object.values(roleAssign).includes(id);
-  const modelForRole = (role: RoleType) => allModels.find(m => m.id === roleAssign[role]);
+
+  const handleAutoConfigure = async () => {
+    const onlineIds: string[] = allModels.filter(m => m.status === 'online').map(m => m.id);
+    const toTest = allModels.filter(m => m.status !== 'online');
+    for (const model of toTest) {
+      const isEnv = envModels.some(em => em.id === model.id);
+      const body: any = { provider: model.provider, modelName: model.modelName, apiKey: isEnv ? undefined : model.apiKey };
+      if (model.config?.baseUrl) body.baseUrl = model.config.baseUrl;
+      try {
+        const t0 = performance.now();
+        const res = await fetch('/api/ai/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        const latency = Math.round(performance.now() - t0);
+        if (data.ok) {
+          onlineIds.push(model.id);
+          if (isEnv) setEnvModels(prev => prev.map(m => m.id === model.id ? { ...m, status: 'online' as const, lastChecked: data.checkedAt, latencyMs: latency } : m));
+          else onPersistModels(aiModels.map(m => m.id === model.id ? { ...m, status: 'online' as const, lastChecked: data.checkedAt, latencyMs: latency } : m));
+        } else {
+          if (isEnv) setEnvModels(prev => prev.map(m => m.id === model.id ? { ...m, status: 'offline' as const, lastChecked: data.checkedAt } : m));
+          else onPersistModels(aiModels.map(m => m.id === model.id ? { ...m, status: 'offline' as const, lastChecked: data.checkedAt } : m));
+        }
+      } catch {
+        if (!isEnv) onPersistModels(aiModels.map(m => m.id === model.id ? { ...m, status: 'offline' as const, lastChecked: new Date().toISOString() } : m));
+      }
+    }
+    if (onlineIds.length === 0) return;
+    const newConfig: Record<string, { primary: string; fallback: string }> = {};
+    CAPABILITIES.forEach((cap, i) => {
+      const primary = onlineIds[i % onlineIds.length];
+      const fallback = onlineIds.length > 1 ? onlineIds[(i + 1) % onlineIds.length] : '';
+      newConfig[cap.id] = { primary, fallback };
+    });
+    setCapConfig(newConfig);
+  };
 
   return (
     <div className="flex flex-col h-full pr-1 space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
+      {/* Header with sub-tab navigation */}
+      <div className="flex items-center justify-between shrink-0 flex-wrap gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-intel-cyan/10 border border-intel-cyan/20 flex items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.1)]">
-            <Brain className="w-5 h-5 text-intel-cyan" />
+          <div className="w-9 h-9 rounded-xl bg-intel-cyan/10 border border-intel-cyan/20 flex items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.1)]">
+            <Brain className="w-4.5 h-4.5 text-intel-cyan" />
           </div>
           <div>
             <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-              AI Command Matrix
+              AI Infrastructure
               <Sparkles className="w-3 h-3 text-intel-cyan animate-pulse" />
             </h2>
             <p className="text-[9px] font-mono text-slate-500 uppercase tracking-tighter">
-              {allModels.length} active nodes across {Object.keys(modelsByProvider).length} clusters
+              {allModels.length} nodes · {Object.keys(modelsByProvider).length} providers
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleFailover}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[10px] font-bold uppercase font-mono transition-all border ${
-              autoFailover
-                ? 'border-intel-green/40 text-intel-green bg-intel-green/10 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
-                : 'border-white/10 text-slate-500 hover:text-white hover:bg-white/5'
+          <div className="flex bg-black/40 border border-white/5 rounded-lg p-0.5">
+            {(['providers', 'capabilities', 'registry'] as const).map(tab => (
+              <button key={tab} onClick={() => setAiTabView(tab)}
+                className={`px-3 py-1.5 rounded-md text-[9px] font-bold uppercase font-mono tracking-wider transition-all ${
+                  aiTabView === tab 
+                    ? 'bg-intel-cyan/20 text-intel-cyan shadow-[0_0_10px_rgba(0,242,255,0.1)]' 
+                    : 'text-slate-500 hover:text-white'
+                }`}
+              >
+                {tab === 'providers' ? 'Providers' : tab === 'capabilities' ? 'Capabilities' : 'Registry'}
+              </button>
+            ))}
+          </div>
+          <button onClick={toggleFailover}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono transition-all border ${
+              autoFailover ? 'border-intel-green/40 text-intel-green bg-intel-green/10' : 'border-white/10 text-slate-500 hover:text-white'
             }`}
           >
-            <Activity className={`w-3.5 h-3.5 ${autoFailover ? 'animate-pulse' : ''}`} />
-            {autoFailover ? 'FAILOVER ACTIVE' : 'FAILOVER OFF'}
+            <Activity className={`w-3 h-3 ${autoFailover ? 'animate-pulse' : ''}`} />
+            {autoFailover ? 'ON' : 'OFF'}
           </button>
         </div>
       </div>
 
-      {/* Models List - Unified View */}
-      <div className="flex-1 overflow-y-auto min-h-0 space-y-4">
-        <div className="flex items-center justify-between px-1">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] shrink-0">
-              AI Intelligence Nodes
-              <span className="ml-2 text-intel-cyan/60">{allModels.length}</span>
-            </span>
-            <div className="relative flex-1 max-w-[200px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
-              <input
-                value={modelFilter}
-                onChange={e => setModelFilter(e.target.value)}
-                placeholder="Filter nodes..."
-                className="w-full bg-black/40 border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all"
-              />
-              {modelFilter && (
-                <button onClick={() => setModelFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50">
-                  <X className="w-3 h-3" />
+      {/* Sub-tab content */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        
+        {/* ─── PROVIDERS VIEW (Layer 1) ─────────────────────────────── */}
+        {aiTabView === 'providers' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">
+                Provider Infrastructure
+                <span className="ml-2 text-intel-cyan/60">{Object.keys(modelsByProvider).length}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button onClick={testAllConnections} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all">
+                  <Zap className="w-3 h-3" /> Test All
+                </button>
+                <button onClick={() => { setProvisionStep(1); setNewProvData({ provider: 'google', apiKey: '', selectedModels: [] }); setShowAdd(true); }}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-intel-cyan/30 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Provider
+                </button>
+              </div>
+            </div>
+
+            {/* Role Bindings */}
+            <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
+              <div className="text-[9px] font-mono text-white/30 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <Shield className="w-3 h-3" />
+                Role Bindings
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { key: 'parser' as RoleType, label: 'National Briefing', icon: '📰' },
+                  { key: 'analys' as RoleType, label: 'Predictive Analysis', icon: '📊' },
+                  { key: 'answer' as RoleType, label: 'AI Analyst Chat', icon: '🤖' },
+                ].map(role => {
+                  const assignedId = roleAssign[role.key];
+                  const assigned = allModels.find(m => m.id === assignedId);
+                  return (
+                    <div key={role.key} className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs">{role.icon}</span>
+                        <span className="text-[9px] font-mono text-white/50 uppercase tracking-wider">{role.label}</span>
+                      </div>
+                      <select
+                        value={assignedId || ''}
+                        onChange={e => {
+                          const next = { ...roleAssign, [role.key]: e.target.value };
+                          onPersistRoles(next);
+                        }}
+                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[9px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                      >
+                        <option value="">— NONE —</option>
+                        {allModels.map(m => (
+                          <option key={m.id} value={m.id}>
+                            {m.name} ({m.modelName}){m.status === 'online' ? ' ●' : m.status === 'offline' ? ' ✕' : ''}
+                          </option>
+                        ))}
+                      </select>
+                      <span className={`text-[8px] font-mono ${assigned?.status === 'online' ? 'text-intel-green' : assigned?.status === 'offline' ? 'text-red-400' : 'text-slate-600'}`}>
+                        {assigned ? `${assigned.provider} · ${assigned.status}` : 'unassigned'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {Object.keys(modelsByProvider).length === 0 ? (
+              <div className="bg-black/20 border border-dashed border-white/5 rounded-2xl p-10 text-center">
+                <Cpu className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-4">No providers connected</p>
+                <button onClick={() => { setProvisionStep(1); setNewProvData({ provider: 'google', apiKey: '', selectedModels: [] }); setShowAdd(true); }}
+                  className="px-5 py-3 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all"
+                >+ Add Your First Provider</button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(modelsByProvider).map(([provider, models]) => {
+                  const isOnline = models.some(m => m.status === 'online');
+                  const providerInfo = PROVIDER_STYLE[provider];
+                  const isExpanded = expandedProvider === provider;
+                  const discModels = discoveredModels[provider] || [];
+                  const avgLatency = models.filter(m => m.latencyMs).reduce((s, m, _, a) => s + (m.latencyMs || 0) / a.length, 0);
+                  return (
+                    <div key={provider} className="bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
+                      {/* Provider Summary Card */}
+                      <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-all"
+                        onClick={() => setExpandedProvider(isExpanded ? null : provider)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-intel-green shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-red-500/50 shadow-[0_0_8px_rgba(239,68,68,0.2)]'}`} />
+                            {isOnline && <div className="absolute inset-0 bg-intel-green rounded-full animate-ping opacity-20" />}
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: providerInfo?.color || '#94A3B8' }}>
+                            {providerInfo?.label || provider}
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-500">{models.length} models</span>
+                          {avgLatency > 0 && <span className="text-[9px] font-mono text-slate-600">Latency: {Math.round(avgLatency)}ms</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button onClick={e => { e.stopPropagation(); handleScanProvider(provider); }} disabled={scanningProvider === provider}
+                            className="px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all disabled:opacity-40"
+                          >
+                            {scanningProvider === provider ? <RefreshCw className="w-3 h-3 animate-spin" /> : <>Scan</>}
+                          </button>
+                          <button onClick={e => e.stopPropagation()}
+                            className="px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono text-slate-500 hover:text-white transition-all"
+                          >Edit Key</button>
+                          <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        </div>
+                      </div>
+
+                      {/* Expanded Model List */}
+                      {isExpanded && (
+                        <div className="border-t border-white/5 px-4 py-3 space-y-3">
+                          {/* Provisioned Models */}
+                          <div className="grid grid-cols-1 gap-2">
+                            {models.map(model => {
+                              const isEditing = editingId === model.id;
+                              const isEnv = envModels.some(em => em.id === model.id);
+                              const isTesting = testingId === model.id;
+                              return (
+                                <motion.div key={model.id} layout
+                                  className={`bg-black/40 border rounded-2xl p-4 transition-all border-l-2 ${isEditing ? 'border-intel-cyan/50 border-l-intel-cyan/50 shadow-[0_0_30px_rgba(0,242,255,0.1)]' : `border-white/5 hover:border-white/10 ${providerInfo?.border || 'border-l-slate-500/40'}`}`}
+                                >
+                                  {isEditing ? (
+                                    <div className="space-y-4">
+                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="space-y-1.5">
+                                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Instance Name</label>
+                                          <input defaultValue={model.name} onChange={e => updateModel(model.id, { name: e.target.value })}
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Model Engine</label>
+                                          <select defaultValue={model.modelName} onChange={e => updateModel(model.id, { modelName: e.target.value })}
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                                          >{MODEL_CATALOG[model.provider]?.models?.map(m => <option key={m.id} value={m.id}>{m.label}</option>) || null}</select>
+                                        </div>
+                                        <div className="space-y-1.5">
+                                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Secret Key</label>
+                                          <div className="relative">
+                                            <input defaultValue={model.apiKey} onChange={e => updateModel(model.id, { apiKey: e.target.value })} type="password"
+                                              className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
+                                            <Key className="absolute right-3 top-3 w-3 h-3 text-white/20" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex justify-end gap-3 pt-2">
+                                        <button onClick={() => setEditingId(null)} className="px-4 py-2 text-[10px] font-bold uppercase font-mono text-slate-500 hover:text-white transition-colors">Cancel</button>
+                                        <button onClick={() => handleTestAndSave(model, isEnv)} disabled={testingId === model.id}
+                                          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all shadow-[0_0_15px_rgba(0,242,255,0.1)] disabled:opacity-40"
+                                        >{testingId === model.id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                                          {testingId === model.id ? 'Testing...' : 'Test & Save'}</button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-4 min-w-0">
+                                        <div className="relative">
+                                          <div className={`w-3 h-3 rounded-full ${model.status === 'online' ? 'bg-intel-green shadow-[0_0_10px_rgba(34,197,94,0.5)]' : model.status === 'offline' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-slate-700 animate-pulse'}`} />
+                                          {model.status === 'online' && <div className="absolute inset-0 bg-intel-green rounded-full animate-ping opacity-20" />}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                            <span className="text-sm font-bold text-white tracking-wide truncate">{model.name}</span>
+                                            <span className="text-[8px] font-mono text-slate-500 border border-white/10 px-1.5 py-0.5 rounded uppercase">{model.modelName}</span>
+                                            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider ${providerInfo?.bg || 'bg-slate-500/10'}`}
+                                              style={{ color: providerInfo?.color || '#64748B' }}>{providerInfo?.label || model.provider}</span>
+                                            {isEnv && <span className="text-[8px] font-mono text-intel-cyan bg-intel-cyan/10 px-1.5 py-0.5 rounded uppercase tracking-wider">ENV</span>}
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <span className="text-[9px] font-mono text-slate-500 flex items-center gap-1">
+                                              <Clock className="w-2.5 h-2.5" />
+                                              {model.lastChecked ? `Sync: ${new Date(model.lastChecked).toLocaleTimeString()}` : 'No sync recorded'}
+                                            </span>
+                                            <span className={`text-[9px] font-mono flex items-center gap-1 ${model.latencyMs !== undefined ? model.latencyMs < 500 ? 'text-intel-green' : model.latencyMs < 2000 ? 'text-amber-500' : 'text-red-500' : 'text-slate-500'}`}>
+                                              <Signal className="w-2.5 h-2.5" />
+                                              {model.latencyMs !== undefined ? `${model.latencyMs}ms` : model.status === 'online' ? 'Live' : 'N/A'}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button onClick={() => testConnection(model, isEnv)} disabled={testingId === model.id}
+                                          className={`p-2 rounded-xl transition-all ${testingId === model.id ? 'text-intel-cyan bg-intel-cyan/5' : 'text-slate-500 hover:text-intel-cyan hover:bg-white/5'}`} title="Test"
+                                        >{testingId === model.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}</button>
+                                        {!isEnv && <>
+                                          <button onClick={() => setEditingId(model.id)} className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all" title="Edit"><Edit3 className="w-4 h-4" /></button>
+                                          <button onClick={() => handleRemove(model.id)} disabled={isModelInUse(model.id)} className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-20" title="Remove"><Trash2 className="w-4 h-4" /></button>
+                                        </>}
+                                      </div>
+                                    </div>
+                                  )}
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Discovered Models */}
+                          {discModels.length > 0 && (
+                            <div className="space-y-2 pt-2">
+                              <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Available Models · {discModels.length} discovered</span>
+                              {discModels.map(dm => {
+                                const testKey = `${provider}:${dm.id}`;
+                                const testResult = discTestResults[testKey];
+                                const isTesting = testingDiscoveredId === testKey;
+                                return (
+                                  <div key={dm.id} className="bg-black/40 border border-dashed border-white/5 rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/10 transition-all">
+                                    <div className="flex items-center gap-3">
+                                      {testResult === 'pass' ? <div className="w-3 h-3 rounded-full bg-intel-green shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+                                        : testResult === 'fail' ? <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                                        : <div className="w-3 h-3 rounded-full bg-slate-700" />}
+                                      <span className="text-xs text-white/80 font-mono">{dm.label}</span>
+                                      <span className="text-[8px] font-mono text-slate-600">{dm.id}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button onClick={() => testDiscoveredModel(provider, dm.id)} disabled={isTesting}
+                                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all disabled:opacity-40"
+                                      >{isTesting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}{isTesting ? 'Testing...' : 'Test'}</button>
+                                      <button onClick={() => provisionDiscoveredModel(provider, dm.id, dm.label)}
+                                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-intel-cyan/20 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
+                                      ><Plus className="w-3 h-3" /> Provision</button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── CAPABILITIES VIEW (Layer 2 - MAIN UI) ────────────────── */}
+        {aiTabView === 'capabilities' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em]">
+                Intelligence Capabilities
+                <span className="ml-2 text-intel-cyan/60">{CAPABILITIES.length}</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button onClick={handleAutoConfigure} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all"
+                ><Zap className="w-3 h-3" /> Auto-Configure</button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {CAPABILITIES.map(cap => {
+                const config = capConfig[cap.id] || { primary: '', fallback: '' };
+                const primaryModel = config.primary ? allModels.find(m => m.id === config.primary) : null;
+                const fallbackModel = config.fallback ? allModels.find(m => m.id === config.fallback) : null;
+                const status = primaryModel?.status === 'online' ? 'active' : config.fallback ? 'degraded' : 'offline';
+                const isExpanded = expandedCap === cap.id;
+                return (
+                  <div key={cap.id} className="bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
+                    {/* Capability Row */}
+                    <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-all"
+                      onClick={() => setExpandedCap(isExpanded ? null : cap.id)}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-base">{cap.icon}</span>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-white tracking-wide">{cap.name}</span>
+                          <p className="text-[8px] font-mono text-slate-600 truncate">{cap.desc}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <span className={`text-[8px] font-mono px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${
+                          status === 'active' ? 'bg-intel-green/10 text-intel-green' :
+                          status === 'degraded' ? 'bg-amber-500/10 text-amber-400' :
+                          'bg-red-500/10 text-red-400'
+                        }`}>{status.toUpperCase()}</span>
+                        <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </div>
+                    </div>
+
+                    {/* Expanded Config */}
+                    {isExpanded && (
+                      <div className="border-t border-white/5 px-4 py-3 space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Primary Model</label>
+                            <select value={config.primary} onChange={e => updateCap(cap.id, { primary: e.target.value })}
+                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                            >
+                              <option value="">— NO MODEL —</option>
+                              {allModels.map(m => <option key={m.id} value={m.id}>{m.name} ({m.modelName}){m.status === 'online' ? ' ●' : ''}</option>)}
+                            </select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Fallback Model</label>
+                            <select value={config.fallback} onChange={e => updateCap(cap.id, { fallback: e.target.value })}
+                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                            >
+                              <option value="">— NO FALLBACK —</option>
+                              {allModels.filter(m => m.id !== config.primary).map(m => <option key={m.id} value={m.id}>{m.name} ({m.modelName}){m.status === 'online' ? ' ●' : ''}</option>)}
+                            </select>
+                          </div>
+                        </div>
+                        {primaryModel && (
+                          <div className="flex items-center gap-2 text-[9px] font-mono">
+                            <span className={`${primaryModel.status === 'online' ? 'text-intel-green' : 'text-red-400'}'}`}>
+                              {primaryModel.status === 'online' ? '● Online' : '● Offline'}
+                            </span>
+                            <span className="text-slate-600">·</span>
+                            <span className="text-slate-500">{PROVIDER_STYLE[primaryModel.provider]?.label || primaryModel.provider}</span>
+                            {primaryModel.latencyMs && <><span className="text-slate-600">·</span><span className="text-slate-500">{primaryModel.latencyMs}ms</span></>}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ─── REGISTRY VIEW (Layer 3) ───────────────────────────────── */}
+        {aiTabView === 'registry' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] shrink-0">Model Registry</span>
+              <div className="relative flex-1 max-w-[200px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
+                <input value={modelFilter} onChange={e => setModelFilter(e.target.value)} placeholder="Filter models..."
+                  className="w-full bg-black/40 border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
+                {modelFilter && <button onClick={() => setModelFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"><X className="w-3 h-3" /></button>}
+              </div>
+              {allModels.some(m => m.status !== 'online') && (
+                <button onClick={testAllConnections} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all">
+                  <Zap className="w-3 h-3" /> Test All
                 </button>
               )}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {allModels.some(m => m.status !== 'online') && (
-              <button
-                onClick={testAllConnections}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[8px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all"
-              >
-                <Zap className="w-3 h-3" />
-                Test All
-              </button>
-            )}
-            <button
-              onClick={() => {
-                setProvisionStep(1);
-                setNewProvData({ provider: 'google', apiKey: '', selectedModels: [] });
-                setShowAdd(true);
-              }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-intel-cyan/30 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
-            >
-              <Plus className="w-3 h-3" />
-              Provision Node
-            </button>
-          </div>
-        </div>
 
-        {filteredModels.length === 0 ? (
-          <div className="bg-black/20 border border-dashed border-white/5 rounded-2xl p-10 text-center">
-            <Cpu className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
-            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
-              {modelFilter ? 'No nodes match your filter' : 'No active nodes in this cluster'}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3">
-            {filteredModels.map(model => {
-              const isEditing = editingId === model.id;
-              const isEnv = envModels.some(em => em.id === model.id);
-              const isTesting = testingId === model.id;
-              const role = usedInRole(model.id);
-              
-              return (
-                <motion.div 
-                  key={model.id}
-                  layout
-                  className={`bg-[#0a0a0c] border rounded-2xl p-4 transition-all border-l-2 ${
-                    isEditing
-                      ? 'border-intel-cyan/50 border-l-intel-cyan/50 shadow-[0_0_30px_rgba(0,242,255,0.1)]'
-                      : `border-white/5 hover:border-white/10 ${PROVIDER_STYLE[model.provider]?.border || 'border-l-slate-500/40'}`
-                  }`}
-                >
-                  {isEditing ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Instance Name</label>
-                          <input 
-                            defaultValue={model.name} 
-                            onChange={e => updateModel(model.id, { name: e.target.value })}
-                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Model Engine</label>
-                          <select 
-                            defaultValue={model.modelName}
-                            onChange={e => updateModel(model.id, { modelName: e.target.value })}
-                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
-                          >
-                            {MODEL_CATALOG[model.provider].models.map(m => (
-                              <option key={m.id} value={m.id}>{m.label}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Secret Key</label>
-                          <div className="relative">
-                            <input 
-                              defaultValue={model.apiKey} 
-                              onChange={e => updateModel(model.id, { apiKey: e.target.value })}
-                              type="password"
-                              className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
-                              placeholder="sk-..."
-                            />
-                            <Key className="absolute right-3 top-3 w-3 h-3 text-white/20" />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex justify-end gap-3 pt-2">
-                        <button 
-                          onClick={() => setEditingId(null)} 
-                          className="px-4 py-2 text-[10px] font-bold uppercase font-mono text-slate-500 hover:text-white transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button 
-                          onClick={() => handleTestAndSave(model, isEnv)}
-                          disabled={testingId === model.id}
-                          className="flex items-center gap-2 px-5 py-2 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[10px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all shadow-[0_0_15px_rgba(0,242,255,0.1)] disabled:opacity-40"
-                        >
-                          {testingId === model.id ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
-                          {testingId === model.id ? 'Testing...' : 'Test & Save'}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 min-w-0">
-                        <div className="relative">
-                          <div className={`w-3 h-3 rounded-full ${
-                            model.status === 'online' ? 'bg-intel-green shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 
-                            model.status === 'offline' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 
-                            'bg-slate-700 animate-pulse'
-                          }`} />
-                          {model.status === 'online' && <div className="absolute inset-0 bg-intel-green rounded-full animate-ping opacity-20" />}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="text-sm font-bold text-white tracking-wide truncate">{model.name}</span>
-                            <span className="text-[8px] font-mono text-slate-500 border border-white/10 px-1.5 py-0.5 rounded uppercase">{model.modelName}</span>
-                            <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider ${PROVIDER_STYLE[model.provider]?.bg || 'bg-slate-500/10'}`}
-                              style={{ color: PROVIDER_STYLE[model.provider]?.color || '#64748B' }}>
-                              {PROVIDER_STYLE[model.provider]?.label || model.provider}
-                            </span>
-                            {isEnv && <span className="text-[8px] font-mono text-intel-cyan bg-intel-cyan/10 px-1.5 py-0.5 rounded uppercase tracking-wider">ENV</span>}
-                            {role && <span className="text-[8px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{ROLE_LABELS[role]}</span>}
-                          </div>
-                          {(() => {
-                            const catModels = MODEL_CATALOG[model.provider]?.models;
-                            const entry = catModels?.find(m => m.id === model.modelName);
-                            return entry?.desc ? (
-                              <p className="text-[9px] font-mono text-slate-600 mb-1.5">{entry.desc}</p>
-                            ) : null;
-                          })()}
-                          <div className="flex items-center gap-3">
-                            <span className="text-[9px] font-mono text-slate-500 flex items-center gap-1">
-                              <Clock className="w-2.5 h-2.5" />
-                              {model.lastChecked ? `Sync: ${new Date(model.lastChecked).toLocaleTimeString()}` : 'No sync recorded'}
-                            </span>
-                            <span className={`text-[9px] font-mono flex items-center gap-1 ${
-                              model.latencyMs !== undefined
-                                ? model.latencyMs < 500 ? 'text-intel-green' : model.latencyMs < 2000 ? 'text-amber-500' : 'text-red-500'
-                                : 'text-slate-500'
-                            }`}>
-                              <Signal className="w-2.5 h-2.5" />
-                              {model.latencyMs !== undefined ? `${model.latencyMs}ms` : model.status === 'online' ? 'Live' : 'N/A'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button
-                          onClick={() => testConnection(model, isEnv)}
-                          disabled={testingId === model.id}
-                          className={`p-2 rounded-xl transition-all ${testingId === model.id ? 'text-intel-cyan bg-intel-cyan/5' : 'text-slate-500 hover:text-intel-cyan hover:bg-white/5'}`}
-                          title="Verify Intelligence Node"
-                        >
-                          {testingId === model.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-                        </button>
-                        {!isEnv && (
-                          <>
-                            <button
-                              onClick={() => setEditingId(model.id)}
-                              className="p-2 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all"
-                              title="Recalibrate"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleRemove(model.id)}
-                              disabled={isModelInUse(model.id)}
-                              className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-20"
-                              title={isModelInUse(model.id) ? 'Locked: Active in routing' : 'Decommission'}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="text-[8px] font-mono text-slate-600 uppercase tracking-widest border-b border-white/5">
+                    <th className="pb-2 pr-4 font-medium">Model</th>
+                    <th className="pb-2 pr-4 font-medium">Provider</th>
+                    <th className="pb-2 pr-4 font-medium">Status</th>
+                    <th className="pb-2 pr-4 font-medium">Latency</th>
+                    <th className="pb-2 font-medium">Last Sync</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[10px] font-mono">
+                  {(modelFilter.trim() ? Object.values(filteredModelsByProvider).flat() : allModels).map(m => (
+                    <tr key={m.id} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
+                      <td className="py-3 pr-4 text-white">{m.name}</td>
+                      <td className="py-3 pr-4 text-slate-400">{PROVIDER_STYLE[m.provider]?.label || m.provider}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`inline-flex items-center gap-1.5 ${
+                          m.status === 'online' ? 'text-intel-green' : m.status === 'offline' ? 'text-red-400' : 'text-slate-500'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${m.status === 'online' ? 'bg-intel-green' : m.status === 'offline' ? 'bg-red-500' : 'bg-slate-600'}`} />
+                          {m.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-4 text-slate-500">{m.latencyMs ? `${m.latencyMs}ms` : '—'}</td>
+                      <td className="py-3 text-slate-600">{m.lastChecked ? new Date(m.lastChecked).toLocaleTimeString() : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {allModels.length === 0 && (
+              <div className="bg-black/20 border border-dashed border-white/5 rounded-2xl p-10 text-center">
+                <Cpu className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">No models in registry</p>
+              </div>
+            )}
           </div>
         )}
-      </div>
 
-      {/* Role Assignment Strip */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 shrink-0 pt-4 border-t border-white/5">
-        {(Object.keys(ROLE_LABELS) as RoleType[]).map(role => (
-          <div key={role} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 space-y-2 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-intel-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="flex items-center justify-between relative z-10">
-              <span className="text-[10px] font-bold text-white/80 uppercase tracking-widest">{ROLE_LABELS[role]}</span>
-              {modelForRole(role) && (
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${modelForRole(role)!.status === 'online' ? 'bg-intel-green animate-pulse' : 'bg-red-500'}`} />
-                  <span className={`text-[8px] font-mono uppercase ${modelForRole(role)!.status === 'online' ? 'text-intel-green' : 'text-red-400'}`}>
-                    {modelForRole(role)!.status === 'online' ? 'ACTIVE' : 'OFFLINE'}
-                  </span>
-                </div>
-              )}
-            </div>
-            <select
-              value={roleAssign[role]}
-              onChange={e => onPersistRoles({ ...roleAssign, [role]: e.target.value })}
-              className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none relative z-10 hover:border-white/20 transition-colors"
-            >
-              <option value="">— NO MODEL ASSIGNED —</option>
-              {allModels.map(m => (
-                <option key={m.id} value={m.id}>{m.name} ({m.modelName})</option>
-              ))}
-            </select>
-          </div>
-        ))}
       </div>
 
       {/* Provisioning Modal Overlay */}
@@ -2748,8 +3070,8 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
   const [aiModels, setAiModels] = useState<AIModel[]>(loadModels);
   const [roleAssign, setRoleAssign] = useState<Record<RoleType, string>>(() => {
     try {
-      return JSON.parse(localStorage.getItem(ROLE_KEY) || '{"parsing":"","analysis":"","answering":""}');
-    } catch { return { parsing: '', analysis: '', answering: '' }; }
+      return JSON.parse(localStorage.getItem(ROLE_KEY) || '{"parser":"","analys":"","answer":""}');
+    } catch { return { parser: '', analys: '', answer: '' }; }
   });
 
   const persistModels = (newModels: AIModel[]) => {

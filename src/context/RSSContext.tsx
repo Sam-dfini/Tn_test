@@ -7,9 +7,6 @@ import {
   fetchAllFeeds, getRecentArticles
 } from '../services/rssService';
 import {
-  fetchAllTelegramChannels, telegramMetrics
-} from '../services/telegramService';
-import {
   fetchAllNewsAPIs, newsApiMetrics
 } from '../services/newsApiService';
 import {
@@ -139,21 +136,19 @@ export const RSSProvider: React.FC<{
     trackTrace("rss_fetch", "INGESTION", `RSS Fetch cycle started ${force ? "(Force)" : ""}`);
 
     try {
-      // Run RSS, Telegram, and News APIs concurrently
-      const [result, tgResult, apiResult] = await Promise.allSettled([
+      // Run RSS and News APIs concurrently (Telegram disabled)
+      const [result, apiResult] = await Promise.allSettled([
         fetchAllFeeds({ force }),
-        fetchAllTelegramChannels({ force }),
         fetchAllNewsAPIs({ force }),
       ]);
 
       const rss = result.status === 'fulfilled' ? result.value : { newArticles: 0, feedsProcessed: 0, totalArticlesHandled: 0, errors: [] };
-      const tg = tgResult.status === 'fulfilled' ? tgResult.value : { newArticles: 0, channelsProcessed: 0, droppedByGeo: 0, errors: [] };
       const api = apiResult.status === 'fulfilled' ? apiResult.value : { newArticles: 0, droppedByGeo: 0, errors: [] };
 
       if (!isMounted) return;
 
-      const combinedNew = rss.newArticles + tg.newArticles + api.newArticles;
-      const combinedErrors = [...(rss.errors || []), ...(tg.errors || []), ...(api.errors || [])];
+      const combinedNew = rss.newArticles + api.newArticles;
+      const combinedErrors = [...(rss.errors || []), ...(api.errors || [])];
       const endTime = Date.now();
       const latency = endTime - startTime;
 
@@ -162,16 +157,16 @@ export const RSSProvider: React.FC<{
       setLastFetch(new Date());
 
       updateMetrics({
-        feedCount: (rss.feedsProcessed || 0) + (tg.channelsProcessed || 0) + 3,
-        newsCount: (rss.totalArticlesHandled || 0) + tg.newArticles + api.newArticles,
+        feedCount: (rss.feedsProcessed || 0) + 3,
+        newsCount: (rss.totalArticlesHandled || 0) + api.newArticles,
         ingestionRate: combinedNew,
-        errorRate: combinedErrors.length / Math.max(1, (rss.feedsProcessed || 0) + (tg.channelsProcessed || 0) + 3),
+        errorRate: combinedErrors.length / Math.max(1, (rss.feedsProcessed || 0) + 3),
         latencyMs: latency,
         lastIngestionTime: endTime,
       });
 
       trackTrace('rss_fetch', 'INGESTION',
-        `Pipeline cycle: RSS +${rss.newArticles} | TG +${tg.newArticles} | API +${api.newArticles} | geo-dropped: ${(tg.droppedByGeo || 0) + (api.droppedByGeo || 0)}`,
+        `Pipeline cycle: RSS +${rss.newArticles} | API +${api.newArticles} | geo-dropped: ${api.droppedByGeo || 0}`,
         { latency });
 
       // Visual feedback via custom event for UI to show toast
@@ -186,7 +181,7 @@ export const RSSProvider: React.FC<{
 
       console.log(`[PIPELINE] Ingestion report: ${rss.feedsProcessed} feeds, ${rss.totalArticlesHandled} items, ${rss.newArticles} new articles`);
 
-      if (rss.newArticles > 0 || tg.newArticles > 0 || api.newArticles > 0) {
+      if (rss.newArticles > 0 || api.newArticles > 0) {
         // Run Real-Time Intelligence Loop (Step 5)
         const recent = await getRecentArticles({ limit: 50 });
         intelligenceOrchestrator.runIntelligenceLoop(recent).catch(err => 
