@@ -1403,13 +1403,43 @@ const RSSTab: React.FC = () => {
   // News API state
   const [apiFetching, setApiFetching] = useState(false);
   const [apiMetrics, setApiMetrics] = useState(newsApiMetrics);
+  const [apiEnabled, setApiEnabled] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem('ti_api_providers_enabled') || '{"newsapi":true,"newsdata":true,"gnews":true}'); }
+    catch { return { newsapi: true, newsdata: true, gnews: true }; }
+  });
+  const [customAPIs, setCustomAPIs] = useState<{ id: string; name: string; url: string; key: string; language: string }[]>(() => {
+    try { return JSON.parse(localStorage.getItem('ti_custom_api_sources') || '[]'); }
+    catch { return []; }
+  });
+  const [hiddenSources, setHiddenSources] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('ti_hidden_rss_sources') || '[]'); }
+    catch { return []; }
+  });
+
+  const persistHidden = (ids: string[]) => {
+    setHiddenSources(ids);
+    localStorage.setItem('ti_hidden_rss_sources', JSON.stringify(ids));
+  };
+
+  const persistAPIEnabled = (val: Record<string, boolean>) => {
+    setApiEnabled(val);
+    localStorage.setItem('ti_api_providers_enabled', JSON.stringify(val));
+  };
+
+  const persistCustomAPIs = (apis: { id: string; name: string; url: string; key: string; language: string }[]) => {
+    setCustomAPIs(apis);
+    localStorage.setItem('ti_custom_api_sources', JSON.stringify(apis));
+  };
+
+  const [showAddAPIModal, setShowAddAPIModal] = useState(false);
+  const [newAPI, setNewAPI] = useState({ name: '', url: '', key: '', language: 'fr' as string });
 
   const fetchAPIs = useCallback(async () => {
     setApiFetching(true);
     try {
-      const result = await fetchAllNewsAPIs();
+      await fetchAllNewsAPIs();
       setApiMetrics({ ...newsApiMetrics, isFetching: false });
-    } catch {}
+    } catch (_) {}
     setApiFetching(false);
   }, []);
 
@@ -1429,22 +1459,23 @@ const RSSTab: React.FC = () => {
     localStorage.setItem('ti_user_rss_sources', JSON.stringify(sources));
   };
 
-  // Merge built-in + user sources
+  // Merge built-in + user sources, exclude hidden
   const allSources = useMemo(() => {
     const builtins = RSS_SOURCES.map(s => ({ ...s, builtin: true as const }));
     const custom = userSources.map(s => ({ ...s, builtin: false as const }));
     return [...builtins, ...custom];
   }, [userSources]);
 
-  // Dedup by id
+  // Dedup by id and filter hidden
   const dedupedSources = useMemo(() => {
     const seen = new Set<string>();
     return allSources.filter(s => {
+      if (hiddenSources.includes(s.id)) return false;
       if (seen.has(s.id)) return false;
       seen.add(s.id);
       return true;
     });
-  }, [allSources]);
+  }, [allSources, hiddenSources]);
 
   // Filter by search + category + language
   const filteredSources = useMemo(() => {
@@ -1543,9 +1574,13 @@ const RSSTab: React.FC = () => {
     }
   };
 
-  const removeSource = (id: string) => {
-    const next = userSources.filter(s => s.id !== id);
-    persistUserSources(next);
+  const removeSource = (source: RSSSource & { builtin: boolean }) => {
+    if (source.builtin) {
+      persistHidden([...hiddenSources, source.id]);
+    } else {
+      const next = userSources.filter(s => s.id !== source.id);
+      persistUserSources(next);
+    }
   };
 
   const expandSource = async (source: RSSSource & { builtin: boolean }) => {
@@ -1637,6 +1672,9 @@ const RSSTab: React.FC = () => {
             <span className="text-[9px] font-mono text-slate-500">Structured JSON ingestion</span>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => setShowAddAPIModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-intel-cyan/30 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
+            ><Plus className="w-3 h-3" /> Add API</button>
             <button onClick={fetchAPIs} disabled={apiFetching}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all disabled:opacity-40"
             >{apiFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />} Fetch APIs</button>
@@ -1649,18 +1687,26 @@ const RSSTab: React.FC = () => {
             { id: 'gnews',    label: 'GNews',      key: 'VITE_GNEWS_KEY',    count: apiMetrics.gnewsCount,    color: '#8b5cf6' },
           ].map(provider => {
             const hasKey = typeof import.meta !== 'undefined' && import.meta.env ? !!import.meta.env[provider.key] : false;
+            const enabled = apiEnabled[provider.id] !== false;
             return (
               <div key={provider.id} className="bg-black/40 border border-white/5 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[9px] font-bold text-white">{provider.label}</span>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => persistAPIEnabled({ ...apiEnabled, [provider.id]: !enabled })}
+                      className={`p-1 rounded transition-all ${enabled ? 'text-emerald-400 hover:text-emerald-300' : 'text-slate-700 hover:text-slate-500'}`}
+                      title={enabled ? 'Disable' : 'Enable'}>
+                      <CheckCircle2 className={`w-3 h-3 ${enabled ? '' : 'opacity-30'}`} />
+                    </button>
+                    <span className={`text-[9px] font-bold ${enabled ? 'text-white' : 'text-slate-600'}`}>{provider.label}</span>
+                  </div>
                   <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold border ${
                     hasKey ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
                   }`}>{hasKey ? 'CONNECTED' : 'NO KEY'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 6px ${provider.color}40` }} />
-                  <span className="text-lg font-bold text-white font-mono">{provider.count}</span>
-                  <span className="text-[8px] font-mono text-slate-600">articles</span>
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 6px ${provider.color}40`, opacity: enabled ? 1 : 0.3 }} />
+                  <span className={`text-lg font-bold font-mono ${enabled ? 'text-white' : 'text-slate-600'}`}>{provider.count}</span>
+                  <span className={`text-[8px] font-mono ${enabled ? 'text-slate-600' : 'text-slate-700'}`}>articles</span>
                 </div>
                 <div className="text-[7px] font-mono text-slate-700 mt-1.5">
                   {apiMetrics.lastFetch > 0
@@ -1670,6 +1716,21 @@ const RSSTab: React.FC = () => {
               </div>
             );
           })}
+          {customAPIs.map(api => (
+            <div key={api.id} className="bg-black/40 border border-white/5 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[9px] font-bold text-white">{api.name}</span>
+                <button onClick={() => persistCustomAPIs(customAPIs.filter(a => a.id !== api.id))}
+                  className="p-1 rounded text-slate-500 hover:text-red-400 transition-all" title="Remove">
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="text-[8px] font-mono text-slate-500 truncate">{api.url}</div>
+              <div className="text-[7px] font-mono text-slate-700 mt-1">
+                {api.language.toUpperCase()} · {api.key ? 'Key configured' : 'No key'}
+              </div>
+            </div>
+          ))}
         </div>
         {apiMetrics.droppedByGeo > 0 && (
           <div className="mt-2 text-[8px] font-mono text-amber-500/60">
@@ -1761,12 +1822,10 @@ const RSSTab: React.FC = () => {
                     className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-white/5 transition-all" title={status === 'paused' ? 'Resume' : 'Pause'}>
                     {status === 'paused' ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
                   </button>
-                  {!source.builtin && (
-                    <button onClick={() => removeSource(source.id)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Remove">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                  <button onClick={() => removeSource(source)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Remove">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                   <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </div>
               </div>
@@ -1794,77 +1853,56 @@ const RSSTab: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      )}
 
-      {/* Add Source Modal */}
-      {showAddModal && (
+      {/* Add API Source Modal */}
+      {showAddAPIModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+            onClick={() => setShowAddAPIModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
             className="relative w-full max-w-md bg-[#0c0c0e] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Add RSS Source</h3>
-                <button onClick={() => setShowAddModal(false)} className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Add Custom API Source</h3>
+                <button onClick={() => setShowAddAPIModal(false)} className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Source Name</label>
-                  <input value={newSource.name} onChange={e => setNewSource({ ...newSource, name: e.target.value })}
-                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="e.g. Tunis News" />
+                  <input value={newAPI.name} onChange={e => setNewAPI({ ...newAPI, name: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="e.g. Tunisia API" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">RSS Feed URL</label>
-                  <div className="flex gap-2">
-                    <input value={newSource.url} onChange={e => setNewSource({ ...newSource, url: e.target.value })}
-                      className="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="https://example.com/feed.xml" />
-                    <button onClick={testNewSource} disabled={testingNew || !newSource.url}
-                      className="px-3 py-2.5 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[9px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all disabled:opacity-40 shrink-0">
-                      {testingNew ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : newTestResult === 'pass' ? <Check className="w-3.5 h-3.5" /> : newTestResult === 'fail' ? <XCircle className="w-3.5 h-3.5 text-red-400" /> : 'Test'}
-                    </button>
-                  </div>
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">API Endpoint URL</label>
+                  <input value={newAPI.url} onChange={e => setNewAPI({ ...newAPI, url: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="https://api.example.com/news" />
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Language</label>
-                    <select value={newSource.language} onChange={e => setNewSource({ ...newSource, language: e.target.value as any })}
-                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
-                      <option value="fr">Français</option>
-                      <option value="en">English</option>
-                      <option value="ar">العربية</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Reliability</label>
-                    <select value={newSource.reliability} onChange={e => setNewSource({ ...newSource, reliability: e.target.value as any })}
-                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
-                      <option value="A">A — High</option>
-                      <option value="B">B — Medium</option>
-                      <option value="C">C — Low</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Category</label>
-                    <select value={newSource.category} onChange={e => setNewSource({ ...newSource, category: e.target.value as any })}
-                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
-                      <option value="general">General</option>
-                      <option value="politics">Politics</option>
-                      <option value="economy">Economy</option>
-                      <option value="security">Security</option>
-                      <option value="social">Social</option>
-                    </select>
-                  </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">API Key (optional)</label>
+                  <input value={newAPI.key} onChange={e => setNewAPI({ ...newAPI, key: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Language</label>
+                  <select value={newAPI.language} onChange={e => setNewAPI({ ...newAPI, language: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                  </select>
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowAddModal(false)} className="flex-1 py-3 rounded-2xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
-                <button onClick={handleAddSource} disabled={!newSource.name || !newSource.url}
-                  className="flex-1 py-3 rounded-2xl bg-intel-cyan text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all disabled:opacity-30">Add Source</button>
+                <button onClick={() => setShowAddAPIModal(false)} className="flex-1 py-3 rounded-2xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
+                <button onClick={() => {
+                  if (!newAPI.name || !newAPI.url) return;
+                  const id = 'custom-api-' + Date.now();
+                  persistCustomAPIs([...customAPIs, { ...newAPI, id }]);
+                  setNewAPI({ name: '', url: '', key: '', language: 'fr' });
+                  setShowAddAPIModal(false);
+                }} disabled={!newAPI.name || !newAPI.url}
+                  className="flex-1 py-3 rounded-2xl bg-intel-cyan text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all disabled:opacity-30">Add API</button>
               </div>
             </div>
           </motion.div>
