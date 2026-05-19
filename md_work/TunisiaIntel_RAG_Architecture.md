@@ -805,3 +805,103 @@ RAG becomes:
 * simulation context
 
 It is the cognitive substrate beneath the entire TunisiaIntel platform.
+
+---
+
+# RAG Tab (SCC) — Implementation Status
+
+**File:** `src/components/system/RAGTab.tsx`  
+**Status:** Tab shell built — engine deferred  
+**SCC Tab:** `RAG Memory` (`'RAG'`) — positioned after `AI Models` tab  
+**Icon:** `Library` from lucide-react
+
+## Layout (6 sections, fully scrollable)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ VECTOR MEMORY LAYER  — INITIALIZING                             │
+│ Storage: —  ·  Chunks: 0  ·  Collections: 0                    │
+│ [Memory infrastructure not yet initialized]                     │
+├──────────────────────────────────────────────────────────────────┤
+│ PIPELINE STAGES  (5 stage cards with arrows)                    │
+│ Ingest → Chunk → Embed → Vector → Retrieve  (all IDLE)         │
+├──────────────────────────────────────────────────────────────────┤
+│ DATA SOURCES  (expandable, 6 sources)                           │
+│ ▸ News[PENDING]  ▸ Events[PENDING]  ▸ RRI[PENDING]              │
+│ ▸ Agent Outputs[PENDING]  ▸ Methodology[PENDING]                │
+│ ▸ Timeline Memory[PENDING]                                      │
+├──────────────────────────────────────────────────────────────────┤
+│ MEMORY TIERS (HOT/WARM/COLD)  +  ENTITY EXTRACTION (IDLE)      │
+├──────────────────────────────────────────────────────────────────┤
+│ RAG CONSUMERS  (9 cards, all greyed with PENDING badge)        │
+│ Briefs · Agents · Terminal · Dossiers · Twin TN                 │
+│ Forecasting · Simulations · Timeline Replay · Scenario Gen       │
+├──────────────────────────────────────────────────────────────────┤
+│ PHASE ROADMAP  (5 phases, expandable, 0% progress)             │
+├──────────────────────────────────────────────────────────────────┤
+│ METADATA SCHEMA  (JSON preview, DESIGNED badge)                 │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+## SCC Integration
+
+| Change | Location |
+|--------|----------|
+| `'RAG'` added to `Tab` type | `SystemCommandCenter.tsx:32` |
+| `Library` imported from `lucide-react` | `SystemCommandCenter.tsx:10` |
+| `{ id: 'RAG', label: 'RAG Memory', labelShort: 'RAG', icon: Library }` in `TABS` | `SystemCommandCenter.tsx:3479` |
+| `{activeTab === 'RAG' && <RAGTab />}` | `SystemCommandCenter.tsx:3577` |
+| `import RAGTab from './RAGTab'` | `SystemCommandCenter.tsx:29` |
+
+## Component Tree
+
+```
+RAGTab
+├── VectorMemoryCard       — top card, 3 metrics (storage/chunks/collections)
+├── PipelineStageRow       — 5 inline stage cards with ArrowRight connectors
+├── DataSourcesPanel       — expandable list, 6 RAG_SOURCES with color icons
+├── MemoryTiersGrid        — 3-column: HOT/WARM/COLD with doc counts
+├── EntityExtractionPanel  — actors/governorates counters, IDLE state
+├── ConsumersGrid          — 9 greyed-out consumer cards
+├── PhaseRoadmap           — 5 phase accordion with 0% progress bars
+└── MetadataSchemaPreview  — JSON schema display with DESIGNED badge
+```
+
+## Data Constants (config-only)
+
+- `PIPELINE_STAGES` — 5 stages (Ingest/Chunk/Embed/Vector/Retrieve) with icon + desc
+- `RAG_SOURCES` — 6 source types (articles/events/RRI/agents/methodology/timeline)
+- `MEMORY_TIERS` — 3 tiers (HOT/WARM/COLD) with colors and storage desc
+- `RAG_CONSUMERS` — 9 consuming features
+- `PHASES` — 5 roadmap phases with item tags
+
+## State (local only, no persistence)
+
+```typescript
+interface RAGState {
+  pipelineStatus: Record<string, 'idle' | 'running' | 'ready' | 'error'>;
+  sourceCounts: Record<string, number>;
+  totalChunks: number;
+  totalVectors: number;
+  entityActors: number;
+  entityGovernorates: number;
+  hotDocs: number;
+  warmDocs: number;
+  coldDocs: number;
+}
+```
+
+## Deferred (until engine layer lands)
+
+- Actual ingestion pipeline
+- Vector DB connection
+- Embedding generation
+- Real chunk/vector counts
+- Retrieval queries
+- Entity extraction stats
+- Any backend API calls
+
+## Day 1 UX
+
+Every element shows amber `INITIALIZING` / `IDLE` / `PENDING` badges. The layout is fully built — once the engine layer lands, flip states from idle → ready and wire real data in.
+

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Zap, 
@@ -45,13 +45,36 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [typingProgress, setTypingProgress] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const TYPING_SPEED = 15; // ms per character
+
+  useEffect(() => {
+    const activeTyping = messages.filter(m =>
+      m.role === 'analyst' &&
+      typingProgress[m.id] !== undefined &&
+      typingProgress[m.id] < m.text.length
+    );
+    if (activeTyping.length === 0) return;
+    const timer = setInterval(() => {
+      setTypingProgress(prev => {
+        const next = { ...prev };
+        for (const msg of activeTyping) {
+          const current = prev[msg.id] ?? 0;
+          next[msg.id] = Math.min(current + 1, msg.text.length);
+        }
+        return next;
+      });
+    }, TYPING_SPEED);
+    return () => clearInterval(timer);
+  }, [messages, typingProgress]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, typingProgress]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -91,12 +114,14 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
       );
       recordCall();
 
+      const analystId = `analyst-${Date.now()}-${Math.random()}`;
       setMessages(prev => [...prev, {
-        id: `analyst-${Date.now()}-${Math.random()}`,
+        id: analystId,
         role: 'analyst',
         text: response,
         timestamp: Date.now()
       }]);
+      setTypingProgress(prev => ({ ...prev, [analystId]: 0 }));
     } catch (error) {
       console.error('AI Analyst Error:', error);
       recordError(error instanceof Error ? error.message : String(error));
@@ -239,7 +264,10 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                         ? 'bg-intel-cyan text-intel-bg font-bold rounded-tr-none' 
                         : 'bg-white/5 border border-white/10 text-slate-300 rounded-tl-none'
                     }`}>
-                      {msg.text}
+                      {msg.role === 'analyst' && typingProgress[msg.id] !== undefined && typingProgress[msg.id] < msg.text.length
+                        ? <>{msg.text.slice(0, typingProgress[msg.id])}<span className="inline-block w-[2px] h-[1em] bg-intel-cyan ml-0.5 animate-pulse" /></>
+                        : msg.text
+                      }
                     </div>
                     <div className="px-1 text-[7px] font-mono text-slate-600">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

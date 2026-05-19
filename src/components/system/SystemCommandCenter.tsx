@@ -6,30 +6,31 @@ import {
   RefreshCw, ShieldAlert, CheckCircle2, XCircle, Clock,
   Camera, Send, Cpu, FlaskConical, Globe, Users, MapPin,
   FileText, BarChart3, TrendingUp, RotateCcw, Server, AlertCircle,
-  Loader2, Wifi, Eye, Brain, Plus, Edit3, Save, Power, PowerOff, Key, Check, Link,
-  ChevronDown, Sparkles, TestTube2, Signal, Search, Shield
+  Loader2, Brain, Plus, Edit3, Save, Power, PowerOff, Key, Check, Link,
+  ChevronDown, Sparkles, TestTube2, Signal, Search, Shield, Bot, Library
 } from 'lucide-react';
 import { motion as m } from 'motion/react';
-import { supabase } from '../../lib/supabase';
+import { supabase, dbMetrics, supabaseUrl } from '../../lib/supabase';
 import { pipelineDebugger, DebugLog } from '../../services/debugService';
 import { prepareList, generateStableKey } from '../../lib/keyUtils';
 import { useObservability } from '../../context/ObservabilityContext';
 import { useRSS } from '../../context/RSSContext';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { RSS_SOURCES, RSSSource } from '../../config/rssSources';
 import { fetchAllFeeds, ingestionMetrics, fetchRSSFeed, validateRSSSource } from '../../services/rssService';
-import { RSS_SOURCES } from '../../config/rssSources';
-import { TELEGRAM_CHANNELS, fetchTelegramChannel } from '../../services/telegramService';
-import { fetchFromNewsAPI, fetchFromNewsData, fetchFromGNews } from '../../services/newsApiService';
+import { fetchAllNewsAPIs, newsApiMetrics } from '../../services/newsApiService';
 import { FeedColumn } from '../debug/FeedColumn';
 import { NewsColumn } from '../debug/NewsColumn';
 import { SignalsColumn } from '../debug/SignalsColumn';
 import { EventsColumn } from '../debug/EventsColumn';
 import { PipelineLogColumn } from '../debug/PipelineLogColumn';
 import { getVarCache } from '../../services/pipelineService';
+import MultiAgentTab from './MultiAgentTab';
+import RAGTab from './RAGTab';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA' | 'AI';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA' | 'AI' | 'RAG' | 'DATABASE' | 'MULTI_AGENT';
 
 interface TestResult {
   id: string;
@@ -454,22 +455,6 @@ const FlowDiagram: React.FC<{
 
   const hasFlowIssues = flowIssues.length > 0;
 
-  const tickerContent = hasFlowIssues
-    ? [...flowIssues, ...flowIssues]
-    : [
-        {
-          key: 'ok',
-          status: 'FLOWING' as ConnStatus,
-          from: 'ok',
-          to: 'ok',
-          fromLabel: 'No active flow errors',
-          toLabel: '',
-          fromStage: 'MISSION',
-          toStage: 'MISSION',
-          timestamp: new Date().toLocaleTimeString([], { hour12: false }),
-        },
-      ];
-
   // Node center helpers
   const tCx = (i: number) => tx[i] + NODE_W / 2;
   const tCy = TOP_Y + NODE_H / 2;
@@ -606,41 +591,37 @@ const FlowDiagram: React.FC<{
         </span>
       </div>
 
-      <div className="px-5 py-2 border-t border-white/5 text-[9px] font-mono bg-black/30 overflow-hidden">
-        <div className="flex items-center gap-2 mb-1">
-          <span className={hasFlowIssues ? 'text-red-400' : 'text-emerald-400'}>
-            ADM Flow Errors:
-          </span>
-          <span className="text-white/25">(click an item to jump)</span>
-        </div>
-
-        <div className="w-full overflow-hidden whitespace-nowrap">
-          <div className={`adm-ticker-track ${hasFlowIssues ? 'adm-ticker-run' : ''}`}>
-            {tickerContent.map((issue, idx) => {
-              const isIssue = issue.status === 'SLOW' || issue.status === 'BLOCKED';
+      {/* Flow Issues List */}
+      <div className="px-5 py-3 border-t border-white/5">
+        {hasFlowIssues ? (
+          <div className="space-y-1.5">
+            <div className="text-[9px] font-mono text-red-400 uppercase tracking-widest font-bold flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-3 h-3" />
+              Flow Errors ({flowIssues.length})
+            </div>
+            {flowIssues.map((issue, idx) => {
               const tone = issue.status === 'BLOCKED'
                 ? 'text-red-300 border-red-500/30 bg-red-500/10'
-                : issue.status === 'SLOW'
-                  ? 'text-amber-300 border-amber-500/30 bg-amber-500/10'
-                  : 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10';
-
+                : 'text-amber-300 border-amber-500/30 bg-amber-500/10';
               return (
-                <button
-                  key={`${issue.key}-${idx}`}
-                  id={`adm-flow-issue-${idx}`}
-                  type="button"
-                  onClick={() => isIssue && onNodeClick(issue.toStage)}
-                  className={`inline-flex items-center gap-2 px-2 py-1 mr-3 rounded border ${tone} ${isIssue ? 'cursor-pointer hover:brightness-110' : 'cursor-default'}`}
-                  title={isIssue ? `Jump to ${issue.toStage}` : 'Pipeline healthy'}
+                <button key={issue.key}
+                  onClick={() => onNodeClick(issue.toStage)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg border ${tone} cursor-pointer hover:brightness-110 transition-all text-left`}
                 >
-                  <span className="text-white/60">[{issue.timestamp}]</span>
-                  <span>{issue.status}</span>
-                  <span className="text-white/80">{issue.fromLabel}{issue.toLabel ? ` → ${issue.toLabel}` : ''}</span>
+                  <span className="text-[8px] font-mono text-white/40 shrink-0">[{issue.timestamp}]</span>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider ${issue.status === 'BLOCKED' ? 'text-red-300' : 'text-amber-300'}`}>{issue.status}</span>
+                  <span className="text-[9px] font-mono text-white/70 truncate">{issue.fromLabel} → {issue.toLabel}</span>
+                  <ArrowRight className="w-3 h-3 text-white/30 ml-auto shrink-0" />
                 </button>
               );
             })}
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center gap-2 text-[9px] font-mono text-emerald-400">
+            <CheckCircle2 className="w-3 h-3" />
+            No active flow errors
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1400,206 +1381,505 @@ const TestSuite: React.FC = () => {
 
 // ─── SOURCE DEBUGGER TAB ─────────────────────────────────────────────────────
 
-const SourceDebuggerTab: React.FC = () => {
-  const [selectedSource, setSelectedSource] = useState<any | null>(null);
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [statusMap, setStatusMap] = useState<Record<string, 'healthy' | 'warning' | 'failing' | 'idle' | 'testing'>>({});
-  const [isTestingAll, setIsTestingAll] = useState(false);
+// ─── RSS TAB ───────────────────────────────────────────────────────────────────
 
-  const allSources = useMemo(() => prepareList([
-    ...RSS_SOURCES.map(s => ({ ...s, id: s.id || s.url, group: 'RSS' })),
-    ...TELEGRAM_CHANNELS.map(s => ({ ...s, group: 'Telegram' })),
-    { id: 'newsapi', name: 'NewsAPI.org', group: 'API', type: 'api', url: 'https://newsapi.org' },
-    { id: 'newsdata', name: 'NewsData.io', group: 'API', type: 'api', url: 'https://newsdata.io' },
-    { id: 'gnews', name: 'GNews.io', group: 'API', type: 'api', url: 'https://gnews.io' },
-  ]), []);
+const RSSTab: React.FC = () => {
+  const { fetchNow } = useRSS();
+  const [userSources, setUserSources] = useState<RSSSource[]>(() => {
+    try { return JSON.parse(localStorage.getItem('ti_user_rss_sources') || '[]'); }
+    catch { return []; }
+  });
+  const [sourceCounts, setSourceCounts] = useState<Record<string, number>>({});
+  const [lastArticleDates, setLastArticleDates] = useState<Record<string, string | null>>({});
+  const [sourceStatus, setSourceStatus] = useState<Record<string, 'healthy' | 'failing' | 'paused' | 'idle' | 'testing'>>({});
+  const [testingAll, setTestingAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterLang, setFilterLang] = useState<string>('all');
+  const [expandedSource, setExpandedSource] = useState<string | null>(null);
+  const [sourceArticles, setSourceArticles] = useState<Record<string, any[]>>({});
+  const [loadingArticles, setLoadingArticles] = useState(false);
 
-  const testSource = async (source: any) => {
-    setStatusMap(prev => ({ ...prev, [source.id]: 'testing' }));
+  // News API state
+  const [apiFetching, setApiFetching] = useState(false);
+  const [apiMetrics, setApiMetrics] = useState(newsApiMetrics);
+
+  const fetchAPIs = useCallback(async () => {
+    setApiFetching(true);
     try {
-      if (source.group === 'RSS') {
-        const res = await validateRSSSource(source.url);
-        // Check if actually has items
-        const data = await fetchRSSFeed(source);
-        if (res === 'failing') {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'failing' }));
-        } else if (data.length === 0) {
-          // Yellow if no feed
-          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        } else if (res === 'degraded') {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        } else {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
-        }
-      } else if (source.group === 'Telegram') {
-        const data = await fetchTelegramChannel(source, 0);
-        if (data.length === 0) {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        } else {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
-        }
+      const result = await fetchAllNewsAPIs();
+      setApiMetrics({ ...newsApiMetrics, isFetching: false });
+    } catch {}
+    setApiFetching(false);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setApiMetrics({ ...newsApiMetrics }), 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Add Source Modal
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newSource, setNewSource] = useState({ name: '', url: '', language: 'fr' as 'fr' | 'en' | 'ar', reliability: 'B' as 'A' | 'B' | 'C', category: 'general' as 'general' | 'politics' | 'economy' | 'security' | 'social' });
+  const [testingNew, setTestingNew] = useState(false);
+  const [newTestResult, setNewTestResult] = useState<'idle' | 'pass' | 'fail'>('idle');
+
+  const persistUserSources = (sources: RSSSource[]) => {
+    setUserSources(sources);
+    localStorage.setItem('ti_user_rss_sources', JSON.stringify(sources));
+  };
+
+  // Merge built-in + user sources
+  const allSources = useMemo(() => {
+    const builtins = RSS_SOURCES.map(s => ({ ...s, builtin: true as const }));
+    const custom = userSources.map(s => ({ ...s, builtin: false as const }));
+    return [...builtins, ...custom];
+  }, [userSources]);
+
+  // Dedup by id
+  const dedupedSources = useMemo(() => {
+    const seen = new Set<string>();
+    return allSources.filter(s => {
+      if (seen.has(s.id)) return false;
+      seen.add(s.id);
+      return true;
+    });
+  }, [allSources]);
+
+  // Filter by search + category + language
+  const filteredSources = useMemo(() => {
+    return dedupedSources.filter(s => {
+      if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase()) && !s.id.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (filterCategory !== 'all' && s.category !== filterCategory) return false;
+      if (filterLang !== 'all' && s.language !== filterLang) return false;
+      return true;
+    });
+  }, [dedupedSources, searchQuery, filterCategory, filterLang]);
+
+  // Derive aggregates
+  const aggregates = useMemo(() => {
+    let online = 0, failing = 0, paused = 0, idle = 0, total = dedupedSources.length;
+    dedupedSources.forEach(s => {
+      const st = sourceStatus[s.id] || 'idle';
+      if (st === 'healthy') online++;
+      else if (st === 'failing') failing++;
+      else if (st === 'paused') paused++;
+      else idle++;
+    });
+    return { online, failing, paused, idle, total };
+  }, [dedupedSources, sourceStatus]);
+
+  // Fetch article counts + last dates
+  const refreshCounts = useCallback(async () => {
+    const ids = dedupedSources.map(s => s.id);
+    const counts: Record<string, number> = {};
+    const dates: Record<string, string | null> = {};
+    const batchSize = 10;
+    for (let i = 0; i < ids.length; i += batchSize) {
+      const batch = ids.slice(i, i + batchSize);
+      const results = await Promise.all(batch.map(async id => {
+        const [countRes, lastRes] = await Promise.all([
+          supabase.from('articles').select('*', { count: 'exact', head: true }).eq('source_id', id),
+          supabase.from('articles').select('published_at').eq('source_id', id).order('published_at', { ascending: false }).limit(1),
+        ]);
+        return { id, count: countRes.count ?? 0, last: lastRes.data?.[0]?.published_at ?? null };
+      }));
+      for (const r of results) {
+        counts[r.id] = r.count;
+        dates[r.id] = r.last;
+      }
+    }
+    setSourceCounts(counts);
+    setLastArticleDates(dates);
+  }, [dedupedSources]);
+
+  useEffect(() => { refreshCounts(); }, [refreshCounts]);
+
+  // Load persisted statuses
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('ti_rss_source_status') || '{}');
+      setSourceStatus(saved);
+    } catch {}
+  }, []);
+
+  const persistStatus = (id: string, status: 'healthy' | 'failing' | 'paused' | 'idle' | 'testing') => {
+    setSourceStatus(prev => {
+      const next = { ...prev, [id]: status };
+      localStorage.setItem('ti_rss_source_status', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const testSource = async (source: RSSSource & { builtin: boolean }) => {
+    persistStatus(source.id, 'testing');
+    try {
+      const res = await validateRSSSource(source.url);
+      const data = await fetchRSSFeed(source);
+      if (res === 'failing' || data.length === 0) {
+        persistStatus(source.id, 'failing');
       } else {
-        // API Sources
-        let data: any[] = [];
-        if (source.id === 'newsapi') data = await fetchFromNewsAPI();
-        else if (source.id === 'newsdata') data = await fetchFromNewsData();
-        else if (source.id === 'gnews') data = await fetchFromGNews();
-        
-        if (data.length === 0) {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
-        } else {
-          setStatusMap(prev => ({ ...prev, [source.id]: 'healthy' }));
-        }
+        persistStatus(source.id, 'healthy');
       }
     } catch {
-      // Failed to fetch -> yellow per user request
-      setStatusMap(prev => ({ ...prev, [source.id]: 'warning' }));
+      persistStatus(source.id, 'failing');
     }
   };
 
-  const testAll = async () => {
-    setIsTestingAll(true);
-    // Prioritize RSS sources for testing as requested
-    const rss = allSources.filter(s => s.group === 'RSS');
-    const others = allSources.filter(s => s.group !== 'RSS');
-    
-    for (const source of [...rss, ...others]) {
+  const testAllSources = async () => {
+    setTestingAll(true);
+    for (const source of dedupedSources) {
       await testSource(source);
     }
-    setIsTestingAll(false);
+    setTestingAll(false);
   };
 
-  const selectSource = async (source: any) => {
-    setSelectedSource(source);
-    setLoading(true);
-    setItems([]);
-    try {
-      let data: any[] = [];
-      if (source.group === 'RSS') {
-        data = await fetchRSSFeed(source);
-      } else if (source.group === 'Telegram') {
-        data = await fetchTelegramChannel(source);
-      } else if (source.id === 'newsapi') {
-        data = await fetchFromNewsAPI();
-      } else if (source.id === 'newsdata') {
-        data = await fetchFromNewsData();
-      } else if (source.id === 'gnews') {
-        data = await fetchFromGNews();
-      }
-      setItems(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+  const togglePause = (source: RSSSource & { builtin: boolean }) => {
+    const current = sourceStatus[source.id] || 'idle';
+    if (current === 'paused') {
+      persistStatus(source.id, 'idle');
+    } else {
+      persistStatus(source.id, 'paused');
     }
+  };
+
+  const removeSource = (id: string) => {
+    const next = userSources.filter(s => s.id !== id);
+    persistUserSources(next);
+  };
+
+  const expandSource = async (source: RSSSource & { builtin: boolean }) => {
+    if (expandedSource === source.id) {
+      setExpandedSource(null);
+      return;
+    }
+    setExpandedSource(source.id);
+    setLoadingArticles(true);
+    try {
+      const data = await fetchRSSFeed(source);
+      setSourceArticles(prev => ({ ...prev, [source.id]: data.slice(0, 20) }));
+    } catch {
+      setSourceArticles(prev => ({ ...prev, [source.id]: [] }));
+    }
+    setLoadingArticles(false);
+  };
+
+  const handleAddSource = async () => {
+    const id = newSource.name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now();
+    const source: RSSSource = {
+      id,
+      name: newSource.name,
+      url: newSource.url,
+      language: newSource.language,
+      reliability: newSource.reliability,
+      alignment: 'NEUTRAL',
+      keywords: [],
+      type: 'rss',
+      category: newSource.category,
+      geo_weight: 0.5,
+    };
+    persistUserSources([...userSources, source]);
+    setNewSource({ name: '', url: '', language: 'fr', reliability: 'B', category: 'general' });
+    setNewTestResult('idle');
+    setShowAddModal(false);
+  };
+
+  const testNewSource = async () => {
+    setTestingNew(true);
+    setNewTestResult('idle');
+    try {
+      const res = await validateRSSSource(newSource.url);
+      setNewTestResult(res === 'failing' ? 'fail' : 'pass');
+    } catch {
+      setNewTestResult('fail');
+    }
+    setTestingNew(false);
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full gap-4 overflow-hidden">
-      {/* List Column */}
-      <div className="w-full lg:w-80 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden shrink-0 h-1/3 lg:h-full">
-        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between sticky top-0 z-10">
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Data Sources</span>
-          <button 
-            onClick={testAll}
-            disabled={isTestingAll}
-            className="flex items-center gap-1.5 px-2 py-1 bg-intel-cyan/10 hover:bg-intel-cyan/20 border border-intel-cyan/30 rounded text-[9px] font-bold text-intel-cyan transition-all disabled:opacity-50"
-          >
-            {isTestingAll ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Wifi className="w-2.5 h-2.5" />}
-            Test All
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-          {['RSS', 'Telegram', 'API'].map((group: string, groupIndex: number) => (
-            <div key={group} className="mb-4">
-              <div className="px-2 py-1 text-[8px] font-bold text-white/20 uppercase tracking-tight">{group}</div>
-              {prepareList(allSources
-                .filter((s: any) => s.group === group)
-                .sort((a: any, b: any) => {
-                  const statusA = statusMap[a.id] || 'idle';
-                  const statusB = statusMap[b.id] || 'idle';
-                  
-                  // Priority: testing > healthy > idle > warning > failing
-                  const scores: Record<string, number> = {
-                    testing: 5,
-                    healthy: 4,
-                    idle: 3,
-                    warning: 2,
-                    failing: 1
-                  };
-                  
-                  return (scores[statusB] || 0) - (scores[statusA] || 0);
-                })).map((source: any, sourceIndex: number) => (
-                <div 
-                  key={generateStableKey(source.id, sourceIndex, 'source-item')}
-                  onClick={() => selectSource(source)}
-                  className={`group flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${selectedSource?.id === source.id ? 'bg-intel-cyan/10 border border-intel-cyan/20' : 'hover:bg-white/5 border border-transparent'}`}
-                >
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <div className={`w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px] ${
-                      statusMap[source.id] === 'healthy' ? 'bg-emerald-500 shadow-emerald-500/40' : 
-                      statusMap[source.id] === 'warning' ? 'bg-amber-500 shadow-amber-500/40' :
-                      statusMap[source.id] === 'failing' ? 'bg-red-500 shadow-red-500/40' : 
-                      'bg-white/10 shadow-transparent'
-                    }`} />
-                    <span className={`text-[11px] truncate ${selectedSource?.id === source.id ? 'text-white font-bold' : 'text-white/60'}`}>{source.name}</span>
-                  </div>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); testSource(source); }}
-                    className="p-1.5 hover:text-white text-white/20 hover:bg-white/5 rounded transition-all"
-                    title="Test Source"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${statusMap[source.id] === 'testing' ? 'animate-spin text-intel-cyan' : ''}`} />
-                  </button>
-                </div>
-              ))}
+    <div className="flex flex-col h-full space-y-4">
+      {/* Header Stats */}
+      <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Radio className="w-4 h-4 text-intel-cyan" />
+              <span className="text-[10px] font-bold text-white uppercase tracking-widest">RSS Sources</span>
+              <span className="text-[10px] font-mono text-slate-500">{aggregates.total}</span>
             </div>
-          ))}
+            <div className="flex items-center gap-3 text-[9px] font-mono">
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /><span className="text-emerald-400">{aggregates.online}</span><span className="text-slate-600">online</span></span>
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-red-500" /><span className="text-red-400">{aggregates.failing}</span><span className="text-slate-600">failing</span></span>
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500" /><span className="text-amber-400">{aggregates.paused}</span><span className="text-slate-600">paused</span></span>
+              <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-slate-700" /><span className="text-slate-400">{aggregates.idle}</span><span className="text-slate-600">idle</span></span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={testAllSources} disabled={testingAll}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all disabled:opacity-40"
+            >{testingAll ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />} Test All</button>
+            <button onClick={() => { setNewTestResult('idle'); setNewSource({ name: '', url: '', language: 'fr', reliability: 'B', category: 'general' }); setShowAddModal(true); }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-intel-cyan/30 text-intel-cyan hover:bg-intel-cyan/10 transition-all"
+            ><Plus className="w-3 h-3" /> Add Source</button>
+            <button onClick={() => fetchNow(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-emerald-400 hover:border-emerald-500/20 transition-all"
+            ><RefreshCw className="w-3 h-3" /> Fetch Now</button>
+          </div>
         </div>
       </div>
 
-      {/* Content Column */}
-      <div className="flex-1 flex flex-col bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden h-2/3 lg:h-full">
-        <div className="p-3 border-b border-white/5 bg-black/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Send className="w-3.5 h-3.5 text-intel-cyan" />
-            <span className="text-[10px] font-bold text-white uppercase tracking-widest">
-              {selectedSource ? selectedSource.name : 'Select a source'}
-              {selectedSource && <span className="ml-2 text-white/30 font-normal">({items.length} items)</span>}
-            </span>
+      {/* API Providers */}
+      <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <Globe className="w-4 h-4 text-intel-cyan" />
+            <span className="text-[10px] font-bold text-white uppercase tracking-widest">News API Providers</span>
+            <span className="text-[9px] font-mono text-slate-500">Structured JSON ingestion</span>
           </div>
-          {loading && <Loader2 className="w-3.5 h-3.5 text-intel-cyan animate-spin" />}
+          <div className="flex items-center gap-2">
+            <button onClick={fetchAPIs} disabled={apiFetching}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase font-mono border border-white/5 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/20 transition-all disabled:opacity-40"
+            >{apiFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />} Fetch APIs</button>
+          </div>
         </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-          {!selectedSource ? (
-            <div className="h-full flex flex-col items-center justify-center text-white/10 space-y-4">
-              <Eye className="w-12 h-12 opacity-50" />
-              <div className="text-xs uppercase tracking-widest font-bold">Waiting for selection…</div>
-            </div>
-          ) : items.length === 0 && !loading ? (
-            <div className="text-center py-20 text-white/30 text-xs italic">No content found or failed to fetch.</div>
-          ) : (
-            prepareList(items).map((item: any) => (
-              <div key={item.id} className="p-3 bg-white/[0.03] border border-white/5 rounded-lg hover:border-white/20 transition-all">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <h3 className="text-xs font-bold text-white/90 leading-tight">{item.title}</h3>
-                  <span className="text-[9px] font-mono text-white/30 shrink-0">{item.published_at ? new Date(item.published_at).toLocaleTimeString() : 'N/A'}</span>
+        <div className="grid grid-cols-3 gap-3 mt-3">
+          {[
+            { id: 'newsapi',  label: 'NewsAPI',    key: 'VITE_NEWSAPI_KEY',  count: apiMetrics.newsapiCount,  color: '#3b82f6' },
+            { id: 'newsdata', label: 'NewsData',   key: 'VITE_NEWSDATA_KEY', count: apiMetrics.newsdataCount, color: '#10b981' },
+            { id: 'gnews',    label: 'GNews',      key: 'VITE_GNEWS_KEY',    count: apiMetrics.gnewsCount,    color: '#8b5cf6' },
+          ].map(provider => {
+            const hasKey = typeof import.meta !== 'undefined' && import.meta.env ? !!import.meta.env[provider.key] : false;
+            return (
+              <div key={provider.id} className="bg-black/40 border border-white/5 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[9px] font-bold text-white">{provider.label}</span>
+                  <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold border ${
+                    hasKey ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
+                  }`}>{hasKey ? 'CONNECTED' : 'NO KEY'}</span>
                 </div>
-                {item.summary && <p className="text-[10px] text-white/50 leading-relaxed line-clamp-3">{item.summary}</p>}
-                <div className="mt-3 flex items-center gap-4 border-t border-white/5 pt-2">
-                  <div className="text-[8px] font-mono text-white/20 uppercase">Severity: <span className={item.severity >= 4 ? 'text-red-400' : 'text-intel-cyan'}>{item.severity}</span></div>
-                  <div className="text-[8px] font-mono text-white/20 uppercase">Geo: <span className="text-white/40">{item.geo_relevance_score?.toFixed(2) || 'N/A'}</span></div>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="ml-auto text-[8px] font-bold text-intel-cyan hover:underline uppercase tracking-widest">Source ↗</a>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 6px ${provider.color}40` }} />
+                  <span className="text-lg font-bold text-white font-mono">{provider.count}</span>
+                  <span className="text-[8px] font-mono text-slate-600">articles</span>
+                </div>
+                <div className="text-[7px] font-mono text-slate-700 mt-1.5">
+                  {apiMetrics.lastFetch > 0
+                    ? `Last fetch: ${timeAgo(new Date(apiMetrics.lastFetch).toISOString())}`
+                    : 'Not yet fetched'}
                 </div>
               </div>
-            ))
-          )}
+            );
+          })}
         </div>
+        {apiMetrics.droppedByGeo > 0 && (
+          <div className="mt-2 text-[8px] font-mono text-amber-500/60">
+            {apiMetrics.droppedByGeo} articles dropped by geo-relevance filter
+          </div>
+        )}
       </div>
+
+      {/* Search & Filter bar */}
+      <div className="flex items-center gap-3 flex-wrap shrink-0">
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
+          <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search sources..."
+            className="w-full bg-[#0a0a0c] border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
+          {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"><X className="w-3 h-3" /></button>}
+        </div>
+        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
+          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-white focus:border-intel-cyan/30 focus:outline-none">
+          <option value="all">All Categories</option>
+          <option value="general">General</option>
+          <option value="politics">Politics</option>
+          <option value="economy">Economy</option>
+          <option value="security">Security</option>
+          <option value="social">Social</option>
+        </select>
+        <select value={filterLang} onChange={e => setFilterLang(e.target.value)}
+          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-white focus:border-intel-cyan/30 focus:outline-none">
+          <option value="all">All Languages</option>
+          <option value="fr">Français</option>
+          <option value="en">English</option>
+          <option value="ar">العربية</option>
+        </select>
+      </div>
+
+      {/* Source List */}
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2">
+        {filteredSources.length === 0 ? (
+          <div className="bg-[#0a0a0c] border border-dashed border-white/5 rounded-xl p-10 text-center">
+            <Radio className="w-8 h-8 text-slate-700 mx-auto mb-3 opacity-20" />
+            <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest mb-1">No sources match filter</p>
+            <p className="text-[9px] text-slate-600 font-mono">Try a different search or category</p>
+          </div>
+        ) : filteredSources.map(source => {
+          const status = sourceStatus[source.id] || 'idle';
+          const count = sourceCounts[source.id] ?? -1;
+          const lastDate = lastArticleDates[source.id];
+          const isExpanded = expandedSource === source.id;
+          const articles = sourceArticles[source.id] || [];
+          const langLabel = source.language === 'fr' ? 'FR' : source.language === 'en' ? 'EN' : 'AR';
+          const langColor = source.language === 'fr' ? 'text-blue-400 border-blue-500/30 bg-blue-500/10' : source.language === 'en' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-amber-400 border-amber-500/30 bg-amber-500/10';
+          return (
+            <div key={source.id} className="bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
+              {/* Source Row */}
+              <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/[0.02] transition-all"
+                onClick={() => expandSource(source)}>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-2.5 h-2.5 rounded-full shrink-0 shadow-[0_0_8px] ${
+                    status === 'healthy' ? 'bg-emerald-500 shadow-emerald-500/40' :
+                    status === 'failing' ? 'bg-red-500 shadow-red-500/40' :
+                    status === 'paused' ? 'bg-amber-500 shadow-amber-500/40' :
+                    status === 'testing' ? 'bg-cyan-500 shadow-cyan-500/40 animate-pulse' :
+                    'bg-slate-700'
+                  }`} />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white tracking-wide truncate">{source.name}</span>
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider border ${langColor}`}>{langLabel}</span>
+                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider border ${
+                        source.reliability === 'A' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' :
+                        source.reliability === 'B' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
+                        'text-red-400 border-red-500/30 bg-red-500/10'
+                      }`}>{source.reliability}</span>
+                      {source.builtin && <span className="text-[7px] font-mono text-slate-600 border border-white/5 px-1 py-0.5 rounded uppercase tracking-wider">BUILT-IN</span>}
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5">
+                      {count >= 0 ? <span className="text-[9px] font-mono text-slate-400">{count.toLocaleString()} articles</span> : <span className="text-[9px] font-mono text-slate-700">— articles</span>}
+                      {lastDate && <span className="text-[9px] font-mono text-slate-600">last {timeAgo(lastDate)}</span>}
+                      <span className="text-[9px] font-mono text-slate-600">· {source.category}</span>
+                      {source.geo_weight < 0.5 && <span className="text-[8px] font-mono text-slate-700">🌍 global</span>}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => testSource(source)} disabled={status === 'testing'}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-intel-cyan hover:bg-white/5 transition-all disabled:opacity-40" title="Test">
+                    {status === 'testing' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                  </button>
+                  <button onClick={() => togglePause(source)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-white/5 transition-all" title={status === 'paused' ? 'Resume' : 'Pause'}>
+                    {status === 'paused' ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+                  </button>
+                  {!source.builtin && (
+                    <button onClick={() => removeSource(source.id)}
+                      className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Remove">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </div>
+              </div>
+
+              {/* Expanded Articles */}
+              {isExpanded && (
+                <div className="border-t border-white/5 px-4 py-3 space-y-2 max-h-[300px] overflow-y-auto">
+                  {loadingArticles ? (
+                    <div className="flex items-center justify-center py-6">
+                      <Loader2 className="w-5 h-5 text-intel-cyan animate-spin" />
+                    </div>
+                  ) : articles.length === 0 ? (
+                    <p className="text-[10px] text-slate-600 font-mono text-center py-4 italic">No articles or failed to fetch</p>
+                  ) : articles.map((article: any) => (
+                    <div key={article.id} className="bg-black/40 border border-white/5 rounded-lg px-3 py-2 hover:border-white/10 transition-all">
+                      <div className="flex items-start justify-between gap-3">
+                        <span className="text-[10px] text-white/80 leading-tight line-clamp-2">{article.title}</span>
+                        <span className="text-[8px] font-mono text-slate-600 shrink-0">{article.published_at ? new Date(article.published_at).toLocaleTimeString() : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        {article.severity >= 0 && <span className={`text-[8px] font-mono ${article.severity >= 4 ? 'text-red-400' : 'text-slate-500'}`}>S{article.severity}</span>}
+                        {article.governorate && <span className="text-[8px] font-mono text-slate-600">{article.governorate}</span>}
+                        <a href={article.url} target="_blank" rel="noopener noreferrer" className="ml-auto text-[8px] font-bold text-intel-cyan hover:underline uppercase tracking-widest">Source ↗</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Add Source Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
+          <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+            className="relative w-full max-w-md bg-[#0c0c0e] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+            <div className="p-6 space-y-5">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Add RSS Source</h3>
+                <button onClick={() => setShowAddModal(false)} className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Source Name</label>
+                  <input value={newSource.name} onChange={e => setNewSource({ ...newSource, name: e.target.value })}
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="e.g. Tunis News" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">RSS Feed URL</label>
+                  <div className="flex gap-2">
+                    <input value={newSource.url} onChange={e => setNewSource({ ...newSource, url: e.target.value })}
+                      className="flex-1 bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="https://example.com/feed.xml" />
+                    <button onClick={testNewSource} disabled={testingNew || !newSource.url}
+                      className="px-3 py-2.5 rounded-xl bg-intel-cyan/10 border border-intel-cyan/30 text-intel-cyan text-[9px] font-bold uppercase font-mono hover:bg-intel-cyan/20 transition-all disabled:opacity-40 shrink-0">
+                      {testingNew ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : newTestResult === 'pass' ? <Check className="w-3.5 h-3.5" /> : newTestResult === 'fail' ? <XCircle className="w-3.5 h-3.5 text-red-400" /> : 'Test'}
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Language</label>
+                    <select value={newSource.language} onChange={e => setNewSource({ ...newSource, language: e.target.value as any })}
+                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
+                      <option value="fr">Français</option>
+                      <option value="en">English</option>
+                      <option value="ar">العربية</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Reliability</label>
+                    <select value={newSource.reliability} onChange={e => setNewSource({ ...newSource, reliability: e.target.value as any })}
+                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
+                      <option value="A">A — High</option>
+                      <option value="B">B — Medium</option>
+                      <option value="C">C — Low</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Category</label>
+                    <select value={newSource.category} onChange={e => setNewSource({ ...newSource, category: e.target.value as any })}
+                      className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
+                      <option value="general">General</option>
+                      <option value="politics">Politics</option>
+                      <option value="economy">Economy</option>
+                      <option value="security">Security</option>
+                      <option value="social">Social</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowAddModal(false)} className="flex-1 py-3 rounded-2xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
+                <button onClick={handleAddSource} disabled={!newSource.name || !newSource.url}
+                  className="flex-1 py-3 rounded-2xl bg-intel-cyan text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all disabled:opacity-30">Add Source</button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
+};
+
+const timeAgo = (dateStr: string): string => {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  if (diff < 60000) return '<1m';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+  return `${Math.floor(diff / 86400000)}d`;
 };
 
 const ADMTab: React.FC<{
@@ -1831,6 +2111,182 @@ const MetricRow: React.FC<{ label: string; value: string; color: string }> = ({ 
     <span className={`text-[11px] font-mono font-bold ${color}`}>{value}</span>
   </div>
 );
+
+// ─── DATABASE TAB ──────────────────────────────────────────────────────────────
+
+const DB_TABLES = [
+  'articles', 'events', 'notifications', 'rri_snapshots', 'price_reports',
+  'predictions', 'narrative_cache', 'variables', 'agent_memory', 'analyst_corrections',
+];
+
+interface DbOpEntry {
+  table: string;
+  op: string;
+  timestamp: number;
+}
+
+const DatabaseTab: React.FC = () => {
+  const [opLog, setOpLog] = useState<DbOpEntry[]>([]);
+  const [tableCounts, setTableCounts] = useState<Record<string, number>>({});
+  const [loadingCounts, setLoadingCounts] = useState(false);
+
+  const fetchCounts = useCallback(async () => {
+    setLoadingCounts(true);
+    const entries: Record<string, number> = {};
+    for (const table of DB_TABLES) {
+      try {
+        const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+        if (!error) entries[table] = count ?? 0;
+      } catch {}
+    }
+    setTableCounts(entries);
+    setLoadingCounts(false);
+  }, []);
+
+  useEffect(() => {
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, [fetchCounts]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as DbOpEntry;
+      if (detail) {
+        setOpLog(prev => [{ ...detail, timestamp: Date.now() }, ...prev].slice(0, 100));
+      }
+    };
+    window.addEventListener('supabase_op', handler);
+    return () => window.removeEventListener('supabase_op', handler);
+  }, []);
+
+  const supabaseUrlDisplay = supabaseUrl
+    ? supabaseUrl.length > 40
+      ? supabaseUrl.slice(0, 40) + '...'
+      : supabaseUrl
+    : 'Not configured';
+
+  const totalRows = Object.values(tableCounts).reduce((s, v) => s + v, 0);
+  const tablesWithData = Object.entries(tableCounts).filter(([, c]) => c > 0).length;
+  const tablesEmpty = Object.keys(tableCounts).length - tablesWithData;
+
+  return (
+    <div className="flex flex-col h-full space-y-4">
+      {/* Provider Card */}
+      <div className="shrink-0">
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+                <Database className="w-4.5 h-4.5 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Supabase</h3>
+                <p className="text-[9px] font-mono text-slate-500">{supabaseUrlDisplay}</p>
+              </div>
+            </div>
+            <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+              Connected
+            </span>
+          </div>
+
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
+              <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Reads (session)</div>
+              <div className="text-lg font-bold text-cyan-400 font-mono tabular-nums">{dbMetrics.reads.toLocaleString()}</div>
+            </div>
+            <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
+              <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Writes (session)</div>
+              <div className="text-lg font-bold text-amber-400 font-mono tabular-nums">{dbMetrics.writes.toLocaleString()}</div>
+            </div>
+            <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
+              <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Errors</div>
+              <div className="text-lg font-bold text-red-400 font-mono tabular-nums">{dbMetrics.errors.toLocaleString()}</div>
+            </div>
+            <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
+              <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Tables tracked</div>
+              <div className="text-lg font-bold text-white font-mono tabular-nums">{DB_TABLES.length}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Two-column: Table counts + Recent ops */}
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Table Row Counts */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl flex flex-col min-h-0">
+          <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+            <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold flex items-center gap-2">
+              <Server className="w-3.5 h-3.5" />
+              Table Inventory
+              <span className="text-slate-600 font-normal">({Object.keys(tableCounts).length} tables)</span>
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-mono text-slate-600">{totalRows.toLocaleString()} total rows</span>
+              <button onClick={fetchCounts} disabled={loadingCounts}
+                className="p-1 rounded text-slate-500 hover:text-white transition-all"
+              ><RefreshCw className={`w-3 h-3 ${loadingCounts ? 'animate-spin' : ''}`} /></button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-1">
+            {DB_TABLES.map(table => {
+              const count = tableCounts[table] ?? -1;
+              const isLoaded = count !== -1;
+              return (
+                <div key={table} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-white/[0.02] transition-colors">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${count > 0 ? 'bg-emerald-500' : isLoaded ? 'bg-slate-700' : 'bg-slate-700 animate-pulse'}`} />
+                    <span className="text-[11px] font-mono text-white truncate">{table}</span>
+                  </div>
+                  <span className={`text-[10px] font-mono tabular-nums ml-3 ${count > 0 ? 'text-slate-300' : isLoaded ? 'text-slate-600' : 'text-slate-700'}`}>
+                    {isLoaded ? count.toLocaleString() : '—'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="shrink-0 border-t border-white/5 px-4 py-2 flex items-center gap-3 text-[8px] font-mono text-slate-600">
+            <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Populated ({tablesWithData})</span>
+            <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-slate-700" /> Empty ({tablesEmpty})</span>
+          </div>
+        </div>
+
+        {/* Recent Operations */}
+        <div className="bg-[#0a0a0c] border border-white/5 rounded-xl flex flex-col min-h-0">
+          <div className="flex items-center justify-between px-4 pt-4 pb-2 shrink-0">
+            <span className="text-[9px] font-mono text-white/40 uppercase tracking-widest font-bold flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5" />
+              Recent Operations
+            </span>
+            <span className="text-[8px] font-mono text-slate-600">{opLog.length} tracked</span>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4 space-y-0.5">
+            {opLog.length === 0 ? (
+              <div className="text-[10px] font-mono text-slate-600 italic py-8 text-center">
+                No database operations yet this session
+              </div>
+            ) : (
+              opLog.map((op, i) => {
+                const ago = Date.now() - op.timestamp;
+                const agoStr = ago < 1000 ? 'now' : ago < 60000 ? `${Math.floor(ago / 1000)}s` : ago < 3600000 ? `${Math.floor(ago / 60000)}m` : `${Math.floor(ago / 3600000)}h`;
+                return (
+                  <div key={`${op.timestamp}-${i}`} className="flex items-center gap-2 py-1 px-2 rounded hover:bg-white/[0.02] text-[9px] font-mono">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${op.op === 'SELECT' ? 'bg-cyan-500' : 'bg-amber-500'}`} />
+                    <span className={`font-bold uppercase shrink-0 ${op.op === 'SELECT' ? 'text-cyan-400' : 'text-amber-400'}`}>{op.op}</span>
+                    <span className="text-white truncate min-w-0">{op.table}</span>
+                    <span className="text-slate-600 ml-auto shrink-0">{agoStr}</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ─── AI TYPES & CATALOG ───────────────────────────────────────────────────────
 
@@ -3084,61 +3540,78 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
     localStorage.setItem(ROLE_KEY, JSON.stringify(newRoles));
   };
 
-  const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'MISSION', label: 'Mission Control', icon: ShieldAlert },
-    { id: 'ADM', label: 'Intelligence Pipeline (ADM)', icon: Database },
-    { id: 'RRI_DATA', label: 'RRI & Data', icon: BarChart3 },
-    { id: 'AI', label: 'AI Models', icon: Brain },
-    { id: 'DEBUGGER', label: 'Pipeline Debug', icon: Layers },
-    { id: 'NEWS_DEBUG', label: 'News Debug', icon: Send },
-    { id: 'TESTS', label: 'Test Suite', icon: FlaskConical },
+  const TABS: { id: Tab; label: string; labelShort: string; icon: React.ElementType }[] = [
+    { id: 'MISSION', label: 'Mission Control', labelShort: 'Mission', icon: ShieldAlert },
+    { id: 'ADM', label: 'INT PIPELINE', labelShort: 'INT', icon: Database },
+    { id: 'RRI_DATA', label: 'RRI & Data', labelShort: 'RRI', icon: BarChart3 },
+    { id: 'AI', label: 'AI Models', labelShort: 'AI', icon: Brain },
+    { id: 'RAG', label: 'RAG Memory', labelShort: 'RAG', icon: Library },
+    { id: 'DEBUGGER', label: 'Pipeline Debug', labelShort: 'Debug', icon: Layers },
+    { id: 'NEWS_DEBUG', label: 'RSS/API', labelShort: 'RSS', icon: Send },
+    { id: 'DATABASE', label: 'Database', labelShort: 'DB', icon: Database },
+    { id: 'TESTS', label: 'Test Suite', labelShort: 'Tests', icon: FlaskConical },
+    { id: 'MULTI_AGENT', label: 'Multi-Agent', labelShort: 'Agents', icon: Bot },
   ];
 
   return (
     <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-none sm:rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-3 md:px-6 py-3 md:py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl shrink-0 z-10 gap-3">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+      <div className="shrink-0 z-10 bg-black/60 backdrop-blur-xl border-b border-white/5">
+        {/* Row 1: Title bar */}
+        <div className="flex items-center justify-between px-4 md:px-6 py-3">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-red-500" />
             <h1 className="text-sm font-bold tracking-widest text-white uppercase truncate">System Command Center</h1>
           </div>
-          <div className="hidden md:block h-4 w-px bg-white/10" />
-          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5 flex-wrap">
-            {TABS.map((tab, i) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={generateStableKey(tab.id, i, 'scc-tab')}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white/60'}`}
-                >
-                  <Icon className="w-3 h-3" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/20 uppercase">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              SCC v1.0
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 text-white/30 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
-        <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-3">
+
+        {/* Row 2: Actions */}
+        <div className="flex items-center gap-3 px-4 md:px-6 pb-3">
           <button
             onClick={handleSnapshot}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border ${isSnapshotting ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:text-white hover:border-white/20'}`}
           >
             <Camera className={`w-3.5 h-3.5 ${isSnapshotting ? 'animate-pulse' : ''}`} />
-            <span className="hidden sm:inline">Snapshot</span>
+            <span>Snapshot</span>
           </button>
-          <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/20 uppercase">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            SCC v1.0
+        </div>
+
+        {/* Row 3: Tab strip */}
+        <div className="overflow-x-auto custom-scrollbar">
+          <div className="flex px-4 md:px-6 gap-1 min-w-min">
+            {TABS.map((tab, i) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={generateStableKey(tab.id, i, 'scc-tab')}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border-b-2 -mb-px shrink-0 ${
+                    isActive
+                      ? 'border-intel-cyan text-white bg-white/[0.03]'
+                      : 'border-transparent text-white/30 hover:text-white/60 hover:border-white/20'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.labelShort}</span>
+                </button>
+              );
+            })}
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-white/30 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -3170,9 +3643,12 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
                 onPersistRoles={persistRoles} 
               />
             )}
+            {activeTab === 'RAG' && <RAGTab />}
             {activeTab === 'DEBUGGER' && <DebuggerTab jumpToStage={jumpStage} />}
-            {activeTab === 'NEWS_DEBUG' && <SourceDebuggerTab />}
+            {activeTab === 'NEWS_DEBUG' && <RSSTab />}
             {activeTab === 'TESTS' && <TestSuite />}
+            {activeTab === 'DATABASE' && <DatabaseTab />}
+            {activeTab === 'MULTI_AGENT' && <MultiAgentTab />}
           </motion.div>
         </AnimatePresence>
       </div>
