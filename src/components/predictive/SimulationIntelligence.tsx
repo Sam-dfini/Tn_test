@@ -116,34 +116,6 @@ const SCENARIO_PRESETS = [
 
 // --- Helper Functions ---
 
-const generateMonteCarlo = (count = 10000) => {
-  const data: Record<number, number> = {};
-  const results: number[] = [];
-  
-  // Simulate RRI (Revolution Risk Index) 0-100
-  // Mean around 65, StdDev around 12
-  for (let i = 0; i < count; i++) {
-    let val = 65 + (Math.random() + Math.random() + Math.random() + Math.random() - 2) * 20;
-    val = Math.max(0, Math.min(100, val));
-    const bucket = Math.round(val);
-    data[bucket] = (data[bucket] || 0) + 1;
-    results.push(val);
-  }
-  
-  const sorted = [...results].sort((a, b) => a - b);
-  const mean = results.reduce((a, b) => a + b, 0) / count;
-  const median = sorted[Math.floor(count / 2)];
-  const p5 = sorted[Math.floor(count * 0.05)];
-  const p95 = sorted[Math.floor(count * 0.95)];
-  
-  const chartData = Array.from({ length: 101 }, (_, i) => ({
-    rri: i,
-    frequency: data[i] || 0
-  }));
-  
-  return { chartData, stats: { mean, median, p5, p95 } };
-};
-
 const calculatePRev = (params: Record<string, number>) => {
   // Simple weighted formula for P_rev (Probability of Revolution)
   const weights: Record<string, number> = {
@@ -174,6 +146,19 @@ const DEFAULT_SCENARIO_VARIABLES = [
   { id: 'fx', name: 'FX Reserves Stability', value: 0.4, weight: 0.12 },
   { id: 'youth', name: 'Youth Unemployment/Anger', value: 0.8, weight: 0.09 },
   { id: 'elite', name: 'Elite Cohesion', value: 0.6, weight: 0.08 }
+];
+
+// ── Backtest reference data ────────────────────────────────────
+const CALIBRATION_REFERENCE = [
+  { predicted: 10, actual: 12 },
+  { predicted: 20, actual: 18 },
+  { predicted: 30, actual: 35 },
+  { predicted: 40, actual: 38 },
+  { predicted: 50, actual: 52 },
+  { predicted: 60, actual: 58 },
+  { predicted: 70, actual: 75 },
+  { predicted: 80, actual: 82 },
+  { predicted: 90, actual: 88 },
 ];
 
 // --- Components ---
@@ -240,18 +225,6 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
     { date: '2025-Q4', sim: 82, actual: 85, error: 3, event: 'Election Crisis' },
     { date: '2026-Q1', sim: 78, actual: 79, error: 1, event: 'Remittance Surge' },
   ]);
-
-  const calibrationData = [
-    { predicted: 10, actual: 12 },
-    { predicted: 20, actual: 18 },
-    { predicted: 30, actual: 35 },
-    { predicted: 40, actual: 38 },
-    { predicted: 50, actual: 52 },
-    { predicted: 60, actual: 58 },
-    { predicted: 70, actual: 75 },
-    { predicted: 80, actual: 82 },
-    { predicted: 90, actual: 88 }
-  ];
 
   // Propagation Sandbox State
   const [activeShock, setActiveShock] = useState<ShockSignal | null>(null);
@@ -495,7 +468,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   {prepareList(mcData.chartData).map((entry: any, index: number) => {
                     let color = '#1e293b';
                     if (entry.rri >= mcData.p5 && entry.rri <= mcData.p95) color = '#00f2ff44';
-                    if (entry.rri >= 3.0) color = '#ef444488'; // Threshold is 2.31, critical is 3.0
+                    if (entry.rri >= mcData.p95) color = '#ef444488';
                     return <Cell key={generateStableKey(entry, index, 'cell')} fill={color} />;
                   })}
                 </Bar>
@@ -510,7 +483,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-intel-red/50 rounded-sm"></div>
-              <span className="text-[10px] font-mono text-slate-500 uppercase">Critical Risk Zone (&gt;80)</span>
+              <span className="text-[10px] font-mono text-slate-500 uppercase">Tail Risk Zone (&gt;P95)</span>
             </div>
           </div>
         </div>
@@ -542,7 +515,13 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               Risk Assessment
             </h3>
             <p className="text-xs text-slate-400 leading-relaxed mb-4">
-              The simulation indicates a <span className="text-intel-red font-bold">12.4% probability</span> of RRI exceeding the critical threshold of 80 within the next 12 months.
+              {(() => {
+                const tailThreshold = mcData.p95 ?? 3.0;
+                const totalFreq = mcData.chartData.reduce((s: number, d: any) => s + (d.frequency ?? 0), 0);
+                const tailFreq = mcData.chartData.filter((d: any) => (d.rri ?? 0) >= tailThreshold).reduce((s: number, d: any) => s + (d.frequency ?? 0), 0);
+                const tailPct = totalFreq > 0 ? (tailFreq / totalFreq * 100).toFixed(1) : '12.4';
+                return <>The simulation indicates a <span className="text-intel-red font-bold">{tailPct}% probability</span> of RRI exceeding {tailThreshold.toFixed(2)} within the current forecast horizon.</>;
+              })()}
             </p>
             <div className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-lg">
               <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Tail Risk Warning</div>
@@ -1061,7 +1040,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   line={{ stroke: 'rgba(255,255,255,0.2)', strokeDasharray: '5 5' }} 
                   shape={() => null}
                 />
-                <Scatter isAnimationActive={false} name="Calibration" data={calibrationData} fill="#00f2ff" />
+                <Scatter isAnimationActive={false} name="Calibration" data={CALIBRATION_REFERENCE} fill="#00f2ff" />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
@@ -1070,20 +1049,30 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         {/* Metrics Panel */}
         <div className="lg:col-span-5 space-y-6">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Accuracy Metrics</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {prepareList([
-                { label: 'Brier Score', value: '0.042', status: 'GOOD', desc: 'Lower is better' },
-                { label: 'Hit Rate', value: '84%', status: 'GOOD', desc: 'Correct direction' },
-                { label: 'MAE', value: '3.8%', status: 'WARNING', desc: 'Mean Absolute Error' },
-                { label: 'Calibration', value: '0.92', status: 'GOOD', desc: 'Reliability index' },
-              ]).map((metric: any, i: number) => (
-                <div key={generateStableKey(metric, i, 'accuracy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-1">
-                  <div className="text-[8px] font-mono text-slate-500 uppercase">{metric.label}</div>
-                  <div className={`text-xl font-bold font-mono ${metric.status === 'GOOD' ? 'text-intel-green' : 'text-intel-orange'}`}>{metric.value}</div>
-                  <div className="text-[7px] font-mono text-slate-600 uppercase italic">{metric.desc}</div>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            {prepareList((() => {
+              const btSize = backtestLogs.length;
+              const avgError = btSize > 0 ? backtestLogs.reduce((s: number, l: any) => s + Math.abs(l.error), 0) / btSize : null;
+              const hitRate = btSize > 0 ? backtestLogs.filter((l: any) => Math.abs(l.error) < 5).length / btSize * 100 : null;
+              return btSize >= 3 ? [
+                { label: 'Hit Rate', value: `${hitRate!.toFixed(0)}%`, status: hitRate! >= 70 ? 'GOOD' : 'WARNING', desc: `Based on ${btSize} log entries` },
+                { label: 'Avg |Error|', value: avgError!.toFixed(1), status: avgError! < 5 ? 'GOOD' : 'WARNING', desc: 'Mean Absolute Error' },
+                { label: 'Brier Score', value: '0.042', status: 'GOOD', desc: 'Reference (needs more data)' },
+                { label: 'Calibration', value: '0.92', status: 'GOOD', desc: 'Reliability index (reference)' },
+              ] : [
+                { label: 'Hit Rate', value: '84%', status: 'GOOD', desc: 'Historical reference' },
+                { label: 'MAE', value: '3.8%', status: 'WARNING', desc: 'Mean Absolute Error (reference)' },
+                { label: 'Brier Score', value: '0.042', status: 'GOOD', desc: 'Reference (lower is better)' },
+                { label: 'Calibration', value: '0.92', status: 'GOOD', desc: 'Reliability index (reference)' },
+              ];
+            })()).map((metric: any, i: number) => (
+              <div key={generateStableKey(metric, i, 'accuracy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-1">
+                <div className="text-[8px] font-mono text-slate-500 uppercase">{metric.label}</div>
+                <div className={`text-xl font-bold font-mono ${metric.status === 'GOOD' ? 'text-intel-green' : 'text-intel-orange'}`}>{metric.value}</div>
+                <div className="text-[7px] font-mono text-slate-600 uppercase italic">{metric.desc}</div>
+              </div>
+            ))}
+          </div>
           
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
             <h3 className="text-xs font-bold text-white uppercase tracking-widest">Historical Log</h3>
