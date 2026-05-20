@@ -246,11 +246,11 @@ const KnowledgeGraphExplorer: React.FC = () => {
     const container = svg.append('g').attr('class', 'zoom-container');
     gRef.current = container.node();
 
-    const zoom = zoom<SVGSVGElement, unknown>().scaleExtent([0.1, 4])
+    const zoomBehavior = zoom<SVGSVGElement, unknown>().scaleExtent([0.1, 4])
       .on('zoom', event => container.attr('transform', event.transform));
-    zoomRef.current = zoom;
-    svg.call(zoom);
-    svg.call(zoom.transform, zoomIdentity.translate(0, 0).scale(0.85));
+    zoomRef.current = zoomBehavior;
+    svg.call(zoomBehavior);
+    svg.call(zoomBehavior.transform, zoomIdentity.translate(0, 0).scale(0.85));
 
     const graphNodes: GraphNode[] = filteredNodes.map(n => ({ ...n }));
     const nodeMap = new Map(graphNodes.map(n => [n.id, n]));
