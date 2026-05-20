@@ -49,11 +49,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
   Cell,
   BarChart,
   Bar
@@ -163,59 +158,235 @@ const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
 
 // ─── DOMAIN INSTABILITY POLYGON ─────────────────────────────────────────────
 const DomainPolygon: React.FC<{ data: any; trend: any }> = ({ data, trend }) => {
-  const radarData = [
-    { subject: 'Economy', current: data.economy, trend: trend.economy },
-    { subject: 'Water', current: data.water, trend: trend.water },
-    { subject: 'Gov', current: data.governance, trend: trend.governance },
-    { subject: 'Security', current: data.security, trend: trend.security },
-    { subject: 'Narrative', current: data.narrative, trend: trend.narrative },
-    { subject: 'Social', current: data.socialCohesion, trend: trend.socialCohesion },
-    { subject: 'Youth', current: data.youthStress, trend: trend.youthStress },
-    { subject: 'External', current: data.externalPressure, trend: trend.externalPressure },
+  const AXES = [
+    { key: 'economy', label: 'ECONOMY' },
+    { key: 'water', label: 'WATER' },
+    { key: 'governance', label: 'GOV' },
+    { key: 'security', label: 'SECURITY' },
+    { key: 'narrative', label: 'NARRATIVE' },
+    { key: 'socialCohesion', label: 'SOCIAL' },
+    { key: 'youthStress', label: 'YOUTH' },
+    { key: 'externalPressure', label: 'EXTERNAL' },
   ];
 
+  const N = AXES.length;
+  const cx = 210, cy = 210, r = 150;
+
+  const toPoint = (val: number, i: number, radiusMul: number = 1) => {
+    const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+    const dist = (val / 10) * r * radiusMul;
+    return { x: cx + dist * Math.cos(angle), y: cy + dist * Math.sin(angle) };
+  };
+
+  const buildPath = (vals: number[]) =>
+    vals.map((v, i) => {
+      const p = toPoint(v, i);
+      return `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`;
+    }).join(' ') + ' Z';
+
+  const currentVals = AXES.map(a => data[a.key]);
+  const trendVals = AXES.map(a => trend[a.key]);
+
+  const riskColor = (v: number) =>
+    v > 6.6 ? '#ef4444' : v > 3.3 ? '#f59e0b' : '#10b981';
+
+  const createTrianglePath = (v1: number, v2: number, i: number) => {
+    const p1 = toPoint(v1, i);
+    const p2 = toPoint(v2, (i + 1) % N);
+    return `M ${cx} ${cy} L ${p1.x} ${p1.y} L ${p2.x} ${p2.y} Z`;
+  };
+
   return (
-    <div className="w-full h-full min-h-[300px] flex flex-col items-center">
+    <div className="w-full h-full min-h-[300px] flex flex-col items-center relative overflow-hidden">
       <div className="w-full flex justify-between items-center px-4 pt-2">
         <div className="text-[8px] font-mono font-bold text-slate-500 uppercase tracking-widest">
           Domain Instability Polygon // 8-Axis Multivariate
         </div>
       </div>
-      <div className="flex-1 w-full mt-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-            <PolarGrid stroke="#1a2332" strokeWidth={0.5} />
-            <PolarAngleAxis 
-              dataKey="subject" 
-              tick={{ fill: '#8a9bb0', fontSize: 8, fontFamily: 'monospace' }} 
-            />
-            <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
-            <Radar
-              name="Current"
-              dataKey="current"
-              stroke="#00d4ff"
-              strokeWidth={1.5}
-              fill="#00d4ff"
-              fillOpacity={0.15}
-            />
-            <Radar
-              name="Trend"
-              dataKey="trend"
-              stroke="#ff3b5c"
-              strokeWidth={1}
+      <div className="flex-1 w-full mt-2">
+        <svg viewBox={`0 0 ${cx * 2} ${cy * 2}`} className="w-full h-full" style={{ overflow: 'visible' }}>
+          <defs>
+            <filter id="polyGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="polyGlowStrong" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Ring grid */}
+          {[0.2, 0.4, 0.6, 0.8, 1.0].map((mul) => (
+            <polygon
+              key={`ring-${mul}`}
+              points={AXES.map((_, i) => {
+                const p = toPoint(10 * mul, i);
+                return `${p.x},${p.y}`;
+              }).join(' ')}
               fill="none"
-              strokeDasharray="4 4"
+              stroke="rgba(148,163,184,0.08)"
+              strokeWidth={0.5}
             />
-          </RadarChart>
-        </ResponsiveContainer>
+          ))}
+
+          {/* Axis spokes */}
+          {AXES.map((_, i) => {
+            const p = toPoint(10, i);
+            return (
+              <line
+                key={`spoke-${i}`}
+                x1={cx} y1={cy} x2={p.x} y2={p.y}
+                stroke="rgba(148,163,184,0.07)"
+                strokeWidth={0.5}
+              />
+            );
+          })}
+
+          {/* Heat-map triangular segments */}
+          {currentVals.map((v, i) => {
+            const vNext = currentVals[(i + 1) % N];
+            const avg = (v + vNext) / 2;
+            return (
+              <motion.path
+                key={`seg-${i}`}
+                d={createTrianglePath(v, vNext, i)}
+                fill={riskColor(avg)}
+                fillOpacity={0}
+                stroke="none"
+                initial={{ fillOpacity: 0 }}
+                animate={{ fillOpacity: avg > 6.6 ? 0.18 : avg > 3.3 ? 0.12 : 0.06 }}
+                transition={{ duration: 0.8, delay: 0.2 + i * 0.06, ease: "easeOut" }}
+              />
+            );
+          })}
+
+          {/* Current polygon outline — drawn on */}
+          <motion.path
+            d={buildPath(currentVals)}
+            fill="none"
+            stroke="#00d4ff"
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+            filter="url(#polyGlow)"
+          />
+
+          {/* Trend polygon */}
+          <motion.path
+            d={buildPath(trendVals)}
+            fill="none"
+            stroke="#ff3b5c"
+            strokeWidth={1}
+            strokeDasharray="4 4"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut", delay: 0.6 }}
+          />
+
+          {/* Vertex glow nodes + value labels */}
+          {currentVals.map((v, i) => {
+            const p = toPoint(v, i);
+            const col = riskColor(v);
+            const angle = (Math.PI * 2 * i) / N - Math.PI / 2;
+            const off = 12;
+            const lp = { x: p.x + off * Math.cos(angle), y: p.y + off * Math.sin(angle) };
+            return (
+              <g key={`node-${i}`}>
+                {/* Outer glow ring */}
+                <motion.circle
+                  cx={p.x} cy={p.y} r={8}
+                  fill="none"
+                  stroke={col}
+                  strokeWidth={0.5}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 0.3 }}
+                  transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
+                />
+                {/* Inner core dot */}
+                <motion.circle
+                  cx={p.x} cy={p.y} r={2.5}
+                  fill={col}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.7 + i * 0.08 }}
+                  filter="url(#polyGlow)"
+                />
+                {/* Value label — offset outward from vertex */}
+                <motion.text
+                  x={lp.x} y={lp.y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fill={col}
+                  fontSize={8}
+                  fontFamily="var(--font-mono, monospace)"
+                  fontWeight="bold"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.9 + i * 0.08 }}
+                  style={{ textShadow: `0 0 10px ${col}80` }}
+                >
+                  {v.toFixed(1)}
+                </motion.text>
+              </g>
+            );
+          })}
+
+          {/* Axis label names */}
+          {AXES.map((axis, i) => {
+            const p = toPoint(10, i, (r + 26) / r);
+            return (
+              <text
+                key={`label-${i}`}
+                x={p.x} y={p.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="rgba(148,163,184,0.5)"
+                fontSize={6}
+                fontFamily="var(--font-mono, monospace)"
+                fontWeight="bold"
+              >
+                {axis.label}
+              </text>
+            );
+          })}
+
+          {/* Rotating sweep line */}
+          <line
+            x1={cx} y1={cy}
+            x2={cx} y2={cy - r - 10}
+            stroke="rgba(0,212,255,0.12)"
+            strokeWidth={1}
+            strokeDasharray="3 6"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from={`0 ${cx} ${cy}`}
+              to={`360 ${cx} ${cy}`}
+              dur="10s"
+              repeatCount="indefinite"
+            />
+          </line>
+
+          {/* Center hub */}
+          <circle cx={cx} cy={cy} r={18} fill="rgba(10,12,16,0.8)" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+          <circle cx={cx} cy={cy} r={10} fill="none" stroke="#00d4ff" strokeWidth={1} strokeDasharray="3 3" opacity={0.4}>
+            <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="6s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={cx} cy={cy} r={4} fill="#00d4ff" filter="url(#polyGlowStrong)" />
+        </svg>
       </div>
-      <div className="flex gap-4 pb-4">
+      <div className="flex gap-4 pb-2">
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan" />
           <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">Current</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-intel-red border border-dashed border-white" />
+          <div className="w-1.5 h-1.5 rounded-full bg-intel-red border border-dashed border-white/50" />
           <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">24h Trend</span>
         </div>
       </div>

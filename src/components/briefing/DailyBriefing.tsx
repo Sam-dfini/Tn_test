@@ -1,13 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
-  FileText,
   Lock,
-  Mic,
   TrendingUp,
   Shield,
-  Users,
-  Leaf,
   MapPin,
   Radio,
   ChevronRight,
@@ -16,6 +11,12 @@ import {
 import { ModuleHeader } from "../shared/ProfessionalShared";
 import { NewsFeed } from "../shared/NewsFeed";
 import { AIVoiceBriefing } from "./AIVoiceBriefing";
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { useAIAnalysis } from '../../context/AIAnalysisContext';
+import { generateIntelligenceBrief, IntelligenceBrief } from '../../services/intelligenceBrief';
+import { classifySignals, buildSignalSummary } from '../../services/signalClassifier';
+import { assessGovernmentAgent } from '../../services/govAgent';
+import GOVERNORATES from '../../data/governorates.json';
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -71,163 +72,14 @@ interface PhasePreview {
   accentColor: string;
 }
 
-// ─── STATIC DATA ─────────────────────────────────────────────────────────────
+// ─── GOVERNORATE PROFILES ─────────────────────────────────────────────────────
 
-const EXECUTIVE_SUMMARY: ExecutiveSummaryData = {
-  narrative: `Tunisia entered a <strong>higher social stress phase</strong> today following coordinated transport strikes in Sfax and Gabès, rising fuel scarcity reports across the interior, and renewed online criticism surrounding water cuts in Kairouan and Sidi Bouzid. <strong>The RRI composite index rose to 2.31 (+0.14)</strong>, driven primarily by society and environment vectors. While protest volume remains limited, the concentration of incidents in historically sensitive mining regions resembles early-stage escalation patterns observed in 2008. The dinar remains under pressure with <strong>parallel market spreads widening to 3.2%</strong>. Interior Ministry activity increased in Kasserine following localized demonstrations. Youth migration narratives surged across Tunisian Facebook pages, with sentiment analysis indicating a <strong>23% increase in negative framing</strong> over the past 72 hours.`,
-  confidence: "high",
-  meta: {
-    signalSources: 47,
-    anomalousClusters: 3,
-    monteCarloRuns: 12000,
-    activeModels: ["SIR coastal propagation", "EQ.17 cascade", "MII-phase-4"],
-  },
-};
-
-const RRI_METRICS: RRIMetric[] = [
-  {
-    label: "Composite RRI",
-    value: "2.31",
-    trend: { direction: "up", delta: "+0.14 (24h)", label: "Accelerating" },
-    context: "Elevated stress band",
-  },
-  {
-    label: "RRI Velocity",
-    value: "+0.14",
-    trend: { direction: "up", delta: "↑ Accelerating", label: "Accelerating" },
-    context: "Above historical mean",
-  },
-  {
-    label: "Cascade Probability",
-    value: "18.4%",
-    trend: { direction: "up", delta: "+2.1% (24h)", label: "Rising" },
-    context: "Coastal govs. at risk",
-  },
-  {
-    label: "Salience Score",
-    value: "0.67",
-    trend: { direction: "stable", delta: "→ Stable", label: "Stable" },
-    context: "High media attention",
-  },
-];
-
-const SECTIONS: BriefingSection[] = [
-  {
-    id: "economy",
-    name: "Economy",
-    icon: <TrendingUp className="w-4 h-4" />,
-    accentColor: "#10b981",
-    trend: { direction: "up", label: "Deteriorating" },
-    narrative: `The <strong>dinar remained under pressure</strong> as parallel market spreads widened to 3.2%, the highest level since January. Fuel scarcity reports intensified across Kasserine and Gafsa governorates, with queue lengths at distribution points increasing <strong>40% week-over-week</strong>. The Central Bank's foreign reserves coverage dropped to <strong>98 days of imports</strong>. Informal sector activity in border regions shows elevated smuggling indicators, particularly in contraband fuel and consumer goods.`,
-    indicators: [
-      { label: "Dinar Pressure", severity: "high" },
-      { label: "FX 98 days", severity: "moderate" },
-      { label: "Fuel Queues +40%", severity: "high" },
-      { label: "Black Market Active", severity: null },
-    ],
-    sourceCount: 14,
-    confidence: "high",
-  },
-  {
-    id: "security",
-    name: "Security",
-    icon: <Shield className="w-4 h-4" />,
-    accentColor: "#ef4444",
-    trend: { direction: "up", label: "Elevated" },
-    narrative: `<strong>Interior Ministry activity increased</strong> in Kasserine following localized demonstrations at the governorate headquarters. Security force deployment patterns show a <strong>15% increase in the interior regions</strong> compared to the 30-day baseline. Border monitoring detected unusual movement patterns in the <strong>Tataouine-Libya corridor</strong>. No significant terrorist incidents reported in the past 24 hours, but online radicalization chatter in closed Telegram channels showed a modest uptick in the south.`,
-    indicators: [
-      { label: "Kasserine Deployment ↑", severity: "high" },
-      { label: "Border Anomaly", severity: "moderate" },
-      { label: "Telegram Uptick", severity: "moderate" },
-      { label: "No Terror Incidents", severity: null },
-    ],
-    sourceCount: 11,
-    confidence: "moderate",
-  },
-  {
-    id: "society",
-    name: "Society",
-    icon: <Users className="w-4 h-4" />,
-    accentColor: "#8b5cf6",
-    trend: { direction: "up", label: "Deteriorating" },
-    narrative: `<strong>Youth migration narratives surged</strong> across Tunisian Facebook and TikTok content, with sentiment analysis indicating a <strong>23% increase in negative framing</strong> over 72 hours. Transport strikes in Sfax and Gabès entered their second day, with solidarity actions spreading to Mahdia. Online mobilization around water cuts in Kairouan generated <strong>4,200 new posts</strong> in 24 hours. The SIR protest spread model projects a <strong>34% probability of contagion</strong> to coastal governorates if strikes persist beyond 72 hours.`,
-    indicators: [
-      { label: "Strike Day 2", severity: "high" },
-      { label: "SIR Contagion 34%", severity: "high" },
-      { label: "4,200 Posts / 24h", severity: "moderate" },
-      { label: "Migration Surge +23%", severity: null },
-    ],
-    sourceCount: 16,
-    confidence: "high",
-  },
-  {
-    id: "environment",
-    name: "Environment",
-    icon: <Leaf className="w-4 h-4" />,
-    accentColor: "#f59e0b",
-    trend: { direction: "up", label: "Worsening" },
-    narrative: `<strong>Water stress indicators rose sharply</strong> in central governorates, with Kairouan reporting 14-hour daily cuts and Sidi Bouzid implementing rotational distribution. Reservoir levels at Sebkha Séjoumi dropped to <strong>32% capacity</strong>, 8 percentage points below the seasonal average. Agricultural stress is visible in satellite-derived vegetation indices for the Cap Bon peninsula. <strong>Heatwave conditions</strong> are forecast for the coming week, which may compound water access tensions in urban peripheries.`,
-    indicators: [
-      { label: "Kairouan 14h Cuts", severity: "high" },
-      { label: "Reservoir 32%", severity: "moderate" },
-      { label: "Heatwave Forecast", severity: "moderate" },
-      { label: "Agri Stress Visible", severity: null },
-    ],
-    sourceCount: 9,
-    confidence: "moderate",
-  },
-];
-
-const GOVERNORATE_ALERTS: GovernorateAlert[] = [
-  {
-    name: "Sfax",
-    description: "Transport strike Day 2. Port operations disrupted.",
-    riskLevel: "high",
-    riskPercentage: 78,
-    trendDelta: 0.31,
-    trendDirection: "up",
-  },
-  {
-    name: "Kasserine",
-    description: "Demonstrations at HQ. Interior Ministry deployment up.",
-    riskLevel: "high",
-    riskPercentage: 72,
-    trendDelta: 0.24,
-    trendDirection: "up",
-  },
-  {
-    name: "Kairouan",
-    description: "Water cuts 14h/day. Online mobilization surge.",
-    riskLevel: "moderate",
-    riskPercentage: 61,
-    trendDelta: 0.19,
-    trendDirection: "up",
-  },
-  {
-    name: "Tataouine",
-    description: "Border movement anomaly. Radicalization chatter uptick.",
-    riskLevel: "moderate",
-    riskPercentage: 54,
-    trendDelta: 0.03,
-    trendDirection: "stable",
-  },
-  {
-    name: "Tunis",
-    description: "Stable baseline. No anomalies detected.",
-    riskLevel: "low",
-    riskPercentage: 28,
-    trendDelta: -0.02,
-    trendDirection: "stable",
-  },
-  {
-    name: "Sousse",
-    description: "Tourism stable. No protest signals.",
-    riskLevel: "low",
-    riskPercentage: 22,
-    trendDelta: 0.01,
-    trendDirection: "stable",
-  },
-];
+const rawGovs: any[] =
+  (GOVERNORATES as any)?.default?.governorates ?? (GOVERNORATES as any)?.governorates ?? [];
+const GOV_PROFILES = rawGovs.map(g => ({
+  name: typeof g.name === 'object' ? g.name.en : g.name,
+  cascade_risk: (g as any).cascade_risk ?? 0.3,
+}));
 
 const PHASE_PREVIEWS: PhasePreview[] = [
   {
@@ -543,19 +395,7 @@ const RRICard: React.FC<{ metric: RRIMetric }> = ({ metric }) => {
   );
 };
 
-const RRIDashboard: React.FC = () => (
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-      gap: 16,
-    }}
-  >
-    {RRI_METRICS.map((m, i) => (
-      <RRICard key={i} metric={m} />
-    ))}
-  </div>
-);
+
 
 // ─── SECTION CARDS ────────────────────────────────────────────────────────────
 
@@ -639,8 +479,8 @@ const SectionCard: React.FC<{ section: BriefingSection }> = ({ section }) => {
 
 // ─── GOVERNORATE ALERTS ───────────────────────────────────────────────────────
 
-const GovernorateAlertsPanel: React.FC = () => {
-  const highCount = GOVERNORATE_ALERTS.filter(
+const GovernorateAlertsPanel: React.FC<{ alerts: GovernorateAlert[] }> = ({ alerts }) => {
+  const highCount = alerts.filter(
     (g) => g.riskLevel === "high" || g.riskLevel === "critical"
   ).length;
 
@@ -648,7 +488,6 @@ const GovernorateAlertsPanel: React.FC = () => {
     <div
       className="bg-intel-card/50 backdrop-blur-sm rounded-xl border border-intel-border overflow-hidden"
     >
-      {/* Header */}
       <div
         className="flex items-center justify-between p-4 border-b border-white/5 bg-white/[0.02]"
       >
@@ -666,11 +505,9 @@ const GovernorateAlertsPanel: React.FC = () => {
           {highCount} High Alerts
         </span>
       </div>
-
-      {/* Rows */}
       <div>
-        {GOVERNORATE_ALERTS.map((gov, i) => (
-          <GovernorateRow key={i} gov={gov} index={i} total={GOVERNORATE_ALERTS.length} />
+        {alerts.map((gov, i) => (
+          <GovernorateRow key={i} gov={gov} index={i} total={alerts.length} />
         ))}
       </div>
     </div>
@@ -816,6 +653,147 @@ export const DailyBriefing: React.FC = () => {
   const [activePhase, setActivePhase] = useState(1);
   const [tunisTime, setTunisTime] = useState("");
 
+  const {
+    rriState, fullData: data, rpiProfile,
+    cognitiveEnvironment, seiResult
+  } = useRiskMetrics();
+  const { miiProfile, actorNetwork } = useAIAnalysis();
+
+  const govAssessment = useMemo(() => {
+    try {
+      return assessGovernmentAgent(rriState, data, { miiProfile, actorNetwork, seiResult });
+    } catch { return null; }
+  }, [rriState, data, miiProfile, actorNetwork, seiResult]);
+
+  const signalSummary = useMemo(() => {
+    try {
+      return buildSignalSummary(classifySignals([], rriState, data, govAssessment, 20));
+    } catch { return null; }
+  }, [rriState, data, govAssessment]);
+
+  const brief = useMemo<IntelligenceBrief>(() => {
+    const contradictionTexts: string[] = [];
+    return generateIntelligenceBrief(
+      rriState, data,
+      { miiProfile, rpiProfile, cognitiveEnvironment, seiResult },
+      contradictionTexts
+    );
+  }, [rriState, data, miiProfile, rpiProfile, cognitiveEnvironment, seiResult]);
+
+  // ── Derived display data ──────────────────────────────────────────────────
+
+  const executiveSummary: ExecutiveSummaryData = {
+    narrative: brief.situation,
+    confidence:
+      brief.classification === 'ROUTINE' ? 'low' :
+      brief.classification === 'ELEVATED' ? 'moderate' : 'high',
+    meta: {
+      signalSources: brief.keyDevelopments.length,
+      anomalousClusters: signalSummary?.systemShocks ?? 0,
+      monteCarloRuns: rriState?.simulations_run ?? 10000,
+      activeModels: ['RRI Engine v2', `P_rev ${(brief.modelState.p_rev*100).toFixed(0)}%`, brief.modelState.miiPhase],
+    },
+  };
+
+  const rriMetrics: RRIMetric[] = [
+    {
+      label: "Composite RRI",
+      value: brief.modelState.rri.toFixed(2),
+      trend: {
+        direction:
+          rriState?.velocity_label?.includes('DETERIORATING') ? 'up' :
+          rriState?.velocity_label?.includes('IMPROVING') ? 'down' : 'stable',
+        delta: `V=${brief.modelState.velocity}`,
+        label: rriState?.velocity_label ?? 'Stable',
+      },
+      context: brief.classification === 'ROUTINE' ? 'Normal range' : 'Elevated stress band',
+    },
+    {
+      label: "Revolution Probability",
+      value: `${(brief.modelState.p_rev * 100).toFixed(1)}%`,
+      trend: { direction: brief.modelState.p_rev > 0.5 ? 'up' : 'stable', delta: `P_rev`, label: `Threshold ${brief.modelState.p_rev > 0.5 ? 'breached' : 'stable'}` },
+      context: `${brief.classification} classification`,
+    },
+    {
+      label: "Cascade Probability",
+      value: `${((rriState?.cascade_probability ?? 0) * 100).toFixed(0)}%`,
+      trend: {
+        direction: (rriState?.cascade_probability ?? 0) > 0.5 ? 'up' : 'stable',
+        delta: `${((rriState?.cascade_probability ?? 0) * 100).toFixed(0)}%`,
+        label: (rriState?.cascade_probability ?? 0) > 0.6 ? 'Critical' : 'Elevated',
+      },
+      context: 'EQ.17 regional cascade',
+    },
+    {
+      label: "Salience Score",
+      value: (rriState?.salience ?? 0).toFixed(2),
+      trend: { direction: 'stable', delta: '→ EQ.3', label: 'Stable' },
+      context: 'Media & narrative attention',
+    },
+  ];
+
+  const briefSections: BriefingSection[] = [
+    {
+      id: "security",
+      name: "Security",
+      icon: <Shield className="w-4 h-4" />,
+      accentColor: "#ef4444",
+      trend: { direction: brief.classification === 'ROUTINE' ? 'down' : 'up', label: brief.classification },
+      narrative: brief.assessment,
+      indicators: brief.keyDevelopments.slice(0, 4).map(d => ({
+        label: d.signal.slice(0, 36),
+        severity: (d.severity === 'critical' || d.severity === 'high') ? 'high' as const : d.severity === 'medium' ? 'moderate' as const : null,
+      })),
+      sourceCount: brief.keyDevelopments.length,
+      confidence: brief.classification === 'CRITICAL' || brief.classification === 'EMERGENCY' ? 'high' as const : 'moderate' as const,
+    },
+    {
+      id: "economy",
+      name: "Economy",
+      icon: <TrendingUp className="w-4 h-4" />,
+      accentColor: "#10b981",
+      trend: { direction: data?.economy?.inflation && data.economy.inflation > 6 ? 'up' : 'stable', label: data?.economy?.inflation ? `${data.economy.inflation}% CPI` : 'Stable' },
+      narrative: `Composite RRI at <strong>${brief.modelState.rri.toFixed(2)}</strong>, P_rev <strong>${(brief.modelState.p_rev*100).toFixed(0)}%</strong>. ` +
+        `Inflation: <strong>${data?.economy?.inflation ?? '—'}%</strong>, FX reserves: <strong>${data?.economy?.fx_reserves ?? '—'} days</strong>, ` +
+        `Unemployment: <strong>${data?.economy?.unemployment ?? '—'}%</strong>. ` +
+        `Compound stress: <strong>${((rriState?.compound_stress ?? 0)*100).toFixed(0)}%</strong>.`,
+      indicators: [
+        ...(data?.economy?.inflation ? [{ label: `CPI ${data.economy.inflation}%`, severity: (data.economy.inflation > 7 ? 'high' as const : 'moderate' as const) }] : []),
+        ...(data?.economy?.fx_reserves ? [{ label: `FX ${data.economy.fx_reserves}d`, severity: (data.economy.fx_reserves < 90 ? 'high' as const : 'moderate' as const) }] : []),
+        { label: `RRI ${brief.modelState.rri.toFixed(2)}`, severity: brief.modelState.rri > 2.5 ? 'high' as const : brief.modelState.rri > 2.0 ? 'moderate' as const : null },
+        { label: `${rriState?.threshold_breaches?.length ?? 0} breaches`, severity: (rriState?.threshold_breaches?.length ?? 0) > 3 ? 'high' as const : null },
+      ],
+      sourceCount: rriState?.threshold_breaches?.length ?? 0,
+      confidence: 'high' as const,
+    },
+  ];
+
+  const computeGovernorateAlerts = (): GovernorateAlert[] => {
+    const cascade = rriState?.cascade_probability ?? 0.3;
+    const velocity = rriState?.velocity ?? 0;
+    const protestEvents = data?.social?.protest_events_30d ?? 10;
+
+    const govList = GOV_PROFILES.slice(0, 8);
+    return govList.map((g, i) => {
+      const baseRisk = g.cascade_risk ?? 0.3;
+      const protestBoost = Math.min(0.25, protestEvents * 0.01);
+      const riskRaw = Math.min(1, baseRisk * (0.4 + cascade * 0.4 + velocity * 0.2) + protestBoost);
+      const riskPct = Math.round(riskRaw * 100);
+      return {
+        name: g.name,
+        description: riskPct > 60 ? 'Elevated cascade risk — monitor closely' :
+                      riskPct > 40 ? 'Moderate stress indicators' :
+                      'Stable baseline. Routine monitoring.',
+        riskLevel: riskPct > 65 ? 'high' as const : riskPct > 40 ? 'moderate' as const : 'low' as const,
+        riskPercentage: riskPct,
+        trendDelta: parseFloat((velocity * (0.5 + g.cascade_risk * 0.5)).toFixed(2)),
+        trendDirection: velocity > 0.05 ? 'up' as const : velocity < -0.05 ? 'down' as const : 'stable' as const,
+      };
+    });
+  };
+
+  const governorateAlerts = computeGovernorateAlerts();
+
   // Update time every minute
   useEffect(() => {
     const update = () => {
@@ -841,7 +819,6 @@ export const DailyBriefing: React.FC = () => {
 
   return (
     <>
-      {/* Dynamic styles */}
       <style>{`
         .ti-strong strong {
           color: var(--color-intel-cyan);
@@ -850,7 +827,6 @@ export const DailyBriefing: React.FC = () => {
       `}</style>
 
       <div className="min-h-full pb-20">
-        {/* standard ModuleHeader */}
         <ModuleHeader 
           title="Daily Intelligence Briefing" 
           subtitle="Real-time risk assessment & strategic overview" 
@@ -859,16 +835,11 @@ export const DailyBriefing: React.FC = () => {
           nodeId="BRIEF-NODE-01"
         />
 
-        {/* ── PHASE NAV ── */}
-        <div
-          className="sticky top-0 z-10 bg-intel-bg/95 backdrop-blur-md border-b border-white/5 py-1 mb-8"
-        >
+        <div className="sticky top-0 z-10 bg-intel-bg/95 backdrop-blur-md border-b border-white/5 py-1 mb-8">
           <PhaseNav activePhase={activePhase} onPhaseChange={setActivePhase} />
         </div>
 
-        {/* ── CONTENT ── */}
         <div className="space-y-10">
-          {/* Briefing Date/Time info */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-4">
             <div>
               <div className="flex items-center gap-2 text-intel-cyan font-mono text-[10px] uppercase tracking-widest mb-1">
@@ -885,55 +856,51 @@ export const DailyBriefing: React.FC = () => {
             </div>
           </div>
 
-          {/* ── TABS CONTENT ── */}
           <div className="min-h-[400px]">
             {activePhase === 1 && (
               <div className="space-y-8">
-                {/* Executive Summary */}
                 <div>
-                  <ExecutiveSummary data={EXECUTIVE_SUMMARY} />
+                  <ExecutiveSummary data={executiveSummary} />
                 </div>
-
-                {/* RRI Dashboard */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-intel-red rounded-full" />
                     Critical Risk Indicators
                   </div>
-                  <RRIDashboard />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+                    {rriMetrics.map((m, i) => (
+                      <RRICard key={i} metric={m} />
+                    ))}
+                  </div>
                 </div>
-
-                {/* Section Cards */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-intel-cyan rounded-full" />
                     Intelligence Domain Breakdown
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {SECTIONS.map((s) => (
+                    {briefSections.map((s) => (
                       <SectionCard key={s.id} section={s} />
                     ))}
                   </div>
                 </div>
               </div>
             )}
-            
+
             {activePhase === 2 && (
               <div className="space-y-8">
-                {/* Governorate Alert Matrix */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-intel-orange rounded-full" />
                     Regional Threat Matrix
                   </div>
-                  <GovernorateAlertsPanel />
+                  <GovernorateAlertsPanel alerts={governorateAlerts} />
                 </div>
               </div>
             )}
 
             {activePhase === 3 && (
               <div className="space-y-8">
-                {/* Live News Feed */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-intel-blue rounded-full animate-pulse" />
@@ -946,19 +913,29 @@ export const DailyBriefing: React.FC = () => {
 
             {activePhase === 4 && (
               <div className="space-y-8">
-                {/* AI Voice Briefing */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-4 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse" />
                     Neural Voice Narration — Beta
                   </div>
-                  <AIVoiceBriefing />
+                  <AIVoiceBriefing
+                    briefingText={brief.situation}
+                    metrics={{
+                      rri: brief.modelState.rri,
+                      pRev: brief.modelState.p_rev,
+                      inflation: data?.economy?.inflation ?? 0,
+                      fxReserves: data?.economy?.fx_reserves ?? 0,
+                      unemployment: data?.economy?.unemployment ?? 0,
+                      protestEvents: data?.social?.protest_events_30d ?? 0,
+                      waterCrisisGovs: data?.social?.water_crisis_govs ?? 0,
+                      imfProb: data?.geopolitical?.imf_deal_probability ?? 0,
+                    }}
+                  />
                 </div>
               </div>
             )}
           </div>
 
-          {/* Roadmap */}
           <div className="pt-12">
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 font-mono mb-6 border-t border-white/5 pt-8">
               Development Roadmap — System Expansion
@@ -970,7 +947,6 @@ export const DailyBriefing: React.FC = () => {
             </div>
           </div>
 
-          {/* Footer */}
           <footer className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-3">
               <Zap className="w-4 h-4 text-intel-cyan" />
@@ -981,12 +957,7 @@ export const DailyBriefing: React.FC = () => {
             </div>
             <div className="flex gap-6">
               {["Methodology", "Sources", "API", "Export"].map((link) => (
-                <button
-                  key={link}
-                  className="text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-intel-cyan transition-colors font-mono"
-                >
-                  [{link}]
-                </button>
+                <button key={link} className="text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-intel-cyan transition-colors font-mono">[{link}]</button>
               ))}
             </div>
           </footer>

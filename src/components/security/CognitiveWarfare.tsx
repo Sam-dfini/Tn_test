@@ -23,6 +23,7 @@ import {
   Activity, Target, Globe, Loader2, CheckCircle,
   XCircle, AlertCircle, TrendingUp, Clock,
 } from 'lucide-react';
+import { ModuleHeader } from '../shared/ProfessionalShared';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useRSS } from '../../context/RSSContext';
 import {
@@ -176,7 +177,7 @@ const AnalysisCard: React.FC<{
   const compositeAngle = (composite / 1.0) * 180 - 90; // -90° (left) to +90° (right)
   const rad = compositeAngle * Math.PI / 180;
   const needleX = 60 + 45 * Math.sin(rad);
-  const needleY = 55 - 45 * Math.cos(rad);
+  const needleY = 60 - 45 * Math.cos(rad);
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
@@ -412,20 +413,16 @@ export const CognitiveWarfare: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
 
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-white uppercase tracking-widest">
-            Cognitive Warfare Engine
-          </h2>
-          <p className="text-[10px] text-slate-500 mt-0.5">
-            Social engineering detection · Narrative manipulation analysis · ε(t) RRI integration
-          </p>
-        </div>
-        <div className="text-right text-[9px] font-mono">
-          <div className="text-slate-500">{articles.length} articles in feed</div>
-          <div className="text-slate-600">R(t)={rriState?.rri?.toFixed(2) ?? '2.31'}</div>
-        </div>
+      <ModuleHeader
+        title="Cognitive Warfare Engine"
+        subtitle="Social engineering detection · Narrative manipulation analysis · ε(t) RRI integration"
+        icon={Brain}
+        nodeId="COG-WAR-01"
+        statusLabel="ACTIVE"
+      />
+      <div className="flex justify-end gap-4 -mt-3 text-[9px] font-mono">
+        <span className="text-slate-500">{articles.length} articles in feed</span>
+        <span className="text-slate-600">R(t)={rriState?.rri?.toFixed(2) ?? '2.31'}</span>
       </div>
 
       {/* Section tabs */}
