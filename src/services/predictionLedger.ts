@@ -21,6 +21,8 @@ import { supabase } from '../lib/supabase';
 let _tableExists = true;
 let _tableChecked = false;
 
+export function isLearningLoopActive(): boolean { return _tableExists; }
+
 // ── Types ──────────────────────────────────────────────────────
 
 export type PredictionHorizon = 7 | 14 | 30 | 60;
