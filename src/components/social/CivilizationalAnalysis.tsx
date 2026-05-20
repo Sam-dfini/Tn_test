@@ -125,13 +125,8 @@ export const CivilizationalAnalysis: React.FC = () => {
         nodeId="CIV-NODE-12"
       />
 
-      {/* Page Header */}
+      {/* Page content */}
       <div className="space-y-4 relative z-20">
-        <div className="flex items-center space-x-3">
-          <RotateCcw className="w-6 h-6 text-intel-cyan" />
-          <h1 className="text-xl font-bold text-white uppercase
-            tracking-widest">Civilizational Analysis</h1>
-        </div>
         <p className="text-slate-400 text-sm leading-relaxed
           max-w-3xl">
           The RRI model quantifies what civilizational theory
