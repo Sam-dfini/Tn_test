@@ -18,6 +18,8 @@ import {
   BookOpen, Layers, Plus, Save, BarChart3
 } from 'lucide-react';
 import { ModuleHeader } from '../shared/ProfessionalShared';
+import { useRiskMetrics } from '../../hooks/usePipelineDomains';
+import { useAIAnalysis } from '../../context/AIAnalysisContext';
 import {
   fetchPredictions, computeAccuracyStats, computeModelPerformance,
   storeAnalystCorrection, fetchAnalystCorrections,
@@ -26,6 +28,11 @@ import {
   PredictionRecord, AccuracyStats, ModelPerformanceSummary,
   AnalystCorrection, PredictionVariable,
 } from '../../services/predictionLedger';
+import {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis,
+  ReferenceLine, Area, AreaChart,
+} from 'recharts';
 
 // ── Variable labels ────────────────────────────────────────────
 
