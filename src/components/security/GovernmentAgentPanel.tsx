@@ -6,6 +6,7 @@ import {
   ChevronRight, Zap, TrendingDown,
   Network, AlertCircle, Clock, BookOpen
 } from 'lucide-react';
+import { ModuleHeader } from '../shared/ProfessionalShared';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { useAIAnalysis } from '../../context/AIAnalysisContext';
 import {
@@ -111,19 +112,13 @@ export const GovernmentAgentPanel: React.FC = () => {
   return (
     <div className="space-y-6 pb-8">
 
-      {/* ── Header ── */}
-      <div className="space-y-1">
-        <div className="flex items-center space-x-3">
-          <Brain className="w-5 h-5 text-intel-purple" />
-          <h2 className="text-sm font-bold text-white uppercase tracking-[0.15em]">
-            Government Agent — Regime Cognitive Model
-          </h2>
-        </div>
-        <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest pl-8">
-          Deterministic decision engine · Brain/mouth architecture ·
-          Four hard constraints · Predicted actions
-        </p>
-      </div>
+      <ModuleHeader
+        title="Government Agent — Regime Cognitive Model"
+        subtitle="Deterministic decision engine · Brain/mouth architecture · Four hard constraints · Predicted actions"
+        icon={Brain}
+        nodeId="GOV-AGENT-01"
+        statusLabel="ACTIVE"
+      />
 
       {/* ── Threat perception banner ── */}
       <div className={`relative overflow-hidden rounded-2xl border p-5

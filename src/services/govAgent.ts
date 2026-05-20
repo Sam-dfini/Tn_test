@@ -752,33 +752,37 @@ export function assessGovernmentAgent(
   } = {}
 ): GovAgentAssessment {
 
-  const mii = engines.miiProfile?.mii ?? 0.572;
-  const miiPhase = engines.miiProfile?.phase ?? 'FREEZE';
-  const loyalistConc = engines.miiProfile?.loyaltyShiftIndex ?? 0.76;
-  const oci = engines.actorNetwork?.oci ?? 0.22;
-  const ngoCapacity = engines.actorNetwork?.ngoCapacity ?? 0.55;
-  const cpgDisruption = engines.actorNetwork?.cpgDisruptionLevel ?? 35;
-  const seiMax = engines.seiResult?.maxSEI ?? 0.42;
-  const seiPhase = engines.seiResult?.dominantPhase ?? 2;
+  // ── No-signal baselines ─────────────────────────────────────
+  // Used when engine data is unavailable. These are the model's prior
+  // assumptions — documented defaults, not live readings. When engine
+  // data arrives these are overridden by actual pipeline state.
+  const mii            = engines.miiProfile?.mii            ?? 0.572;
+  const miiPhase       = engines.miiProfile?.phase          ?? 'FREEZE';
+  const loyalistConc   = engines.miiProfile?.loyaltyShiftIndex ?? 0.76;
+  const oci            = engines.actorNetwork?.oci          ?? 0.22;
+  const ngoCapacity    = engines.actorNetwork?.ngoCapacity         ?? 0.55;
+  const cpgDisruption  = engines.actorNetwork?.cpgDisruptionLevel  ?? 35;
+  const seiMax         = engines.seiResult?.maxSEI          ?? 0.42;
+  const seiPhase       = engines.seiResult?.dominantPhase   ?? 2;
   const seiAngerWindow = engines.seiResult?.angerWindowAlert ?? false;
 
-  const rri = rriState.rri ?? 2.31;
-  const velocity = rriState.velocity ?? 0.18;
-  const eliteCohesion = rriState.elite_cohesion_dynamics ?? 0.65;
-  const eliteDefection = rriState.elite_defection_prob ?? 0.12;
-  const cascadeProb = rriState.cascade_probability ?? 0.58;
+  const rri            = rriState.rri                    ?? 2.31;
+  const velocity       = rriState.velocity               ?? 0.18;
+  const eliteCohesion  = rriState.elite_cohesion_dynamics ?? 0.65;
+  const eliteDefection = rriState.elite_defection_prob   ?? 0.12;
+  const cascadeProb    = rriState.cascade_probability    ?? 0.58;
 
-  const econ = data?.economy || {};
-  const social = data?.social || {};
-  const geo = data?.geopolitical || {};
+  const econ   = data?.economy       || {};
+  const social = data?.social        || {};
+  const geo    = data?.geopolitical  || {};
 
-  const inflation = econ.inflation ?? 7.1;
-  const fxReserves = econ.fx_reserves ?? 84;
-  const imfDealProb = geo.imf_deal_probability ?? 31;
-  const decree54 = social.decree54_charged ?? 23;
-  const ugttLevel = social.ugtt_mobilisation_level ?? 'ELEVATED';
-  const protests = social.protest_events_30d ?? 23;
-  const pressFreedom = social.press_freedom_rank ?? 118;
+  const inflation  = econ.inflation               ?? 7.1;
+  const fxReserves = econ.fx_reserves             ?? 84;
+  const imfDealProb= geo.imf_deal_probability     ?? 31;
+  const decree54   = social.decree54_charged      ?? 23;
+  const ugttLevel  = social.ugtt_mobilisation_level ?? 'ELEVATED';
+  const protests   = social.protest_events_30d    ?? 23;
+  const pressFreedom= social.press_freedom_rank   ?? 118;
 
   // Evaluate all four hard constraints
   const constraintStresses: ConstraintStress[] = [
