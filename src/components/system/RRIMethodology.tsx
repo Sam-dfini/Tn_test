@@ -16,7 +16,7 @@ import {
   BarChart3, Brain, Zap, Globe,
   Shield, TrendingUp, Database, Dices,
   Calculator, Radio, LayoutGrid, Users,
-  Bell, Bot, Sparkles, Layers
+  Bell, Bot, Sparkles, Layers, Triangle
 } from 'lucide-react';
 
 const Equation: React.FC<{
@@ -210,9 +210,24 @@ const EquationCard: React.FC<{
 const ArchitectureHierarchyDiagram: React.FC = () => {
   const [hoveredLayer, setHoveredLayer] = useState<number | null>(null);
 
+  const layerNavMap: Record<number, string> = {
+    1: 'variables',
+    2: 'equations-paper',
+    7: 'equations-ext',
+    6: 'equations-ext',
+  };
+
+  const handleLayerClick = (id: number) => {
+    const sectionId = layerNavMap[id];
+    if (sectionId) {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const layers = [
-    { id: 1, tier: '1st', label: 'Variables (250)', sub: 'Categories A-X', icon: Database, color: '#ff453a', desc: 'Raw data points across 24 categories including economic, social, and political metrics.' },
-    { id: 2, tier: '1st', label: 'Equations (23)', sub: 'Added EQ.21-23', icon: Calculator, color: '#ff453a', desc: 'Mathematical models (RRI, SIR, Monte Carlo, MII, CPI, Acceleration) processing raw variables into risk scores.' },
+    { id: 1, tier: '1st', label: 'Variables (251+)', sub: 'Categories A-X', icon: Database, color: '#ff453a', desc: 'Raw data points across 24 categories including economic, social, and political metrics.' },
+    { id: 2, tier: '1st', label: 'Equations (24)', sub: 'Added EQ.15-24', icon: Calculator, color: '#ff453a', desc: 'Mathematical models (RRI, SIR, Monte Carlo, MII, CPI, Acceleration) processing raw variables into risk scores.' },
     
     { id: 3, tier: '2nd', label: 'Signals (10)', sub: 'Real-time Indicators', icon: Radio, color: '#0a84ff', desc: 'High-frequency data streams detecting immediate shifts in social sentiment or market stability.' },
     { id: 4, tier: '2nd', label: 'Clusters (6)', sub: 'Thematic Groupings', icon: LayoutGrid, color: '#0a84ff', desc: 'Grouping of variables and signals into thematic clusters for multi-dimensional analysis.' },
@@ -262,6 +277,8 @@ const ArchitectureHierarchyDiagram: React.FC = () => {
               <motion.div
                 onMouseEnter={() => setHoveredLayer(index)}
                 onMouseLeave={() => setHoveredLayer(null)}
+                onClick={() => handleLayerClick(layer.id)}
+                whileTap={{ scale: 0.98 }}
                 className={`relative z-10 cursor-pointer h-12 flex items-center px-4 rounded-lg border transition-all duration-300 ${
                   hoveredLayer === index 
                     ? 'bg-white/10 border-intel-cyan/50 -translate-y-0.5 shadow-lg shadow-intel-cyan/10' 
@@ -434,8 +451,8 @@ const DataFlowDiagram: React.FC<{
   const NODE_DESC: Record<string, string> = {
     sources: 'RSS feeds, APIs, PDFs, and social media monitored continuously for new intelligence',
     pipeline: 'Documents ingested, fields extracted, analyst reviews and approves changes',
-    variables: 'All 250 RRI variables stored with current values, history, and pipeline field mappings',
-    engine: 'rriEngine.ts runs 20 equations including Monte Carlo simulation (10,000 runs)',
+    variables: 'All 251+ RRI variables stored with current values, history, and pipeline field mappings',
+    engine: 'rriEngine.ts runs 24 equations including Monte Carlo simulation (10,000 runs)',
     outputs: 'R(t), P_rev, V(t), HPS, CS(t), P_cascade — 7 model outputs updated in real-time',
     modules: '10 Professional modules pull live data from PipelineContext and display analytics',
     notifications: 'Alert system fires when thresholds breached — analyst notified immediately',
@@ -592,7 +609,7 @@ const DataFlowDiagram: React.FC<{
           <text x="460" y="158" textAnchor="middle"
             fill={isActive(2) ? '#30d158' : '#334155'}
             fontSize="9" fontFamily="monospace"
-          >250 variables</text>
+           >251+ variables</text>
           <text x="460" y="175" textAnchor="middle"
             fill={isActive(2) ? '#30d158' : '#334155'}
             fontSize="9" fontFamily="monospace"
@@ -647,10 +664,10 @@ const DataFlowDiagram: React.FC<{
             fontSize="9" fontFamily="monospace"
           >rriEngine.ts</text>
           {[
-            '20 equations',
+            '24 equations',
             'Monte Carlo',
             '10,000 runs',
-            'EQ.1 → EQ.20',
+            'EQ.1 → EQ.24',
             'Samir Dni +',
             'TN Extensions',
           ].map((t, i) => (
@@ -735,7 +752,7 @@ const DataFlowDiagram: React.FC<{
         border-intel-border/30">
         {[
           { label: 'Variables', value: `${rriState.variables_count}`, color: 'text-intel-green' },
-          { label: 'Equations', value: '20', color: 'text-intel-cyan' },
+          { label: 'Equations', value: '24', color: 'text-intel-cyan' },
           { label: 'Simulations', value: '10,000', color: 'text-intel-orange' },
           { label: 'R(t)', value: rriState.rri.toFixed(4), color: 'text-intel-red' },
           { label: 'P_rev', value: (rriState.p_rev*100).toFixed(1)+'%', color: 'text-intel-orange' },
@@ -759,7 +776,7 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
   const [hoveredEq, setHoveredEq] = useState<string | null>(null);
 
   const EQ_DESC: Record<string, string> = {
-    'EQ.1': 'Base RRI sum — 250 variables × weights across 24 categories',
+    'EQ.1': 'Base RRI sum — 251 variables × weights across 24 categories',
     'EQ.3': 'Salience S(t) — how much attention is on revolutionary grievances vs suppressed by war/propaganda',
     'EQ.4': 'SIR epidemic model — protest spread like infection: Susceptible → Infected → Recovered',
     'EQ.7': 'Elite defection utility — Nash equilibrium calculation for when elites rationally defect',
@@ -782,7 +799,7 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
 
   const equations = [
     // Row 1 — inputs
-    { id: 'vars', x: 50, y: 30, w: 120, h: 40, label: '250 Variables', sub: 'Categories A-X', color: '#30d158', type: 'input' },
+    { id: 'vars', x: 50, y: 30, w: 120, h: 40, label: '251+ Variables', sub: 'Categories A-X', color: '#30d158', type: 'input' },
     // Row 2 — core
     { id: 'EQ.1', x: 220, y: 30, w: 100, h: 40, label: 'EQ.1', sub: 'R(t) base', color: '#ff453a', type: 'core' },
     { id: 'EQ.3', x: 220, y: 100, w: 100, h: 40, label: 'EQ.3', sub: 'Salience', color: '#ff9f0a', type: 'core' },
@@ -901,8 +918,8 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
       {/* SVG */}
       <div className="overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
         <div className="min-w-[800px] md:min-w-0">
-          <svg viewBox="0 0 870 520" className="w-full h-auto"
-            style={{ maxHeight: '540px' }}>
+          <svg viewBox="0 0 870 730" className="w-full h-auto"
+            style={{ maxHeight: '750px' }}>
 
         {/* Draw connections first (behind nodes) */}
         {connections.map((conn) => {
@@ -1179,7 +1196,8 @@ export const RRIMethodology: React.FC<{
     { id: 'overview', label: 'Overview' },
     { id: 'equations-paper', label: 'Core Equations (Samir Dni)' },
     { id: 'equations-ext', label: 'Extensions (TUNISIAINTEL)' },
-    { id: 'variables', label: 'All 250 Variables' },
+    { id: 'trgm', label: 'TRGM Governance Matrix' },
+    { id: 'variables', label: 'All 251+ Variables' },
     { id: 'montecarlo', label: 'Monte Carlo' },
     { id: 'calibration', label: 'Calibration & Validation' },
     { id: 'performance', label: 'Model Performance' },
@@ -1386,7 +1404,7 @@ export const RRIMethodology: React.FC<{
                 <h2 className="text-sm font-bold text-white uppercase
                   tracking-widest">Diagram 2 — RRI Engine Internals</h2>
                 <span className="text-[9px] font-mono text-slate-600 ml-auto">
-                  20 equations, 250 variables
+                  20 equations, 251+ variables
                 </span>
               </div>
 
@@ -1424,10 +1442,10 @@ export const RRIMethodology: React.FC<{
               <div className="col-span-1 sm:col-span-2 p-4 md:p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/20">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest mb-3">Abstract</div>
                 <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-                  The Refined Regime Aging Model (RRAM) presents a comprehensive quantitative framework for assessing revolutionary risk in Tunisia. Developed by Samir Dni (2025), the model integrates 250 variables across 24 categories, employing 12 mathematical methods and 14 specific equations to generate a Revolutionary Risk Index R(t) and revolution probability P_rev.
+                  The Refined Regime Aging Model (RRAM) presents a comprehensive quantitative framework for assessing revolutionary risk in Tunisia. Developed by Samir Dni (2025), the model integrates 251+ variables across 24 categories, employing 12 mathematical methods and 14 specific equations to generate a Revolutionary Risk Index R(t) and revolution probability P_rev.
                 </p>
                 <p className="text-slate-400 text-xs md:text-sm leading-relaxed mt-3">
-                  TUNISIAINTEL extends this model with 9 additional equations (EQ.15-23) providing velocity tracking, compound stress detection, regional cascade probability, elite defection dynamics, information amplification, historical pattern similarity, ministerial instability, cycle analysis, and acceleration. The extended model produces 9 distinct analytical outputs updated in real-time from news feeds and pipeline document ingestion.
+                  TUNISIAINTEL extends this model with 10 additional equations (EQ.15-24) providing velocity tracking, compound stress detection, regional cascade probability, elite defection dynamics, information amplification, historical pattern similarity, ministerial instability, cycle analysis, acceleration, and structural economic signals. The extended model produces 10 distinct analytical outputs updated in real-time from news feeds and pipeline document ingestion.
                 </p>
               </div>
 
@@ -1440,8 +1458,9 @@ export const RRIMethodology: React.FC<{
                   { symbol: 'V(t)', name: 'Velocity Index', value: (rriState.velocity>0?'+':'')+rriState.velocity.toFixed(3), desc: 'Rate of change of R(t)', paper: false },
                   { symbol: 'HPS', name: 'Pattern Similarity', value: (rriState.pattern_similarity*100).toFixed(0)+'%', desc: 'Match to historical crisis states', paper: false },
                   { symbol: 'CS(t)', name: 'Compound Stress', value: rriState.compound_stress.toFixed(3), desc: 'Non-linear interaction bonus', paper: false },
-                  { symbol: 'CPI', name: 'Cycle Position Index', value: '0.742', desc: 'Temporal cycle convergence', paper: false },
-                  { symbol: 'A(t)', name: 'Acceleration Index', value: '0.415', desc: 'Rate of change in risk velocity', paper: false },
+                  { symbol: 'CPI', name: 'Cycle Position Index', value: rriState.cpi_index?.toFixed(3) ?? '0.500', desc: 'Temporal cycle convergence', paper: false },
+                  { symbol: 'A(t)', name: 'Acceleration Index', value: rriState.acceleration?.toFixed(3) ?? '0.000', desc: 'Rate of change in risk velocity', paper: false },
+                  { symbol: 'S_econ(t)', name: 'Structural Economic Signal', value: rriState.structural_econ?.toFixed(3) ?? '0.150', desc: 'Silent policy shift detection', paper: false },
                   { symbol: 'P_cascade', name: 'Cascade Probability', value: (rriState.cascade_probability*100).toFixed(0)+'%', desc: 'Regional protest spread risk', paper: false },
                 ].map(o => (
                   <div key={o.symbol} className="flex items-start justify-between gap-2">
@@ -1465,10 +1484,10 @@ export const RRIMethodology: React.FC<{
               <div className="p-4 md:p-6 rounded-2xl bg-black/30 border border-intel-border space-y-3">
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Architecture</div>
                 {[
-                  { label: 'Total variables', value: '250' },
+                  { label: 'Total variables', value: '251+' },
                   { label: 'Categories', value: '24 (A-X)' },
                   { label: 'Core equations', value: '14' },
-                  { label: 'Extension equations', value: '9' },
+                  { label: 'Extension equations', value: '10' },
                   { label: 'Monte Carlo runs', value: '10,000' },
                   { label: 'Confidence interval', value: `[${rriState.ci_low}%—${rriState.ci_high}%]` },
                   { label: 'Model confidence', value: (rriState.model_confidence*100).toFixed(0)+'%' },
@@ -1511,15 +1530,17 @@ export const RRIMethodology: React.FC<{
                 number="1"
                 title="Revolutionary Risk Index — Base Formula"
                 latex={String.raw`R(t) = \sum_{i=1}^{24} \left( \sum_{j=1}^{n_i} w_{ij} \cdot F_{ij}(t) \right) + \epsilon(t)`}
-                description="The fundamental equation governing the RRI. Each of the 250 variables F_ij(t) across 24 categories is multiplied by its dynamic weight w_ij and summed. The noise term epsilon(t) captures unobserved shocks such as assassinations or natural disasters."
+                description="The fundamental equation governing the RRI. Each of the 251+ variables F_ij(t) across 24 categories is multiplied by its dynamic weight w_ij and summed. The noise term epsilon(t) captures unobserved shocks such as assassinations or natural disasters."
                 variables={[
-                  { symbol: 'F_{ij}(t)', meaning: 'Variable j in category i at time t (250 total)' },
+                  { symbol: 'F_{ij}(t)', meaning: 'Variable j in category i at time t (251+ total)' },
                   { symbol: 'w_{ij}', meaning: 'Weight of variable j in category i (dynamically adjusted)' },
                   { symbol: '\\epsilon(t)', meaning: 'Stochastic shock term — see EQ.13' },
+                  { symbol: 'F_{norm}', meaning: 'Min-max normalized value (eq1_normalize), threshold-amplified up to 1.5' },
                   { symbol: 'R(t)', meaning: 'Revolutionary Risk Index (current)', value: rriState.rri.toFixed(4) },
                 ]}
                 currentOutput={rriState.rri.toFixed(4)}
                 source="paper"
+                note="Each variable F_ij(t) undergoes min-max normalization via eq1_normalize() to a 0-1 scale. Variables breaching a calibrated threshold receive up to 1.5x amplification. The 24 category scores S_c(t) are computed as weighted sums within each category via eq2_categoryScores(), then summed with category weights to produce the raw R(t)."
               />
             </div>
 
@@ -1803,9 +1824,9 @@ export const RRIMethodology: React.FC<{
                 variables={[
                   { symbol: 'C_i(t)', meaning: 'Current phase position of cycle i (0-1)' },
                   { symbol: 'W_i', meaning: 'Weight of cycle i (Regime > Seasonal)' },
-                  { symbol: 'CPI(t)', meaning: 'Cycle Position Index', value: '0.742' },
+                  { symbol: 'CPI(t)', meaning: 'Cycle Position Index', value: (rriState.cpi_index?.toFixed(3) ?? '0.500') },
                 ]}
-                currentOutput="0.742"
+                currentOutput={rriState.cpi_index?.toFixed(3) ?? '0.500'}
                 source="extension"
               />
             </div>
@@ -1819,9 +1840,9 @@ export const RRIMethodology: React.FC<{
                 variables={[
                   { symbol: 'dV/dt', meaning: 'Rate of change of risk velocity' },
                   { symbol: 'ShockDensity', meaning: 'Frequency of stochastic signals in 30-day window' },
-                  { symbol: 'A(t)', meaning: 'Acceleration Index', value: '0.415' },
+                  { symbol: 'A(t)', meaning: 'Acceleration Index', value: (rriState.acceleration?.toFixed(3) ?? '0.000') },
                 ]}
-                currentOutput="0.415"
+                currentOutput={rriState.acceleration?.toFixed(3) ?? '0.000'}
                 source="extension"
               />
             </div>
@@ -1830,17 +1851,236 @@ export const RRIMethodology: React.FC<{
               <EquationCard
                 number="24"
                 title="Structural Economic Signal S_econ(t)"
-                latex={String.raw`S_{econ}(t) = \sum_{k \in \text{Staples}} \omega_k \cdot \Delta \text{Policy}_k + \gamma \cdot \text{SubsidyAdjustment}`}
-                description="Detects 'silent' structural changes in economic policy, specifically focusing on staple goods (bread, flour) and subsidy mechanisms. These are high-impact leading indicators of systemic failure."
+                latex={String.raw`S_{econ}(t) = \sum_{k \in Staples} \omega_k \cdot \Delta Policy_k + \gamma \cdot \text{SubsidyAdjustment}`}
+                description="Detects 'Silent Policy Shifts' — economic adjustments (subsidy cuts, import restrictions, wage freezes) that function as leading indicators of crisis, often preceding measurable social effects by 3-6 months."
                 variables={[
-                  { symbol: '\omega_k', meaning: 'Weight of staple good k (Bread=0.4, Flour=0.3)' },
-                  { symbol: '\Delta \text{Policy}_k', meaning: 'Detected change in policy/composition for good k' },
-                  { symbol: '\gamma = 0.35', meaning: 'Subsidy adjustment sensitivity', calibrated: true },
-                  { symbol: 'S_{econ}(t)', meaning: 'Structural Signal Value', value: '0.150' },
+                  { symbol: '\omega_k', meaning: 'Weight of staple good k (bread, fuel, medicine)' },
+                  { symbol: '\Delta Policy_k', meaning: 'Change in subsidy or price control for good k' },
+                  { symbol: '\gamma', meaning: 'State fragility multiplier for subsidy adjustment' },
+                  { symbol: 'S_{econ}(t)', meaning: 'Structural Signal Value', value: (rriState.structural_econ?.toFixed(3) ?? '0.150') },
                 ]}
-                currentOutput="0.150"
+                currentOutput={rriState.structural_econ?.toFixed(3) ?? '0.150'}
                 source="extension"
               />
+            </div>
+
+            {/* ── Supporting Parameters & Sub-Engines ── */}
+            <div className="mt-8 mb-4 border-t border-intel-orange/20 pt-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <Layers className="w-5 h-5 text-intel-orange" />
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Supporting Parameters &amp; Sub-Engines</h3>
+                  <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Parameterised sub-models feeding into core equations</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <EquationCard
+                  number="RDE"
+                  title="Radicalisation Coupling Coefficient"
+                  latex={String.raw`RDE_{\text{modifier}} = \mu_{\text{RDE}} \cdot \text{RadicalisationScore}(t)`}
+                  description="The Radicalisation Coupling parameter mu_RDE (0.15) amplifies the salience numerator when radicalisation signals are detected. Wider protests are more likely to contain armed elements, which in turn triggers greater state violence — a positive feedback loop."
+                  variables={[
+                    { symbol: String.raw`\mu_{\text{RDE}} = 0.15`, meaning: 'Radicalisation coupling coefficient (calibrated)' },
+                    { symbol: 'RadicalisationScore(t)', meaning: 'Current radicalisation level (0-1) from NLP / signal analysis' },
+                  ]}
+                  source="extension"
+                />
+                <EquationCard
+                  number="SEI"
+                  title="Shortage Escalation Index (Sub-Engine)"
+                  latex={String.raw`SEI(t) = \alpha \cdot \text{FoodShortage} + \beta \cdot \text{FuelShortage} + \gamma \cdot \text{MedicineShortage}`}
+                  description="The Shortage Escalation Index is a dedicated sub-engine (seiEngine.ts) that detects and quantifies commodity shortages from news text and pipeline data. It produces three weighted outputs: SEI_SALIENCE_WEIGHT (0.12) feeds into EQ.3 salience numerator, SEI_SHOCK_WEIGHT (0.10) feeds into EQ.13 stochastic shock, and SEI_CASCADE_WEIGHT (0.06) feeds into EQ.17 cascade probability. SEI acts as a leading indicator — shortages precede unrest by 2-6 weeks."
+                  variables={[
+                    { symbol: String.raw`\alpha = 0.40`, meaning: 'Food shortage weight', calibrated: true },
+                    { symbol: String.raw`\beta = 0.35`, meaning: 'Fuel shortage weight', calibrated: true },
+                    { symbol: String.raw`\gamma = 0.25`, meaning: 'Medicine shortage weight', calibrated: true },
+                    { symbol: 'SEI_SALIENCE_WEIGHT', meaning: 'Contribution to EQ.3 salience = 0.12', calibrated: true },
+                    { symbol: 'SEI_SHOCK_WEIGHT', meaning: 'Contribution to EQ.13 shock = 0.10', calibrated: true },
+                    { symbol: 'SEI_CASCADE_WEIGHT', meaning: 'Contribution to EQ.17 cascade = 0.06', calibrated: true },
+                  ]}
+                  source="extension"
+                />
+                <EquationCard
+                  number="OCI"
+                  title="Opposition Coordination Index"
+                  latex={String.raw`S_{\text{eff}}(t) = S(t) \cdot \left( \text{OCI}_{\text{floor}} + (1 - \text{OCI}_{\text{floor}}) \cdot \text{OCI}(t) \right)`}
+                  description="OCI measures how much opposition fragmentation reduces the effective political impact of popular grievances. Tunisia's OCI is estimated at 0.22 (fragmented), meaning S_eff = 0.532 × S(t). This explains why high anger in 2024-2025 did not translate into coordinated rupture — opposition groups lack a unified command structure."
+                  variables={[
+                    { symbol: String.raw`\text{OCI}_{\text{floor}} = 0.40`, meaning: 'Minimum effective multiplier floor', calibrated: true },
+                    { symbol: String.raw`\text{OCI}_{\text{ceiling}} = 1.00`, meaning: 'Maximum effective multiplier ceiling', calibrated: true },
+                    { symbol: 'OCI(t) = 0.22', meaning: 'Current OCI estimate (0 = fully fragmented, 1 = fully unified)' },
+                    { symbol: String.raw`S_{\text{eff}}`, meaning: 'Salience adjusted for opposition coordination', value: rriState.salience_effective?.toFixed(3) ?? '0.412' },
+                  ]}
+                  source="extension"
+                />
+                <EquationCard
+                  number="CPG"
+                  title="Compagnie des Phosphates de Gafsa Cascade Amplifier"
+                  latex={String.raw`P_{\text{cascade}}' = P_{\text{cascade}} + \max(0, (\text{CPG}_{\text{amplifier}} - \text{CPG}_{\text{baseline}}) \cdot 0.15)`}
+                  description="CPG models how phosphate production disruption in Gafsa amplifies protest cascade probability. The 2008 Gafsa uprising built organisational infrastructure that persists. When CPG disruption (production loss, strike activity) exceeds the baseline threshold, cascade probability increases by up to 15 basis points."
+                  variables={[
+                    { symbol: String.raw`\text{CPG}_{\text{baseline}} = 1.00`, meaning: 'Normal production baseline amplification factor', calibrated: true },
+                    { symbol: String.raw`\text{CPG}_{\text{critical}} = 1.30`, meaning: 'Critical production disruption threshold', calibrated: true },
+                    { symbol: String.raw`\text{CPG}_{\text{threshold}} = 0.15`, meaning: 'Maximum cascade boost cap', calibrated: true },
+                    { symbol: String.raw`\text{CPG}_{\text{amplifier}}`, meaning: 'Current CPG amplification factor', value: rriState.cpg_cascade_amplifier?.toFixed(2) ?? '1.00' },
+                  ]}
+                  source="extension"
+                />
+                <EquationCard
+                  number="SBDE.1-4"
+                  title="Socio-Behavioral Destabilization Engine"
+                  latex={String.raw`\Psi_{\text{soc}}(t) = \frac{DIC(t) \cdot SBI(t)}{1 + FSC(t)}`}
+                  description="The SBDE (sbdeEngine.ts) models population-level behavioral destabilisation through four sub-indices: SBI (Social Behavior Index) measures collective action potential; FSC (Family Structure Cohesion) measures social support erosion; DIC (Disintegration Coefficient) measures institutional trust decay; Psi_soc is the composite behavioral destabilisation score injected into RRI as a weighted term w_psi × Psi_soc."
+                  variables={[
+                    { symbol: 'SBDE.1 — SBI(t)', meaning: 'Social Behavior Index — collective action potential' },
+                    { symbol: 'SBDE.2 — FSC(t)', meaning: 'Family Structure Cohesion — social support resilience' },
+                    { symbol: 'SBDE.3 — DIC(t)', meaning: 'Disintegration Coefficient — institutional trust decay' },
+                    { symbol: 'SBDE.4 — Psi_soc(t)', meaning: 'Composite behavioral destabilisation (w_psi = 0.04)' },
+                  ]}
+                  source="extension"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 3.5: TRGM */}
+          <div id="trgm" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <Triangle className="w-6 h-6 text-purple-400" />
+              <div>
+                <h2 className="text-lg font-bold text-white uppercase tracking-widest">Triarchical Recursive Governance Matrix</h2>
+                <p className="text-[10px] text-slate-500 mt-1">
+                  TUNISIAINTEL extension — Governance Stability Index, lateral coupling, and cascade simulation
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6">
+              <div className="col-span-1 sm:col-span-2 p-4 md:p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20">
+                <div className="text-[9px] font-mono text-purple-400 uppercase tracking-widest mb-3">Overview</div>
+                <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
+                  The TRGM models Tunisia's governance as a recursive triangle-of-triangles: three primary poles (Father — Force/State, Mother — Narrative/Society, Son — Production/Economy) interact through calibrated lateral coupling coefficients Λ. Each pole aggregates multiple sub-nodes (Layer 1) to produce composite F/N/P scores. The apex Governance Stability Index (GSI) measures triadic equilibrium, while the cascade simulation engine models how exogenous shocks propagate through the coupling matrix.
+                </p>
+                <p className="text-slate-400 text-xs md:text-sm leading-relaxed mt-3">
+                  Implemented in <code className="text-purple-400 text-[10px]">TRGMDashboard.tsx</code> with live visualisation on the Professional tier. The model is calibrated to Tunisian historical data (2010 revolution, 2021 coup, 2024-26 protest waves) and runs in real-time from pipeline context.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+              <div id="trgm-gsi" className="scroll-mt-20">
+                <EquationCard
+                  number="GSI"
+                  title="Governance Stability Index"
+                  latex={String.raw`\text{GSI}(F,N,P) = 1 - \frac{\sqrt{(F-N)^2 + (N-P)^2 + (P-F)^2}}{\sqrt{6} \cdot \max(F,N,P) + \varepsilon}`}
+                  description="The GSI measures triadic equilibrium: a value of 1.0 indicates perfect balance (all poles equal), while 0.0 indicates extreme asymmetry. The denominator normalises by the dominant pole so that the metric is scale-invariant. Thresholds: ≥0.85 EQUILIBRIUM, ≥0.60 MANAGED STRESS, ≥0.35 CASCADE RISK, {'<'}0.35 SYSTEMIC FRACTURE."
+                  variables={[
+                    { symbol: 'F', meaning: 'Father pole aggregate (Force — presidency, army, interior)' },
+                    { symbol: 'N', meaning: 'Mother pole aggregate (Narrative — UGTT, religious, diaspora)' },
+                    { symbol: 'P', meaning: 'Son pole aggregate (Production — informal, phosphate, youth)' },
+                    { symbol: String.raw`\varepsilon = 10^{-6}`, meaning: 'Division-by-zero guard' },
+                  ]}
+                  source="extension"
+                />
+              </div>
+              <div id="trgm-sigma" className="scroll-mt-20">
+                <EquationCard
+                  number="Σ"
+                  title="Lateral Coupling Stress (Sigma)"
+                  latex={String.raw`\Sigma = \frac{1}{6} \sum_{i \neq j} \Lambda_{ij} \cdot \mathbf{1}_{\Lambda_{ij} > 0.7}`}
+                  description="Sigma quantifies the total lateral coupling stress in the triad. It sums all Λ coefficients exceeding the 0.7 threshold — representing pathways strong enough to propagate cascading failures. High sigma (→1.0) indicates the triad is tightly coupled and vulnerable to systemic cascades. Tunisia's calibrated Λ matrix produces a baseline sigma of approximately 0.387."
+                  variables={[
+                    { symbol: String.raw`\Lambda_{ij}`, meaning: 'Lateral coupling coefficient from pole i to pole j' },
+                    { symbol: String.raw`\mathbf{1}_{\Lambda > 0.7}`, meaning: 'Indicator: 1 if coupling exceeds cascade threshold' },
+                  ]}
+                  source="extension"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+              <div className="p-4 md:p-6 rounded-2xl bg-black/30 border border-intel-border">
+                <div className="text-[9px] font-mono text-purple-400 uppercase tracking-widest mb-3">Λ Coupling Matrix</div>
+                <p className="text-[10px] text-slate-400 mb-4 leading-relaxed">
+                  Calibrated lateral influence coefficients between poles. Values {'>'} 0.7 are cascade-capable pathways.
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[10px] font-mono">
+                    <thead>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left py-2 px-2 text-slate-500">From ↓ / To →</th>
+                        <th className="text-center py-2 px-2 text-slate-400">Father</th>
+                        <th className="text-center py-2 px-2 text-slate-400">Mother</th>
+                        <th className="text-center py-2 px-2 text-slate-400">Son</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b border-white/5">
+                        <td className="py-2 px-2 text-slate-500">Father</td>
+                        <td className="text-center py-2 px-2 text-slate-600">—</td>
+                        <td className="text-center py-2 px-2 text-intel-orange font-bold">0.72 ★</td>
+                        <td className="text-center py-2 px-2 text-yellow-500">0.68</td>
+                      </tr>
+                      <tr className="border-b border-white/5">
+                        <td className="py-2 px-2 text-slate-500">Mother</td>
+                        <td className="text-center py-2 px-2 text-yellow-500">0.55</td>
+                        <td className="text-center py-2 px-2 text-slate-600">—</td>
+                        <td className="text-center py-2 px-2 text-yellow-500">0.45</td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-2 text-slate-500">Son</td>
+                        <td className="text-center py-2 px-2 text-yellow-500">0.38</td>
+                        <td className="text-center py-2 px-2 text-intel-orange font-bold">0.81 ★</td>
+                        <td className="text-center py-2 px-2 text-slate-600">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-3 text-[9px] text-slate-600 font-mono space-y-1">
+                  <div>★ Cascade-capable pathway (Λ {'>'} 0.7)</div>
+                  <div>P→N (0.81): Son→Mother strongest link — economic disruption amplifies narrative grievances</div>
+                  <div>F→N (0.72): Father→Mother — state force suppresses narrative, but can backfire</div>
+                </div>
+              </div>
+              <div className="p-4 md:p-6 rounded-2xl bg-black/30 border border-intel-border space-y-3">
+                <div className="text-[9px] font-mono text-purple-400 uppercase tracking-widest">Pole Aggregation</div>
+                <p className="text-[10px] text-slate-400 leading-relaxed">
+                  Each pole aggregates sub-nodes (Layer 1) via weighted average. The apex GSI is then computed as a recursive blend:
+                </p>
+                <div className="text-[10px] font-mono text-slate-300 leading-relaxed">
+                  <div className="mb-2">α = 0.60 (direct RRI-weighted baseline)</div>
+                  <div className="mb-2">β = 0.40 (children average)</div>
+                  <div className="mb-1">
+                    F = α · F<sub>direct</sub> + β · (F<sub>father</sub> + F<sub>mother</sub> + F<sub>son</sub>) / 3
+                  </div>
+                  <div className="text-slate-500 text-[9px] mt-2">
+                    Where F<sub>direct</sub> = max(0, 0.65 - (R(t) - 1.0) × 0.1), etc. — modulated by current RRI
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 md:p-6 rounded-2xl bg-purple-500/5 border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-purple-400" />
+                <span className="text-[9px] font-mono text-purple-400 uppercase tracking-widest">Cascade Simulation Engine</span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                The TRGM includes a Monte Carlo cascade simulation engine that models how exogenous shocks (IMF collapse, UGTT general strike, CPG disruption, social media cascade) propagate through the Λ coupling matrix. A perturbation to one pole cascades laterally via Λ coefficients, producing a post-cascade GSI, fracture probability, cascade path description, and time-to-critical estimate. The engine supports preset scenarios and custom magnitude/type inputs.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                {[
+                  { label: 'Cascade threshold', value: 'Λ > 0.7' },
+                  { label: 'Damping factor γ', value: '0.85' },
+                  { label: 'Shock multiplier', value: '0.6 (primary)' },
+                  { label: 'Lateral depth', value: '1 (direct)' },
+                ].map(item => (
+                  <div key={item.label} className="bg-black/30 rounded-lg p-2 border border-white/5">
+                    <div className="text-[8px] font-mono text-slate-600 uppercase">{item.label}</div>
+                    <div className="text-[10px] font-mono text-white mt-0.5">{item.value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1848,7 +2088,7 @@ export const RRIMethodology: React.FC<{
           <div id="variables" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Database className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">All 250 Variables — 24 Categories</h2>
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">All 251+ Variables — 24 Categories</h2>
             </div>
 
             {[

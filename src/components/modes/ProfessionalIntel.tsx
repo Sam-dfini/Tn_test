@@ -2580,11 +2580,15 @@ Return only the 3-sentence briefing.`;
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <StrategicModeling />
             </Suspense>
-          ) : activeTab === "civilizational" ? (
-            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
-              <CivilizationalAnalysis />
-            </Suspense>
-          ) : activeTab === "intelligence-arch" ? (
+) : activeTab === "civilizational" ? (
+<Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+<CivilizationalAnalysis />
+</Suspense>
+) : activeTab === "narrative" ? (
+<Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+<NarrativeIntelligence />
+</Suspense>
+) : activeTab === "intelligence-arch" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <IntelligenceArchitecture />
             </Suspense>

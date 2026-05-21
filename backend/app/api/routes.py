@@ -12,6 +12,8 @@ from ..intelligence.sci import get_sci_engine
 from ..intelligence.emotional_heatmap import get_heatmap_engine
 from ..intelligence.calibration import get_calibration_engine
 from ..services.variable_pipeline import variable_pipeline
+from ..services.rri_engine import calculate_rri, run_full_monte_carlo, compute_current_rri, _load_variables
+from ..services.state_snapshot import write_snapshot, get_latest_snapshot, get_snapshot_by_version
 
 # from ..services.rss_service import rss_service
 
@@ -118,20 +120,84 @@ async def run_intelligence(request: IntelligenceRequest):
 async def get_current_rri():
     """
     API endpoint for retrieving the current RRI.
+    Returns the latest full state snapshot if available, otherwise computes on-the-fly.
     """
-    # Return latest RRI from database
-    try:
-        result = db.table("rri_history") \
-            .select("rri_score, timestamp") \
-            .order("timestamp", desc=True) \
-            .limit(1) \
-            .execute()
-        if result.data:
-            return {"rri": result.data[0]["rri_score"],
-                    "timestamp": result.data[0]["timestamp"]}
-    except:
-        pass
-    return {"rri": 0.0, "timestamp": None}
+    # Try canonical state layer first
+    snapshot = get_latest_snapshot()
+    if snapshot:
+        return snapshot
+
+    # Fallback: compute on-the-fly
+    result = calculate_rri()
+    return {
+        "rri": result["rri"],
+        "p_rev": result["p_rev"],
+        "velocity": result["velocity"],
+        "compound_stress": result["compound_stress"],
+        "cascade_probability": result["cascade_probability"],
+        "salience": result["salience"],
+        "category_scores": result["category_scores"],
+        "model_confidence": result["model_confidence"],
+        "timestamp": result["last_calculated"],
+    }
+
+
+@router.post("/rri/compute")
+async def compute_rri_full(overrides: Optional[Dict[str, float]] = None):
+    """
+    Compute RRI full state on demand. Optionally accepts pipeline field overrides.
+    Writes result to the canonical state layer.
+    """
+    result = calculate_rri(overrides=overrides)
+    snapshot = write_snapshot(rri_result=result)
+    return {
+        "snapshot": snapshot,
+        "rri": result["rri"],
+        "p_rev": result["p_rev"],
+        "velocity": result["velocity"],
+        "compound_stress": result["compound_stress"],
+        "category_scores": result["category_scores"],
+    }
+
+
+@router.get("/rri/full")
+async def get_full_rri_state():
+    """
+    Returns the complete RRI state (all 24 equations, all fields).
+    """
+    snapshot = get_latest_snapshot()
+    if snapshot:
+        return snapshot
+    result = calculate_rri()
+    write_snapshot(rri_result=result)
+    return result
+
+
+@router.post("/rri/monte-carlo")
+async def run_mc_simulation(overrides: Optional[Dict[str, float]] = None):
+    """Run Monte Carlo simulation and return histogram + confidence intervals."""
+    result = run_full_monte_carlo(overrides=overrides)
+    return result
+
+
+# ── State Snapshots ─────────────────────────────────────────────
+
+@router.get("/state/latest")
+async def state_latest():
+    """Return the most recent non-simulation national state snapshot."""
+    snapshot = get_latest_snapshot()
+    if not snapshot:
+        return {"status": "no_snapshot_yet"}
+    return snapshot
+
+
+@router.get("/state/{version_id}")
+async def state_by_version(version_id: str):
+    """Return a specific snapshot by state_version_id."""
+    snapshot = get_snapshot_by_version(version_id)
+    if not snapshot:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    return snapshot
 
 @router.get("/signals/{signal_id}")
 async def get_signal(signal_id: str):

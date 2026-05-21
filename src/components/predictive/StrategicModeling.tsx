@@ -52,14 +52,6 @@ import {
 
 // --- Data & Types ---
 
-const simAlerts = [
-  { code: 'SIM-MODEL-01', title: 'Monte Carlo Simulation: 84% Convergence', impact: 'STABLE' },
-  { code: 'SIM-RISK-04', title: 'High Probability: Interior Unrest Spike', impact: 'HIGH' },
-  { code: 'SIM-DEBT-09', title: 'Debt Sustainability: Critical Threshold', impact: 'CRITICAL' },
-  { code: 'SIM-SOCIAL-12', title: 'Social Tension: Regional Variance High', impact: 'HIGH' },
-  { code: 'SIM-FOREX-02', title: 'BCT Reserves: 72-Day Floor Breach', impact: 'CRITICAL' }
-];
-
 interface CrisisEvent {
   id: string;
   label: string;
@@ -91,7 +83,7 @@ const STABILIZING_EVENTS: CrisisEvent[] = [
   { id: 'tourism_surge', label: 'Tourism Surge (+40%)', description: 'Coastal employment. Forex inflows. Optimism signal.', impact: -5, type: 'stabilizing' },
 ];
 
-const DEFAULT_PROBS: Record<string, number> = {
+const DEFAULT_PROBS_FALLBACK: Record<string, number> = {
   imf_fail: 35,
   subsidies_cut: 25,
   ugtt_strike: 62,
@@ -106,27 +98,111 @@ const DEFAULT_PROBS: Record<string, number> = {
   drought: 44,
 };
 
-const FORECAST_DATA = [
-  { date: 'Mar 26', base: 68.7, escalation: 68.7, recovery: 68.7 },
-  { date: 'Apr 26', base: 70.2, escalation: 74.5, recovery: 65.1 },
-  { date: 'May 26', base: 71.5, escalation: 78.2, recovery: 62.4 },
-  { date: 'Jun 26', base: 73.1, escalation: 82.4, recovery: 59.8 },
-  { date: 'Jul 26', base: 74.8, escalation: 86.1, recovery: 57.2 },
-  { date: 'Aug 26', base: 76.2, escalation: 89.5, recovery: 55.4 },
-  { date: 'Sep 26', base: 77.5, escalation: 92.8, recovery: 53.1 },
+const PROBABILITY_MATRIX_CONFIG = [
+  { event: 'Interior City Unrest (Gafsa/Kasserine)', trigger: 'Strike escalation + power cuts' },
+  { event: 'UGTT General Strike', trigger: 'Wage negotiation failure' },
+  { event: 'Dinar Official Devaluation', trigger: 'BCT forex floor collapse' },
+  { event: 'Major Urban Protest (Tunis)', trigger: 'Food price spike + UGTT mobilisation' },
+  { event: 'Subsidy Reform Announcement', trigger: 'IMF condition or fiscal necessity' },
+  { event: 'Debt Restructuring / Default', trigger: 'External debt service failure' },
+  { event: 'IMF Deal (any form)', trigger: 'Fiscal emergency forces Saied\'s hand' },
+  { event: 'Security Force Defection (local)', trigger: 'Salary delays in interior units' },
+  { event: 'Early Election / Constitutional Change', trigger: 'Massive protest wave + elite defection' },
 ];
 
-const PROBABILITY_MATRIX = [
-  { event: 'Interior City Unrest (Gafsa/Kasserine)', prob: 74, trigger: 'Strike escalation + power cuts', color: '#ef4444' },
-  { event: 'UGTT General Strike', prob: 68, trigger: 'Wage negotiation failure', color: '#ef4444' },
-  { event: 'Dinar Official Devaluation', prob: 55, trigger: 'BCT forex floor collapse', color: '#f97316' },
-  { event: 'Major Urban Protest (Tunis)', prob: 41, trigger: 'Food price spike + UGTT mobilisation', color: '#f97316' },
-  { event: 'Subsidy Reform Announcement', prob: 34, trigger: 'IMF condition or fiscal necessity', color: '#eab308' },
-  { event: 'Debt Restructuring / Default', prob: 28, trigger: 'External debt service failure', color: '#eab308' },
-  { event: 'IMF Deal (any form)', prob: 22, trigger: 'Fiscal emergency forces Saied\'s hand', color: '#22c55e' },
-  { event: 'Security Force Defection (local)', prob: 12, trigger: 'Salary delays in interior units', color: '#ef4444' },
-  { event: 'Early Election / Constitutional Change', prob: 8, trigger: 'Massive protest wave + elite defection', color: '#ef4444' },
+// --- Authored actor metadata (analytical judgments, not framework-derived) ---
+
+const ACTOR_META: Record<string, {
+  icon: string;
+  leverage: string;
+  trigger: string;
+  rri_var: string;
+  note: (catN: number, premium: number, strikeProb: number) => string;
+}> = {
+  'Military Command': {
+    icon: '🛡',
+    leverage: 'Salary payments, promotions, autonomy',
+    trigger: 'Salary delays >3 months OR order to fire on crowds',
+    rri_var: 'N141',
+    note: (catN) => `Gen. Ammar — historically apolitical. Security score: ${catN}%.`,
+  },
+  'Security Apparatus': {
+    icon: '🚔',
+    leverage: 'Interior ministry budget, Decree 54 enforcement powers',
+    trigger: 'Wage delays OR sustained protest wave >60 days',
+    rri_var: 'N142',
+    note: () => 'Ministry of Interior — key internal stability enforcer. Salary discipline is paramount.',
+  },
+  'UGTT Leadership': {
+    icon: '✊',
+    leverage: 'None currently — regime does not need this group',
+    trigger: 'Any further wage erosion OR major Decree 54 escalation',
+    rri_var: 'M_UGTT',
+    note: (_, __, strikeProb) => `UGTT formal break with regime is complete. Strike probability ${strikeProb}%.`,
+  },
+  'Business Elite / UTICA': {
+    icon: '💼',
+    leverage: 'Import licenses, credit access, offshore privileges',
+    trigger: 'FX controls tighten further OR parallel market hits 25%',
+    rri_var: 'L123',
+    note: (_, premium) => `Capital flight proxy (${premium}% parallel premium) signals hedging.`,
+  },
+  'Loyalist Cabinet': {
+    icon: '🏛',
+    leverage: 'Appointment power, budget control, immunity from Decree 54',
+    trigger: 'Regime asks them to enforce clearly illegal orders',
+    rri_var: 'D42',
+    note: () => 'Core political circle — loyalty is transactional. Institutions degraded.',
+  },
+  'Independent Judiciary (residual)': {
+    icon: '⚖',
+    leverage: 'Appointment power, budget control, immunity from Decree 54',
+    trigger: 'Regime asks them to enforce clearly illegal orders',
+    rri_var: 'D42',
+    note: () => 'CSM dissolved. Judiciary nominally loyal but institutionally degraded.',
+  },
+};
+
+const EXTERNAL_ACTORS = [
+  {
+    group: 'Gulf State Allies',
+    status: 'CONDITIONAL',
+    loyalty: 61,
+    defection_risk: 39,
+    leverage: 'Financial support, diplomatic cover, legitimacy',
+    trigger: 'IMF deal collapse OR major human rights incident',
+    rri_var: 'I91',
+    icon: '🌍',
+    trend: 'stable',
+    note: 'UAE and Saudi support is transactional — not ideological.',
+  },
+  {
+    group: 'EU & International',
+    status: 'TRANSACTIONAL',
+    loyalty: 44,
+    defection_risk: 56,
+    leverage: 'Migration deal funding, trade preferences, IMF mediation',
+    trigger: 'Human rights violations become internationally undeniable',
+    rri_var: 'I92',
+    icon: '🇪🇺',
+    trend: 'stable',
+    note: 'EU prioritizes migration control over democracy — explicit policy.',
+  },
 ];
+
+const STATUS_DISPLAY: Record<string, string> = {
+  LOYAL: 'IN COALITION',
+  WAVERING: 'WAVERING',
+  DEFECTION_RISK: 'CAPTURED',
+  DEFECTED: 'OPPOSITION',
+};
+
+const STATUS_TREND: Record<string, string> = {
+  LOYAL: 'stable',
+  WAVERING: 'declining',
+  DEFECTION_RISK: 'deteriorating',
+  DEFECTED: 'deteriorating',
+};
 
 // --- Components ---
 
@@ -157,42 +233,27 @@ export const StrategicModeling: React.FC = () => {
     }
   }, [scenarioActive, rriState.category_scores]);
 
-  const radarData = useMemo(() => {
-    const categories = [
-      { key: 'A', label: 'Economic' },
-      { key: 'E', label: 'Social' },
-      { key: 'D', label: 'Political' },
-      { key: 'N', label: 'Security' },
-      { key: 'L', label: 'Regime' },
-      { key: 'I', label: 'External' },
-    ];
+  const defaultProbs = useMemo(() => {
+    const ugttLevel = data.social.ugtt_mobilisation_level;
+    const fxReserves = data.economy.fx_reserves ?? 150;
+    const premium = data.economy.parallel_market_premium ?? 18;
+    const waterCrisis = data.social.water_crisis_govs ?? 8;
+    const imfProb = data.geopolitical.imf_deal_probability ?? 31;
 
-    return categories.map(cat => ({
-      subject: cat.label,
-      A: Math.round((baselineScores[cat.key] ?? rriState.category_scores?.[cat.key] ?? 0.6) * 100),
-      B: scenarioActive ? Math.round((rriState.category_scores?.[cat.key] ?? 0) * 100) : undefined,
-      fullMark: 100
-    }));
-  }, [baselineScores, rriState.category_scores, scenarioActive]);
-
-  const [baselineRRI, setBaselineRRI] = useState({ rri: 2.31, p_rev: 0.643 });
-
-  useEffect(() => {
-    if (!scenarioActive && rriState.rri) {
-      setBaselineRRI({ rri: rriState.rri, p_rev: rriState.p_rev });
-    }
-  }, [scenarioActive, rriState.rri, rriState.p_rev]);
-
-  const baseRRI = rriState.p_rev * 100;
-
-  useEffect(() => {
-    safeStorage.setItem('ti_scenario_probs', JSON.stringify(eventProbabilities));
-  }, [eventProbabilities]);
+    return {
+      ...DEFAULT_PROBS_FALLBACK,
+      imf_fail: Math.min(90, Math.max(5, 100 - imfProb * 0.8)),
+      ugtt_strike: ugttLevel === 'HIGH' ? 68 : ugttLevel === 'ELEVATED' ? 45 : 35,
+      forex_low: Math.min(85, Math.max(5, Math.round((150 - fxReserves) * 0.6))),
+      dinar_fall: Math.min(80, Math.max(5, Math.round(premium * 0.8 + 10))),
+      drought: Math.min(75, Math.max(5, Math.round(waterCrisis * 3))),
+    };
+  }, [data.social.ugtt_mobilisation_level, data.economy.fx_reserves, data.economy.parallel_market_premium, data.social.water_crisis_govs, data.geopolitical.imf_deal_probability]);
 
   const compositeRisk = useMemo(() => {
     const events = CRISIS_EVENTS;
     const totalWeightedRisk = events.reduce((sum, event) => {
-      const prob = (eventProbabilities[event.id] ?? DEFAULT_PROBS[event.id] ?? 20) / 100;
+      const prob = (eventProbabilities[event.id] ?? defaultProbs[event.id] ?? 20) / 100;
       return sum + (prob * event.impact);
     }, 0);
     const maxPossible = events.reduce((sum, e) => sum + e.impact, 0);
@@ -371,6 +432,149 @@ export const StrategicModeling: React.FC = () => {
     });
     return computeAllFrameworks(input);
   }, [rriState, data, miiProfile, rpiProfile, cognitiveEnvironment, seiResult]);
+
+  const coalitionGroups = useMemo(() => {
+    const catN = Math.round((rriState.category_scores?.['N'] ?? 0.55) * 100);
+    const premium = data.economy.parallel_market_premium ?? 18;
+    const strikeProb = rriState.category_scores?.M_UGTT
+      ? Math.round(rriState.category_scores.M_UGTT * 100)
+      : 64;
+
+    const internal = frameworkOutput.eliteGame.actors.map(a => {
+      const meta = ACTOR_META[a.name];
+      return {
+        group: a.name,
+        status: STATUS_DISPLAY[a.status] ?? a.status,
+        loyalty: a.loyalty,
+        defection_risk: a.defectionRisk,
+        leverage: meta?.leverage ?? '',
+        trigger: meta?.trigger ?? '',
+        rri_var: meta?.rri_var ?? '',
+        icon: meta?.icon ?? '▪',
+        trend: STATUS_TREND[a.status] ?? 'stable',
+        note: meta ? meta.note(catN, premium, strikeProb) : '',
+      };
+    });
+    return [...internal, ...EXTERNAL_ACTORS];
+  }, [frameworkOutput.eliteGame, rriState.category_scores, data.economy.parallel_market_premium]);
+
+  const coalitionStability = useMemo(() => {
+    const e = frameworkOutput.eliteGame;
+    const loyalCount = e.actors.filter(a => a.status === 'LOYAL').length;
+    const totalCount = e.actors.length;
+    const stabilityLabel = e.nashEquilibrium === 'STABLE' ? 'STABLE'
+      : e.nashEquilibrium === 'UNSTABLE' ? 'FRAGILE' : 'CRITICAL';
+    const loyalNames = e.actors.filter(a => a.status === 'LOYAL')
+      .map(a => a.name.replace(/ .*/, '')).join(' + ');
+    return { loyalCount, totalCount, stabilityLabel, loyalNames };
+  }, [frameworkOutput.eliteGame]);
+
+  const probabilityMatrix = useMemo(() => {
+    const e = frameworkOutput.eliteGame;
+    const c = frameworkOutput.cascade;
+    const cr = frameworkOutput.conflictRisk;
+    const sp = frameworkOutput.strategicPressure;
+    const ie = frameworkOutput.informationEnvironment;
+    const ugttLevel = data.social.ugtt_mobilisation_level;
+    const premium = data.economy.parallel_market_premium ?? 18;
+    const fxReserves = data.economy.fx_reserves ?? 150;
+    const imfProb = data.geopolitical.imf_deal_probability ?? 31;
+
+    const interiorUnrest = () => {
+      const interior = c.governorateRisks
+        .filter(g => ['Gafsa', 'Kasserine', 'Sidi Bouzid', 'Kebili'].includes(g.name));
+      const avg = interior.length > 0
+        ? interior.reduce((s, g) => s + g.risk, 0) / interior.length
+        : cr.mobilization;
+      return Math.min(95, Math.max(5, Math.round(avg + 8)));
+    };
+
+    const ugttStrike = () => {
+      if (ugttLevel === 'HIGH') return 68;
+      if (ugttLevel === 'ELEVATED') return 45;
+      return 20;
+    };
+
+    const devaluation = () => {
+      const p = Math.round(premium * 2 + (150 - fxReserves) / 3);
+      return Math.min(95, Math.max(5, p));
+    };
+
+    const urbanProtest = () => {
+      const p = Math.round(cr.mobilization * 0.5 + ie.outrageMomentum * 0.3 + (data.social.protest_events_30d ?? 5) * 2);
+      return Math.min(90, Math.max(5, p));
+    };
+
+    const subsidyReform = () => {
+      const p = Math.round((100 - imfProb) * 0.4 + sp.stageScore * 0.3 + (data.economy.inflation ?? 7) * 2);
+      return Math.min(85, Math.max(5, p));
+    };
+
+    const debtRestructuring = () => {
+      const p = Math.round((150 - fxReserves) * 0.3 + (rriState.rri - 2) * 20);
+      return Math.min(90, Math.max(5, p));
+    };
+
+    const imfDeal = () => {
+      return Math.min(85, Math.max(5, Math.round(imfProb * 0.6 + (100 - premium * 2) * 0.2)));
+    };
+
+    const securityDefection = () => {
+      const secActor = e.actors.find(a => a.name === 'Security Apparatus');
+      return secActor ? Math.round(secActor.defectionRisk * 0.7) : 15;
+    };
+
+    const earlyElection = () => {
+      const p = Math.round((rriState.rri - 2.3) * 30 + e.cascadeDefectionRisk * 0.3);
+      return Math.min(60, Math.max(2, p));
+    };
+
+    const computeColor = (p: number) =>
+      p >= 55 ? '#ef4444' : p >= 35 ? '#f97316' : p >= 20 ? '#eab308' : '#22c55e';
+
+    return PROBABILITY_MATRIX_CONFIG.map(cfg => {
+      const prob = (() => {
+        switch (cfg.event) {
+          case 'Interior City Unrest (Gafsa/Kasserine)': return interiorUnrest();
+          case 'UGTT General Strike': return ugttStrike();
+          case 'Dinar Official Devaluation': return devaluation();
+          case 'Major Urban Protest (Tunis)': return urbanProtest();
+          case 'Subsidy Reform Announcement': return subsidyReform();
+          case 'Debt Restructuring / Default': return debtRestructuring();
+          case 'IMF Deal (any form)': return imfDeal();
+          case 'Security Force Defection (local)': return securityDefection();
+          case 'Early Election / Constitutional Change': return earlyElection();
+          default: return 20;
+        }
+      })();
+      return { ...cfg, prob, color: computeColor(prob) };
+    });
+  }, [frameworkOutput, data, rriState.rri]);
+
+  const simAlerts = useMemo(() => {
+    const alerts: Array<{ code: string; title: string; impact: string }> = [];
+    if (rriState.rri > 2.625) {
+      alerts.push({ code: 'SIM-RRI-01', title: 'Revolution Threshold Breach — R(t) > 2.625', impact: 'CRITICAL' });
+    } else if (rriState.rri > 2.5) {
+      alerts.push({ code: 'SIM-RRI-02', title: 'Elevated RRI — Approaching Revolution Threshold', impact: 'HIGH' });
+    }
+    if (rriState.compound_stress > 0.4) {
+      alerts.push({ code: 'SIM-STRESS-01', title: `Compound Stress Alert — CS(t) = ${rriState.compound_stress.toFixed(2)}`, impact: 'HIGH' });
+    }
+    if (rriState.elite_defection_prob > 0.3) {
+      alerts.push({ code: 'SIM-ELITE-01', title: `Elite Defection Risk — ${(rriState.elite_defection_prob * 100).toFixed(0)}% probability`, impact: 'CRITICAL' });
+    }
+    if (rriState.velocity > 0.15) {
+      alerts.push({ code: 'SIM-VEL-01', title: `Accelerating Deterioration — V(t) = +${rriState.velocity.toFixed(3)}`, impact: 'HIGH' });
+    }
+    if ((data.economy.fx_reserves ?? 150) < 75) {
+      alerts.push({ code: 'SIM-FOREX-01', title: `Forex Reserves Critical — ${data.economy.fx_reserves ?? 0} days`, impact: 'CRITICAL' });
+    }
+    if (alerts.length === 0) {
+      alerts.push({ code: 'SIM-NOMINAL', title: 'All engine indicators within nominal ranges', impact: 'STABLE' });
+    }
+    return alerts.slice(0, 5);
+  }, [rriState.rri, rriState.compound_stress, rriState.elite_defection_prob, rriState.velocity, data.economy.fx_reserves]);
 
   const [activeFramework, setActiveFramework] = useState<
     'fragility' | 'conflict' | 'strategic' | 'information' | 'cascade' | 'elite' | 'contradiction'
@@ -1493,86 +1697,7 @@ export const StrategicModeling: React.FC = () => {
 
         {/* 6 Coalition Groups */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            {
-              group: 'Military & Security',
-              status: 'IN COALITION',
-              loyalty: 88,
-              defection_risk: 12,
-              leverage: 'Salary payments, promotions, autonomy',
-              trigger: 'Salary delays >3 months OR order to fire on crowds',
-              rri_var: 'N141',
-              color: 'cyan',
-              icon: '🛡',
-              trend: 'stable',
-              note: `Gen. Ammar — historically apolitical. Security score: ${Math.round((rriState.category_scores?.['N'] ?? 0.55) * 100)}%.`
-            },
-            {
-              group: 'Business Elite',
-              status: 'WAVERING',
-              loyalty: 52,
-              defection_risk: 48,
-              leverage: 'Import licenses, credit access, offshore privileges',
-              trigger: 'FX controls tighten further OR parallel market hits 25%',
-              rri_var: 'L123',
-              color: 'orange',
-              icon: '💼',
-              trend: 'declining',
-              note: `Capital flight proxy (${data.economy.parallel_market_premium}% parallel premium) signals hedging.`
-            },
-            {
-              group: 'Gulf State Allies',
-              status: 'CONDITIONAL',
-              loyalty: 61,
-              defection_risk: 39,
-              leverage: 'Financial support, diplomatic cover, legitimacy',
-              trigger: 'IMF deal collapse OR major human rights incident',
-              rri_var: 'I91',
-              color: 'yellow',
-              icon: '🌍',
-              trend: 'stable',
-              note: 'UAE and Saudi support is transactional — not ideological.'
-            },
-            {
-              group: 'Judiciary & Technocrats',
-              status: 'CAPTURED',
-              loyalty: 35,
-              defection_risk: 65,
-              leverage: 'Appointment power, budget control, immunity from Decree 54',
-              trigger: 'Regime asks them to enforce clearly illegal orders',
-              rri_var: 'D42',
-              color: 'red',
-              icon: '⚖',
-              trend: 'declining',
-              note: 'CSM dissolved. Judiciary nominally loyal but institutionally degraded.'
-            },
-            {
-              group: 'Civil Society & UGTT',
-              status: 'OPPOSITION',
-              loyalty: 15,
-              defection_risk: 85,
-              leverage: 'None currently — regime does not need this group',
-              trigger: 'Any further wage erosion OR major Decree 54 escalation',
-              rri_var: 'M_UGTT',
-              color: 'red',
-              icon: '✊',
-              trend: 'deteriorating',
-              note: 'UGTT formal break with regime is complete. Strike probability 64%.'
-            },
-            {
-              group: 'EU & International',
-              status: 'TRANSACTIONAL',
-              loyalty: 44,
-              defection_risk: 56,
-              leverage: 'Migration deal funding, trade preferences, IMF mediation',
-              trigger: 'Human rights violations become internationally undeniable',
-              rri_var: 'I92',
-              color: 'orange',
-              icon: '🇪🇺',
-              trend: 'stable',
-              note: 'EU prioritizes migration control over democracy — explicit policy.'
-            },
-          ].map((group, i) => (
+          {coalitionGroups.map((group, i) => (
             <div key={i} className={`p-5 rounded-2xl border space-y-3 ${
               group.status === 'IN COALITION'
                 ? 'border-intel-cyan/20 bg-intel-cyan/5'
@@ -1691,21 +1816,27 @@ export const StrategicModeling: React.FC = () => {
               Winning Coalition Size
             </div>
             <div className="text-2xl font-bold font-mono text-intel-cyan">
-              2/6
+              {coalitionStability.loyalCount}/{coalitionStability.totalCount}
             </div>
             <div className="text-[9px] text-slate-600">
-              Military + Gulf (minimal)
+              {coalitionStability.loyalNames || 'None'} (minimal)
             </div>
           </div>
           <div className="text-center space-y-1">
             <div className="text-[9px] font-mono text-slate-500 uppercase">
               Coalition Stability
             </div>
-            <div className="text-2xl font-bold font-mono text-intel-orange">
-              FRAGILE
+            <div className={`text-2xl font-bold font-mono ${
+              coalitionStability.stabilityLabel === 'CRITICAL' ? 'text-intel-red' :
+              coalitionStability.stabilityLabel === 'FRAGILE' ? 'text-intel-orange' :
+              'text-intel-cyan'
+            }`}>
+              {coalitionStability.stabilityLabel}
             </div>
             <div className="text-[9px] text-slate-600">
-              One defection = critical
+              {coalitionStability.stabilityLabel === 'CRITICAL' ? 'Cascade imminent' :
+               coalitionStability.stabilityLabel === 'FRAGILE' ? 'One defection = critical' :
+               'Structurally stable'}
             </div>
           </div>
           <div className="text-center space-y-1">
@@ -1720,7 +1851,7 @@ export const StrategicModeling: React.FC = () => {
               {(rriState.elite_cohesion_dynamics * 100).toFixed(0)}%
             </div>
             <div className="text-[9px] text-slate-600">
-              EQ.18 — declining trend
+              EQ.18 — {rriState.elite_cohesion_dynamics < 0.5 ? 'declining trend' : 'stable'}
             </div>
           </div>
         </div>
@@ -1809,7 +1940,7 @@ export const StrategicModeling: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            {PROBABILITY_MATRIX.map((item, i) => (
+            {probabilityMatrix.map((item, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex justify-between items-end">
                   <div className="space-y-0.5">

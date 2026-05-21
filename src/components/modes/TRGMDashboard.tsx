@@ -19,8 +19,6 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Triangle,
   Zap,
-  AlertTriangle,
-  Activity,
   ChevronRight,
   RefreshCw,
   Play,
@@ -28,11 +26,6 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
-  TrendingDown,
-  Shield,
-  Brain,
-  DollarSign,
-  AlertCircle,
 } from "lucide-react";
 import { usePipeline } from "../../context/PipelineContext";
 import { useNotifications } from "../../context/NotificationContext";
@@ -99,11 +92,26 @@ interface TRGMNode {
 }
 
 // Function to compute dynamic nodes based on live intelligence
-function getDynamicNodes(miiProfile: any): TRGMNode[] {
+function getDynamicNodes(miiProfile: any, data: any, rriState: any): TRGMNode[] {
   const ls = miiProfile?.loyaltyShiftIndex ?? 0.78;
   const mii = miiProfile?.mii ?? 0.52;
   const isFreeze = miiProfile?.phase === "FREEZE";
   const isChaotic = miiProfile?.phase === "CHAOTIC";
+
+  const ugttMob = data?.social?.ugtt_mobilisation_level === 'HIGH' ? 0.9
+    : data?.social?.ugtt_mobilisation_level === 'ELEVATED' ? 0.7 : 0.5;
+  const protest30d = Math.min(1, (data?.social?.protest_events_30d ?? 23) / 40);
+  const streetSignal = data?.social?.street_signal ?? 0.78;
+  const inflation = Math.min(1, (data?.economy?.inflation ?? 7.1) / 15);
+  const fxReservesNorm = Math.min(1, (data?.economy?.fx_reserves ?? 84) / 120);
+  const remittancesNorm = Math.min(1, (data?.economy?.remittances_total_bnd ?? 8.8) / 15);
+  const informalPct = (data?.economy?.informal_economy_pct ?? 47) / 100;
+  const tourismRev = Math.min(1, (data?.economy?.tourism_revenue ?? 2.1) / 4);
+  const youthRage = (data?.social?.youth_rage_index ?? 8.5) / 10;
+  const cohesion = data?.social?.social_cohesion;
+  const diasporaTotalNorm = Math.min(1, (data?.social?.diaspora_total ?? 1400000) / 2000000);
+  const velocity = rriState?.velocity ?? 0;
+  const compoundStress = rriState?.compound_stress ?? 0;
 
   return [
     // Layer 0 — Strategic High Echelon (Father pole)
@@ -112,9 +120,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Presidency (Saied)",
       pole: "Father",
       layer: 0,
-      F: Math.min(0.95, 0.72 + ls * 0.15 + (isFreeze ? 0.1 : 0)),
-      N: Math.max(0.1, 0.48 - (isChaotic ? 0.2 : 0) - mii * 0.1),
-      P: 0.35,
+      F: Math.min(0.95, 0.72 + ls * 0.15 + (isFreeze ? 0.1 : 0) + compoundStress * 0.05),
+      N: Math.max(0.1, 0.48 - (isChaotic ? 0.2 : 0) - mii * 0.1 - velocity * 0.08),
+      P: Math.max(0.15, 0.35 - inflation * 0.15 - protest30d * 0.1),
       weight: 0.4,
     },
     {
@@ -122,9 +130,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Army (neutral arbiter)",
       pole: "Father",
       layer: 0,
-      F: 0.85,
-      N: 0.62,
-      P: 0.4,
+      F: Math.min(0.9, 0.85 - (1 - fxReservesNorm) * 0.15),
+      N: Math.max(0.3, 0.62 - streetSignal * 0.15),
+      P: Math.min(0.6, 0.4 + protest30d * 0.12),
       weight: 0.35,
     },
     {
@@ -132,8 +140,8 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Interior / Nat. Guard",
       pole: "Father",
       layer: 0,
-      F: Math.min(0.9, 0.61 + ls * 0.2),
-      N: 0.38,
+      F: Math.min(0.9, 0.61 + ls * 0.2 - compoundStress * 0.08),
+      N: Math.max(0.2, 0.38 - ugttMob * 0.1),
       P: 0.42,
       weight: 0.25,
     },
@@ -143,9 +151,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "UGTT (labor narrative)",
       pole: "Mother",
       layer: 0,
-      F: 0.35,
-      N: Math.max(0.2, 0.81 - (isChaotic ? 0.25 : 0)),
-      P: 0.52,
+      F: Math.min(0.7, 0.35 + ugttMob * 0.3),
+      N: Math.max(0.2, 0.81 - (isChaotic ? 0.25 : 0) - protest30d * 0.08),
+      P: Math.min(0.7, 0.52 + protest30d * 0.12),
       weight: 0.4,
     },
     {
@@ -153,9 +161,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Religious (Zitouna)",
       pole: "Mother",
       layer: 0,
-      F: 0.42,
-      N: 0.68,
-      P: 0.38,
+      F: cohesion === 'LOW' ? 0.55 : cohesion === 'MEDIUM' ? 0.42 : 0.35,
+      N: Math.max(0.4, 0.68 - streetSignal * 0.1),
+      P: Math.min(0.5, 0.38 + protest30d * 0.08),
       weight: 0.25,
     },
     {
@@ -163,9 +171,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Diaspora media / NGO",
       pole: "Mother",
       layer: 0,
-      F: 0.15,
-      N: 0.71,
-      P: 0.44,
+      F: Math.min(0.4, 0.15 + diasporaTotalNorm * 0.15),
+      N: Math.max(0.4, 0.71 - remittancesNorm * 0.1),
+      P: Math.min(0.6, 0.44 + remittancesNorm * 0.1),
       weight: 0.35,
     },
     // Layer 0 — Son
@@ -174,9 +182,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Informal economy",
       pole: "Son",
       layer: 0,
-      F: 0.28,
-      N: 0.42,
-      P: 0.68,
+      F: Math.min(0.5, 0.28 + informalPct * 0.15),
+      N: Math.max(0.2, 0.42 - inflation * 0.1),
+      P: Math.min(0.85, 0.68 + informalPct * 0.12),
       weight: 0.35,
     },
     {
@@ -184,9 +192,9 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Phosphate / Agri / Tourism",
       pole: "Son",
       layer: 0,
-      F: 0.45,
-      N: 0.48,
-      P: 0.55,
+      F: Math.min(0.6, 0.45 + tourismRev * 0.1 - inflation * 0.08),
+      N: Math.max(0.3, 0.48 - compoundStress * 0.08),
+      P: Math.max(0.4, 0.55 - inflation * 0.1),
       weight: 0.35,
     },
     {
@@ -194,86 +202,71 @@ function getDynamicNodes(miiProfile: any): TRGMNode[] {
       label: "Youth / Remittances",
       pole: "Son",
       layer: 0,
-      F: 0.18,
-      N: 0.52,
-      P: 0.48,
+      F: Math.max(0.1, 0.18 - youthRage * 0.08 + remittancesNorm * 0.05),
+      N: Math.max(0.3, 0.52 - youthRage * 0.12),
+      P: Math.min(0.7, 0.48 + remittancesNorm * 0.15 - inflation * 0.08),
       weight: 0.3,
     },
   ];
 }
 
-// Layer 1 branch aggregates
-const LAYER1_BRANCHES = {
-  Father: {
-    label: "FORCE",
-    color: "#FF0044",
-    nodes: [
-      {
-        id: "national-guard",
-        label: "National Guard",
-        F: 0.71,
-        N: 0.42,
-        P: 0.33,
-      },
-      {
-        id: "usgct",
-        label: "Anti-terrorism (USGCT)",
-        F: 0.82,
-        N: 0.55,
-        P: 0.28,
-      },
-      {
-        id: "anssi",
-        label: "Cyber Defense (ANSSI)",
-        F: 0.45,
-        N: 0.38,
-        P: 0.51,
-      },
-    ],
-  },
-  Mother: {
-    label: "NARRATIVE",
-    color: "#FFD700",
-    nodes: [
-      { id: "state-tv", label: "State TV / TAP", F: 0.61, N: 0.38, P: 0.22 },
-      {
-        id: "social-media",
-        label: "Social Media (TikTok/FB)",
-        F: 0.12,
-        N: 0.67,
-        P: 0.71,
-      },
-      {
-        id: "eu-metrics",
-        label: "European Democracy Metrics",
-        F: 0.08,
-        N: 0.74,
-        P: 0.33,
-      },
-    ],
-  },
-  Son: {
-    label: "PRODUCTION",
-    color: "#00FF88",
-    nodes: [
-      {
-        id: "textiles",
-        label: "Textiles / Manufacturing",
-        F: 0.44,
-        N: 0.51,
-        P: 0.63,
-      },
-      { id: "tourism", label: "Tourism / Services", F: 0.52, N: 0.48, P: 0.41 },
-      {
-        id: "remittances",
-        label: "Remittances / Diaspora",
-        F: 0.22,
-        N: 0.38,
-        P: 0.77,
-      },
-    ],
-  },
-};
+// Layer 1 branch aggregates — computed from live data
+function getLayer1Branches(data: any, rriState: any) {
+  const inflation = Math.min(1, (data?.economy?.inflation ?? 7.1) / 15);
+  const fxReservesNorm = Math.min(1, (data?.economy?.fx_reserves ?? 84) / 120);
+  const protest30d = Math.min(1, (data?.social?.protest_events_30d ?? 23) / 40);
+  const remittancesNorm = Math.min(1, (data?.economy?.remittances_total_bnd ?? 8.8) / 15);
+  const tourismRev = Math.min(1, (data?.economy?.tourism_revenue ?? 2.1) / 4);
+  const streetSignal = data?.social?.street_signal ?? 0.78;
+  const compoundStress = rriState?.compound_stress ?? 0;
+  return {
+    Father: {
+      label: "FORCE",
+      color: "#FF0044",
+      nodes: [
+        {
+          id: "national-guard",
+          label: "National Guard",
+          F: Math.min(0.85, 0.71 - (1 - fxReservesNorm) * 0.12),
+          N: Math.max(0.25, 0.42 - streetSignal * 0.1),
+          P: Math.min(0.45, 0.33 + protest30d * 0.08),
+        },
+        {
+          id: "usgct",
+          label: "Anti-terrorism (USGCT)",
+          F: Math.min(0.9, 0.82 - compoundStress * 0.08),
+          N: Math.max(0.35, 0.55 - protest30d * 0.1),
+          P: Math.min(0.4, 0.28 + protest30d * 0.06),
+        },
+        {
+          id: "anssi",
+          label: "Cyber Defense (ANSSI)",
+          F: Math.min(0.6, 0.45 + fxReservesNorm * 0.08),
+          N: Math.max(0.25, 0.38 - inflation * 0.06),
+          P: Math.min(0.65, 0.51 + compoundStress * 0.08),
+        },
+      ],
+    },
+    Mother: {
+      label: "NARRATIVE",
+      color: "#FFD700",
+      nodes: [
+        { id: "state-tv", label: "State TV / TAP", F: Math.min(0.75, 0.61 + compoundStress * 0.1), N: Math.max(0.25, 0.38 - streetSignal * 0.06), P: Math.min(0.35, 0.22 + protest30d * 0.08) },
+        { id: "social-media", label: "Social Media (TikTok/FB)", F: Math.min(0.3, 0.12 + streetSignal * 0.15), N: Math.max(0.4, 0.67 - inflation * 0.1), P: Math.min(0.85, 0.71 + protest30d * 0.08) },
+        { id: "eu-metrics", label: "European Democracy Metrics", F: Math.min(0.2, 0.08 + streetSignal * 0.08), N: Math.max(0.5, 0.74 - fxReservesNorm * 0.1), P: Math.min(0.45, 0.33 + inflation * 0.06) },
+      ],
+    },
+    Son: {
+      label: "PRODUCTION",
+      color: "#00FF88",
+      nodes: [
+        { id: "textiles", label: "Textiles / Manufacturing", F: Math.max(0.3, 0.44 - inflation * 0.12), N: Math.max(0.35, 0.51 - inflation * 0.08), P: Math.max(0.45, 0.63 - inflation * 0.1) },
+        { id: "tourism", label: "Tourism / Services", F: Math.min(0.7, 0.52 + tourismRev * 0.1 - inflation * 0.08), N: Math.max(0.3, 0.48 - compoundStress * 0.06), P: Math.min(0.55, 0.41 + tourismRev * 0.08) },
+        { id: "remittances", label: "Remittances / Diaspora", F: Math.min(0.4, 0.22 + remittancesNorm * 0.12), N: Math.max(0.25, 0.38 - inflation * 0.06), P: Math.min(0.9, 0.77 + remittancesNorm * 0.08) },
+      ],
+    },
+  };
+}
 
 // Compute aggregate GSI per pole
 function computePoleAggregate(pole: Pole, nodes: TRGMNode[]): {
@@ -346,14 +339,23 @@ function runCascadeSimulation(
   fatherAgg: any,
   motherAgg: any,
   sonAgg: any,
+  layer0Nodes: TRGMNode[],
+  data: any,
+  rriState: any,
 ): SimResult {
   const gamma = 0.85;
   const delta = Math.abs(event.magnitude);
   let { F: dF, N: dN, P: dP } = { F: fatherAgg.F, N: motherAgg.N, P: sonAgg.P };
 
-  // Apply perturbation to target pole
-  const targetPole =
-    TUNISIA_NODES.find((n) => n.id === event.nodeId)?.pole || "Son";
+  // Build pole lookup from layer-0 nodes + layer-1 branches
+  const poleLookup: Record<string, Pole> = {};
+  layer0Nodes.forEach((n) => { poleLookup[n.id] = n.pole; });
+  const branches = getLayer1Branches(data, rriState);
+  for (const [poleKey, branch] of Object.entries(branches)) {
+    const pole = poleKey as Pole;
+    branch.nodes.forEach((n) => { poleLookup[n.id] = pole; });
+  }
+  const targetPole = poleLookup[event.nodeId] || "Son";
   let dF2 = dF,
     dN2 = dN,
     dP2 = dP;
@@ -465,6 +467,8 @@ interface TriangleSVGProps {
   simResult: SimResult | null;
   selectedPole: Pole | null;
   onSelectPole: (p: Pole | null) => void;
+  data: any;
+  rriState: any;
 }
 
 const TriangleSVG: React.FC<TriangleSVGProps> = ({
@@ -476,6 +480,8 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
   simResult,
   selectedPole,
   onSelectPole,
+  data,
+  rriState,
 }) => {
   const W = 700,
     H = 560;
@@ -683,7 +689,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
         fontFamily="monospace"
         textAnchor="middle"
       >
-        Λ=0.72
+        Λ={LAMBDA[0][1].toFixed(2)}
       </text>
       <text
         x={(OP_N.x + OP_P.x) / 2}
@@ -693,7 +699,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
         fontFamily="monospace"
         textAnchor="middle"
       >
-        Λ=0.81★
+        Λ={LAMBDA[2][1].toFixed(2) + '★'}
       </text>
       <text
         x={(OP_F.x + OP_P.x) / 2 + 40}
@@ -703,7 +709,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
         fontFamily="monospace"
         textAnchor="middle"
       >
-        Λ=0.68
+        Λ={LAMBDA[0][2].toFixed(2)}
       </text>
 
       {/* ── TACTICAL TRIANGLES ── */}
@@ -726,51 +732,29 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
         </g>
       ))}
 
-      {/* ── DATA SENSORS (Layer 3 substrate) ── */}
+      {/* ── DATA SENSORS (Layer 3 substrate) — live values ── */}
       <g>
-        {[
-          { x: 140, y: 510, color: "#00D2FF", dur: "2.1s", label: "FX Rate" },
-          { x: 215, y: 525, color: "#00FF88", dur: "3.2s", label: "UGTT NLP" },
-          { x: 290, y: 515, color: "#FFD700", dur: "1.8s", label: "GDELT" },
-          { x: 350, y: 530, color: "#00D2FF", dur: "2.5s", label: "Wheat" },
-          { x: 410, y: 518, color: "#FF0044", dur: "1.5s", label: "Sentiment" },
-          { x: 480, y: 525, color: "#00FF88", dur: "2.8s", label: "Migration" },
-          {
-            x: 555,
-            y: 510,
-            color: "#FFD700",
-            dur: "2.0s",
-            label: "Groundwater",
-          },
-        ].map((s, i) => (
-          <g key={i}>
-            <circle cx={s.x} cy={s.y} r={4} fill={s.color} opacity={0.5}>
-              <animate
-                attributeName="opacity"
-                values="0.2;0.9;0.2"
-                dur={s.dur}
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="r"
-                values="3;5;3"
-                dur={s.dur}
-                repeatCount="indefinite"
-              />
-            </circle>
-            <text
-              x={s.x}
-              y={s.y + 14}
-              fill={s.color}
-              fontSize={6.5}
-              fontFamily="monospace"
-              textAnchor="middle"
-              opacity={0.5}
-            >
-              {s.label}
-            </text>
-          </g>
-        ))}
+        {(() => {
+          const sensors = [
+            { x: 140, y: 510, color: "#00D2FF", dur: "2.1s", label: "FX Rate", value: `${data?.economy?.tnd_usd?.toFixed(2) ?? '3.18'} TND` },
+            { x: 215, y: 525, color: "#00FF88", dur: "3.2s", label: "UGTT Mob.", value: `${data?.social?.ugtt_mobilisation_level ?? 'MEDIUM'}` },
+            { x: 290, y: 515, color: "#FFD700", dur: "1.8s", label: "Street Sig.", value: `${(data?.social?.street_signal ?? 0.78).toFixed(2)}` },
+            { x: 350, y: 530, color: "#00D2FF", dur: "2.5s", label: "Inflation", value: `${(data?.economy?.inflation ?? 7.1).toFixed(1)}%` },
+            { x: 410, y: 518, color: "#FF0044", dur: "1.5s", label: "Protests", value: `${data?.social?.protest_events_30d ?? 23}/mo` },
+            { x: 480, y: 525, color: "#00FF88", dur: "2.8s", label: "Youth Rage", value: `${(data?.social?.youth_rage_index ?? 8.5).toFixed(1)}` },
+            { x: 555, y: 510, color: "#FFD700", dur: "2.0s", label: "Velocity", value: `${(rriState?.velocity ?? 0).toFixed(3)}` },
+          ];
+          return sensors.map((s, i) => (
+            <g key={i}>
+              <circle cx={s.x} cy={s.y} r={4} fill={s.color} opacity={0.5}>
+                <animate attributeName="opacity" values="0.2;0.9;0.2" dur={s.dur} repeatCount="indefinite" />
+                <animate attributeName="r" values="3;5;3" dur={s.dur} repeatCount="indefinite" />
+              </circle>
+              <text x={s.x} y={s.y + 14} fill={s.color} fontSize={6.5} fontFamily="monospace" textAnchor="middle" opacity={0.5}>{s.label}</text>
+              <text x={s.x} y={s.y - 10} fill="#94a3b8" fontSize={6} fontFamily="monospace" textAnchor="middle" opacity={0.7}>{s.value}</text>
+            </g>
+          ));
+        })()}
         <text
           x={350}
           y={548}
@@ -780,7 +764,7 @@ const TriangleSVG: React.FC<TriangleSVGProps> = ({
           textAnchor="middle"
           opacity={0.3}
         >
-          DATA CLUSTERS — SENSOR SUBSTRATE (LAYER 3)
+          LIVE DATA SENSORS — L3 SUBSTRATE
         </text>
       </g>
 
@@ -1071,7 +1055,7 @@ export const TRGMDashboard: React.FC = () => {
     null,
   );
   const [simResult, setSimResult] = useState<SimResult | null>(null);
-  const [trgmState, setTrgmState] = useState<TRGMState>("STRESS");
+  const [trgmState, setTrgmState] = useState<TRGMState>("EQUILIBRIUM");
   const [simRunning, setSimRunning] = useState(false);
   const [showEquations, setShowEquations] = useState(false);
   const [showNodes, setShowNodes] = useState(false);
@@ -1080,7 +1064,8 @@ export const TRGMDashboard: React.FC = () => {
   const prevStateRef = useRef<TRGMState>("STRESS");
 
   // Compute pole aggregates — live from pipeline if available
-  const dynamicNodes = useMemo(() => getDynamicNodes(miiProfile), [miiProfile]);
+  const dynamicNodes = useMemo(() => getDynamicNodes(miiProfile, data, rriState), [miiProfile, data, rriState]);
+  const layer1Branches = useMemo(() => getLayer1Branches(data, rriState), [data, rriState]);
 
   const fatherAgg = useMemo(() => computePoleAggregate("Father", dynamicNodes), [dynamicNodes]);
   const motherAgg = useMemo(() => computePoleAggregate("Mother", dynamicNodes), [dynamicNodes]);
@@ -1145,13 +1130,16 @@ export const TRGMDashboard: React.FC = () => {
         fatherAgg,
         motherAgg,
         sonAgg,
+        dynamicNodes,
+        data,
+        rriState,
       );
       setSimResult(result);
       setSimRunning(false);
       if (result.apex_gsi < 0.35) setTrgmState("FRACTURE");
       else if (result.lateral_alert) setTrgmState("CASCADE");
     }, 800);
-  }, [selectedScenario, fatherAgg, motherAgg, sonAgg]);
+  }, [selectedScenario, fatherAgg, motherAgg, sonAgg, dynamicNodes]);
 
   const resetSim = useCallback(() => {
     setSimResult(null);
@@ -1176,17 +1164,17 @@ export const TRGMDashboard: React.FC = () => {
     ? {
         Father: {
           agg: fatherAgg,
-          branch: LAYER1_BRANCHES.Father,
+          branch: layer1Branches.Father,
           nodes: dynamicNodes.filter((n) => n.pole === "Father"),
         },
         Mother: {
           agg: motherAgg,
-          branch: LAYER1_BRANCHES.Mother,
+          branch: layer1Branches.Mother,
           nodes: dynamicNodes.filter((n) => n.pole === "Mother"),
         },
         Son: {
           agg: sonAgg,
-          branch: LAYER1_BRANCHES.Son,
+          branch: layer1Branches.Son,
           nodes: dynamicNodes.filter((n) => n.pole === "Son"),
         },
       }[selectedPole]
@@ -1304,6 +1292,8 @@ export const TRGMDashboard: React.FC = () => {
           simResult={simResult}
           selectedPole={selectedPole}
           onSelectPole={setSelectedPole}
+          data={data}
+          rriState={rriState}
         />
       </div>
 

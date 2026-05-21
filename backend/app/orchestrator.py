@@ -17,7 +17,8 @@ from .signals.scoring import SourceScoringSystem
 from .signals.deduplication import DeduplicationEngine
 from .signals.quality import SignalQualityLayer
 from .signals.social import SocialSignalAggregator
-from .services.rri_engine import RRIEngine
+from .services.rri_engine import calculate_rri as py_calculate_rri, _load_variables
+from .services.state_snapshot import write_snapshot
 from .intelligence.engines import FusionEngine, CorrelationEngine, AnomalyDetectionEngine, ScenarioSimulator
 from .intelligence.agri import AgroIntelligenceEngine
 from .reliability.layers import DataQualityLayer, ValidationLayer, FeedbackSystem, RiskDecompositionEngine, SignalLifecycleManager, ConflictResolver
@@ -68,7 +69,9 @@ class MissionOrchestrator:
         self.social_aggregator = SocialSignalAggregator()
         
         # Engines
-        self.rri_engine = RRIEngine()
+        # RRI computation now goes through py_calculate_rri + write_snapshot
+        # (legacy RRIEngine kept for backward compat but not actively used)
+        self._rri_engine_legacy = None
         self.fusion_engine = FusionEngine()
         self.correlation_engine = CorrelationEngine()
         self.anomaly_detector = AnomalyDetectionEngine()
@@ -207,11 +210,39 @@ class MissionOrchestrator:
                     context={"specialized_insights": specialized_results}
                 )
 
-                # 7. UPDATE RRI
+                # 7. UPDATE RRI (full engine)
                 state.current_step = "UPDATE RRI"
                 await self.emit(Event(type="MISSION_STEP_UPDATE", payload={"step": state.current_step, "mission_id": mission_id}))
-                current_rri = await self.rri_engine.calculate_rri([s.model_dump() for s in merged_signals])
-                await self.emit(Event(type="RRI_UPDATED", payload={"rri": current_rri}))
+                
+                # Build pipeline-data overrides from merged signals
+                pipeline_overrides: Dict[str, float] = {}
+                for s in merged_signals:
+                    s_dict = s.model_dump() if hasattr(s, 'model_dump') else s
+                    field = s_dict.get("pipeline_field") or s_dict.get("type", "").replace("signal.", "economy.")
+                    value = s_dict.get("intensity") or s_dict.get("value") or s_dict.get("confidence", 0.0)
+                    if field and value:
+                        pipeline_overrides[field] = value
+                
+                # Compute full RRI state with all 24 equations
+                vars = _load_variables()
+                rri_result = py_calculate_rri(
+                    vars=vars,
+                    overrides=pipeline_overrides if pipeline_overrides else None,
+                )
+                current_rri = rri_result.get("rri", 0.0)
+                
+                # Write canonical snapshot to state layer
+                snapshot = write_snapshot(
+                    rri_result=rri_result,
+                    articles_processed=len(news_items),
+                )
+                
+                await self.emit(Event(type="RRI_UPDATED", payload={
+                    "rri": current_rri,
+                    "state_version_id": snapshot.get("state_version_id"),
+                    "velocity": rri_result.get("velocity"),
+                    "p_rev": rri_result.get("p_rev"),
+                }))
                 
                 # 8. DETECT
                 state.current_step = "DETECT"
@@ -238,7 +269,12 @@ class MissionOrchestrator:
                 
                 state.status = "COMPLETED"
                 state.end_time = datetime.now()
-                state.results = {"rri": current_rri, "processed": len(news_items), "narrative": narrative}
+                state.results = {
+                    "rri": current_rri,
+                    "state_version_id": snapshot.get("state_version_id"),
+                    "processed": len(news_items),
+                    "narrative": narrative,
+                }
                 await self.emit(Event(type="MISSION_COMPLETED", payload=state.results))
                 return state
 

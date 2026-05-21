@@ -308,6 +308,9 @@ interface PipelineContextType {
   auditLog: AuditEntry[];
   rriState: any;
   recalculateRRI: () => void;
+  consumeSnapshot: () => Promise<void>;
+  backendSnapshotEnabled: boolean;
+  toggleBackendSnapshot: () => void;
   updateArticleCache: (articles: any) => void;
   injectSignal: (signalId: string) => void;
   injectShock: (shock: ShockSignal) => void;
@@ -363,6 +366,53 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [agriSummary, setAgriSummary] = useState<AgriNationalSummary | null>(null);
   const [agroSummary, setAgroSummary] = useState<AgroNationalSummary | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [backendSnapshotEnabled, setBackendSnapshotEnabled] = useState(() => {
+    try { return safeStorage.getItem('ti_backend_snapshot') === 'true'; }
+    catch { return false; }
+  });
+
+  const toggleBackendSnapshot = useCallback(() => {
+    setBackendSnapshotEnabled(prev => {
+      const next = !prev;
+      try { safeStorage.setItem('ti_backend_snapshot', next ? 'true' : 'false'); }
+      catch {}
+      return next;
+    });
+  }, []);
+
+  const consumeSnapshot = useCallback(async () => {
+    try {
+      const res = await fetch('/api/state/latest');
+      if (!res.ok) return;
+      const snapshot = await res.json();
+      if (snapshot.status === 'no_snapshot_yet') return;
+      setRriState(prev => ({
+        ...prev,
+        rri: snapshot.rri ?? prev.rri,
+        r_t: snapshot.rri ?? prev.rri,
+        p_rev: snapshot.p_revolution ?? prev.p_rev,
+        velocity: snapshot.velocity ?? prev.velocity,
+        acceleration: snapshot.acceleration ?? prev.acceleration,
+        compound_stress: snapshot.compound_stress ?? prev.compound_stress,
+        cascade_probability: snapshot.cascade_probability ?? prev.cascade_probability,
+        salience: snapshot.salience ?? prev.salience,
+        salience_effective: snapshot.salience_effective ?? prev.salience_effective,
+        elite_cohesion_dynamics: snapshot.elite_cohesion ?? prev.elite_cohesion_dynamics,
+        elite_defection_prob: snapshot.elite_defection_prob ?? prev.elite_defection_prob,
+        info_amplification: snapshot.info_amplification ?? prev.info_amplification,
+        category_scores: snapshot.category_scores ?? prev.category_scores,
+        model_confidence: snapshot.confidence_overall ?? prev.model_confidence,
+        ci_low: snapshot.mc_p_revolution_p10 ?? prev.ci_low,
+        ci_high: snapshot.mc_p_revolution_p90 ?? prev.ci_high,
+        p_rev_mean: snapshot.mc_p_revolution_mean ?? prev.p_rev_mean,
+        mii: snapshot.mii ?? prev.mii,
+        cpi_index: snapshot.cpi_index ?? prev.cpi_index,
+        structural_econ: snapshot.structural_econ ?? prev.structural_econ,
+        last_calculated: snapshot.computed_at ?? prev.last_calculated,
+        variables_count: snapshot.variables_used ?? prev.variables_count,
+      }));
+    } catch {}
+  }, []);
 
   const togglePause = useCallback(async () => {
     const nextPaused = !isPaused;
@@ -446,6 +496,11 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [auditLog]);
 
   const recalculateRRI = useCallback(() => {
+    // If backend snapshot mode is on, skip local compute and fetch from API
+    if (backendSnapshotEnabled) {
+      consumeSnapshot();
+      return;
+    }
     const d = dataRef.current;
     const ce = cognitiveEnvRef.current;
     const mp = miiProfileRef.current;
@@ -1095,7 +1150,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const value = useMemo(() => ({
     data, updateField, pushApprovedChanges, 
     resetToDefaults, addAuditEntry, auditLog,
-    rriState, recalculateRRI,
+    rriState, recalculateRRI, consumeSnapshot, backendSnapshotEnabled, toggleBackendSnapshot,
     aiAnalysis, forecast, isAIAnalysisLoading,
     miiProfile, actorNetwork, temporalAnalysis, agriSummary, agroSummary, seiResult,
     sbdeResult,
@@ -1113,7 +1168,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }), [data, auditLog, aiAnalysis, forecast, isAIAnalysisLoading, miiProfile, sbdeResult,
       actorNetwork, temporalAnalysis, seiResult, rpiProfile, cognitiveEnvironment,
       agriSummary, agroSummary, isPaused, rriState, updateField, pushApprovedChanges,
-      resetToDefaults, addAuditEntry, recalculateRRI, togglePause, injectSignal,
+      resetToDefaults, addAuditEntry, recalculateRRI, consumeSnapshot, backendSnapshotEnabled, toggleBackendSnapshot, togglePause, injectSignal,
       injectShock, clearShocks, updateArticleCache, loadPipelineData, runAIAnalysis]);
 
   return (

@@ -155,6 +155,11 @@ export interface RRIState {
   p_rev_mean: number;
   simulations_run: number;
 
+  // Cycle / Acceleration / Economic signal (TUNISIAINTEL extensions)
+  cpi_index: number;           // EQ.22 — Cycle Position Index
+  acceleration: number;        // EQ.23 — Acceleration Index
+  structural_econ: number;     // EQ.24 — Structural Economic Signal
+
   // Category scores
   category_scores: Record<string, number>;
 

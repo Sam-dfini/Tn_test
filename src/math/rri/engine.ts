@@ -502,6 +502,64 @@ function eq16_velocity(vars: RRIVariable[]): number {
   return Math.max(-1, Math.min(1, Math.tanh(rawVelocity / PARAMS.V_SCALING)));
 }
 
+function eq22_cyclePositionIndex(vars: RRIVariable[]): number {
+  const varMap = getCurrentStateVector(vars);
+  const keys = Object.keys(varMap);
+  if (keys.length < 5) return 0.5;
+
+  const values = keys.map(k => varMap[k]);
+  const mean = values.reduce((s, v) => s + v, 0) / values.length;
+  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length;
+  const std = Math.sqrt(variance);
+
+  if (mean === 0) return 0.5;
+  const cv = std / mean;
+
+  return Math.max(0, Math.min(1, 0.5 + (cv - 0.3) * 0.5));
+}
+
+function eq23_acceleration(vars: RRIVariable[]): number {
+  let currentVelSum = 0;
+  let prevVelSum = 0;
+  let count = 0;
+
+  for (const v of vars) {
+    if (!v || !Array.isArray(v.history) || v.history.length < 3) continue;
+    const current = v.value;
+    const previous = v.history[v.history.length - 2];
+    const older = v.history[v.history.length - 3];
+    const beta = PARAMS.V_HIGH_WEIGHT_IDS.includes(v.id) ? 2.0 : 1.0;
+    const sigma = Math.max(0.01, v.volatility);
+    currentVelSum += beta * ((current - previous) / sigma) * v.weight;
+    prevVelSum += beta * ((previous - older) / sigma) * v.weight;
+    count++;
+  }
+
+  if (count === 0) return 0;
+  const currentVel = currentVelSum / count;
+  const prevVel = prevVelSum / count;
+  const rawAccel = (currentVel - prevVel) / Math.max(Math.abs(prevVel), 0.01);
+
+  const shockVars = vars.filter(v => v.volatility > 0.2);
+  const shockDensity = shockVars.length / Math.max(vars.length, 1);
+
+  return Math.max(-1, Math.min(1, parseFloat((rawAccel * 0.5 + shockDensity * 0.3).toFixed(4))));
+}
+
+function eq24_structuralEconomic(vars: RRIVariable[]): number {
+  const varMap = getCurrentStateVector(vars);
+  const subsidyVar = varMap['A_SUBSIDY'] ?? varMap['A11'] ?? 0;
+  const inflationVar = varMap['A01'] ?? 0;
+  const fxVar = varMap['A_FX'] ?? 0;
+  const debtVar = varMap['F_DEBT'] ?? 0;
+
+  const policyDelta = (subsidyVar > 0.5 ? 0.3 : 0) + (inflationVar > 0.7 ? 0.2 : 0);
+  const subsidyAdjustment = Math.max(0, 0.5 - fxVar);
+  const s_econ = policyDelta * 0.6 + subsidyAdjustment * 0.4;
+
+  return Math.max(0, Math.min(1, parseFloat(s_econ.toFixed(4))));
+}
+
 function velocityLabel(v: number): string {
   if (v > 0.4) return 'DETERIORATING FAST';
   if (v > 0.15) return 'DETERIORATING';
@@ -859,6 +917,9 @@ export function calculateRRI(
   console.log('DEBUG P_REV:', { r_final, p_rev_base, p_rev_adjusted, hps_bonus, p_rev_final });
 
   const velocity = eq16_velocity(vars);
+  const cpi_index = eq22_cyclePositionIndex(vars);
+  const acceleration = eq23_acceleration(vars);
+  const structural_econ = eq24_structuralEconomic(vars);
   const _sei_cascade_boost = (overridesOrVars as any)?._sei_cascade_boost ?? 0;
   const p_cascade_base = eq17_cascadeProbability(vars);
   // CPG cascade amplifier: phosphate disruption above threshold
@@ -927,6 +988,9 @@ export function calculateRRI(
     cascade_probability: parseFloat(safeVal(p_cascade, 0.18).toFixed(4)),
     info_amplification: parseFloat(safeVal(a_t, 0.35).toFixed(4)),
     elite_cohesion_dynamics: parseFloat(safeVal(ec_t, 0.55).toFixed(4)),
+    cpi_index: parseFloat(safeVal(cpi_index, 0.5).toFixed(4)),
+    acceleration: parseFloat(safeVal(acceleration, 0.0).toFixed(4)),
+    structural_econ: parseFloat(safeVal(structural_econ, 0.15).toFixed(4)),
 
     ci_low: parseFloat(safeVal(mcResult.ci_low, 0.598).toFixed(4)),
     ci_high: parseFloat(safeVal(mcResult.ci_high, 0.687).toFixed(4)),
@@ -1167,6 +1231,9 @@ export {
   eq18_eliteDefectionDynamics,
   eq19_infoAmplification,
   eq20_historicalPatternSimilarity,
+  eq22_cyclePositionIndex,
+  eq23_acceleration,
+  eq24_structuralEconomic,
   velocityLabel,
   normalize,
   PARAMS,
