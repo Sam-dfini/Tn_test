@@ -19,6 +19,7 @@ from .signals.quality import SignalQualityLayer
 from .signals.social import SocialSignalAggregator
 from .services.rri_engine import calculate_rri as py_calculate_rri, _load_variables
 from .services.state_snapshot import write_snapshot
+from .services.deliberation_engine import deliberation_engine
 from .intelligence.engines import FusionEngine, CorrelationEngine, AnomalyDetectionEngine, ScenarioSimulator
 from .intelligence.agri import AgroIntelligenceEngine
 from .reliability.layers import DataQualityLayer, ValidationLayer, FeedbackSystem, RiskDecompositionEngine, SignalLifecycleManager, ConflictResolver
@@ -397,6 +398,29 @@ class MissionOrchestrator:
             {"field": "economy.inflation", "label": "Inflation Rate", "unit": "%"},
             {"field": "social.protest_events_30d", "label": "Protest Events", "unit": "events"}
         ]
+
+    async def on_chain_activated(self, chain_id: str, snapshot: dict):
+        """
+        When an ontology chain crosses its activation threshold,
+        automatically trigger a deliberation session.
+        """
+        try:
+            from .ontology.service import get_chain
+            chain = get_chain(chain_id)
+            chain_name = chain.get("chain_name", chain_id) if chain else chain_id
+            trigger_category = chain.get("trigger_category", "unknown") if chain else "unknown"
+            scenario = f"Chain activated: {chain_name} — {trigger_category}"
+
+            asyncio.create_task(
+                deliberation_engine.run(
+                    scenario=scenario,
+                    trigger_type="ontology_chain",
+                    trigger_source=chain_id,
+                    state_version_id=snapshot.get("state_version_id"),
+                )
+            )
+        except Exception as e:
+            print(f"[orchestrator] on_chain_activated failed: {e}")
 
 # Singleton instance
 orchestrator = MissionOrchestrator()

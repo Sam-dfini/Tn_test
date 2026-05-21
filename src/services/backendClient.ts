@@ -66,3 +66,36 @@ export const syncActiveSignals = async (signals: any[]) => {
     return false;
   }
 };
+
+export const runDeliberation = async (scenario: string, triggerType = 'analyst') => {
+  try {
+    const response = await fetch('/api/deliberation/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenario, trigger_type: triggerType }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchDeliberationSessions = async (limit = 10) => {
+  try {
+    const response = await fetch(`/api/deliberation/sessions?limit=${limit}`);
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const fetchLatestDeliberation = async () => {
+  try {
+    const response = await fetch('/api/deliberation/sessions/latest');
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.status === 'no_sessions_yet' ? null : data;
+  } catch {
+    return null;
+  }
+};

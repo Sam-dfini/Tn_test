@@ -11,6 +11,7 @@ from .ontology.api import router as ontology_router
 from .api.rag import router as rag_router
 from .actors.api import router as actors_router
 from .doctrine.api import router as doctrine_router
+from .api.deliberation import router as deliberation_router
 
 
 @asynccontextmanager
@@ -52,6 +53,7 @@ app.include_router(ontology_router, prefix="/api")
 app.include_router(rag_router, prefix="/api")
 app.include_router(actors_router, prefix="/api")
 app.include_router(doctrine_router, prefix="/api")
+app.include_router(deliberation_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS

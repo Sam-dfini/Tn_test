@@ -263,6 +263,25 @@ def _broadcast_ontology_activation(
     except RuntimeError:
         pass
 
+    # Auto-convene High Table for newly activated chains
+    for chain in activation_result.get("active_chains", []):
+        if chain.get("threshold_breached"):
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    from ..orchestrator import orchestrator
+                    snapshot_for_delib = {
+                        "state_version_id": activation_result.get("state_version_id"),
+                        "rri": activation_result.get("rri", 0),
+                        "p_revolution": activation_result.get("p_revolution", 0),
+                        "compound_stress": activation_result.get("compound_stress", 0),
+                    }
+                    loop.create_task(
+                        orchestrator.on_chain_activated(chain["chain_id"], snapshot_for_delib)
+                    )
+            except Exception:
+                pass
+
 
 def _broadcast_actor_postures(postures: List[Dict[str, Any]]) -> None:
     """WebSocket broadcast of actor posture updates (fire-and-forget)."""

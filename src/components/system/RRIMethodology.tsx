@@ -16,7 +16,7 @@ import {
   BarChart3, Brain, Zap, Globe,
   Shield, TrendingUp, Database, Dices,
   Calculator, Radio, LayoutGrid, Users,
-  Bell, Bot, Sparkles, Layers, Triangle
+  Bell, Bot, Sparkles, Layers, Triangle, MessageSquare
 } from 'lucide-react';
 
 const Equation: React.FC<{
@@ -1199,7 +1199,8 @@ export const RRIMethodology: React.FC<{
     { id: 'trgm', label: 'TRGM Governance Matrix' },
     { id: 'variables', label: 'All 251+ Variables' },
     { id: 'montecarlo', label: 'Monte Carlo' },
-    { id: 'engines', label: 'Engines (27)' },
+    { id: 'engines', label: 'Engines (30)' },
+    { id: 'deliberation', label: 'Deliberation Engine' },
     { id: 'actor-regime', label: 'Actor & Regime Modeling' },
     { id: 'pipeline', label: 'Intelligence Pipeline' },
     { id: 'learning', label: 'Learning & Validation' },
@@ -2244,7 +2245,7 @@ export const RRIMethodology: React.FC<{
               <h2 className="text-lg font-bold text-white uppercase tracking-widest">Engines</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The platform is powered by <span className="text-white font-medium">29 analytical engines</span> that span the full intelligence pipeline —
+              The platform is powered by <span className="text-white font-medium">30 analytical engines</span> that span the full intelligence pipeline —
               from raw signal ingestion and credibility scoring to risk computation, scenario simulation, and strategic briefing.
             </p>
 
@@ -2380,8 +2381,8 @@ export const RRIMethodology: React.FC<{
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Engines Live</div>
-                <div className="text-lg font-mono text-white font-bold">21</div>
-                <div className="text-[9px] text-slate-500">Of 29 total deployed</div>
+                <div className="text-lg font-mono text-white font-bold">22</div>
+                <div className="text-[9px] text-slate-500">Of 30 total deployed</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Signal Credibility</div>
@@ -2391,7 +2392,99 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 6: ACTOR & REGIME MODELING */}
+          {/* SECTION 6: DELIBERATION ENGINE */}
+          <div id="deliberation" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <MessageSquare className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Phase 6: Deliberation Engine</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              The Deliberation Engine is the core of the <span className="text-white font-medium">High Table</span> —
+              a structured multi-actor deliberation system that computes decision probability distributions
+              from actor profiles, live signals, and doctrine context. When a crisis signal fires or an
+              analyst injects a scenario, the engine convenes relevant actors, generates structured
+              positions, detects conflicts, forms coalitions, applies context-sensitive authority weights,
+              and produces a resolution.
+            </p>
+
+            {/* Architecture Diagram */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-2">Pipeline</div>
+                <div className="space-y-1.5">
+                  {[
+                    { step: 'TRIGGER', desc: 'Ontology chain activation · Analyst scenario · Scheduled · Shock',
+                      color: 'text-yellow-400' },
+                    { step: 'LOAD STATE', desc: 'Read canonical national state snapshot', color: 'text-blue-400' },
+                    { step: 'SELECT ACTORS', desc: 'Auto-select by authority weights + chain sensitivity, always include PRES, UGTT, ARM, BCT',
+                      color: 'text-purple-400' },
+                    { step: 'GENERATE POSITIONS', desc: 'Apply state_update_rules → adjusted probabilities → RAG context → structured reasoning',
+                      color: 'text-cyan-400' },
+                    { step: 'DELIBERATE', desc: 'Conflict detection → Coalition formation → Veto check → Authority weighting → Resolution',
+                      color: 'text-emerald-400' },
+                    { step: 'OUTPUT', desc: 'Decision probability distribution with full reasoning trace', color: 'text-orange-400' },
+                  ].map(s => (
+                    <div key={s.step} className="flex items-start gap-2 p-1.5 rounded bg-white/[0.01]">
+                      <div className={`text-[9px] font-bold font-mono uppercase ${s.color} shrink-0 w-24`}>{s.step}</div>
+                      <div className="text-[10px] text-slate-500 leading-relaxed">{s.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Resolution Types */}
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-2">Resolution Types</div>
+                <div className="space-y-2">
+                  {[
+                    { type: 'CONSENSUS', desc: 'One coalition exceeds 0.65 authority weight — clear dominant action',
+                      color: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5' },
+                    { type: 'COMPROMISE', desc: 'Top two coalitions within 0.15 of each other — blended output',
+                      color: 'text-amber-400 border-amber-500/20 bg-amber-500/5' },
+                    { type: 'DEADLOCK', desc: 'No coalition exceeds 0.40 — no clear path forward',
+                      color: 'text-red-400 border-red-500/20 bg-red-500/5' },
+                    { type: 'ESCALATION', desc: 'Conflict severity > 0.80 and no resolution — crisis deepens',
+                      color: 'text-rose-400 border-rose-500/20 bg-rose-500/5' },
+                  ].map(r => (
+                    <div key={r.type} className={`rounded border ${r.color} p-2`}>
+                      <div className={`text-[9px] font-bold font-mono uppercase ${r.color.split(' ')[0]}`}>{r.type}</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{r.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">8</div>
+                <div className="text-[9px] text-slate-500">Max actors at table</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">4</div>
+                <div className="text-[9px] text-slate-500">Resolution types</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">6</div>
+                <div className="text-[9px] text-slate-500">Opposition pairs</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">11</div>
+                <div className="text-[9px] text-slate-500">Actor profiles</div>
+              </div>
+            </div>
+
+            {/* Dependencies */}
+            <div className="rounded-lg border border-emerald-500/10 bg-emerald-500/[0.02] p-3">
+              <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-wider mb-1">Depends On</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                Phase 1 (canonical state) · Phase 4 (actor profiles) · Phase 5 (doctrine library) · Phase 3 (RAG)
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 7: ACTOR & REGIME MODELING */}
           <div id="actor-regime" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Users className="w-6 h-6 text-intel-cyan" />
@@ -2541,7 +2634,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 7: INTELLIGENCE PIPELINE */}
+          {/* SECTION 8: INTELLIGENCE PIPELINE */}
           <div id="pipeline" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Activity className="w-6 h-6 text-intel-cyan" />
@@ -2704,7 +2797,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 8: LEARNING & VALIDATION */}
+          {/* SECTION 9: LEARNING & VALIDATION */}
           <div id="learning" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <TrendingUp className="w-6 h-6 text-intel-cyan" />
@@ -2837,7 +2930,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 9: CALIBRATION */}
+          {/* SECTION 10: CALIBRATION */}
           <div id="calibration" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <BarChart3 className="w-6 h-6 text-intel-cyan" />
@@ -2866,7 +2959,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 10: PERFORMANCE */}
+          {/* SECTION 11: PERFORMANCE */}
           <div id="performance" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <TrendingUp className="w-6 h-6 text-intel-cyan" />
@@ -2921,7 +3014,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 11: LIMITATIONS */}
+          {/* SECTION 12: LIMITATIONS */}
           <div id="limitations" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <AlertTriangle className="w-6 h-6 text-intel-orange" />
@@ -2967,7 +3060,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 12: BIBLIOGRAPHY */}
+          {/* SECTION 13: BIBLIOGRAPHY */}
           <div id="bibliography" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Globe className="w-6 h-6 text-intel-cyan" />

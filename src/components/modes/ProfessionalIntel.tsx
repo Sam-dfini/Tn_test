@@ -129,6 +129,7 @@ const LiveSignalFeed = React.lazy(() => import("../tactical/LiveSignalFeed").the
 const EventsIntelligence = React.lazy(() => import("../geopolitical/EventsIntelligence").then(m => ({ default: m.EventsIntelligence })));
 const ObservabilityDashboard = React.lazy(() => import("../../pages/ObservabilityDashboard").then(m => ({ default: m.ObservabilityDashboard })));
 const KnowledgeGraphExplorer = React.lazy(() => import("../political/KnowledgeGraphExplorer").then(m => ({ default: m.default })));
+const DeliberationPanel = React.lazy(() => import("../system/DeliberationPanel").then(m => ({ default: m.DeliberationPanel })));
 
 // Categories for sidebar grouping - now dynamic
 const getSidebarCategories = (viewMode: ViewMode) => {
@@ -222,6 +223,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
         { id: "methodology", label: "Methodology", icon: BookOpen },
         { id: "knowledge-graph", label: "Knowledge Graph", icon: Globe },
         { id: "civilizational", label: "Civilizational Analysis", icon: Hourglass, restricted: 'STRATEGIC' },
+        { id: "deliberation", label: "Deliberation", icon: MessageSquare },
       ],
     },
   ];
@@ -745,6 +747,7 @@ export const ProfessionalIntel: React.FC<{
     | "border-instability"
     | "narrative-war"
     | "social-threat"
+    | "deliberation"
   >("command-center");
   const [eventsSubTab, setEventsSubTab] = useState<
     "news" | "engine" | "timeline" | "signal" | "temporal" | "rtee"
@@ -2623,6 +2626,10 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "simulation" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <SimulationIntelligence context={data} variables={getVarCache() || []} />
+            </Suspense>
+          ) : activeTab === "deliberation" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <DeliberationPanel />
             </Suspense>
           ) : (
             <div>Simulation Intelligence Placeholder</div>
