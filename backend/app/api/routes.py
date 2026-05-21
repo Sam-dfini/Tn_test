@@ -13,7 +13,13 @@ from ..intelligence.emotional_heatmap import get_heatmap_engine
 from ..intelligence.calibration import get_calibration_engine
 from ..services.variable_pipeline import variable_pipeline
 from ..services.rri_engine import calculate_rri, run_full_monte_carlo, compute_current_rri, _load_variables
-from ..services.state_snapshot import write_snapshot, get_latest_snapshot, get_snapshot_by_version
+from ..services.state_snapshot import (
+    write_snapshot,
+    get_latest_snapshot,
+    get_snapshot_by_version,
+    set_active_shocks,
+    get_active_shocks,
+)
 
 # from ..services.rss_service import rss_service
 
@@ -147,6 +153,8 @@ async def compute_rri_full(overrides: Optional[Dict[str, float]] = None):
     """
     Compute RRI full state on demand. Optionally accepts pipeline field overrides.
     Writes result to the canonical state layer.
+    Active shocks already stored via POST /state/active-shocks are included
+    in the snapshot.
     """
     result = calculate_rri(overrides=overrides)
     snapshot = write_snapshot(rri_result=result)
@@ -198,6 +206,27 @@ async def state_by_version(version_id: str):
     if not snapshot:
         raise HTTPException(status_code=404, detail="Snapshot not found")
     return snapshot
+
+
+# ── Active Shocks (frontend ↔ backend bridge) ──────────────────
+
+
+class ActiveShocksRequest(BaseModel):
+    shocks: List[Dict[str, Any]]
+
+
+@router.get("/state/active-shocks")
+async def get_active_shocks_endpoint():
+    """Return active shocks stored on the backend."""
+    return {"active_shocks": get_active_shocks()}
+
+
+@router.post("/state/active-shocks")
+async def post_active_shocks(req: ActiveShocksRequest):
+    """Store active shocks from the frontend so write_snapshot persists them."""
+    set_active_shocks(req.shocks)
+    return {"status": "ok", "count": len(req.shocks)}
+
 
 @router.get("/signals/{signal_id}")
 async def get_signal(signal_id: str):

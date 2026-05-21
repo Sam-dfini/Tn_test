@@ -53,3 +53,16 @@ export const runIntelligenceLoop = async () => {
   console.log('Intelligence loop triggered');
   return true;
 };
+
+export const syncActiveSignals = async (signals: any[]) => {
+  try {
+    const response = await fetch('/api/state/active-shocks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shocks: signals }),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+};

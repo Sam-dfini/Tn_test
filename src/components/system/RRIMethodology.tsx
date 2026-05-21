@@ -1199,6 +1199,7 @@ export const RRIMethodology: React.FC<{
     { id: 'trgm', label: 'TRGM Governance Matrix' },
     { id: 'variables', label: 'All 251+ Variables' },
     { id: 'montecarlo', label: 'Monte Carlo' },
+    { id: 'engines', label: 'Engines (22)' },
     { id: 'calibration', label: 'Calibration & Validation' },
     { id: 'performance', label: 'Model Performance' },
     { id: 'limitations', label: 'Limitations' },
@@ -1665,7 +1666,7 @@ export const RRIMethodology: React.FC<{
                 number="13"
                 title="Stochastic Shock Model"
                 latex={String.raw`\epsilon(t) = \sum_{k=1}^{K} \omega_k \cdot \xi_k(t)`}
-                description="The shock model captures unobserved sudden events that can shift R(t) instantaneously. Each shock type k has a weight omega_k and random magnitude xi_k(t). Examples include political assassinations, natural disasters, sudden economic shocks, major protest crackdowns, or foreign interventions."
+                description="The shock model captures unobserved sudden events that can shift R(t) instantaneously. Each shock type k has a weight omega_k and random magnitude xi_k(t). Three sources feed into ε(t): Gaussian noise, SEI shortage index (0.35 weight), and cognitive warfare epsilon. Active signals ingested from events (protests, water cuts, IMF signals) provide deterministic override values. See the Shock Engine section below for the full ingestion → propagation → persistence pipeline."
                 variables={[
                   { symbol: '\\epsilon(t)', meaning: 'Aggregate shock effect', value: rriState.stochastic_shock.toFixed(4) },
                   { symbol: '\\omega_k', meaning: 'Weight of shock type k' },
@@ -2233,7 +2234,149 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 5: CALIBRATION */}
+          {/* SECTION 5: ENGINES */}
+          <div id="engines" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <Brain className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Engines</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              The platform is powered by <span className="text-white font-medium">20+ analytical engines</span> that span the full intelligence pipeline —
+              from raw signal ingestion and credibility scoring to risk computation, scenario simulation, and strategic briefing.
+            </p>
+
+            {[
+              {
+                category: 'Core Risk',
+                color: '#ff453a',
+                icon: Calculator,
+                engines: [
+                  { name: 'RRI Engine', file: 'src/math/rri/engine.ts', desc: 'All 24 equations (EQ.1–EQ.24) computing R(t), P_rev, velocity, acceleration, and compound stress. Python port at backend/app/services/rri_engine.py.', status: 'LIVE' },
+                  { name: 'Monte Carlo Engine', file: 'src/math/rri/engine.ts (EQ.14)', desc: '10,000-simulation framework with Gaussian perturbation per variable. Produces 95% confidence intervals and stability analysis.', status: 'LIVE' },
+                  { name: 'Shock Engine', file: 'src/services/shockIngestionAdapter.ts + state_snapshot.py', desc: 'End-to-end pipeline: IntelEvent → ShockSignal → active_signals → EQ.13 ε(t) → propagate → persist. Three shock sources: Gaussian noise, SEI (0.35), CogWar epsilon.', status: 'LIVE' },
+                  { name: 'Propagation Engine', file: 'src/services/propagationEngine.ts', desc: 'SIR-model unrest spread simulation across Tunisia\'s 24-governorate adjacency graph using BFS traversal with historical pattern boosting.', status: 'LIVE' },
+                ],
+              },
+              {
+                category: 'Social Monitoring',
+                color: '#ff9f0a',
+                icon: Activity,
+                engines: [
+                  { name: 'SEI Engine', file: 'src/services/seiEngine.ts', desc: 'Shortage Escalation Index — NLP-based commodity shortage detection from news text. 6-phase escalation classification with time-to-anger prediction. Feeds EQ.3, EQ.13, EQ.17.', status: 'LIVE' },
+                  { name: 'RDE / Radical Engine', file: 'src/services/radicalEngine.ts', desc: 'Radicalisation Dynamics Engine — tracks progressive radicalisation across 6 escalation levels. Detects acceleration phase shifts in sentiment. Feeds EQ.3, EQ.4, EQ.19.', status: 'LIVE' },
+                  { name: 'SBDE Engine', file: 'src/services/sbdeEngine.ts', desc: 'Socio-Behavioral Destabilization Engine — computes SBI, FSC, DIC, and Ψ_soc(t) for Tier II societal destabilization signals.', status: 'LIVE' },
+                  { name: 'Emotional Heatmap', file: 'backend/app/intelligence/emotional_heatmap.py', desc: 'Per-governorate emotion aggregation from Telegram + RSS text. Maps anger, fear, hope, and fatigue across 24 governorates.', status: 'BUILDING' },
+                ],
+              },
+              {
+                category: 'Cognitive Security',
+                color: '#0a84ff',
+                icon: Shield,
+                engines: [
+                  { name: 'Cognitive Warfare Engine', file: 'src/services/cognitiveWarfareEngine.ts', desc: 'Detects and quantifies disinformation campaigns, panic index, media manipulation, trust erosion, and polarization metrics. Maps shock vectors to RRI epsilon.', status: 'LIVE' },
+                  { name: 'Narrative Engine', file: 'src/services/narrativeEngine.ts', desc: 'Lexical pattern analysis with Tunisia-specific euphemism/propaganda detection. Tracks state-vs-opposition framing across mainstream and fringe sources.', status: 'LIVE' },
+                  { name: 'ETM Engine', file: 'src/services/etmEngine.ts', desc: 'Extended Threat Model — cognitive security intelligence layer detecting engineered narrative seed/amplification/closure phases and information operations.', status: 'LIVE' },
+                  { name: 'SCI Engine', file: 'backend/app/intelligence/sci.py', desc: 'Signal Credibility Index — scores every signal (Telegram, RSS) 0.0–1.0 with labels: Fact, Probable, Rumor, Coordinated Narrative, PSYOP, Early Weak Signal.', status: 'LIVE' },
+                ],
+              },
+              {
+                category: 'Institutional Analysis',
+                color: '#30d158',
+                icon: Users,
+                engines: [
+                  { name: 'MII Engine', file: 'src/services/miiEngine.ts', desc: 'Ministerial Instability Index — measures government reshuffle patterns across 4 phases (Stable, Restless, Fracturing, Collapse) as a leading indicator of regime stress.', status: 'LIVE' },
+                  { name: 'Actor Engine', file: 'backend/app/services/actor_engine.py', desc: 'Computes posture and adjusted action probabilities for each actor profile from state snapshots. Broadcasts posture updates via WebSocket.', status: 'BUILDING' },
+                  { name: 'Decision Engine', file: 'backend/app/strategy/engine.py', desc: 'Analyzes RRI levels, anomalies, and predictions to suggest strategic actions and policy recommendations for institutional stakeholders.', status: 'BUILDING' },
+                  { name: 'Tunisia Simulator', file: 'backend/app/simulator/engine.py', desc: 'Institution-grade scenario simulation engine integrating historical analogs, causal modeling, and stochastic progression for what-if analysis.', status: 'BUILDING' },
+                ],
+              },
+              {
+                category: 'Resource & Intelligence',
+                color: '#bf5af2',
+                icon: Globe,
+                engines: [
+                  { name: 'ASIL / AgroIntel Engine', file: 'src/services/AgriIntelEngine.ts + AgroSystemEngine.ts', desc: 'Satellite agriculture intelligence monitoring wheat/olive stress via NDVI, rainfall, soil moisture. Extended by ASIL for tree crops, water intelligence, and Bread Crisis Early Warning (BCI).', status: 'LIVE' },
+                  { name: 'Brief Engine', file: 'backend/app/services/brief_engine.py', desc: 'RAG-grounded intelligence brief generation combining RRI snapshot classification with live RAG synthesis. Produces situation/assessment/developments/actions with citations.', status: 'LIVE' },
+                  { name: 'Risk Decomposition Engine', file: 'backend/app/reliability/layers.py', desc: 'Explains RRI changes by identifying which variables contributed most to the delta. Attribution analysis for every RRI shift.', status: 'BUILDING' },
+                ],
+              },
+              {
+                category: 'Backend Data Mining',
+                color: '#64748b',
+                icon: Database,
+                engines: [
+                  { name: 'Fusion Engine', file: 'backend/app/intelligence/engines.py', desc: 'Combines multiple data sources (RSS, reports, variables) into normalized, weighted intelligence signals.', status: 'LIVE' },
+                  { name: 'Correlation Engine', file: 'backend/app/intelligence/engines.py', desc: 'Pearson/cross-correlation detection across the 250-variable RRI matrix. Identifies co-movements and leading/lagging relationships.', status: 'LIVE' },
+                  { name: 'Anomaly Engine', file: 'backend/app/intelligence/engines.py', desc: 'Identifies anomalous variable movements using z-score, IQR, and velocity-based deviation detection.', status: 'LIVE' },
+                  { name: 'Causality Engine', file: 'backend/app/intelligence/engines.py', desc: 'Granger causality tests between variable pairs to identify causal relationships (e.g., subsidy cuts → protest frequency).', status: 'LIVE' },
+                  { name: 'Calibration Engine', file: 'backend/app/intelligence/calibration.py', desc: 'Prediction accuracy tracking with Brier scores, calibration curves, bias detection, and Bayesian parameter update suggestions.', status: 'LIVE' },
+                ],
+              },
+            ].map(group => (
+              <div key={group.category} className="mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <group.icon className="w-4 h-4" style={{ color: group.color }} />
+                  <h3 className="text-[11px] font-bold text-white uppercase tracking-widest">{group.category}</h3>
+                  <div className="h-px flex-1 bg-gradient-to-r" style={{ backgroundImage: `linear-gradient(to right, ${group.color}30, transparent)` }} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {group.engines.map(engine => {
+                    const statusColor = engine.status === 'LIVE' ? '#30d158' : '#ff9f0a';
+                    const statusBg = engine.status === 'LIVE' ? 'rgba(48,209,88,0.1)' : 'rgba(255,159,10,0.1)';
+                    const statusBorder = engine.status === 'LIVE' ? 'rgba(48,209,88,0.3)' : 'rgba(255,159,10,0.3)';
+                    return (
+                      <div key={engine.name}
+                        className="rounded-xl p-4 border transition-all duration-200 hover:translate-y-[-2px]"
+                        style={{
+                          backgroundColor: `${group.color}08`,
+                          borderColor: `${group.color}20`,
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">{engine.name}</span>
+                          <span className="text-[7px] font-mono px-1.5 py-0.5 rounded uppercase font-bold"
+                            style={{
+                              color: statusColor,
+                              backgroundColor: statusBg,
+                              border: `1px solid ${statusBorder}`,
+                            }}
+                          >{engine.status}</span>
+                        </div>
+                        <p className="text-[9px] text-slate-500 leading-relaxed mb-2">{engine.desc}</p>
+                        <div className="text-[7px] font-mono text-slate-700 truncate">{engine.file}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Live metrics row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-intel-border/30">
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Stochastic Shock</div>
+                <div className="text-lg font-mono text-white font-bold">{rriState.stochastic_shock.toFixed(4)}</div>
+                <div className="text-[9px] text-slate-500">Current ε(t) from EQ.13</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Active Signals</div>
+                <div className="text-lg font-mono text-white font-bold">{data?.active_signals?.length || 0}</div>
+                <div className="text-[9px] text-slate-500">Shocks injected via pipeline</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Engines Live</div>
+                <div className="text-lg font-mono text-white font-bold">15</div>
+                <div className="text-[9px] text-slate-500">Of 22 total deployed</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Signal Credibility</div>
+                <div className="text-lg font-mono text-white font-bold">{rriState.model_confidence ? (rriState.model_confidence * 100).toFixed(0) + '%' : 'N/A'}</div>
+                <div className="text-[9px] text-slate-500">Aggregate model confidence</div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 6: CALIBRATION */}
           <div id="calibration" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <BarChart3 className="w-6 h-6 text-intel-cyan" />

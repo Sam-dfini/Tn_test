@@ -40,6 +40,7 @@ import { computeSBDE, DEFAULT_SBDE_INPUTS, W_PSI_RRI } from '../services/sbdeEng
 import { storePrediction, evaluatePendingPredictions } from '../services/predictionLedger';
 import { computeMediaSalience } from '../services/mediaSalienceService';
 import { getVarCache } from '../services/pipelineService';
+import { syncActiveSignals } from '../services/backendClient';
 
 interface EconomyData {
   gdp_growth: number;        // % e.g. 0.4
@@ -1078,10 +1079,11 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       timestamp: Date.now()
     };
 
-    setData(prev => ({
-      ...prev,
-      active_signals: [...prev.active_signals.filter(s => s.id !== signalId), signal]
-    }));
+    let newSignals: ShockSignal[] = [];
+    setData(prev => {
+      newSignals = [...prev.active_signals.filter(s => s.id !== signalId), signal];
+      return { ...prev, active_signals: newSignals };
+    });
 
     addNotification({
       type: 'SHOCK',
@@ -1093,14 +1095,18 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       action_detail: { tab: 'risk' }
     });
 
-    setTimeout(() => recalculateRRI(), 100);
+    setTimeout(() => {
+      syncActiveSignals(newSignals);
+      recalculateRRI();
+    }, 100);
   }, [addNotification, recalculateRRI]);
 
   const injectShock = useCallback((shock: ShockSignal) => {
-    setData(prev => ({
-      ...prev,
-      active_signals: [...prev.active_signals.filter(s => s.id !== shock.id), shock]
-    }));
+    let newSignals: ShockSignal[] = [];
+    setData(prev => {
+      newSignals = [...prev.active_signals.filter(s => s.id !== shock.id), shock];
+      return { ...prev, active_signals: newSignals };
+    });
 
     addNotification({
       type: 'SHOCK',
@@ -1112,12 +1118,18 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       action_detail: { tab: 'alerts' }
     });
 
-    setTimeout(() => recalculateRRI(), 100);
+    setTimeout(() => {
+      syncActiveSignals(newSignals);
+      recalculateRRI();
+    }, 100);
   }, [addNotification, recalculateRRI]);
 
   const clearShocks = useCallback(() => {
     setData(prev => ({ ...prev, active_signals: [] }));
-    setTimeout(() => recalculateRRI(), 100);
+    setTimeout(() => {
+      syncActiveSignals([]);
+      recalculateRRI();
+    }, 100);
   }, [recalculateRRI]);
 
   const loadPipelineData = useCallback(() => {

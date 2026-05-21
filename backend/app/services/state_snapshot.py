@@ -3,6 +3,9 @@ State Snapshot Service — Single-authority writer for national_state_snapshots.
 
 Orchestrator step 7 invokes write_snapshot() after RRI computation.  The
 snapshot becomes the canonical state that every frontend component reads.
+
+Also maintains an in-memory store for active shocks received from the
+frontend, so write_snapshot persists them into the DB column.
 """
 
 from __future__ import annotations
@@ -13,8 +16,25 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
+# ── In-memory active shock store ───────────────────────────────────
+# Frontend POSTs its active signals here so write_snapshot can persist
+# them into the active_shocks JSONB column.
+
+_active_shocks_store: List[Dict[str, Any]] = []
+
+
+def set_active_shocks(shocks: List[Dict[str, Any]]) -> None:
+    _active_shocks_store.clear()
+    _active_shocks_store.extend(shocks)
+
+
+def get_active_shocks() -> List[Dict[str, Any]]:
+    return list(_active_shocks_store)
+
 from ..core.database import db
 from ..api.ws import manager
+from ..ontology.service import check_activation as ontology_check_activation
+from .actor_engine import get_all_postures as actor_get_all_postures
 from .rri_engine import (
     calculate_rri,
     detect_threshold_breaches,
@@ -90,7 +110,7 @@ def write_snapshot(
         "sir_recovered": rri_result.get("sir_recovered", 0.0),
 
         "governorate_vectors": "[]",
-        "active_shocks": "[]",
+        "active_shocks": json.dumps(get_active_shocks()),
         "narrative_state": "{}",
         "actor_postures": "[]",
 
@@ -141,11 +161,27 @@ def write_snapshot(
         # WebSocket broadcast
         _broadcast_snapshot(created[0] if created else snapshot)
 
+        # Ontology activation check — fire-and-forget
+        _broadcast_ontology_activation(
+            ontology_check_activation(created[0] if created else snapshot)
+        )
+
+        # Actor posture computation — fire-and-forget
+        _run_actor_postures(created[0] if created else snapshot)
+
         return created[0] if created else snapshot
 
     except Exception as e:
         # Fallback: return computed snapshot without DB persistence
         _broadcast_snapshot(snapshot)
+
+        # Still try ontology check on the computed snapshot
+        try:
+            _broadcast_ontology_activation(
+                ontology_check_activation(snapshot)
+            )
+        except Exception:
+            pass
         return snapshot
 
 
@@ -166,6 +202,86 @@ def _broadcast_snapshot(snapshot: Dict[str, Any]) -> None:
             "cascade_probability": snapshot.get("cascade_probability"),
             "category_scores": snapshot.get("category_scores"),
             "is_simulation": snapshot.get("is_simulation", False),
+        },
+    }
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            loop.create_task(manager.broadcast(payload))
+    except RuntimeError:
+        pass
+
+
+def _run_actor_postures(snapshot: Dict[str, Any]) -> None:
+    """Fire-and-forget actor posture computation (non-blocking)."""
+    import asyncio
+
+    async def _compute():
+        try:
+            postures = await actor_get_all_postures(snapshot)
+            _broadcast_actor_postures(postures)
+        except Exception:
+            pass
+
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            loop.create_task(_compute())
+    except RuntimeError:
+        pass
+
+
+def _broadcast_ontology_activation(
+    activation_result: Dict[str, Any],
+) -> None:
+    """WebSocket broadcast of ontology activation (fire-and-forget)."""
+    import asyncio
+
+    payload = {
+        "type": "ONTOLOGY_ACTIVATION",
+        "payload": {
+            "checked_at": activation_result.get("checked_at"),
+            "state_version_id": activation_result.get("state_version_id"),
+            "active_chains": [
+                {
+                    "chain_id": c["chain_id"],
+                    "chain_name": c["chain_name"],
+                    "trigger_ratio": c["trigger_ratio"],
+                    "propagation_estimate_hours": c["propagation_estimate_hours"],
+                    "current_value": c["current_value"],
+                    "threshold_breached": c["threshold_breached"],
+                }
+                for c in activation_result.get("active_chains", [])
+            ],
+            "latent_count": len(activation_result.get("latent_chains", [])),
+        },
+    }
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            loop.create_task(manager.broadcast(payload))
+    except RuntimeError:
+        pass
+
+
+def _broadcast_actor_postures(postures: List[Dict[str, Any]]) -> None:
+    """WebSocket broadcast of actor posture updates (fire-and-forget)."""
+    import asyncio
+
+    payload = {
+        "type": "ACTOR_POSTURES",
+        "payload": {
+            "postures": [
+                {
+                    "entity_id": p["entity_id"],
+                    "actor_name": p["actor_name"],
+                    "current_stress": p["current_stress"],
+                    "current_posture": p["current_posture"],
+                    "posture_updated_at": p["posture_updated_at"],
+                    "top_actions": list(p.get("adjusted_probability_matrix", {}).keys())[:3],
+                }
+                for p in postures
+            ],
         },
     }
     try:

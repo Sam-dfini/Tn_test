@@ -13,21 +13,6 @@ class Settings(BaseSettings):
     # General App Settings
     APP_NAME: str = "TUNISIAINTEL Backend"
     DEBUG: bool = True
-# backend/app/core/config.py
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-# Explicitly load .env file
-load_dotenv()
-
-class Settings(BaseSettings):
-    """
-    Application configuration settings.
-    Loads from environment variables or .env file.
-    """
-    # General App Settings
-    APP_NAME: str = "TUNISIAINTEL Backend"
-    DEBUG: bool = True
 
     # Supabase Configuration
     SUPABASE_URL: str
@@ -36,6 +21,11 @@ class Settings(BaseSettings):
 
     # AI Configuration
     OPENROUTER_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+
+    # AnythingLLM / Doctrine Library
+    ANYTHINGLLM_API_KEY: str = ""
+    ANYTHINGLLM_BASE_URL: str = "http://localhost:3001/api"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

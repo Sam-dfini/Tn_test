@@ -7,8 +7,10 @@ from .core.config import settings
 from .api.routes import router as api_router
 from .api.ws import router as ws_router
 from .knowledge_graph.api import router as graph_router
-# orchestrator imported lazily in lifespan to speed up startup
-# from .services.rss_service import rss_service
+from .ontology.api import router as ontology_router
+from .api.rag import router as rag_router
+from .actors.api import router as actors_router
+from .doctrine.api import router as doctrine_router
 
 
 @asynccontextmanager
@@ -19,19 +21,21 @@ async def lifespan(app: FastAPI):
     print("Starting automated backend data pipeline (Cron Scrapers & Intelligence Mode)...")
     
     # Start the orchestrator's continuous loop in the background (runs every 10 minutes)
-    # Disabled due to OpenRouter payment issues; backend API routes still work independently
-    # task = asyncio.create_task(orchestrator.start_continuous_intelligence(interval_seconds=600))
+    from .orchestrator import orchestrator
+    task = asyncio.create_task(
+        orchestrator.start_continuous_intelligence(interval_seconds=600)
+    )
     
     yield
     
     # Shutdown: Clean up task
     print("Stopping automated backend data pipeline...")
-    # orchestrator.stop_continuous_intelligence()
-    # task.cancel()
-    # try:
-    #     await task
-    # except asyncio.CancelledError:
-    #     pass
+    orchestrator.stop_continuous_intelligence()
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
 
 # Initialize FastAPI application
 app = FastAPI(
@@ -44,6 +48,10 @@ app = FastAPI(
 # Include routers
 app.include_router(api_router, prefix="/api")
 app.include_router(graph_router, prefix="/api")
+app.include_router(ontology_router, prefix="/api")
+app.include_router(rag_router, prefix="/api")
+app.include_router(actors_router, prefix="/api")
+app.include_router(doctrine_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS
