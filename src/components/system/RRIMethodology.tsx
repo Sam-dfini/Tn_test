@@ -1199,7 +1199,10 @@ export const RRIMethodology: React.FC<{
     { id: 'trgm', label: 'TRGM Governance Matrix' },
     { id: 'variables', label: 'All 251+ Variables' },
     { id: 'montecarlo', label: 'Monte Carlo' },
-    { id: 'engines', label: 'Engines (22)' },
+    { id: 'engines', label: 'Engines (27)' },
+    { id: 'actor-regime', label: 'Actor & Regime Modeling' },
+    { id: 'pipeline', label: 'Intelligence Pipeline' },
+    { id: 'learning', label: 'Learning & Validation' },
     { id: 'calibration', label: 'Calibration & Validation' },
     { id: 'performance', label: 'Model Performance' },
     { id: 'limitations', label: 'Limitations' },
@@ -2241,7 +2244,7 @@ export const RRIMethodology: React.FC<{
               <h2 className="text-lg font-bold text-white uppercase tracking-widest">Engines</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The platform is powered by <span className="text-white font-medium">20+ analytical engines</span> that span the full intelligence pipeline —
+              The platform is powered by <span className="text-white font-medium">29 analytical engines</span> that span the full intelligence pipeline —
               from raw signal ingestion and credibility scoring to risk computation, scenario simulation, and strategic briefing.
             </p>
 
@@ -2298,6 +2301,18 @@ export const RRIMethodology: React.FC<{
                   { name: 'ASIL / AgroIntel Engine', file: 'src/services/AgriIntelEngine.ts + AgroSystemEngine.ts', desc: 'Satellite agriculture intelligence monitoring wheat/olive stress via NDVI, rainfall, soil moisture. Extended by ASIL for tree crops, water intelligence, and Bread Crisis Early Warning (BCI).', status: 'LIVE' },
                   { name: 'Brief Engine', file: 'backend/app/services/brief_engine.py', desc: 'RAG-grounded intelligence brief generation combining RRI snapshot classification with live RAG synthesis. Produces situation/assessment/developments/actions with citations.', status: 'LIVE' },
                   { name: 'Risk Decomposition Engine', file: 'backend/app/reliability/layers.py', desc: 'Explains RRI changes by identifying which variables contributed most to the delta. Attribution analysis for every RRI shift.', status: 'BUILDING' },
+                ],
+              },
+              {
+                category: 'Economic Early Warning',
+                color: '#00d4ff',
+                icon: TrendingUp,
+                engines: [
+                  { name: 'Black Market Intel (BMI)', file: 'src/services/BlackMarketIntel.ts', desc: 'Computes black market price gaps, availability gaps, currency distortion, and informal economy signals. Outputs BMI index 0-1 with levels NORMAL/EMERGING/ACTIVE/BREAKDOWN.', status: 'BUILDING' },
+                  { name: 'Food Price Engine', file: 'src/services/FoodPriceEngine.ts', desc: 'Predictive food price model (2/4/8 week horizons) using supply shock, cost pressure, market distortion (BMI), and behavioral pressure (panic buying, hoarding).', status: 'LIVE' },
+                  { name: 'Import Dependency Intel', file: 'src/services/ImportDependencyIntel.ts', desc: 'Computes import dependency ratio, supply risk score, wheat import dependency (~60%), and top risk commodities for Tunisia.', status: 'BUILDING' },
+                  { name: 'Protein Intel', file: 'src/services/ProteinIntel.ts', desc: 'Feed stress, livestock/poultry/fish supply pressure, and protein inflation risk. Chicken/eggs/milk affordability is a daily political issue.', status: 'LIVE' },
+                  { name: 'Investment Intel Engine', file: 'src/services/InvestmentIntelligenceEngine.ts', desc: 'Generates structured investment timing reports (ENTER_NOW/CONDITIONAL/DEFER/AVOID) with location intelligence, sector analysis, and regime risk assessment.', status: 'BUILDING' },
                 ],
               },
               {
@@ -2365,8 +2380,8 @@ export const RRIMethodology: React.FC<{
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Engines Live</div>
-                <div className="text-lg font-mono text-white font-bold">15</div>
-                <div className="text-[9px] text-slate-500">Of 22 total deployed</div>
+                <div className="text-lg font-mono text-white font-bold">21</div>
+                <div className="text-[9px] text-slate-500">Of 29 total deployed</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Signal Credibility</div>
@@ -2376,7 +2391,453 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 6: CALIBRATION */}
+          {/* SECTION 6: ACTOR & REGIME MODELING */}
+          <div id="actor-regime" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <Users className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Actor &amp; Regime Modeling</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              The RRI model measures <span className="text-white font-medium">structural risk</span>, but structural risk alone does not
+              produce revolution. The critical bridge is <span className="text-intel-cyan">actor coordination</span> and
+              <span className="text-intel-cyan"> regime response</span>. These two layers explain whether high R(t) translates
+              into diffuse unrest (current Tunisia) or systemic rupture (2011).
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left: Actor Network */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-intel-cyan" />
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Opposition Actor Network</h3>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    7 actor clusters mapped by alignment, reach, frame alignment, coordination score,
+                    suppression level, and public trust. The core insight: <span className="text-intel-cyan">OCI (Opposition
+                    Coordination Index) is a multiplier on effective salience</span>, not additive:
+                  </p>
+                  <div className="bg-black/50 rounded-lg p-3 font-mono text-[11px] text-intel-cyan text-center">
+                    S_eff(t) = S(t) × (0.4 + 0.6 × OCI)
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    Current OCI ≈ 0.22 — this low coordination score explains why 2024-2025 unrest
+                    remains diffuse despite elevated R(t). When OCI is low, protests are fragmented
+                    and cannot converge on a single demand set.
+                  </p>
+                  <div className="space-y-1.5 mt-3">
+                    <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">7 Actor Clusters</div>
+                    {[
+                      { name: 'UGTT', desc: 'Labor union — economic justice frame. Largest mobilisation capacity.', color: '#ff453a' },
+                      { name: 'NGO / Media', desc: 'Al Katiba, Alert, civil society. Narrative amplification layer.', color: '#ff9f0a' },
+                      { name: 'Secular Right', desc: 'PDL (Abir Moussi) — security / anti-migration frame.', color: '#0a84ff' },
+                      { name: 'Islamist', desc: 'Ennahda remnants — low visibility, dormant mobilisation capacity.', color: '#bf5af2' },
+                      { name: 'Human Rights', desc: 'LTDH, international NGOs, diaspora — legitimacy channel.', color: '#30d158' },
+                      { name: 'Student / Youth', desc: 'UGET, campus networks, digital activists — velocity layer.', color: '#00d4ff' },
+                      { name: 'Business', desc: 'UTICA-aligned, economic technocrats — defection-loyalty swing.', color: '#64748b' },
+                    ].map(c => (
+                      <div key={c.name} className="flex items-center gap-2 text-[10px]">
+                        <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                        <span className="text-slate-300 font-medium min-w-[90px]">{c.name}</span>
+                        <span className="text-slate-500">{c.desc}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5">
+                  <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Cross-Cutting Issues</h4>
+                  <div className="space-y-2 text-[10px]">
+                    {[
+                      'Subsidy reform fragments UGTT (FOR) vs Business (AGAINST)',
+                      'Decree 54 splits Human Rights (AGAINST) vs Secular Right (FOR)',
+                      'Water crisis creates temporary UGTT-NGO alignment',
+                      'IMF negotiations split Business (FOR reforms) vs UGTT (AGAINST)',
+                      'Presidential election cycle silences all opposition clusters',
+                    ].map(issue => (
+                      <div key={issue} className="flex items-start gap-2">
+                        <div className="w-1 h-1 rounded-full bg-intel-orange mt-1.5 shrink-0" />
+                        <span className="text-slate-400">{issue}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: GovAgent */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-intel-orange" />
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Government Agent (GovAgent)</h3>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    A deterministic cognitive model of the Saied regime with four layers:
+                  </p>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'Strategic Brain', desc: 'Assesses constraint stress (economic, security, international, elite). Decides whether to repress, concede, distract, or silence based on stress thresholds.' },
+                      { label: 'Narrative Mouth', desc: 'Selects from 11 narrative frames (anti-corruption, external conspiracy, security threat, economic resilience, etc.) to maintain base mobilisation.' },
+                      { label: 'Consistency Filter', desc: 'Detects brain-mouth divergence. When the regime\'s actions contradict its narrative, credibility erodes.' },
+                      { label: 'Reflex Layer', desc: 'Automatic responses to protest events, international pressure, and elite defection signals.' },
+                    ].map(l => (
+                      <div key={l.label} className="flex items-start gap-2 p-2 rounded-lg bg-black/40 border border-intel-border/20">
+                        <div className="w-1 h-1 rounded-full bg-intel-orange mt-1.5 shrink-0" />
+                        <div>
+                          <span className="text-[10px] text-slate-200 font-medium">{l.label}</span>
+                          <p className="text-[9px] text-slate-500">{l.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Action Types', value: '12', sub: 'Repress, Concede, Distract, Silence, Purge, Mobilise Base, etc.' },
+                    { label: 'Narrative Frames', value: '11', sub: 'Anti-corruption, Security Threat, Economic Resilience, External Conspiracy, etc.' },
+                    { label: 'Forecast Horizons', value: '7/30/90d', sub: 'Short/medium/long-term action predictions' },
+                    { label: 'Constraint Axes', value: '4', sub: 'Economic, Security, International, Elite' },
+                  ].map(s => (
+                    <div key={s.label} className="bg-black/40 border border-intel-border rounded-lg p-3">
+                      <div className="text-[8px] font-mono text-slate-500 uppercase">{s.label}</div>
+                      <div className="text-sm font-mono text-white font-bold">{s.value}</div>
+                      <div className="text-[8px] text-slate-600">{s.sub}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-intel-orange/5 border border-intel-orange/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="w-3 h-3 text-intel-orange shrink-0" />
+                    <span className="text-[10px] font-bold text-intel-orange uppercase">Analytical Insight</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 leading-relaxed">
+                    The GovAgent's <span className="text-white font-medium">brain-mouth divergence score</span> is a leading indicator
+                    of regime fragility. When the regime's narrative (anti-corruption) contradicts its actions (purge of anti-corruption
+                    figures), credibility erodes and the opposition coordination opportunity window opens.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* OCI live stat */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Opposition Coordination Index</div>
+                <div className="text-lg font-mono text-white font-bold">{(rriState.oci || 0.22).toFixed(2)}</div>
+                <div className="text-[9px] text-slate-500">OCI — 0.22 = diffuse, 0.80+ = rupture-capable</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Actor Clusters Tracked</div>
+                <div className="text-lg font-mono text-white font-bold">7</div>
+                <div className="text-[9px] text-slate-500">UGTT, NGO, Secular, Islamist, HR, Youth, Business</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Effective Salience</div>
+                <div className="text-lg font-mono text-white font-bold">{(rriState.salience_effective || 0).toFixed(3)}</div>
+                <div className="text-[9px] text-slate-500">S(t) × (0.4 + 0.6 × OCI) — the real mobilisation driver</div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 7: INTELLIGENCE PIPELINE */}
+          <div id="pipeline" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <Activity className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Intelligence Pipeline</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              The equations and engines describe the <span className="text-white font-medium">what</span> of intelligence.
+              The Pipeline describes the <span className="text-white font-medium">how</span> — the runtime orchestration
+              that ingests raw data, runs every engine in dependency order, and produces the outputs,
+              alerts, and briefs that analysts actually use.
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Stage 1-3 */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">1</span>
+                    Ingestion
+                  </h4>
+                  {[
+                    { label: 'RSS Feeds', desc: '24+ sources (TAP, Leaders, Business News, Mosaique FM, etc.) with language, reliability, and geo-weight metadata.' },
+                    { label: 'NewsAPI', desc: 'Supplemental news API for broader coverage. Articles classified by category and severity.' },
+                    { label: 'Telegram Channels', desc: 'Real-time alternative data from Tunisian political and activist channels.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">2</span>
+                    Extraction
+                  </h4>
+                  {[
+                    { label: 'Signal Classifier', desc: 'Scores every signal (Fact / Probable / Rumor / Coordinated Narrative / PSYOP / Weak Signal).' },
+                    { label: 'Event Extraction', desc: 'LLM-powered structured extraction of geopolitical/economic events with confidence scoring.' },
+                    { label: 'Deduplication', desc: 'Text/location/timestamp similarity merging to prevent double-counting.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stage 3-5 */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">3</span>
+                    Analysis
+                  </h4>
+                  {[
+                    { label: 'PipelineContext', desc: 'Central 1193-line orchestrator calling every engine in dependency order: SBDE → RRI → MII → RDE → CogWar → SEI → Signals → Clusters → Smart Alerts → Agents.' },
+                    { label: 'Variable Pipeline', desc: 'Extracted article fields mapped to 251+ RRI variable overrides via pipeline field aliases.' },
+                    { label: 'Shortage Detector', desc: 'NLP scarcity signal scanning with seasonal multipliers and 2-6 week leading indicator output.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">4</span>
+                    Detection
+                  </h4>
+                  {[
+                    { label: 'Threshold Breaches', desc: '16 monitored thresholds across RRI, velocity, FX reserves, UGTT mobilisation, protest counts, Decree 54, pattern similarity, and seasonal shortages.' },
+                    { label: 'Anomaly Detection', desc: 'Z-score, IQR, and velocity-based deviation detection across the 250-variable matrix.' },
+                    { label: 'Narrative Shift', desc: 'Lexical pattern analysis detecting sudden frame changes in regime messaging.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stage 5-7 */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">5</span>
+                    Notifications
+                  </h4>
+                  {[
+                    { label: 'Priority Levels', desc: 'CRITICAL (immediate escalation), HIGH (breach detected), MEDIUM (trend change), LOW (informational).' },
+                    { label: 'Deduplication', desc: 'Same-threshold alerts are coalesced within a 6-hour window to prevent alert fatigue.' },
+                    { label: 'Event Triggers', desc: 'Thresholds fire window events (ti:*), which the notification system picks up and routes to the correct UI location.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-3">
+                  <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-4 h-4 rounded-full bg-intel-cyan/20 border border-intel-cyan/30 flex items-center justify-center text-[8px] font-bold text-intel-cyan">6</span>
+                    Products
+                  </h4>
+                  {[
+                    { label: 'Tactical Dashboard', desc: '25-component live intelligence view: OSINT stream, breaking intel, risk gauges, tactical map, signal core.' },
+                    { label: 'AI Briefs', desc: 'RAG-grounded intelligence briefs with situation, assessment, developments, and citations.' },
+                    { label: 'Agent Insights', desc: '7 specialized AI agents producing domain-specific qualitative analysis layered over quantitative RRI outputs.' },
+                  ].map(s => (
+                    <div key={s.label} className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-slate-600 mt-1.5 shrink-0" />
+                      <div>
+                        <span className="text-[10px] text-slate-200 font-medium">{s.label}</span>
+                        <p className="text-[9px] text-slate-500">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Pipeline execution order */}
+            <div className="bg-black/30 border border-intel-border rounded-xl p-5 mt-4">
+              <h4 className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-3">Pipeline Execution Order (per cycle)</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[9px]">
+                {[
+                  'SBDE Engine', 'RRI Engine', 'Monte Carlo', 'MII Engine',
+                  'RDE / Radical', 'CogWar Engine', 'SEI Engine', 'Signal Processing',
+                  'Cluster Analysis', 'Smart Alerts', 'Agent Insights', 'AI Analysis',
+                  'WebSocket Broadcast', 'State Snapshot', 'Prediction Eval', 'Audit Log',
+                ].map((step, i) => (
+                  <div key={step} className="flex items-center gap-1.5 p-1.5 rounded bg-black/40 border border-intel-border/20">
+                    <span className="text-[7px] font-mono text-slate-600 min-w-[14px]">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="text-slate-300 truncate">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 8: LEARNING & VALIDATION */}
+          <div id="learning" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <TrendingUp className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Learning &amp; Validation</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              A model that cannot be wrong cannot improve. The platform implements a
+              <span className="text-white font-medium"> falsifiable prediction framework</span> — every model output
+              is converted into time-bounded, binary predictions that are tracked, evaluated, and
+              used to calibrate accuracy across variables, horizons, and RRI regimes.
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Left: Prediction Ledger */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-intel-green" />
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Prediction Ledger</h3>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    15 prediction variables organized across 4 time horizons (7/14/30/60 days).
+                    Every prediction is <span className="text-intel-cyan">falsifiable</span> — it has a clear binary outcome
+                    that can be evaluated against observed reality.
+                  </p>
+                  <div className="space-y-1.5">
+                    <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Tracked Predictions</div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        'FX reserves below 75', 'FX reserves below 60', 'UGTT escalates',
+                        'Protests exceed 30', 'Protests exceed 40', 'SEI Phase 4+',
+                        'SEI anger window', 'Cascade prob > 60%', 'Velocity > 0.20',
+                        'RPI Level 3+', 'ETM closure > 65%', 'MII phase chaotic',
+                        'Elite defection > 30%', 'RRI > 2.5', 'RRI > 3.0',
+                      ].map(p => (
+                        <div key={p} className="flex items-center gap-1.5 text-[9px] text-slate-400">
+                          <div className="w-1 h-1 rounded-full bg-intel-green/60 shrink-0" />
+                          <span className="truncate">{p}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5">
+                  <h4 className="text-[9px] font-mono text-slate-500 uppercase tracking-wider mb-3">Evaluation Metrics</h4>
+                  <div className="space-y-2 text-[10px]">
+                    {[
+                      'Accuracy computed per variable, per time horizon, and per RRI regime',
+                      'Brier scores measure probabilistic calibration (0.0 = perfect, 1.0 = worst)',
+                      'Base rate awareness prevents overconfidence in high-base-rate predictions',
+                      'No auto-weight adjustment — humans validate all parameter changes',
+                      'Structural preconditions tracked separately from binary outcomes',
+                    ].map(m => (
+                      <div key={m} className="flex items-start gap-2">
+                        <div className="w-1 h-1 rounded-full bg-intel-cyan mt-1.5 shrink-0" />
+                        <span className="text-slate-400">{m}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Learning Loop */}
+              <div className="space-y-4">
+                <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-intel-orange" />
+                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Learning Loop</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { step: '1', label: 'Predict', desc: 'Model generates 15 falsifiable predictions with confidence scores every cycle.' },
+                      { step: '2', label: 'Observe', desc: 'Actual outcomes are recorded against prediction targets when data arrives.' },
+                      { step: '3', label: 'Evaluate', desc: 'Accuracy tracked by variable x horizon x RRI regime. Brier scores computed per dimension.' },
+                      { step: '4', label: 'Surface', desc: 'High-error predictions and calibration drift surfaced for analyst review.' },
+                      { step: '5', label: 'Adjust', desc: 'Analyst validates parameter adjustments — no automatic weight changes.' },
+                    ].map(item => (
+                      <div key={item.step} className="flex items-start gap-3 py-1.5 border-b border-intel-border/10 last:border-0">
+                        <div className="w-4 h-4 rounded-full bg-intel-orange/20 border border-intel-orange/30 flex items-center justify-center shrink-0 mt-0.5">
+                          <span className="text-[7px] font-mono text-intel-orange font-bold">{item.step}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-200 font-medium">{item.label}</span>
+                          <p className="text-[9px] text-slate-500">{item.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-intel-green/5 border border-intel-green/20 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Info className="w-3 h-3 text-intel-green shrink-0" />
+                    <span className="text-[10px] font-bold text-intel-green uppercase">Design Principle</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 leading-relaxed">
+                    <span className="text-white font-medium">"Honest accuracy"</span> — the system tracks base rates and does not
+                    allow the model to claim performance above what naive prediction would achieve.
+                    If unrest is at 23 events/month and the model predicts "protests exceed 30"
+                    every day, its accuracy is compared against a naive "always predict 23" baseline.
+                    This prevents Goodhart's Law corruption of the learning signal.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Loop stat cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Prediction Variables</div>
+                <div className="text-lg font-mono text-white font-bold">15</div>
+                <div className="text-[9px] text-slate-500">Falsifiable binary targets</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Time Horizons</div>
+                <div className="text-lg font-mono text-white font-bold">4</div>
+                <div className="text-[9px] text-slate-500">7d / 14d / 30d / 60d</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Brier Score Range</div>
+                <div className="text-lg font-mono text-white font-bold">0.0 – 1.0</div>
+                <div className="text-[9px] text-slate-500">0.0 = perfect calibration</div>
+              </div>
+              <div className="bg-black/30 border border-intel-border rounded-xl p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Validation Mode</div>
+                <div className="text-lg font-mono text-white font-bold">Human-in-loop</div>
+                <div className="text-[9px] text-slate-500">No automatic weight updates</div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 9: CALIBRATION */}
           <div id="calibration" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <BarChart3 className="w-6 h-6 text-intel-cyan" />
@@ -2405,7 +2866,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 7: PERFORMANCE */}
+          {/* SECTION 10: PERFORMANCE */}
           <div id="performance" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <TrendingUp className="w-6 h-6 text-intel-cyan" />
@@ -2460,7 +2921,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 8: LIMITATIONS */}
+          {/* SECTION 11: LIMITATIONS */}
           <div id="limitations" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <AlertTriangle className="w-6 h-6 text-intel-orange" />
@@ -2506,7 +2967,7 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 8: BIBLIOGRAPHY */}
+          {/* SECTION 12: BIBLIOGRAPHY */}
           <div id="bibliography" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Globe className="w-6 h-6 text-intel-cyan" />
