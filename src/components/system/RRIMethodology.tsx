@@ -16,7 +16,8 @@ import {
   BarChart3, Brain, Zap, Globe,
   Shield, TrendingUp, Database, Dices,
   Calculator, Radio, LayoutGrid, Users,
-  Bell, Bot, Sparkles, Layers, Triangle, MessageSquare
+  Bell, Bot, Sparkles, Layers, Triangle, MessageSquare,
+  Cpu
 } from 'lucide-react';
 
 const Equation: React.FC<{
@@ -2484,7 +2485,96 @@ export const RRIMethodology: React.FC<{
             </div>
           </div>
 
-          {/* SECTION 7: ACTOR & REGIME MODELING */}
+          {/* SECTION 7: SIMULATION CHAMBER */}
+          <div id="simulation-chamber" className="scroll-mt-8 mb-10">
+            <div className="flex items-center space-x-4 mb-6">
+              <Cpu className="w-6 h-6 text-intel-cyan" />
+              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Phase 7: Simulation Chamber</h2>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
+              The Simulation Chamber answers one question: <span className="text-white font-medium">"What happens next if
+              decision X is taken — or if shock Y occurs?"</span> It forks from the canonical state snapshot, injects a
+              shock or policy decision, propagates effects through causal chains (Phase 2), runs actor responses through
+              the deliberation engine (Phase 6), and advances the state forward in discrete time steps. Monte Carlo
+              across N iterations produces a probability distribution of outcomes — not a single prediction.
+            </p>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              {/* Pipeline */}
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-2">Pipeline</div>
+                <div className="space-y-1.5">
+                  {[
+                    { step: 'FORK', desc: 'Canonical state snapshot → isolated simulation branch',
+                      color: 'text-blue-400' },
+                    { step: 'SHOCK', desc: 'Apply shock vector to forked state, update RRI variables',
+                      color: 'text-red-400' },
+                    { step: 'PROPAGATE', desc: 'Advance each active causal chain one time step',
+                      color: 'text-yellow-400' },
+                    { step: 'DELIBERATE', desc: 'Actors respond to propagated state (Phase 6)',
+                      color: 'text-purple-400' },
+                    { step: 'MONTE CARLO', desc: 'N iterations with Gaussian noise → probability distributions',
+                      color: 'text-cyan-400' },
+                    { step: 'OUTPUT', desc: 'Outcome map · Sensitivity analysis · Historical analogue',
+                      color: 'text-emerald-400' },
+                  ].map(s => (
+                    <div key={s.step} className="flex items-start gap-2 p-1.5 rounded bg-white/[0.01]">
+                      <div className={`text-[9px] font-bold font-mono uppercase ${s.color} shrink-0 w-24`}>{s.step}</div>
+                      <div className="text-[10px] text-slate-500 leading-relaxed">{s.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Key Features */}
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-2">Capabilities</div>
+                <div className="space-y-2">
+                  {[
+                    { feat: 'Scenario Library', desc: '13 pre-built scenarios across economic, political, security, environmental, and compound categories', color: 'text-cyan-400 border-cyan-500/20 bg-cyan-500/5' },
+                    { feat: 'Counterfactual Comparison', desc: 'Side-by-side simulation of two decisions with delta metrics', color: 'text-amber-400 border-amber-500/20 bg-amber-500/5' },
+                    { feat: 'Sensitivity Analysis', desc: 'One-at-a-time variable perturbation to identify leverage points', color: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5' },
+                    { feat: 'Historical Analogues', desc: 'Vector similarity matching against 6 documented Tunisian events', color: 'text-purple-400 border-purple-500/20 bg-purple-500/5' },
+                  ].map(r => (
+                    <div key={r.feat} className={`rounded border ${r.color} p-2`}>
+                      <div className={`text-[9px] font-bold font-mono uppercase ${r.color.split(' ')[0]}`}>{r.feat}</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{r.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">13</div>
+                <div className="text-[9px] text-slate-500">Pre-built scenarios</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">1,000</div>
+                <div className="text-[9px] text-slate-500">MC iterations</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">9</div>
+                <div className="text-[9px] text-slate-500">Causal chains</div>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
+                <div className="text-lg font-mono text-white font-bold">6</div>
+                <div className="text-[9px] text-slate-500">Historical analogues</div>
+              </div>
+            </div>
+
+            {/* Dependencies */}
+            <div className="rounded-lg border border-emerald-500/10 bg-emerald-500/[0.02] p-3">
+              <div className="text-[9px] font-mono text-emerald-400 uppercase tracking-wider mb-1">Depends On</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                Phase 1 (canonical state) · Phase 2 (causal chains) · Phase 6 (deliberation engine)
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 8: ACTOR & REGIME MODELING */}
           <div id="actor-regime" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Users className="w-6 h-6 text-intel-cyan" />

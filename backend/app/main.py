@@ -12,6 +12,8 @@ from .api.rag import router as rag_router
 from .actors.api import router as actors_router
 from .doctrine.api import router as doctrine_router
 from .api.deliberation import router as deliberation_router
+from .api.simulation import router as simulation_router
+from .api.simulator_routes import router as simulator_crud_router
 
 
 @asynccontextmanager
@@ -54,6 +56,8 @@ app.include_router(rag_router, prefix="/api")
 app.include_router(actors_router, prefix="/api")
 app.include_router(doctrine_router, prefix="/api")
 app.include_router(deliberation_router, prefix="/api")
+app.include_router(simulation_router, prefix="/api")
+app.include_router(simulator_crud_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS

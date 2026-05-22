@@ -64,7 +64,7 @@ import { usePipeline } from '../../context/PipelineContext';
 
 // --- Types ---
 
-type Tab = 'monte-carlo' | 'propagation' | 'scenario' | 'scenario-compare' | 'agent' | 'ai-multi' | 'backtesting';
+type Tab = 'monte-carlo' | 'propagation' | 'scenario' | 'scenario-compare' | 'agent' | 'ai-multi' | 'simulation-chamber' | 'backtesting';
 
 interface Scenario {
   id: string;
@@ -225,6 +225,19 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
     { date: '2025-Q4', sim: 82, actual: 85, error: 3, event: 'Election Crisis' },
     { date: '2026-Q1', sim: 78, actual: 79, error: 1, event: 'Remittance Surge' },
   ]);
+
+  // Simulation Chamber State (Phase 7)
+  const [chamberScenarioId, setChamberScenarioId] = useState('SCN-E01');
+  const [chamberCustomName, setChamberCustomName] = useState('');
+  const [chamberCustomVector, setChamberCustomVector] = useState('');
+  const [chamberMcIterations, setChamberMcIterations] = useState(500);
+  const [chamberTimeHorizon, setChamberTimeHorizon] = useState(30);
+  const [chamberRunId, setChamberRunId] = useState<string | null>(null);
+  const [chamberResult, setChamberResult] = useState<any>(null);
+  const [chamberLoading, setChamberLoading] = useState(false);
+  const [chamberPolling, setChamberPolling] = useState(false);
+  const [chamberScenarios, setChamberScenarios] = useState<any[]>([]);
+  const chamberPollRef = useRef<NodeJS.Timeout | null>(null);
 
   // Propagation Sandbox State
   const [activeShock, setActiveShock] = useState<ShockSignal | null>(null);
@@ -413,6 +426,73 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
           return agent;
       }
     }));
+  };
+
+  // --- Simulation Chamber Effects ---
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { fetchSimulationScenarios } = await import('../../services/backendClient');
+        const scenarios = await fetchSimulationScenarios();
+        if (scenarios && scenarios.length > 0) setChamberScenarios(scenarios);
+      } catch {}
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+    if (!chamberPolling || !chamberRunId) return;
+    chamberPollRef.current = setInterval(async () => {
+      try {
+        const { fetchSimulationRun } = await import('../../services/backendClient');
+        const result = await fetchSimulationRun(chamberRunId);
+        if (result && (result.status === 'complete' || result.status === 'failed')) {
+          setChamberResult(result);
+          setChamberPolling(false);
+          setChamberLoading(false);
+          if (chamberPollRef.current) clearInterval(chamberPollRef.current);
+        }
+      } catch {}
+    }, 2000);
+    return () => {
+      if (chamberPollRef.current) clearInterval(chamberPollRef.current);
+    };
+  }, [chamberPolling, chamberRunId]);
+
+  const handleRunSimulationChamber = async () => {
+    setChamberLoading(true);
+    setChamberResult(null);
+    try {
+      const { runSimulation } = await import('../../services/backendClient');
+      const isCustom = chamberScenarioId === '__custom__';
+      const params: any = {
+        mc_iterations: chamberMcIterations,
+        time_horizon_days: chamberTimeHorizon,
+      };
+      if (isCustom) {
+        const shockVector: Record<string, number> = {};
+        chamberCustomVector.split(',').forEach(pair => {
+          const [k, v] = pair.split(':').map(s => s.trim());
+          if (k && v) shockVector[k] = parseFloat(v);
+        });
+        params.custom_scenario = {
+          scenario_name: chamberCustomName || 'Custom Scenario',
+          description: 'Custom analyst-defined scenario',
+          scenario_type: 'custom',
+          shock_vector: shockVector,
+        };
+      } else {
+        params.scenario_id = chamberScenarioId;
+      }
+      const result = await runSimulation(params);
+      if (result?.run_id) {
+        setChamberRunId(result.run_id);
+        setChamberPolling(true);
+      }
+    } catch {
+      setChamberLoading(false);
+    }
   };
 
   // --- Render Helpers ---
@@ -983,6 +1063,292 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
     </div>
   );
 
+  const renderSimulationChamber = () => {
+    const phases = ['stable', 'elevated', 'crisis', 'acute_crisis', 'transition'];
+    const phaseColors = ['#22c55e', '#eab308', '#f97316', '#ef4444', '#7c3aed'];
+
+    const outcomeData = chamberResult?.outcome_distribution
+      ? phases.filter(p => chamberResult.outcome_distribution[p] > 0).map((p, i) => ({
+          name: p.replace('_', ' ').toUpperCase(),
+          value: chamberResult.outcome_distribution[p],
+          fill: phaseColors[phases.indexOf(p)] || '#64748b',
+        }))
+      : [];
+
+    const trajectoryData = chamberResult?.rri_trajectory || [];
+    const sensitivityData = chamberResult?.sensitivity_ranking || [];
+
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        {/* Scenario Selector */}
+        <div className="intel-card p-6 rounded-2xl border border-intel-border">
+          <div className="flex items-center gap-2 mb-4">
+            <Cpu className="w-5 h-5 text-intel-cyan" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Scenario Selector</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+            <div className="lg:col-span-2">
+              <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">Library Scenario</label>
+              <select
+                value={chamberScenarioId}
+                onChange={e => setChamberScenarioId(e.target.value)}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+              >
+                {chamberScenarios.map(s => (
+                  <option key={s.scenario_id} value={s.scenario_id}>{s.scenario_name}</option>
+                ))}
+                {chamberScenarios.length === 0 && (
+                  <>
+                    <option value="SCN-E01">Full Subsidy Removal — IMF Demand</option>
+                    <option value="SCN-E02">FX Reserve Crisis — Below 30 Days</option>
+                    <option value="SCN-E03">Global Wheat Price Spike +40%</option>
+                    <option value="SCN-P01">Cabinet Reshuffle — MII Spike</option>
+                    <option value="SCN-P02">Constitutional Crisis</option>
+                    <option value="SCN-S01">UGTT General Strike</option>
+                    <option value="SCN-S02">Gafsa Mining Basin Blockade</option>
+                    <option value="SCN-V01">Severe Drought — Agricultural Collapse</option>
+                    <option value="SCN-C01">Perfect Storm — IMF + Drought + Gaza</option>
+                    <option value="SCN-C02">Regime Transition Threshold</option>
+                    <option value="SCN-B01">Presidential Incapacitation</option>
+                    <option value="SCN-B02">Major Terrorist Attack — Tourism Collapse</option>
+                    <option value="SCN-B03">Libya State Collapse Spillover</option>
+                  </>
+                )}
+                <option value="__custom__">— Custom Scenario —</option>
+              </select>
+            </div>
+            {chamberScenarioId === '__custom__' && (
+              <>
+                <div>
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">Scenario Name</label>
+                  <input
+                    value={chamberCustomName}
+                    onChange={e => setChamberCustomName(e.target.value)}
+                    placeholder="My Scenario"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                  />
+                </div>
+                <div className="lg:col-span-2">
+                  <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">Shock Vector (var:delta, ...)</label>
+                  <input
+                    value={chamberCustomVector}
+                    onChange={e => setChamberCustomVector(e.target.value)}
+                    placeholder="E2_wheat_stress:0.35, P3_imf_pressure:0.40"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                  />
+                </div>
+              </>
+            )}
+            <div>
+              <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">MC Iterations</label>
+              <input
+                type="number"
+                value={chamberMcIterations}
+                onChange={e => setChamberMcIterations(parseInt(e.target.value) || 100)}
+                min={10}
+                max={5000}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+              />
+            </div>
+            <div>
+              <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest block mb-1">Horizon (days)</label>
+              <input
+                type="number"
+                value={chamberTimeHorizon}
+                onChange={e => setChamberTimeHorizon(parseInt(e.target.value) || 30)}
+                min={7}
+                max={365}
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+            <div className="text-[10px] font-mono text-slate-600">
+              {chamberRunId && <span className="text-intel-cyan">Run: {chamberRunId}</span>}
+              {chamberResult?.status === 'complete' && <span className="text-intel-green ml-3">✓ Complete ({chamberResult.duration_ms}ms)</span>}
+              {chamberResult?.status === 'failed' && <span className="text-intel-red ml-3">✗ Failed: {chamberResult.error_message}</span>}
+            </div>
+            <button
+              onClick={handleRunSimulationChamber}
+              disabled={chamberLoading}
+              className="flex items-center space-x-2 px-6 py-2.5 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/30 rounded-xl text-xs font-bold font-mono hover:bg-intel-cyan/20 transition-all disabled:opacity-50"
+            >
+              {chamberLoading ? (
+                <div className="w-4 h-4 border-2 border-intel-cyan/30 border-t-intel-cyan rounded-full animate-spin" />
+              ) : (
+                <Play className="w-4 h-4 fill-current" />
+              )}
+              <span>{chamberLoading ? 'RUNNING...' : 'RUN SIMULATION'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        {chamberResult && chamberResult.status === 'complete' && (
+          <>
+            {/* Outcome Distribution + Trajectory */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="intel-card p-6 rounded-2xl border border-intel-border">
+                <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-4">Outcome Distribution</h4>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={outcomeData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {outcomeData.map((entry, idx) => (
+                          <Cell key={idx} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(0,242,255,0.2)', borderRadius: '8px', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-wrap justify-center gap-3 mt-2">
+                  {outcomeData.map((e, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: e.fill }} />
+                      <span className="text-[9px] font-mono text-slate-400">{e.name} {(e.value * 100).toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="intel-card p-6 rounded-2xl border border-intel-border">
+                <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-4">RRI Trajectory (p10/p50/p90)</h4>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trajectoryData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'JetBrains Mono' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 8, fontFamily: 'JetBrains Mono' }} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(0,242,255,0.2)', borderRadius: '8px', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
+                      />
+                      <Line type="monotone" dataKey="p10" stroke="#64748b" strokeWidth={1} dot={false} />
+                      <Line type="monotone" dataKey="mean" stroke="#00f2ff" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="p90" stroke="#ef4444" strokeWidth={1} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-center gap-4 mt-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-0.5 bg-intel-cyan" />
+                    <span className="text-[9px] font-mono text-slate-400">Mean</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-0.5 bg-slate-500" />
+                    <span className="text-[9px] font-mono text-slate-400">p10</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-0.5 bg-red-500" />
+                    <span className="text-[9px] font-mono text-slate-400">p90</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Key Probabilities */}
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { label: 'P(Revolution)', value: chamberResult.p_revolution_range?.mean, color: 'text-intel-red' },
+                { label: 'UGTT Strike', value: chamberResult.ugtt_strike_probability, color: 'text-intel-orange' },
+                { label: 'Elite Fracture', value: chamberResult.elite_fracture_probability, color: 'text-yellow-400' },
+                { label: 'Military Shift', value: chamberResult.military_posture_shift, color: 'text-purple-400' },
+              ].map(m => (
+                <div key={m.label} className="intel-card p-4 rounded-xl border border-intel-border text-center">
+                  <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mb-1">{m.label}</div>
+                  <div className={`text-lg font-bold font-mono ${m.color}`}>
+                    {m.value !== undefined && m.value !== null ? `${(m.value * 100).toFixed(0)}%` : '—'}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Sensitivity Ranking + Governorate Risk */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="intel-card p-6 rounded-2xl border border-intel-border">
+                <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-4">Sensitivity Ranking</h4>
+                <div className="space-y-2">
+                  {sensitivityData.slice(0, 6).map((s: any, i: number) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-[9px] font-mono text-slate-600 w-4">{i + 1}.</span>
+                      <div className="flex-1">
+                        <div className="flex justify-between text-[10px] font-mono mb-1">
+                          <span className="text-slate-300">{s.variable}</span>
+                          <span className="text-intel-cyan">{s.impact_magnitude?.toFixed(3)}</span>
+                        </div>
+                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-intel-cyan rounded-full" style={{ width: `${Math.min(100, (s.impact_magnitude || 0) * 100)}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {sensitivityData.length === 0 && (
+                    <div className="text-[10px] font-mono text-slate-600 text-center py-4">No sensitivity data available</div>
+                  )}
+                </div>
+              </div>
+              <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
+                {chamberResult.historical_analogue && (
+                  <div>
+                    <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-2">Historical Analogue</h4>
+                    <div className="p-3 bg-intel-cyan/5 border border-intel-cyan/20 rounded-lg">
+                      <div className="text-[11px] font-bold font-mono text-white">{chamberResult.historical_analogue}</div>
+                      <div className="text-[10px] font-mono text-intel-cyan">
+                        {((chamberResult.analogue_similarity || 0) * 100).toFixed(0)}% similarity
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-2">Activated Chains</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {(chamberResult.activated_chain_ids || []).map((c: string) => (
+                      <span key={c} className="px-2 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded text-[9px] font-mono text-yellow-400">{c}</span>
+                    ))}
+                    {(!chamberResult.activated_chain_ids || chamberResult.activated_chain_ids.length === 0) && (
+                      <span className="text-[10px] font-mono text-slate-600">None activated</span>
+                    )}
+                  </div>
+                </div>
+                {chamberResult.deliberation_session_ids && chamberResult.deliberation_session_ids.length > 0 && (
+                  <div>
+                    <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-2">Deliberation Sessions</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {chamberResult.deliberation_session_ids.map((s: string) => (
+                        <span key={s} className="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded text-[9px] font-mono text-purple-400">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Loading State */}
+        {chamberLoading && !chamberResult && (
+          <div className="intel-card p-12 rounded-2xl border border-intel-border flex flex-col items-center justify-center space-y-4">
+            <div className="relative">
+              <div className="w-16 h-16 border-4 border-intel-cyan/20 border-t-intel-cyan rounded-full animate-spin" />
+              <Cpu className="absolute inset-0 m-auto w-6 h-6 text-intel-cyan animate-pulse" />
+            </div>
+            <div className="text-sm font-bold text-white uppercase tracking-widest">Simulating {chamberMcIterations} Iterations</div>
+            <p className="text-[10px] font-mono text-slate-500">Monte Carlo engine running • {chamberTimeHorizon}-day horizon</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderBacktesting = () => (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1154,6 +1520,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
             { id: 'scenario-compare', label: 'Scenario Compare', icon: Settings2 },
             { id: 'agent', label: 'Agent Simulation', icon: Users },
             { id: 'ai-multi', label: 'AI Multi-Agent', icon: Brain },
+            { id: 'simulation-chamber', label: 'Simulation Chamber', icon: Cpu },
             { id: 'backtesting', label: 'Backtesting', icon: History },
           ]).map((tab: any, i: number) => (
             <button
@@ -1301,6 +1668,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               {activeTab === 'scenario-compare' && <ScenarioCompare variables={simVariables} />}
               {activeTab === 'agent' && renderAgentSimulation()}
               {activeTab === 'ai-multi' && renderAIMultiAgent()}
+              {activeTab === 'simulation-chamber' && renderSimulationChamber()}
               {activeTab === 'backtesting' && renderBacktesting()}
             </motion.div>
           </AnimatePresence>
