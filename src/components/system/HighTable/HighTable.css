@@ -150,12 +150,14 @@
   max-height: 100%;
 }
 
-/* Actor node */
-.actor-node {
-  transition: transform 0.2s ease;
+/* Actor avatar — hover glow instead of transform */
+.actor-avatar {
+  transition: stroke-width 0.15s ease, filter 0.15s ease;
 }
-.actor-node:hover { transform: scale(1.1); }
-.actor-node.selected circle:nth-child(2) { stroke-width: 3; }
+.actor-avatar:hover {
+  stroke-width: 6;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));
+}
 
 /* Pulse animations */
 @keyframes pulse-ring {
