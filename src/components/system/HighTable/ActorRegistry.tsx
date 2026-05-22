@@ -48,11 +48,12 @@ interface Props {
     p_revolution?: number;
   };
   session?: Session;
+  selectedActor?: string | null;
   onActorSelect: (id: string) => void;
 }
 
 export const ActorRegistry: React.FC<Props> = ({
-  snapshot, session, onActorSelect,
+  snapshot, session, selectedActor, onActorSelect,
 }) => {
   const postures = snapshot?.actor_postures ?? [];
 
@@ -77,7 +78,7 @@ export const ActorRegistry: React.FC<Props> = ({
               inCoalition ? ' coalition' : ''
             }${isDissenting ? ' dissenting' : ''}${
               isVetoing ? ' vetoing' : ''
-            }`}
+            }${selectedActor === entityId ? ' selected' : ''}`}
             onClick={() => onActorSelect(entityId)}
           >
             <div

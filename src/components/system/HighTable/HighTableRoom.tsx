@@ -76,6 +76,7 @@ export const HighTableRoom: React.FC<{ snapshot?: Snapshot }> = ({ snapshot: pro
         <ActorRegistry
           snapshot={propSnapshot}
           session={latestSession}
+          selectedActor={selectedActor}
           onActorSelect={setSelectedActor}
         />
         <CircularTable

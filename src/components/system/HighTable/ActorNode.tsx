@@ -107,14 +107,25 @@ export const ActorNode: React.FC<Props> = ({
         )}
       </g>
 
+      {/* Selection ring — visible behind avatar when selected */}
+      {isSelected && (
+        <circle
+          r={nodeR + 6}
+          fill="none"
+          stroke="#00f2ff"
+          strokeWidth={2}
+          opacity={0.9}
+        />
+      )}
+
       {/* Main avatar — clickable, visible hover state via CSS */}
       <circle
         r={nodeR}
-        fill="#111827"
-        stroke={color}
-        strokeWidth={isSelected ? nodeR * 0.5 : (isPres ? 3 : 2)}
+        fill={isSelected ? '#1a2a3a' : '#111827'}
+        stroke={isSelected ? '#00f2ff' : color}
+        strokeWidth={isPres ? 3 : 2}
         className="actor-avatar"
-        style={{ cursor: 'pointer', transition: 'stroke-width 0.15s ease' }}
+        style={{ cursor: 'pointer', transition: 'fill 0.15s ease, stroke 0.15s ease' }}
         onClick={onClick}
       />
 

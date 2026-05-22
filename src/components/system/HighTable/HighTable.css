@@ -55,6 +55,7 @@
 .registry-row:hover { background: #161B22; }
 .registry-row.vetoing { border-left-color: #DC2626; }
 .registry-row.coalition { border-left-color: #10B981; }
+.registry-row.selected { background: rgba(0, 242, 255, 0.08); border-left-color: #00f2ff; }
 .registry-row.dissenting { border-left-color: #F59E0B; }
 
 .posture-dot {
