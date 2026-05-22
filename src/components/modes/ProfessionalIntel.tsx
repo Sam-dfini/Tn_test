@@ -130,6 +130,7 @@ const EventsIntelligence = React.lazy(() => import("../geopolitical/EventsIntell
 const ObservabilityDashboard = React.lazy(() => import("../../pages/ObservabilityDashboard").then(m => ({ default: m.ObservabilityDashboard })));
 const KnowledgeGraphExplorer = React.lazy(() => import("../political/KnowledgeGraphExplorer").then(m => ({ default: m.default })));
 const DeliberationPanel = React.lazy(() => import("../system/DeliberationPanel").then(m => ({ default: m.DeliberationPanel })));
+const HighTable = React.lazy(() => import("../system/HighTable/HighTableRoom").then(m => ({ default: m.HighTableRoom })));
 
 // Categories for sidebar grouping - now dynamic
 const getSidebarCategories = (viewMode: ViewMode) => {
@@ -224,6 +225,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
         { id: "knowledge-graph", label: "Knowledge Graph", icon: Globe },
         { id: "civilizational", label: "Civilizational Analysis", icon: Hourglass, restricted: 'STRATEGIC' },
         { id: "deliberation", label: "Deliberation", icon: MessageSquare },
+        { id: "high-table", label: "High Table", icon: Crown },
       ],
     },
   ];
@@ -748,7 +750,8 @@ export const ProfessionalIntel: React.FC<{
     | "narrative-war"
     | "social-threat"
     | "deliberation"
-  >("command-center");
+    | "high-table"
+>("command-center");
   const [eventsSubTab, setEventsSubTab] = useState<
     "news" | "engine" | "timeline" | "signal" | "temporal" | "rtee"
   >("news");
@@ -2630,6 +2633,10 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "deliberation" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <DeliberationPanel />
+            </Suspense>
+          ) : activeTab === "high-table" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <HighTable />
             </Suspense>
           ) : (
             <div>Simulation Intelligence Placeholder</div>
