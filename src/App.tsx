@@ -300,6 +300,13 @@ const AppContent: React.FC = React.memo(() => {
     };
   }, []);
 
+  useEffect(() => {
+    if (mode === 'selection') {
+      const t = setTimeout(() => setRSSEnabled(true), 100);
+      return () => clearTimeout(t);
+    }
+  }, [mode]);
+
   const renderMode = () => {
     if (isLoadingAuth) {
       return (

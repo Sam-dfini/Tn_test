@@ -24,9 +24,8 @@ export const RRIPulse: React.FC<Props> = ({ cx, cy, rri, pRevolution }) => {
           strokeWidth={0.5}
           opacity={intensity * (0.4 - ring * 0.1)}
           style={{
-            animation: `rri-pulse-${ring} ${3 + ring}s ease-out infinite`,
+            animation: `rri-pulse-${ring} ${3 + ring}s ease-in-out infinite`,
             animationDelay: `${ring * 0.8}s`,
-            transformOrigin: `${cx}px ${cy}px`,
           }}
         />
       ))}

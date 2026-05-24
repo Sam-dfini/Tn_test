@@ -227,6 +227,14 @@ export const StrategicModeling: React.FC = () => {
 
   const [baselineScores, setBaselineScores] = useState<Record<string, number>>({});
 
+  const radarData = useMemo(() => {
+    if (!baselineScores || Object.keys(baselineScores).length === 0) return [];
+    return Object.entries(baselineScores).map(([key, value]) => ({
+      subject: key.replace(/_/g, ' '),
+      A: Math.round((value ?? 0) * 100),
+    }));
+  }, [baselineScores]);
+
   useEffect(() => {
     if (!scenarioActive && rriState.category_scores && Object.keys(rriState.category_scores).length > 0) {
       setBaselineScores(rriState.category_scores);

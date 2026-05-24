@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=true
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ANYTHINGLLM_API_KEY=${ANYTHINGLLM_API_KEY:-sk-anythingllm-local}
+      - ANYTHINGLLM_BASE_URL=http://anythingllm:3001/api
+    depends_on:
+      anythingllm:
+        condition: service_started
+    restart: unless-stopped
+
+  anythingllm:
+    image: mintplexlabs/anythingllm:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - anythingllm_data:/app/server/storage
+      - anythingllm_docs:/app/server/document-storage
+      - anythingllm_vectors:/app/server/vector-cache
+    environment:
+      - JWT_SECRET=${ANYTHINGLLM_JWT_SECRET:-change-me-in-production}
+      - LLM_PROVIDER=groq
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - EMBEDDING_ENGINE=inherit
+    restart: unless-stopped
+
+volumes:
+  anythingllm_data:
+  anythingllm_docs:
+  anythingllm_vectors:

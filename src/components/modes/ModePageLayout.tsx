@@ -1,5 +1,4 @@
 import React from 'react';
-import { User, Shield } from 'lucide-react';
 
 interface ModePageLayoutProps {
   children: React.ReactNode;
@@ -22,8 +21,6 @@ export const ModePageLayout: React.FC<ModePageLayoutProps> = ({ children, header
           </div>
           <div className="flex items-center space-x-4">
             {headerAction}
-            <Shield className="w-5 h-5 text-slate-500 hidden md:block" />
-            <User className="w-5 h-5 text-slate-500 hidden md:block" />
           </div>
         </div>
       </header>

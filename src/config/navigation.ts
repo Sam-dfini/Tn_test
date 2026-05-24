@@ -97,6 +97,15 @@ export const navigationTree: NavNode[] = [
         equations: ['EQ.2'],
         missionContexts: ['elite-fracture'],
       },
+      {
+        id: 'cognitive-workspace',
+        label: 'Cognitive Workspace',
+        path: '/cognitive-workspace',
+        status: 'live',
+        icon: 'MessageSquare',
+        component: 'CognitiveWorkspace',
+        dataSources: ['supabase', 'rag', 'simulation', 'deliberation'],
+      },
     ],
   },
   {

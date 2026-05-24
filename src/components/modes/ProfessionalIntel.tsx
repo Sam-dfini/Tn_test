@@ -131,6 +131,7 @@ const ObservabilityDashboard = React.lazy(() => import("../../pages/Observabilit
 const KnowledgeGraphExplorer = React.lazy(() => import("../political/KnowledgeGraphExplorer").then(m => ({ default: m.default })));
 const DeliberationPanel = React.lazy(() => import("../system/DeliberationPanel").then(m => ({ default: m.DeliberationPanel })));
 const HighTable = React.lazy(() => import("../system/HighTable/HighTableRoom").then(m => ({ default: m.HighTableRoom })));
+const CognitiveWorkspace = React.lazy(() => import("../CognitiveWorkspace/CognitiveWorkspace").then(m => ({ default: m.CognitiveWorkspace })));
 
 // Categories for sidebar grouping - now dynamic
 const getSidebarCategories = (viewMode: ViewMode) => {
@@ -144,6 +145,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
         { id: "briefing", label: "Daily Briefing", icon: FileText, restricted: 'ANALYST' },
         { id: "calendar", label: "Threat Calendar", icon: Calendar, restricted: 'ANALYST' },
         { id: "alerts", label: "Alert Hub", icon: Bell, restricted: 'ANALYST' },
+        { id: "cognitive-workspace", label: "Cognitive Workspace", icon: MessageSquare, restricted: 'ANALYST' },
       ],
     },
     {
@@ -751,6 +753,7 @@ export const ProfessionalIntel: React.FC<{
     | "social-threat"
     | "deliberation"
     | "high-table"
+    | "cognitive-workspace"
 >("command-center");
   const [eventsSubTab, setEventsSubTab] = useState<
     "news" | "engine" | "timeline" | "signal" | "temporal" | "rtee"
@@ -1320,15 +1323,17 @@ Return only the 3-sentence briefing.`;
             return null;
           })()}
 
-          <div className={sidebarCategories.flatMap(c => c.items).find(i => i.id === activeTab)?.isLocked ? 'opacity-20 pointer-events-none' : ''}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-              >
+          <div className={`${sidebarCategories.flatMap(c => c.items).find(i => i.id === activeTab)?.isLocked ? 'opacity-20 pointer-events-none' : ''} h-full flex flex-col min-h-0`}>
+            <div className="flex-1 min-h-0">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  className="h-full"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
                 {activeTab === "briefing" ? (
                   <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
                     <DailyBriefing />
@@ -2636,13 +2641,23 @@ Return only the 3-sentence briefing.`;
             </Suspense>
           ) : activeTab === "high-table" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
-              <HighTable />
+              <HighTable snapshot={{
+                rri: (data as any)?.rri?.rri ?? rriState?.rri ?? 2.14,
+                p_revolution: (data as any)?.rri?.p_rev ?? rriState?.p_rev ?? 0.34,
+                state_phase: (rriState as any)?.phase ?? 'elevated',
+                active_shocks: (data as any)?.active_signals ?? [],
+              }} />
+            </Suspense>
+          ) : activeTab === "cognitive-workspace" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <CognitiveWorkspace />
             </Suspense>
           ) : (
             <div>Simulation Intelligence Placeholder</div>
           )}
               </motion.div>
             </AnimatePresence>
+          </div>
           </div>
         </div>
       </main>

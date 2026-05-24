@@ -1102,24 +1102,130 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
     i >= 0.8 ? '12h' : i >= 0.6 ? '24h' : i >= 0.4 ? '48h' : i >= 0.2 ? '72h' : '7d';
 
   const threats: ThreatCard[] = useMemo(() => {
-    const signals = activeSignals ?? [];
-    if (signals.length === 0) return [];
-    return signals.map((s) => {
-      const Icon = iconByType[s.type] ?? AlertTriangle;
-      const deltaDir = s.intensity > 0.55 ? 'up' as const : s.intensity < 0.25 ? 'down' as const : 'stable' as const;
-      return {
-        domain: domainByType[s.type] ?? s.type,
-        icon: Icon,
-        color: colorByType[s.type] ?? '#8a9bb0',
-        title: s.message,
-        confidence: Math.round(s.intensity * 100),
-        delta: deltaDir === 'up' ? `+${Math.round(s.intensity * 100)}%` : deltaDir === 'down' ? `-${Math.round((1 - s.intensity) * 100)}%` : '→ STABLE',
-        deltaDir,
-        region: s.governorates?.[0] ?? 'National',
-        decisionWindow: decisionByIntensity(s.intensity),
-      };
-    });
-  }, [activeSignals]);
+    const computed: ThreatCard[] = [];
+
+    // RRI threat
+    if (rriState?.rri != null) {
+      const intensity = Math.min(1, rriState.rri / 3.5);
+      if (intensity > 0.4) {
+        computed.push({
+          domain: 'SYSTEM',
+          icon: Zap,
+          color: intensity > 0.75 ? '#ef4444' : intensity > 0.55 ? '#f59e0b' : '#00f2ff',
+          title: rriState.rri > 2.625 ? `RRI BREACH: ${rriState.rri.toFixed(2)}` : `RRI elevated: ${rriState.rri.toFixed(2)}`,
+          confidence: Math.round(intensity * 100),
+          delta: rriState.velocity > 0 ? `+${Math.round(rriState.velocity * 100)}%` : `-${Math.round(Math.abs(rriState.velocity) * 100)}%`,
+          deltaDir: (rriState.velocity > 0.05 ? 'up' : rriState.velocity < -0.05 ? 'down' : 'stable') as 'up' | 'down' | 'stable',
+          region: 'National',
+          decisionWindow: decisionByIntensity(intensity),
+        });
+      }
+    }
+
+    // Elite defection threat
+    if ((rriState?.elite_defection_prob ?? 0) > 0.2) {
+      const intensity = rriState!.elite_defection_prob;
+      computed.push({
+        domain: 'POLITICAL',
+        icon: Users,
+        color: intensity > 0.45 ? '#ef4444' : '#f59e0b',
+        title: `Elite defection risk ${(intensity * 100).toFixed(0)}%`,
+        confidence: Math.round(intensity * 100),
+        delta: intensity > 0.35 ? '+HIGH' : '+ELEVATED',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // Compound stress threat
+    if ((rriState?.compound_stress ?? 0) > 0.25) {
+      const intensity = rriState!.compound_stress;
+      computed.push({
+        domain: 'SYSTEM',
+        icon: Activity,
+        color: intensity > 0.5 ? '#ef4444' : '#f59e0b',
+        title: `Compound stress CS(t)=${intensity.toFixed(3)}`,
+        confidence: Math.round(intensity * 100),
+        delta: intensity > 0.4 ? '+HIGH' : '+MODERATE',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // Economic threat: parallel market premium
+    if ((data?.economy?.parallel_market_premium ?? 0) > 12) {
+      const pmp = data!.economy!.parallel_market_premium;
+      const intensity = Math.min(1, pmp / 25);
+      computed.push({
+        domain: 'ECONOMIC',
+        icon: DollarSign,
+        color: pmp > 20 ? '#ef4444' : '#f59e0b',
+        title: `Parallel market premium ${pmp}%`,
+        confidence: Math.round(intensity * 100),
+        delta: pmp > 15 ? '+CRITICAL' : '+ELEVATED',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // Economic threat: inflation
+    if ((data?.economy?.inflation ?? 0) > 7) {
+      const inf = data!.economy!.inflation;
+      const intensity = Math.min(1, inf / 12);
+      computed.push({
+        domain: 'ECONOMIC',
+        icon: TrendingUp,
+        color: inf > 10 ? '#ef4444' : '#f59e0b',
+        title: `Inflation ${inf}%`,
+        confidence: Math.round(intensity * 100),
+        delta: inf > 8 ? '+HIGH' : '+ELEVATED',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // Social threat: UGTT mobilization
+    const ugtt = data?.social?.ugtt_mobilisation_level;
+    if (ugtt === 'HIGH' || ugtt === 'ELEVATED') {
+      const intensity = ugtt === 'HIGH' ? 0.82 : 0.62;
+      computed.push({
+        domain: 'SOCIAL',
+        icon: Users,
+        color: '#a855f7',
+        title: `UGTT mobilization: ${ugtt}`,
+        confidence: Math.round(intensity * 100),
+        delta: ugtt === 'HIGH' ? '+STRIKE RISK' : '+ELEVATED',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // FX reserves threat
+    if ((data?.economy?.fx_reserves_days ?? 150) < 90) {
+      const fx = data!.economy!.fx_reserves_days;
+      const intensity = Math.min(1, (150 - fx) / 80);
+      computed.push({
+        domain: 'ECONOMIC',
+        icon: DollarSign,
+        color: fx < 60 ? '#ef4444' : '#f59e0b',
+        title: `FX reserves ${fx}d cover`,
+        confidence: Math.round(intensity * 100),
+        delta: fx < 90 ? '+STRESSED' : '+CAUTION',
+        deltaDir: 'up',
+        region: 'National',
+        decisionWindow: decisionByIntensity(intensity),
+      });
+    }
+
+    // Sort by confidence descending, take top 4
+    computed.sort((a, b) => b.confidence - a.confidence);
+    return computed.slice(0, 4);
+  }, [rriState, data]);
 
   // Strategic response panel
   const responses = [

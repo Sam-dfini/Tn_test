@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import {
   Star, TrendingUp, Globe, FlaskConical, Radio, Zap, Activity, MessageCircle, Shield, Heart, Crosshair,
-  BrainCircuit, Home, ChevronLeft,
+  BrainCircuit, Home, ChevronLeft, MessageSquare,
 } from 'lucide-react';
 import ConstellationView from './ConstellationView';
 import ProjectionView from './ProjectionView';
@@ -19,6 +19,7 @@ import EmotionalHeatmapView from './EmotionalHeatmapView';
 import CalibrationDashboard from './CalibrationDashboard';
 import MobileFallbackView from './MobileFallbackView';
 import OnboardingFlow from './OnboardingFlow';
+import CognitiveWorkspace from '../../components/CognitiveWorkspace/CognitiveWorkspace';
 
 const ICON_SIZE = 20;
 
@@ -34,6 +35,7 @@ const views = [
   { id: 'heatmap',           icon: Heart,          label: 'Heatmap' },
   { id: 'state-machine',     icon: Activity,       label: 'State Machine' },
   { id: 'shock-propagation', icon: Zap,            label: 'Shock Propagation' },
+  { id: 'cognitive-workspace', icon: MessageSquare, label: 'Workspace' },
 ];
 
 const sx: React.CSSProperties = {
@@ -180,6 +182,8 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
           <EmotionalHeatmapView />
         ) : activeSpace === 'state-machine' ? (
           <NationalStateView />
+        ) : activeSpace === 'cognitive-workspace' ? (
+          <CognitiveWorkspace />
         ) : (
           <ShockPropagationView />
         )}

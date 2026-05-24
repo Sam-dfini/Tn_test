@@ -169,3 +169,257 @@ export const compareSimulationRuns = async (runA: string, runB: string) => {
     return null;
   }
 };
+
+// ── Cognitive Workspace API (Phase 9) ─────────────────────────────────
+
+export const createInvestigation = async (title?: string) => {
+  try {
+    const response = await fetch('/api/workspace/investigations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchInvestigations = async (userId?: string) => {
+  try {
+    const url = userId ? `/api/workspace/investigations?user_id=${userId}` : '/api/workspace/investigations';
+    const response = await fetch(url);
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const fetchInvestigation = async (investigationId: string) => {
+  try {
+    const response = await fetch(`/api/workspace/investigations/${investigationId}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const queryInvestigation = async (investigationId: string, query: string) => {
+  try {
+    const response = await fetch(`/api/workspace/investigations/${investigationId}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const queryInvestigationStream = (
+  investigationId: string,
+  query: string,
+  onToken: (token: string) => void,
+  onComplete: (envelope: any) => void,
+  onError?: (error: string) => void,
+) => {
+  const controller = new AbortController();
+
+  fetch(`/api/workspace/investigations/${investigationId}/query/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query }),
+    signal: controller.signal,
+  }).then(async (response) => {
+    if (!response.ok) {
+      onError?.(`HTTP ${response.status}`);
+      return;
+    }
+    const reader = response.body?.getReader();
+    if (!reader) {
+      onError?.('No response body');
+      return;
+    }
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'narrative_token') {
+              onToken(parsed.token);
+            } else if (parsed.type === 'complete') {
+              onComplete(parsed.envelope);
+            }
+          } catch {
+            // skip malformed lines
+          }
+        }
+      }
+    }
+  }).catch((err) => {
+    if (err.name !== 'AbortError') {
+      onError?.(err.message);
+    }
+  });
+
+  return controller;
+};
+
+export const fetchMessages = async (investigationId: string) => {
+  try {
+    const response = await fetch(`/api/workspace/investigations/${investigationId}/messages`);
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const fetchBlockRegistry = async () => {
+  try {
+    const response = await fetch('/api/workspace/blocks');
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const runQuickMacro = async (macro: string) => {
+  try {
+    const response = await fetch('/api/workspace/quick', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ macro }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const addWatchlistItem = async (investigationId: string, type: string, id: string, threshold = 0.7) => {
+  try {
+    const response = await fetch(`/api/workspace/investigations/${investigationId}/watchlist`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, id, threshold }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const exportInvestigation = async (investigationId: string) => {
+  try {
+    const response = await fetch(`/api/workspace/investigations/${investigationId}/export`, {
+      method: 'POST',
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+// ── Intervention Engine API (Phase 10) ────────────────────────────────────
+
+export const runInterventionAnalysis = async (
+  targetOutcome: string,
+  opts: { investigationId?: string; timeHorizonDays?: number; interventionIds?: string[]; topN?: number } = {}
+) => {
+  try {
+    const response = await fetch('/api/interventions/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_outcome: targetOutcome,
+        investigation_id: opts.investigationId,
+        time_horizon_days: opts.timeHorizonDays ?? 30,
+        intervention_ids: opts.interventionIds,
+        top_n: opts.topN ?? 5,
+      }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchInterventionLibrary = async () => {
+  try {
+    const response = await fetch('/api/interventions/library');
+    return response.ok ? await response.json() : [];
+  } catch {
+    return [];
+  }
+};
+
+export const fetchInterventionById = async (interventionId: string) => {
+  try {
+    const response = await fetch(`/api/interventions/library/${interventionId}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const testSingleIntervention = async (interventionId: string, timeHorizonDays = 30) => {
+  try {
+    const response = await fetch('/api/interventions/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ intervention_id: interventionId, time_horizon_days: timeHorizonDays }),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchLatestInterventionRun = async () => {
+  try {
+    const response = await fetch('/api/interventions/runs/latest');
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchInterventionRun = async (runId: string) => {
+  try {
+    const response = await fetch(`/api/interventions/runs/${runId}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchDoctrineStatus = async () => {
+  try {
+    const response = await fetch('/api/doctrine/status');
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const fetchDoctrineSearch = async (query: string, workspace?: string, limit: number = 5) => {
+  try {
+    const params = new URLSearchParams({ query, limit: String(limit) });
+    if (workspace) params.set('workspace', workspace);
+    const response = await fetch(`/api/doctrine/search?${params}`);
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+};

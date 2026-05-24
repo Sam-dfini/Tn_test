@@ -438,6 +438,8 @@ async function startServer() {
     if (openRouterKey && !openRouterKey.includes('MY_')) configured.push({ id: 'env-openrouter', name: 'OpenRouter', provider: 'openrouter', modelName: 'google/gemini-2.0-flash-lite', status: 'online', env: true });
     const cerebrasKey = process.env.CEREBRAS_API_KEY;
     if (cerebrasKey && !cerebrasKey.includes('MY_')) configured.push({ id: 'env-cerebras', name: 'Cerebras', provider: 'cerebras', modelName: 'llama3.1-8b', status: 'online', env: true });
+    const groqKey = process.env.GROQ_API_KEY;
+    if (groqKey && !groqKey.includes('MY_')) configured.push({ id: 'env-groq', name: 'Groq', provider: 'groq', modelName: 'llama-3.3-70b-versatile', status: 'online', env: true });
     res.json({ models: configured });
   });
 
@@ -503,6 +505,16 @@ async function startServer() {
           }
           ok = r.ok;
         }
+      } else if (provider === 'groq') {
+        const key = clientKey || process.env.GROQ_API_KEY;
+        if (key && !key.includes('MY_')) {
+          const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: modelName || 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: testPrompt }], max_tokens: 4 }),
+          });
+          ok = r.ok;
+        }
       } else if (provider === 'mistral') {
         const key = clientKey || process.env.MISTRAL_API_KEY;
         if (key && !key.includes('MY_')) {
@@ -555,7 +567,8 @@ async function startServer() {
         provider === 'cerebras' ? process.env.CEREBRAS_API_KEY :
         provider === 'mistral' ? process.env.MISTRAL_API_KEY :
         provider === 'nvidia' ? process.env.NVIDIA_API_KEY :
-        provider === 'openrouter' ? process.env.OPENROUTER_API_KEY : null
+        provider === 'openrouter' ? process.env.OPENROUTER_API_KEY :
+        provider === 'groq' ? process.env.GROQ_API_KEY : null
       );
 
       if (!apiKey || apiKey.includes('MY_')) {
@@ -617,6 +630,14 @@ async function startServer() {
         const data = await r.json();
         if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
         models = (data.data || []).map((m: any) => m.id);
+
+      } else if (provider === 'groq') {
+        const r = await fetch('https://api.groq.com/openai/v1/models', {
+          headers: { 'Authorization': `Bearer ${apiKey}` },
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error?.message || `HTTP ${r.status}`);
+        models = (data.data || []).map((m: any) => m.id).sort();
 
       } else if (provider === 'openrouter') {
         const r = await fetch('https://openrouter.ai/api/v1/models', {

@@ -18,7 +18,7 @@ class SimulatedScenario(Base):
     variable_contributions = Column(JSON, default={})
     historical_analogs = Column(JSON, default=[])
     causal_chains = Column(JSON, default=[])
-    metadata = Column(JSON, default={})
+    extra_data = Column(JSON, default={})
     created_at = Column(DateTime, default=datetime.utcnow)
 
     steps = relationship("ScenarioStep", back_populates="scenario", cascade="all, delete-orphan")
@@ -46,6 +46,6 @@ class Outcome(Base):
     description = Column(String, nullable=False)
     probability = Column(Float, default=1.0)
     impact_score = Column(Float, default=0.0)
-    metadata = Column(JSON, default={})
+    extra_data = Column(JSON, default={})
 
     step = relationship("ScenarioStep", back_populates="outcomes")

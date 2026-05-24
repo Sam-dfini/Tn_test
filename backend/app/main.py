@@ -14,6 +14,8 @@ from .doctrine.api import router as doctrine_router
 from .api.deliberation import router as deliberation_router
 from .api.simulation import router as simulation_router
 from .api.simulator_routes import router as simulator_crud_router
+from .api.cognitive_workspace import router as cognitive_workspace_router
+from .api.interventions import router as interventions_router
 
 
 @asynccontextmanager
@@ -58,6 +60,8 @@ app.include_router(doctrine_router, prefix="/api")
 app.include_router(deliberation_router, prefix="/api")
 app.include_router(simulation_router, prefix="/api")
 app.include_router(simulator_crud_router, prefix="/api")
+app.include_router(cognitive_workspace_router, prefix="/api")
+app.include_router(interventions_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS

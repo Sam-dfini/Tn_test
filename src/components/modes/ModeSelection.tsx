@@ -2,10 +2,11 @@ import React from 'react';
 import { motion } from 'motion/react';
 import {
   Eye, ShieldAlert, Shield, Terminal,
-  Globe, Network, Lock
+  Globe, Network, Lock, User, LogOut
 } from 'lucide-react';
 import { ModePageLayout } from '../modes/ModePageLayout';
 import { usePipeline } from '../../context/PipelineContext';
+import { NotificationBell } from '../shared/NotificationPanel';
 
 interface ModeSelectionProps {
   onSelect: (mode: 'advanced' | 'professional' | 'terminal' | 'brain') => void;
@@ -92,13 +93,32 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
   return (
     <ModePageLayout
       headerAction={
-        <button
-          onClick={onLogoff}
-          aria-label="Logout from system"
-          className="text-[#ef4444] font-mono text-[10px] border border-[#ef4444]/20 px-3 py-1 hover:bg-[#ef4444]/10 transition-colors rounded"
-        >
-          [ LOGOUT ]
-        </button>
+        <div className="flex items-center gap-2 md:gap-3">
+          <NotificationBell />
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-system-command'))}
+            aria-label="System Command Center"
+            className="p-2 rounded-lg border border-slate-700/50 text-slate-500 hover:text-intel-cyan hover:border-intel-cyan/30 hover:bg-intel-cyan/5 transition-all hidden md:flex"
+          >
+            <Shield className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {}}
+            aria-label="Profile options"
+            className="p-2 rounded-lg border border-slate-700/50 text-slate-500 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all hidden md:flex"
+          >
+            <User className="w-4 h-4" />
+          </button>
+          <div className="w-px h-6 bg-slate-800 hidden md:block" />
+          <button
+            onClick={onLogoff}
+            aria-label="Logout from system"
+            className="flex items-center gap-1.5 text-[#ef4444] font-mono text-[10px] border border-[#ef4444]/20 px-2.5 py-1.5 hover:bg-[#ef4444]/10 transition-colors rounded"
+          >
+            <LogOut className="w-3 h-3" />
+            <span className="hidden sm:inline">LOGOUT</span>
+          </button>
+        </div>
       }
     >
       {/* Live Intelligence Ticker */}
@@ -141,16 +161,7 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
               </div>
             </div>
           </motion.div>
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            onClick={() => window.dispatchEvent(new CustomEvent('navigate-to-system-command'))}
-            className="flex items-center gap-2 px-4 py-2 border border-intel-cyan/20 text-intel-cyan/60 hover:text-intel-cyan hover:bg-intel-cyan/5 transition-all text-[10px] font-mono rounded"
-          >
-            <Shield className="w-4 h-4" />
-            [ SYSTEM COMMAND ]
-          </motion.button>
+
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 stagger-children">

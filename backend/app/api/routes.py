@@ -71,7 +71,7 @@ async def proxy_rss(url: str):
 
 class ExtractionRequest(BaseModel):
     content: str
-    schema: List[Dict[str, str]]
+    extraction_schema: List[Dict[str, str]]
 
 class DailySyncRequest(BaseModel):
     news_items: List[Dict[str, Any]]
@@ -83,7 +83,7 @@ async def handle_extraction(payload: ExtractionRequest):
     """
     try:
         # Using the new act() method for extraction
-        perception = await orchestrator.extractor.perceive(payload.content, {"schema": payload.schema})
+        perception = await orchestrator.extractor.perceive(payload.content, {"schema": payload.extraction_schema})
         thought = await orchestrator.extractor.think(perception)
         return await orchestrator.extractor.act(thought, perception)
     except Exception as e:

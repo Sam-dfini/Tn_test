@@ -851,9 +851,6 @@ const MissionControl: React.FC<MissionControlProps> = ({ onJumpToDebugger, aiMod
         ))}
       </div>
 
-      {/* Pipeline flow diagram */}
-      <FlowDiagram metrics={metrics} onNodeClick={(stage) => onJumpToDebugger(stage)} />
-
       {/* Service checks + recent logs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Service health */}
@@ -2379,6 +2376,15 @@ const MODEL_CATALOG: Record<string, { label: string; models: { id: string; label
       { id: 'qwen-3-235b-a22b-instruct-2507', label: 'Qwen 3 235B', desc: 'High-quality large model for complex briefs' },
     ]
   },
+  groq: {
+    label: 'Groq',
+    models: [
+      { id: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B', desc: 'Fast inference on Groq LPUs' },
+      { id: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B', desc: 'Ultra-fast lightweight model' },
+      { id: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B', desc: 'MoE model for complex reasoning' },
+      { id: 'gemma2-9b-it', label: 'Gemma 2 9B', desc: 'Google lightweight model on Groq' },
+    ]
+  },
   nvidia: {
     label: 'NVIDIA',
     models: [
@@ -2406,6 +2412,7 @@ const PROVIDER_STYLE: Record<string, { color: string; bg: string; border: string
   cerebras:  { color: '#6C5CE7', bg: 'bg-purple-500/10', border: 'border-l-purple-500/40', label: 'Cerebras' },
   openrouter:{ color: '#FF6B35', bg: 'bg-orange-500/10', border: 'border-l-orange-600/40', label: 'OpenRouter' },
   nvidia:    { color: '#76B900', bg: 'bg-green-500/10', border: 'border-l-green-500/40', label: 'NVIDIA' },
+  groq:      { color: '#F55036', bg: 'bg-orange-500/10', border: 'border-l-orange-600/40', label: 'Groq' },
   mistral:   { color: '#FF6B6B', bg: 'bg-red-500/10', border: 'border-l-red-500/40', label: 'Mistral' },
   custom:    { color: '#64748B', bg: 'bg-slate-500/10', border: 'border-l-slate-500/40', label: 'Custom' },
 };

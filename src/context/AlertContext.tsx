@@ -12,6 +12,7 @@ interface AlertContextType {
   markAllAsRead: () => void;
   dismissAlert: (alertId: string) => void;
   clearAll: () => void;
+  addAlert: (newAlert: Omit<SystemAlert, 'id' | 'timestamp'>) => void;
 }
 
 export const AlertContext = createContext<AlertContextType>({} as AlertContextType);
@@ -161,8 +162,8 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [alerts]);
 
   const value = useMemo(() => ({
-    alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll
-  }), [alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll]);
+    alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll, addAlert
+  }), [alerts, clusters, unreadCount, markAsRead, markAllAsRead, dismissAlert, clearAll, addAlert]);
 
   return (
     <AlertContext.Provider value={value}>
