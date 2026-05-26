@@ -1,0 +1,1 @@
+/media/davey/c/books/Core_Concept/Political_Dynamics/Elite_Cohision/Doctrine_Notes/Elite_Cohesion.md

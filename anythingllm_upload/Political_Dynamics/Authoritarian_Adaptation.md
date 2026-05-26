@@ -1,0 +1,1 @@
+/media/davey/c/books/Core_Concept/Political_Dynamics/Authoritarian_Adaptation/Doctrine_Notes/Authoritarian_Adaptation.md

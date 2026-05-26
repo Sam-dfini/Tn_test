@@ -1,0 +1,1 @@
+/media/davey/c/books/Core_Concept/Tunisia_Intelligence/RRI_Engine/01_Equations_EQ1-EQ8.md

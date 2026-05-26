@@ -1,0 +1,1 @@
+/media/davey/c/books/Core_Concept/Propaganda_Narrative/Doctrine_Notes/Propaganda_Crowd_Intel_Cycle.md

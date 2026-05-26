@@ -1,0 +1,1 @@
+/media/davey/c/books/Core_Concept/Political_Dynamics/Hybrid_Regimes/Doctrine_Notes/Hybrid_Civil_Durability_Cohesion.md
