@@ -105,6 +105,91 @@ const pythonBackendRequirements = async () => {
 
 startPythonBackend();
 
+// ── Boot-time AI provider health state ─────────────────────────────
+// Populated once at startup; unhealthy providers are skipped in fallback chains.
+const providerHealth = new Map<string, boolean>();
+
+async function checkAIProviders(): Promise<void> {
+  const providers: { id: string; key: string | undefined; test: () => Promise<boolean> }[] = [];
+
+  const pushOpenAICompat = (id: string, key: string | undefined, url: string, model: string) => {
+    if (!key || key.includes('MY_')) return;
+    providers.push({
+      id,
+      key,
+      test: async () => {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 5000);
+          const r = await fetch(url, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model, messages: [{ role: 'user', content: 'Reply with exactly one word: ok' }], max_tokens: 4 }),
+            signal: controller.signal,
+          });
+          clearTimeout(timer);
+          return r.ok;
+        } catch { return false; }
+      },
+    });
+  };
+
+  pushOpenAICompat('cerebras', process.env.CEREBRAS_API_KEY, 'https://api.cerebras.ai/v1/chat/completions', 'llama3.1-8b');
+  pushOpenAICompat('openai', process.env.OPENAI_API_KEY, 'https://api.openai.com/v1/chat/completions', 'gpt-4o');
+  pushOpenAICompat('nvidia', process.env.NVIDIA_API_KEY, 'https://integrate.api.nvidia.com/v1/chat/completions', 'meta/llama-3.1-70b-instruct');
+  pushOpenAICompat('openrouter', process.env.OPENROUTER_API_KEY, 'https://openrouter.ai/api/v1/chat/completions', 'google/gemini-2.0-flash-lite');
+  pushOpenAICompat('mistral', process.env.MISTRAL_API_KEY, 'https://api.mistral.ai/v1/chat/completions', 'mistral-large-latest');
+  pushOpenAICompat('groq', process.env.GROQ_API_KEY, 'https://api.groq.com/openai/v1/chat/completions', 'llama-3.3-70b-versatile');
+
+  // Google Gemini
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey && !geminiKey.includes('MY_')) {
+    providers.push({
+      id: 'google',
+      key: geminiKey,
+      test: async () => {
+        try {
+          const genAI = new GoogleGenerativeAI(geminiKey);
+          const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+          const result = await model.generateContent('Reply with exactly one word: ok');
+          const response = await result.response;
+          return !!response.text();
+        } catch { return false; }
+      },
+    });
+  }
+
+  // Anthropic
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  if (anthropicKey && !anthropicKey.includes('MY_')) {
+    providers.push({
+      id: 'anthropic',
+      key: anthropicKey,
+      test: async () => {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 5000);
+          const r = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'claude-3-haiku-latest', max_tokens: 10, messages: [{ role: 'user', content: 'Reply with exactly one word: ok' }] }),
+            signal: controller.signal,
+          });
+          clearTimeout(timer);
+          return r.ok;
+        } catch { return false; }
+      },
+    });
+  }
+
+  const results = await Promise.allSettled(providers.map(p => p.test()));
+  providers.forEach((p, i) => {
+    const ok = results[i].status === 'fulfilled' && results[i].value;
+    providerHealth.set(p.id, ok);
+    console.log(`[AI] Provider health — ${p.id}=${ok}`);
+  });
+}
+
 // Agent that ignores SSL errors for problematic institutional sites
 const insecureHttpsAgent = new https.Agent({
   rejectUnauthorized: false
@@ -428,18 +513,18 @@ async function startServer() {
   // GET /api/ai/models — expose configured AI models (keys never sent to client)
   app.get('/api/ai/models', (req, res) => {
     const configured: { id: string; name: string; provider: string; modelName: string; status: 'online' | 'offline'; env: boolean }[] = [];
-    const openAiKey = process.env.OPENAI_API_KEY;
-    if (openAiKey && !openAiKey.includes('MY_')) configured.push({ id: 'env-openai', name: 'GPT-4o', provider: 'openai', modelName: 'gpt-4o', status: 'online', env: true });
-    const geminiKey = process.env.GEMINI_API_KEY;
-    if (geminiKey && !geminiKey.includes('MY_')) configured.push({ id: 'env-gemini', name: 'Gemini Flash', provider: 'google', modelName: 'gemini-2.0-flash', status: 'online', env: true });
-    const nvidiaKey = process.env.NVIDIA_API_KEY;
-    if (nvidiaKey && !nvidiaKey.includes('MY_')) configured.push({ id: 'env-nvidia', name: 'NVIDIA NIM', provider: 'nvidia', modelName: 'meta/llama-3.1-70b-instruct', status: 'online', env: true });
-    const openRouterKey = process.env.OPENROUTER_API_KEY;
-    if (openRouterKey && !openRouterKey.includes('MY_')) configured.push({ id: 'env-openrouter', name: 'OpenRouter', provider: 'openrouter', modelName: 'google/gemini-2.0-flash-lite', status: 'online', env: true });
-    const cerebrasKey = process.env.CEREBRAS_API_KEY;
-    if (cerebrasKey && !cerebrasKey.includes('MY_')) configured.push({ id: 'env-cerebras', name: 'Cerebras', provider: 'cerebras', modelName: 'llama3.1-8b', status: 'online', env: true });
-    const groqKey = process.env.GROQ_API_KEY;
-    if (groqKey && !groqKey.includes('MY_')) configured.push({ id: 'env-groq', name: 'Groq', provider: 'groq', modelName: 'llama-3.3-70b-versatile', status: 'online', env: true });
+    const pushModel = (id: string, name: string, provider: string, modelName: string, key: string | undefined) => {
+      if (!key || key.includes('MY_')) return;
+      configured.push({ id, name, provider, modelName, status: providerHealth.get(provider) === false ? 'offline' : 'online', env: true });
+    };
+    pushModel('env-openai', 'GPT-4o', 'openai', 'gpt-4o', process.env.OPENAI_API_KEY);
+    pushModel('env-gemini', 'Gemini Flash', 'google', 'gemini-2.0-flash', process.env.GEMINI_API_KEY);
+    pushModel('env-nvidia', 'NVIDIA NIM', 'nvidia', 'meta/llama-3.1-70b-instruct', process.env.NVIDIA_API_KEY);
+    pushModel('env-openrouter', 'OpenRouter', 'openrouter', 'google/gemini-2.0-flash-lite', process.env.OPENROUTER_API_KEY);
+    pushModel('env-cerebras', 'Cerebras', 'cerebras', 'llama3.1-8b', process.env.CEREBRAS_API_KEY);
+    pushModel('env-groq', 'Groq', 'groq', 'llama-3.3-70b-versatile', process.env.GROQ_API_KEY);
+    pushModel('env-mistral', 'Mistral', 'mistral', 'mistral-large-latest', process.env.MISTRAL_API_KEY);
+    pushModel('env-anthropic', 'Claude', 'anthropic', 'claude-3-haiku-latest', process.env.ANTHROPIC_API_KEY);
     res.json({ models: configured });
   });
 

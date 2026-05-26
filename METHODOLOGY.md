@@ -1,6 +1,6 @@
 # TUNISIAINTEL Technical Methodology
 
-This document serves as the master mathematical reference for the **TunisiaIntel v2.0** application. It catalogues all algorithms, indices, and formulas that drive the Revolutionary Risk Index (RRI), operational modules, predictive simulations, and civilizational tracking, directly matching the system's `RRIMethodology` Engine.
+This document serves as the master mathematical reference for the **TunisiaIntel v3.0** application. It catalogues all algorithms, indices, formulas, engines, and modules that drive the Revolutionary Risk Index (RRI), operational modules, predictive simulations, and civilizational tracking, directly matching the system's `RRIMethodology` Engine and all backend service implementations (Phases 1-10).
 
 ---
 
@@ -163,7 +163,7 @@ BreachProb = min(1, (BSI > 0.6 ? 0.7 : BSI * 0.5) * 0.4
 
 ---
 
-## 4. Agriculture & Food Crisis Module (ASIL)
+## 3. Agriculture & Food Crisis Module (ASIL)
 
 ### EQ.A1 — Bread Crisis Index (BCI)
 ```text
@@ -181,7 +181,7 @@ BMI = 0.4 × (Price_Divergence_Gap)
 
 ---
 
-## 5. Industrial Intelligence Module
+## 4. Industrial Intelligence Module
 
 ### EQ.I1 — Concentration Risk (HHI)
 ```text
@@ -214,9 +214,9 @@ ISI(gov) = 0.30 × EmploymentRisk + 0.20 × ExportVulnerability
 
 ---
 
-## 6. Civilizational Engine & Legacy Systems
+## 5. Civilizational Engine & Legacy Systems
 
-### EQ.C1 — Coupled Oscillator Alignment ($S_a$)
+### EQ.C1 — Coupled Oscillator Alignment (S_a)
 The system calculates **Systemic Alignment** across Economic (E), Freedom (F), Social (S), Political (P) and Ideological (I) domains:
 ```text
 S_a = min(1.0, μ · 0.6 + (1 - σ² · 4) · 0.4)
@@ -249,7 +249,254 @@ FailureThreshold = [C · (1 + V_fx)] / (1 - P_rev) > Available Liquidity
 
 ---
 
-## 7. Global Variable Ontology (RRI Variable Space)
+## 6. Actor Cognition Engine (Phase 4)
+
+The **Actor Engine** computes posture and adjusted action probabilities for each of the 14 geopolitical actors (PRES, UGTT, ARM, INT, BCT, LPR, EU, DZA, UTICA, DONOR, PPL, LTDH, KSA, USA) from a state snapshot.
+
+### EQ.AC1 — Actor Posture Computation
+```latex
+P_{adjusted}(a, t) = P_{base}(a) + \sum_{r \in R_a} \delta_r \cdot \mathbb{1}\left[ v_r(t) \bowtie \theta_r \right]
+```
+*Each actor a has a base action probability matrix P_base(a). State update rules R_a modify probabilities when a signal's value v_r(t) crosses threshold theta_r with operator `>` or `<`. Delta shifts are clamped to [0, 1].*
+
+### EQ.AC2 — Actor Stress Score
+```latex
+S_a(t) = \frac{\sum_{s} w_{a,s} \cdot v_s(t)}{\sum_{s} w_{a,s}}
+```
+*Weighted sum of input signals mapped from the canonical state snapshot. 111 signal-to-snapshot field mappings defined. Used to rank actors by current pressure.*
+
+### EQ.AC3 — Posture Classification
+Posture label assigned from highest-probability action:
+```text
+posture(a) = aggressive    if max(P_adjusted) in {repression, crackdown, general_strike, ...} and P > 0.50
+           = collapsing    if max(P_adjusted) in {immediate_concession_or_flight, capital_flight, ...} and P > 0.30
+           = negotiating   if max(P_adjusted) in {negotiation, concessions, diplomatic_statement, ...} and P > 0.40
+           = defensive     if max(P_adjusted) in {neutrality, border_tightening, capital_controls, ...} and P > 0.40
+           = passive       if max(P_adjusted) < 0.20
+```
+
+### EQ.AC4 — Actor Backtesting
+```latex
+\text{match\_score}(a, h) = \frac{1}{|K_h|} \sum_{k \in K_h} \mathbb{1}\left[ k \in \text{top\_action}(a) \right]
+```
+*Compares the top predicted action for actor a against historical event h by keyword overlap. Keywords are derived from documented historical behavior.*
+
+---
+
+## 7. Doctrine Library (Phase 5)
+
+The **Doctrine Library** integrates with AnythingLLM over 7 sovereign workspaces to provide historical pattern matching and theoretical context.
+
+### EQ.D1 — Doctrine-Enriched Posture
+```latex
+P_{doctrine}(a, t) = P_{adjusted}(a, t) \oplus f_{LLM}\left( \text{top\_k}(doctrine_{ws(a)}, s(t)) \right)
+```
+*Each actor binds to 1-3 doctrine workspaces. During deliberation, the top-k relevant chunks are retrieved per workspace, ranked by rerank_score, and fed into the LLM reasoning chain.*
+
+### Workspace Map
+| Actor | Doctrine Workspaces |
+|-------|-------------------|
+| PRES | tunisia-history, regime-survival, strategic-studies |
+| UGTT | tunisia-history, social-movements, economic-statecraft |
+| ARM | security-state, strategic-studies, tunisia-history |
+| BCT | economic-statecraft, energy-water |
+| EU | strategic-studies, economic-statecraft |
+| DONOR | economic-statecraft, strategic-studies |
+
+---
+
+## 8. Deliberation Engine & High Table (Phases 6, 8)
+
+The **Deliberation Engine** models multi-actor strategic decision-making. When a crisis signal fires or an analyst injects a scenario, actors generate positions, conflicts are detected, coalitions form, and a decision probability distribution is produced.
+
+### EQ.DE1 — Position Generation
+```latex
+\text{pos}_i = \max_a P_{doctrine}(a_i, t) \quad \text{conf}_i = P_{doctrine}(a_i, \text{pos}_i)
+```
+*Each actor i selects the action with highest adjusted probability as their position recommendation. Confidence is the probability of that action.*
+
+### EQ.DE2 — Conflict Detection
+```latex
+\text{conflict}(i, j) = \mathbb{1}\left[ \text{pos}_i = \text{oppose}(\text{pos}_j) \right] \cdot \frac{\text{conf}_i + \text{conf}_j}{2}
+```
+*Opposition mapping: repression↔concessions, general_strike↔negotiation, imf_delay↔imf_compliance, crackdown↔international_appeal. Severity is the mean of both actors' confidences.*
+
+### EQ.DE3 — Coalition Formation
+```latex
+C(r) = \{ a_i : \text{pos}_i = r \} \quad \text{AW}(r) = \sum_{a_i \in C(r)} \text{authority}_i(crisis\_type)
+```
+*Actors with the same recommended action form a coalition. The coalition's authority weight is the sum of each member's domain-specific authority weight (from the profile's authority_weights dict, keyed by crisis type).*
+
+### EQ.DE4 — Resolution
+```latex
+\text{resolution} = \text{consensus}   \quad \text{if } \max\_aw > 0.65
+                  = \text{compromise} \quad \text{if } (\max\_aw - \text{second\_aw}) < 0.15
+                  = \text{deadlock}   \quad \text{if } \max\_aw < 0.40
+```
+*Resolution type determines output format. Vetoes override all: if an actor's veto condition is met (e.g., UGTT strike during compound_stress > 0.75), the vetoing actor is excluded and deliberation continues among remaining actors.*
+
+### EQ.DE5 — Veto Conditions
+```latex
+\text{veto\_active} = \bigvee_{a \in A} \bigvee_{v \in V_a} \mathbb{1}\left[ f_v(\text{snapshot}) > \theta_v \right]
+```
+*Each actor profile defines veto_conditions with a condition string and blocked action. Examples: UGTT vetoes repression during high compound stress; LTDH vetoes on civilian casualty orders.*
+
+---
+
+## 9. Simulation Chamber (Phase 7)
+
+The **Simulation Chamber** runs Monte Carlo simulations that fork from the canonical state snapshot, inject shocks, propagate through causal chains, integrate deliberation, and produce outcome distributions.
+
+### EQ.SC1 — Scenario Shock Injection
+```latex
+\mathbf{s}_i(0) = \mathbf{s}_{canonical} + \sum_{k \in K} \text{shock}_k \cdot \mathcal{N}(1, \sigma_k)
+```
+*Each simulation run i starts from the canonical snapshot and applies the scenario's shock_vector, perturbed by Gaussian noise proportional to each variable's historical volatility.*
+
+### EQ.SC2 — Time Step Propagation
+```latex
+\mathbf{s}_i(t+1) = \mathbf{s}_i(t) + \alpha \cdot \nabla R(\mathbf{s}_i(t)) + \epsilon_i(t)
+```
+*State propagates forward in discrete steps. The gradient of the RRI function with respect to each variable provides drift direction. Stochastic shock epsilon_i(t) applied per step.*
+
+### EQ.SC3 — Deliberation Integration
+```latex
+\text{if } R_i(t) > \text{threshold}_{deliberate}: \quad \pi_i(t) = \text{deliberate}(\mathbf{s}_i(t))
+```
+*When RRI crosses predefined thresholds, the deliberation engine is called with the forked state, and its output (decision probability distribution) is fed back into the state vector.*
+
+### EQ.SC4 — Outcome Distribution
+```latex
+P_{outcome}(o) = \frac{1}{N} \sum_{i=1}^{N} \mathbb{1}\left[ \text{classify}(\mathbf{s}_i(T)) = o \right]
+```
+*After N iterations (configurable, default 1000), the final state of each run is classified (stable / elevated / crisis / acute_crisis / transition). The proportion of runs per class gives the probability distribution.*
+
+### Pre-Built Scenarios
+13 scenarios across 4 categories: Economic (SCN-E01–E05), Political (SCN-P01–P04), Security (SCN-S01–S02), Social (SCN-V01–V02). Each defines a shock_vector, tags, and historical_basis.
+
+---
+
+## 10. Intervention Engine (Phase 10)
+
+The **Intervention Engine** answers: "What action reduces collapse probability most efficiently, at lowest political cost, with highest confidence?"
+
+### EQ.IE1 — Intervention Efficiency
+```latex
+E_i = \frac{\max(0, -\Delta P_{rev,i})}{0.4 \cdot C_{pol,i} + 0.35 \cdot C_{econ,i} + 0.25 \cdot C_{social,i}}
+```
+*Efficiency is the ratio of P_revolution reduction to weighted total cost. Political cost weighted 0.40, economic 0.35, social 0.25.*
+
+### EQ.IE2 — P_revolution Delta Estimation
+```latex
+\Delta P_{rev,i} = \left( \sum_{v \in V_i} \delta_v \cdot w_v \right) \cdot \frac{T_{horizon}}{30}
+```
+*Each state_vector entry in intervention i contributes delta_j * weight_j (0.08 for stress/anger/velocity variables, 0.05 otherwise), scaled by time horizon in 30-day units.*
+
+### EQ.IE3 — Composite Ranking Score
+```latex
+S_i = 0.60 \cdot E_i + 0.20 \cdot H_i + 0.10 \cdot \left(1 - \frac{T_{effect,i}}{30}\right) + 0.10 \cdot R_i
+```
+*Final rank score blends efficiency (60%), historical success rate (20%), time-to-effect speed (10%), and reversibility (10%).*
+
+### EQ.IE4 — Actor Stance & Veto Risk
+```latex
+\text{veto\_risk}_i = \bigvee_{a \in A} \mathbb{1}\left[ \text{stance}_{a,i} = \text{oppose} \land \text{intensity}_{a,i} > 0.60 \land \text{requires}_i(\text{consent}_a) \right]
+```
+*An intervention has veto risk if it requires consent from an actor whose stance is oppose with >60% intensity.*
+
+### Intervention Library
+14+ seeded interventions across 5 categories: Economic (INT-E01–E05), Security (INT-S01–S03), Political (INT-P01–P03), Social (INT-V01–V03), Diplomatic (INT-D01–D02). Each defines: state_vector (variable→delta map), political/economical/social costs, actor_stances, historical_basis, success_rate, and tags.
+
+---
+
+## 11. Cognitive Workspace (Phase 9)
+
+The **Cognitive Workspace** orchestrates natural language queries across all engines (Phases 1-8, 10), synthesizes intelligence responses, and parameterizes canvas blocks.
+
+### EQ.CW1 — Intent Routing
+```latex
+\text{engine\_set}(q) = f_{LLM}\left( q, \{ \text{block\_registry} \} \right)
+```
+*Query q is routed to one or more engine capabilities based on the block registry. 16 block types defined (rri-gauge, governorate-heatmap, monte-carlo-futures, actor-timeline, elite-network, economic-stress, narrative-warfare, comparative-historical, protest-sir, confidence-meter, water-stress, migration-flow, intervention-ranker, etc.).*
+
+### EQ.CW2 — Parallel Execution Synthesis
+```latex
+\text{response}(q) = f_{LLM}\left( q, \{ \text{result}_e : e \in \text{engine\_set}(q) \} \right)
+```
+*Each selected engine executes in parallel; results are bundled with the original query and synthesized into a structured envelope (prose + confidence + block parameters).*
+
+### EQ.CW3 — Streaming Narrative Token Generation
+```latex
+P(\text{token}_t | \text{context}_{<t}, \text{investigation}_i, \text{snapshot})
+```
+*The workspace supports streaming SSE endpoint for real-time narrative generation. Token-by-token generation conditioned on investigation context and current state snapshot.*
+
+---
+
+## 12. RAG & Intelligence Pipeline
+
+The full RAG pipeline: Retrieve → Format → Generate → Cite → Log.
+
+### EQ.RAG1 — Multi-Source Retrieval
+```latex
+\text{chunks} = \text{top\_k}\left( \cos\_sim(\text{embed}(q), \text{embed}(D_{articles})) \right) \cup \text{top\_k}\left( \cos\_sim(\text{embed}(q), \text{embed}(D_{telegram})) \right) \cup \text{search\_doctrine}(q)
+```
+*Semantic search across article_embeddings and telegram_embeddings (cosine similarity) PLUS doctrine library via AnythingLLM. Live signals weighted 0.60, doctrine/theoretical weighted 0.40.*
+
+### EQ.RAG2 — Synthesis Confidence
+```latex
+\text{confidence} = \begin{cases} 0.1 & \text{if } |\text{chunks}| = 0 \\ f_{LLM}(q, \text{chunks}) & \text{if } |\text{chunks}| > 0 \end{cases}
+```
+*Confidence is LLM-generated. If insufficient evidence, the model returns confidence < 0.3 with explicit flag.*
+
+### Continuous Intelligence Loop
+10-step pipeline runs every 10 minutes: Extract → Qualify → Score → Deduplicate → Analyze → Correlate → Detect Anomalies → Calculate RRI → Simulate → Act. Orchestrated by 9 AI agents (Extractor, Analyst, Predictor, ResourceScout, DisinformationAnalyst, SocialMovementTracker, EconomicForecaster, SecurityAnalyst).
+
+---
+
+## 13. Causal Ontology Engine
+
+The **Ontology Service** checks 12 seeded causal chains against the canonical state snapshot after each write, returning triggered chain_ids with propagation timing.
+
+### EQ.O1 — Chain Activation
+```latex
+\text{chain\_active}(c) = \mathbb{1}\left[ v_{act,c}(t) > \theta_c \right] \land \mathbb{1}\left[ \exists t \in T_c : v_t(t) \geq \text{threshold}_t \right]
+```
+*A chain is active if its activation variable value exceeds the chain's activation threshold AND at least one trigger threshold in the chain is breached.*
+
+### EQ.O2 — Node Propagation
+```latex
+\text{node\_fires}(n) = \mathbb{1}\left[ v_{act}(t) \geq \theta_c \cdot (1.5 - 0.5 \cdot w_n) \right]
+```
+*Each causal node n fires if the activation variable exceeds an effective threshold adjusted by the node's propagation_weight w_n. Higher weight nodes fire at lower thresholds.*
+
+### EQ.O3 — Propagation Timing
+```latex
+T_{prop}(c) = \max_{n \in N_c} \text{lag\_days}(n) \times 24 \text{ hours}
+```
+*Total propagation window is the maximum time_lag_days across all triggered nodes, converted to hours.*
+
+### 12 Core Causal Chains
+| Chain ID | Domain | Activation Variable | Nodes |
+|----------|--------|--------------------|-------|
+| bread_price_cascade | economic→social | E2_wheat_stress | 8 |
+| phosphate_disruption | economic→political→security | S4_phosphate_strike | 8 |
+| elite_defection | political | P1_mii | 8 |
+| repression_radicalization | security→social | S3_repression_index | 8 |
+| ugtt_strike_escalation | social→political | S4_ugtt_strike_index | 8 |
+| water_collapse | environment→economic→social | B1_water_stress | 8 |
+| imf_conditionality_cascade | economic→political | P3_imf_pressure | 6 |
+| war_distraction_release | geopolitical→social | w_t | 6 |
+| diaspora_mobilization | external→social→political | salience_effective | 7 |
+| elite_cohesion_collapse | political | elite_cohesion_dynamics | 6 |
+| brain_drain_acceleration | social→economic | A16_brain_drain_rate | 4 |
+| cascade_contagion | social→security | cascade_probability | 6 |
+
+Each chain includes local_amplifiers (Ramadan timing +0.35, Summer heat +0.20), local_suppressors (war distraction -0.22, UGTT neutrality -0.30), regional_sensitivity (governorate-level multipliers up to 0.98), doctrine_refs, and validated_events for historical calibration.
+
+---
+
+## 14. Global Variable Ontology (RRI Variable Space)
 
 The entire pipeline resolves raw data into the following structural classifications:
 
@@ -276,3 +523,21 @@ These act as structural multipliers on top of standard metrics.
 *   **A.14 (Market Distortion):** Velocity of the Black Market overtaking the formal sector.
 *   **A.16 (Investment Chill):** Evaporation of SME credit, Tech Fragility.
 *   **A.18 (Revenue Collapse):** Plunging Phosphate or Tourism receipts triggering sudden fx liquidity crises.
+
+---
+
+## Global Variable Ontology — Knowledge Graph
+
+The Knowledge Graph maps entities (actors, institutions, locations) and their typed relations across 4 dimensions:
+
+### EQ.KG1 — Entity-Relation Model
+```text
+G = (V, E, T_V, T_E)
+```
+*Vertices V represent entities with types T_V ∈ {actor, institution, governorate, sector, geopolitical}. Edges E represent typed relations T_E ∈ {influences, controls, opposes, funds, mediates, represents, operates_in}.*
+
+### EQ.KG2 — BFS Traversal
+```latex
+N_k(v) = \{ u : \text{dist}(v, u) \leq k \}
+```
+*Neighborhood query returns all entities within k hops of the seed entity. Used for influence mapping and cascade tracking.*

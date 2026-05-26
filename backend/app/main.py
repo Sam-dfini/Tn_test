@@ -24,6 +24,10 @@ async def lifespan(app: FastAPI):
     with open("backend_startup.log", "a") as f:
         f.write(f"Backend lifespan starting at {datetime.now().isoformat()}\n")
     print("Starting automated backend data pipeline (Cron Scrapers & Intelligence Mode)...")
+
+    # Check AI provider health at boot — unhealthy providers are silently skipped
+    from .services.llm_client import check_providers
+    await check_providers()
     
     # Start the orchestrator's continuous loop in the background (runs every 10 minutes)
     from .orchestrator import orchestrator
