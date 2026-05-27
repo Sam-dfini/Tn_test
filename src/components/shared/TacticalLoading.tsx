@@ -83,15 +83,39 @@ export const TacticalLoading: React.FC<{
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-[#05070a] z-[999] flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono"
+      className="fixed inset-0 bg-[#040609] z-[999] flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono"
     >
       {/* Background grid */}
       <div
-        className="absolute inset-0 opacity-[0.06] pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle, #00f2ff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(circle, rgba(148,163,184,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
       />
+      {/* Vignette */}
+      <div className="absolute inset-0 z-[4] pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, rgba(4,6,9,0.88) 100%)' }} />
       {/* Scanline */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00f2ff]/5 to-transparent h-20 w-full animate-scanline pointer-events-none" />
+
+      {/* Top bar */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 44, zIndex: 30,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 28px',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        background: 'rgba(4,6,9,0.65)', backdropFilter: 'blur(10px)',
+      }}>
+        <span style={{ fontSize: 12, letterSpacing: '0.25em', color: 'rgba(0,200,200,0.75)', fontWeight: 700 }}>
+          TUNISIA<span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 400 }}>INTEL</span>
+        </span>
+        <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', letterSpacing: '0.15em' }}>
+          {new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div className="w-[5px] h-[5px] rounded-full bg-[rgba(0,200,200,0.85)] shadow-[0_0_5px_rgba(0,200,200,0.6)] animate-pulse" />
+          <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(0,200,200,0.5)' }}>
+            SECURE UPLINK
+          </span>
+        </div>
+      </div>
 
       <div className="max-w-3xl w-full space-y-6 md:space-y-8 relative z-20">
         {/* Logo */}
@@ -100,7 +124,8 @@ export const TacticalLoading: React.FC<{
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="relative w-20 h-20 md:w-24 md:h-24"
+            className="relative"
+            style={{ width: 90, height: 90 }}
           >
             <motion.svg
               width="100%" height="100%" viewBox="0 0 100 100"
@@ -258,11 +283,38 @@ export const TacticalLoading: React.FC<{
         </div>
       </div>
 
-      {/* Corner accents */}
-      <div className="absolute top-4 left-4 md:top-8 md:left-8 w-8 h-8 md:w-14 md:h-14 border-t-2 border-l-2 border-intel-cyan/20" />
-      <div className="absolute top-4 right-4 md:top-8 md:right-8 w-8 h-8 md:w-14 md:h-14 border-t-2 border-r-2 border-intel-cyan/20" />
-      <div className="absolute bottom-4 left-4 md:bottom-8 md:left-8 w-8 h-8 md:w-14 md:h-14 border-b-2 border-l-2 border-intel-cyan/20" />
-      <div className="absolute bottom-4 right-4 md:bottom-8 md:right-8 w-8 h-8 md:w-14 md:h-14 border-b-2 border-r-2 border-intel-cyan/20" />
+      {/* Bottom bar */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 32, zIndex: 30,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 28px',
+        borderTop: '1px solid rgba(255,255,255,0.04)',
+        background: 'rgba(4,6,9,0.65)', backdropFilter: 'blur(8px)',
+      }}>
+        <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(148,163,184,0.22)' }}>
+          NODE: TUNIS_01 // NORTH_AFRICA_CLUSTER
+        </span>
+        <span style={{ fontSize: 8, letterSpacing: '0.18em', color: '#d68910', opacity: 0.65 }}>
+          THREAT: ELEVATED
+        </span>
+      </div>
+
+      {/* Corner accents — identical to auth */}
+      {[
+        { top: 52, left: 20,   bt: true,  bl: true  },
+        { top: 52, right: 20,  bt: true,  br: true  },
+        { bot: 40, left: 20,   bb: true,  bl: true  },
+        { bot: 40, right: 20,  bb: true,  br: true  },
+      ].map((c, i) => (
+        <div key={i} style={{
+          position: 'absolute', width: 18, height: 18, zIndex: 20,
+          top: c.top, bottom: c.bot, left: c.left, right: c.right,
+          borderTop:    c.bt ? '1px solid rgba(0,180,180,0.28)' : 'none',
+          borderBottom: c.bb ? '1px solid rgba(0,180,180,0.28)' : 'none',
+          borderLeft:   c.bl ? '1px solid rgba(0,180,180,0.28)' : 'none',
+          borderRight:  c.br ? '1px solid rgba(0,180,180,0.28)' : 'none',
+        }}/>
+      ))}
     </motion.div>
   );
 };

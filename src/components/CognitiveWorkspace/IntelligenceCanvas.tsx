@@ -19,16 +19,8 @@ export const IntelligenceCanvas: React.FC<Props> = ({ messages, isProcessing }) 
     return lastAssistant?.blocks_rendered ?? lastAssistant?.blocks ?? [];
   }, [messages]);
 
-  const gridClass = useMemo(() => {
-    const n = latestBlocks.length;
-    if (n === 1) return 'grid-1';
-    if (n === 2) return 'grid-2';
-    if (n <= 4) return 'grid-2x2';
-    return 'grid-2x3';
-  }, [latestBlocks.length]);
-
   return (
-    <div className="intelligence-canvas" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="intelligence-canvas">
       <div className="canvas-header">
         <div className="canvas-header-left">
           {latestBlocks.length > 0 ? (
@@ -46,7 +38,7 @@ export const IntelligenceCanvas: React.FC<Props> = ({ messages, isProcessing }) 
         )}
       </div>
 
-      <div className={`block-grid ${gridClass}`}>
+      <div className="block-grid">
         {latestBlocks.map((block: BlockInstance, i: number) => (
           <BlockRenderer key={`${block.block_id}-${i}`} block={block} />
         ))}
