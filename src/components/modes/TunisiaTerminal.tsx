@@ -58,7 +58,7 @@ const riskFg = (score: number) => score >= 0.75 ? '#ff4444' : score >= 0.60 ? '#
 
 // ── Layout Components ──────────────────────────────────────────────────────
 
-const MenuBar = () => (
+const MenuBar: React.FC<{ onQuit: () => void }> = ({ onQuit }) => (
   <div style={{ height: '3.2vh', minHeight: 26, background: '#000', borderBottom: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px', flexShrink: 0 }}>
     <div style={{ display: 'flex', gap: 16 }}>
        <span style={{ color: C.accent, fontWeight: 700, fontSize: '1.2vh' }}>TUNISIAINTEL</span>
@@ -66,7 +66,22 @@ const MenuBar = () => (
     </div>
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '1vh' }}>
        <span style={{ color: C.pos }}>● CONNECTION: ULTRA_LOW_LATENCY</span>
-       <span style={{ border: `1px solid ${C.dim}`, padding: '0 4px', color: C.white }}>SECURE_CORE</span>
+       <button
+         onClick={onQuit}
+         aria-label="Quit terminal mode"
+         style={{
+           border: `1px solid ${C.neg}`,
+           background: 'transparent',
+           color: C.neg,
+           padding: '1px 8px',
+           fontSize: '1vh',
+           fontWeight: 700,
+           letterSpacing: '0.08em',
+           cursor: 'pointer',
+         }}
+       >
+         QUIT
+       </button>
     </div>
   </div>
 );
@@ -236,7 +251,7 @@ export const TunisiaTerminal: React.FC<{ onGoHome: () => void; governorates: any
 
   return (
     <div style={S.root}>
-      <MenuBar />
+      <MenuBar onQuit={onGoHome} />
       <Ticker rriState={rriState} econ={econ} />
       
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'minmax(250px, 18vw) 1fr 1fr minmax(250px, 18vw)', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>

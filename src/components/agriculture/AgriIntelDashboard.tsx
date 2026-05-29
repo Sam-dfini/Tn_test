@@ -201,7 +201,7 @@ const RiskBadge: React.FC<{ level: string }> = ({ level }) => {
     CRITICAL: 'text-intel-red border-intel-red/30 bg-intel-red/10',
     HIGH: 'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
     MEDIUM: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/10',
-    LOW: 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10',
+    LOW: 'text-slate-400 border-slate-500/30 bg-slate-500/10',
   };
   return (
     <span className={cn('text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase', map[level] || 'text-slate-400 border-slate-600 bg-slate-800')}>

@@ -8,7 +8,7 @@ const STATUS_STYLES: Record<string, string> = {
   CRITICAL: 'text-intel-red border-intel-red/30 bg-intel-red/10',
   HIGH:     'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
   MEDIUM:   'text-yellow-500 border-yellow-500/30 bg-yellow-500/10',
-  LOW:      'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/10',
+  LOW:      'text-slate-400 border-slate-500/30 bg-slate-500/10',
   STABLE:   'text-slate-400 border-slate-600 bg-slate-800',
   WARNING:  'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
   ACTIVE:   'text-intel-green border-intel-green/30 bg-intel-green/10',

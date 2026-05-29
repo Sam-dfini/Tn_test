@@ -8,7 +8,7 @@ import time
 import requests
 
 API_BASE = "https://llm.kilma.ai/api/v1"
-API_KEY = "HHQ0BDY-84GMQWH-J0F2V6G-E5RH7TK"
+API_KEY = "YOUR_ANYTHINGLLM_API_KEY"
 STAGING = "/home/davey/Desktop/tunisiaintel v2/Tn_test/anythingllm_upload"
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 

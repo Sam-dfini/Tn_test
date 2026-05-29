@@ -299,7 +299,7 @@ const RiskBadge: React.FC<{ level: string }> = ({ level }) => {
       case 'CRITICAL': case 'EXTREME': return 'text-intel-red border-intel-red/30 bg-intel-red/5';
       case 'HIGH': case 'SEVERE': return 'text-intel-orange border-intel-orange/30 bg-intel-orange/5';
       case 'MEDIUM': case 'MODERATE': return 'text-yellow-500 border-yellow-500/30 bg-yellow-500/5';
-      default: return 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5';
+      default: return 'text-slate-400 border-slate-500/30 bg-slate-500/10';
     }
   };
   return (

@@ -191,7 +191,7 @@ function RiskBadge({ level }: { level: string }) {
     CRITICAL: 'text-intel-red border-intel-red/30 bg-intel-red/10',
     HIGH: 'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
     MEDIUM: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
-    LOW: 'text-intel-cyan border-intel-cyan/30 bg-intel-cyan/5',
+    LOW: 'text-slate-400 border-slate-500/30 bg-slate-500/10',
     SCARCE: 'text-intel-red border-intel-red/30 bg-intel-red/10',
     LIMITED: 'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
     OK: 'text-slate-500 border-slate-700 bg-slate-800/50',

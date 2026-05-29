@@ -5,6 +5,21 @@ import { useAuditLog } from '../context/AuditContext';
 import { useNotifications } from '../context/NotificationContext';
 import { getSeasonalForecast } from '../services/shortageDetector';
 
+const NOTIFICATION_RULES = {
+  RRI_BREACH: { threshold: 2.625, cooldownMs: 30 * 60 * 1000 },
+  RRI_JUMP: { threshold: 0.10, cooldownMs: 20 * 60 * 1000 },
+  VELOCITY_ACCEL: { threshold: 0.20, cooldownMs: 20 * 60 * 1000 },
+  PATTERN_MATCH: { threshold: 0.65, cooldownMs: 6 * 60 * 60 * 1000 },
+  FX_WARNING: { threshold: 90, cooldownMs: 6 * 60 * 60 * 1000 },
+  FX_CRISIS: { threshold: 60, cooldownMs: 2 * 60 * 60 * 1000 },
+  PROTEST_SURGE: { threshold: 30, cooldownMs: 6 * 60 * 60 * 1000 },
+  UGTT_HIGH: { cooldownMs: 6 * 60 * 60 * 1000 },
+  DECREE54_NEW: { cooldownMs: 60 * 60 * 1000 },
+  PIPELINE_SHOCK: { cooldownMs: 30 * 60 * 1000 },
+  PIPELINE_SIGNAL: { cooldownMs: 15 * 60 * 1000 },
+  URGENT_RSS: { cooldownMs: 10 * 60 * 1000 },
+} as const;
+
 export const useNotificationTriggers = () => {
   const { fullData: data, rriState } = useRiskMetrics();
   const { auditLog } = useAuditLog();
@@ -22,6 +37,21 @@ export const useNotificationTriggers = () => {
   const prevAuditLen = useRef(auditLog?.length ?? 0);
   const initialized = useRef(false);
 
+  const getRuleStorageKey = (ruleId: keyof typeof NOTIFICATION_RULES, bucket = 'default') =>
+    `ti_notif_rule_${ruleId}_${bucket}`;
+
+  const shouldFireRule = (
+    ruleId: keyof typeof NOTIFICATION_RULES,
+    bucket = 'default'
+  ) => {
+    const cooldownMs = NOTIFICATION_RULES[ruleId].cooldownMs;
+    const key = getRuleStorageKey(ruleId, bucket);
+    const last = Number(safeStorage.getItem(key) || 0);
+    if (Date.now() - last < cooldownMs) return false;
+    safeStorage.setItem(key, String(Date.now()));
+    return true;
+  };
+
   // One-time: seed notifications reflecting current state
   useEffect(() => {
     const hasSeeded = safeStorage.getItem('ti_notifications_seeded');
@@ -29,17 +59,17 @@ export const useNotificationTriggers = () => {
 
     setTimeout(() => {
       // Current state summary
-      if (rriState.rri >= 2.0) {
+      if (rriState.rri >= 2.0 && shouldFireRule('RRI_JUMP', 'seed')) {
         addNotification({
           type: 'RRI',
-          priority: rriState.rri >= 2.625 ? 'CRITICAL' : 'HIGH',
+          priority: rriState.rri >= NOTIFICATION_RULES.RRI_BREACH.threshold ? 'CRITICAL' : 'HIGH',
           title: `Current R(t) = ${(rriState?.rri ?? 0).toFixed(4)}`,
           message: `Platform initialized. P_rev = ${((rriState?.p_rev ?? 0) * 100).toFixed(1)}%. ${rriState.threshold_breaches?.length || 0} threshold breaches active.`,
           action: { label: 'View Risk Model', event: 'navigate-main', detail: { tab: 'risk' } },
         });
       }
 
-      if (data.economy.fx_reserves < 90) {
+      if (data.economy.fx_reserves < NOTIFICATION_RULES.FX_WARNING.threshold && shouldFireRule('FX_WARNING', 'seed')) {
         addNotification({
           type: 'ALERT',
           priority: 'HIGH',
@@ -50,7 +80,7 @@ export const useNotificationTriggers = () => {
         });
       }
 
-      if (data.social.ugtt_mobilisation_level === 'HIGH') {
+      if (data.social.ugtt_mobilisation_level === 'HIGH' && shouldFireRule('UGTT_HIGH', 'seed')) {
         addNotification({
           type: 'ALERT',
           priority: 'CRITICAL',
@@ -61,7 +91,7 @@ export const useNotificationTriggers = () => {
         });
       }
 
-      if ((rriState?.pattern_similarity ?? 0) > 0.5) {
+      if ((rriState?.pattern_similarity ?? 0) > 0.5 && shouldFireRule('PATTERN_MATCH', 'seed')) {
         addNotification({
           type: 'RRI',
           priority: 'HIGH',
@@ -117,7 +147,13 @@ export const useNotificationTriggers = () => {
     }
 
     // ── RRI THRESHOLD BREACH ────────────────────────────────
-    if (rriState && typeof rriState.rri === 'number' && rriState.rri >= 2.625 && prevRRI.current < 2.625) {
+    if (
+      rriState &&
+      typeof rriState.rri === 'number' &&
+      rriState.rri >= NOTIFICATION_RULES.RRI_BREACH.threshold &&
+      prevRRI.current < NOTIFICATION_RULES.RRI_BREACH.threshold &&
+      shouldFireRule('RRI_BREACH', `cross_${Math.floor((rriState.rri ?? 0) * 10)}`)
+    ) {
       addNotification({
         type: 'RRI',
         priority: 'CRITICAL',
@@ -162,7 +198,10 @@ export const useNotificationTriggers = () => {
 
     // ── RRI SIGNIFICANT JUMP (>0.10 in one recalc) ──────────
     const rriJump = (rriState?.rri ?? 0) - (prevRRI.current ?? 0);
-    if (Math.abs(rriJump) > 0.10) {
+    if (
+      Math.abs(rriJump) > NOTIFICATION_RULES.RRI_JUMP.threshold &&
+      shouldFireRule('RRI_JUMP', rriJump > 0 ? 'up' : 'down')
+    ) {
       addNotification({
         type: 'RRI',
         priority: rriJump > 0 ? 'HIGH' : 'MEDIUM',
@@ -180,7 +219,11 @@ export const useNotificationTriggers = () => {
     }
 
     // ── VELOCITY ACCELERATION ───────────────────────────────
-    if ((rriState?.velocity ?? 0) > 0.20 && (prevVelocity.current ?? 0) <= 0.20) {
+    if (
+      (rriState?.velocity ?? 0) > NOTIFICATION_RULES.VELOCITY_ACCEL.threshold &&
+      (prevVelocity.current ?? 0) <= NOTIFICATION_RULES.VELOCITY_ACCEL.threshold &&
+      shouldFireRule('VELOCITY_ACCEL', 'threshold_cross')
+    ) {
       addNotification({
         type: 'RRI',
         priority: 'HIGH',
@@ -195,8 +238,11 @@ export const useNotificationTriggers = () => {
     }
 
     // ── PATTERN MATCH ACTIVATED ─────────────────────────────
-    if ((rriState?.pattern_similarity ?? 0) > 0.65 &&
-        (prevPattern.current ?? 0) <= 0.65) {
+    if (
+      (rriState?.pattern_similarity ?? 0) > NOTIFICATION_RULES.PATTERN_MATCH.threshold &&
+      (prevPattern.current ?? 0) <= NOTIFICATION_RULES.PATTERN_MATCH.threshold &&
+      shouldFireRule('PATTERN_MATCH', 'threshold_cross')
+    ) {
       addNotification({
         type: 'RRI',
         priority: 'HIGH',
@@ -211,7 +257,11 @@ export const useNotificationTriggers = () => {
     }
 
     // ── FX RESERVES WARNING ─────────────────────────────────
-    if (data.economy.fx_reserves < 90 && prevFX.current >= 90) {
+    if (
+      data.economy.fx_reserves < NOTIFICATION_RULES.FX_WARNING.threshold &&
+      prevFX.current >= NOTIFICATION_RULES.FX_WARNING.threshold &&
+      shouldFireRule('FX_WARNING', 'cross_warning')
+    ) {
       addNotification({
         type: 'ALERT',
         priority: 'HIGH',
@@ -226,7 +276,11 @@ export const useNotificationTriggers = () => {
       });
     }
 
-    if (data.economy.fx_reserves < 60 && prevFX.current >= 60) {
+    if (
+      data.economy.fx_reserves < NOTIFICATION_RULES.FX_CRISIS.threshold &&
+      prevFX.current >= NOTIFICATION_RULES.FX_CRISIS.threshold &&
+      shouldFireRule('FX_CRISIS', 'cross_crisis')
+    ) {
       addNotification({
         type: 'ALERT',
         priority: 'CRITICAL',
@@ -242,8 +296,11 @@ export const useNotificationTriggers = () => {
     }
 
     // ── UGTT ESCALATION ─────────────────────────────────────
-    if (data.social.ugtt_mobilisation_level === 'HIGH' &&
-        prevUGTT.current !== 'HIGH') {
+    if (
+      data.social.ugtt_mobilisation_level === 'HIGH' &&
+      prevUGTT.current !== 'HIGH' &&
+      shouldFireRule('UGTT_HIGH', 'state_high')
+    ) {
       addNotification({
         type: 'ALERT',
         priority: 'CRITICAL',
@@ -259,8 +316,11 @@ export const useNotificationTriggers = () => {
     }
 
     // ── PROTEST SURGE ───────────────────────────────────────
-    if (data.social.protest_events_30d > 30 &&
-        prevProtests.current <= 30) {
+    if (
+      data.social.protest_events_30d > NOTIFICATION_RULES.PROTEST_SURGE.threshold &&
+      prevProtests.current <= NOTIFICATION_RULES.PROTEST_SURGE.threshold &&
+      shouldFireRule('PROTEST_SURGE', 'threshold_cross')
+    ) {
       addNotification({
         type: 'ALERT',
         priority: 'HIGH',
@@ -276,7 +336,7 @@ export const useNotificationTriggers = () => {
     }
 
     // ── NEW DECREE 54 CHARGE ────────────────────────────────
-    if (data.social.decree54_charged > prevD54.current) {
+    if (data.social.decree54_charged > prevD54.current && shouldFireRule('DECREE54_NEW', 'increment')) {
       const newCharges = data.social.decree54_charged - prevD54.current;
       addNotification({
         type: 'ALERT',
@@ -305,19 +365,24 @@ export const useNotificationTriggers = () => {
         const isShock = pushEntries.length > 5 || 
                       (mainEntry.type === 'PUSH' && Math.abs(mainEntry.value - mainEntry.oldValue) > 20);
 
-        addNotification({
-          type: isShock ? 'SHOCK' : 'PIPELINE',
-          priority: isShock ? 'HIGH' : 'MEDIUM',
-          title: isShock ? '⚡ SYSTEM SHOCK DETECTED' : '📡 SIGNAL INGESTED',
-          message: isShock 
-            ? `Multiple concurrent variables shifted. System volatility increasing. New R(t): ${(rriState?.rri ?? 0).toFixed(4)}.`
-            : `Pipeline update: ${mainEntry.label} → ${mainEntry.value}. Recalculating systemic risk vectors.`,
-          action: {
-            label: 'Open Debugger',
-            event: 'navigate-to-pipeline',
-            detail: { tab: 'pipeline' }
-          },
-        });
+        if (
+          (isShock && shouldFireRule('PIPELINE_SHOCK', String(mainEntry.type))) ||
+          (!isShock && shouldFireRule('PIPELINE_SIGNAL', String(mainEntry.type)))
+        ) {
+          addNotification({
+            type: isShock ? 'SHOCK' : 'PIPELINE',
+            priority: isShock ? 'HIGH' : 'MEDIUM',
+            title: isShock ? '⚡ SYSTEM SHOCK DETECTED' : '📡 SIGNAL INGESTED',
+            message: isShock 
+              ? `Multiple concurrent variables shifted. System volatility increasing. New R(t): ${(rriState?.rri ?? 0).toFixed(4)}.`
+              : `Pipeline update: ${mainEntry.label} → ${mainEntry.value}. Recalculating systemic risk vectors.`,
+            action: {
+              label: 'Open Debugger',
+              event: 'navigate-to-pipeline',
+              detail: { tab: 'pipeline' }
+            },
+          });
+        }
       }
     }
 
@@ -337,7 +402,7 @@ export const useNotificationTriggers = () => {
         title.includes(kw) || summary.includes(kw)
       ) || article.severity >= 4;
 
-      if (isUrgent) {
+      if (isUrgent && shouldFireRule('URGENT_RSS', article.source_name || article.source || 'rss')) {
         addNotification({
           type: 'RSS',
           priority: article.severity >= 5 ? 'CRITICAL' : 'HIGH',

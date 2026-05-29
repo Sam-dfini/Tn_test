@@ -11,15 +11,15 @@ import { useRSS } from '../../context/RSSContext';
 import { useObservability } from '../../context/ObservabilityContext';
 import { generateStableKey } from '../../lib/keyUtils';
 
-// ── Type icon map ────────────────────────────────────────────
+// ── Type icon map (shape only; color is priority-driven) ────
 const TYPE_CONFIG = {
-  RRI:      { icon: Zap,           color: 'text-intel-red',    bg: 'bg-intel-red/10',    border: 'border-intel-red/20'    },
-  ALERT:    { icon: AlertTriangle, color: 'text-intel-orange', bg: 'bg-intel-orange/10', border: 'border-intel-orange/20' },
-  PIPELINE: { icon: Database,      color: 'text-intel-cyan',   bg: 'bg-intel-cyan/10',   border: 'border-intel-cyan/20'   },
-  RSS:      { icon: Radio,         color: 'text-intel-green',  bg: 'bg-intel-green/10',  border: 'border-intel-green/20'  },
-  SHOCK:    { icon: AlertTriangle, color: 'text-intel-red',    bg: 'bg-intel-red/10',    border: 'border-intel-red/20'    },
-  SOURCE:   { icon: Settings,      color: 'text-slate-400',    bg: 'bg-white/5',          border: 'border-slate-700'       },
-  SYSTEM:   { icon: Settings,      color: 'text-slate-400',    bg: 'bg-white/5',          border: 'border-slate-700'       },
+  RRI:      { icon: Zap },
+  ALERT:    { icon: AlertTriangle },
+  PIPELINE: { icon: Database },
+  RSS:      { icon: Radio },
+  SHOCK:    { icon: AlertTriangle },
+  SOURCE:   { icon: Settings },
+  SYSTEM:   { icon: Settings },
 };
 
 const PRIORITY_BADGE = {
@@ -27,6 +27,13 @@ const PRIORITY_BADGE = {
   HIGH:     'text-intel-orange border-intel-orange/30 bg-intel-orange/10',
   MEDIUM:   'text-yellow-500 border-yellow-500/30 bg-yellow-500/10',
   LOW:      'text-slate-500 border-slate-700 bg-slate-900',
+};
+
+const PRIORITY_ICON = {
+  CRITICAL: { color: 'text-intel-red', bg: 'bg-intel-red/10', border: 'border-intel-red/20' },
+  HIGH:     { color: 'text-intel-orange', bg: 'bg-intel-orange/10', border: 'border-intel-orange/20' },
+  MEDIUM:   { color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+  LOW:      { color: 'text-slate-500', bg: 'bg-slate-700/20', border: 'border-slate-700' },
 };
 
 const getTimeAgo = (timestamp: number): string => {
@@ -45,8 +52,9 @@ const NotificationItem: React.FC<{
   notification: Notification;
   onRead: (id: string) => void;
 }> = ({ notification: n, onRead }) => {
-  const config = TYPE_CONFIG[n.type] || TYPE_CONFIG.SYSTEM;
-  const Icon = config.icon;
+  const typeConfig = TYPE_CONFIG[n.type] || TYPE_CONFIG.SYSTEM;
+  const priorityConfig = PRIORITY_ICON[n.priority] || PRIORITY_ICON.LOW;
+  const Icon = typeConfig.icon;
 
   const handleClick = () => {
     onRead(n.id);
@@ -77,6 +85,8 @@ const NotificationItem: React.FC<{
               ? 'bg-intel-red animate-pulse'
               : n.priority === 'HIGH'
               ? 'bg-intel-orange'
+              : n.priority === 'MEDIUM'
+              ? 'bg-yellow-500'
               : 'bg-intel-cyan'
             : 'bg-transparent'
         }`} />
@@ -84,8 +94,8 @@ const NotificationItem: React.FC<{
 
       {/* Icon */}
       <div className={`w-7 h-7 rounded-lg flex items-center
-        justify-center shrink-0 ${config.bg} border ${config.border}`}>
-        <Icon className={`w-3.5 h-3.5 ${config.color}`} />
+        justify-center shrink-0 ${priorityConfig.bg} border ${priorityConfig.border}`}>
+        <Icon className={`w-3.5 h-3.5 ${priorityConfig.color}`} />
       </div>
 
       {/* Content */}
@@ -473,8 +483,19 @@ export const NotificationPanel: React.FC<{
 
 // ── Bell button (used in header) ─────────────────────────────
 export const NotificationBell: React.FC = () => {
-  const { unreadCount, criticalCount } = useNotifications();
+  const { notifications, unreadCount, criticalCount } = useNotifications();
   const [open, setOpen] = useState(false);
+  const unread = notifications.filter(n => !n.read);
+  const highCount = unread.filter(n => n.priority === 'HIGH').length;
+  const mediumCount = unread.filter(n => n.priority === 'MEDIUM').length;
+
+  const unreadBadgeClass = criticalCount > 0
+    ? 'bg-intel-red animate-pulse'
+    : highCount > 0
+    ? 'bg-intel-orange'
+    : mediumCount > 0
+    ? 'bg-yellow-500'
+    : 'bg-slate-500';
 
   return (
     <div className="relative">
@@ -497,10 +518,7 @@ export const NotificationBell: React.FC = () => {
             className={`absolute -top-1 -right-1 min-w-[16px]
               h-4 rounded-full flex items-center justify-center
               text-[8px] font-bold font-mono px-0.5 text-white
-              ${criticalCount > 0
-                ? 'bg-intel-red animate-pulse'
-                : 'bg-intel-orange'
-              }`}
+              ${unreadBadgeClass}`}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
           </motion.span>

@@ -41,6 +41,14 @@ const PRIORITY_STYLES = {
     bar: 'bg-yellow-500/60',
     glow: 'shadow-[0_8px_32px_rgba(255,214,10,0.2)]',
   },
+  LOW: {
+    card: 'bg-slate-500/10 border-slate-500/30',
+    iconBg: 'bg-slate-500/15 border-slate-500/25',
+    iconColor: 'text-slate-400',
+    title: 'text-slate-400',
+    bar: 'bg-slate-500/60',
+    glow: 'shadow-[0_8px_32px_rgba(148,163,184,0.15)]',
+  },
 };
 
 export const NotificationToast: React.FC = () => {

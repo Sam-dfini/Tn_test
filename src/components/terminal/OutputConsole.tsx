@@ -73,7 +73,7 @@ export const OutputConsole: React.FC<OutputConsoleProps> = ({ history }) => {
                          line.structured.riskLevel === 'CRITICAL' ? 'bg-intel-red text-white' :
                          line.structured.riskLevel === 'HIGH' ? 'bg-orange-500 text-white' :
                          line.structured.riskLevel === 'MEDIUM' ? 'bg-yellow-500 text-black' :
-                         'bg-intel-green text-white'
+                          'bg-slate-500 text-white'
                        }`}>
                          {line.structured.riskLevel}
                        </span>
