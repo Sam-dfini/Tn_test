@@ -262,7 +262,11 @@ function generateDemoData(): { messages: Message[] } {
   };
 }
 
-export const CognitiveWorkspace: React.FC = () => {
+interface CognitiveWorkspaceProps {
+  noChrome?: boolean;
+}
+
+export const CognitiveWorkspace: React.FC<CognitiveWorkspaceProps> = ({ noChrome = false }) => {
   const { addAlert } = useAlerts();
   const [investigationId, setInvestigationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -412,7 +416,7 @@ export const CognitiveWorkspace: React.FC = () => {
   }, [handleQuery]);
 
   return (
-    <div className="cognitive-workspace">
+    <div className={`cognitive-workspace${noChrome ? ' no-chrome' : ''}`}>
       <BackgroundGrid />
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4 px-6 pt-4 relative z-10">

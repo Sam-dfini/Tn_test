@@ -1,13 +1,8 @@
-import React, { useState, Suspense, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment } from '@react-three/drei';
+import React, { useState, useEffect } from 'react';
 import {
-  Star, TrendingUp, Globe, FlaskConical, Radio, Zap, Activity, MessageCircle, Shield, Heart, Crosshair,
+  FlaskConical, Radio, Zap, Activity, MessageCircle, Shield, Heart, Crosshair,
   BrainCircuit, Home, ChevronLeft, MessageSquare,
 } from 'lucide-react';
-import ConstellationView from './ConstellationView';
-import ProjectionView from './ProjectionView';
-import TerrainView from './TerrainView';
 import AudioBriefing from './AudioBriefing';
 import SimulationView from './SimulationView';
 import NarrativeWarfareView from './NarrativeWarfareView';
@@ -24,9 +19,7 @@ import CognitiveWorkspace from '../../components/CognitiveWorkspace/CognitiveWor
 const ICON_SIZE = 20;
 
 const views = [
-  { id: 'constellation',     icon: Star,          label: 'Constellation' },
-  { id: 'projection',        icon: TrendingUp,     label: 'Projection' },
-  { id: 'terrain',           icon: Globe,          label: 'Terrain' },
+  { id: 'cognitive-workspace', icon: MessageSquare, label: 'Workspace' },
   { id: 'telegram',          icon: MessageCircle,  label: 'Telegram' },
   { id: 'sci',               icon: Shield,         label: 'SCI' },
   { id: 'calibration',       icon: Crosshair,      label: 'Calibration' },
@@ -35,7 +28,6 @@ const views = [
   { id: 'heatmap',           icon: Heart,          label: 'Heatmap' },
   { id: 'state-machine',     icon: Activity,       label: 'State Machine' },
   { id: 'shock-propagation', icon: Zap,            label: 'Shock Propagation' },
-  { id: 'cognitive-workspace', icon: MessageSquare, label: 'Workspace' },
 ];
 
 const sx: React.CSSProperties = {
@@ -51,18 +43,9 @@ const btnBase: React.CSSProperties = {
   cursor: 'pointer', position: 'relative', transition: 'all .15s',
 };
 
-// Loading component for BrainMode
-const LoadingScreen = () => (
-  <div style={{ width: '100vw', height: '100vh', backgroundColor: '#040609', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', color: '#e2e8f0', fontFamily: '"IBM Plex Mono", monospace' }}>
-    <div style={{ fontSize: '12px', letterSpacing: '0.25em', color: 'rgba(0,200,200,0.6)', marginBottom: '20px' }}>INITIALIZING BRAIN MODE</div>
-    <div style={{ width: '40px', height: '40px', border: '1px solid rgba(0,200,200,0.35)', borderTop: '1px solid #00f2ff', borderRadius: '50%', animation: 'spin 1s linear infinite', boxShadow: '0 0 16px rgba(0,242,255,0.3)' }}></div>
-    <div style={{ fontSize: '8px', letterSpacing: '0.18em', color: 'rgba(148,163,184,0.35)', marginTop: '16px' }}>TUNISIA<span style={{ color: '#00f2ff' }}>INTEL</span> // BUILD 0.9.6-alpha</div>
-  </div>
-);
-
 // BrainMode component
 const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
-  const [activeSpace, setActiveSpace] = useState('constellation');
+  const [activeSpace, setActiveSpace] = useState('cognitive-workspace');
   const [audioBriefing, setAudioBriefing] = useState<{ type: 'morning' | 'evening' | 'emergency'; message: string } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(true);
@@ -120,18 +103,7 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
       
       {/* Sidebar */}
       <div style={{ ...sx, background: 'rgba(4,6,9,0.85)', backdropFilter: 'blur(16px)', borderRight: '1px solid rgba(0,180,180,0.28)' }}>
-        {/* Brand */}
-        <div style={{ marginBottom: 16, padding: '8px 0', textAlign: 'center' }}>
-          <BrainCircuit size={32} color="#00f2ff" style={{ filter: 'drop-shadow(0 0 12px rgba(0,242,255,0.6))' }} />
-          <div style={{ fontSize: 10, letterSpacing: '0.25em', color: 'rgba(0,200,200,0.6)', marginTop: 6 }}>
-            SOVEREIGN
-          </div>
-          <div style={{ fontSize: 10, letterSpacing: '0.25em', color: '#00f2ff', fontWeight: 700, marginTop: 2 }}>
-            BRAIN MODE
-          </div>
-        </div>
-
-        <div style={{ width: 28, height: 1, background: 'rgba(0,180,180,0.28)', margin: '4px 0 8px' }} />
+        <div style={{ width: 28, height: 1, background: 'rgba(0,180,180,0.28)', margin: '52px 0 12px' }} />
 
         {/* Nav items */}
         {views.map(v => {
@@ -167,19 +139,8 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
 
       {/* Main content */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {activeSpace === 'constellation' ? (
-          <Suspense fallback={<LoadingScreen />}>
-            <Canvas camera={{ position: [0, 0, 5] }}>
-              <OrbitControls />
-              <Environment preset="city" />
-              <ConstellationView />
-            </Canvas>
-          </Suspense>
-        ) : activeSpace === 'projection' ? (
-          <ProjectionView />
-        ) : activeSpace === 'terrain' ? (
-          <TerrainView />
-        ) : activeSpace === 'telegram' ? (
+        <div style={{ width: '100%', height: '100%', transform: 'scale(0.90)', transformOrigin: 'center center' }}>
+        {activeSpace === 'telegram' ? (
           <TelegramFeedView />
         ) : activeSpace === 'sci' ? (
           <SCIView />
@@ -194,10 +155,11 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
         ) : activeSpace === 'state-machine' ? (
           <NationalStateView />
         ) : activeSpace === 'cognitive-workspace' ? (
-          <CognitiveWorkspace />
+          <CognitiveWorkspace noChrome />
         ) : (
           <ShockPropagationView />
         )}
+        </div>
 
         {/* Audio Briefing */}
         {audioBriefing && (

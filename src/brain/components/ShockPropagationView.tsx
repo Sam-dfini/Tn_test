@@ -75,14 +75,14 @@ const ADJ = govData.adjacency_graph as Record<string, string[]>;
 
 // ── colour helpers ─────────────────────────────────────────────
 const STATUS_COLOR: Record<string, { fill: string; stroke: string; glow: string }> = {
-  origin:      { fill: 'rgba(255,45,85,0.55)',  stroke: '#ff2d55', glow: '#ff2d55' },
-  high:        { fill: 'rgba(255,107,53,0.45)', stroke: '#ff6b35', glow: '#ff6b35' },
-  medium:      { fill: 'rgba(255,214,10,0.35)', stroke: '#ffd60a', glow: '#ffd60a' },
-  low:         { fill: 'rgba(48,209,88,0.20)',  stroke: '#30d158', glow: '#30d158' },
+  origin:      { fill: 'rgba(0,242,255,0.55)',  stroke: '#00f2ff', glow: '#00f2ff' },
+  high:        { fill: 'rgba(0,200,200,0.45)',  stroke: '#00c8c8', glow: '#00c8c8' },
+  medium:      { fill: 'rgba(0,180,180,0.35)',  stroke: '#00b4b4', glow: '#00b4b4' },
+  low:         { fill: 'rgba(0,160,160,0.20)',  stroke: '#00a0a0', glow: '#00a0a0' },
   unreachable: { fill: 'rgba(15,23,42,0.0)',    stroke: 'rgba(40,60,90,0.6)', glow: 'transparent' },
 };
 
-const rriColor = (v: number) => v >= 2.5 ? '#ff2d55' : v >= 2.0 ? '#ff9f0a' : v >= 1.5 ? '#ffd60a' : '#30d158';
+const rriColor = (v: number) => v >= 2.5 ? '#ff2d55' : v >= 2.0 ? '#ff9f0a' : v >= 1.5 ? '#ffd60a' : '#00f2ff';
 
 // ── inject CSS once ────────────────────────────────────────────
 let _cssInjected = false;
@@ -252,7 +252,7 @@ const ShockPropagationView: React.FC = () => {
         {[
           {l:'RRI',      v:rri.toFixed(2),              c:rriColor(rri)},
           {l:'CASCADE',  v:`${(cascadeProb*100).toFixed(0)}%`, c:'#00f2ff'},
-          {l:'P(REV)',   v:`${(pRev*100).toFixed(0)}%`, c:'#d68910'},
+          {l:'P(REV)',   v:`${(pRev*100).toFixed(0)}%`, c:'#ffd60a'},
           {l:'REACHED',  v:`${reachCount}/24`,           c:'#00f2ff'},
           {l:'HIGH',     v:String(highCount),            c:'#ff2d55'},
         ].map(m=>(
@@ -423,7 +423,7 @@ const ShockPropagationView: React.FC = () => {
                         )}
                         {vis&&node&&node.status!=='unreachable'&&node.status!=='origin'&&(
                           <text x={geo.cx+18} y={geo.cy-6}
-                            fontSize={7} fill="#ff9f0a"
+                            fontSize={7} fill="#ffd60a"
                             fontFamily="IBM Plex Mono,monospace"
                             style={{pointerEvents:'none'}}
                           >D{node.expectedDays}</text>
@@ -450,7 +450,7 @@ const ShockPropagationView: React.FC = () => {
                         <line key={`${fromId}-${toId}`}
                           x1={fromMeta.cx} y1={fromMeta.cy}
                           x2={toMeta.cx}   y2={toMeta.cy}
-                          stroke="rgba(255,107,53,0.5)" strokeWidth={1.5}
+                          stroke="rgba(255,214,10,0.5)" strokeWidth={1.5}
                           strokeDasharray="5 3"
                           filter="url(#spv-glow-edge)"
                           style={{animation:'spv-dash 0.8s linear infinite',pointerEvents:'none'}}
@@ -575,7 +575,7 @@ const ShockPropagationView: React.FC = () => {
                     borderRadius:4,padding:'10px 12px',
                   }}>
                     <div style={{fontSize:11,color:'#ff6b8a',marginBottom:4,fontWeight:600}}>{match.wave.name}</div>
-                    <div style={{fontSize:10,color:'#ff9f0a',marginBottom:6}}>{(match.score*100).toFixed(0)}% SIMILARITY</div>
+                    <div style={{fontSize:10,color:'#ffd60a',marginBottom:6}}>{(match.score*100).toFixed(0)}% SIMILARITY</div>
                     <div style={{fontSize:9,color:'#4a5568',lineHeight:1.5}}>{match.wave.outcome}</div>
                   </div>
                 </div>
@@ -603,7 +603,7 @@ const ShockPropagationView: React.FC = () => {
                             textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                             {nodesMeta[n.governorateId]?.name.toUpperCase()}
                           </span>
-                          <span style={{fontSize:8,color:'#ff9f0a'}}>D{n.expectedDays}</span>
+                          <span style={{fontSize:8,color:'#ffd60a'}}>D{n.expectedDays}</span>
                           <span style={{fontSize:8,color:col.glow}}>{Math.round(n.probability*100)}%</span>
                         </div>
                       );
@@ -637,11 +637,11 @@ const ShockPropagationView: React.FC = () => {
                     ))}
                     <path d={sirPath('I')} fill="none" stroke="#ff2d55" strokeWidth={2.5}/>
                     <path d={`${sirPath('I')} L${SW},${SH} L0,${SH} Z`} fill="rgba(255,45,85,0.07)"/>
-                    <path d={sirPath('S')} fill="none" stroke="#30d158" strokeWidth={2}/>
-                    <path d={sirPath('R')} fill="none" stroke="#4a5a6a" strokeWidth={2}/>
+                    <path d={sirPath('S')} fill="none" stroke="#00b4b4" strokeWidth={2}/>
+                    <path d={sirPath('R')} fill="none" stroke="#3a4a5a" strokeWidth={2}/>
                   </svg>
                   <div style={{display:'flex',gap:20,marginTop:16}}>
-                    {[{c:'#30d158',l:'Susceptible'},{c:'#ff2d55',l:'Infected'},{c:'#4a5a6a',l:'Recovered'}].map(lg=>(
+                    {[{c:'#00b4b4',l:'Susceptible'},{c:'#ff2d55',l:'Infected'},{c:'#3a4a5a',l:'Recovered'}].map(lg=>(
                       <div key={lg.l} style={{display:'flex',alignItems:'center',gap:7}}>
                         <div style={{width:20,height:2,background:lg.c,boxShadow:`0 0 5px ${lg.c}`}}/>
                         <span style={{fontSize:10,color:'#4a5a6a'}}>{lg.l}</span>
@@ -652,9 +652,9 @@ const ShockPropagationView: React.FC = () => {
                 <div style={{display:'flex',gap:14,flexWrap:'wrap'}}>
                   {[
                     {l:'PEAK INFECTED',  v:`${(Math.max(...sir.map(p=>p.I))*100).toFixed(1)}%`,c:'#ff2d55'},
-                    {l:'PEAK DAY',       v:`D${sir.indexOf(sir.reduce((b,p)=>p.I>b.I?p:b,sir[0]))}`,c:'#ff9f0a'},
-                    {l:'R₀',            v:(0.4*(0.5+cascadeProb)/0.15).toFixed(2),c:'#a78bfa'},
-                    {l:'FINAL RECOVERED',v:`${((sir[sir.length-1]?.R??0)*100).toFixed(1)}%`,c:'#30d158'},
+                    {l:'PEAK DAY',       v:`D${sir.indexOf(sir.reduce((b,p)=>p.I>b.I?p:b,sir[0]))}`,c:'#ffd60a'},
+                    {l:'R₀',            v:(0.4*(0.5+cascadeProb)/0.15).toFixed(2),c:'#ff9f0a'},
+                    {l:'FINAL RECOVERED',v:`${((sir[sir.length-1]?.R??0)*100).toFixed(1)}%`,c:'#00a0a0'},
                   ].map(m=>(
                     <div key={m.l} style={{background:'rgba(0,4,12,0.8)',border:`1px solid ${m.c}22`,borderRadius:6,padding:'12px 16px',minWidth:130}}>
                       <div style={{fontSize:8,color:'#3a4a5a',letterSpacing:2,marginBottom:6}}>{m.l}</div>
@@ -679,9 +679,9 @@ const ShockPropagationView: React.FC = () => {
                 return (
                   <div key={wave.name} style={{
                     background:'rgba(0,4,12,0.8)',
-                    border:`1px solid ${isMatch?'rgba(255,45,85,0.3)':'rgba(255,255,255,0.05)'}`,
+                    border:`1px solid ${isMatch?'rgba(255,214,10,0.3)':'rgba(255,255,255,0.05)'}`,
                     borderRadius:8,padding:'18px 22px',
-                    boxShadow:isMatch?'0 0 25px rgba(255,45,85,0.07)':'none',
+                    boxShadow:isMatch?'0 0 25px rgba(255,214,10,0.07)':'none',
                   }}>
                     <div style={{display:'flex',justifyContent:'space-between',marginBottom:10,alignItems:'flex-start'}}>
                       <div>
@@ -689,24 +689,24 @@ const ShockPropagationView: React.FC = () => {
                         <div style={{fontSize:10,color:'#ff9f0a'}}>{wave.outcome}</div>
                       </div>
                       <div style={{
-                        background:isMatch?'rgba(255,45,85,0.12)':'rgba(255,255,255,0.04)',
-                        border:`1px solid ${isMatch?'rgba(255,45,85,0.4)':'rgba(255,255,255,0.06)'}`,
+                        background:isMatch?'rgba(255,214,10,0.12)':'rgba(255,255,255,0.04)',
+                        border:`1px solid ${isMatch?'rgba(255,214,10,0.4)':'rgba(255,255,255,0.06)'}`,
                         borderRadius:4,padding:'5px 10px',textAlign:'center',minWidth:60,
                       }}>
-                        <div style={{fontSize:16,fontWeight:700,color:isMatch?'#ff2d55':'#3a4a5a'}}>{(score*100).toFixed(0)}%</div>
+                        <div style={{fontSize:16,fontWeight:700,color:isMatch?'#ffd60a':'#3a4a5a'}}>{(score*100).toFixed(0)}%</div>
                         <div style={{fontSize:8,color:'#3a4a5a',letterSpacing:1}}>MATCH</div>
                       </div>
                     </div>
                     <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                       {wave.steps.map((step,i)=>(
                         <div key={i} style={{
-                          background:step.intensity>0.7?'rgba(255,45,85,0.1)':'rgba(255,255,255,0.04)',
-                          border:`1px solid ${step.intensity>0.7?'rgba(255,45,85,0.3)':'rgba(255,255,255,0.06)'}`,
+                          background:step.intensity>0.7?'rgba(255,214,10,0.1)':'rgba(255,255,255,0.04)',
+                          border:`1px solid ${step.intensity>0.7?'rgba(255,214,10,0.3)':'rgba(255,255,255,0.06)'}`,
                           borderRadius:3,padding:'3px 8px',fontSize:9,display:'flex',gap:5,
                         }}>
                           <span style={{color:'#ff9f0a'}}>D{step.day}</span>
                           <span style={{color:'#7a8a9a'}}>{nodesMeta[step.governorateId]?.name??step.governorateId}</span>
-                          <span style={{color:step.intensity>0.7?'#ff2d55':'#3a4a5a'}}>{(step.intensity*100).toFixed(0)}%</span>
+                          <span style={{color:step.intensity>0.7?'#ffd60a':'#3a4a5a'}}>{(step.intensity*100).toFixed(0)}%</span>
                         </div>
                       ))}
                     </div>
