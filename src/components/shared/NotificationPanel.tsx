@@ -136,6 +136,40 @@ const NotificationItem: React.FC<{
           {n.message}
         </p>
 
+        {/* Trigger metadata for explainability (PR4) */}
+        {(n.triggerRule || n.threshold || n.observedValue) && (
+          <div className="space-y-1 pt-1">
+            {n.triggerRule && (
+              <div className="flex items-center space-x-1">
+                <span className="text-[7px] font-mono text-slate-600 uppercase">Rule:</span>
+                <span className="text-[7px] font-mono text-intel-cyan">{n.triggerRule}</span>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {n.threshold && (
+                <div className="flex items-center space-x-1">
+                  <span className="text-[7px] font-mono text-slate-600">Threshold:</span>
+                  <span className="text-[7px] font-mono text-amber-400">{String(n.threshold)}</span>
+                </div>
+              )}
+              {n.observedValue && (
+                <div className="flex items-center space-x-1">
+                  <span className="text-[7px] font-mono text-slate-600">Observed:</span>
+                  <span className="text-[7px] font-mono text-intel-orange">{String(n.observedValue)}</span>
+                </div>
+              )}
+              {n.delta !== undefined && (
+                <div className="flex items-center space-x-1">
+                  <span className="text-[7px] font-mono text-slate-600">Δ:</span>
+                  <span className={`text-[7px] font-mono ${n.delta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {n.delta > 0 ? '+' : ''}{n.delta}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Field changes */}
         {n.fieldChanges && n.fieldChanges.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-0.5">

@@ -81,15 +81,11 @@ async def _search_embeddings(
             )
         except Exception:
             try:
+                # Execute raw SQL using raw_query method
                 res = (
-                    db.rpc(
-                        "exec_sql_admin",
-                        {
-                            "sql_query": (
-                                f"SELECT *, embedding <=> '{embedding_str}'::vector AS distance "
-                                f"FROM {table_name} ORDER BY distance LIMIT {limit * 2}"
-                            )
-                        },
+                    db.raw(
+                        f"SELECT *, embedding <=> '{embedding_str}'::vector AS distance "
+                        f"FROM {table_name} ORDER BY distance LIMIT {limit * 2}"
                     )
                     .execute()
                 )

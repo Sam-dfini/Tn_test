@@ -50,6 +50,12 @@ export interface Notification {
   // Optional RRI delta (for RRI/ALERT)
   rriDelta?: number;
   rriVariable?: string;
+  // PR4: Trigger metadata for explainability
+  triggerRule?: string;
+  threshold?: number | string;
+  observedValue?: number | string;
+  previousValue?: number | string;
+  delta?: number;
 }
 
 interface NotificationContextType {

@@ -3,6 +3,8 @@ import { SystemAlert, AlertCluster } from '../types/alert';
 import { PipelineContext } from './PipelineContext';
 import { useRSS } from './RSSContext';
 import { safeStorage } from '../utils/storage';
+import { useNotifications } from './NotificationContext';
+import { mapSystemAlertToNotification } from '../services/alertToNotificationMapper';
 
 interface AlertContextType {
   alerts: SystemAlert[];
@@ -20,6 +22,7 @@ export const AlertContext = createContext<AlertContextType>({} as AlertContextTy
 export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data, rriState, sbdeResult, agroSummary } = useContext(PipelineContext);
   const { articles } = useRSS();
+  const { addNotification } = useNotifications();
 
   const [alerts, setAlerts] = useState<SystemAlert[]>(() => {
     try {
@@ -37,7 +40,13 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {}
   }, [alerts]);
 
-  const addAlert = useCallback((newAlert: Omit<SystemAlert, 'id' | 'timestamp'>) => {
+  const addAlert = useCallback((newAlert: Omit<SystemAlert, 'id' | 'timestamp'>, triggerMetadata?: {
+    triggerRule?: string;
+    threshold?: number | string;
+    observedValue?: number | string;
+    previousValue?: number | string;
+    delta?: number;
+  }) => {
     setAlerts(prev => {
       // Basic deduplication: exact same title within 1 hour
       const oneHourAgo = Date.now() - 3600000;
@@ -52,9 +61,14 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         timestamp: new Date().toISOString(),
         read: false,
       };
+      
+      // Also add to NotificationContext for user-facing alerts
+      const notification = mapSystemAlertToNotification(alert, triggerMetadata);
+      addNotification(notification);
+      
       return [alert, ...prev];
     });
-  }, []);
+  }, [addNotification]);
 
   // 1. STRATEGIC Escalations (from Pipeline)
   useEffect(() => {
@@ -68,6 +82,12 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         domain: 'SYSTEM',
         source: 'CoreLogic Engine',
         affectedEquations: ['EQ.1', 'EQ.19']
+      }, {
+        triggerRule: 'RRI_BREACH',
+        threshold: 3.0,
+        observedValue: rriState.rri,
+        previousValue: 3.0,
+        delta: rriState.rri - 3.0,
       });
     }
 
@@ -79,6 +99,12 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         domain: 'POLITICAL',
         source: 'Actor Network',
         affectedEquations: ['EQ.2']
+      }, {
+        triggerRule: 'ELITE_DEFECTION',
+        threshold: 0.4,
+        observedValue: rriState.elite_defection_prob,
+        previousValue: 0.4,
+        delta: rriState.elite_defection_prob - 0.4,
       });
     }
   }, [rriState?.rri, rriState?.elite_defection_prob, addAlert]);

@@ -48,9 +48,9 @@ interface ShockTemplate {
 }
 
 const DOMAIN_COLOR: Record<string, string> = {
-  ECON:      '#f59e0b',
+  ECON:      '#00f2ff',
   SOCIAL:    '#3b82f6',
-  POLITICAL: '#a855f7',
+  POLITICAL: '#d68910',
   SEC:       '#ef4444',
   AGRI:      '#22c55e',
   CLIMATE:   '#06b6d4',
@@ -323,15 +323,15 @@ const ADJ = govData.adjacency_graph as Record<string, string[]>;
 
 // ── Helpers ────────────────────────────────────────────────────
 const rriColor = (v: number) =>
-  v >= 2.5 ? '#ff2d55' : v >= 2.0 ? '#ff9f0a' : v >= 1.5 ? '#ffd60a' : '#30d158';
+  v >= 2.5 ? '#ff2d55' : v >= 2.0 ? '#d68910' : v >= 1.5 ? '#00f2ff' : '#30d158';
 
-const deltaColor = (d: number) => d > 0.05 ? '#ff2d55' : d > 0 ? '#ff9f0a' : '#30d158';
+const deltaColor = (d: number) => d > 0.05 ? '#ff2d55' : d > 0 ? '#d68910' : '#30d158';
 const sign = (n: number) => n >= 0 ? '+' : '';
 
 function phaseColor(phase: string): string {
   const map: Record<string, string> = {
-    accumulation: '#f59e0b', stagnation: '#64748b', suppression: '#ef4444',
-    fracture: '#a855f7', ignition: '#ff6b35', cascade: '#dc2626', exhaustion: '#475569',
+    accumulation: '#00f2ff', stagnation: '#64748b', suppression: '#ef4444',
+    fracture: '#d68910', ignition: '#ff6b35', cascade: '#dc2626', exhaustion: '#475569',
   };
   return map[phase] ?? '#64748b';
 }
@@ -442,25 +442,25 @@ const ScenarioSandbox: React.FC = () => {
 
   return (
     <div style={{
-      width:'100%', height:'100%', background:'#05070f',
+      width:'100%', height:'100%', background:'#040609',
       display:'flex', flexDirection:'column', overflow:'hidden',
-      fontFamily:'"IBM Plex Mono","Courier New",monospace', color:'#c9d1e0',
+      fontFamily:'"IBM Plex Mono","Courier New",monospace', color:'#e2e8f0',
     }}>
 
       {/* ── TOP BAR ── */}
       <div style={{
-        height:52, flexShrink:0, background:'rgba(0,0,0,0.75)',
-        borderBottom:'1px solid rgba(99,102,241,0.2)',
+        height:52, flexShrink:0, background:'rgba(4,6,9,0.75)',
+        borderBottom:'1px solid rgba(0,180,180,0.28)',
         display:'flex', alignItems:'center', padding:'0 20px', gap:28,
         backdropFilter:'blur(12px)',
       }}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <div style={{
-            width:8,height:8,borderRadius:'50%',background:'#a78bfa',
-            boxShadow:'0 0 10px #a78bfa', animation:'ssv-pulse 2s infinite',
+            width:8,height:8,borderRadius:'50%',background:'#00f2ff',
+            boxShadow:'0 0 10px #00f2ff', animation:'ssv-pulse 2s infinite',
           }}/>
-          <span style={{fontSize:11,letterSpacing:3,color:'#8899aa',fontWeight:600}}>SCENARIO SANDBOX</span>
-          <span style={{fontSize:10,color:'rgba(167,139,250,0.5)',letterSpacing:2}}>EQ.13</span>
+          <span style={{fontSize:11,letterSpacing:3,color:'rgba(0,200,200,0.6)',fontWeight:600}}>SCENARIO SANDBOX</span>
+          <span style={{fontSize:10,color:'rgba(0,242,255,0.5)',letterSpacing:2}}>EQ.13</span>
         </div>
 
         {/* Live metrics strip */}
@@ -472,7 +472,7 @@ const ScenarioSandbox: React.FC = () => {
             padding:'2px 8px',borderRadius:4,
             transition:'background .3s',
           }}>
-            <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>RRI</span>
+            <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>RRI</span>
             <span style={{fontSize:15,color:rriColor(liveRRI),fontWeight:700,textShadow:`0 0 12px ${rriColor(liveRRI)}55`}}>
               {liveRRI.toFixed(2)}
             </span>
@@ -485,8 +485,8 @@ const ScenarioSandbox: React.FC = () => {
 
           {/* P(Rev) */}
           <div style={{display:'flex',alignItems:'baseline',gap:5}}>
-            <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>P(REV)</span>
-            <span style={{fontSize:13,color:'#ff9f0a',fontWeight:700}}>
+            <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>P(REV)</span>
+            <span style={{fontSize:13,color:'#d68910',fontWeight:700}}>
               {(livePRev*100).toFixed(1)}%
             </span>
             {Math.abs(dPRev) > 0.005 && (
@@ -496,8 +496,8 @@ const ScenarioSandbox: React.FC = () => {
 
           {/* Cascade */}
           <div style={{display:'flex',alignItems:'baseline',gap:5}}>
-            <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>CASCADE</span>
-            <span style={{fontSize:13,color:'#a78bfa',fontWeight:700}}>
+            <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>CASCADE</span>
+            <span style={{fontSize:13,color:'#00f2ff',fontWeight:700}}>
               {(liveCascade*100).toFixed(0)}%
             </span>
             {Math.abs(dCascade) > 0.005 && (
@@ -507,7 +507,7 @@ const ScenarioSandbox: React.FC = () => {
 
           {/* Phase */}
           <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>PHASE</span>
+            <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>PHASE</span>
             <span style={{
               fontSize:10,fontWeight:700,letterSpacing:1,
               color:phaseColor(currentPhase),
@@ -529,8 +529,8 @@ const ScenarioSandbox: React.FC = () => {
             </div>
           )}
           <button onClick={()=>{setInjectedIds(new Set()); clearShocks();}} style={{
-            background:'transparent',border:'1px solid rgba(255,255,255,0.07)',
-            color:'#3a4a5a',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+            background:'transparent',border:'1px solid rgba(0,180,180,0.28)',
+            color:'rgba(148,163,184,0.35)',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
           }}>RESET</button>
         </div>
       </div>
@@ -538,8 +538,8 @@ const ScenarioSandbox: React.FC = () => {
       {/* ── TABS ── */}
       <div style={{
         height:38, flexShrink:0,
-        background:'rgba(0,2,10,0.85)',
-        borderBottom:'1px solid rgba(255,255,255,0.04)',
+        background:'rgba(4,6,9,0.85)',
+        borderBottom:'1px solid rgba(0,180,180,0.28)',
         display:'flex', alignItems:'stretch',
       }}>
         {([
@@ -549,9 +549,9 @@ const ScenarioSandbox: React.FC = () => {
         ] as const).map(t=>(
           <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{
             background:'transparent',
-            borderBottom:activeTab===t.id?'2px solid #a78bfa':'2px solid transparent',
+            borderBottom:activeTab===t.id?'2px solid #00f2ff':'2px solid transparent',
             borderTop:'none',borderLeft:'none',borderRight:'none',
-            color:activeTab===t.id?'#a78bfa':'#3a4a5a',
+            color:activeTab===t.id?'#00f2ff':'rgba(148,163,184,0.35)',
             padding:'0 20px',fontSize:10,letterSpacing:2,cursor:'pointer',
             transition:'all .15s',
           }}>{t.label}</button>
@@ -572,13 +572,13 @@ const ScenarioSandbox: React.FC = () => {
               <div style={{
                 padding:'10px 16px',flexShrink:0,
                 display:'flex',gap:6,alignItems:'center',flexWrap:'wrap',
-                borderBottom:'1px solid rgba(255,255,255,0.04)',
+                borderBottom:'1px solid rgba(0,180,180,0.28)',
               }}>
                 {domains.map(d=>(
                   <button key={d} onClick={()=>{setSelectedDomain(d);setShowBlackSwan(false);}} style={{
-                    background:selectedDomain===d&&!showBlackSwan?`${DOMAIN_COLOR[d]??'rgba(167,139,250,1)'}18`:'transparent',
-                    border:`1px solid ${selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#a78bfa'):'rgba(255,255,255,0.07)'}`,
-                    color:selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#a78bfa'):'#3a4a5a',
+                    background:selectedDomain===d&&!showBlackSwan?`${DOMAIN_COLOR[d]??'rgba(0,242,255,1)'}18`:'transparent',
+                    border:`1px solid ${selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#00f2ff'):'rgba(0,180,180,0.28)'}`,
+                    color:selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#00f2ff'):'rgba(148,163,184,0.35)',
                     padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
                   }}>
                     {d==='ALL'?'ALL DOMAINS':d}
@@ -586,8 +586,8 @@ const ScenarioSandbox: React.FC = () => {
                 ))}
                 <button onClick={()=>{setShowBlackSwan(!showBlackSwan);setSelectedDomain('ALL');}} style={{
                   background:showBlackSwan?'rgba(220,38,38,0.15)':'transparent',
-                  border:`1px solid ${showBlackSwan?'rgba(220,38,38,0.5)':'rgba(255,255,255,0.07)'}`,
-                  color:showBlackSwan?'#ef4444':'#3a4a5a',
+                  border:`1px solid ${showBlackSwan?'rgba(220,38,38,0.5)':'rgba(0,180,180,0.28)'}`,
+                  color:showBlackSwan?'#ef4444':'rgba(148,163,184,0.35)',
                   padding:'3px 12px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
                   marginLeft:'auto',
                 }}>
@@ -610,9 +610,9 @@ const ScenarioSandbox: React.FC = () => {
                       onClick={()=>setSelectedShock(selectedShock?.id===shock.id?null:shock)}
                       style={{
                         background: selectedShock?.id===shock.id
-                          ? `rgba(${shock.blackSwan?'220,38,38':'99,102,241'},0.12)`
-                          : 'rgba(0,4,12,0.8)',
-                        border:`1px solid ${selectedShock?.id===shock.id?col:'rgba(255,255,255,0.05)'}`,
+                          ? `rgba(${shock.blackSwan?'220,38,38':'0,242,255'},0.12)`
+                          : 'rgba(4,6,9,0.8)',
+                        border:`1px solid ${selectedShock?.id===shock.id?col:'rgba(0,180,180,0.28)'}`,
                         borderRadius:6,padding:'14px 16px',cursor:'pointer',
                         transition:'all .2s',
                         boxShadow:active?`0 0 20px ${col}22`:'none',
@@ -640,8 +640,8 @@ const ScenarioSandbox: React.FC = () => {
                         </div>
                         <div style={{textAlign:'right',flexShrink:0,marginLeft:12}}>
                           {/* Magnitude bar */}
-                          <div style={{fontSize:8,color:'#3a4a5a',marginBottom:4}}>ε(t)</div>
-                          <div style={{width:60,height:4,background:'rgba(255,255,255,0.07)',borderRadius:2,overflow:'hidden'}}>
+                          <div style={{fontSize:8,color:'rgba(148,163,184,0.35)',marginBottom:4}}>ε(t)</div>
+                          <div style={{width:60,height:4,background:'rgba(0,180,180,0.15)',borderRadius:2,overflow:'hidden'}}>
                             <div style={{
                               width:`${shock.magnitude*100}%`,height:'100%',
                               background:`linear-gradient(90deg,${col}88,${col})`,
@@ -654,12 +654,12 @@ const ScenarioSandbox: React.FC = () => {
                         </div>
                       </div>
 
-                      <div style={{fontSize:10,color:'#4a5a6a',lineHeight:1.5,marginBottom:10}}>
+                      <div style={{fontSize:10,color:'rgba(148,163,184,0.35)',lineHeight:1.5,marginBottom:10}}>
                         {shock.description}
                       </div>
 
                       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                        <div style={{fontSize:9,color:'#2a3a4a'}}>
+                        <div style={{fontSize:9,color:'rgba(148,163,184,0.35)'}}>
                           {shock.equations.join(' · ')} · T½={shock.decay}d
                         </div>
                         {active ? (
@@ -691,8 +691,8 @@ const ScenarioSandbox: React.FC = () => {
             {selectedShock&&(
               <div style={{
                 width:300,flexShrink:0,
-                borderLeft:'1px solid rgba(255,255,255,0.04)',
-                background:'rgba(0,2,10,0.9)',
+                borderLeft:'1px solid rgba(0,180,180,0.28)',
+                background:'rgba(4,6,9,0.9)',
                 padding:'20px 18px',overflowY:'auto',
                 animation:'ssv-slide .2s ease-out',
               }}>
@@ -705,7 +705,7 @@ const ScenarioSandbox: React.FC = () => {
                 <div style={{fontSize:16,fontWeight:700,color:'#e2e8f0',marginBottom:12,lineHeight:1.3}}>
                   {selectedShock.label}
                 </div>
-                <div style={{fontSize:11,color:'#5a6a7a',lineHeight:1.6,marginBottom:20}}>
+                <div style={{fontSize:11,color:'rgba(148,163,184,0.35)',lineHeight:1.6,marginBottom:20}}>
                   {selectedShock.description}
                 </div>
 
@@ -713,14 +713,14 @@ const ScenarioSandbox: React.FC = () => {
                 <div style={{marginBottom:16}}>
                   <div style={{
                     display:'flex',justifyContent:'space-between',
-                    fontSize:9,color:'#3a4a5a',letterSpacing:1,marginBottom:6,
+                    fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1,marginBottom:6,
                   }}>
                     <span>SHOCK MAGNITUDE ε(t)</span>
                     <span style={{color:DOMAIN_COLOR[selectedShock.domain],fontWeight:700}}>
                       {(selectedShock.magnitude*100).toFixed(0)}%
                     </span>
                   </div>
-                  <div style={{height:6,background:'rgba(255,255,255,0.06)',borderRadius:3,overflow:'hidden'}}>
+                  <div style={{height:6,background:'rgba(0,180,180,0.15)',borderRadius:3,overflow:'hidden'}}>
                     <div style={{
                       width:`${selectedShock.magnitude*100}%`,height:'100%',
                       background:`linear-gradient(90deg,${DOMAIN_COLOR[selectedShock.domain]}88,${DOMAIN_COLOR[selectedShock.domain]})`,

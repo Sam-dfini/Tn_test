@@ -228,15 +228,15 @@ const ShockPropagationView: React.FC = () => {
 
   return (
     <div style={{
-      width:'100%', height:'100%', background:'#05070f',
+      width:'100%', height:'100%', background:'#040609',
       display:'flex', flexDirection:'column', overflow:'hidden',
-      fontFamily:'"IBM Plex Mono","Courier New",monospace', color:'#c9d1e0',
+      fontFamily:'"IBM Plex Mono","Courier New",monospace', color:'#e2e8f0',
     }}>
 
       {/* TOP BAR */}
       <div style={{
-        height:52, flexShrink:0, background:'rgba(0,0,0,0.75)',
-        borderBottom:'1px solid rgba(255,45,85,0.2)',
+        height:44, flexShrink:0, background:'rgba(4,6,9,0.75)',
+        borderBottom:'1px solid rgba(0,180,180,0.28)',
         display:'flex', alignItems:'center', padding:'0 20px', gap:28,
         backdropFilter:'blur(12px)',
       }}>
@@ -246,27 +246,27 @@ const ShockPropagationView: React.FC = () => {
             boxShadow:`0 0 10px ${rriColor(rri)}`,
             animation:'spv-blink 2s infinite',
           }}/>
-          <span style={{fontSize:11,letterSpacing:3,color:'#8899aa',fontWeight:600}}>SHOCK PROPAGATION</span>
-          <span style={{fontSize:10,color:'rgba(255,45,85,0.5)',letterSpacing:2}}>EQ.17</span>
+          <span style={{fontSize:11,letterSpacing:3,color:'rgba(0,200,200,0.6)',fontWeight:600}}>SHOCK PROPAGATION</span>
+          <span style={{fontSize:10,color:'rgba(0,242,255,0.5)',letterSpacing:2}}>EQ.17</span>
         </div>
         {[
           {l:'RRI',      v:rri.toFixed(2),              c:rriColor(rri)},
-          {l:'CASCADE',  v:`${(cascadeProb*100).toFixed(0)}%`, c:'#a78bfa'},
-          {l:'P(REV)',   v:`${(pRev*100).toFixed(0)}%`, c:'#ff9f0a'},
-          {l:'REACHED',  v:`${reachCount}/24`,           c:'#30d158'},
+          {l:'CASCADE',  v:`${(cascadeProb*100).toFixed(0)}%`, c:'#00f2ff'},
+          {l:'P(REV)',   v:`${(pRev*100).toFixed(0)}%`, c:'#d68910'},
+          {l:'REACHED',  v:`${reachCount}/24`,           c:'#00f2ff'},
           {l:'HIGH',     v:String(highCount),            c:'#ff2d55'},
         ].map(m=>(
           <div key={m.l} style={{display:'flex',alignItems:'baseline',gap:5}}>
-            <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>{m.l}</span>
+            <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>{m.l}</span>
             <span style={{fontSize:13,color:m.c,fontWeight:700,textShadow:`0 0 10px ${m.c}44`}}>{m.v}</span>
           </div>
         ))}
         <div style={{marginLeft:'auto',display:'flex',gap:3}}>
           {(['map','sir','history'] as const).map(t=>(
             <button key={t} onClick={()=>setTab(t)} style={{
-              background:tab===t?'rgba(255,45,85,0.12)':'transparent',
-              border:`1px solid ${tab===t?'rgba(255,45,85,0.45)':'rgba(255,255,255,0.07)'}`,
-              color:tab===t?'#ff6b8a':'#3a4a5a',
+              background:tab===t?'rgba(0,242,255,0.12)':'transparent',
+              border:`1px solid ${tab===t?'rgba(0,242,255,0.45)':'rgba(0,180,180,0.28)'}`,
+              color:tab===t?'#00f2ff':'rgba(148,163,184,0.35)',
               padding:'4px 13px',borderRadius:3,cursor:'pointer',
               fontSize:10,letterSpacing:2,textTransform:'uppercase',transition:'all .15s',
             }}>{t==='sir'?'SIR MODEL':t}</button>
@@ -276,46 +276,46 @@ const ShockPropagationView: React.FC = () => {
 
       {/* CONTROLS */}
       <div style={{
-        height:42,flexShrink:0,background:'rgba(0,2,10,0.85)',
-        borderBottom:'1px solid rgba(255,255,255,0.04)',
+        height:38,flexShrink:0,background:'rgba(4,6,9,0.85)',
+        borderBottom:'1px solid rgba(0,180,180,0.28)',
         display:'flex',alignItems:'center',padding:'0 20px',gap:16,
       }}>
-        <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:2}}>ORIGIN</span>
+        <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:2}}>ORIGIN</span>
         <select value={originId} onChange={e=>setOriginId(e.target.value)} style={{
-          background:'rgba(8,16,30,0.9)',border:'1px solid rgba(255,45,85,0.3)',
-          color:'#ff6b8a',padding:'3px 8px',borderRadius:3,fontSize:11,cursor:'pointer',outline:'none',
+          background:'rgba(4,6,9,0.9)',border:'1px solid rgba(0,242,255,0.3)',
+          color:'#00f2ff',padding:'3px 8px',borderRadius:3,fontSize:11,cursor:'pointer',outline:'none',
         }}>
           {Object.values(nodesMeta).sort((a,b)=>a.name.localeCompare(b.name)).map(g=>(
             <option key={g.id} value={g.id}>{g.name}</option>
           ))}
         </select>
-        <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:2}}>HORIZON</span>
+        <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:2}}>HORIZON</span>
         <select value={maxDays} onChange={e=>setMaxDays(Number(e.target.value))} style={{
-          background:'rgba(8,16,30,0.9)',border:'1px solid rgba(255,45,85,0.3)',
-          color:'#ff6b8a',padding:'3px 8px',borderRadius:3,fontSize:11,cursor:'pointer',outline:'none',
+          background:'rgba(4,6,9,0.9)',border:'1px solid rgba(0,242,255,0.3)',
+          color:'#00f2ff',padding:'3px 8px',borderRadius:3,fontSize:11,cursor:'pointer',outline:'none',
         }}>
           {[14,30,60,90].map(d=><option key={d} value={d}>{d}D</option>)}
         </select>
         <button onClick={()=>{if(playing)setPlaying(false);else{setAnimDay(0);setPlaying(true);}}} style={{
-          background:playing?'rgba(255,45,85,0.15)':'rgba(255,45,85,0.07)',
-          border:`1px solid ${playing?'rgba(255,45,85,0.55)':'rgba(255,45,85,0.25)'}`,
-          color:'#ff6b8a',padding:'4px 14px',borderRadius:3,cursor:'pointer',fontSize:11,letterSpacing:1,
+          background:playing?'rgba(0,242,255,0.15)':'rgba(0,242,255,0.07)',
+          border:`1px solid ${playing?'rgba(0,242,255,0.55)':'rgba(0,242,255,0.25)'}`,
+          color:'#00f2ff',padding:'4px 14px',borderRadius:3,cursor:'pointer',fontSize:11,letterSpacing:1,
         }}>{playing?'■ STOP':'▶ SIMULATE'}</button>
         {playing&&(
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{width:100,height:2,background:'rgba(255,255,255,0.07)',borderRadius:2,overflow:'hidden'}}>
+            <div style={{width:100,height:2,background:'rgba(0,180,180,0.15)',borderRadius:2,overflow:'hidden'}}>
               <div style={{width:`${(animDay/maxDays)*100}%`,height:'100%',
-                background:'linear-gradient(90deg,#ff2d55,#ff6b35)',transition:'width .1s'}}/>
+                background:'linear-gradient(90deg,#00f2ff,#00c8c8)',transition:'width .1s'}}/>
             </div>
-            <span style={{fontSize:10,color:'#ff6b8a'}}>D{animDay}/{maxDays}</span>
+            <span style={{fontSize:10,color:'#00f2ff'}}>D{animDay}/{maxDays}</span>
           </div>
         )}
-        <div style={{marginLeft:'auto',fontSize:9,color:'#2a3a4a',letterSpacing:1}}>
+        <div style={{marginLeft:'auto',fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>
           SCROLL TO ZOOM · DRAG TO PAN
         </div>
         <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} style={{
-          background:'transparent',border:'1px solid rgba(255,255,255,0.06)',
-          color:'#3a4a5a',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+          background:'transparent',border:'1px solid rgba(0,180,180,0.28)',
+          color:'rgba(148,163,184,0.35)',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
         }}>RESET</button>
       </div>
 
@@ -327,7 +327,7 @@ const ShockPropagationView: React.FC = () => {
           <>
             <div style={{
               flex:1,position:'relative',overflow:'hidden',
-              background:'radial-gradient(ellipse at 45% 35%,rgba(8,18,45,0.95) 0%,#05070f 70%)',
+              background:'radial-gradient(ellipse at 45% 35%,rgba(4,6,9,0.95) 0%,#040609 70%)',
               cursor:dragging?'grabbing':'grab',
             }}>
               <svg
@@ -499,12 +499,12 @@ const ShockPropagationView: React.FC = () => {
                       {l:'PATH LEN',v:String(n.path.length),               c:'#64748b'},
                     ].map(r=>(
                       <div key={r.l} style={{display:'flex',justifyContent:'space-between',marginBottom:5,gap:12}}>
-                        <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>{r.l}</span>
+                        <span style={{fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>{r.l}</span>
                         <span style={{fontSize:10,color:r.c,fontWeight:600}}>{r.v}</span>
                       </div>
                     ))}
                     {n.path.length>0&&(
-                      <div style={{marginTop:8,fontSize:8,color:'#2a3a4a',lineHeight:1.6}}>
+                      <div style={{marginTop:8,fontSize:8,color:'rgba(148,163,184,0.35)',lineHeight:1.6}}>
                         {n.path.map(id=>nodesMeta[id]?.name).join(' → ')}
                       </div>
                     )}
@@ -512,18 +512,18 @@ const ShockPropagationView: React.FC = () => {
                 );
               })()}
 
-              <div style={{position:'absolute',bottom:12,left:16,fontSize:8,color:'#1e2e40',letterSpacing:2}}>
+              <div style={{position:'absolute',bottom:12,left:16,fontSize:8,color:'rgba(148,163,184,0.35)',letterSpacing:2}}>
                 CLICK GOVERNORATE TO SET ORIGIN
               </div>
             </div>
 
             {/* RIGHT SIDEBAR */}
             <div style={{
-              width:230,flexShrink:0,borderLeft:'1px solid rgba(255,255,255,0.04)',
-              background:'rgba(0,2,10,0.92)',display:'flex',flexDirection:'column',overflowY:'auto',
+              width:230,flexShrink:0,borderLeft:'1px solid rgba(0,180,180,0.28)',
+              background:'rgba(4,6,9,0.92)',display:'flex',flexDirection:'column',overflowY:'auto',
             }}>
               <div style={{padding:'16px 14px 0'}}>
-                <div style={{fontSize:9,color:'#3a4a5a',letterSpacing:2,marginBottom:10}}>STATUS</div>
+                <div style={{fontSize:9,color:'rgba(0,200,200,0.6)',letterSpacing:2,marginBottom:10}}>STATUS</div>
                 {[
                   {s:'origin',      l:'Ignition Point'},
                   {s:'high',        l:'High  ≥60%'},
@@ -537,16 +537,16 @@ const ShockPropagationView: React.FC = () => {
                       border:`1px solid ${STATUS_COLOR[s].stroke}`,
                       boxShadow:s!=='unreachable'?`0 0 6px ${STATUS_COLOR[s].glow}`:'none',
                     }}/>
-                    <span style={{fontSize:10,color:'#4a5a6a'}}>{l}</span>
+                    <span style={{fontSize:10,color:'rgba(148,163,184,0.35)'}}>{l}</span>
                   </div>
                 ))}
               </div>
 
-              <div style={{height:1,background:'rgba(255,255,255,0.04)',margin:'12px 0'}}/>
+              <div style={{height:1,background:'rgba(0,180,180,0.28)',margin:'12px 0'}}/>
 
               {result&&(
                 <div style={{padding:'0 14px'}}>
-                  <div style={{fontSize:9,color:'#3a4a5a',letterSpacing:2,marginBottom:10}}>SIMULATION</div>
+                  <div style={{fontSize:9,color:'rgba(0,200,200,0.6)',letterSpacing:2,marginBottom:10}}>SIMULATION</div>
                   {[
                     {l:'ORIGIN',   v:result.originName},
                     {l:'CASCADE P',v:`${(result.cascadeProbability*100).toFixed(0)}%`},
@@ -557,7 +557,7 @@ const ShockPropagationView: React.FC = () => {
                     {l:'R₀',       v:(0.4*(0.5+cascadeProb)/0.15).toFixed(2)},
                   ].map(r=>(
                     <div key={r.l} style={{display:'flex',justifyContent:'space-between',
-                      marginBottom:6,borderBottom:'1px solid rgba(255,255,255,0.03)',paddingBottom:6}}>
+                      marginBottom:6,borderBottom:'1px solid rgba(0,180,180,0.28)',paddingBottom:6}}>
                       <span style={{fontSize:9,color:'#3a4a5a',letterSpacing:1}}>{r.l}</span>
                       <span style={{fontSize:11,color:'#8899bb',fontWeight:600}}>{r.v}</span>
                     </div>

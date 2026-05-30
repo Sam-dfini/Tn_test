@@ -82,7 +82,7 @@ class ExtractorAgent(BaseAgent):
         Return the extracted fields as a JSON array.
         """
         
-        response = await self._call_llm(prompt)
+        response = await self._call_llm(prompt, max_tokens=500)
         
         try:
             # Clean and parse the JSON response

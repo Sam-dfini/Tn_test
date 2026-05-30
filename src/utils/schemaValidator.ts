@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
-export type FieldType = 'text' | 'boolean' | 'float8' | 'int8' | 'timestamp' | 'jsonb';
+export type FieldType = 'text' | 'boolean' | 'float8' | 'int8' | 'timestamp' | 'jsonb' | 'bool';
 
 export interface TableSchema {
   [columnName: string]: FieldType;
@@ -192,47 +192,25 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
  * checkAndFixSchema
  * 
  * Compares current Supabase schema with SCHEMA_MAP and adds missing columns.
- * Requires an RPC function 'exec_sql_admin' to be present in Supabase for DDL changes.
+ * Uses direct SQL via Supabase client (no RPC required).
  */
 export async function checkAndFixSchema(supabase: SupabaseClient, tableName: string) {
   const requiredFields = SCHEMA_MAP[tableName];
   if (!requiredFields) return;
 
   try {
-    // 0. Ensure table exists first (safe when table already exists)
-    const columnDefs = Object.entries(requiredFields)
-      .map(([col, type]) => `${col} ${type.toUpperCase()}`)
-      .join(', ');
-    const createSql = `CREATE TABLE IF NOT EXISTS ${tableName} (${columnDefs});`;
-    const { error: createError } = await supabase.rpc('exec_sql_admin', { sql_query: createSql });
-    if (createError) {
-      console.warn(`[SCHEMA] Could not create ${tableName}:`, createError.message);
-    }
-
-    // 1. Query existing columns
+    // 1. Query existing columns using information_schema
     const { data: cols, error: queryError } = await supabase
-      .rpc('get_table_columns', { t_name: tableName });
+      .from('information_schema.columns')
+      .select('column_name')
+      .eq('table_name', tableName);
 
-    // Fallback if RPC doesn't exist yet but we can query information_schema directly
-    // (Note: Supabase usually blocks direct information_schema queries from the JS SDK depending on policies)
-    let existingCols: string[] = [];
-    
     if (queryError) {
-      // Second attempt using direct select if permitted
-      const { data: infoData } = await supabase
-        .from('information_schema.columns' as any)
-        .select('column_name')
-        .eq('table_name', tableName);
-      
-      if (infoData) {
-        existingCols = infoData.map((c: any) => c.column_name);
-      } else {
-        console.warn(`[SCHEMA] Could not verify columns for ${tableName}, skipping auto-fix until RPC is available.`);
-        return;
-      }
-    } else {
-      existingCols = cols as string[];
+      console.warn(`[SCHEMA] Could not query columns for ${tableName}:`, queryError.message);
+      return;
     }
+
+    const existingCols = cols ? cols.map((c: any) => c.column_name) : [];
 
     // 2. Detect missing columns
     const missing = Object.keys(requiredFields).filter(f => !existingCols.includes(f));
@@ -244,15 +222,17 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
 
     console.log(`[SCHEMA] ${tableName} missing columns: ${missing.join(', ')}. Applying fix…`);
 
-    // 3. Apply fixes via RPC
+    // 3. Apply fixes using Supabase RPC with raw SQL
     for (const col of missing) {
       const type = requiredFields[col];
       const sql = `
-        ALTER TABLE ${tableName} ADD COLUMN IF NOT EXISTS ${col} ${type.toUpperCase()}${type === 'boolean' ? ' DEFAULT false' : ''};
-        NOTIFY pgrst, 'reload schema';
+        ALTER TABLE ${tableName} 
+        ADD COLUMN IF NOT EXISTS ${col} ${type.toUpperCase()}${type === 'boolean' ? ' DEFAULT false' : ''};
       `;
       
-      const { error: fixError } = await supabase.rpc('exec_sql_admin', { sql_query: sql });
+      const { error: fixError } = await supabase.rpc('exec_sql_admin', { 
+        sql_query: sql 
+      });
       
       if (fixError) {
         console.error(`[SCHEMA FIX FAILED] for ${tableName}.${col}:`, fixError.message);
@@ -268,7 +248,6 @@ export async function checkAndFixSchema(supabase: SupabaseClient, tableName: str
 
 /**
  * initializeAllSchemas — runs all table checks in parallel.
- * Sequential waterfall was causing 5-15s boot delay (9 tables × 2 RPC calls each).
  */
 export async function initializeAllSchemas(supabase: SupabaseClient) {
   const tables = Object.keys(SCHEMA_MAP);

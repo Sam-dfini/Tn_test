@@ -133,7 +133,7 @@ class BaseAgent:
         await self.learn(perception, action_result)
         return action_result
 
-    async def _call_llm(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> AgentResponse:
+    async def _call_llm(self, prompt: str, context: Optional[Dict[str, Any]] = None, max_tokens: int = 1000) -> AgentResponse:
         """
         Low-level execution of an AI model call.
         """
@@ -147,7 +147,8 @@ class BaseAgent:
                 messages=[
                     {"role": "system", "content": self.system_instruction},
                     {"role": "user", "content": full_prompt}
-                ]
+                ],
+                max_tokens=max_tokens
             )
             return AgentResponse(
                 content=response.choices[0].message.content,

@@ -95,7 +95,8 @@ async def seed_graph():
             """
         ]:
             try:
-                db.rpc("exec_sql_admin", {"sql_query": sql}).execute()
+                # Execute raw SQL using raw_query method
+                db.raw(sql).execute()
             except Exception:
                 pass  # table may already exist
 

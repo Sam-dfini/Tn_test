@@ -13,7 +13,6 @@ import ws from 'ws';
 import 'dotenv/config';
 import { runSatelliteIngestion, getLatestAgriReadings } from './src/pipeline/satellite/satelliteIngestion.ts';
 import { createClient } from '@supabase/supabase-js';
-import { initializeAllSchemas } from './src/utils/schemaValidator.ts';
 import { logBootEvent, logSection, BootMarkers, printBootSummary } from './src/utils/bootSequence.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -221,14 +220,11 @@ async function startServer() {
       });
       console.log('[Supabase] Server-side client initialized with URL:', supabaseUrl);
       
-      // Self-healing schema check — deferred 15s so it never blocks boot.
-      // Only runs once per process. Comment out once all tables are stable.
-      setTimeout(() => {
-        console.log('[SCHEMA] Starting background schema validation…');
-        initializeAllSchemas(supabaseServer)
-          .then(() => console.log('[SCHEMA] Background schema validation complete.'))
-          .catch(err => console.error('[SCHEMA] Background schema validation failed:', err));
-      }, 15000);
+      // Schema validation disabled - Python backend handles schema fixes
+      // console.log('[SCHEMA] Starting background schema validation…');
+      // initializeAllSchemas(supabaseServer)
+      //   .then(() => console.log('[SCHEMA] Background schema validation complete.'))
+      //   .catch(err => console.error('[SCHEMA] Background schema validation failed:', err));
     } catch (err) {
       console.error('[Supabase] Failed to initialize client:', err);
     }

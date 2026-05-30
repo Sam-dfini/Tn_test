@@ -71,7 +71,7 @@ const TerrainView: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100%', backgroundColor: '#0a0a0f' }}>
+    <div style={{ width: '100%', height: '100%', backgroundColor: '#040609', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <Canvas camera={{ position: [0, 20, 30], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
@@ -81,19 +81,39 @@ const TerrainView: React.FC = () => {
         {/* Tunisia Terrain (simplified as a flat plane for now) */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]}>
           <planeGeometry args={[40, 30]} />
-          <meshStandardMaterial color="#2a5c2a" />
+          <meshStandardMaterial color="#0a141d" />
         </mesh>
 
         {/* Governorate Nodes */}
         {governorates.map((governorate) => {
           const position = latLongToPosition(governorate.position[1], governorate.position[0]);
           const riskColor = new THREE.Color().setHSL(0, 1, governorate.risk);
+          const cyanColor = new THREE.Color('#00f2ff');
+          const cyanDark = new THREE.Color('#00c8c8');
 
           return (
-            <mesh key={governorate.id} position={position}>
-              <sphereGeometry args={[0.5, 16, 16]} />
-              <meshStandardMaterial color={riskColor} emissive={riskColor} emissiveIntensity={0.5} />
-            </mesh>
+            <group key={governorate.id} position={position}>
+              {/* Risk indicator ring */}
+              <mesh>
+                <sphereGeometry args={[0.7, 16, 16]} />
+                <meshBasicMaterial color={governorate.risk > 0.7 ? '#d68910' : '#00f2ff'} transparent opacity={0.2} />
+              </mesh>
+              {/* Main node */}
+              <mesh>
+                <sphereGeometry args={[0.5, 16, 16]} />
+                <meshStandardMaterial color={governorate.risk > 0.7 ? '#d68910' : '#00f2ff'} emissive={governorate.risk > 0.7 ? '#d68910' : '#00f2ff'} emissiveIntensity={0.5} />
+              </mesh>
+              {/* Connection lines to neighbors */}
+              {governorate.risk > 0.7 && (
+                <Line
+                  points={[position, [position[0] + (Math.random() - 0.5), position[1] + (Math.random() - 0.5), position[2] + (Math.random() - 0.5)]]}
+                  color="#d68910"
+                  lineWidth={1}
+                  opacity={0.4}
+                  transparent
+                />
+              )}
+            </group>
           );
         })}
 
@@ -101,7 +121,7 @@ const TerrainView: React.FC = () => {
         {shockWaves.map((wave, index) => (
           <mesh key={index} position={wave.position}>
             <sphereGeometry args={[wave.intensity * 3, 16, 16]} />
-            <meshStandardMaterial color="red" transparent opacity={0.3} />
+            <meshStandardMaterial color="#d68910" transparent opacity={0.3} />
           </mesh>
         ))}
       </Canvas>

@@ -54,23 +54,23 @@ const SCIView: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ width: '100%', height: '100%', background: '#05070f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Activity className="w-6 h-6 animate-spin" style={{ color: '#a78bfa' }} />
+      <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Activity className="w-6 h-6 animate-spin" style={{ color: '#00f2ff' }} />
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#05070f', display: 'flex', flexDirection: 'column', padding: 20, gap: 16, fontFamily: '"IBM Plex Mono",monospace', color: '#c9d1e0', overflow: 'auto' }}>
+    <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', flexDirection: 'column', padding: '16px 20px', gap: 12, fontFamily: '"IBM Plex Mono",monospace', color: '#e2e8f0', overflow: 'hidden' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12, flexShrink: 0 }}>
-        <Shield size={18} color="#22c55e" />
-        <span style={{ fontSize: 11, letterSpacing: 3, color: '#3a4a5a', fontWeight: 600 }}>SIGNAL CREDIBILITY INDEX</span>
-        <span style={{ fontSize: 9, color: '#3a4a5a', marginLeft: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(0,180,180,0.28)', paddingBottom: 10, flexShrink: 0 }}>
+        <Shield size={18} color="#00f2ff" />
+        <span style={{ fontSize: 11, letterSpacing: 3, color: 'rgba(0,200,200,0.6)', fontWeight: 600 }}>SIGNAL CREDIBILITY INDEX</span>
+        <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)', marginLeft: 'auto' }}>
           {stats?.total_scored || 0} signals · Avg SCI: {((stats?.average_sci ?? 0) * 100).toFixed(0)}%
         </span>
-        <button onClick={fetchData} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#c9d1e0', cursor: 'pointer' }}>
+        <button onClick={fetchData} style={{ background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer' }}>
           <RefreshCw size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />Refresh
         </button>
       </div>
@@ -78,9 +78,9 @@ const SCIView: React.FC = () => {
       {/* Classification cards */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {[
-          { id: 'fact', label: 'Fact', icon: CheckCircle, color: '#22c55e' },
+          { id: 'fact', label: 'Fact', icon: CheckCircle, color: '#00f2ff' },
           { id: 'probable', label: 'Probable', icon: BarChart3, color: '#3b82f6' },
-          { id: 'rumor', label: 'Rumor', icon: HelpCircle, color: '#f59e0b' },
+          { id: 'rumor', label: 'Rumor', icon: HelpCircle, color: '#d68910' },
           { id: 'coordinated_narrative', label: 'Coord. Narrative', icon: Radio, color: '#a855f7' },
           { id: 'psychological_operation', label: 'PSYOP', icon: AlertTriangle, color: '#ef4444' },
           { id: 'early_weak', label: 'Early Weak', icon: Activity, color: '#64748b' },
@@ -89,8 +89,8 @@ const SCIView: React.FC = () => {
           return (
             <div key={c.id} onClick={() => setFilter(c.id === filter ? 'all' : c.id)} style={{
               flex: '1 0 140px', cursor: 'pointer', padding: '10px 14px', borderRadius: 10,
-              background: c.id === filter ? `${c.color}22` : 'rgba(0,0,0,0.4)',
-              border: `1px solid ${c.id === filter ? c.color : 'rgba(255,255,255,0.06)'}`,
+              background: c.id === filter ? `${c.color}22` : 'rgba(4,6,9,0.6)',
+              border: `1px solid ${c.id === filter ? c.color : 'rgba(0,180,180,0.28)'}`,
               transition: 'all .15s',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
@@ -106,7 +106,7 @@ const SCIView: React.FC = () => {
       {/* Results table */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, overflow: 'auto' }}>
         {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 40, fontSize: 10, color: '#3a4a5a' }}>
+          <div style={{ textAlign: 'center', padding: 40, fontSize: 10, color: 'rgba(148,163,184,0.35)' }}>
             No signals scored. Run analysis to see results.
           </div>
         )}
@@ -114,15 +114,15 @@ const SCIView: React.FC = () => {
           <div key={i} style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '8px 12px', borderRadius: 8,
-            background: CLASS_BG[r.classification] || 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.04)',
+            background: CLASS_BG[r.classification] || 'rgba(0,180,180,0.05)',
+            border: '1px solid rgba(0,180,180,0.28)',
           }}>
             {/* SCI bar + number */}
             <div style={{ width: 60, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: r.classification_color, textAlign: 'center' }}>
                 {(r.sci * 100).toFixed(0)}%
               </div>
-              <div style={{ width: '100%', height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: 5, background: 'rgba(0,180,180,0.15)', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ width: `${r.sci * 100}%`, height: '100%', background: r.classification_color, borderRadius: 3 }} />
               </div>
             </div>
@@ -144,13 +144,13 @@ const SCIView: React.FC = () => {
                   {r.text_preview}
                 </div>
               )}
-              <div style={{ display: 'flex', gap: 8, fontSize: 8, color: '#3a4a5a', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 8, fontSize: 8, color: 'rgba(148,163,184,0.35)', alignItems: 'center' }}>
                 <span>Src: {((r.components?.source_reliability ?? 0) * 100).toFixed(0)}%</span>
-                <span style={{ width: 1, height: 8, background: 'rgba(255,255,255,0.06)' }} />
+                <span style={{ width: 1, height: 8, background: 'rgba(0,180,180,0.28)' }} />
                 <span>Corrob: {r.corroboration_count}</span>
-                <span style={{ width: 1, height: 8, background: 'rgba(255,255,255,0.06)' }} />
+                <span style={{ width: 1, height: 8, background: 'rgba(0,180,180,0.28)' }} />
                 <span>Prop: {((r.components?.propagation_velocity ?? 0) * 100).toFixed(0)}%</span>
-                <span style={{ width: 1, height: 8, background: 'rgba(255,255,255,0.06)' }} />
+                <span style={{ width: 1, height: 8, background: 'rgba(0,180,180,0.28)' }} />
                 <span>Fresh: {((r.components?.freshness ?? 0) * 100).toFixed(0)}%</span>
               </div>
             </div>

@@ -53,9 +53,10 @@ const btnBase: React.CSSProperties = {
 
 // Loading component for BrainMode
 const LoadingScreen = () => (
-  <div style={{ width: '100vw', height: '100vh', backgroundColor: '#0a0a0f', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', color: 'white' }}>
-    <div style={{ fontFamily: 'monospace', fontSize: '14px', marginBottom: '20px' }}>LOADING BRAIN MODE</div>
-    <div style={{ width: '40px', height: '40px', border: '3px solid rgba(167, 139, 250, 0.3)', borderTop: '3px solid #a78bfa', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+  <div style={{ width: '100vw', height: '100vh', backgroundColor: '#040609', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', color: '#e2e8f0', fontFamily: '"IBM Plex Mono", monospace' }}>
+    <div style={{ fontSize: '12px', letterSpacing: '0.25em', color: 'rgba(0,200,200,0.6)', marginBottom: '20px' }}>INITIALIZING BRAIN MODE</div>
+    <div style={{ width: '40px', height: '40px', border: '1px solid rgba(0,200,200,0.35)', borderTop: '1px solid #00f2ff', borderRadius: '50%', animation: 'spin 1s linear infinite', boxShadow: '0 0 16px rgba(0,242,255,0.3)' }}></div>
+    <div style={{ fontSize: '8px', letterSpacing: '0.18em', color: 'rgba(148,163,184,0.35)', marginTop: '16px' }}>TUNISIA<span style={{ color: '#00f2ff' }}>INTEL</span> // BUILD 0.9.6-alpha</div>
   </div>
 );
 
@@ -113,15 +114,24 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#0a0a0f', display: 'flex' }}>
+    <div style={{ width: '100vw', height: '100vh', backgroundColor: '#040609', display: 'flex', fontFamily: '"IBM Plex Mono", monospace', overflow: 'hidden' }}>
+      {/* Dot grid background */}
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.03, backgroundImage: 'radial-gradient(circle, rgba(148,163,184,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
+      
       {/* Sidebar */}
-      <div style={sx}>
+      <div style={{ ...sx, background: 'rgba(4,6,9,0.85)', backdropFilter: 'blur(16px)', borderRight: '1px solid rgba(0,180,180,0.28)' }}>
         {/* Brand */}
-        <div style={{ marginBottom: 8, padding: '4px 0' }}>
-          <BrainCircuit size={22} color="#a78bfa" />
+        <div style={{ marginBottom: 16, padding: '8px 0', textAlign: 'center' }}>
+          <BrainCircuit size={32} color="#00f2ff" style={{ filter: 'drop-shadow(0 0 12px rgba(0,242,255,0.6))' }} />
+          <div style={{ fontSize: 10, letterSpacing: '0.25em', color: 'rgba(0,200,200,0.6)', marginTop: 6 }}>
+            SOVEREIGN
+          </div>
+          <div style={{ fontSize: 10, letterSpacing: '0.25em', color: '#00f2ff', fontWeight: 700, marginTop: 2 }}>
+            BRAIN MODE
+          </div>
         </div>
 
-        <div style={{ width: 28, height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0 8px' }} />
+        <div style={{ width: 28, height: 1, background: 'rgba(0,180,180,0.28)', margin: '4px 0 8px' }} />
 
         {/* Nav items */}
         {views.map(v => {
@@ -130,14 +140,15 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
             <button key={v.id} title={v.label} onClick={() => setActiveSpace(v.id)}
               style={{
                 ...btnBase,
-                background: active ? 'rgba(167,139,250,0.15)' : 'transparent',
-                color: active ? '#a78bfa' : 'rgba(255,255,255,0.35)',
+                background: active ? 'rgba(0,190,190,0.15)' : 'transparent',
+                border: active ? '1px solid rgba(0,200,200,0.35)' : '1px solid rgba(0,180,180,0.15)',
+                color: active ? '#00f2ff' : 'rgba(255,255,255,0.35)',
               }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(0,190,190,0.07)'; e.currentTarget.style.borderColor = 'rgba(0,200,200,0.35)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(0,180,180,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; }}}
             >
               <v.icon size={ICON_SIZE} />
-              {active && <div style={{ position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)', width: 3, height: 18, borderRadius: 2, background: '#a78bfa' }} />}
+              {active && <div style={{ position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)', width: 3, height: 18, borderRadius: 2, background: '#00f2ff', boxShadow: '0 0 8px rgba(0,242,255,0.6)' }} />}
             </button>
           );
         })}
@@ -146,16 +157,16 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
 
         {/* Exit */}
         <button title="Exit Brain Mode" onClick={onGoHome}
-          style={{ ...btnBase, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}
-          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
-          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; e.currentTarget.style.background = 'transparent'; }}
+          style={{ ...btnBase, border: '1px solid rgba(0,180,180,0.28)', color: 'rgba(255,255,255,0.25)', marginTop: 4 }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; e.currentTarget.style.background = 'rgba(0,190,190,0.07)'; e.currentTarget.style.borderColor = 'rgba(0,200,200,0.45)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(0,180,180,0.28)'; }}
         >
           <ChevronLeft size={ICON_SIZE} />
         </button>
       </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {activeSpace === 'constellation' ? (
           <Suspense fallback={<LoadingScreen />}>
             <Canvas camera={{ position: [0, 0, 5] }}>
@@ -201,6 +212,75 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
         {showOnboarding && !isMobile && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
+
+        {/* Top Bar */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 44, zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 28px',
+          borderBottom: '1px solid rgba(0,180,180,0.28)',
+          background: 'rgba(4,6,9,0.65)', backdropFilter: 'blur(10px)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <BrainCircuit size={20} color="#00f2ff" style={{ filter: 'drop-shadow(0 0 8px rgba(0,242,255,0.6))' }} />
+            <div style={{ fontSize: 12, letterSpacing: '0.25em', color: 'rgba(0,200,200,0.75)', fontWeight: 700 }}>
+              TUNISIA<span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 400 }}>INTEL</span>
+            </div>
+          </div>
+          <div style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', letterSpacing: '0.15em' }}>
+            {new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 5, height: 5, borderRadius: '50%',
+              background: 'rgba(0,200,200,0.85)',
+              boxShadow: '0 0 5px rgba(0,200,200,0.6)',
+              animation: 'ti-blink 2.2s ease-in-out infinite',
+            }}/>
+            <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(0,200,200,0.5)' }}>
+              SECURE UPLINK
+            </span>
+          </div>
+        </div>
+
+        {/* Corner Brackets */}
+        {[
+          { top: 52, left: 20,   bt: true,  bl: true  },
+          { top: 52, right: 20,  bt: true,  br: true  },
+          { bot: 40, left: 20,   bb: true,  bl: true  },
+          { bot: 40, right: 20,  bb: true,  br: true  },
+        ].map((c, i) => (
+          <div key={i} style={{
+            position: 'absolute', width: 18, height: 18, zIndex: 20,
+            top: c.top, bottom: c.bot, left: c.left, right: c.right,
+            borderTop:    c.bt ? '1px solid rgba(0,180,180,0.28)' : 'none',
+            borderBottom: c.bb ? '1px solid rgba(0,180,180,0.28)' : 'none',
+            borderLeft:   c.bl ? '1px solid rgba(0,180,180,0.28)' : 'none',
+            borderRight:  c.br ? '1px solid rgba(0,180,180,0.28)' : 'none',
+          }}/>
+        ))}
+
+        {/* Vignette */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at center, transparent 25%, rgba(4,6,9,0.88) 100%)',
+        }}/>
+
+        {/* Bottom Status Bar */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 32, zIndex: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 28px',
+          borderTop: '1px solid rgba(0,180,180,0.28)',
+          background: 'rgba(4,6,9,0.65)', backdropFilter: 'blur(8px)',
+        }}>
+          <div style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(148,163,184,0.22)' }}>
+            NODE: TUNIS_01 // NORTH_AFRICA_CLUSTER
+          </div>
+          <div style={{ fontSize: 8, letterSpacing: '0.18em', color: '#d68910', opacity: 0.65 }}>
+            THREAT: ELEVATED
+          </div>
+        </div>
       </div>
     </div>
   );

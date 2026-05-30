@@ -27,10 +27,11 @@ import { PipelineLogColumn } from '../debug/PipelineLogColumn';
 import { getVarCache } from '../../services/pipelineService';
 import MultiAgentTab from './MultiAgentTab';
 import RAGTab from './RAGTab';
+import { SnapshotExplorer } from './SnapshotExplorer';
 
 // ─── TYPES ──────────────────────────────────────────────────────────────────
 
-type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA' | 'AI' | 'RAG' | 'DATABASE' | 'MULTI_AGENT';
+type Tab = 'MISSION' | 'DEBUGGER' | 'TESTS' | 'NEWS_DEBUG' | 'ADM' | 'RRI_DATA' | 'AI' | 'RAG' | 'DATABASE' | 'MULTI_AGENT' | 'SNAPSHOT';
 
 interface TestResult {
   id: string;
@@ -3592,6 +3593,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
   const TABS: { id: Tab; label: string; labelShort: string; icon: React.ElementType }[] = [
     { id: 'MISSION', label: 'Mission Control', labelShort: 'Mission', icon: ShieldAlert },
     { id: 'ADM', label: 'INT PIPELINE', labelShort: 'INT', icon: Database },
+    { id: 'SNAPSHOT', label: 'National State Snapshot', labelShort: 'Snapshot', icon: Activity },
     { id: 'RRI_DATA', label: 'RRI & Data', labelShort: 'RRI', icon: BarChart3 },
     { id: 'AI', label: 'AI Models', labelShort: 'AI', icon: Brain },
     { id: 'RAG', label: 'RAG Memory', labelShort: 'RAG', icon: Library },
@@ -3683,6 +3685,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
               />
             )}
             {activeTab === 'ADM' && <ADMTab onJumpToDebugger={handleJumpToDebugger} />}
+            {activeTab === 'SNAPSHOT' && <SnapshotExplorer />}
             {activeTab === 'RRI_DATA' && <RRIDataTab />}
             {activeTab === 'AI' && (
               <AITab 

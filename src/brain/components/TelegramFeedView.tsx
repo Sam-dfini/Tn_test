@@ -54,14 +54,14 @@ const TelegramFeedView: React.FC = () => {
   const truncate = (t: string, n: number) => t.length > n ? t.slice(0, n) + '...' : t;
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#05070f', display: 'flex', flexDirection: 'column', padding: 20, gap: 16, fontFamily: '"IBM Plex Mono",monospace', color: '#c9d1e0', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', flexDirection: 'column', padding: '16px 20px', gap: 12, fontFamily: '"IBM Plex Mono",monospace', color: '#e2e8f0', overflow: 'hidden' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12, flexShrink: 0 }}>
-        <MessageCircle size={18} color="#30d158" />
-        <span style={{ fontSize: 11, letterSpacing: 3, color: '#3a4a5a', fontWeight: 600 }}>TELEGRAM INTELLIGENCE</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(0,180,180,0.28)', paddingBottom: 10, flexShrink: 0 }}>
+        <MessageCircle size={18} color="#00f2ff" />
+        <span style={{ fontSize: 11, letterSpacing: 3, color: 'rgba(0,200,200,0.6)', fontWeight: 600 }}>TELEGRAM INTELLIGENCE</span>
         {status && (
-          <span style={{ fontSize: 9, color: status.has_credentials ? '#30d158' : '#f59e0b', marginLeft: 'auto' }}>
+          <span style={{ fontSize: 9, color: status.has_credentials ? '#00f2ff' : '#d68910', marginLeft: 'auto' }}>
             {status.has_credentials ? `${status.channels_active}/${status.channels_total} CHANNELS` : 'NO CREDENTIALS'}
           </span>
         )}
@@ -70,12 +70,12 @@ const TelegramFeedView: React.FC = () => {
       {/* Controls */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
         <select value={filter} onChange={e => setFilter(e.target.value as any)}
-          style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#c9d1e0', fontFamily: 'monospace' }}>
+          style={{ background: 'rgba(4,6,9,0.6)', border: '1px solid rgba(0,242,255,0.3)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', fontFamily: 'monospace' }}>
           <option value="all">All Messages</option>
           <option value="alert">Alerts Only</option>
         </select>
         <select value={category} onChange={e => setCategory(e.target.value)}
-          style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#c9d1e0', fontFamily: 'monospace' }}>
+          style={{ background: 'rgba(4,6,9,0.6)', border: '1px solid rgba(0,242,255,0.3)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', fontFamily: 'monospace' }}>
           <option value="">All Categories</option>
           <option value="activist">Activist</option>
           <option value="opposition">Opposition</option>
@@ -85,14 +85,14 @@ const TelegramFeedView: React.FC = () => {
           <option value="union">Union</option>
           <option value="government">Government</option>
         </select>
-        <button onClick={triggerCollect} style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 10px', fontSize: 10, color: '#c9d1e0', cursor: 'pointer', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={triggerCollect} style={{ marginLeft: 'auto', background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 10px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
           <RefreshCw size={12} /> Collect Now
         </button>
       </div>
 
       {/* Status bar */}
       {status && (
-        <div style={{ display: 'flex', gap: 16, fontSize: 9, color: '#3a4a5a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 16, fontSize: 9, color: 'rgba(148,163,184,0.35)', flexShrink: 0 }}>
           <span><Users size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />{status.channels_active}/{status.channels_total} channels</span>
           <span><Activity size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />{status.total_messages} total msgs</span>
           <span><Clock size={11} style={{ verticalAlign: 'middle', marginRight: 4 }} />{status.last_fetch ? timeAgo(status.last_fetch) : 'never'}</span>
@@ -102,7 +102,7 @@ const TelegramFeedView: React.FC = () => {
       {/* Message list */}
       <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 40, fontSize: 10, color: '#3a4a5a' }}>
+          <div style={{ textAlign: 'center', padding: 40, fontSize: 10, color: 'rgba(148,163,184,0.35)' }}>
             {status?.has_credentials === false
               ? 'Set TELEGRAM_API_ID + TELEGRAM_API_HASH in .env to enable'
               : 'No messages yet. Click "Collect Now" to fetch.'}
@@ -112,16 +112,16 @@ const TelegramFeedView: React.FC = () => {
           const catColor = CAT_COLORS[msg.channel_category] || '#64748b';
           return (
             <div key={`${msg.channel_username}-${msg.message_id}`} style={{
-              background: msg.alert_count > 0 ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.02)',
+              background: msg.alert_count > 0 ? 'rgba(239,68,68,0.06)' : 'rgba(0,180,180,0.05)',
               borderRadius: 8, padding: '10px 14px',
-              border: msg.alert_count > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(255,255,255,0.04)',
+              border: msg.alert_count > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(0,180,180,0.28)',
               transition: 'all .15s',
             }}>
               {/* Header row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 9 }}>
                 <span style={{ color: catColor, fontWeight: 600 }}>{msg.channel_name}</span>
-                <span style={{ color: '#3a4a5a' }}>@{msg.channel_username}</span>
-                <span style={{ color: '#3a4a5a', marginLeft: 'auto' }}>{timeAgo(msg.date)}</span>
+                <span style={{ color: 'rgba(148,163,184,0.35)' }}>@{msg.channel_username}</span>
+                <span style={{ color: 'rgba(148,163,184,0.35)', marginLeft: 'auto' }}>{timeAgo(msg.date)}</span>
               </div>
 
               {/* Message text */}
@@ -130,10 +130,10 @@ const TelegramFeedView: React.FC = () => {
               </div>
 
               {/* Metadata row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 9, color: '#3a4a5a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 9, color: 'rgba(148,163,184,0.35)' }}>
                 <span><Eye size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />{msg.views}</span>
                 <span><Forward size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />{msg.forwards}</span>
-                {msg.has_media && <span style={{ color: '#f59e0b' }}>📎 Media</span>}
+                {msg.has_media && <span style={{ color: '#d68910' }}>📎 Media</span>}
                 {msg.alert_count > 0 && (
                   <span style={{ color: '#ef4444', marginLeft: 'auto' }}>
                     <AlertTriangle size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />

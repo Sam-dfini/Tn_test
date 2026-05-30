@@ -1,9 +1,9 @@
 # TunisiaIntel v2 - Clean Architecture Blueprint
 
-Status: Draft v1  
+Status: **Phase B In Progress**  
 Owner: TunisiaIntel Core Team  
 Scope: Full platform (frontend, backend, agents, simulation, data, API)  
-Last updated: 2026-05-28
+Last updated: 2026-05-29
 
 ---
 
@@ -474,8 +474,19 @@ This can be implemented incrementally while keeping current code operational.
 - Remove/disable PLACEHOLDER and MOCK from production routes.
 - Add HYBRID/SIMULATION badges in UI.
 
-### Phase B - Canonical state
-- Introduce `NationalStateSnapshot` schema.
+### Phase B - Canonical state ✅ IN PROGRESS
+
+**COMPLETED:**
+- ✅ `NationalStateSnapshot` TypeScript interface defined
+  - File: `src/domain/models/nationalState.ts`
+  - Includes: truth classification, provenance, confidence, risk vector, governorates
+  - Helper functions: `createNationalStateSnapshot()`, `buildRiskVector()`, etc.
+- ✅ Backend schema (Supabase table) defined
+  - File: `backend/schema/national_state_snapshots.sql`
+  - Table: `national_state_snapshots`
+  - Features: RLS, triggers for parent tracking, views for latest snapshot
+
+**NEXT:**
 - Route key outputs through snapshot-based reads.
 - Attach `snapshot_id` to briefs and alerts.
 
@@ -526,12 +537,36 @@ Rollback plan:
 
 ## 19) Immediate backlog (next practical actions)
 
-1. Create `truth-class` metadata map for all current Professional and Tactical tabs.
-2. Define initial `NationalStateSnapshot` TypeScript interface and backend schema.
-3. Add `snapshot_id` to alerts and briefs payloads.
-4. Extract one end-to-end use-case as reference:
+### Phase B - Canonical State (IN PROGRESS)
+
+1. ✅ Define initial `NationalStateSnapshot` TypeScript interface
+   - Created: `src/domain/models/nationalState.ts`
+   - Includes: truth classification, provenance, confidence, risk vector, governorates
+   - Helper functions: `createNationalStateSnapshot()`, `buildRiskVector()`, etc.
+
+2. ✅ Define backend schema (Supabase table)
+   - Created: `backend/schema/national_state_snapshots.sql`
+   - Table: `national_state_snapshots`
+   - Columns: snapshot_id (PK), version, created_at, window, truth_class, provenance (JSONB), confidence (JSONB), risk_vector (JSONB), governorates (JSONB), active_shocks (JSONB), parent_snapshot_id, children_snapshot_ids
+   - Features: RLS, triggers for parent tracking, views for latest snapshot
+
+3. ⏳ Add `snapshot_id` to alerts and briefs payloads
+   - Update `SystemAlert` interface to include `snapshot_id`
+   - Update `IntelligenceBrief` interface to include `snapshot_id`
+
+4. ⏳ Extract one end-to-end use-case as reference:
    - ingest -> classify -> state update -> alert.
-5. Publish initial `/api/v1/state/latest` endpoint contract doc.
+
+5. ⏳ Publish initial `/api/v1/state/latest` endpoint contract doc
+   - GET /api/v1/state/latest
+   - Response: NationalStateSnapshot
+   - Include provenance and confidence metadata
+
+### Phase A - Stabilize Truth (Next after Phase B)
+
+- Add truth-class metadata to all modules.
+- Remove/disable PLACEHOLDER and MOCK from production routes.
+- Add HYBRID/SIMULATION badges in UI.
 
 ---
 

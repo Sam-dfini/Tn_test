@@ -1,13 +1,12 @@
 .cognitive-workspace {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  color: #F9FAFB;
-  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  background: transparent;
   position: relative;
-  background: #080B0F;
+  padding-top: 44px;
+  padding-bottom: 32px;
 }
 
 .workspace-bg-grid {

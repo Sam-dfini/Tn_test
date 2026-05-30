@@ -73,8 +73,8 @@ const EmotionalHeatmapView: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ width: '100%', height: '100%', background: '#05070f', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Activity className="w-6 h-6 animate-spin" style={{ color: '#a78bfa' }} />
+      <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Activity className="w-6 h-6 animate-spin" style={{ color: '#00f2ff' }} />
       </div>
     );
   }
@@ -85,16 +85,16 @@ const EmotionalHeatmapView: React.FC = () => {
   const maxEmotion = Math.max(...Object.values(distribution), 0.01);
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#05070f', display: 'flex', flexDirection: 'column', padding: 20, gap: 16, fontFamily: '"IBM Plex Mono",monospace', color: '#c9d1e0', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', flexDirection: 'column', padding: '16px 20px', gap: 12, fontFamily: '"IBM Plex Mono",monospace', color: '#e2e8f0', overflow: 'hidden' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12, flexShrink: 0 }}>
-        <Heart size={18} color="#ef4444" />
-        <span style={{ fontSize: 11, letterSpacing: 3, color: '#3a4a5a', fontWeight: 600 }}>EMOTIONAL HEATMAP</span>
-        <span style={{ fontSize: 9, color: '#3a4a5a', marginLeft: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(0,180,180,0.28)', paddingBottom: 10, flexShrink: 0 }}>
+        <Heart size={18} color="#00f2ff" />
+        <span style={{ fontSize: 11, letterSpacing: 3, color: 'rgba(0,200,200,0.6)', fontWeight: 600 }}>EMOTIONAL HEATMAP</span>
+        <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)', marginLeft: 'auto' }}>
           {result?.governorates_active || 0}/{result?.governorates_total || 24} govs · {result?.total_signals_analyzed || 0} signals
         </span>
-        <button onClick={fetchData} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#c9d1e0', cursor: 'pointer' }}>
+        <button onClick={fetchData} style={{ background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer' }}>
           <RefreshCw size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />Refresh
         </button>
       </div>
@@ -102,7 +102,7 @@ const EmotionalHeatmapView: React.FC = () => {
       {/* Main layout */}
       <div style={{ flex: 1, display: 'flex', gap: 16, overflow: 'hidden' }}>
         {/* Map */}
-        <div style={{ flex: 1, position: 'relative', background: 'radial-gradient(ellipse at 45% 35%,rgba(8,18,45,0.95) 0%,#05070f 70%)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, position: 'relative', background: 'radial-gradient(ellipse at 45% 35%,rgba(4,6,9,0.95) 0%,#040609 70%)', borderRadius: 12, border: '1px solid rgba(0,180,180,0.28)', overflow: 'hidden' }}>
           <svg viewBox={`0 0 ${SVG_W} 760`} style={{ width: '100%', height: '100%', display: 'block' }}>
             <defs>
               <filter id="glow-anger" x="-40%" y="-40%" width="180%" height="180%">
@@ -156,11 +156,11 @@ const EmotionalHeatmapView: React.FC = () => {
 
           {/* Hover tooltip */}
           {hoveredGov && govs[hoveredGov] && (
-            <div style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(2,6,18,0.97)', border: `1px solid ${govs[hoveredGov].total_mentions > 0 ? govs[hoveredGov].dominant_color + '44' : 'rgba(255,255,255,0.1)'}`, borderRadius: 8, padding: '10px 14px', minWidth: 160, pointerEvents: 'none' }}>
+            <div style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(4,6,9,0.97)', border: `1px solid ${govs[hoveredGov].total_mentions > 0 ? govs[hoveredGov].dominant_color + '44' : 'rgba(0,180,180,0.28)'}`, borderRadius: 8, padding: '10px 14px', minWidth: 160, pointerEvents: 'none' }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: govs[hoveredGov].total_mentions > 0 ? govs[hoveredGov].dominant_color : '#64748b', marginBottom: 4 }}>
                 {govs[hoveredGov].name}
               </div>
-              <div style={{ fontSize: 9, color: '#3a4a5a', marginBottom: 4 }}>
+              <div style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)', marginBottom: 4 }}>
                 {govs[hoveredGov].total_mentions > 0
                   ? `${EMOTION_LABELS[govs[hoveredGov].dominant_emotion] || govs[hoveredGov].dominant_emotion} (${govs[hoveredGov].total_mentions} mentions)`
                   : 'No signals mentioning this governorate'}
@@ -169,11 +169,11 @@ const EmotionalHeatmapView: React.FC = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                   {Object.entries(govs[hoveredGov].emotions).sort(([,a], [,b]) => b - a).slice(0, 4).map(([emo, score]) => (
                     <div key={emo} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 8, color: '#3a4a5a', width: 60 }}>{EMOTION_LABELS[emo] || emo}</span>
-                      <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,0.04)', borderRadius: 2, overflow: 'hidden' }}>
+                      <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', width: 60 }}>{EMOTION_LABELS[emo] || emo}</span>
+                      <div style={{ flex: 1, height: 3, background: 'rgba(0,180,180,0.15)', borderRadius: 2, overflow: 'hidden' }}>
                         <div style={{ width: `${(score as number) * 100}%`, height: '100%', background: govs[hoveredGov].dominant_color, borderRadius: 2 }} />
                       </div>
-                      <span style={{ fontSize: 8, color: '#3a4a5a', width: 28, textAlign: 'right' }}>
+                      <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', width: 28, textAlign: 'right' }}>
                         {((score as number) * 100).toFixed(0)}%
                       </span>
                     </div>
@@ -187,19 +187,19 @@ const EmotionalHeatmapView: React.FC = () => {
         {/* Side panel */}
         <div style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 12, overflow: 'auto' }}>
           {/* National mood */}
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', padding: 14 }}>
-            <div style={{ fontSize: 9, color: '#3a4a5a', letterSpacing: 2, marginBottom: 8 }}>NATIONAL MOOD</div>
+          <div style={{ background: 'rgba(4,6,9,0.6)', borderRadius: 12, border: '1px solid rgba(0,180,180,0.28)', padding: 14 }}>
+            <div style={{ fontSize: 9, color: 'rgba(0,200,200,0.6)', letterSpacing: 2, marginBottom: 8 }}>NATIONAL MOOD</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: mood?.dominant_color || '#64748b', marginBottom: 8 }}>
               {EMOTION_LABELS[mood?.dominant_emotion || ''] || mood?.dominant_emotion || 'NEUTRAL'}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {Object.entries(distribution).sort(([,a], [,b]) => b - a).map(([emo, score]) => (
                 <div key={emo} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 8, color: '#3a4a5a', width: 55 }}>{EMOTION_LABELS[emo] || emo}</span>
-                  <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.04)', borderRadius: 2, overflow: 'hidden' }}>
+                  <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', width: 55 }}>{EMOTION_LABELS[emo] || emo}</span>
+                  <div style={{ flex: 1, height: 4, background: 'rgba(0,180,180,0.15)', borderRadius: 2, overflow: 'hidden' }}>
                     <div style={{ width: `${((score as number) / maxEmotion) * 100}%`, height: '100%', background: mood?.dominant_color || '#64748b', borderRadius: 2 }} />
                   </div>
-                  <span style={{ fontSize: 8, color: '#3a4a5a', width: 28, textAlign: 'right' }}>
+                  <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', width: 28, textAlign: 'right' }}>
                     {((score as number) * 100).toFixed(0)}%
                   </span>
                 </div>
@@ -208,8 +208,8 @@ const EmotionalHeatmapView: React.FC = () => {
           </div>
 
           {/* Active governorates list */}
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', padding: 14, flex: 1, overflow: 'auto' }}>
-            <div style={{ fontSize: 9, color: '#3a4a5a', letterSpacing: 2, marginBottom: 8 }}>
+          <div style={{ background: 'rgba(4,6,9,0.6)', borderRadius: 12, border: '1px solid rgba(0,180,180,0.28)', padding: 14, flex: 1, overflow: 'auto' }}>
+            <div style={{ fontSize: 9, color: 'rgba(0,200,200,0.6)', letterSpacing: 2, marginBottom: 8 }}>
               <MapPin size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} /> GOVERNORATES
             </div>
             {Object.entries(govs).sort(([, a], [, b]) => b.total_mentions - a.total_mentions).map(([id, g]) => {
@@ -218,16 +218,16 @@ const EmotionalHeatmapView: React.FC = () => {
                 <div key={id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
                     background: active ? g.dominant_color : '#2a3a4a' }} />
-                  <span style={{ fontSize: 9, color: active ? '#c9d1e0' : '#3a4a5a', flex: 1 }}>{g.name}</span>
+                  <span style={{ fontSize: 9, color: active ? '#e2e8f0' : 'rgba(148,163,184,0.35)', flex: 1 }}>{g.name}</span>
                   {active ? (
                     <>
                       <span style={{ fontSize: 8, color: g.dominant_color, fontWeight: 600 }}>
                         {EMOTION_LABELS[g.dominant_emotion] || g.dominant_emotion}
                       </span>
-                      <span style={{ fontSize: 8, color: '#3a4a5a', width: 24, textAlign: 'right' }}>{g.total_mentions}</span>
+                      <span style={{ fontSize: 8, color: 'rgba(148,163,184,0.35)', width: 24, textAlign: 'right' }}>{g.total_mentions}</span>
                     </>
                   ) : (
-                    <span style={{ fontSize: 7, color: '#2a3a4a', letterSpacing: 1 }}>—</span>
+                    <span style={{ fontSize: 7, color: '#2a3a4a', letterSpacing: 1}}>—</span>
                   )}
                 </div>
               );

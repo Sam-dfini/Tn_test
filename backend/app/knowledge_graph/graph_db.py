@@ -81,8 +81,13 @@ class GraphDatabase:
             INNER JOIN graph_traversal t ON e.id = t.target_id
             LIMIT 100
         """
-        result = self.db.rpc("exec_sql_admin", {"sql_query": sql}).execute()
-        return result.data or []
+        # Execute raw SQL using raw_query method
+        try:
+            result = self.db.raw(sql).execute()
+            return result.data or []
+        except Exception as e:
+            print(f"[GraphDB] Raw query failed: {e}")
+            return []
 
     async def neighbors(self, entity_id: str, relation_type: Optional[str] = None) -> Dict[str, Any]:
         """Get entity + its immediate neighbors."""
