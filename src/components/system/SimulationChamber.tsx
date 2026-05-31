@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Play, RefreshCw, AlertTriangle, CheckCircle, Clock, GitBranch, BarChart3 } from 'lucide-react';
+import { TruthBadge } from '../shared/TruthBadge';
 
 const BASE = 'http://localhost:8000';
 
@@ -138,6 +139,7 @@ const SimulationChamber: React.FC = () => {
       }}>
         <BarChart3 size={18} color="#00f2ff" />
         <span style={{ fontSize: 11, letterSpacing: 3, color: 'rgba(0,200,200,0.6)', fontWeight: 600 }}>SIMULATION CHAMBER</span>
+        <TruthBadge truthClass="SIMULATION" />
         <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)' }}>
           {scenarios.length} scenarios · {runs.length} runs
         </span>

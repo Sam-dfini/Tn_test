@@ -12,6 +12,7 @@ export interface SystemAlert {
   affectedEquations?: string[];
   metadata?: Record<string, any>;
   read?: boolean;
+  snapshot_id?: string;
 }
 
 export interface AlertCluster {

@@ -17,6 +17,7 @@ import { usePipeline } from '../../context/PipelineContext';
 import { simulatePropagation } from '../../services/propagationEngine';
 import { ShockSignal } from '../../types/intel';
 import govData from '../../data/governorates.json';
+import { TruthBadge } from '../../components/shared/TruthBadge';
 
 // ── CSS injection ──────────────────────────────────────────────
 let _cssOk = false;
@@ -479,6 +480,7 @@ const ScenarioSandbox: React.FC = () => {
             boxShadow:'0 0 10px #00f2ff', animation:'ssv-pulse 2s infinite',
           }}/>
           <span style={{fontSize:11,letterSpacing:3,color:'rgba(0,200,200,0.6)',fontWeight:600}}>SCENARIO SANDBOX</span>
+          <TruthBadge truthClass="SIMULATION" />
           <span style={{fontSize:10,color:'rgba(0,242,255,0.5)',letterSpacing:2}}>EQ.13</span>
         </div>
 

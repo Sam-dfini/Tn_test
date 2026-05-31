@@ -30,6 +30,7 @@ import {
   Area
 } from 'recharts';
 import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
+import { TruthBadge } from '../shared/TruthBadge';
 import { supabase, PriceReport } from '../../lib/supabase';
 import { CornerAccent } from '../shared/ProfessionalShared';
 import { generateRandomId } from '../../utils/idUtils';
@@ -218,6 +219,7 @@ export const EconomicReality: React.FC = () => {
         icon={ShoppingBag}
         nodeId="ECON-REAL-17"
       />
+      <TruthBadge truthClass="HYBRID" />
 
       <div className="flex flex-col items-center text-center space-y-4 relative z-20">
         <div className="relative">

@@ -13,6 +13,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { ModuleHeader, BackgroundGrid } from '../shared/ProfessionalShared';
+import { TruthBadge } from '../shared/TruthBadge';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Cell } from 'recharts';
 import {
   IndustrialSystemEngine,
@@ -72,12 +73,15 @@ export const IndustrialIntelligencePanel: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
-      <ModuleHeader 
-        title="Industrial & Strategic Asset Intelligence"
-        subtitle="National manufacturing density, strategic phosphate reserves, employment stress, and cross-cutting energy vulnerability."
-        icon={Building2}
-        nodeId="IND-NODE-01"
-      />
+      <div className="flex items-center justify-between">
+        <ModuleHeader 
+          title="Industrial & Strategic Asset Intelligence"
+          subtitle="National manufacturing density, strategic phosphate reserves, employment stress, and cross-cutting energy vulnerability."
+          icon={Building2}
+          nodeId="IND-NODE-01"
+        />
+        <TruthBadge truthClass="MOCK" />
+      </div>
 
       {/* Top Level KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

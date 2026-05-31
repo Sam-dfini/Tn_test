@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingDown, TrendingUp, Activity, Globe } from 'lucide-react';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { cn } from '../../utils/cn';
+import { TruthBadge } from '../shared/TruthBadge';
 
 export const MacroMarkets: React.FC = () => {
   const { fullData: data } = useRiskMetrics();
@@ -89,6 +90,7 @@ export const MacroMarkets: React.FC = () => {
         <div className="flex items-center space-x-2">
           <Activity className="w-3 h-3 text-intel-cyan" />
           <h3 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Macro + Markets</h3>
+          <TruthBadge truthClass="LIVE" />
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-[8px] font-mono text-intel-cyan">

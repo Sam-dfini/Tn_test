@@ -97,6 +97,9 @@ export interface IntelligenceBrief {
   // Focal geography
   triggerZones: string[];          // where it will start
   primaryDrivers: string[];        // top 3 drivers
+
+  // Snapshot provenance
+  snapshot_id?: string;
 }
 
 // ── Classification Logic ───────────────────────────────────────

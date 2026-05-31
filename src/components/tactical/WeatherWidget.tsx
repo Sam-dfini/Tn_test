@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudLightning, Wind, Thermometer, Droplets, Navigation } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { TruthBadge } from '../shared/TruthBadge';
 
 interface WeatherData {
   temp: number;
@@ -99,6 +100,7 @@ export const WeatherWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
         <div className="flex items-center space-x-2 min-w-0">
           <Cloud className="w-3 h-3 text-intel-cyan flex-shrink-0" />
           <h3 className="text-[10px] font-mono text-slate-500 uppercase tracking-widest truncate">Meteorological Intel</h3>
+          <TruthBadge truthClass="LIVE" />
         </div>
         <div className="flex items-center space-x-1 flex-shrink-0">
           <div className="w-1 h-1 rounded-full bg-intel-green animate-pulse" />

@@ -26,6 +26,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { BackgroundGrid, ModuleHeader } from '../shared/ProfessionalShared';
+import { TruthBadge } from '../shared/TruthBadge';
 import { callAI, parseAIJSON } from '../../services/aiService';
 import { generateAnalystResponse } from '../../services/ai';
 import { generateStableKey, prepareList } from '../../lib/keyUtils';
@@ -481,6 +482,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
         icon={Network}
         nodeId="ACTOR-NODE-22"
       />
+      <TruthBadge truthClass="HYBRID" />
 
       {/* Filter Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-5 md:p-6 intel-card border border-intel-border rounded-2xl relative z-20">

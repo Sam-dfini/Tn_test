@@ -5,6 +5,7 @@ import { useRSS } from '../../context/RSSContext';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { processArticleForRRI } from '../../math/rri/engine';
 import { BackgroundGrid } from '../shared/ProfessionalShared';
+import { TruthBadge } from '../shared/TruthBadge';
 import { getUniqueKey, prepareList, assertUnique, generateStableId, assertKey } from '../../lib/keyUtils';
 
 interface RealTimeNewsFeedProps {
@@ -126,6 +127,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
               <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center space-x-3">
                 <Newspaper className="w-6 h-6 text-intel-cyan" />
                 <span>{viewMode === 'raw' ? 'External RSS Intercept' : 'Processed Intelligence Terminal'}</span>
+                <TruthBadge truthClass="LIVE" />
               </h3>
               
               <div className="flex items-center space-x-4 pt-2">

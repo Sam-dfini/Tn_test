@@ -9,6 +9,7 @@ import { classifySignals, buildSignalSummary, SignalClassification } from '../..
 import { assessGovernmentAgent } from '../../services/govAgent';
 import { SignalIntelCard } from '../tactical/SignalIntelCard';
 import { SignalTier } from '../../services/signalClassifier';
+import { TruthBadge } from '../shared/TruthBadge';
 
 type FeedFilter = 'ALL' | 'SYSTEM_SHOCK' | 'SIGNAL' | 'CONFIRMED';
 
@@ -158,6 +159,7 @@ export const LiveSignalFeed: React.FC<{
           <span className="text-[10px] font-mono text-white uppercase tracking-widest">
             {title}
           </span>
+          <TruthBadge truthClass="LIVE" />
           <button 
             className="p-1 hover:bg-white/5 rounded text-slate-500 hover:text-intel-cyan transition-colors"
             title="Refresh Feed"
