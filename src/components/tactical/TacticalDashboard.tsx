@@ -65,6 +65,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
   
   useEffect(() => {
     setLeftCollapsed(width < 768);
+    setRightCollapsed(width < 768);
   }, [width]);
 
   const [leftTab, setLeftTab] = useState<
@@ -116,7 +117,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
         <div 
           className={cn(
             "flex border-r border-intel-border/30 bg-black/20 transition-all duration-300 shrink-0 min-h-0 relative z-30",
-            leftCollapsed ? 'w-12' : 'w-[280px] lg:w-[18vw] xl:w-[16vw]',
+            leftCollapsed ? 'w-12' : 'w-[min(280px,35vw)]',
             isSmallScreen && leftCollapsed ? 'hidden md:flex' : 'flex'
           )}
         >
@@ -306,7 +307,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
         <div
           className={cn(
             "flex border-t md:border-t-0 md:border-l border-intel-border/30 bg-black/20 transition-all duration-300 shrink-0 min-h-0 z-30",
-            rightCollapsed ? 'w-12' : 'w-full md:w-[300px] lg:w-[22vw] xl:w-[20vw]',
+            rightCollapsed ? 'w-12' : 'w-[min(300px,30vw)]',
             'h-[350px] md:h-auto'
           )}
         >

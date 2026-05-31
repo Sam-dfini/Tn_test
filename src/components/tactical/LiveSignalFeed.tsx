@@ -24,7 +24,7 @@ export const LiveSignalFeed: React.FC<{
   title = 'Live Signal Intelligence',
 }) => {
   const { articles } = useRSS();
-  const { rriState, fullData: data, seiResult } = useRiskMetrics();
+  const { rriState, fullData: data, seiResult, activeSignals } = useRiskMetrics();
   const { miiProfile, actorNetwork } = useAIAnalysis();
   const [filter, setFilter] = useState<FeedFilter>('ALL');
 
@@ -39,9 +39,27 @@ export const LiveSignalFeed: React.FC<{
 
   // Classify all recent articles
   const classified = useMemo(() => {
-    if (!articles.length) return [];
-    return classifySignals(articles, rriState, data, govAssessment, 30);
-  }, [articles, rriState, data, govAssessment]);
+    const articleClassified = articles.length ? classifySignals(articles, rriState, data, govAssessment, 30) : [];
+    
+    // Merge backend-detected shocks from active_signals
+    const backendShocks: SignalClassification[] = (activeSignals || []).map((shock: any) => ({
+      articleId: shock.id || `shock-${Date.now()}`,
+      tier: 'SYSTEM_SHOCK' as SignalTier,
+      severity: shock.severity || 5,
+      category: shock.category || 'system_shock',
+      geoRelevanceScore: 100,
+      reason: shock.label || shock.reason || 'Backend shock detection',
+      shockEvent: shock.shockEvent || null,
+      classifiedAt: shock.timestamp || new Date().toISOString(),
+      confirmsGovAction: false,
+    }));
+    
+    // Deduplicate: backend shocks take priority over article-based ones
+    const articleIds = new Set(articleClassified.map(c => c.articleId));
+    const uniqueBackendShocks = backendShocks.filter(s => !articleIds.has(s.articleId));
+    
+    return [...uniqueBackendShocks, ...articleClassified];
+  }, [articles, rriState, data, govAssessment, activeSignals]);
 
   // Summary stats
   const summary = useMemo(() =>

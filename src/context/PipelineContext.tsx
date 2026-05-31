@@ -412,6 +412,13 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         last_calculated: snapshot.computed_at ?? prev.last_calculated,
         variables_count: snapshot.variables_used ?? prev.variables_count,
       }));
+      // BUG 4 FIX: Extract active_shocks from snapshot and merge into data
+      if (snapshot.active_shocks && Array.isArray(snapshot.active_shocks)) {
+        setData(prev => ({
+          ...prev,
+          active_signals: snapshot.active_shocks,
+        }));
+      }
     } catch {}
   }, []);
 

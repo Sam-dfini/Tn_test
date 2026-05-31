@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Clock, Shield, Eye, Download, Home, Settings, Zap, Search, Bell, HelpCircle, Loader2, Printer, Menu, MoreVertical, Calendar, TerminalSquare, AlertTriangle, ChevronDown, Check } from 'lucide-react';
+import { Clock, Shield, Eye, Download, Home, Settings, Zap, Bell, HelpCircle, Loader2, Printer, Menu, MoreVertical, Calendar, TerminalSquare, AlertTriangle, ChevronDown, Check } from 'lucide-react';
 import { useRiskMetrics } from '../../hooks/usePipelineDomains';
 import { NotificationBell } from './NotificationPanel';
 import { WeatherMini } from '../tactical/WeatherMini';
@@ -145,15 +145,6 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
           </div>
         </div>
 
-        {/* Global Search Placeholder */}
-        <div className="hidden xl:flex items-center relative">
-          <Search className="absolute left-3 w-3.5 h-3.5 text-slate-600" />
-          <input 
-            type="text" 
-            placeholder="SEARCH INTELLIGENCE..." 
-            className="bg-white/5 border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white w-64 focus:outline-none focus:border-intel-cyan/40 transition-all"
-          />
-        </div>
       </div>
 
       <div className="flex items-center space-x-2 md:space-x-6">

@@ -138,17 +138,16 @@ function buildSparkFromHistory(history?: { date: string; rri: number }[]): { tim
 const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
   const isPositive = value >= 0;
   const color = value > 0.3 ? "#ff9f43" : value < -0.3 ? "#00e676" : "#8a9bb0";
-  const label = value > 0.3 ? "ACCELERATING" : value < -0.3 ? "STABILIZING" : "STABLE";
+  const label = value > 0.3 ? "ACCEL" : value < -0.3 ? "STABLE" : "FLAT";
   
   return (
-    <div className="flex items-center gap-1.5 px-4 py-3 shrink-0 border-r border-white/5">
-      <span className="text-[8px] font-mono text-slate-500 uppercase tracking-tight">V(t)</span>
-      <span className="text-[10px] font-mono font-bold" style={{ color }}>
+    <div className="flex items-center gap-1 px-2 py-2 shrink-0 border-r border-white/5">
+      <span className="text-[7px] font-mono text-slate-500 uppercase tracking-tight">V(t)</span>
+      <span className="text-[9px] font-mono font-bold" style={{ color }}>
         {isPositive ? '+' : ''}{value.toFixed(2)}
       </span>
-      <span className="text-[7px] font-mono text-slate-500">σ/day</span>
       <ArrowRight 
-        className={cn("w-2.5 h-2.5 transition-transform duration-500", !isPositive && "rotate-180")} 
+        className={cn("w-2 h-2 transition-transform duration-500", !isPositive && "rotate-180")} 
         style={{ color }} 
       />
       <span className="text-[7px] font-mono font-bold uppercase hidden sm:inline" style={{ color }}>{label}</span>
@@ -1378,9 +1377,9 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
     <div className="space-y-4 relative pb-10 p-3 md:p-4">
       {/* ── SECTION 1: STATUS STRIP ── */}
       <div className="glass rounded-xl border border-intel-border/50 overflow-hidden">
-        <div className="flex items-center gap-0 overflow-x-auto no-scrollbar divide-x divide-white/5">
+        <div className="flex items-center gap-0 flex-wrap divide-x divide-white/5">
           {/* Live pulse */}
-          <div className="flex items-center gap-2 px-4 py-3 shrink-0">
+          <div className="flex items-center gap-2 px-3 py-2.5 shrink-0">
             <Activity className="w-3.5 h-3.5 text-intel-cyan" />
             <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest whitespace-nowrap">
               National Status:
@@ -1393,7 +1392,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
             </span>
           </div>
           
-          {/* Enhancement 1: Velocity Index */}
+          {/* Velocity Index */}
           <VelocityIndex value={0.34} />
 
           {[
@@ -1416,32 +1415,31 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
           ].map((m, i) => (
             <div
               key={`metric-header-${m.id}-${i}`}
-              className="flex items-center gap-1.5 px-4 py-3 shrink-0"
+              className="flex items-center gap-1 px-2 py-2 shrink-0"
             >
-              <span className="text-[9px] font-mono text-slate-600">
+              <span className="text-[8px] font-mono text-slate-600">
                 {m.id}
               </span>
               <span
-                className="text-[11px] font-mono font-bold"
+                className="text-[10px] font-mono font-bold"
                 style={{ color: m.color }}
               >
                 {m.value}
               </span>
-              <span className="text-[9px] font-mono" style={{ color: m.color }}>
+              <span className="text-[8px] font-mono" style={{ color: m.color }}>
                 {m.delta}
               </span>
             </div>
           ))}
-          <div className="flex items-center gap-2 px-4 py-3 ml-auto shrink-0">
-            <span className="text-[8px] font-mono text-slate-600">
-              2 NEW HIGH-PRIORITY SIGNALS
-            </span>
+          <div className="flex items-center gap-1.5 px-2 py-2 ml-auto shrink-0">
             <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
+            <span className="text-[7px] font-mono text-slate-600 hidden sm:inline">
+              2 NEW
+            </span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-3 shrink-0">
+          <div className="flex items-center gap-1 px-2 py-2 shrink-0">
             <Clock className="w-3 h-3 text-slate-600" />
-            <span className="text-[9px] font-mono text-slate-500 whitespace-nowrap">
-              UPDATED{" "}
+            <span className="text-[8px] font-mono text-slate-500 whitespace-nowrap">
               {now.toLocaleTimeString("en-GB", {
                 hour: "2-digit",
                 minute: "2-digit",

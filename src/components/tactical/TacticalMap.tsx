@@ -628,7 +628,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
         {/* Region Selector Wheel */}
         {!hideRegionWheel && (
-          <div className="absolute top-[8vh] right-3 z-40 pointer-events-auto hidden sm:block">
+          <div className="absolute top-16 right-3 z-40 pointer-events-auto hidden sm:block">
           <div className="relative w-28 h-28 rounded-full bg-black/40 border border-intel-cyan/20 backdrop-blur-md flex items-center justify-center shadow-[0_0_15px_rgba(0,242,255,0.05)]">
             {/* Center: National */}
             <button 
@@ -706,7 +706,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
         {/* Layer Control Panel (Compacted) */}
         {!hideControls && (
-          <div className="absolute top-[22vh] right-3 z-40 bg-black/70 backdrop-blur-md border border-intel-cyan/30 p-1 rounded-sm shadow-[0_0_10px_rgba(0,242,255,0.05)] w-28 pointer-events-auto">
+          <div className="absolute top-44 right-3 z-40 bg-black/70 backdrop-blur-md border border-intel-cyan/30 p-1 rounded-sm shadow-[0_0_10px_rgba(0,242,255,0.05)] w-28 pointer-events-auto">
           <div className="flex items-center justify-between mb-1 border-b border-intel-cyan/20 pb-0.5">
             <div className="flex items-center space-x-1">
               <Layers className="w-2.5 h-2.5 text-intel-cyan" />
@@ -879,7 +879,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25 }}
-            className="absolute top-0 right-0 bottom-0 w-[280px] z-50 bg-[#05070a]/98 border-l border-intel-border overflow-y-auto flex flex-col pointer-events-auto"
+            className="absolute top-0 right-0 bottom-0 w-[min(280px,85vw)] z-50 bg-[#05070a]/98 border-l border-intel-border overflow-y-auto flex flex-col pointer-events-auto"
           >
             {/* Panel Header */}
             <div className="sticky top-0 bg-[#05070a] border-b border-intel-border p-4 flex items-center justify-between z-10">

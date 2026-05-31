@@ -119,19 +119,17 @@ function resolveTier(
   if (geoRelevanceScore < 35) {
     return { tier: 'NOISE', reason: `Geo-relevance too low (score=${geoRelevanceScore})` };
   }
-  if (geoRelevanceScore < 60 && severity >= 4) {
-    return { tier: 'SIGNAL', reason: `Geo-downgraded: score=${geoRelevanceScore}, capped at SIGNAL` };
-  }
+  // BUG 5 FIX: Don't cap severity >= 4 at SIGNAL — allow high-severity to reach SYSTEM_SHOCK
   // ────────────────────────────────────────────────────────────────────────
 
-  // Tier 1: System Shock
-  if (severity >= 4 && shockEvent && shockEvent.epsilon_magnitude >= 0.10) {
+  // Tier 1: System Shock — relaxed gates
+  if (severity >= 4 && shockEvent && shockEvent.epsilon_magnitude >= 0.08) {
     return {
       tier: 'SYSTEM_SHOCK',
       reason: `Severity ${severity} + shock event ε=${shockEvent.epsilon_magnitude.toFixed(2)}`,
     };
   }
-  if (shockEvent && shockEvent.epsilon_magnitude >= 0.14) {
+  if (shockEvent && shockEvent.epsilon_magnitude >= 0.12) {
     return {
       tier: 'SYSTEM_SHOCK',
       reason: `High-magnitude shock event: ${shockEvent.label}`,
