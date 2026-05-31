@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MessageCircle, AlertTriangle, Eye, Forward, Activity, RefreshCw, Radio, Users, Clock } from 'lucide-react';
+import { MessageCircle, AlertTriangle, Eye, Forward, Activity, RefreshCw, Radio, Users, Clock, Paperclip } from 'lucide-react';
 
 interface TelegramMsg {
   id: number; message_id: number; channel_username: string;
@@ -25,6 +25,15 @@ const TelegramFeedView: React.FC = () => {
   const [status, setStatus] = useState<Status | null>(null);
   const [filter, setFilter] = useState<'all' | 'alert'>('all');
   const [category, setCategory] = useState('');
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -85,7 +94,7 @@ const TelegramFeedView: React.FC = () => {
           <option value="union">Union</option>
           <option value="government">Government</option>
         </select>
-        <button onClick={triggerCollect} style={{ marginLeft: 'auto', background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 10px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={triggerCollect} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,190,190,0.15)'; e.currentTarget.style.borderColor = 'rgba(0,200,200,0.55)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,190,190,0.07)'; e.currentTarget.style.borderColor = 'rgba(0,200,200,0.35)'; }} style={{ marginLeft: 'auto', background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '6px 14px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer', fontFamily: 'monospace', display: 'flex', alignItems: 'center', gap: 4 }}>
           <RefreshCw size={12} /> Collect Now
         </button>
       </div>
@@ -111,7 +120,7 @@ const TelegramFeedView: React.FC = () => {
         {messages.map((msg, i) => {
           const catColor = CAT_COLORS[msg.channel_category] || '#64748b';
           return (
-            <div key={`${msg.channel_username}-${msg.message_id}`} style={{
+            <div key={`${msg.channel_username}-${msg.message_id}`} onMouseEnter={e => { e.currentTarget.style.background = msg.alert_count > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(0,180,180,0.1)'; e.currentTarget.style.borderColor = msg.alert_count > 0 ? 'rgba(239,68,68,0.35)' : 'rgba(0,180,180,0.4)'; }} onMouseLeave={e => { e.currentTarget.style.background = msg.alert_count > 0 ? 'rgba(239,68,68,0.06)' : 'rgba(0,180,180,0.05)'; e.currentTarget.style.borderColor = msg.alert_count > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(0,180,180,0.28)'; }} style={{
               background: msg.alert_count > 0 ? 'rgba(239,68,68,0.06)' : 'rgba(0,180,180,0.05)',
               borderRadius: 8, padding: '10px 14px',
               border: msg.alert_count > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(0,180,180,0.28)',
@@ -133,7 +142,7 @@ const TelegramFeedView: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 9, color: 'rgba(148,163,184,0.35)' }}>
                 <span><Eye size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />{msg.views}</span>
                 <span><Forward size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />{msg.forwards}</span>
-                {msg.has_media && <span style={{ color: '#d68910' }}>📎 Media</span>}
+                {msg.has_media && <span style={{ color: '#d68910', display: 'inline-flex', alignItems: 'center', gap: 3 }}><Paperclip size={11} /> Media</span>}
                 {msg.alert_count > 0 && (
                   <span style={{ color: '#ef4444', marginLeft: 'auto' }}>
                     <AlertTriangle size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />

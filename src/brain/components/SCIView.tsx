@@ -27,6 +27,7 @@ const SCIView: React.FC = () => {
   const [sources, setSources] = useState<{ source_id: string; reliability: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -47,6 +48,14 @@ const SCIView: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   useEffect(() => { fetchData(); const t = setInterval(fetchData, 30000); return () => clearInterval(t); }, [fetchData]);
 
   const filtered = filter === 'all' ? results : results.filter(r => r.classification === filter);
@@ -55,7 +64,7 @@ const SCIView: React.FC = () => {
   if (loading) {
     return (
       <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Activity className="w-6 h-6 animate-spin" style={{ color: '#00f2ff' }} />
+        <Activity className={`w-6 h-6 ${prefersReducedMotion ? '' : 'animate-spin'}`} style={{ color: '#00f2ff' }} />
       </div>
     );
   }
@@ -70,7 +79,7 @@ const SCIView: React.FC = () => {
         <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)', marginLeft: 'auto' }}>
           {stats?.total_scored || 0} signals · Avg SCI: {((stats?.average_sci ?? 0) * 100).toFixed(0)}%
         </span>
-        <button onClick={fetchData} style={{ background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer' }}>
+        <button onClick={fetchData} style={{ background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '6px 14px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer' }}>
           <RefreshCw size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />Refresh
         </button>
       </div>

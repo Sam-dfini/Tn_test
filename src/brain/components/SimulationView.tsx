@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Zap } from 'lucide-react';
 import { usePipeline } from '../../context/PipelineContext';
 import { simulatePropagation } from '../../services/propagationEngine';
 import { ShockSignal } from '../../types/intel';
@@ -379,8 +380,26 @@ const ScenarioSandbox: React.FC = () => {
   const [propResult, setPropResult]            = useState<any>(null);
   const [activeTab, setActiveTab]              = useState<'library'|'active'|'propagation'>('library');
   const [flashRRI, setFlashRRI]                = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => { injectCSS(); }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!prefersReducedMotion) return;
+    const s = document.createElement('style');
+    s.textContent = '*, *::before, *::after { animation-play-state: paused !important; }';
+    s.id = 'ssv-reduced-motion';
+    document.head.appendChild(s);
+    return () => { const el = document.getElementById('ssv-reduced-motion'); el?.remove(); };
+  }, [prefersReducedMotion]);
 
   // Current live deltas vs baseline
   const liveRRI      = rriState?.rri ?? 2.31;
@@ -530,7 +549,7 @@ const ScenarioSandbox: React.FC = () => {
           )}
           <button onClick={()=>{setInjectedIds(new Set()); clearShocks();}} style={{
             background:'transparent',border:'1px solid rgba(0,180,180,0.28)',
-            color:'rgba(148,163,184,0.35)',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+            color:'rgba(148,163,184,0.35)',padding:'6px 14px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
           }}>RESET</button>
         </div>
       </div>
@@ -579,8 +598,12 @@ const ScenarioSandbox: React.FC = () => {
                     background:selectedDomain===d&&!showBlackSwan?`${DOMAIN_COLOR[d]??'rgba(0,242,255,1)'}18`:'transparent',
                     border:`1px solid ${selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#00f2ff'):'rgba(0,180,180,0.28)'}`,
                     color:selectedDomain===d&&!showBlackSwan?(DOMAIN_COLOR[d]??'#00f2ff'):'rgba(148,163,184,0.35)',
-                    padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
-                  }}>
+                    padding:'6px 14px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+                    transition:'all .15s',
+                  }}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor=DOMAIN_COLOR[d]??'#00f2ff';e.currentTarget.style.background=`${DOMAIN_COLOR[d]??'rgba(0,242,255,1)'}18`;}}
+                  onMouseLeave={e=>{if(selectedDomain!==d||showBlackSwan){e.currentTarget.style.borderColor='rgba(0,180,180,0.28)';e.currentTarget.style.background='transparent';}}}
+                  >
                     {d==='ALL'?'ALL DOMAINS':d}
                   </button>
                 ))}
@@ -588,9 +611,13 @@ const ScenarioSandbox: React.FC = () => {
                   background:showBlackSwan?'rgba(220,38,38,0.15)':'transparent',
                   border:`1px solid ${showBlackSwan?'rgba(220,38,38,0.5)':'rgba(0,180,180,0.28)'}`,
                   color:showBlackSwan?'#ef4444':'rgba(148,163,184,0.35)',
-                  padding:'3px 12px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+                  padding:'6px 14px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
                   marginLeft:'auto',
-                }}>
+                  transition:'all .15s',
+                }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(220,38,38,0.7)';e.currentTarget.style.background='rgba(220,38,38,0.2)';}}
+                onMouseLeave={e=>{if(!showBlackSwan){e.currentTarget.style.borderColor='rgba(0,180,180,0.28)';e.currentTarget.style.background='transparent';}else{e.currentTarget.style.borderColor='rgba(220,38,38,0.5)';e.currentTarget.style.background='rgba(220,38,38,0.15)';}}}
+                >
                   ◼ BLACK SWAN
                 </button>
               </div>
@@ -796,7 +823,7 @@ const ScenarioSandbox: React.FC = () => {
                 display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
                 height:'60%',gap:16,
               }}>
-                <div style={{fontSize:48,opacity:0.1}}>⚡</div>
+                <div style={{fontSize:48,opacity:0.1}}><Zap size={48} color="#ffd60a" /></div>
                 <div style={{fontSize:12,color:'#2a3a4a',letterSpacing:2}}>NO ACTIVE SHOCKS</div>
                 <div style={{fontSize:10,color:'#1a2a3a'}}>Inject scenarios from the library to begin</div>
               </div>

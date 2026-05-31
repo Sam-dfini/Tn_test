@@ -94,6 +94,7 @@ const NationalStateView: React.FC = () => {
   const [result, setResult] = useState<StateResult>(initial);
   const [history, setHistory] = useState<StateResult[]>([]);
   const [apiAvail, setApiAvail] = useState(true);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
 
   const classify = async () => {
@@ -112,6 +113,14 @@ const NationalStateView: React.FC = () => {
       setResult(makeLocalResult(rri, vel, cp, ci, nd, ec, si, cs));
     }
   };
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(classify, 10000);
@@ -178,7 +187,7 @@ const NationalStateView: React.FC = () => {
                   color: isCurrent ? p.color : isPast ? 'rgba(255,255,255,0.4)' : 'rgba(148,163,184,0.35)',
                   letterSpacing: 1,
                 }}>{p.label.toUpperCase()}</span>
-                {isCurrent && <Dot size={14} color={p.color} className="animate-pulse" />}
+                {isCurrent && <Dot size={14} color={p.color} className={prefersReducedMotion ? '' : 'animate-pulse'} />}
               </div>
             );
           })}

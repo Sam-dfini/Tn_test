@@ -938,3 +938,11 @@ interface — the dark strategic room with actors around the map.
 ---
 
 *Simulation Chamber v1.0 — 2026-05-21*
+
+## Status: ✅ DONE
+- SQL schema created (`006_simulation.sql`)
+- Simulation engine: `backend/app/services/simulation_engine.py` (MC iterations, shock injection, chain propagation, sensitivity analysis)
+- 13 pre-built scenarios seeded
+- API endpoints: `/api/simulation/run`, `/runs`, `/scenarios`, `/compare`
+- Frontend: `SimulationChamber.tsx` — scenario selector, run trigger, outcome distribution, RRI trajectory SVG, key probabilities, sensitivity ranking, governorate risk delta, activated chains, historical analogue
+- Registered in ProfessionalIntel.tsx as "Simulation Chamber" tab

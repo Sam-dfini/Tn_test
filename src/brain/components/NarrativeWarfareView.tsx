@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Activity, TrendingUp, MessageCircle, Radio, BarChart3, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Activity, TrendingUp, MessageCircle, Radio, RefreshCw, Flame, AlertTriangle, Star, Shield, Meh, Zap } from 'lucide-react';
 
 interface FrameData {
   id: string; label: string; color: string; category: string;
@@ -36,9 +36,13 @@ const CAT_COLORS: Record<string, string> = {
   security: '#3b82f6',
 };
 
-const EMOTION_ICONS: Record<string, string> = {
-  anger: '😡', fear: '😨', hope: '🌟', defiance: '💪',
-  resignation: '😔', surprise: '😲',
+const EMOTION_ICONS: Record<string, React.ReactNode> = {
+  anger: <Flame size={14} color="#ef4444" />,
+  fear: <AlertTriangle size={14} color="#f59e0b" />,
+  hope: <Star size={14} color="#22c55e" />,
+  defiance: <Shield size={14} color="#3b82f6" />,
+  resignation: <Meh size={14} color="#64748b" />,
+  surprise: <Zap size={14} color="#a78bfa" />,
 };
 
 const NarrativeWarfareView: React.FC = () => {
@@ -46,11 +50,18 @@ const NarrativeWarfareView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [frameDefs, setFrameDefs] = useState<any[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const fetchData = useCallback(async () => {
-    // Load frames instantly (always fast)
     fetch('/api/narrative/frames').then(r => r.ok && r.json().then(setFrameDefs)).catch(() => {});
-    // Load analysis (may be slow on first call, cached after)
     try {
       const res = await fetch('/api/narrative/analyze', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -72,7 +83,7 @@ const NarrativeWarfareView: React.FC = () => {
   if (loading) {
     return (
       <div style={{ width: '100%', height: '100%', background: '#040609', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Activity className="w-6 h-6 animate-spin" style={{ color: '#00f2ff' }} />
+        <Activity className={`w-6 h-6 ${prefersReducedMotion ? '' : 'animate-spin'}`} style={{ color: '#00f2ff' }} />
       </div>
     );
   }
@@ -94,8 +105,17 @@ const NarrativeWarfareView: React.FC = () => {
         <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)', marginLeft: 'auto' }}>
           {result?.texts_analyzed || 0} texts · Conv: {((result?.narrative_convergence ?? 1) * 100).toFixed(0)}%
         </span>
-        <button onClick={fetchData} style={{ background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#e2e8f0', cursor: 'pointer' }}>
-          <RefreshCw size={11} style={{ verticalAlign: 'middle', marginRight: 3 }} />Refresh
+        <button onClick={fetchData} style={{
+          background: 'rgba(0,190,190,0.07)', border: '1px solid rgba(0,200,200,0.35)',
+          borderRadius: 6, padding: '6px 14px', fontSize: 10, color: '#e2e8f0',
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+          transition: 'all 0.15s',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,242,255,0.12)'; e.currentTarget.style.borderColor = 'rgba(0,242,255,0.5)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,190,190,0.07)'; e.currentTarget.style.borderColor = 'rgba(0,200,200,0.35)'; }}
+        >
+          <RefreshCw size={11} className={prefersReducedMotion ? '' : 'animate-spin'} style={{ animationDuration: '3s' }} />
+          Refresh
         </button>
       </div>
 
@@ -113,7 +133,14 @@ const NarrativeWarfareView: React.FC = () => {
               </div>
             )}
             {topFrames.map(f => (
-              <div key={f.id}>
+              <div key={f.id} style={{
+                padding: '6px 8px', borderRadius: 6,
+                background: 'rgba(0,180,180,0.05)', border: '1px solid transparent',
+                transition: 'all 0.15s', cursor: 'default',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,180,180,0.2)'; e.currentTarget.style.background = 'rgba(0,180,180,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.background = 'rgba(0,180,180,0.05)'; }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 3 }}>
                   <span style={{ color: f.color, fontWeight: 600 }}>{f.label}</span>
                   <span style={{ color: 'rgba(148,163,184,0.35)' }}>{(f.strength * 100).toFixed(0)}% · {f.count} texts</span>
@@ -136,8 +163,13 @@ const NarrativeWarfareView: React.FC = () => {
           <div style={{ fontSize: 9, color: 'rgba(0,200,200,0.6)', letterSpacing: 2, marginBottom: 12 }}>EMOTIONAL TEMPERATURE</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {Object.entries(sentiment).sort(([,a], [,b]) => b - a).slice(0, 5).map(([emo, score]) => (
-              <div key={emo} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 14 }}>{EMOTION_ICONS[emo] || '▪'}</span>
+              <div key={emo} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 6px', borderRadius: 4, transition: 'background 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,180,180,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20 }}>
+                  {EMOTION_ICONS[emo] || <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#64748b', display: 'block' }} />}
+                </span>
                 <span style={{ fontSize: 10, color: '#e2e8f0', flex: 1, textTransform: 'uppercase', letterSpacing: 1 }}>{emo}</span>
                 <div style={{ width: 60, height: 4, background: 'rgba(0,180,180,0.15)', borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{ width: `${(score as number) * 100}%`, height: '100%', background: '#00f2ff', borderRadius: 2 }} />
@@ -195,11 +227,15 @@ const NarrativeWarfareView: React.FC = () => {
             return (
               <div key={i} style={{
                 display: 'inline-block', margin: '3px',
-                padding: '4px 10px', borderRadius: 12,
+                padding: '6px 14px', borderRadius: 12,
                 background: `rgba(0,242,255,${0.05 + (s.count / Math.max(slogans[0]?.count, 1)) * 0.2})`,
                 border: '1px solid rgba(0,242,255,0.25)',
                 fontSize: size, color: '#e2e8f0', whiteSpace: 'nowrap',
-              }}>
+                cursor: 'default', transition: 'all 0.15s',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,242,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(0,242,255,0.5)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = `rgba(0,242,255,${0.05 + (s.count / Math.max(slogans[0]?.count, 1)) * 0.2})`; e.currentTarget.style.borderColor = 'rgba(0,242,255,0.25)'; }}
+              >
                 {s.text}
                 <span style={{ color: 'rgba(148,163,184,0.35)', marginLeft: 4, fontSize: 8 }}>×{s.count}</span>
               </div>
@@ -218,7 +254,14 @@ const NarrativeWarfareView: React.FC = () => {
           {Object.entries(sources).map(([src, data]: [string, any]) => {
             const frameObj = frames.find(f => f.id === data.top_frame);
             return (
-              <div key={src} style={{ padding: '8px 10px', marginBottom: 6, background: 'rgba(0,180,180,0.1)', borderRadius: 8, border: '1px solid rgba(0,180,180,0.2)' }}>
+              <div key={src} style={{
+                padding: '10px 12px', marginBottom: 6, background: 'rgba(0,180,180,0.1)',
+                borderRadius: 8, border: '1px solid rgba(0,180,180,0.2)',
+                transition: 'all 0.15s', cursor: 'default',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,180,180,0.4)'; e.currentTarget.style.background = 'rgba(0,180,180,0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,180,180,0.2)'; e.currentTarget.style.background = 'rgba(0,180,180,0.1)'; }}
+              >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontSize: 10, fontWeight: 600, color: CAT_COLORS[src] || '#64748b', textTransform: 'uppercase' }}>{src}</span>
                   <span style={{ fontSize: 9, color: 'rgba(148,163,184,0.35)' }}>{data.total_texts} texts</span>

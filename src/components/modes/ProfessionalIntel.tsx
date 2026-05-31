@@ -61,6 +61,7 @@ import {
   Hourglass,
   FlaskConical,
   Telescope,
+  BarChart3,
 } from "lucide-react";
 import {
   LineChart,
@@ -80,6 +81,7 @@ const NationalActorNetwork = React.lazy(() => import("../political/NationalActor
 const Map = React.lazy(() => import("../shared/Map").then(m => ({ default: m.Map })));
 const StrategicModeling = React.lazy(() => import("../predictive/StrategicModeling").then(m => ({ default: m.StrategicModeling })));
 const SimulationIntelligence = React.lazy(() => import("../predictive/SimulationIntelligence").then(m => ({ default: m.SimulationIntelligence })));
+const SimulationChamber = React.lazy(() => import("../system/SimulationChamber").then(m => ({ default: m.default })));
 const GeopoliticalIntelligence = React.lazy(() => import("../geopolitical/GeopoliticalIntelligence").then(m => ({ default: m.GeopoliticalIntelligence })));
 const PoliticalIntelligence = React.lazy(() => import("../political/PoliticalIntelligence").then(m => ({ default: m.PoliticalIntelligence })));
 const PoliticalStabilityIntelligence = React.lazy(() => import("../political/PoliticalStabilityIntelligence").then(m => ({ default: m.PoliticalStabilityIntelligence })));
@@ -219,6 +221,7 @@ const getSidebarCategories = (viewMode: ViewMode) => {
       restricted: 'ANALYST',
       items: [
         { id: "simulation", label: "Simulation Sandbox", icon: FlaskConical, restricted: 'STRATEGIC' },
+        { id: "simulation-chamber", label: "Simulation Chamber", icon: BarChart3, restricted: 'STRATEGIC' },
         { id: "strategic", label: "Strategic Modeling", icon: Telescope, restricted: 'STRATEGIC' },
         { id: "trgm", label: "TRGM Matrix", icon: Triangle, restricted: 'STRATEGIC' },
         { id: "govagent", label: "Gov. Agent", icon: Brain, restricted: 'STRATEGIC' },
@@ -754,6 +757,7 @@ export const ProfessionalIntel: React.FC<{
     | "deliberation"
     | "high-table"
     | "cognitive-workspace"
+    | "simulation-chamber"
 >("command-center");
   const [eventsSubTab, setEventsSubTab] = useState<
     "news" | "engine" | "timeline" | "signal" | "temporal" | "rtee"
@@ -2634,6 +2638,10 @@ Return only the 3-sentence briefing.`;
           ) : activeTab === "simulation" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
               <SimulationIntelligence context={data} variables={getVarCache() || []} />
+            </Suspense>
+          ) : activeTab === "simulation-chamber" ? (
+            <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>
+              <SimulationChamber />
             </Suspense>
           ) : activeTab === "deliberation" ? (
             <Suspense fallback={<div className="flex items-center justify-center h-full w-full"><Loader2 className="h-8 w-8 animate-spin text-intel-cyan" /></div>}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   FlaskConical, Radio, Zap, Activity, MessageCircle, Shield, Heart, Crosshair,
-  BrainCircuit, Home, ChevronLeft, MessageSquare,
+  BrainCircuit, Home, ChevronLeft, MessageSquare, GitBranch,
 } from 'lucide-react';
 import AudioBriefing from './AudioBriefing';
 import SimulationView from './SimulationView';
@@ -15,11 +15,13 @@ import CalibrationDashboard from './CalibrationDashboard';
 import MobileFallbackView from './MobileFallbackView';
 import OnboardingFlow from './OnboardingFlow';
 import CognitiveWorkspace from '../../components/CognitiveWorkspace/CognitiveWorkspace';
+import OntologyView from './OntologyView';
 
 const ICON_SIZE = 20;
 
 const views = [
   { id: 'cognitive-workspace', icon: MessageSquare, label: 'Workspace' },
+  { id: 'ontology',            icon: GitBranch,    label: 'Ontology' },
   { id: 'telegram',          icon: MessageCircle,  label: 'Telegram' },
   { id: 'sci',               icon: Shield,         label: 'SCI' },
   { id: 'calibration',       icon: Crosshair,      label: 'Calibration' },
@@ -139,27 +141,33 @@ const BrainMode = ({ onOpenAI, onOpenPipeline, onGoHome, onOpenReport }) => {
 
       {/* Main content */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ width: '100%', height: '100%', transform: 'scale(0.90)', transformOrigin: 'center center' }}>
-        {activeSpace === 'telegram' ? (
-          <TelegramFeedView />
-        ) : activeSpace === 'sci' ? (
-          <SCIView />
-        ) : activeSpace === 'calibration' ? (
-          <CalibrationDashboard />
-        ) : activeSpace === 'simulation' ? (
-          <SimulationView />
-        ) : activeSpace === 'narrative-warfare' ? (
-          <NarrativeWarfareView />
-        ) : activeSpace === 'heatmap' ? (
-          <EmotionalHeatmapView />
-        ) : activeSpace === 'state-machine' ? (
-          <NationalStateView />
-        ) : activeSpace === 'cognitive-workspace' ? (
-          <CognitiveWorkspace noChrome />
+        {activeSpace === 'ontology' ? (
+          <div style={{ width: '100%', height: '100%', transform: 'scale(0.94)', transformOrigin: 'center center' }}>
+            <OntologyView />
+          </div>
         ) : (
-          <ShockPropagationView />
+          <div style={{ width: '100%', height: '100%', transform: 'scale(0.90)', transformOrigin: 'center center' }}>
+          {activeSpace === 'telegram' ? (
+            <TelegramFeedView />
+          ) : activeSpace === 'sci' ? (
+            <SCIView />
+          ) : activeSpace === 'calibration' ? (
+            <CalibrationDashboard />
+          ) : activeSpace === 'simulation' ? (
+            <SimulationView />
+          ) : activeSpace === 'narrative-warfare' ? (
+            <NarrativeWarfareView />
+          ) : activeSpace === 'heatmap' ? (
+            <EmotionalHeatmapView />
+          ) : activeSpace === 'state-machine' ? (
+            <NationalStateView />
+          ) : activeSpace === 'cognitive-workspace' ? (
+            <CognitiveWorkspace noChrome />
+          ) : (
+            <ShockPropagationView />
+          )}
+          </div>
         )}
-        </div>
 
         {/* Audio Briefing */}
         {audioBriefing && (

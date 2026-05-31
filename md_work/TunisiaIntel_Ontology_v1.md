@@ -475,3 +475,11 @@ That is the difference between a dashboard and an intelligence system.
 
 *Ontology v1.0 — 2026-05-21*  
 *12 core chains. All derived from RRI equations. All require historical validation before activation.*
+
+## Status: ✅ DONE
+- SQL schema created (`002_ontology_causal_chains.sql`)
+- 12 chains seeded in `backend/app/ontology/seed_chains.py`
+- Backend service: activation check, chain CRUD, validation, variable trace
+- API endpoints: `/api/ontology/chains`, `/active`, `/trace`, `/validate`
+- Frontend: OntologyView in Brain Mode with 2-panel layout, causal flow diagram, regional sensitivity, amplifiers/suppressors
+- Integrated into snapshot computation and brief engine

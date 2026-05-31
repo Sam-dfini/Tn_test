@@ -114,6 +114,29 @@ const ShockPropagationView: React.FC = () => {
   const [tab, setTab]             = useState<'map' | 'sir' | 'history'>('map');
   const [hovered, setHovered]     = useState<string | null>(null);
   const [govPaths, setGovPaths]   = useState<Record<string, { path: string; cx: number; cy: number }>>(GOV_PATHS);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!prefersReducedMotion) return;
+    const s = document.createElement('style');
+    s.id = 'spv-reduced-motion';
+    s.textContent = `
+      @keyframes spv-scan, spv-pulse, spv-dash, spv-blink {
+        animation-play-state: paused !important;
+      }
+      [style*="animation"] { animation-play-state: paused !important; }
+    `;
+    document.head.appendChild(s);
+    return () => { s.remove(); };
+  }, [prefersReducedMotion]);
 
   useEffect(() => {
     loadGovPaths().then(paths => {
@@ -263,11 +286,11 @@ const ShockPropagationView: React.FC = () => {
         ))}
         <div style={{marginLeft:'auto',display:'flex',gap:3}}>
           {(['map','sir','history'] as const).map(t=>(
-            <button key={t} onClick={()=>setTab(t)} style={{
+            <button key={t} onClick={()=>setTab(t)} onMouseEnter={e => { if(tab!==t) { e.currentTarget.style.background='rgba(0,242,255,0.08)'; e.currentTarget.style.borderColor='rgba(0,242,255,0.35)'; e.currentTarget.style.color='rgba(0,242,255,0.8)'; } }} onMouseLeave={e => { if(tab!==t) { e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor='rgba(0,180,180,0.28)'; e.currentTarget.style.color='rgba(148,163,184,0.35)'; } }} style={{
               background:tab===t?'rgba(0,242,255,0.12)':'transparent',
               border:`1px solid ${tab===t?'rgba(0,242,255,0.45)':'rgba(0,180,180,0.28)'}`,
               color:tab===t?'#00f2ff':'rgba(148,163,184,0.35)',
-              padding:'4px 13px',borderRadius:3,cursor:'pointer',
+              padding:'6px 14px',borderRadius:3,cursor:'pointer',
               fontSize:10,letterSpacing:2,textTransform:'uppercase',transition:'all .15s',
             }}>{t==='sir'?'SIR MODEL':t}</button>
           ))}
@@ -296,10 +319,10 @@ const ShockPropagationView: React.FC = () => {
         }}>
           {[14,30,60,90].map(d=><option key={d} value={d}>{d}D</option>)}
         </select>
-        <button onClick={()=>{if(playing)setPlaying(false);else{setAnimDay(0);setPlaying(true);}}} style={{
+        <button onClick={()=>{if(playing)setPlaying(false);else{setAnimDay(0);setPlaying(true);}}} onMouseEnter={e => { e.currentTarget.style.background=playing?'rgba(0,242,255,0.25)':'rgba(0,242,255,0.14)'; }} onMouseLeave={e => { e.currentTarget.style.background=playing?'rgba(0,242,255,0.15)':'rgba(0,242,255,0.07)'; }} style={{
           background:playing?'rgba(0,242,255,0.15)':'rgba(0,242,255,0.07)',
           border:`1px solid ${playing?'rgba(0,242,255,0.55)':'rgba(0,242,255,0.25)'}`,
-          color:'#00f2ff',padding:'4px 14px',borderRadius:3,cursor:'pointer',fontSize:11,letterSpacing:1,
+          color:'#00f2ff',padding:'6px 14px',borderRadius:3,cursor:'pointer',fontSize:11,letterSpacing:1,
         }}>{playing?'■ STOP':'▶ SIMULATE'}</button>
         {playing&&(
           <div style={{display:'flex',alignItems:'center',gap:8}}>
@@ -313,9 +336,9 @@ const ShockPropagationView: React.FC = () => {
         <div style={{marginLeft:'auto',fontSize:9,color:'rgba(148,163,184,0.35)',letterSpacing:1}}>
           SCROLL TO ZOOM · DRAG TO PAN
         </div>
-        <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} style={{
+        <button onClick={()=>{setZoom(1);setPan({x:0,y:0});}} onMouseEnter={e => { e.currentTarget.style.background='rgba(0,180,180,0.12)'; e.currentTarget.style.borderColor='rgba(0,180,180,0.4)'; e.currentTarget.style.color='rgba(148,163,184,0.6)'; }} onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.borderColor='rgba(0,180,180,0.28)'; e.currentTarget.style.color='rgba(148,163,184,0.35)'; }} style={{
           background:'transparent',border:'1px solid rgba(0,180,180,0.28)',
-          color:'rgba(148,163,184,0.35)',padding:'3px 10px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
+          color:'rgba(148,163,184,0.35)',padding:'6px 14px',borderRadius:3,cursor:'pointer',fontSize:9,letterSpacing:1,
         }}>RESET</button>
       </div>
 
