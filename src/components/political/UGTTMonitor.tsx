@@ -115,7 +115,7 @@ export const UGTTMonitor: React.FC = () => {
           <div className="intel-card p-8 rounded-3xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">New Executive Bureau (2026)</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">New Executive Bureau (2026)</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase">Elected leadership and regional power distribution</p>
               </div>
               <Users className="w-5 h-5 text-intel-cyan opacity-20" />
@@ -130,7 +130,7 @@ export const UGTTMonitor: React.FC = () => {
                     <div key={generateStableKey(reg, i, 'reg')} className="space-y-1">
                       <div className="flex justify-between text-[9px] font-mono">
                         <span className="text-slate-400">{reg.region}</span>
-                        <span className="text-white font-bold">{reg.count} Members</span>
+                        <span className="text-on-surface font-bold">{reg.count} Members</span>
                       </div>
                       <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
                         <div 
@@ -155,7 +155,7 @@ export const UGTTMonitor: React.FC = () => {
                   {newExecutiveBureau.map((member, i) => (
                     <div key={generateStableKey(member, i, 'member')} className="p-3 bg-white/5 rounded-xl border border-white/5 flex justify-between items-center group hover:border-intel-cyan/30 transition-all">
                       <div className="space-y-0.5">
-                        <div className="text-[11px] font-bold text-white group-hover:text-intel-cyan transition-colors">{member.name}</div>
+                        <div className="text-[11px] font-bold text-on-surface group-hover:text-intel-cyan transition-colors">{member.name}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{member.role}</div>
                       </div>
                       <div className="text-right">
@@ -170,7 +170,7 @@ export const UGTTMonitor: React.FC = () => {
 
           <div className="intel-card p-8 rounded-3xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Wage Negotiation Status</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Wage Negotiation Status</h3>
               <BarChart3 className="w-5 h-5 text-intel-cyan opacity-20" />
             </div>
             <div className="overflow-x-auto">
@@ -188,7 +188,7 @@ export const UGTTMonitor: React.FC = () => {
                   {wageNegotiations.map((neg, i) => (
                     <tr key={generateStableKey(neg, i, 'neg')} className="group hover:bg-white/5 transition-colors">
                       <td className="py-4">
-                        <div className="text-xs font-bold text-white">{neg.sector}</div>
+                        <div className="text-xs font-bold text-on-surface">{neg.sector}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{neg.status}</div>
                       </td>
                       <td className="py-4 text-[10px] font-mono text-slate-300">{neg.demand}</td>
@@ -220,7 +220,7 @@ export const UGTTMonitor: React.FC = () => {
                     <div className="flex justify-between text-[10px] font-mono">
                       <span className="text-slate-400">{factor.factor}</span>
                       <div className="space-x-2">
-                        <span className="text-white font-bold">{factor.value}</span>
+                        <span className="text-on-surface font-bold">{factor.value}</span>
                         <span className={cn(
                           "text-[8px]",
                           factor.trend === 'up' ? "text-intel-red" : "text-intel-green"
@@ -253,7 +253,7 @@ export const UGTTMonitor: React.FC = () => {
               </div>
               <div className="pt-4 border-t border-white/5 flex items-center justify-between">
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Leadership Status</div>
-                <div className="text-[10px] font-bold text-white uppercase tracking-widest">Tense / Defensive</div>
+                <div className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Tense / Defensive</div>
               </div>
             </div>
           </div>
@@ -263,7 +263,7 @@ export const UGTTMonitor: React.FC = () => {
         <div className="space-y-8">
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Strike Activity</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Recent Strike Activity</h3>
               <Clock className="w-4 h-4 text-intel-cyan opacity-20" />
             </div>
             <div className="space-y-4">
@@ -271,7 +271,7 @@ export const UGTTMonitor: React.FC = () => {
                 <div key={generateStableKey(strike, i, 'strike')} className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2 group hover:border-intel-cyan/30 transition-all cursor-pointer">
                   <div className="flex justify-between items-start">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white">{strike.sector}</div>
+                      <div className="text-xs font-bold text-on-surface">{strike.sector}</div>
                       <div className="text-[8px] font-mono text-slate-500">{strike.date}</div>
                     </div>
                     <span className={cn(

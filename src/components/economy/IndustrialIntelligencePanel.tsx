@@ -91,7 +91,7 @@ export const IndustrialIntelligencePanel: React.FC = () => {
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">National Ind. Stress</span>
             <Activity className={`w-4 h-4 ${nationalData.national_stress_index > 0.6 ? 'text-intel-red' : 'text-intel-cyan'}`} />
           </div>
-          <div className="text-3xl font-bold font-mono text-white mb-1">
+          <div className="text-3xl font-bold font-mono text-on-surface mb-1">
             {nationalData.national_stress_index.toFixed(3)}
           </div>
           <div className="flex items-center space-x-2 text-[10px] font-mono">
@@ -112,7 +112,7 @@ export const IndustrialIntelligencePanel: React.FC = () => {
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Phosphate Sec. Risk</span>
             <Box className="w-4 h-4 text-intel-orange" />
           </div>
-          <div className="text-3xl font-bold font-mono text-white mb-1">
+          <div className="text-3xl font-bold font-mono text-on-surface mb-1">
             {nationalData.phosphate_national_risk.toFixed(3)}
           </div>
           <div className="flex items-center space-x-2 text-[10px] font-mono">
@@ -127,7 +127,7 @@ export const IndustrialIntelligencePanel: React.FC = () => {
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Energy Stress</span>
             <Zap className={`w-4 h-4 ${nationalData.energy_national_stress > 0.7 ? 'text-intel-red animate-pulse' : 'text-intel-cyan'}`} />
           </div>
-          <div className="text-3xl font-bold font-mono text-white mb-1">
+          <div className="text-3xl font-bold font-mono text-on-surface mb-1">
             {nationalData.energy_national_stress.toFixed(3)}
           </div>
           <div className="flex items-center space-x-2 text-[10px] font-mono">
@@ -140,7 +140,7 @@ export const IndustrialIntelligencePanel: React.FC = () => {
             <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Startup Ecosystem</span>
             <Briefcase className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-3xl font-bold font-mono text-white mb-1">
+          <div className="text-3xl font-bold font-mono text-on-surface mb-1">
             {nationalData.startup_national_health.toFixed(3)}
           </div>
           <div className="flex items-center space-x-2 text-[10px] font-mono">
@@ -171,17 +171,17 @@ export const IndustrialIntelligencePanel: React.FC = () => {
                      }`}
                    >
                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-bold text-white tracking-wide">{gov.governorate}</span>
+                        <span className="text-sm font-bold text-on-surface tracking-wide">{gov.governorate}</span>
                         <span className={`text-[10px] font-mono px-1.5 py-0.5 border rounded ${getStatusBg(gov.risk_flag)} ${getStatusColor(gov.risk_flag)}`}>
                           {gov.risk_flag}
                         </span>
                      </div>
                      <div className="flex items-center justify-between mt-2">
                         <div className="text-[10px] text-slate-500 font-mono">
-                          Stress: <span className="text-white">{gov.industrial_stress_index.toFixed(2)}</span>
+                          Stress: <span className="text-on-surface">{gov.industrial_stress_index.toFixed(2)}</span>
                         </div>
                         <div className="text-[10px] text-slate-500 font-mono">
-                          FDI Vulnerability: <span className="text-white">{gov.export_vulnerability.toFixed(2)}</span>
+                          FDI Vulnerability: <span className="text-on-surface">{gov.export_vulnerability.toFixed(2)}</span>
                         </div>
                      </div>
                    </button>
@@ -204,7 +204,7 @@ export const IndustrialIntelligencePanel: React.FC = () => {
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <h2 className="text-2xl font-bold text-white mb-1">{selectedRegionData.governorate} Sector Analysis</h2>
+                      <h2 className="text-2xl font-bold text-on-surface mb-1">{selectedRegionData.governorate} Sector Analysis</h2>
                       <p className="text-[10px] font-mono text-slate-500">INDUSTRIAL NODE FORENSICS</p>
                     </div>
                     <span className={`px-2 py-1 border rounded text-xs font-bold tracking-wider font-mono ${getStatusBg(selectedRegionData.risk_flag)} ${getStatusColor(selectedRegionData.risk_flag)}`}>
@@ -215,24 +215,24 @@ export const IndustrialIntelligencePanel: React.FC = () => {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                      <div className="bg-black/40 border border-white/10 rounded-lg p-3">
                        <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Emp. Risk</div>
-                       <div className="text-lg font-mono text-white">{selectedRegionData.employment_risk.toFixed(2)}</div>
+                       <div className="text-lg font-mono text-on-surface">{selectedRegionData.employment_risk.toFixed(2)}</div>
                      </div>
                      <div className="bg-black/40 border border-white/10 rounded-lg p-3">
                        <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Export Vuln.</div>
-                       <div className="text-lg font-mono text-white">{selectedRegionData.export_vulnerability.toFixed(2)}</div>
+                       <div className="text-lg font-mono text-on-surface">{selectedRegionData.export_vulnerability.toFixed(2)}</div>
                      </div>
                      <div className="bg-black/40 border border-white/10 rounded-lg p-3">
                        <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Concentration</div>
-                       <div className="text-lg font-mono text-white">{selectedRegionData.sector_concentration_risk.toFixed(2)}</div>
+                       <div className="text-lg font-mono text-on-surface">{selectedRegionData.sector_concentration_risk.toFixed(2)}</div>
                      </div>
                      <div className="bg-black/40 border border-white/10 rounded-lg p-3">
                        <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Energy Stress</div>
-                       <div className="text-lg font-mono text-white">{selectedRegionData.energy_stress.toFixed(2)}</div>
+                       <div className="text-lg font-mono text-on-surface">{selectedRegionData.energy_stress.toFixed(2)}</div>
                      </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="text-xs font-bold text-white flex items-center">
+                    <h4 className="text-xs font-bold text-on-surface flex items-center">
                       <AlertTriangle className="w-4 h-4 mr-2 text-intel-orange" />
                       Active Risk Factors
                     </h4>

@@ -671,28 +671,26 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       newState.active_signals = d.active_signals;
       setRriState(newState);
 
-      // ── Notification: RRI threshold breach ───────────────────────────────
-      if (newState.rri >= 2.625) {
+      // ── Notification: RRI threshold — only fire on CROSSING, not every recalc
+      // rriStateRef.current holds the PREVIOUS state (updated after setRriState)
+      const prevRRI = rriStateRef.current.rri ?? 0;
+      const prevCS  = rriStateRef.current.compound_stress ?? 0;
+
+      if (newState.rri >= 2.625 && prevRRI < 2.625) {
         const rri = newState.rri.toFixed(2);
         addNotification({
           type: 'RRI', priority: 'CRITICAL',
-          title: `RRI Threshold Breached: ${rri}`,
-          message: `Revolution Risk Index at ${rri} — above 2.625 revolution threshold. Velocity: ${newState.velocity_label || 'N/A'}.`,
+          title: `RRI Threshold Crossed: ${rri}`,
+          message: `Revolution Risk Index crossed 2.625 (now ${rri}). P_rev = ${(newState.p_rev * 100).toFixed(1)}%. Velocity: ${newState.velocity_label || 'N/A'}.`,
           action: { label: 'View Risk Model', event: 'navigate-to-methodology' },
         });
-      } else if (newState.compound_stress >= 0.4) {
+      } else if (newState.compound_stress >= 0.4 && prevCS < 0.4) {
         const cs = (newState.compound_stress * 100).toFixed(0);
         addNotification({
           type: 'ALERT', priority: 'HIGH',
-          title: `Compound Stress Elevated: ${cs}%`,
-          message: `Systemic pressure at ${cs}% — multiple indicators exceeding thresholds. P_rev: ${(newState.p_rev * 100).toFixed(1)}%.`,
+          title: `Compound Stress Threshold: ${cs}%`,
+          message: `Systemic pressure crossed 40% (now ${cs}%). P_rev: ${(newState.p_rev * 100).toFixed(1)}%.`,
           action: { label: 'View Analysis', event: 'navigate-to-methodology' },
-        });
-      } else if (newState.rri >= 2.0) {
-        addNotification({
-          type: 'RRI', priority: 'HIGH',
-          title: `RRI Elevated: ${newState.rri.toFixed(2)}`,
-          message: `Risk Index at ${newState.rri.toFixed(2)} — elevated pressure. P_rev: ${(newState.p_rev * 100).toFixed(1)}%.`,
         });
       }
       // ─────────────────────────────────────────────────────────────────────
@@ -933,9 +931,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               priority: 'CRITICAL',
               title: `Bread Crisis Index: ${(summary.bci.BCI * 100).toFixed(0)}% — ${summary.bci.level}`,
               message: `Supply: ${(summary.bci.supply_stress*100).toFixed(0)}% · Price: ${(summary.bci.price_pressure*100).toFixed(0)}% · Public: ${(summary.bci.public_signal*100).toFixed(0)}%`,
-              action_label: 'View AgriIntel',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'agri' },
+              action: { label: 'View AgriIntel', event: 'navigate-main', detail: { tab: 'agri' } },
             });
           }
 
@@ -945,9 +941,7 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               priority: 'HIGH',
               title: `BCI Velocity Alert: +${(summary.bci.velocity * 100).toFixed(0)}% in 7 days`,
               message: 'Bread Crisis Index accelerating. Early warning threshold exceeded.',
-              action_label: 'View AgriIntel',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'agri' },
+              action: { label: 'View AgriIntel', event: 'navigate-main', detail: { tab: 'agri' } },
             });
           }
         } else {
@@ -1095,11 +1089,9 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     addNotification({
       type: 'SHOCK',
       priority: 'CRITICAL',
-      title: `⚡ ${signal.type} SHOCK: ${signal.id}`,
+      title: `${signal.type} SHOCK: ${signal.id}`,
       message: signal.message,
-      action_label: 'View Impact',
-      action_event: 'navigate-main',
-      action_detail: { tab: 'risk' }
+      action: { label: 'View Impact', event: 'navigate-main', detail: { tab: 'risk' } },
     });
 
     setTimeout(() => {
@@ -1118,11 +1110,9 @@ export const PipelineProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     addNotification({
       type: 'SHOCK',
       priority: 'CRITICAL',
-      title: `⚡ PROPAGATION: ${shock.type} SHOCK`,
+      title: `PROPAGATION: ${shock.type} SHOCK`,
       message: shock.message,
-      action_label: 'View Impact',
-      action_event: 'navigate-main',
-      action_detail: { tab: 'alerts' }
+      action: { label: 'View Impact', event: 'navigate-main', detail: { tab: 'alerts' } },
     });
 
     setTimeout(() => {

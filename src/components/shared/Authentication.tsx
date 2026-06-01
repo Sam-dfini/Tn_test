@@ -34,12 +34,13 @@ const CSS = `
   font-size: 12px;
   letter-spacing: 0.05em;
   outline: none;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   border-radius: 1px;
 }
 .ti-field:focus {
   border-color: rgba(0,190,190,0.45);
   background: rgba(0,190,190,0.03);
+  box-shadow: 0 0 0 1px rgba(0,190,190,0.25);
 }
 .ti-field::placeholder { color: rgba(148,163,184,0.35); }
 

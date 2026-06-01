@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from openai import OpenAI
+from openai import AsyncOpenAI
 from pydantic import BaseModel
 from ..core.database import db
 
@@ -33,7 +33,7 @@ class BaseAgent:
             raise ValueError("OPENROUTER_API_KEY environment variable is required")
         
         # Initialize OpenAI client with OpenRouter's base URL
-        self.client = OpenAI(
+        self.client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
             default_headers={
@@ -114,7 +114,7 @@ class BaseAgent:
                 "input": perception["input_data"],
                 "thought": "...", # Could store full thought if needed
                 "output": action_result.content,
-                "timestamp": str(os.getenv("CURRENT_TIME", ""))
+                "timestamp": datetime.now().isoformat()
             }
         }
         
@@ -133,7 +133,7 @@ class BaseAgent:
         await self.learn(perception, action_result)
         return action_result
 
-    async def _call_llm(self, prompt: str, context: Optional[Dict[str, Any]] = None, max_tokens: int = 1000) -> AgentResponse:
+    async def _call_llm(self, prompt: str, context: Optional[Dict[str, Any]] = None, max_tokens: int = 500) -> AgentResponse:
         """
         Low-level execution of an AI model call.
         """
@@ -157,8 +157,10 @@ class BaseAgent:
         except Exception as e:
             error_str = str(e)
             print(f"Agent {self.role} failed: {error_str}")
+            if "402" in error_str or "credits" in error_str.lower():
+                # Insufficient credits — return empty response, do not re-raise
+                return AgentResponse(content="", confidence=0.0)
             if "429" in error_str or "quota" in error_str.lower() or "rate_limit" in error_str.lower():
-                # Re-raise with specific message so API can catch it
                 raise Exception("AI_RATE_LIMIT_EXCEEDED")
             raise e
 

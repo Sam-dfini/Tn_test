@@ -170,7 +170,9 @@ class EmotionalHeatmapEngine:
             for row in tg.data or []:
                 if row.get("text"):
                     texts.append({"text": row["text"], "source": "telegram"})
-        except: pass
+        except Exception:
+
+            pass
 
         # Fetch from RSS articles (with governorate field)
         try:
@@ -183,7 +185,9 @@ class EmotionalHeatmapEngine:
                     if row.get("governorate"):
                         entry["governorate"] = row["governorate"]
                     texts.append(entry)
-        except: pass
+        except Exception:
+
+            pass
 
         result = self.compute(texts)
         self._cache = result

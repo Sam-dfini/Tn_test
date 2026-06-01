@@ -218,7 +218,7 @@ export const IntelligenceBriefPanel: React.FC<{
         {/* Model state strip */}
         <div className="relative z-10 flex items-center space-x-4 flex-wrap gap-2
           text-[8px] font-mono text-slate-600 border-t border-white/5 pt-3">
-          <span>R(t)=<strong className="text-white">{brief.modelState.rri.toFixed(2)}</strong></span>
+          <span>R(t)=<strong className="text-on-surface">{brief.modelState.rri.toFixed(2)}</strong></span>
           <span>P_rev=<strong className={cfg.color}>{(brief.modelState.p_rev*100).toFixed(0)}%</strong></span>
           <span>V={brief.modelState.velocity}</span>
           <span>MII=<strong className={brief.modelState.mii > 0.60 ? 'text-intel-orange' : 'text-slate-400'}>
@@ -325,7 +325,7 @@ export const IntelligenceBriefPanel: React.FC<{
                     {prepareList(brief.keyDevelopments).map((dev: any, i: number) => (
                       <div key={dev.id} className="flex items-start space-x-3">
                         <div className={`mt-0.5 shrink-0 w-4 h-4 rounded-full
-                          border flex items-center justify-center text-[7px]
+                          border flex items-center justify-center text-[9px]
                           font-bold ${
                           dev.severity === 'critical'
                             ? 'border-intel-red/40 text-intel-red'
@@ -515,7 +515,7 @@ export const IntelligenceBriefPanel: React.FC<{
                       )}
                     </div>
                     <div className={`text-[11px] font-medium ${
-                      action.priority === 'IMMEDIATE' ? 'text-white' : 'text-slate-200'
+                      action.priority === 'IMMEDIATE' ? 'text-on-surface' : 'text-slate-200'
                     }`}>{action.action}</div>
                     <div className="text-[9px] text-slate-500 leading-relaxed">
                       {action.rationale}

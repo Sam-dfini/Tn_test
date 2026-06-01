@@ -462,7 +462,7 @@ const AIAdvisor: React.FC<{
             }}
             placeholder={mode.placeholder}
             className="w-full bg-transparent text-[11px] text-slate-200 placeholder-slate-600
-              resize-none outline-none leading-relaxed font-mono"
+              resize-none outline-none focus:ring-1 focus:ring-intel-cyan/30 leading-relaxed font-mono"
             rows={3}
           />
         </div>
@@ -574,7 +574,7 @@ const LocationEngine: React.FC<{ rriState: any }> = ({ rriState }) => {
     <div className="space-y-4">
       <div className="flex items-center space-x-3">
         <MapPin className="w-4 h-4 text-intel-cyan" />
-        <h3 className="text-[11px] font-bold text-white uppercase tracking-widest">
+        <h3 className="text-[11px] font-bold text-on-surface uppercase tracking-widest">
           Smart Location Engine
         </h3>
       </div>
@@ -623,15 +623,15 @@ const LocationEngine: React.FC<{ rriState: any }> = ({ rriState }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
-                  <span className="text-[11px] font-bold text-white">{g.name}</span>
+                  <span className="text-[11px] font-bold text-on-surface">{g.name}</span>
                   {g.recommended && (
-                    <span className="text-[7px] font-mono px-1.5 py-0.5 rounded"
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
                       style={{ background: '#00d4ff18', color: '#00d4ff', border: '1px solid #00d4ff33' }}>
                       RECOMMENDED
                     </span>
                   )}
                   {g.flagged && (
-                    <span className="text-[7px] font-mono px-1.5 py-0.5 rounded"
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
                       style={{ background: '#ff2d5518', color: '#ff2d55', border: '1px solid #ff2d5533' }}>
                       AVOID
                     </span>
@@ -644,7 +644,7 @@ const LocationEngine: React.FC<{ rriState: any }> = ({ rriState }) => {
                     { l: 'INFRA',  v: g.infra,   invert: false },
                   ].map(m => (
                     <div key={m.l} className="flex items-center gap-1">
-                      <span className="text-[7px] font-mono text-slate-600">{m.l}</span>
+                      <span className="text-[9px] font-mono text-slate-600">{m.l}</span>
                       <div className="w-12 h-1.5 bg-slate-900 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full"
@@ -664,7 +664,7 @@ const LocationEngine: React.FC<{ rriState: any }> = ({ rriState }) => {
                   style={{ color: g.flagged ? '#ff2d55' : g.recommended ? '#00d4ff' : '#94a3b8' }}>
                   {Math.round(g.score * 100)}
                 </div>
-                <div className="text-[7px] font-mono text-slate-600">SCORE</div>
+                <div className="text-[9px] font-mono text-slate-600">SCORE</div>
               </div>
             </div>
           </motion.div>
@@ -693,7 +693,7 @@ const SectorDive: React.FC<{ rriState: any; econ: any }> = ({ rriState, econ }) 
     <div className="space-y-5">
       <div className="flex items-center space-x-3">
         <LayoutGrid className="w-4 h-4 text-intel-purple" />
-        <h3 className="text-[11px] font-bold text-white uppercase tracking-widest">
+        <h3 className="text-[11px] font-bold text-on-surface uppercase tracking-widest">
           Sector Intelligence
         </h3>
       </div>
@@ -753,7 +753,7 @@ const SectorDive: React.FC<{ rriState: any; econ: any }> = ({ rriState, econ }) 
                 { l: 'RRI Sensitivity', v: sector.rri_sensitivity, c: sector.rri_sensitivity === 'HIGH' ? '#ff2d55' : sector.rri_sensitivity === 'MEDIUM' ? '#ffd60a' : '#2fd158' },
               ].map(m => (
                 <div key={m.l} className="bg-black/30 p-2 rounded-lg border border-white/5">
-                  <div className="text-[7px] font-mono text-slate-600 mb-0.5">{m.l}</div>
+                  <div className="text-[9px] font-mono text-slate-600 mb-0.5">{m.l}</div>
                   <div className="text-[11px] font-bold font-mono" style={{ color: m.c }}>{m.v}</div>
                 </div>
               ))}
@@ -944,7 +944,7 @@ const MarketOverview: React.FC<{ econ: any; social: any; rriState: any }> = ({
                   <span className="text-[9px] font-bold font-mono" style={{ color: s.color }}>
                     {s.signal}
                   </span>
-                  <span className="text-[7px] font-mono px-1.5 rounded"
+                  <span className="text-[9px] font-mono px-1.5 rounded"
                     style={{ background: `${s.color}18`, color: s.color }}>
                     {s.level}
                   </span>
@@ -1070,7 +1070,7 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
               className="space-y-6"
             >
               <div>
-                <h1 className="text-2xl font-bold text-white uppercase tracking-widest">
+                <h1 className="text-2xl font-bold text-on-surface uppercase tracking-widest">
                   Economic Intelligence Engine
                 </h1>
                 <p className="text-[11px] text-slate-500 mt-1">
@@ -1113,7 +1113,7 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
                         <Icon className="w-5 h-5" style={{ color: mode.color }} />
                       </div>
                       <div>
-                        <div className="text-[13px] font-bold text-white mb-1">
+                        <div className="text-[13px] font-bold text-on-surface mb-1">
                           {mode.label}
                         </div>
                         <div className="text-[10px] text-slate-500">{mode.sublabel}</div>
@@ -1150,7 +1150,7 @@ export const BusinessInvestigator: React.FC<BusinessInvestigatorProps> = ({
                   <activeMode.icon className="w-4 h-4" style={{ color: activeMode.color }} />
                 </div>
                 <div>
-                  <h2 className="text-[14px] font-bold text-white">{activeMode.label}</h2>
+                  <h2 className="text-[14px] font-bold text-on-surface">{activeMode.label}</h2>
                   <div className="text-[9px] text-slate-600">{activeMode.sublabel}</div>
                 </div>
               </div>

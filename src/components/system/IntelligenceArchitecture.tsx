@@ -16,7 +16,7 @@ export const IntelligenceArchitecture: React.FC = () => {
         <div className="flex items-center space-x-3 mb-6 border-b border-intel-border pb-4">
           <GitBranch className="w-5 h-5 text-intel-cyan" />
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest">
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">
               System Data Flow Topology
             </h3>
             <p className="text-[10px] text-slate-500 font-mono mt-1">
@@ -62,7 +62,7 @@ export const IntelligenceArchitecture: React.FC = () => {
               <div className="p-6 rounded-xl border border-intel-cyan/40 bg-intel-cyan/5 flex flex-col items-center justify-center space-y-4 shadow-[0_0_30px_rgba(0,242,255,0.1)]">
                 <Brain className="w-8 h-8 text-intel-cyan" />
                 <div className="text-center">
-                  <div className="text-[12px] font-bold text-white uppercase tracking-wider">RRI Engine</div>
+                  <div className="text-[12px] font-bold text-on-surface uppercase tracking-wider">RRI Engine</div>
                   <div className="text-[9px] text-intel-cyan/70 font-mono mt-1">250 Variables • 24 Equations</div>
                 </div>
               </div>

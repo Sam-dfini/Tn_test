@@ -63,7 +63,7 @@ const VariableRow: React.FC<{
   <tr className="border-b border-intel-border/30 hover:bg-white/5 transition-colors">
     <td className="py-2 px-2 md:px-4 font-mono text-intel-cyan text-[10px] md:text-[11px] whitespace-nowrap">{symbol}</td>
     <td className="py-2 px-2 md:px-4 text-slate-300 text-[10px] md:text-[11px]">{description}</td>
-    <td className="py-2 px-2 md:px-4 font-mono text-white text-[10px] md:text-[11px] font-bold whitespace-nowrap">{currentValue}</td>
+    <td className="py-2 px-2 md:px-4 font-mono text-on-surface text-[10px] md:text-[11px] font-bold whitespace-nowrap">{currentValue}</td>
     <td className="hidden sm:table-cell py-2 px-4 text-slate-500 text-[10px]">{unit}</td>
     <td className="hidden md:table-cell py-2 px-4 text-slate-600 text-[10px]">{source}</td>
     <td className="py-2 px-2 md:px-4 text-[10px]">
@@ -96,7 +96,7 @@ const Section: React.FC<{
       >
         <div className="flex items-center space-x-2 md:space-x-3">
           <div className="text-intel-cyan shrink-0">{icon}</div>
-          <span className="text-xs md:text-sm font-bold text-white uppercase tracking-widest line-clamp-1">{title}</span>
+          <span className="text-xs md:text-sm font-bold text-on-surface uppercase tracking-widest line-clamp-1">{title}</span>
           {badge && (
             <span className={`hidden xs:inline text-[8px] md:text-[9px] font-mono px-1.5 md:px-2 py-0.5 rounded border uppercase text-intel-${badgeColor} border-intel-${badgeColor}/30 bg-intel-${badgeColor}/10`}>
               {badge}
@@ -153,7 +153,7 @@ const EquationCard: React.FC<{
             </span>
           )}
         </div>
-        <h3 className="text-white font-bold text-xs md:text-sm">{title}</h3>
+        <h3 className="text-on-surface font-bold text-xs md:text-sm">{title}</h3>
       </div>
       {currentOutput && (
         <div className="text-left sm:text-right">
@@ -185,7 +185,7 @@ const EquationCard: React.FC<{
               <span className="text-slate-400">{v.meaning}</span>
               <div className="flex items-center ml-0 sm:ml-auto shrink-0 space-x-2">
                 {v.value && (
-                  <span className="text-white font-mono">{v.value}</span>
+                  <span className="text-on-surface font-mono">{v.value}</span>
                 )}
                 {v.calibrated && (
                   <span className="text-[8px] md:text-[9px] text-intel-orange">(calibrated)</span>
@@ -264,7 +264,7 @@ const ArchitectureHierarchyDiagram: React.FC = () => {
                 {tier.label}
               </div>
               <div className="absolute right-0 top-2 bottom-2 w-3 border-y border-l border-intel-cyan/30 rounded-l-xl bg-intel-cyan/5" />
-              <div className="absolute -right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap z-20 shadow-lg">
+              <div className="absolute -right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap z-20 shadow-lg">
                 {tier.id} tier
               </div>
             </div>
@@ -293,7 +293,7 @@ const ArchitectureHierarchyDiagram: React.FC = () => {
                 <div className="flex items-center gap-3 w-full">
                   <layer.icon className="w-4 h-4 shrink-0" style={{ color: layer.color }} />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-bold text-white truncate uppercase tracking-wider">{layer.label}</h3>
+                    <h3 className="text-xs font-bold text-on-surface truncate uppercase tracking-wider">{layer.label}</h3>
                     <p className="text-[9px] text-slate-500 truncate font-mono">{layer.sub}</p>
                   </div>
                   {index < layers.length - 1 && (
@@ -369,7 +369,7 @@ const ArchitectureHierarchyDiagram: React.FC = () => {
                   <div className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest">
                     {layers[hoveredLayer].tier} Tier Layer
                   </div>
-                  <div className="text-lg font-bold text-white leading-tight">
+                  <div className="text-lg font-bold text-on-surface leading-tight">
                     {layers[hoveredLayer].label.split(' (')[0]}
                   </div>
                 </div>
@@ -401,7 +401,7 @@ const ArchitectureHierarchyDiagram: React.FC = () => {
               <div className="w-16 h-16 rounded-full bg-intel-cyan/10 flex items-center justify-center mx-auto mb-4">
                 <Layers className="w-8 h-8 text-intel-cyan/50" />
               </div>
-              <h3 className="text-sm font-bold text-white mb-2 uppercase tracking-widest">System Architecture</h3>
+              <h3 className="text-sm font-bold text-on-surface mb-2 uppercase tracking-widest">System Architecture</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 The platform follows a strictly tiered architectural pattern. Data flows from the Core Tier (Bottom) through analytic processing to the Synthesis Tier (Top).
               </p>
@@ -888,7 +888,7 @@ const RRIEngineDiagram: React.FC<{ rriState: any }> = ({ rriState }) => {
             animate={{ opacity: 1, y: 0 }}
             className="text-[11px] text-intel-cyan font-mono"
           >
-            <span className="text-white font-bold mr-2">{hoveredEq}:</span>
+            <span className="text-on-surface font-bold mr-2">{hoveredEq}:</span>
             {EQ_DESC[hoveredEq] || 'Equation in the RRI model'}
           </motion.div>
         ) : (
@@ -1116,7 +1116,7 @@ const NodeNetworkDiagram: React.FC = () => {
                     {layer.status}
                   </span>
                 </div>
-                <div className="text-[11px] font-bold text-white uppercase">
+                <div className="text-[11px] font-bold text-on-surface uppercase">
                   {layer.title}
                 </div>
                 <div className="text-[9px] text-slate-500">
@@ -1192,6 +1192,13 @@ export const RRIMethodology: React.FC<{
     }
   }, [jumpToEquation]);
 
+  useEffect(() => {
+    if (inline) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape' && onClose) onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [inline, onClose]);
+
   const navItems = [
     { id: 'architecture', label: 'Platform Architecture' },
     { id: 'overview', label: 'Overview' },
@@ -1216,14 +1223,14 @@ export const RRIMethodology: React.FC<{
       initial={inline ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
       animate={inline ? { opacity: 1 } : { opacity: 1, scale: 1 }}
       exit={inline ? { opacity: 0 } : { opacity: 0, scale: 0.95 }}
-      className={inline ? "h-full flex flex-col bg-transparent overflow-hidden" : "fixed inset-0 z-[300] bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"}
+      className={inline ? "h-full flex flex-col bg-transparent overflow-hidden" : "fixed inset-0 z-modal bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"}
     >
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-8 py-3 md:py-4 border-b border-intel-border bg-black/60 shrink-0 gap-3 md:gap-0">
         <div className="flex items-center space-x-3 md:space-x-4 w-full md:w-auto">
           <BookOpen className="w-5 h-5 text-intel-cyan shrink-0" />
           <div className="min-w-0">
-            <div className="text-xs md:text-sm font-bold text-white uppercase tracking-widest truncate">
+            <div className="text-xs md:text-sm font-bold text-on-surface uppercase tracking-widest truncate">
               RRI Methodology
             </div>
             <div className="text-[8px] md:text-[9px] font-mono text-slate-500 truncate">
@@ -1354,7 +1361,7 @@ export const RRIMethodology: React.FC<{
             <div className="flex items-center space-x-4 mb-8">
               <Activity className="w-6 h-6 text-intel-cyan" />
               <div>
-                <h1 className="text-xl font-bold text-white uppercase
+                <h1 className="text-xl font-bold text-on-surface uppercase
                   tracking-widest">Platform Architecture</h1>
                 <p className="text-[10px] text-slate-500 mt-1">
                   How data flows from sources to intelligence outputs.
@@ -1371,7 +1378,7 @@ export const RRIMethodology: React.FC<{
               <div className="flex items-center space-x-3 border-b
                 border-intel-border pb-4">
                 <Layers className="w-4 h-4 text-intel-cyan" />
-                <h2 className="text-sm font-bold text-white uppercase
+                <h2 className="text-sm font-bold text-on-surface uppercase
                   tracking-widest">Platform Architecture Hierarchy</h2>
                 <span className="text-[9px] font-mono text-slate-600 ml-auto">
                   From Variables to AI Synthesis
@@ -1389,7 +1396,7 @@ export const RRIMethodology: React.FC<{
               <div className="flex items-center space-x-3 border-b
                 border-intel-border pb-4">
                 <Database className="w-4 h-4 text-intel-cyan" />
-                <h2 className="text-sm font-bold text-white uppercase
+                <h2 className="text-sm font-bold text-on-surface uppercase
                   tracking-widest">Diagram 1 — Intelligence Data Flow</h2>
                 <span className="text-[9px] font-mono text-slate-600 ml-auto">
                   From source to R(t)
@@ -1407,7 +1414,7 @@ export const RRIMethodology: React.FC<{
               <div className="flex items-center space-x-3 border-b
                 border-intel-border pb-4">
                 <Brain className="w-4 h-4 text-intel-cyan" />
-                <h2 className="text-sm font-bold text-white uppercase
+                <h2 className="text-sm font-bold text-on-surface uppercase
                   tracking-widest">Diagram 2 — RRI Engine Internals</h2>
                 <span className="text-[9px] font-mono text-slate-600 ml-auto">
                   20 equations, 251+ variables
@@ -1425,7 +1432,7 @@ export const RRIMethodology: React.FC<{
               <div className="flex items-center space-x-3 border-b
                 border-intel-border pb-4">
                 <Globe className="w-4 h-4 text-intel-cyan" />
-                <h2 className="text-sm font-bold text-white uppercase
+                <h2 className="text-sm font-bold text-on-surface uppercase
                   tracking-widest">Diagram 3 — Citizen Node Network</h2>
                 <span className="text-[9px] font-mono text-intel-orange ml-auto">
                   Roadmap — Coming Soon
@@ -1441,7 +1448,7 @@ export const RRIMethodology: React.FC<{
           <div id="overview" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Activity className="w-6 h-6 text-intel-cyan" />
-              <h1 className="text-xl font-bold text-white uppercase tracking-widest">Model Overview</h1>
+              <h1 className="text-xl font-bold text-on-surface uppercase tracking-widest">Model Overview</h1>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8">
@@ -1473,14 +1480,14 @@ export const RRIMethodology: React.FC<{
                     <div className="flex items-start space-x-2 md:space-x-3">
                       <code className="text-intel-cyan font-mono text-[10px] md:text-[11px] min-w-[50px] md:min-w-[60px]">{o.symbol}</code>
                       <div>
-                        <div className="text-[10px] md:text-[11px] text-white">{o.name}</div>
+                        <div className="text-[10px] md:text-[11px] text-on-surface">{o.name}</div>
                         <div className="text-[9px] md:text-[10px] text-slate-600 line-clamp-1">{o.desc}</div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 md:space-x-2 shrink-0">
-                      <span className="text-[10px] md:text-[11px] font-mono font-bold text-white">{o.value}</span>
+                      <span className="text-[10px] md:text-[11px] font-mono font-bold text-on-surface">{o.value}</span>
                       {!o.paper && (
-                        <span className="text-[7px] md:text-[8px] text-intel-orange border border-intel-orange/20 px-1 rounded">EXT</span>
+                        <span className="text-[9px] md:text-[8px] text-intel-orange border border-intel-orange/20 px-1 rounded">EXT</span>
                       )}
                     </div>
                   </div>
@@ -1505,7 +1512,7 @@ export const RRIMethodology: React.FC<{
                 ].map(item => (
                   <div key={item.label} className="flex justify-between text-[10px] md:text-[11px]">
                     <span className="text-slate-500">{item.label}</span>
-                    <span className="text-white font-mono">{item.value}</span>
+                    <span className="text-on-surface font-mono">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -1528,7 +1535,7 @@ export const RRIMethodology: React.FC<{
           <div id="equations-paper" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Brain className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Core Equations — Samir Dni (2025)</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Core Equations — Samir Dni (2025)</h2>
             </div>
 
             <div id="eq-1" className="scroll-mt-20">
@@ -1705,7 +1712,7 @@ export const RRIMethodology: React.FC<{
           <div id="equations-ext" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-2">
               <Zap className="w-6 h-6 text-intel-orange" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Extension Equations — TUNISIAINTEL</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Extension Equations — TUNISIAINTEL</h2>
             </div>
             <p className="text-slate-500 text-xs mb-6">These 9 equations extend the Samir Dni (2025) framework.</p>
 
@@ -1875,7 +1882,7 @@ export const RRIMethodology: React.FC<{
               <div className="flex items-center space-x-3 mb-4">
                 <Layers className="w-5 h-5 text-intel-orange" />
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Supporting Parameters &amp; Sub-Engines</h3>
+                  <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Supporting Parameters &amp; Sub-Engines</h3>
                   <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Parameterised sub-models feeding into core equations</p>
                 </div>
               </div>
@@ -1954,7 +1961,7 @@ export const RRIMethodology: React.FC<{
             <div className="flex items-center space-x-4 mb-6">
               <Triangle className="w-6 h-6 text-purple-400" />
               <div>
-                <h2 className="text-lg font-bold text-white uppercase tracking-widest">Triarchical Recursive Governance Matrix</h2>
+                <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Triarchical Recursive Governance Matrix</h2>
                 <p className="text-[10px] text-slate-500 mt-1">
                   TUNISIAINTEL extension — Governance Stability Index, lateral coupling, and cascade simulation
                 </p>
@@ -2083,7 +2090,7 @@ export const RRIMethodology: React.FC<{
                 ].map(item => (
                   <div key={item.label} className="bg-black/30 rounded-lg p-2 border border-white/5">
                     <div className="text-[8px] font-mono text-slate-600 uppercase">{item.label}</div>
-                    <div className="text-[10px] font-mono text-white mt-0.5">{item.value}</div>
+                    <div className="text-[10px] font-mono text-on-surface mt-0.5">{item.value}</div>
                   </div>
                 ))}
               </div>
@@ -2094,7 +2101,7 @@ export const RRIMethodology: React.FC<{
           <div id="variables" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Database className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">All 251+ Variables — 24 Categories</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">All 251+ Variables — 24 Categories</h2>
             </div>
 
             {[
@@ -2159,13 +2166,13 @@ export const RRIMethodology: React.FC<{
           <div id="montecarlo" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Dices className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Monte Carlo Simulation</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Monte Carlo Simulation</h2>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  The RRI Engine uses a robust Monte Carlo framework to generate confidence intervals and assess the stability of the current risk assessment. By simulating {rriState.simulations_run.toLocaleString()} possible states, we can identify if the current <span className="text-white font-medium">P(rev)</span> is a stable equilibrium or a highly volatile outlier.
+                  The RRI Engine uses a robust Monte Carlo framework to generate confidence intervals and assess the stability of the current risk assessment. By simulating {rriState.simulations_run.toLocaleString()} possible states, we can identify if the current <span className="text-on-surface font-medium">P(rev)</span> is a stable equilibrium or a highly volatile outlier.
                 </p>
                 
                 <div className="bg-black/30 border border-intel-border rounded-xl p-6 space-y-4">
@@ -2201,7 +2208,7 @@ export const RRIMethodology: React.FC<{
                   <Dices className="w-10 h-10 text-intel-cyan" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white mb-2 uppercase tracking-widest">Live Simulation Engine</h3>
+                  <h3 className="text-sm font-bold text-on-surface mb-2 uppercase tracking-widest">Live Simulation Engine</h3>
                   <p className="text-slate-500 text-[10px] max-w-xs mx-auto">
                     The Monte Carlo engine is integrated directly into the RRI pipeline, recalculating on every data update.
                   </p>
@@ -2209,11 +2216,11 @@ export const RRIMethodology: React.FC<{
                 <div className="grid grid-cols-2 gap-4 w-full">
                   <div className="bg-black/50 rounded-lg p-4 border border-intel-border/30">
                     <div className="text-[9px] text-slate-600 uppercase mb-1">Runs</div>
-                    <div className="text-lg font-mono text-white">{rriState.simulations_run.toLocaleString()}</div>
+                    <div className="text-lg font-mono text-on-surface">{rriState.simulations_run.toLocaleString()}</div>
                   </div>
                   <div className="bg-black/50 rounded-lg p-4 border border-intel-border/30">
                     <div className="text-[9px] text-slate-600 uppercase mb-1">Confidence</div>
-                    <div className="text-lg font-mono text-white">95%</div>
+                    <div className="text-lg font-mono text-on-surface">95%</div>
                   </div>
                 </div>
                 <div className="w-full pt-4 border-t border-intel-border/30">
@@ -2243,10 +2250,10 @@ export const RRIMethodology: React.FC<{
           <div id="engines" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Brain className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Engines</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Engines</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The platform is powered by <span className="text-white font-medium">30 analytical engines</span> that span the full intelligence pipeline —
+              The platform is powered by <span className="text-on-surface font-medium">30 analytical engines</span> that span the full intelligence pipeline —
               from raw signal ingestion and credibility scoring to risk computation, scenario simulation, and strategic briefing.
             </p>
 
@@ -2333,7 +2340,7 @@ export const RRIMethodology: React.FC<{
               <div key={group.category} className="mb-6">
                 <div className="flex items-center gap-3 mb-3">
                   <group.icon className="w-4 h-4" style={{ color: group.color }} />
-                  <h3 className="text-[11px] font-bold text-white uppercase tracking-widest">{group.category}</h3>
+                  <h3 className="text-[11px] font-bold text-on-surface uppercase tracking-widest">{group.category}</h3>
                   <div className="h-px flex-1 bg-gradient-to-r" style={{ backgroundImage: `linear-gradient(to right, ${group.color}30, transparent)` }} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -2350,8 +2357,8 @@ export const RRIMethodology: React.FC<{
                         }}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-bold text-white uppercase tracking-wider">{engine.name}</span>
-                          <span className="text-[7px] font-mono px-1.5 py-0.5 rounded uppercase font-bold"
+                          <span className="text-[10px] font-bold text-on-surface uppercase tracking-wider">{engine.name}</span>
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded uppercase font-bold"
                             style={{
                               color: statusColor,
                               backgroundColor: statusBg,
@@ -2360,7 +2367,7 @@ export const RRIMethodology: React.FC<{
                           >{engine.status}</span>
                         </div>
                         <p className="text-[9px] text-slate-500 leading-relaxed mb-2">{engine.desc}</p>
-                        <div className="text-[7px] font-mono text-slate-700 truncate">{engine.file}</div>
+                        <div className="text-[9px] font-mono text-slate-700 truncate">{engine.file}</div>
                       </div>
                     );
                   })}
@@ -2372,22 +2379,22 @@ export const RRIMethodology: React.FC<{
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-intel-border/30">
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Stochastic Shock</div>
-                <div className="text-lg font-mono text-white font-bold">{rriState.stochastic_shock.toFixed(4)}</div>
+                <div className="text-lg font-mono text-on-surface font-bold">{rriState.stochastic_shock.toFixed(4)}</div>
                 <div className="text-[9px] text-slate-500">Current ε(t) from EQ.13</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Active Signals</div>
-                <div className="text-lg font-mono text-white font-bold">{data?.active_signals?.length || 0}</div>
+                <div className="text-lg font-mono text-on-surface font-bold">{data?.active_signals?.length || 0}</div>
                 <div className="text-[9px] text-slate-500">Shocks injected via pipeline</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Engines Live</div>
-                <div className="text-lg font-mono text-white font-bold">22</div>
+                <div className="text-lg font-mono text-on-surface font-bold">22</div>
                 <div className="text-[9px] text-slate-500">Of 30 total deployed</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Signal Credibility</div>
-                <div className="text-lg font-mono text-white font-bold">{rriState.model_confidence ? (rriState.model_confidence * 100).toFixed(0) + '%' : 'N/A'}</div>
+                <div className="text-lg font-mono text-on-surface font-bold">{rriState.model_confidence ? (rriState.model_confidence * 100).toFixed(0) + '%' : 'N/A'}</div>
                 <div className="text-[9px] text-slate-500">Aggregate model confidence</div>
               </div>
             </div>
@@ -2397,10 +2404,10 @@ export const RRIMethodology: React.FC<{
           <div id="deliberation" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <MessageSquare className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Phase 6: Deliberation Engine</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Phase 6: Deliberation Engine</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The Deliberation Engine is the core of the <span className="text-white font-medium">High Table</span> —
+              The Deliberation Engine is the core of the <span className="text-on-surface font-medium">High Table</span> —
               a structured multi-actor deliberation system that computes decision probability distributions
               from actor profiles, live signals, and doctrine context. When a crisis signal fires or an
               analyst injects a scenario, the engine convenes relevant actors, generates structured
@@ -2459,19 +2466,19 @@ export const RRIMethodology: React.FC<{
             {/* Key Metrics */}
             <div className="grid grid-cols-4 gap-3 mb-6">
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">8</div>
+                <div className="text-lg font-mono text-on-surface font-bold">8</div>
                 <div className="text-[9px] text-slate-500">Max actors at table</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">4</div>
+                <div className="text-lg font-mono text-on-surface font-bold">4</div>
                 <div className="text-[9px] text-slate-500">Resolution types</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">6</div>
+                <div className="text-lg font-mono text-on-surface font-bold">6</div>
                 <div className="text-[9px] text-slate-500">Opposition pairs</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">11</div>
+                <div className="text-lg font-mono text-on-surface font-bold">11</div>
                 <div className="text-[9px] text-slate-500">Actor profiles</div>
               </div>
             </div>
@@ -2489,10 +2496,10 @@ export const RRIMethodology: React.FC<{
           <div id="simulation-chamber" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Cpu className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Phase 7: Simulation Chamber</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Phase 7: Simulation Chamber</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The Simulation Chamber answers one question: <span className="text-white font-medium">"What happens next if
+              The Simulation Chamber answers one question: <span className="text-on-surface font-medium">"What happens next if
               decision X is taken — or if shock Y occurs?"</span> It forks from the canonical state snapshot, injects a
               shock or policy decision, propagates effects through causal chains (Phase 2), runs actor responses through
               the deliberation engine (Phase 6), and advances the state forward in discrete time steps. Monte Carlo
@@ -2548,19 +2555,19 @@ export const RRIMethodology: React.FC<{
             {/* Key Metrics */}
             <div className="grid grid-cols-4 gap-3 mb-6">
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">13</div>
+                <div className="text-lg font-mono text-on-surface font-bold">13</div>
                 <div className="text-[9px] text-slate-500">Pre-built scenarios</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">1,000</div>
+                <div className="text-lg font-mono text-on-surface font-bold">1,000</div>
                 <div className="text-[9px] text-slate-500">MC iterations</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">9</div>
+                <div className="text-lg font-mono text-on-surface font-bold">9</div>
                 <div className="text-[9px] text-slate-500">Causal chains</div>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-center">
-                <div className="text-lg font-mono text-white font-bold">6</div>
+                <div className="text-lg font-mono text-on-surface font-bold">6</div>
                 <div className="text-[9px] text-slate-500">Historical analogues</div>
               </div>
             </div>
@@ -2578,10 +2585,10 @@ export const RRIMethodology: React.FC<{
           <div id="actor-regime" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Users className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Actor &amp; Regime Modeling</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Actor &amp; Regime Modeling</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The RRI model measures <span className="text-white font-medium">structural risk</span>, but structural risk alone does not
+              The RRI model measures <span className="text-on-surface font-medium">structural risk</span>, but structural risk alone does not
               produce revolution. The critical bridge is <span className="text-intel-cyan">actor coordination</span> and
               <span className="text-intel-cyan"> regime response</span>. These two layers explain whether high R(t) translates
               into diffuse unrest (current Tunisia) or systemic rupture (2011).
@@ -2593,7 +2600,7 @@ export const RRIMethodology: React.FC<{
                 <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-intel-cyan" />
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Opposition Actor Network</h3>
+                    <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Opposition Actor Network</h3>
                   </div>
                   <p className="text-[10px] text-slate-400 leading-relaxed">
                     7 actor clusters mapped by alignment, reach, frame alignment, coordination score,
@@ -2652,7 +2659,7 @@ export const RRIMethodology: React.FC<{
                 <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-intel-orange" />
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Government Agent (GovAgent)</h3>
+                    <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Government Agent (GovAgent)</h3>
                   </div>
                   <p className="text-[10px] text-slate-400 leading-relaxed">
                     A deterministic cognitive model of the Saied regime with four layers:
@@ -2684,7 +2691,7 @@ export const RRIMethodology: React.FC<{
                   ].map(s => (
                     <div key={s.label} className="bg-black/40 border border-intel-border rounded-lg p-3">
                       <div className="text-[8px] font-mono text-slate-500 uppercase">{s.label}</div>
-                      <div className="text-sm font-mono text-white font-bold">{s.value}</div>
+                      <div className="text-sm font-mono text-on-surface font-bold">{s.value}</div>
                       <div className="text-[8px] text-slate-600">{s.sub}</div>
                     </div>
                   ))}
@@ -2696,7 +2703,7 @@ export const RRIMethodology: React.FC<{
                     <span className="text-[10px] font-bold text-intel-orange uppercase">Analytical Insight</span>
                   </div>
                   <p className="text-[10px] text-slate-300 leading-relaxed">
-                    The GovAgent's <span className="text-white font-medium">brain-mouth divergence score</span> is a leading indicator
+                    The GovAgent's <span className="text-on-surface font-medium">brain-mouth divergence score</span> is a leading indicator
                     of regime fragility. When the regime's narrative (anti-corruption) contradicts its actions (purge of anti-corruption
                     figures), credibility erodes and the opposition coordination opportunity window opens.
                   </p>
@@ -2708,17 +2715,17 @@ export const RRIMethodology: React.FC<{
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Opposition Coordination Index</div>
-                <div className="text-lg font-mono text-white font-bold">{(rriState.oci || 0.22).toFixed(2)}</div>
+                <div className="text-lg font-mono text-on-surface font-bold">{(rriState.oci || 0.22).toFixed(2)}</div>
                 <div className="text-[9px] text-slate-500">OCI — 0.22 = diffuse, 0.80+ = rupture-capable</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Actor Clusters Tracked</div>
-                <div className="text-lg font-mono text-white font-bold">7</div>
+                <div className="text-lg font-mono text-on-surface font-bold">7</div>
                 <div className="text-[9px] text-slate-500">UGTT, NGO, Secular, Islamist, HR, Youth, Business</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Effective Salience</div>
-                <div className="text-lg font-mono text-white font-bold">{(rriState.salience_effective || 0).toFixed(3)}</div>
+                <div className="text-lg font-mono text-on-surface font-bold">{(rriState.salience_effective || 0).toFixed(3)}</div>
                 <div className="text-[9px] text-slate-500">S(t) × (0.4 + 0.6 × OCI) — the real mobilisation driver</div>
               </div>
             </div>
@@ -2728,11 +2735,11 @@ export const RRIMethodology: React.FC<{
           <div id="pipeline" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Activity className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Intelligence Pipeline</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Intelligence Pipeline</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
-              The equations and engines describe the <span className="text-white font-medium">what</span> of intelligence.
-              The Pipeline describes the <span className="text-white font-medium">how</span> — the runtime orchestration
+              The equations and engines describe the <span className="text-on-surface font-medium">what</span> of intelligence.
+              The Pipeline describes the <span className="text-on-surface font-medium">how</span> — the runtime orchestration
               that ingests raw data, runs every engine in dependency order, and produces the outputs,
               alerts, and briefs that analysts actually use.
             </p>
@@ -2879,7 +2886,7 @@ export const RRIMethodology: React.FC<{
                   'WebSocket Broadcast', 'State Snapshot', 'Prediction Eval', 'Audit Log',
                 ].map((step, i) => (
                   <div key={step} className="flex items-center gap-1.5 p-1.5 rounded bg-black/40 border border-intel-border/20">
-                    <span className="text-[7px] font-mono text-slate-600 min-w-[14px]">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="text-[9px] font-mono text-slate-600 min-w-[14px]">{String(i + 1).padStart(2, '0')}</span>
                     <span className="text-slate-300 truncate">{step}</span>
                   </div>
                 ))}
@@ -2891,11 +2898,11 @@ export const RRIMethodology: React.FC<{
           <div id="learning" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <TrendingUp className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Learning &amp; Validation</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Learning &amp; Validation</h2>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed mb-6">
               A model that cannot be wrong cannot improve. The platform implements a
-              <span className="text-white font-medium"> falsifiable prediction framework</span> — every model output
+              <span className="text-on-surface font-medium"> falsifiable prediction framework</span> — every model output
               is converted into time-bounded, binary predictions that are tracked, evaluated, and
               used to calibrate accuracy across variables, horizons, and RRI regimes.
             </p>
@@ -2906,7 +2913,7 @@ export const RRIMethodology: React.FC<{
                 <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-intel-green" />
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Prediction Ledger</h3>
+                    <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Prediction Ledger</h3>
                   </div>
                   <p className="text-[10px] text-slate-400 leading-relaxed">
                     15 prediction variables organized across 4 time horizons (7/14/30/60 days).
@@ -2956,7 +2963,7 @@ export const RRIMethodology: React.FC<{
                 <div className="bg-black/30 border border-intel-border rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-intel-orange" />
-                    <h3 className="text-[10px] font-bold text-white uppercase tracking-wider">Learning Loop</h3>
+                    <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Learning Loop</h3>
                   </div>
                   <div className="space-y-3">
                     {[
@@ -2968,7 +2975,7 @@ export const RRIMethodology: React.FC<{
                     ].map(item => (
                       <div key={item.step} className="flex items-start gap-3 py-1.5 border-b border-intel-border/10 last:border-0">
                         <div className="w-4 h-4 rounded-full bg-intel-orange/20 border border-intel-orange/30 flex items-center justify-center shrink-0 mt-0.5">
-                          <span className="text-[7px] font-mono text-intel-orange font-bold">{item.step}</span>
+                          <span className="text-[9px] font-mono text-intel-orange font-bold">{item.step}</span>
                         </div>
                         <div>
                           <span className="text-[10px] text-slate-200 font-medium">{item.label}</span>
@@ -2985,7 +2992,7 @@ export const RRIMethodology: React.FC<{
                     <span className="text-[10px] font-bold text-intel-green uppercase">Design Principle</span>
                   </div>
                   <p className="text-[10px] text-slate-300 leading-relaxed">
-                    <span className="text-white font-medium">"Honest accuracy"</span> — the system tracks base rates and does not
+                    <span className="text-on-surface font-medium">"Honest accuracy"</span> — the system tracks base rates and does not
                     allow the model to claim performance above what naive prediction would achieve.
                     If unrest is at 23 events/month and the model predicts "protests exceed 30"
                     every day, its accuracy is compared against a naive "always predict 23" baseline.
@@ -2999,22 +3006,22 @@ export const RRIMethodology: React.FC<{
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Prediction Variables</div>
-                <div className="text-lg font-mono text-white font-bold">15</div>
+                <div className="text-lg font-mono text-on-surface font-bold">15</div>
                 <div className="text-[9px] text-slate-500">Falsifiable binary targets</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Time Horizons</div>
-                <div className="text-lg font-mono text-white font-bold">4</div>
+                <div className="text-lg font-mono text-on-surface font-bold">4</div>
                 <div className="text-[9px] text-slate-500">7d / 14d / 30d / 60d</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Brier Score Range</div>
-                <div className="text-lg font-mono text-white font-bold">0.0 – 1.0</div>
+                <div className="text-lg font-mono text-on-surface font-bold">0.0 – 1.0</div>
                 <div className="text-[9px] text-slate-500">0.0 = perfect calibration</div>
               </div>
               <div className="bg-black/30 border border-intel-border rounded-xl p-4">
                 <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-wider mb-1">Validation Mode</div>
-                <div className="text-lg font-mono text-white font-bold">Human-in-loop</div>
+                <div className="text-lg font-mono text-on-surface font-bold">Human-in-loop</div>
                 <div className="text-[9px] text-slate-500">No automatic weight updates</div>
               </div>
             </div>
@@ -3024,7 +3031,7 @@ export const RRIMethodology: React.FC<{
           <div id="calibration" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <BarChart3 className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Calibration</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Calibration</h2>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
@@ -3040,7 +3047,7 @@ export const RRIMethodology: React.FC<{
                     <span className="text-slate-400">{item.param}</span>
                     <div className="flex items-center space-x-3">
                       <span className="text-slate-600">{item.target}</span>
-                      <span className="text-white font-mono">{item.actual}</span>
+                      <span className="text-on-surface font-mono">{item.actual}</span>
                       <span className={item.match ? 'text-intel-cyan' : 'text-intel-red'}>{item.match ? '✓' : '✗'}</span>
                     </div>
                   </div>
@@ -3053,7 +3060,7 @@ export const RRIMethodology: React.FC<{
           <div id="performance" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <TrendingUp className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Model Performance</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Model Performance</h2>
             </div>
 
             <div className="space-y-8">
@@ -3065,14 +3072,14 @@ export const RRIMethodology: React.FC<{
                 ].map((stat) => (
                   <div key={stat.label} className="bg-black/30 border border-intel-border p-6 rounded-xl">
                     <div className="text-[9px] text-slate-500 uppercase mb-1">{stat.label}</div>
-                    <div className="text-2xl font-bold text-white mb-2">{stat.value}</div>
+                    <div className="text-2xl font-bold text-on-surface mb-2">{stat.value}</div>
                     <p className="text-[10px] text-slate-500">{stat.desc}</p>
                   </div>
                 ))}
               </div>
 
               <div className="bg-black/30 border border-intel-border rounded-xl p-8">
-                <h4 className="text-sm font-bold text-white mb-4 uppercase tracking-widest">Validation Methodology</h4>
+                <h4 className="text-sm font-bold text-on-surface mb-4 uppercase tracking-widest">Validation Methodology</h4>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                   <div className="space-y-4">
                     <p className="text-slate-400 text-[11px] leading-relaxed">
@@ -3108,7 +3115,7 @@ export const RRIMethodology: React.FC<{
           <div id="limitations" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <AlertTriangle className="w-6 h-6 text-intel-orange" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Limitations & Assumptions</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Limitations & Assumptions</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -3154,7 +3161,7 @@ export const RRIMethodology: React.FC<{
           <div id="bibliography" className="scroll-mt-8 mb-10">
             <div className="flex items-center space-x-4 mb-6">
               <Globe className="w-6 h-6 text-intel-cyan" />
-              <h2 className="text-lg font-bold text-white uppercase tracking-widest">Bibliography & Data Sources</h2>
+              <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">Bibliography & Data Sources</h2>
             </div>
 
             <div className="space-y-3">

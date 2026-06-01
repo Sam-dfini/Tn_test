@@ -464,7 +464,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
                 {(['2024', '2025'] as const).map(year => (
                   <div key={year} className="glass rounded-2xl border border-intel-border overflow-hidden">
                     <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-white font-bold uppercase">
+                      <span className="text-[10px] font-mono text-on-surface font-bold uppercase">
                         Tunisia Green Cover — {year}
                       </span>
                       <span className="text-[8px] font-mono text-slate-600">Mar–May {year} · Sentinel-2</span>
@@ -476,7 +476,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
                         const count = GOVERNORATE_NDVI.filter(g => g[`class_${year}`] === cls).length;
                         return (
                           <div key={cls} className="text-center">
-                            <div className="text-[7px] font-mono uppercase" style={{ color: NDVI_COLORS[cls] }}>{cls}</div>
+                            <div className="text-[9px] font-mono uppercase" style={{ color: NDVI_COLORS[cls] }}>{cls}</div>
                             <div className="text-[11px] font-bold font-mono" style={{ color: NDVI_COLORS[cls] }}>{count}</div>
                           </div>
                         );
@@ -494,7 +494,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
                     <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-4 h-4 rounded-sm" style={{ backgroundColor: NDVI_COLORS[selectedData.class_2025] }} />
-                        <span className="text-sm font-bold text-white">{selectedData.name}</span>
+                        <span className="text-sm font-bold text-on-surface">{selectedData.name}</span>
                         <span className="text-[9px] font-mono text-slate-600 uppercase">{selectedData.zone} zone · {selectedData.primary_crops}</span>
                       </div>
                       <button onClick={() => setSelectedGov(null)} className="text-slate-600 hover:text-white text-[9px] font-mono">× close</button>
@@ -596,7 +596,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
                   ].map((s, i) => (
                     <div key={i} className="flex items-start gap-3 py-1.5 border-b border-white/5 last:border-0">
                       <span className="text-slate-600 w-8 shrink-0">{s.lag}</span>
-                      <span className="text-white w-52 shrink-0">{s.step}</span>
+                      <span className="text-on-surface w-52 shrink-0">{s.step}</span>
                       <span className={s.color}>→ {s.outcome}</span>
                     </div>
                   ))}
@@ -629,7 +629,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
                         return (
                           <tr key={i} className={cn('hover:bg-white/[0.02] cursor-pointer', selectedGov === g.id ? 'bg-white/[0.04]' : '')}
                             onClick={() => setSelectedGov(selectedGov === g.id ? null : g.id)}>
-                            <td className="px-3 py-2 text-[10px] font-mono font-bold text-white">{g.name}</td>
+                            <td className="px-3 py-2 text-[10px] font-mono font-bold text-on-surface">{g.name}</td>
                             <td className="px-3 py-2 text-[9px] font-mono text-slate-600 capitalize">{g.zone}</td>
                             <td className="px-3 py-2 text-[10px] font-mono" style={{ color: NDVI_COLORS[g.class_2024] }}>{g.ndvi_2024.toFixed(2)}</td>
                             <td className="px-3 py-2"><span className="text-[8px] font-mono px-1 py-0.5 rounded" style={{ color: NDVI_COLORS[g.class_2024], backgroundColor: `${NDVI_COLORS[g.class_2024]}20` }}>{g.class_2024}</span></td>
@@ -676,7 +676,7 @@ export const NationalAgriculturalPulse: React.FC = () => {
               {/* Change map */}
               <div className="glass rounded-2xl border border-intel-border overflow-hidden">
                 <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                  <span className="text-[10px] font-mono text-white font-bold uppercase">Change Detection Layer — 2024 → 2025</span>
+                  <span className="text-[10px] font-mono text-on-surface font-bold uppercase">Change Detection Layer — 2024 → 2025</span>
                   <div className="flex items-center gap-4 text-[8px] font-mono">
                     <span style={{ color: CHANGE_COLORS.new_green }}>● New Green: {CHANGE_SUMMARY.new_green}</span>
                     <span style={{ color: CHANGE_COLORS.lost_green }}>● Lost Green: {CHANGE_SUMMARY.lost_green}</span>

@@ -261,7 +261,7 @@ export const PoultryEggsIntelligence: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {farmSizeImpact.map((row, i) => (
                         <tr key={i} className="hover:bg-white/[0.02]">
-                          <td className="py-2.5 text-[10px] font-mono text-white pr-4">{row.size}</td>
+                          <td className="py-2.5 text-[10px] font-mono text-on-surface pr-4">{row.size}</td>
                           <td className="py-2.5 pr-4">
                             <div className="flex items-center gap-2">
                               <div className="w-14 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -346,7 +346,7 @@ export const PoultryEggsIntelligence: React.FC = () => {
                     ].map((step, i) => (
                       <div key={i} className="flex items-start gap-3 py-1.5 border-b border-white/5 last:border-0 text-[9px] font-mono">
                         <span className="text-slate-600 w-10 shrink-0">{step.lag}</span>
-                        <span className="text-white w-36 shrink-0">{step.trigger}</span>
+                        <span className="text-on-surface w-36 shrink-0">{step.trigger}</span>
                         <span className={step.color}>→ {step.impact}</span>
                       </div>
                     ))}
@@ -366,7 +366,7 @@ export const PoultryEggsIntelligence: React.FC = () => {
                       <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
                         <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0', s.heat === 'CRITICAL' ? 'bg-red-500/20' : 'bg-orange-500/20')}>🔥</div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-mono text-white">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
+                          <div className="text-[10px] font-mono text-on-surface">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
                         </div>
                         <RiskBadge level={s.heat} />
                         <span className={cn('text-[9px] font-mono font-bold shrink-0', s.heat === 'CRITICAL' ? 'text-red-400' : 'text-orange-400')}>{s.vel}</span>
@@ -419,7 +419,7 @@ export const PoultryEggsIntelligence: React.FC = () => {
                     {diseaseRisk.map((d, i) => (
                       <div key={i} className={cn('p-3 rounded-xl border space-y-1.5', d.status === 'QUARANTINE' ? 'border-red-500/30 bg-red-500/5' : d.status === 'ALERT' ? 'border-orange-500/20' : 'border-intel-border')}>
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono font-bold text-white">{d.gov}</span>
+                          <span className="text-[10px] font-mono font-bold text-on-surface">{d.gov}</span>
                           <RiskBadge level={d.status} />
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-[9px] font-mono">

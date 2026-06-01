@@ -247,7 +247,7 @@ const ActorNetworkIntelligence: React.FC = () => {
               >
                 {actor.threatLevel === 'CRITICAL' && (
                   <div className="absolute top-0 right-0">
-                    <div className="bg-intel-red text-black text-[7px] font-bold px-2 py-0.5 uppercase tracking-tighter transform rotate-45 translate-x-3 translate-y-1 shadow-sm">
+                    <div className="bg-intel-red text-black text-[9px] font-bold px-2 py-0.5 uppercase tracking-tighter transform rotate-45 translate-x-3 translate-y-1 shadow-sm">
                       Critical
                     </div>
                   </div>

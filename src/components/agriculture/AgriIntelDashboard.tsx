@@ -226,7 +226,7 @@ const SectionHeader: React.FC<{ icon: React.ElementType; title: string; badge?: 
   <div className="flex items-center justify-between border-b border-intel-border/30 pb-3">
     <div className="flex items-center space-x-2">
       <Icon className="w-4 h-4 text-intel-cyan" />
-      <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">{title}</h3>
+      <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">{title}</h3>
     </div>
     {badge && <span className={cn('text-[8px] font-mono px-2 py-0.5 rounded border uppercase', badgeColor)}>{badge}</span>}
   </div>
@@ -253,7 +253,7 @@ const SummaryCard: React.FC<{
       </div>
       <div className="flex flex-col items-end gap-1">
         {live !== undefined && (
-          <span className={cn('text-[6px] font-mono px-1 py-0.5 rounded', live ? 'text-emerald-400 bg-emerald-400/10' : 'text-slate-500 bg-white/5')}>
+          <span className={cn('text-[9px] font-mono px-1 py-0.5 rounded', live ? 'text-emerald-400 bg-emerald-400/10' : 'text-slate-500 bg-white/5')}>
             {live ? '● LIVE' : '◌ EST'}
           </span>
         )}
@@ -271,7 +271,7 @@ const SummaryCard: React.FC<{
         )}
       </div>
     </div>
-    <div className="text-xl font-bold text-white mb-1 font-mono tracking-tighter">{value}</div>
+    <div className="text-xl font-bold text-on-surface mb-1 font-mono tracking-tighter">{value}</div>
     <div className="text-[10px] text-white/40 uppercase tracking-widest">{title}</div>
   </div>
 );
@@ -279,7 +279,7 @@ const SummaryCard: React.FC<{
 const MetricBox: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div className="p-3 bg-white/5 rounded border border-white/5 flex flex-col">
     <span className="text-[10px] text-white/30 uppercase tracking-widest mb-1">{label}</span>
-    <span className={cn('text-sm font-mono font-semibold', color || 'text-white')}>{value}</span>
+    <span className={cn('text-sm font-mono font-semibold', color || 'text-on-surface')}>{value}</span>
   </div>
 );
 
@@ -293,7 +293,7 @@ const AgentPanel: React.FC<{ name: string; role: string; status: string; finding
           <Cpu className="w-5 h-5 text-intel-cyan" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-bold text-white tracking-tight">{name}</span>
+          <span className="text-sm font-bold text-on-surface tracking-tight">{name}</span>
           <span className="text-[10px] text-slate-500 font-mono uppercase">{role}</span>
         </div>
       </div>
@@ -688,7 +688,7 @@ export const AgriIntelDashboard: React.FC = () => {
                         )}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[9px] font-mono text-white">{d.id.toUpperCase()}</span>
+                          <span className="text-[9px] font-mono text-on-surface">{d.id.toUpperCase()}</span>
                           <span className={cn('text-[9px] font-mono font-bold', d.wheat > 70 ? 'text-intel-red' : d.wheat > 40 ? 'text-intel-orange' : 'text-emerald-400')}>
                             {d.wheat.toFixed(1)}%
                           </span>
@@ -737,7 +737,7 @@ export const AgriIntelDashboard: React.FC = () => {
                     {prepareList(cropYieldByGov).map((gov: any, i: number) => (
                       <div key={generateStableKey(gov, i, 'yield')} className="p-2 rounded-lg bg-white/5 border border-white/5">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-[10px] font-bold text-white uppercase">{gov.gov}</span>
+                          <span className="text-[10px] font-bold text-on-surface uppercase">{gov.gov}</span>
                           <span className={cn('text-[9px] font-mono', gov.wheat < 40 ? 'text-intel-red' : 'text-slate-400')}>
                             Wheat: {gov.wheat}%
                           </span>
@@ -786,7 +786,7 @@ export const AgriIntelDashboard: React.FC = () => {
                     {prepareList(cropCalendar).map((c: any, i: number) => (
                       <div key={generateStableKey(c, i, 'cal')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
                         <div>
-                          <div className="text-[10px] font-bold text-white uppercase">{c.crop}</div>
+                          <div className="text-[10px] font-bold text-on-surface uppercase">{c.crop}</div>
                           <div className="text-[8px] font-mono text-slate-500">Sow: {c.sow} / Harvest: {c.harvest}</div>
                         </div>
                         <div className="flex items-center space-x-3">
@@ -805,7 +805,7 @@ export const AgriIntelDashboard: React.FC = () => {
               <div className="glass rounded-xl border border-intel-border p-6 relative overflow-hidden bg-white/5">
                 <div className="flex items-center space-x-3 mb-6">
                   <Activity className="w-5 h-5 text-intel-red animate-pulse" />
-                  <h4 className="text-sm font-bold text-white uppercase tracking-widest">Agro-Crisis Predictive Model (ACPM)</h4>
+                  <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest">Agro-Crisis Predictive Model (ACPM)</h4>
                 </div>
                 <AgroCrisisModel data={bcewmData} />
               </div>
@@ -895,9 +895,9 @@ export const AgriIntelDashboard: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {prepareList(priceTrackerData).map((p: any, i: number) => (
                         <tr key={generateStableKey(p, i, 'price')} className="hover:bg-white/[0.02] transition-all group">
-                          <td className="py-2 text-[10px] font-bold text-white uppercase">{p.item}</td>
+                          <td className="py-2 text-[10px] font-bold text-on-surface uppercase">{p.item}</td>
                           <td className="py-2 text-[10px] font-mono text-slate-400">{p.official}</td>
-                          <td className="py-2 text-[10px] font-mono text-white">{p.market}</td>
+                          <td className="py-2 text-[10px] font-mono text-on-surface">{p.market}</td>
                           <td className="py-2 text-[10px] font-mono text-intel-red font-bold">{p.spread}</td>
                           <td className="py-2 text-right"><RiskBadge level={p.risk} /></td>
                         </tr>
@@ -963,7 +963,7 @@ export const AgriIntelDashboard: React.FC = () => {
                     {prepareList(ruralUnrestIndex).map((r: any, i: number) => (
                       <div key={generateStableKey(r, i, 'unrest')} className="p-2 border-b border-white/5 hover:bg-white/[0.02] transition-all">
                         <div className="flex justify-between items-center mb-1">
-                          <span className="text-[10px] font-bold text-white uppercase">{r.id}</span>
+                          <span className="text-[10px] font-bold text-on-surface uppercase">{r.id}</span>
                           <RiskBadge level={r.status} />
                         </div>
                         <div className="text-[9px] text-slate-500 mb-1">{r.drivers}</div>
@@ -981,7 +981,7 @@ export const AgriIntelDashboard: React.FC = () => {
                     <CornerAccent position="tl" />
                     <div className="flex items-center space-x-3 mb-3">
                       <AlertCircle className="w-5 h-5 text-intel-red" />
-                      <h4 className="text-xs font-bold text-white uppercase tracking-widest">Dossier: Sidi Bouzid Water-Agro Nexus</h4>
+                      <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Dossier: Sidi Bouzid Water-Agro Nexus</h4>
                     </div>
                     <p className="text-[10px] text-slate-400 leading-relaxed font-sans uppercase tracking-tight mb-4">
                       Critical unrest detected in Sidi Bouzid over unannounced irrigation water cuts during peak heat. Smallholders reporting 40% crop loss. High correlation between hydric stress and localized protest activity.
@@ -996,7 +996,7 @@ export const AgriIntelDashboard: React.FC = () => {
                     <CornerAccent position="tr" />
                     <div className="flex items-center space-x-3 mb-3">
                       <Users className="w-5 h-5 text-intel-cyan" />
-                      <h4 className="text-xs font-bold text-white uppercase tracking-widest">Dossier: Seasonal Labor Exodus</h4>
+                      <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Dossier: Seasonal Labor Exodus</h4>
                     </div>
                     <p className="text-[10px] text-slate-400 leading-relaxed font-sans uppercase tracking-tight mb-4">
                       Tabular analysis shows 15% increase in youth migration from Jendouba (north-west) to Tunis/Coastal hubs in Q1 2026. Driver: collapse of local sugar beet profitability due to input cost spike.

@@ -1,29 +1,70 @@
 import { supabase, Notification } from '../lib/supabase';
 import { playNotificationSound, SoundType } from '../utils/audio';
 
+// In-process dedup: track titles inserted in last 5 min to avoid DB duplicates
+const _recentTitles = new Map<string, number>();
+const DEDUP_WINDOW_MS = 5 * 60 * 1000;
+
+function _isDuplicate(title: string): boolean {
+  const last = _recentTitles.get(title);
+  if (last && Date.now() - last < DEDUP_WINDOW_MS) return true;
+  _recentTitles.set(title, Date.now());
+  // Clean up stale entries
+  if (_recentTitles.size > 200) {
+    const cutoff = Date.now() - DEDUP_WINDOW_MS;
+    for (const [k, t] of _recentTitles) {
+      if (t < cutoff) _recentTitles.delete(k);
+    }
+  }
+  return false;
+}
+
+/**
+ * Normalise an incoming notification so it matches the Supabase schema.
+ * Callers can pass either:
+ *   - New format: { action: { label, event, detail } }
+ *   - Legacy format: { action_label, action_event, action_detail }
+ */
+function _toDbRow(notification: Omit<Notification, 'id' | 'read' | 'created_at'> & { action?: { label: string; event: string; detail?: any } }): Record<string, any> {
+  const { action, ...rest } = notification as any;
+  const row: Record<string, any> = { ...rest, read: false };
+
+  if (action && typeof action === 'object') {
+    // New format → flatten for Supabase schema
+    row.action_label = action.label;
+    row.action_event = action.event;
+    if (action.detail !== undefined) row.action_detail = action.detail;
+  }
+  // Remove the object-form action field (not a DB column)
+  delete row.action;
+  return row;
+}
+
 export async function addNotification(
-  notification: Omit<Notification, 'id' | 'read' | 'created_at'>
+  notification: Omit<Notification, 'id' | 'read' | 'created_at'> & { action?: { label: string; event: string; detail?: any } }
 ): Promise<void> {
-  const { data, error } = await supabase.from('notifications').insert({
-    ...notification,
-    read: false,
-  }).select().single();
+  if (_isDuplicate(notification.title)) return;
+
+  const row = _toDbRow(notification);
+
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert(row)
+    .select()
+    .single();
+
+  const soundType: SoundType =
+    notification.type === 'SHOCK' ? 'shock' :
+    notification.priority === 'CRITICAL' ? 'critical' :
+    notification.priority === 'HIGH' ? 'warning' : 'info';
 
   if (!error && data) {
-    // Play sound based on priority and type
-    const soundType: SoundType = 
-      notification.type === 'SHOCK' ? 'shock' :
-      notification.priority === 'CRITICAL' ? 'critical' :
-      notification.priority === 'HIGH' ? 'warning' : 'info';
-    
     playNotificationSound(soundType);
-
-    // Dispatch window event so Toast components can show it immediately
-    window.dispatchEvent(new CustomEvent('ti:notification:new', {
-      detail: data
-    }));
+    // Dispatch with DB row (has flat action_label etc.) — NotificationContext normalises it
+    window.dispatchEvent(new CustomEvent('ti:notification:new', { detail: data }));
   } else {
-    // Even if Supabase insert fails, dispatch locally so it still appears in the panel
+    // Fallback: dispatch locally so it still appears even if Supabase is unavailable
+    playNotificationSound(soundType);
     window.dispatchEvent(new CustomEvent('ti:notification:new', {
       detail: {
         ...notification,
@@ -47,17 +88,11 @@ export async function getNotifications(limit = 50): Promise<Notification[]> {
 }
 
 export async function markAsRead(id: string): Promise<void> {
-  await supabase
-    .from('notifications')
-    .update({ read: true })
-    .eq('id', id);
+  await supabase.from('notifications').update({ read: true }).eq('id', id);
 }
 
 export async function markAllAsRead(): Promise<void> {
-  await supabase
-    .from('notifications')
-    .update({ read: true })
-    .eq('read', false);
+  await supabase.from('notifications').update({ read: true }).eq('read', false);
 }
 
 export async function getUnreadCount(): Promise<number> {

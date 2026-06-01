@@ -126,7 +126,7 @@ export const AlertHub: React.FC = () => {
                             {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <h4 className={`text-sm font-medium truncate ${alert.read ? 'text-slate-300' : 'text-white'}`}>
+                        <h4 className={`text-sm font-medium truncate ${alert.read ? 'text-slate-300' : 'text-on-surface'}`}>
                           {alert.title}
                         </h4>
                         <p className="text-xs text-slate-400 mt-1 line-clamp-2">
@@ -167,7 +167,7 @@ export const AlertHub: React.FC = () => {
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-white leading-tight mb-2">
+                <h2 className="text-lg font-bold text-on-surface leading-tight mb-2">
                   {selectedAlert.title}
                 </h2>
                 <div className="flex items-center space-x-4 text-[10px] font-mono text-slate-400">

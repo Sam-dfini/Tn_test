@@ -534,7 +534,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6 md:space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-intel-border pb-6 space-y-4 md:space-y-0">
             <div className="space-y-1">
-              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">Economic Freedom Composite Score</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-on-surface tracking-tight">Economic Freedom Composite Score</h3>
               <p className="text-xs md:text-sm text-slate-500">Multi-index assessment — March 2026</p>
             </div>
             <div className="text-left md:text-right">
@@ -547,7 +547,7 @@ export const EconomyIntelligence: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             <div className="lg:col-span-6 space-y-4">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Index Breakdown</h4>
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Index Breakdown</h4>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[400px] text-left border-collapse">
                   <thead>
@@ -567,7 +567,7 @@ export const EconomyIntelligence: React.FC = () => {
                       { name: 'Economic Freedom (Fraser)', score: 42, rank: '128/165' }
                     ]).map((idx: any, i: number) => (
                       <tr key={generateStableKey(idx, i, 'climate-idx')} className="hover:bg-white/5 transition-colors">
-                        <td className="py-3 text-[10px] font-bold text-white uppercase">{idx.name}</td>
+                        <td className="py-3 text-[10px] font-bold text-on-surface uppercase">{idx.name}</td>
                         <td className={`py-3 text-[10px] font-mono font-bold text-right ${getScoreColor(idx.score)}`}>{idx.score.toString()}</td>
                         <td className="py-3 text-[10px] font-mono text-slate-400 text-right">{idx.rank}</td>
                       </tr>
@@ -607,7 +607,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Heritage Index: 12 Pillars</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Heritage Index: 12 Pillars</h3>
               <p className="text-[10px] text-slate-500">Comparative performance across 4 key categories</p>
             </div>
             <div className="h-64 w-full">
@@ -639,7 +639,7 @@ export const EconomyIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Corruption Perception (CPI) Trend</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Corruption Perception (CPI) Trend</h3>
               <p className="text-[10px] text-slate-500">Transparency International Score - 2020-2026</p>
             </div>
             <div className="h-64 w-full">
@@ -672,11 +672,11 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">FDI Inflow & Sectoral Concentration</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">FDI Inflow & Sectoral Concentration</h3>
               <p className="text-[10px] text-slate-500">Annual inflows (B USD) and primary destination sectors</p>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold text-white font-mono">{(data?.economy?.fdi_inflow_usd || 0).toString()}B USD</div>
+              <div className="text-2xl font-bold text-on-surface font-mono">{(data?.economy?.fdi_inflow_usd || 0).toString()}B USD</div>
               <p className="text-[8px] font-mono text-slate-500 uppercase">Annual Inflow (2025)</p>
             </div>
           </div>
@@ -706,7 +706,7 @@ export const EconomyIntelligence: React.FC = () => {
               </ResponsiveContainer>
             </div>
             <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">FDI by Sector (%)</h4>
+              <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">FDI by Sector (%)</h4>
               <div className="space-y-3">
                   { prepareList([
                     { name: 'Manufacturing', val: 42, color: 'bg-intel-cyan' },
@@ -718,7 +718,7 @@ export const EconomyIntelligence: React.FC = () => {
                     <div key={generateStableKey(s, index, 'fdi-sector')} className="space-y-1">
                     <div className="flex justify-between text-[8px] font-mono uppercase">
                       <span className="text-slate-500">{s.name}</span>
-                      <span className="text-white font-bold">{s.val}%</span>
+                      <span className="text-on-surface font-bold">{s.val}%</span>
                     </div>
                     <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                       <div className={`h-full ${s.color}`} style={{ width: `${s.val}%` }}></div>
@@ -734,7 +734,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">SME Credit Access</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">SME Credit Access</h3>
               <p className="text-[10px] text-slate-500">% of SMEs with active bank credit lines</p>
             </div>
             <div className="flex items-center justify-center h-48">
@@ -756,18 +756,18 @@ export const EconomyIntelligence: React.FC = () => {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-white font-mono">{(data?.economy?.sme_credit_access_pct || 0).toString()}%</span>
+                  <span className="text-3xl font-bold text-on-surface font-mono">{(data?.economy?.sme_credit_access_pct || 0).toString()}%</span>
                   <span className="text-[8px] font-mono text-slate-500 uppercase">Access Rate</span>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
-                <div className="text-xs font-bold text-white">12.4%</div>
+                <div className="text-xs font-bold text-on-surface">12.4%</div>
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Avg Interest Rate</div>
               </div>
               <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
-                <div className="text-xs font-bold text-white">180%</div>
+                <div className="text-xs font-bold text-on-surface">180%</div>
                 <div className="text-[8px] font-mono text-slate-500 uppercase">Collateral Req.</div>
               </div>
             </div>
@@ -775,7 +775,7 @@ export const EconomyIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">New Business Registrations</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">New Business Registrations</h3>
               <p className="text-[10px] text-slate-500">Monthly volume - last 6 months</p>
             </div>
             <div className="h-64 w-full">
@@ -806,7 +806,7 @@ export const EconomyIntelligence: React.FC = () => {
         {/* SECTION 5 — REGULATORY BURDEN */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regulatory Burden & Compliance</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Regulatory Burden & Compliance</h3>
             <p className="text-[10px] text-slate-500">Time and cost metrics for key business operations</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -822,14 +822,14 @@ export const EconomyIntelligence: React.FC = () => {
             ]).map((op: any, i: number) => (
               <div key={generateStableKey(op, i, 'compl-op')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
                 <div className="flex justify-between items-start">
-                  <span className="text-[9px] font-bold text-white uppercase tracking-tight leading-tight w-2/3">{op.label}</span>
+                  <span className="text-[9px] font-bold text-on-surface uppercase tracking-tight leading-tight w-2/3">{op.label}</span>
                   <div className={`w-1.5 h-1.5 rounded-full ${
                     op.status === 'CRITICAL' ? 'bg-intel-red animate-pulse' : 
                     op.status === 'WARNING' ? 'bg-intel-orange' : 'bg-intel-green'
                   }`}></div>
                 </div>
                 <div className="flex justify-between items-end pt-2">
-                  <div className="text-xs font-bold text-white font-mono">{op.val}</div>
+                  <div className="text-xs font-bold text-on-surface font-mono">{op.val}</div>
                   <div className="text-[8px] font-mono text-slate-500">{op.cost}</div>
                 </div>
               </div>
@@ -841,7 +841,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Onshore vs. Offshore Duality</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Onshore vs. Offshore Duality</h3>
               <p className="text-[10px] text-slate-500">Structural divide in the Tunisian economy</p>
             </div>
             <div className="h-64 w-full">
@@ -871,7 +871,7 @@ export const EconomyIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Informal Economy Estimation</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Informal Economy Estimation</h3>
               <p className="text-[10px] text-slate-500">Estimated % of GDP operating outside formal regulation</p>
             </div>
             <div className="flex items-center justify-center h-48">
@@ -915,7 +915,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Capital Flight & Parallel Market</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Capital Flight & Parallel Market</h3>
               <p className="text-[10px] text-slate-500">Parallel market premium and estimated illicit outflows</p>
             </div>
             <div className="text-right">
@@ -945,7 +945,7 @@ export const EconomyIntelligence: React.FC = () => {
               </ResponsiveContainer>
             </div>
             <div className="space-y-4">
-              <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Capital Flight Drivers</h4>
+              <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Capital Flight Drivers</h4>
               <div className="space-y-4">
                 {prepareList([
                   { label: 'Trade Misinvoicing', risk: 'HIGH', desc: 'Under-invoicing of exports and over-invoicing of imports to move capital abroad.' },
@@ -954,7 +954,7 @@ export const EconomyIntelligence: React.FC = () => {
                 ]).map((d: any, i: number) => (
                   <div key={generateStableKey(d, i, 'capital-driver')} className="p-3 bg-white/5 rounded-xl border border-white/10 space-y-1">
                     <div className="flex justify-between items-center">
-                      <span className="text-[9px] font-bold text-white uppercase">{d.label}</span>
+                      <span className="text-[9px] font-bold text-on-surface uppercase">{d.label}</span>
                       <span className="text-[8px] font-mono text-intel-red font-bold">{d.risk}</span>
                     </div>
                     <p className="text-[9px] text-slate-500 leading-tight">{d.desc}</p>
@@ -968,7 +968,7 @@ export const EconomyIntelligence: React.FC = () => {
         {/* SECTION 8 — ECONOMIC FREEDOM VS RRI LINK */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Economic Freedom vs. Revolution Risk (RRI)</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Economic Freedom vs. Revolution Risk (RRI)</h3>
             <p className="text-[10px] text-slate-500">Correlation between business climate deterioration and social unrest risk</p>
           </div>
           <div className="h-80 w-full">
@@ -1010,24 +1010,24 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Ecosystem: The Only Growth Engine?</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Startup Ecosystem: The Only Growth Engine?</h3>
               <p className="text-[10px] text-slate-500">Comparing Startup Act performance vs. traditional SME sector</p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
               <div className="text-[10px] font-bold text-intel-cyan uppercase">Startup Act Labels</div>
-              <div className="text-2xl font-bold text-white font-mono">980</div>
+              <div className="text-2xl font-bold text-on-surface font-mono">980</div>
               <p className="text-[8px] text-slate-500">Total labels granted since 2019. Providing tax holidays and FX accounts.</p>
             </div>
             <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
               <div className="text-[10px] font-bold text-intel-green uppercase">Avg Funding</div>
-              <div className="text-2xl font-bold text-white font-mono">$630K</div>
+              <div className="text-2xl font-bold text-on-surface font-mono">$630K</div>
               <p className="text-[8px] text-slate-500">Average seed/Series A round. Driven by international VCs (212, AfricInvest).</p>
             </div>
             <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
               <div className="text-[10px] font-bold text-intel-red uppercase">Brain Drain Risk</div>
-              <div className="text-2xl font-bold text-white font-mono">42%</div>
+              <div className="text-2xl font-bold text-on-surface font-mono">42%</div>
               <p className="text-[8px] text-slate-500">Startups considering relocation to France/UAE due to local FX restrictions.</p>
             </div>
           </div>
@@ -1047,7 +1047,7 @@ export const EconomyIntelligence: React.FC = () => {
         ]).map((stat: any, i: number) => (
           <div key={generateStableKey(stat, i, 'rem-stat')} className="glass p-4 rounded-xl border border-intel-border space-y-2">
             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{stat.label}</span>
-            <div className="text-2xl font-bold text-white font-mono">{stat.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{stat.value}</div>
             <div className="flex items-center justify-between">
               <span className={`text-[10px] font-mono ${stat.status === 'GOOD' ? 'text-intel-green' : stat.status === 'WARNING' ? 'text-intel-orange' : 'text-intel-red'}`}>
                 {stat.trend}
@@ -1062,7 +1062,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Growth & GDP Impact</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Remittance Growth & GDP Impact</h3>
               <p className="text-[10px] text-slate-500">Total volume (B TND) vs % of GDP - 2020-2025</p>
             </div>
           </div>
@@ -1085,7 +1085,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Geographic Origin Distribution</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Geographic Origin Distribution</h3>
               <p className="text-[10px] text-slate-500">Breakdown of remittance inflows by source country/region</p>
             </div>
           </div>
@@ -1114,7 +1114,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Distribution: Urban vs Rural</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Regional Distribution: Urban vs Rural</h3>
             <p className="text-[10px] text-slate-500">Inflow concentration by region and settlement type (M TND)</p>
           </div>
           <div className="flex items-center space-x-4">
@@ -1144,7 +1144,7 @@ export const EconomyIntelligence: React.FC = () => {
           <div className="flex items-start space-x-3">
             <Info className="w-4 h-4 text-intel-cyan mt-0.5" />
             <div className="space-y-1">
-              <p className="text-[10px] text-white font-bold uppercase">Structural Urban Bias</p>
+              <p className="text-[10px] text-on-surface font-bold uppercase">Structural Urban Bias</p>
               <p className="text-[9px] text-slate-400 leading-relaxed">
                 72% of total remittances are directed towards coastal urban centers (Grand Tunis, Sahel, Sfax), exacerbating regional wealth disparities. Rural areas, despite higher migration rates in some cases, receive lower absolute volumes, often used for immediate consumption rather than investment.
               </p>
@@ -1155,7 +1155,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Remittance Policy & Strategic Links</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Remittance Policy & Strategic Links</h3>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('navigate-subtab', { detail: { subtab: 'migration' } }))}
             className="text-[10px] font-mono text-intel-cyan hover:underline flex items-center space-x-1"
@@ -1171,7 +1171,7 @@ export const EconomyIntelligence: React.FC = () => {
             { title: 'Informal Channel Risk', desc: 'Estimated 25% of total flows bypass official banking system via informal "hand-to-hand" networks.', impact: 'CRITICAL', color: 'text-intel-red' }
           ]).map((item: any, i: number) => (
             <div key={generateStableKey(item, i, 'rem-policy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
-              <div className="text-[10px] font-bold text-white uppercase tracking-tight">{item.title}</div>
+              <div className="text-[10px] font-bold text-on-surface uppercase tracking-tight">{item.title}</div>
               <p className="text-[10px] text-slate-500 leading-relaxed">{item.desc}</p>
               <div className={`text-[8px] font-mono font-bold uppercase ${item.color}`}>{item.impact} IMPACT</div>
             </div>
@@ -1254,7 +1254,7 @@ export const EconomyIntelligence: React.FC = () => {
                 
                 <div className="flex items-end justify-between">
                   <div className="space-y-1">
-                    <div className="text-3xl font-bold text-white font-mono tracking-tighter">{ind.value}</div>
+                    <div className="text-3xl font-bold text-on-surface font-mono tracking-tighter">{ind.value}</div>
                     <div className="flex items-center space-x-1 text-[10px] font-mono">
                       {ind.trend.startsWith('+') ? 
                         <TrendingUp className={`w-3 h-3 ${ind.status === 'GOOD' ? 'text-intel-green' : 'text-intel-red'}`} /> : 
@@ -1296,7 +1296,7 @@ export const EconomyIntelligence: React.FC = () => {
                           content={({ active, payload }) => {
                             if (active && payload && payload.length) {
                               return (
-                                <div className="bg-black/80 border border-intel-border p-1.5 rounded text-[9px] font-mono text-white">
+                                <div className="bg-black/80 border border-intel-border p-1.5 rounded text-[9px] font-mono text-on-surface">
                                   {payload[0].value}
                                 </div>
                               );
@@ -1325,7 +1325,7 @@ export const EconomyIntelligence: React.FC = () => {
                   {ind.desc}
                 </p>
                 <div className="flex items-center justify-between mt-2">
-                  <div className="text-[7px] font-mono text-slate-700 uppercase tracking-tighter">{ind.source}</div>
+                  <div className="text-[9px] font-mono text-slate-700 uppercase tracking-tighter">{ind.source}</div>
                   <Info className="w-2.5 h-2.5 text-slate-700 cursor-help" />
                 </div>
               </div>
@@ -1339,7 +1339,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Historical Macro Trends (5Y)</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Historical Macro Trends (5Y)</h3>
               <p className="text-[10px] text-slate-500">GDP Growth vs Inflation Rate - 2021-2025</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -1370,7 +1370,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Inflation Drivers (CPI Contribution)</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Inflation Drivers (CPI Contribution)</h3>
               <p className="text-[10px] text-slate-500">Stacked contribution by key categories - last 12 months</p>
             </div>
             <span className="text-[10px] font-mono text-intel-orange uppercase tracking-wider">Food Driven</span>
@@ -1394,7 +1394,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Growth Trend</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">GDP Growth Trend</h3>
               <p className="text-[10px] text-slate-500">15-month rolling - % annual</p>
             </div>
             <span className="text-[10px] font-mono text-intel-red uppercase px-2 py-0.5 bg-intel-red/10 border border-intel-red/20 rounded">Declining</span>
@@ -1421,7 +1421,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">CPI Inflation by Component</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">CPI Inflation by Component</h3>
               <p className="text-[10px] text-slate-500">Annual % change - March 2026</p>
             </div>
             <span className="text-[10px] font-mono text-intel-orange uppercase">{(data?.economy?.inflation || 0).toString()}% Overall</span>
@@ -1457,7 +1457,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Trade Balance</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Trade Balance</h3>
               <p className="text-[10px] text-slate-500">Exports vs Imports (M TND) - last 7 months</p>
             </div>
             <span className="text-[10px] font-mono text-intel-red uppercase">Deficit Widening</span>
@@ -1487,7 +1487,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Dinar Exchange Rate</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Dinar Exchange Rate</h3>
               <p className="text-[10px] text-slate-500">TND/USD and TND/EUR - official rate</p>
             </div>
             <span className="text-[10px] font-mono text-intel-orange uppercase">Depreciating</span>
@@ -1527,7 +1527,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">External Debt Service Calendar</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">External Debt Service Calendar</h3>
             <p className="text-[10px] text-slate-500">Upcoming repayments (USD M) - 2026-2027</p>
           </div>
           <div className="h-48 w-full">
@@ -1556,7 +1556,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest flex items-center">
               <PieChartIcon className="w-4 h-4 mr-2 text-intel-cyan" />
               Public Debt Breakdown
             </h3>
@@ -1590,14 +1590,14 @@ export const EconomyIntelligence: React.FC = () => {
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-slate-500 uppercase">{item.name}</span>
                   </div>
-                  <span className="text-white font-bold">{item.value}%</span>
+                  <span className="text-on-surface font-bold">{item.value}%</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="pt-6 border-t border-intel-border space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Risk Signals</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Risk Signals</h3>
             <div className="space-y-4">
               {prepareList([
                 { label: 'IMF Deal Status', value: 'SUSPENDED', color: 'text-intel-red', link: { label: 'VIEW GEOPOLITICAL PRESSURE', tab: 'geopolitical', color: 'text-intel-orange' } },
@@ -1637,7 +1637,7 @@ export const EconomyIntelligence: React.FC = () => {
       const data = payload[0].payload;
       return (
         <div className="bg-intel-bg border border-intel-border p-3 rounded-xl shadow-2xl space-y-2">
-          <div className="text-[10px] font-bold text-white uppercase tracking-widest border-b border-intel-border pb-1 mb-1">
+          <div className="text-[10px] font-bold text-on-surface uppercase tracking-widest border-b border-intel-border pb-1 mb-1">
             {data.name}
           </div>
           <div className="space-y-1">
@@ -1653,7 +1653,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
             <div className="flex justify-between space-x-4">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Workforce Share</span>
-              <span className="text-[8px] font-mono font-bold text-white">{data.jobs}%</span>
+              <span className="text-[8px] font-mono font-bold text-on-surface">{data.jobs}%</span>
             </div>
             <div className="flex justify-between space-x-4 pt-1 border-t border-intel-border/30">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Min Wage</span>
@@ -1661,7 +1661,7 @@ export const EconomyIntelligence: React.FC = () => {
             </div>
             <div className="flex justify-between space-x-4">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Avg Salary</span>
-              <span className="text-[8px] font-mono font-bold text-white">{data.avgSalary} TND</span>
+              <span className="text-[8px] font-mono font-bold text-on-surface">{data.avgSalary} TND</span>
             </div>
             <div className="flex justify-between space-x-4">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Wage Growth</span>
@@ -1682,7 +1682,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Sector Growth & GDP Impact</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Sector Growth & GDP Impact</h3>
               <p className="text-[10px] text-slate-500">Growth % vs. GDP Contribution % - 2025</p>
             </div>
             <div className="flex items-center space-x-2 bg-white/5 p-1 rounded-lg border border-intel-border">
@@ -1735,7 +1735,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Contribution & Employment</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">GDP Contribution & Employment</h3>
             <p className="text-[10px] text-slate-500">% of GDP and % of workforce - 2025</p>
           </div>
           <div className="space-y-6">
@@ -1775,7 +1775,7 @@ export const EconomyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Wage & Salary Analysis</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Wage & Salary Analysis</h3>
             <p className="text-[10px] text-slate-500">Average Salary vs. Minimum Wage by Sector (TND)</p>
           </div>
           <div className="h-80 w-full">
@@ -1795,7 +1795,7 @@ export const EconomyIntelligence: React.FC = () => {
 
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Wage Growth vs. Average Salary</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Wage Growth vs. Average Salary</h3>
             <p className="text-[10px] text-slate-500">Comparing annual growth % against absolute salary levels</p>
           </div>
           <div className="h-80 w-full">
@@ -1827,7 +1827,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <sector.icon className={`w-5 h-5 ${sector.color}`} />
-                <span className="text-xs font-bold text-white uppercase tracking-widest">{sector.label}</span>
+                <span className="text-xs font-bold text-on-surface uppercase tracking-widest">{sector.label}</span>
               </div>
               <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                 sector.status === 'CRISIS' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' :
@@ -1843,7 +1843,7 @@ export const EconomyIntelligence: React.FC = () => {
               {prepareList(sector.stats).map((s: any, j: number) => (
                 <div key={generateStableKey(s, j, 'sector-detail-stat')} className="flex justify-between text-[8px] font-mono uppercase">
                   <span className="text-slate-600">{s.l}</span>
-                  <span className="text-white font-bold">{s.v}</span>
+                  <span className="text-on-surface font-bold">{s.v}</span>
                 </div>
               ))}
             </div>
@@ -1859,7 +1859,7 @@ export const EconomyIntelligence: React.FC = () => {
               <Users className="w-8 h-8 text-intel-cyan" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">Public Sector: Ministry Analysis</h3>
+              <h3 className="text-2xl font-bold text-on-surface tracking-tight">Public Sector: Ministry Analysis</h3>
               <p className="text-sm text-slate-500">Workforce distribution, average salaries, and annual growth by ministry</p>
             </div>
           </div>
@@ -1873,7 +1873,7 @@ export const EconomyIntelligence: React.FC = () => {
           {/* Workforce Distribution Chart */}
           <div className="space-y-6">
             <div className="space-y-1">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Workforce Distribution</h4>
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Workforce Distribution</h4>
               <p className="text-[10px] text-slate-500">Total public sector employees: ~695,000</p>
             </div>
             <div className="h-80 w-full">
@@ -1895,7 +1895,7 @@ export const EconomyIntelligence: React.FC = () => {
           {/* Salary & Growth Table */}
           <div className="space-y-6">
             <div className="space-y-1">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Salary & Growth Metrics</h4>
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Salary & Growth Metrics</h4>
               <p className="text-[10px] text-slate-500">Average monthly net salary (TND) and YoY growth</p>
             </div>
             <div className="overflow-x-auto">
@@ -1911,7 +1911,7 @@ export const EconomyIntelligence: React.FC = () => {
                 <tbody>
                   {prepareList(ministryWorkforceData).map((m: any, i: number) => (
                     <tr key={generateStableKey(m, i, 'ministry-row')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                      <td className="py-3 text-[10px] font-bold text-white group-hover:text-intel-cyan transition-colors">{m.name}</td>
+                      <td className="py-3 text-[10px] font-bold text-on-surface group-hover:text-intel-cyan transition-colors">{m.name}</td>
                       <td className="py-3 text-[10px] font-mono text-slate-300">{m.avgSalary.toLocaleString()} TND</td>
                       <td className="py-3">
                         <div className="flex items-center space-x-1">
@@ -1944,7 +1944,7 @@ export const EconomyIntelligence: React.FC = () => {
               <Factory className="w-8 h-8 text-intel-red" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">Phosphate Sector Deep Dive</h3>
+              <h3 className="text-2xl font-bold text-on-surface tracking-tight">Phosphate Sector Deep Dive</h3>
               <p className="text-sm text-slate-500">Strategic analysis of Tunisia's primary mineral resource</p>
             </div>
           </div>
@@ -1958,7 +1958,7 @@ export const EconomyIntelligence: React.FC = () => {
           {/* Production & Revenue Trends */}
           <div className="space-y-6">
             <div className="space-y-1">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest">Production Volume & Export Revenue</h4>
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Production Volume & Export Revenue</h4>
               <p className="text-[10px] text-slate-500">Historical decline vs. revenue volatility</p>
             </div>
             <div className="h-64 w-full">
@@ -1991,7 +1991,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { t: 'Transport Bottlenecks', d: 'SNCFT rail capacity down 60% due to lack of maintenance.' }
                 ]).map((item: any, i: number) => (
                   <li key={generateStableKey(item, i, 'labor-dispute')} className="space-y-1">
-                    <div className="text-[10px] font-bold text-white">{item.t}</div>
+                    <div className="text-[10px] font-bold text-on-surface">{item.t}</div>
                     <div className="text-[9px] text-slate-500 leading-tight">{item.d}</div>
                   </li>
                 ))}
@@ -2010,7 +2010,7 @@ export const EconomyIntelligence: React.FC = () => {
                   { t: 'Water Management', d: 'Desalination mandate for washing units.' }
                 ]).map((item: any, i: number) => (
                   <li key={generateStableKey(item, i, 'policy-impact')} className="space-y-1">
-                    <div className="text-[10px] font-bold text-white">{item.t}</div>
+                    <div className="text-[10px] font-bold text-on-surface">{item.t}</div>
                     <div className="text-[9px] text-slate-500 leading-tight">{item.d}</div>
                   </li>
                 ))}
@@ -2039,10 +2039,10 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className={`w-4 h-4 ${alert.level === 'CRITICAL' ? 'text-intel-red' : 'text-intel-orange'}`} />
-                <span className="text-[10px] font-bold text-white uppercase tracking-widest">{alert.item} Alert</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase tracking-widest">{alert.item} Alert</span>
               </div>
               <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded ${
-                alert.level === 'CRITICAL' ? 'bg-intel-red text-white' : 'bg-intel-orange text-white'
+                alert.level === 'CRITICAL' ? 'bg-intel-red text-on-surface' : 'bg-intel-orange text-on-surface'
               }`}>
                 {alert.level}
               </span>
@@ -2074,7 +2074,7 @@ export const EconomyIntelligence: React.FC = () => {
                 'bg-intel-green'
               }`}></div>
             </div>
-            <div className="text-xl font-bold text-white font-mono">{ind.value}</div>
+            <div className="text-xl font-bold text-on-surface font-mono">{ind.value}</div>
             <div className="flex items-center space-x-1">
               {ind.trend === 'up' ? 
                 <TrendingUp className={`w-3 h-3 ${ind.status === 'GOOD' ? 'text-intel-green' : 'text-intel-red'}`} /> : 
@@ -2096,7 +2096,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">TUNINDEX Performance</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">TUNINDEX Performance</h3>
               <p className="text-[10px] text-slate-500">15-month historical trend - BVMT</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2127,7 +2127,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Currency Trends (TND)</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Currency Trends (TND)</h3>
               <p className="text-[10px] text-slate-500">Exchange rate variation against USD & EUR</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2156,7 +2156,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Essential Goods Prices</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Essential Goods Prices</h3>
               <p className="text-[10px] text-slate-500">Retail price monitoring - TND per unit</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2178,7 +2178,7 @@ export const EconomyIntelligence: React.FC = () => {
               <tbody>
                 {prepareList(essentialGoodsPrices).map((item: any, i: number) => (
                   <tr key={generateStableKey(item, i, 'essential-good')} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-                    <td className="py-3 text-[10px] font-bold text-white group-hover:text-intel-cyan transition-colors">{item.item}</td>
+                    <td className="py-3 text-[10px] font-bold text-on-surface group-hover:text-intel-cyan transition-colors">{item.item}</td>
                     <td className="py-3 text-[10px] font-mono text-slate-300">{item.price}</td>
                     <td className="py-3 text-[10px] font-mono text-slate-500">{item.unit}</td>
                     <td className="py-3 text-[10px] font-mono text-intel-red">{item.inflation}</td>
@@ -2201,7 +2201,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Food Inflation Trend</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Food Inflation Trend</h3>
               <p className="text-[10px] text-slate-500">Monthly CPI contribution - %</p>
             </div>
           </div>
@@ -2235,7 +2235,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Food Basket Analysis</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Regional Food Basket Analysis</h3>
               <p className="text-[10px] text-slate-500">Current cost by Governorates - TND</p>
             </div>
           </div>
@@ -2266,7 +2266,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Food Basket Analysis</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Food Basket Analysis</h3>
               <p className="text-[10px] text-slate-500">Monthly cost for a family of 4 - TND</p>
             </div>
           </div>
@@ -2288,7 +2288,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Market Sentiment & News</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Market Sentiment & News</h3>
           <div className="space-y-4">
             {prepareList([
               { title: 'BVMT Liquidity Crisis', desc: 'Daily trading volumes hit 5-year low as institutional investors shift to treasury bills.', time: '2h ago', impact: 'HIGH' },
@@ -2297,7 +2297,7 @@ export const EconomyIntelligence: React.FC = () => {
             ]).map((news: any, i: number) => (
               <div key={generateStableKey(news, i, 'market-news')} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-start justify-between group hover:bg-white/10 transition-all cursor-pointer">
                 <div className="space-y-1">
-                  <div className="text-[10px] font-bold text-white uppercase tracking-tight group-hover:text-intel-cyan transition-colors">{news.title}</div>
+                  <div className="text-[10px] font-bold text-on-surface uppercase tracking-tight group-hover:text-intel-cyan transition-colors">{news.title}</div>
                   <p className="text-[10px] text-slate-500 leading-relaxed">{news.desc}</p>
                   <div className="text-[8px] font-mono text-slate-600 uppercase pt-1">{news.time}</div>
                 </div>
@@ -2314,7 +2314,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Market Composition</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Market Composition</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -2358,7 +2358,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between border-b border-intel-border pb-4">
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Poverty Rate by Governorate</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Poverty Rate by Governorate</h3>
               <p className="text-[10px] text-slate-500 uppercase">Regional disparity and governance effectiveness correlation</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2390,7 +2390,7 @@ export const EconomyIntelligence: React.FC = () => {
 
           {/* Vulnerability Heatmap Grid */}
           <div className="space-y-4 pt-4 border-t border-white/5">
-            <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">Regional Vulnerability Heatmap</h4>
+            <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Regional Vulnerability Heatmap</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
               {prepareList(povertyByGovernorate).map((gov: any, i: number) => (
                 <div key={generateStableKey(gov, i, 'poverty-gov-heatmap')} className="p-2 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-between h-16">
@@ -2402,8 +2402,8 @@ export const EconomyIntelligence: React.FC = () => {
                     }`}></div>
                   </div>
                   <div className="flex items-end justify-between">
-                    <span className="text-xs font-bold text-white font-mono">{gov.vulnerability.toString()}</span>
-                    <span className="text-[7px] font-mono text-slate-600 uppercase">Risk Index</span>
+                    <span className="text-xs font-bold text-on-surface font-mono">{gov.vulnerability.toString()}</span>
+                    <span className="text-[9px] font-mono text-slate-600 uppercase">Risk Index</span>
                   </div>
                 </div>
               ))}
@@ -2414,7 +2414,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="flex items-start space-x-3">
               <AlertTriangle className="w-4 h-4 text-intel-red mt-0.5" />
               <div className="space-y-1">
-                <p className="text-[10px] text-white font-bold uppercase">Inverse Correlation Detected</p>
+                <p className="text-[10px] text-on-surface font-bold uppercase">Inverse Correlation Detected</p>
                 <p className="text-[9px] text-slate-400 leading-relaxed">
                   Data shows a strong inverse correlation (-0.82) between governance effectiveness and poverty rates. Interior regions with the lowest governance scores (Kairouan, Kasserine) exhibit the highest poverty densities, indicating institutional failure in service delivery.
                 </p>
@@ -2426,7 +2426,7 @@ export const EconomyIntelligence: React.FC = () => {
         {/* Poverty Trends & Safety Nets */}
         <div className="space-y-8">
           <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">National Poverty Trend</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">National Poverty Trend</h3>
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={povertyTrendData}>
@@ -2458,7 +2458,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
 
           <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Social Safety Net Performance</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Social Safety Net Performance</h3>
             <div className="space-y-4">
               {prepareList(socialSafetyNetData).map((item: any, i: number) => (
                 <div key={generateStableKey(item, i, 'safety-net-item')} className="space-y-2">
@@ -2504,7 +2504,7 @@ export const EconomyIntelligence: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-400 uppercase">{ind.label}</span>
               <div className={`w-2 h-2 rounded-full ${ind.status === 'CRITICAL' ? 'bg-intel-red animate-pulse' : 'bg-intel-orange'}`}></div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{ind.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{ind.value}</div>
             <div className={`text-[10px] font-mono ${ind.trend.startsWith('+') ? 'text-intel-red' : 'text-intel-green'}`}>{ind.trend}</div>
             <p className="text-[9px] text-slate-600 leading-tight pt-2 border-t border-white/5">{ind.desc}</p>
           </div>
@@ -2520,7 +2520,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between border-b border-intel-border pb-4">
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Pharmaceutical Shortage Trends</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Pharmaceutical Shortage Trends</h3>
               <p className="text-[10px] text-slate-500 uppercase">Total missing molecules vs. critical lifesaving drugs</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -2561,7 +2561,7 @@ export const EconomyIntelligence: React.FC = () => {
               <div className="flex items-start space-x-3">
                 <AlertTriangle className="w-4 h-4 text-intel-red mt-0.5" />
                 <div className="space-y-1">
-                  <p className="text-[10px] text-white font-bold uppercase">Critical Stock Alert</p>
+                  <p className="text-[10px] text-on-surface font-bold uppercase">Critical Stock Alert</p>
                   <p className="text-[9px] text-slate-400 leading-relaxed">
                     94 critical lifesaving molecules (oncology, cardiology, insulin) are currently at zero stock in the Central Pharmacy. Estimated replenishment lead time: 45-60 days due to credit line issues.
                   </p>
@@ -2572,7 +2572,7 @@ export const EconomyIntelligence: React.FC = () => {
               <div className="flex items-start space-x-3">
                 <Clock className="w-4 h-4 text-intel-orange mt-0.5" />
                 <div className="space-y-1">
-                  <p className="text-[10px] text-white font-bold uppercase">Supply Chain Latency</p>
+                  <p className="text-[10px] text-on-surface font-bold uppercase">Supply Chain Latency</p>
                   <p className="text-[9px] text-slate-400 leading-relaxed">
                     Import dependency for raw materials has increased to 87%. Global logistics costs and local currency depreciation are driving a 15% increase in procurement delays.
                   </p>
@@ -2585,12 +2585,12 @@ export const EconomyIntelligence: React.FC = () => {
         {/* Medicament Inflation */}
         <div className="space-y-8">
           <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Critical Molecule Shortages</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Critical Molecule Shortages</h3>
             <div className="space-y-3">
               {prepareList(criticalMolecules).map((mol: any, i: number) => (
                 <div key={generateStableKey(mol, i, 'critical-mol')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-bold text-white uppercase">{mol.name}</div>
+                    <div className="text-[10px] font-bold text-on-surface uppercase">{mol.name}</div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase">{mol.category}</div>
                   </div>
                   <div className="text-right space-y-0.5">
@@ -2605,7 +2605,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
 
           <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Medicament Price Inflation</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Medicament Price Inflation</h3>
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={medicamentInflationData}>
@@ -2627,7 +2627,7 @@ export const EconomyIntelligence: React.FC = () => {
           </div>
 
           <div className="glass p-6 rounded-2xl border border-intel-border space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Import Dependency Breakdown</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Import Dependency Breakdown</h3>
             <div className="h-48 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -2655,7 +2655,7 @@ export const EconomyIntelligence: React.FC = () => {
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <span className="text-slate-500 uppercase">{item.name}</span>
                   </div>
-                  <span className="text-white font-bold">{item.value}%</span>
+                  <span className="text-on-surface font-bold">{item.value}%</span>
                 </div>
               ))}
             </div>
@@ -2676,7 +2676,7 @@ export const EconomyIntelligence: React.FC = () => {
                     med.status === 'CRITICAL' ? 'text-intel-red' : 'text-intel-orange'
                   }`} />
                 </div>
-                <span className="text-xs font-bold text-white uppercase tracking-widest">{med.category}</span>
+                <span className="text-xs font-bold text-on-surface uppercase tracking-widest">{med.category}</span>
               </div>
               <div className={`w-2 h-2 rounded-full ${med.status === 'CRITICAL' ? 'bg-intel-red animate-pulse' : 'bg-intel-orange'}`}></div>
             </div>
@@ -2720,7 +2720,7 @@ export const EconomyIntelligence: React.FC = () => {
       {/* Strategic Stock & Procurement */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Strategic Stock Levels</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Strategic Stock Levels</h3>
           <div className="space-y-6">
             {prepareList([
               { label: 'Central Pharmacy Reserves', value: 42, target: 90, unit: 'days', status: 'CRITICAL' },
@@ -2747,7 +2747,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Procurement Risk Matrix</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Procurement Risk Matrix</h3>
           <div className="grid grid-cols-2 gap-4">
             {prepareList([
               { label: 'Forex Availability', risk: 'EXTREME', color: 'text-intel-red', desc: 'Central Bank prioritizing energy/food over meds.' },
@@ -2802,7 +2802,7 @@ export const EconomyIntelligence: React.FC = () => {
                 'bg-intel-green'
               }`}></div>
             </div>
-            <div className="text-xl font-bold text-white font-mono">{ind.value}</div>
+            <div className="text-xl font-bold text-on-surface font-mono">{ind.value}</div>
             <div className="flex items-center space-x-1">
               {ind.trend === 'up' ? 
                 <TrendingUp className="w-3 h-3 text-intel-green" /> : 
@@ -2821,7 +2821,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Growth & Funding</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Startup Growth & Funding</h3>
               <p className="text-[10px] text-slate-500">Number of startups vs. total funding raised ($M)</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2849,7 +2849,7 @@ export const EconomyIntelligence: React.FC = () => {
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Sector Distribution</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Startup Sector Distribution</h3>
               <p className="text-[10px] text-slate-500">Breakdown of active startups by primary industry</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -2881,7 +2881,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       {/* Startup News & Highlights */}
       <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-        <h3 className="text-xs font-bold text-white uppercase tracking-widest">Startup Ecosystem Intelligence</h3>
+        <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Startup Ecosystem Intelligence</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             { title: 'Series B Milestone', desc: 'Local FinTech startup raises $25M in Series B, the largest in the region this year.', impact: 'HIGH', color: 'text-intel-cyan' },
@@ -2914,7 +2914,7 @@ export const EconomyIntelligence: React.FC = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="glass rounded-2xl border border-intel-border overflow-hidden overflow-x-auto scrollbar-hide">
         <div className="px-6 py-4 border-b border-intel-border bg-white/5 min-w-[800px]">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">MENA Economic Comparison</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">MENA Economic Comparison</h3>
           <p className="text-[10px] text-slate-500">Tunisia vs regional peers - 2025/2026 data</p>
         </div>
         <table className="w-full text-left border-collapse min-w-[800px]">
@@ -2934,7 +2934,7 @@ export const EconomyIntelligence: React.FC = () => {
               <tr key={generateStableKey(peer, i, 'regional-comparison-row')} className={`hover:bg-white/5 transition-all ${peer.isTarget ? 'bg-intel-cyan/5' : ''}`}>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <span className={`text-sm font-bold ${peer.isTarget ? 'text-intel-cyan' : 'text-white'}`}>
+                    <span className={`text-sm font-bold ${peer.isTarget ? 'text-intel-cyan' : 'text-on-surface'}`}>
                       {peer.country} {peer.isTarget && '★'}
                     </span>
                   </div>
@@ -2981,7 +2981,7 @@ export const EconomyIntelligence: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">GDP Growth Comparison</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">GDP Growth Comparison</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionalData}>
@@ -3000,7 +3000,7 @@ export const EconomyIntelligence: React.FC = () => {
         </div>
 
         <div className="glass p-6 md:p-8 rounded-3xl border border-intel-border space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Forex Reserves (Import Days)</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Forex Reserves (Import Days)</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionalData}>
@@ -3056,7 +3056,7 @@ export const EconomyIntelligence: React.FC = () => {
             </button>
           ))}
         </div>
-        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020810] to-transparent pointer-events-none md:hidden z-[60]" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020810] to-transparent pointer-events-none md:hidden z-10" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -3072,7 +3072,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Landmark className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Macroeconomic Foundation</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Macroeconomic Foundation</h2>
               </div>
               <div className="space-y-12">
                 {renderMacroIndicators()}
@@ -3084,7 +3084,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Globe className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Remittance Intelligence</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Remittance Intelligence</h2>
               </div>
               {renderRemittances()}
             </div>
@@ -3094,7 +3094,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Globe className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Regional Economic Comparison</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Regional Economic Comparison</h2>
               </div>
               {renderRegionalComparison()}
             </div>
@@ -3104,7 +3104,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Layers className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Sectoral Dynamics</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Sectoral Dynamics</h2>
               </div>
               <div className="space-y-12">
                 {renderSectorAnalysis()}
@@ -3116,7 +3116,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <BarChart3 className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Market Intelligence & Price Monitoring</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Market Intelligence & Price Monitoring</h2>
               </div>
               {renderMarketIntelligence()}
             </div>
@@ -3126,7 +3126,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Rocket className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Startup Ecosystem & Venture Capital</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Startup Ecosystem & Venture Capital</h2>
               </div>
               {renderStartupIntelligence()}
             </div>
@@ -3136,7 +3136,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Briefcase className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Business Climate & Economic Freedom</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Business Climate & Economic Freedom</h2>
               </div>
               {renderBusinessClimate()}
             </div>
@@ -3146,7 +3146,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <Users className="w-6 h-6 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Social & Strategic Economy</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Social & Strategic Economy</h2>
               </div>
               <div className="space-y-12">
                 {renderPovertyTracker()}
@@ -3162,7 +3162,7 @@ export const EconomyIntelligence: React.FC = () => {
             <div className="space-y-8">
               <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
                 <AlertTriangle className="w-6 h-6 text-intel-orange" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-wider">Commodity & Energy Stress Monitor</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-wider">Commodity & Energy Stress Monitor</h2>
               </div>
               
               <div className="space-y-10">
@@ -3198,7 +3198,7 @@ export const EconomyIntelligence: React.FC = () => {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <Wheat className={`w-4 h-4 ${phaseCfg.color}`} />
-                                <span className="text-sm font-bold text-white uppercase tracking-wider">{c.type}</span>
+                                <span className="text-sm font-bold text-on-surface uppercase tracking-wider">{c.type}</span>
                               </div>
                               <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${phaseCfg.color.replace('text-', 'border-').replace('text-', 'bg-')}/10`}>
                                 PHASE {c.phase}
@@ -3219,7 +3219,7 @@ export const EconomyIntelligence: React.FC = () => {
                               </div>
                               <div className="space-y-0.5 text-right">
                                 <div className="text-[8px] font-mono text-slate-500 uppercase">Anger Ignition</div>
-                                <div className="text-xs font-bold font-mono text-white">
+                                <div className="text-xs font-bold font-mono text-on-surface">
                                   {c.timeToAngerDays ? `${c.timeToAngerDays}d` : 'N/A'}
                                 </div>
                               </div>
@@ -3265,7 +3265,7 @@ export const EconomyIntelligence: React.FC = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
                               <Zap className={`w-5 h-5 ${shock.severity === 3 ? 'text-intel-red' : 'text-intel-orange'}`} />
-                              <span className="text-sm font-bold text-white uppercase tracking-widest">
+                              <span className="text-sm font-bold text-on-surface uppercase tracking-widest">
                                 {shock.type.replace(/_/g, ' ')}
                               </span>
                             </div>

@@ -36,7 +36,7 @@ export const SocialThreatIntelligence: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white uppercase tracking-tight">Social Threat Intelligence</h1>
+        <h1 className="text-2xl font-bold text-on-surface uppercase tracking-tight">Social Threat Intelligence</h1>
         <div className="flex items-center space-x-2">
           <div className="flex space-x-2">
             {categories.map((category) => (

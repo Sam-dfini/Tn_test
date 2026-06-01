@@ -56,7 +56,7 @@ export const MissionWorkspace: React.FC<{
                 PRIORITY: {mission.priority}
               </div>
             </div>
-            <h1 className="text-4xl font-light tracking-tight text-white uppercase tracking-widest">
+            <h1 className="text-4xl font-light tracking-tight text-on-surface uppercase tracking-widest">
               MISSION: <span className="font-bold text-intel-cyan">{mission.title}</span>
             </h1>
             <p className="max-w-2xl text-slate-400 text-sm leading-relaxed italic">
@@ -65,7 +65,7 @@ export const MissionWorkspace: React.FC<{
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="flex items-center space-x-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-xs font-bold text-white group">
+            <button className="flex items-center space-x-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-xs font-bold text-on-surface group">
               <Shield className="w-4 h-4 text-intel-cyan group-hover:scale-110 transition-transform" />
               <span>DEFENSE POSTURE</span>
             </button>
@@ -92,7 +92,7 @@ export const MissionWorkspace: React.FC<{
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Zap className="w-5 h-5 text-intel-orange" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Mission Telemetry</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Mission Telemetry</h3>
               </div>
               <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-500">
                 <span className="w-2 h-2 rounded-full bg-intel-green animate-pulse" />
@@ -106,7 +106,7 @@ export const MissionWorkspace: React.FC<{
             <div className="bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-2xl p-8">
               <div className="flex items-start justify-between mb-8">
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-2">Strategic Intelligence Summary</h3>
+                  <h3 className="text-lg font-bold text-on-surface mb-2">Strategic Intelligence Summary</h3>
                   <p className="text-xs text-slate-400">Automated cross-domain synthesis for mission {mission.id}</p>
                 </div>
                 <AlertCircle className="w-6 h-6 text-intel-cyan opacity-50" />
@@ -116,7 +116,7 @@ export const MissionWorkspace: React.FC<{
                 <div className="space-y-3">
                   <div className="text-[10px] font-mono text-slate-500 uppercase">Primary Trigger</div>
                   <div className="p-4 bg-black/40 border border-white/5 rounded-xl">
-                    <div className="text-xs font-bold text-white mb-1">Divergence Detected</div>
+                    <div className="text-xs font-bold text-on-surface mb-1">Divergence Detected</div>
                     <div className="text-[10px] text-slate-400">Current trend shows 12% deviation from historical baseline for {mission.title}.</div>
                   </div>
                 </div>
@@ -138,14 +138,14 @@ export const MissionWorkspace: React.FC<{
           <div className="lg:col-span-4 space-y-8">
             <div className="flex items-center space-x-2">
               <Target className="w-5 h-5 text-intel-red" />
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Shock Prediction</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Shock Prediction</h3>
             </div>
             
             <PropagationFlowchart shock={mockShock} rriDelta={0.42} />
 
             <div className="intel-card p-6 rounded-2xl border border-intel-border bg-gradient-to-b from-white/5 to-transparent text-center">
               <div className="mb-6">
-                <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-2">Simulation Sandbox</h4>
+                <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-2">Simulation Sandbox</h4>
                 <p className="text-[10px] text-slate-500 font-mono italic">
                   Hypothesis testing with mission variables
                 </p>

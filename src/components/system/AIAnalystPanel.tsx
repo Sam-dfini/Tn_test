@@ -76,6 +76,13 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
     }
   }, [messages, isLoading, typingProgress]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -146,7 +153,7 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[250]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-modal"
           />
 
           {/* Panel */}
@@ -157,7 +164,7 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               role="dialog"
               aria-label="AI Strategic Analyst Panel"
-              className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#05070a] border-l border-white/10 z-[300] flex flex-col shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[#05070a] border-l border-white/10 z-popup flex flex-col shadow-2xl"
             >
             {/* Header */}
             <div className="p-6 border-b border-white/10 bg-black/40 relative overflow-hidden">
@@ -171,7 +178,7 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                     <Zap className="w-5 h-5 text-intel-cyan" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white uppercase tracking-widest">AI Strategic Analyst</h2>
+                    <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest">AI Strategic Analyst</h2>
                     <div className="flex items-center space-x-2">
                       {(() => {
                         try {
@@ -269,7 +276,7 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                         : msg.text
                       }
                     </div>
-                    <div className="px-1 text-[7px] font-mono text-slate-600">
+                    <div className="px-1 text-[9px] font-mono text-slate-600">
                       {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -305,7 +312,7 @@ export const AIAnalystPanel: React.FC<AIAnalystPanelProps> = ({ isOpen, onClose 
                   }}
                   placeholder="Inquire about RRI dynamics, actor networks, or fiscal outlook..."
                   aria-label="Intelligence inquiry input"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 transition-all resize-none min-h-[80px]"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-xs font-mono text-on-surface placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 transition-all resize-none min-h-[80px]"
                 />
                 <button 
                   onClick={handleSend}

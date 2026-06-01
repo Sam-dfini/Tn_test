@@ -163,28 +163,28 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
               <div className="mt-8 grid grid-cols-2 gap-4">
                 <div className="p-4 bg-white/5 rounded-xl border border-intel-border">
                   <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">P(Revolution)</div>
-                  <div className="text-xl font-bold font-mono text-white">{(rriState.p_rev * 100).toFixed(1)}%</div>
+                  <div className="text-xl font-bold font-mono text-on-surface">{(rriState.p_rev * 100).toFixed(1)}%</div>
                 </div>
                 <div className="p-4 bg-white/5 rounded-xl border border-intel-border">
                   <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Risk Tier</div>
                   <div className={`text-xl font-bold font-mono uppercase ${tier.color}`}>{tier.label}</div>
                   <div className="mt-1 text-[10px] font-mono text-slate-400">
-                    Regime Age: <span className="text-white font-bold">{rriState.regime_age.years}Y</span> ({(rriState.regime_age.age_pct * 100).toFixed(0)}%)
+                    Regime Age: <span className="text-on-surface font-bold">{rriState.regime_age.years}Y</span> ({(rriState.regime_age.age_pct * 100).toFixed(0)}%)
                   </div>
                 </div>
               </div>
 
               <div className="mt-4 grid grid-cols-3 gap-2">
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                  <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">95% CI Low</div>
+                  <div className="text-[9px] font-mono text-slate-500 uppercase mb-0.5">95% CI Low</div>
                   <div className="text-xs font-mono text-slate-300">{(rriState.ci_low * 100).toFixed(1)}%</div>
                 </div>
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                  <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">95% CI High</div>
+                  <div className="text-[9px] font-mono text-slate-500 uppercase mb-0.5">95% CI High</div>
                   <div className="text-xs font-mono text-slate-300">{(rriState.ci_high * 100).toFixed(1)}%</div>
                 </div>
                 <div className="p-2 bg-white/5 rounded-lg border border-white/5">
-                  <div className="text-[7px] font-mono text-slate-500 uppercase mb-0.5">Confidence</div>
+                  <div className="text-[9px] font-mono text-slate-500 uppercase mb-0.5">Confidence</div>
                   <div className="text-xs font-mono text-intel-cyan">{(confidence * 100).toFixed(0)}%</div>
                 </div>
               </div>
@@ -391,7 +391,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                     <s.icon className="w-4 h-4" />
                   </div>
                   <div className="space-y-1">
-                    <div className="text-[10px] font-bold text-white uppercase tracking-wider">{s.name}</div>
+                    <div className="text-[10px] font-bold text-on-surface uppercase tracking-wider">{s.name}</div>
                     <div className="text-[8px] text-slate-500 leading-tight">{s.description}</div>
                   </div>
                 </button>
@@ -478,7 +478,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                               onMouseLeave={() => setHoveredVarId(null)}
                             >
                               <div className="flex items-center space-x-1.5">
-                                <span className="text-xs font-bold text-white uppercase tracking-wider group-hover/var:text-intel-cyan transition-colors">{v.name}</span>
+                                <span className="text-xs font-bold text-on-surface uppercase tracking-wider group-hover/var:text-intel-cyan transition-colors">{v.name}</span>
                                 <Info className="w-3 h-3 text-slate-600 group-hover/var:text-intel-cyan transition-colors" />
                               </div>
                               <span className="text-[8px] font-mono text-slate-500 uppercase">{v.source || 'TunisiaIntel Core'}</span>
@@ -493,7 +493,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                                   >
                                     <div className="space-y-3">
                                       <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">{v.name}</span>
+                                        <span className="text-[10px] font-bold text-on-surface uppercase tracking-wider">{v.name}</span>
                                         <span className="text-[8px] font-mono text-intel-cyan uppercase">Metadata</span>
                                       </div>
                                       
@@ -545,7 +545,7 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                               </div>
                               <div className="flex flex-col items-end">
                                 <span className="text-[8px] text-slate-500 uppercase">Value</span>
-                                <span className="text-xs font-mono text-white">{(varValue * 100).toFixed(0)}%</span>
+                                <span className="text-xs font-mono text-on-surface">{(varValue * 100).toFixed(0)}%</span>
                               </div>
                             </div>
                           </div>
@@ -582,10 +582,10 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-white uppercase tracking-wider">War Distraction W(t)</span>
+                      <span className="text-xs font-bold text-on-surface uppercase tracking-wider">War Distraction W(t)</span>
                       <span className="text-[8px] font-mono text-slate-500 uppercase italic">Dampens protest mobilisation</span>
                     </div>
-                    <span className="text-xs font-mono text-white">{(rriState.w_t * 100).toFixed(0)}%</span>
+                    <span className="text-xs font-mono text-on-surface">{(rriState.w_t * 100).toFixed(0)}%</span>
                   </div>
                   <div className="w-full h-1.5 bg-intel-border rounded-full overflow-hidden">
                     <div 
@@ -598,10 +598,10 @@ export const RiskModel: React.FC<RiskModelProps> = ({ variables: initialVariable
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                      <span className="text-xs font-bold text-white uppercase tracking-wider">Regime Age Factor</span>
+                      <span className="text-xs font-bold text-on-surface uppercase tracking-wider">Regime Age Factor</span>
                       <span className="text-[8px] font-mono text-slate-500 uppercase italic">{rriState.regime_age.years} years in power</span>
                     </div>
-                    <span className="text-xs font-mono text-white">{(rriState.regime_age.age_pct * 100).toFixed(0)}%</span>
+                    <span className="text-xs font-mono text-on-surface">{(rriState.regime_age.age_pct * 100).toFixed(0)}%</span>
                   </div>
                   <div className="w-full h-1.5 bg-intel-border rounded-full overflow-hidden">
                     <div 

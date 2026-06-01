@@ -503,7 +503,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-2 intel-card p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-6">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">RRI Distribution Analysis</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">RRI Distribution Analysis</h3>
               <p className="text-[10px] text-slate-500 font-mono">1,000 Iterations // Monte Carlo Engine v4.2</p>
             </div>
             <button 
@@ -519,7 +519,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="p-3 bg-white/5 rounded-xl border border-white/5">
                 <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Regime Age (Years)</div>
-                <div className="text-lg font-bold font-mono text-white">{context.regimeAge.years} Years</div>
+                <div className="text-lg font-bold font-mono text-on-surface">{context.regimeAge.years} Years</div>
               </div>
               <div className="p-3 bg-white/5 rounded-xl border border-white/5">
                 <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Age Percentile</div>
@@ -570,14 +570,14 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         
         <div className="space-y-6">
           <div className="intel-card p-6 rounded-2xl border border-intel-border bg-gradient-to-br from-intel-card to-intel-cyan/5">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6 flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-6 flex items-center">
               <Target className="w-4 h-4 mr-2 text-intel-cyan" />
               Statistical Summary
             </h3>
             <div className="space-y-4">
               {prepareList([
-                { label: 'Mean RRI', value: mcData.mean.toFixed(2), color: 'text-white' },
-                { label: 'Median RRI', value: mcData.median.toFixed(2), color: 'text-white' },
+                { label: 'Mean RRI', value: mcData.mean.toFixed(2), color: 'text-on-surface' },
+                { label: 'Median RRI', value: mcData.median.toFixed(2), color: 'text-on-surface' },
                 { label: '5th Percentile', value: mcData.p5.toFixed(2), color: 'text-intel-cyan' },
                 { label: '95th Percentile', value: mcData.p95.toFixed(2), color: 'text-intel-red' },
               ]).map((stat: any, i: number) => (
@@ -590,7 +590,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
           </div>
           
           <div className="intel-card p-6 rounded-2xl border border-intel-border">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
               <AlertTriangle className="w-4 h-4 mr-2 text-intel-orange" />
               Risk Assessment
             </h3>
@@ -605,7 +605,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
             </p>
             <div className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-lg">
               <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Tail Risk Warning</div>
-              <div className="text-[10px] text-white italic">"Extreme scenarios show potential for rapid escalation if IMF negotiations fail simultaneously with UGTT mobilization."</div>
+              <div className="text-[10px] text-on-surface italic">"Extreme scenarios show potential for rapid escalation if IMF negotiations fail simultaneously with UGTT mobilization."</div>
             </div>
           </div>
         </div>
@@ -620,7 +620,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-8 intel-card p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Variable Parameter Matrix</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Variable Parameter Matrix</h3>
               <p className="text-[10px] text-slate-500 font-mono">Adjust sliders to observe real-time impact on P_rev</p>
             </div>
             <div className="flex items-center space-x-2">
@@ -670,7 +670,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-4 space-y-6">
           <div className="intel-card p-6 rounded-2xl border border-intel-border flex flex-col items-center justify-center relative overflow-hidden">
             <div className="absolute top-4 left-4">
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">P_rev Gauge</h3>
+              <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">P_rev Gauge</h3>
             </div>
             
             <div className="relative w-48 h-48 mt-4">
@@ -730,7 +730,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
           </div>
           
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest flex items-center">
               <Save className="w-4 h-4 mr-2 text-intel-cyan" />
               Save Scenario
             </h3>
@@ -740,7 +740,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                 placeholder="Scenario Name..." 
                 value={scenarioName}
                 onChange={(e) => setScenarioName(e.target.value)}
-                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50"
+                className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50"
               />
               <button 
                 onClick={handleSaveScenario}
@@ -754,7 +754,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               {prepareList(savedScenarios).map((s: any, i: number) => (
                 <div key={generateStableKey(s, i, 'saved-scen')} className="flex items-center justify-between p-2 bg-white/5 border border-white/10 rounded-lg group">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-white">{s.name}</span>
+                    <span className="text-[10px] font-bold text-on-surface">{s.name}</span>
                     <span className="text-[8px] font-mono text-slate-500">P_rev: {(s.pRev * 100).toFixed(1)}%</span>
                   </div>
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -780,7 +780,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-4 space-y-6">
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Sim Controls</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Sim Controls</h3>
               <div className="flex items-center space-x-1">
                 <div className={`w-1.5 h-1.5 rounded-full ${isSimulating ? 'bg-intel-green animate-pulse' : 'bg-slate-600'}`}></div>
                 <span className="text-[8px] font-mono text-slate-500 uppercase">{isSimulating ? 'Running' : 'Paused'}</span>
@@ -805,7 +805,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono text-slate-500 uppercase">Simulation Week</span>
-                <span className="text-xl font-bold font-mono text-white">{simTick} / 52</span>
+                <span className="text-xl font-bold font-mono text-on-surface">{simTick} / 52</span>
               </div>
               <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                 <div className="h-full bg-intel-cyan" style={{ width: `${(simTick / 52) * 100}%` }}></div>
@@ -824,13 +824,13 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
           </div>
           
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Agent Populations</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Agent Populations</h3>
             <div className="space-y-3">
               {prepareList(agents).map((agent: any, i: number) => (
                 <div key={generateStableKey(agent, i, 'agent')} className="space-y-1">
                   <div className="flex justify-between text-[10px] font-mono">
                     <span className="text-slate-400 uppercase">{agent.type}</span>
-                    <span className="text-white font-bold">{(agent.active).toLocaleString()} / {(agent.count).toLocaleString()}</span>
+                    <span className="text-on-surface font-bold">{(agent.active).toLocaleString()} / {(agent.count).toLocaleString()}</span>
                   </div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                     <motion.div 
@@ -849,7 +849,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-8 intel-card p-6 rounded-2xl border border-intel-border flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Active Agent Dynamics</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Active Agent Dynamics</h3>
               <p className="text-[10px] text-slate-500 font-mono">Real-time population activation tracking</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -910,7 +910,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                 className={`p-3 bg-${event.color}/10 border border-${event.color}/20 rounded-xl text-center hover:bg-${event.color}/20 transition-all group`}
               >
                 <div className={`text-[8px] font-mono text-${event.color} uppercase font-bold mb-1`}>Inject Event</div>
-                <div className={`text-[10px] text-white font-bold group-hover:text-${event.color} transition-colors`}>{event.label}</div>
+                <div className={`text-[10px] text-on-surface font-bold group-hover:text-${event.color} transition-colors`}>{event.label}</div>
               </button>
             ))}
           </div>
@@ -924,7 +924,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
       <div className="intel-card p-6 rounded-2xl border border-intel-border">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest">AI Multi-Agent Simulation Engine</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">AI Multi-Agent Simulation Engine</h3>
             <p className="text-[10px] text-slate-500 font-mono">Consensus-based forecasting via specialized analyst personas</p>
           </div>
           <div className="flex-1 max-w-xl relative">
@@ -933,7 +933,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               placeholder="Enter scenario seed (e.g., 'Sudden collapse of phosphate exports due to regional conflict')..." 
               value={aiSeed}
               onChange={(e) => setAiSeed(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-32 py-3 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50"
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-32 py-3 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50"
             />
             <Brain className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-intel-cyan" />
             <button 
@@ -967,7 +967,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-bold font-mono text-white">{aiForecast}%</span>
+                  <span className="text-4xl font-bold font-mono text-on-surface">{aiForecast}%</span>
                   <span className="text-[8px] font-mono text-slate-500 uppercase">Aggregate Risk</span>
                 </div>
               </div>
@@ -1007,7 +1007,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                     transition={{ delay: i * 0.1 }}
                     className={`p-4 rounded-xl border bg-white/5 flex flex-col justify-between space-y-4 relative overflow-hidden ${response.dissent ? 'border-intel-red/30' : 'border-white/10'}`}
                   >
-                    {response.dissent && <div className="absolute top-0 right-0 bg-intel-red text-white text-[8px] px-2 py-0.5 font-bold uppercase">Dissent</div>}
+                    {response.dissent && <div className="absolute top-0 right-0 bg-intel-red text-on-surface text-[8px] px-2 py-0.5 font-bold uppercase">Dissent</div>}
                     
                     <div className="flex items-center space-x-3">
                       <div 
@@ -1017,7 +1017,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                         {persona.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-[10px] font-bold text-white">{persona.name}</div>
+                        <div className="text-[10px] font-bold text-on-surface">{persona.name}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{persona.role}</div>
                       </div>
                     </div>
@@ -1042,7 +1042,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   <Brain className="absolute inset-0 m-auto w-6 h-6 text-intel-cyan animate-pulse" />
                 </div>
                 <div className="space-y-1">
-                  <div className="text-sm font-bold text-white uppercase tracking-widest">Simulating Agent Perspectives</div>
+                  <div className="text-sm font-bold text-on-surface uppercase tracking-widest">Simulating Agent Perspectives</div>
                   <p className="text-[10px] font-mono text-slate-500">Querying Gemini-3.1-Pro-Preview // Multi-Agent Orchestration</p>
                 </div>
               </>
@@ -1084,7 +1084,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="intel-card p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center gap-2 mb-4">
             <Cpu className="w-5 h-5 text-intel-cyan" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Scenario Selector</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Scenario Selector</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
             <div className="lg:col-span-2">
@@ -1092,7 +1092,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               <select
                 value={chamberScenarioId}
                 onChange={e => setChamberScenarioId(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-intel-cyan/50 focus:outline-none font-mono"
               >
                 {chamberScenarios.map(s => (
                   <option key={s.scenario_id} value={s.scenario_id}>{s.scenario_name}</option>
@@ -1125,7 +1125,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                     value={chamberCustomName}
                     onChange={e => setChamberCustomName(e.target.value)}
                     placeholder="My Scenario"
-                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-intel-cyan/50 focus:outline-none font-mono"
                   />
                 </div>
                 <div className="lg:col-span-2">
@@ -1134,7 +1134,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                     value={chamberCustomVector}
                     onChange={e => setChamberCustomVector(e.target.value)}
                     placeholder="E2_wheat_stress:0.35, P3_imf_pressure:0.40"
-                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-intel-cyan/50 focus:outline-none font-mono"
                   />
                 </div>
               </>
@@ -1147,7 +1147,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                 onChange={e => setChamberMcIterations(parseInt(e.target.value) || 100)}
                 min={10}
                 max={5000}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-intel-cyan/50 focus:outline-none font-mono"
               />
             </div>
             <div>
@@ -1158,7 +1158,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                 onChange={e => setChamberTimeHorizon(parseInt(e.target.value) || 30)}
                 min={7}
                 max={365}
-                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-intel-cyan/50 focus:outline-none font-mono"
+                className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-intel-cyan/50 focus:outline-none font-mono"
               />
             </div>
           </div>
@@ -1301,7 +1301,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                   <div>
                     <h4 className="text-[10px] font-mono text-intel-cyan uppercase tracking-widest mb-2">Historical Analogue</h4>
                     <div className="p-3 bg-intel-cyan/5 border border-intel-cyan/20 rounded-lg">
-                      <div className="text-[11px] font-bold font-mono text-white">{chamberResult.historical_analogue}</div>
+                      <div className="text-[11px] font-bold font-mono text-on-surface">{chamberResult.historical_analogue}</div>
                       <div className="text-[10px] font-mono text-intel-cyan">
                         {((chamberResult.analogue_similarity || 0) * 100).toFixed(0)}% similarity
                       </div>
@@ -1341,7 +1341,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               <div className="w-16 h-16 border-4 border-intel-cyan/20 border-t-intel-cyan rounded-full animate-spin" />
               <Cpu className="absolute inset-0 m-auto w-6 h-6 text-intel-cyan animate-pulse" />
             </div>
-            <div className="text-sm font-bold text-white uppercase tracking-widest">Simulating {chamberMcIterations} Iterations</div>
+            <div className="text-sm font-bold text-on-surface uppercase tracking-widest">Simulating {chamberMcIterations} Iterations</div>
             <p className="text-[10px] font-mono text-slate-500">Monte Carlo engine running • {chamberTimeHorizon}-day horizon</p>
           </div>
         )}
@@ -1356,7 +1356,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         <div className="lg:col-span-7 intel-card p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Model Calibration Curve</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Model Calibration Curve</h3>
               <p className="text-[10px] text-slate-500 font-mono">Predicted Probability vs Actual Frequency</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -1414,7 +1414,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
         
         {/* Metrics Panel */}
         <div className="lg:col-span-5 space-y-6">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Accuracy Metrics</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-6">Accuracy Metrics</h3>
           <div className="grid grid-cols-2 gap-4">
             {prepareList((() => {
               const btSize = backtestLogs.length;
@@ -1435,18 +1435,18 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               <div key={generateStableKey(metric, i, 'accuracy')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-1">
                 <div className="text-[8px] font-mono text-slate-500 uppercase">{metric.label}</div>
                 <div className={`text-xl font-bold font-mono ${metric.status === 'GOOD' ? 'text-intel-green' : 'text-intel-orange'}`}>{metric.value}</div>
-                <div className="text-[7px] font-mono text-slate-600 uppercase italic">{metric.desc}</div>
+                <div className="text-[9px] font-mono text-slate-600 uppercase italic">{metric.desc}</div>
               </div>
             ))}
           </div>
           
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Historical Log</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Historical Log</h3>
             <div className="space-y-2 overflow-y-auto max-h-64 pr-2 custom-scrollbar">
               {prepareList(backtestLogs).map((log: any, i: number) => (
                 <div key={generateStableKey(log, i, 'backtest')} className="p-3 bg-white/5 border border-white/10 rounded-lg flex items-center justify-between">
                   <div className="space-y-1">
-                    <div className="text-[10px] font-bold text-white">{log.date} // {log.event}</div>
+                    <div className="text-[10px] font-bold text-on-surface">{log.date} // {log.event}</div>
                     <div className="flex items-center space-x-3 text-[8px] font-mono">
                       <span className="text-slate-500">SIM: {log.sim}%</span>
                       <span className="text-slate-500">ACTUAL: {log.actual}%</span>
@@ -1466,13 +1466,13 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <input id="bt-date" placeholder="Period (e.g. 2026-Q2)" 
-                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50" />
                 <input id="bt-event" placeholder="Event description" 
-                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50" />
                 <input id="bt-sim" type="number" placeholder="Simulated %" 
-                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50" />
                 <input id="bt-actual" type="number" placeholder="Actual %" 
-                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50" />
+                  className="bg-white/5 border border-white/10 rounded px-2 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50" />
               </div>
               <button
                 onClick={() => {
@@ -1558,7 +1558,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                           <Target className="w-5 h-5 text-red-400" />
                         </div>
                         <div>
-                          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Shock Injection Sandbox</h3>
+                          <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Shock Injection Sandbox</h3>
                           <p className="text-[10px] font-mono text-slate-500">Configure and inject synthetic shock events to simulate propagation</p>
                         </div>
                       </div>
@@ -1572,7 +1572,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                       <div>
                         <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Domain</label>
                         <select 
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.domain}
                           onChange={e => setShockParams({...shockParams, domain: e.target.value as any})}
                         >
@@ -1585,7 +1585,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                       <div>
                         <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Target Variable</label>
                         <select 
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.variable}
                           onChange={e => setShockParams({...shockParams, variable: e.target.value})}
                         >
@@ -1598,7 +1598,7 @@ export const SimulationIntelligence: React.FC<{ context?: any, variables: RRIVar
                       <div>
                         <label className="text-[10px] text-slate-500 uppercase tracking-widest block mb-1.5 font-mono">Epicenter Governorate</label>
                         <select 
-                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-red-500/50 focus:outline-none font-mono"
+                          className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-on-surface focus:border-red-500/50 focus:outline-none font-mono"
                           value={shockParams.governorate}
                           onChange={e => setShockParams({...shockParams, governorate: e.target.value})}
                         >

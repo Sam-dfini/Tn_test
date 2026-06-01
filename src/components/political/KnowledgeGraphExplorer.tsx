@@ -404,12 +404,12 @@ const KnowledgeGraphExplorer: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search actors, institutions..."
-            className="w-full bg-[#0a0c10] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[11px] font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50" />
+            className="w-full bg-[#0a0c10] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[11px] font-mono text-on-surface placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50" />
           {search && <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X className="w-3 h-3" /></button>}
         </div>
         <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 uppercase"><Filter className="w-3 h-3" /> Group:</div>
         <select value={groupFilter} onChange={e => setGroupFilter(e.target.value as typeof groupFilter)}
-          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white">
+          className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-on-surface">
           <option value="all">All Groups</option>
           <option value="geopolitical">Geopolitical</option>
           <option value="national">National</option>
@@ -445,7 +445,7 @@ const KnowledgeGraphExplorer: React.FC = () => {
                 className="absolute top-6 left-6 w-80 glass rounded-2xl border border-intel-border/50 bg-[#050a10]/95 p-5 space-y-3 text-[10px] font-mono shadow-2xl backdrop-blur-xl pointer-events-auto max-h-[calc(100%-3rem)] overflow-y-auto">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-base font-bold tracking-tight text-white">{selectedNode.label}</div>
+                    <div className="text-base font-bold tracking-tight text-on-surface">{selectedNode.label}</div>
                     <div className="text-slate-600 uppercase text-[8px] font-black mt-0.5">{selectedNode.id} · {selectedNode.group}</div>
                   </div>
                   <button onClick={() => { setSelectedNode(null); setNeighbors(null); }} className="text-slate-600 hover:text-white p-1"><X className="w-4 h-4" /></button>
@@ -453,13 +453,13 @@ const KnowledgeGraphExplorer: React.FC = () => {
                 {selectedNode.domain && selectedNode.domain.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {(selectedNode.domain as string[]).map(d => (
-                      <span key={d} className="px-1.5 py-0.5 rounded bg-white/5 text-[7px] text-slate-400 uppercase font-mono">{d}</span>
+                      <span key={d} className="px-1.5 py-0.5 rounded bg-white/5 text-[9px] text-slate-400 uppercase font-mono">{d}</span>
                     ))}
                   </div>
                 )}
                 {neighbors && (
                   <div className="space-y-2 pt-2 border-t border-white/5">
-                    <div className="text-[7px] text-slate-600 uppercase font-black flex items-center gap-1">
+                    <div className="text-[9px] text-slate-600 uppercase font-black flex items-center gap-1">
                       <ArrowRight className="w-3 h-3" /> Connected Entities ({neighbors.neighbors.length})
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -516,18 +516,18 @@ const KnowledgeGraphExplorer: React.FC = () => {
                   return (
                     <div key={r.id} className="p-2 rounded-xl bg-white/[0.03] border border-white/5 space-y-1">
                       <div className="flex items-center gap-1 text-[8px]">
-                        <span className="text-white font-bold">{r.source_id}</span>
+                        <span className="text-on-surface font-bold">{r.source_id}</span>
                         <span className="text-slate-600">→</span>
-                        <span className="text-white font-bold">{r.target_id}</span>
+                        <span className="text-on-surface font-bold">{r.target_id}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-0.5 rounded" style={{ backgroundColor: EDGE_COLORS[r.type] || '#64748b' }} />
-                        <span className="text-[7px] text-slate-500 uppercase">{r.type}</span>
-                        <span className="text-[7px] text-slate-600">w={r.weight}</span>
+                        <span className="text-[9px] text-slate-500 uppercase">{r.type}</span>
+                        <span className="text-[9px] text-slate-600">w={r.weight}</span>
                       </div>
-                      {r.description && <div className="text-[7px] text-slate-500 leading-tight">{r.description}</div>}
+                      {r.description && <div className="text-[9px] text-slate-500 leading-tight">{r.description}</div>}
                       {tNode && <button onClick={() => { const f = nodes.find(n => n.id === tNode!.id); if (f) handleNodeClick(f); }}
-                        className="text-[7px] text-intel-cyan hover:text-white transition-colors">Navigate to {tNode.label} →</button>}
+                        className="text-[9px] text-intel-cyan hover:text-white transition-colors">Navigate to {tNode.label} →</button>}
                     </div>
                   );
                 })}

@@ -109,9 +109,9 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
         <div className="space-y-0.5">
           <div className="flex items-center space-x-2">
             <History className={cn("text-intel-cyan", compact ? "w-3 h-3" : "w-5 h-5")} />
-            <h2 className={cn("font-bold text-white uppercase tracking-tighter", compact ? "text-[10px]" : "text-xl")}>Ideological Intel</h2>
+            <h2 className={cn("font-bold text-on-surface uppercase tracking-tighter", compact ? "text-[10px]" : "text-xl")}>Ideological Intel</h2>
           </div>
-          <p className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">Evolutionary Analysis: 1956 — 2026</p>
+          <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Evolutionary Analysis: 1956 — 2026</p>
         </div>
         {!compact && (
           <div className="flex items-center space-x-4">
@@ -136,7 +136,7 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
           <section className="space-y-4">
             <div className="flex items-center space-x-2 border-l-2 border-intel-cyan pl-3">
               <Users className="w-4 h-4 text-intel-cyan" />
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Primary Ideological Blocks</h3>
+              <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Primary Ideological Blocks</h3>
             </div>
             <div className={cn("grid gap-3", compact ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2")}>
               {[
@@ -147,7 +147,7 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
                 { name: 'Saiedist Populists', desc: 'Anti-elite sovereignism, hyperpolitics, institutional negation.', color: 'border-intel-cyan/30 bg-intel-cyan/5' },
               ].map((block) => (
                 <div key={block.name} className={cn("p-3 rounded-lg border transition-all hover:border-white/20", block.color)}>
-                  <div className="text-[9px] font-bold text-white uppercase mb-1">{block.name}</div>
+                  <div className="text-[9px] font-bold text-on-surface uppercase mb-1">{block.name}</div>
                   <p className="text-[8px] text-slate-400 uppercase leading-relaxed font-mono">{block.desc}</p>
                 </div>
               ))}
@@ -158,7 +158,7 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
           <section className="space-y-4">
             <div className="flex items-center space-x-2 border-l-2 border-intel-orange pl-3">
               <GitMerge className="w-4 h-4 text-intel-orange" />
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Tactical Alliances</h3>
+              <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Tactical Alliances</h3>
             </div>
             <div className="space-y-4 relative before:absolute before:left-[15px] before:top-0 before:bottom-0 before:w-px before:bg-white/10">
               {ALLIANCES.slice(compact ? -4 : 0).map((alliance) => (
@@ -168,13 +168,13 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
                   </div>
                   <div className="p-3 rounded-lg bg-white/5 border border-white/10 group-hover:bg-white/10 transition-all">
                     <div className="flex justify-between items-start mb-1">
-                      <div className="text-[9px] font-bold text-white uppercase">{alliance.title}</div>
+                      <div className="text-[9px] font-bold text-on-surface uppercase">{alliance.title}</div>
                     </div>
                     <p className="text-[8px] text-slate-400 uppercase leading-relaxed mb-2">{alliance.desc}</p>
                     <div className="flex items-center justify-between">
-                      <div className="text-[7px] font-mono text-intel-cyan uppercase tracking-widest">{alliance.impact}</div>
+                      <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest">{alliance.impact}</div>
                       <div className={cn(
-                        "text-[7px] font-mono px-1 py-0.5 rounded border uppercase font-bold",
+                        "text-[9px] font-mono px-1 py-0.5 rounded border uppercase font-bold",
                         alliance.rri < 0 ? "bg-intel-green/10 text-intel-green border-intel-green/20" : "bg-intel-red/10 text-intel-red border-intel-red/20"
                       )}>
                         RRI: {alliance.rri > 0 ? '+' : ''}{alliance.rri}
@@ -195,7 +195,7 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-3 h-3 text-intel-cyan" />
-                <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Ideological Strength</h3>
+                <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Ideological Strength</h3>
               </div>
             </div>
             <div className={cn("w-full", compact ? "h-[200px]" : "h-[300px]")}>
@@ -246,7 +246,7 @@ export const IdeologicalIntelligence: React.FC<IdeologicalIntelligenceProps> = (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Activity className="w-3 h-3 text-intel-red" />
-                <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">RRI Correlation</h3>
+                <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">RRI Correlation</h3>
               </div>
             </div>
             <div className={cn("w-full", compact ? "h-[180px]" : "h-[250px]")}>

@@ -77,7 +77,7 @@ export const SweepDelta: React.FC = () => {
       <div className="space-y-1.5">
         {prepareList(recentChanges).map((item: any, i: number) => (
           <div key={generateStableKey(item, i, 'chg')} className="flex items-center space-x-2">
-            <span className={`text-[7px] font-mono font-bold px-1
+            <span className={`text-[9px] font-mono font-bold px-1
               rounded border uppercase shrink-0 ${
               item.type === 'RRI'
                 ? 'text-intel-red border-intel-red/30 bg-intel-red/10'

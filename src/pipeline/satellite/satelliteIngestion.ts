@@ -11,7 +11,7 @@
  *   Rainfall anomaly:     daily
  *
  * Usage:
- *   import { runSatelliteIngestion } from './src/pipeline/satellite/satelliteIngestion.js';
+ *   import { runSatelliteIngestion } from './pipeline/satellite/satelliteIngestion.ts';
  *   await runSatelliteIngestion(supabase, io);
  */
 

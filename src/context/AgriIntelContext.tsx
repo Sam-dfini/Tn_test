@@ -62,9 +62,7 @@ export const AgriIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               priority: 'CRITICAL',
               title: `Bread Crisis Index: ${(summary.bci.BCI * 100).toFixed(0)}% — ${summary.bci.level}`,
               message: `Supply: ${(summary.bci.supply_stress*100).toFixed(0)}% · Price: ${(summary.bci.price_pressure*100).toFixed(0)}% · Public: ${(summary.bci.public_signal*100).toFixed(0)}%`,
-              action_label: 'View AgriIntel',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'agri' },
+              action: { label: 'View AgriIntel', event: 'navigate-main', detail: { tab: 'agri' } },
             });
           }
 
@@ -74,9 +72,7 @@ export const AgriIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               priority: 'HIGH',
               title: `BCI Velocity Alert: +${(summary.bci.velocity * 100).toFixed(0)}% in 7 days`,
               message: 'Bread Crisis Index accelerating. Early warning threshold exceeded.',
-              action_label: 'View AgriIntel',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'agri' },
+              action: { label: 'View AgriIntel', event: 'navigate-main', detail: { tab: 'agri' } },
             });
           }
           }

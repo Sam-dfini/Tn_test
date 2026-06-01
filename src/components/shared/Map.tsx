@@ -238,23 +238,23 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
               ${gov.risk_level}
             </span>
           </div>
-          <h4 class="text-sm font-bold text-white uppercase mb-1">${gov.name.en}</h4>
+          <h4 class="text-sm font-bold text-on-surface uppercase mb-1">${gov.name.en}</h4>
           <div class="text-[10px] text-slate-400 mb-3">${gov.name.ar}</div>
           
           <div class="grid grid-cols-2 gap-2 mb-3">
             <div class="p-1.5 rounded bg-white/5 border border-white/5 text-center">
-              <div class="text-[7px] text-slate-500 uppercase">RRI Score</div>
-              <div class="text-xs font-bold text-white">${gov.rri_score.toFixed(2)}</div>
+              <div class="text-[9px] text-slate-500 uppercase">RRI Score</div>
+              <div class="text-xs font-bold text-on-surface">${gov.rri_score.toFixed(2)}</div>
             </div>
             <div class="p-1.5 rounded bg-white/5 border border-white/5 text-center">
-              <div class="text-[7px] text-slate-500 uppercase">Unemp</div>
-              <div class="text-xs font-bold text-white">${gov.unemp}%</div>
+              <div class="text-[9px] text-slate-500 uppercase">Unemp</div>
+              <div class="text-xs font-bold text-on-surface">${gov.unemp}%</div>
             </div>
           </div>
 
           ${govEvents.length > 0 ? `
             <div class="mb-3 space-y-1">
-              <div class="text-[7px] text-slate-500 uppercase mb-1">Recent Events</div>
+              <div class="text-[9px] text-slate-500 uppercase mb-1">Recent Events</div>
               ${govEvents.map(e => `
                 <div class="text-[8px] p-1 bg-white/5 rounded border border-white/5 truncate">
                   <span class="${e.urgent ? 'text-intel-red' : 'text-intel-cyan'}">●</span> ${e.title}
@@ -332,7 +332,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
                 icon={createAgriIcon(type, color)}
               >
                 <Popup>
-                  <div className="font-mono text-[10px] text-white uppercase font-bold p-1">
+                  <div className="font-mono text-[10px] text-on-surface uppercase font-bold p-1">
                     {gov.name.en} - {renderLayer}
                   </div>
                 </Popup>
@@ -388,7 +388,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
           <div className="glass px-4 py-2 rounded-lg flex items-center space-x-3">
             <div className="flex flex-col">
               <span className="text-[8px] font-mono text-slate-500 uppercase">Active Layer</span>
-              <span className="text-[10px] text-white font-bold uppercase tracking-widest">{renderLayer} Choropleth</span>
+              <span className="text-[10px] text-on-surface font-bold uppercase tracking-widest">{renderLayer} Choropleth</span>
             </div>
             
             {externalActiveLayer === 'Agricultural Stress' ? (
@@ -420,7 +420,7 @@ export const Map: React.FC<MapProps> = ({ governorates, events, activeLayer, hea
               </div>
             ) : (
               <div className="px-3 py-2 bg-intel-cyan/10 border border-intel-cyan/20 rounded-lg">
-                <span className="text-[10px] text-white font-bold uppercase tracking-widest">{renderLayer}</span>
+                <span className="text-[10px] text-on-surface font-bold uppercase tracking-widest">{renderLayer}</span>
               </div>
             )}
           </div>

@@ -227,7 +227,7 @@ export const FreedomIndex: React.FC = () => {
             {/* Timeline Chart */}
             <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Decree 54 Charges by Quarter (2022–2026)</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Decree 54 Charges by Quarter (2022–2026)</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase">Tracking the acceleration of cybercrime law enforcement</p>
               </div>
               <div className="h-[300px] w-full">
@@ -256,13 +256,13 @@ export const FreedomIndex: React.FC = () => {
 
             {/* Category Breakdown */}
             <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Category Breakdown</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Category Breakdown</h3>
               <div className="space-y-6">
                 {prepareList(categoryBreakdown).map((item: any, i: number) => (
                   <div key={generateStableKey(item, i, 'cat')} className="space-y-2">
                     <div className="flex justify-between text-[10px] font-mono">
                       <span className="text-slate-400 uppercase">{item.category}</span>
-                      <span className="text-white font-bold">{item.cases} cases</span>
+                      <span className="text-on-surface font-bold">{item.cases} cases</span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                       <motion.div 
@@ -281,7 +281,7 @@ export const FreedomIndex: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Recent Cases Table */}
             <div className="lg:col-span-7 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Recent Decree 54 Cases</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Recent Decree 54 Cases</h3>
               <div className="overflow-x-auto scrollbar-hide">
                 <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
@@ -297,7 +297,7 @@ export const FreedomIndex: React.FC = () => {
                     {prepareList(recentCases).map((row: any, i: number) => (
                       <tr key={generateStableKey(row, i, 'case')} className="group hover:bg-white/5 transition-colors">
                         <td className="py-4 text-[10px] font-mono text-slate-400">{row.date}</td>
-                        <td className="py-4 text-xs font-bold text-white">{row.name}</td>
+                        <td className="py-4 text-xs font-bold text-on-surface">{row.name}</td>
                         <td className="py-4 text-[10px] font-mono text-slate-300">{row.category}</td>
                         <td className="py-4 text-[10px] font-mono text-slate-300 italic">{row.charge}</td>
                         <td className="py-4">
@@ -319,7 +319,7 @@ export const FreedomIndex: React.FC = () => {
 
             {/* Throttling Log */}
             <div className="lg:col-span-5 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Documented Internet Restriction Events</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Documented Internet Restriction Events</h3>
               <div className="space-y-4">
                 {prepareList(throttlingLog).map((incident: any, i: number) => (
                   <div key={generateStableKey(incident, i, 'throttle')} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
@@ -327,7 +327,7 @@ export const FreedomIndex: React.FC = () => {
                       <span className="px-2 py-0.5 bg-intel-orange/10 text-intel-orange border border-intel-orange/20 rounded text-[8px] font-mono uppercase font-bold">{incident.date}</span>
                       <span className="text-[8px] font-mono text-slate-500 uppercase">{incident.duration}</span>
                     </div>
-                    <p className="text-xs text-white font-bold leading-tight">{incident.title}</p>
+                    <p className="text-xs text-on-surface font-bold leading-tight">{incident.title}</p>
                     <div className="flex items-center space-x-2 text-[9px] font-mono text-slate-500 uppercase">
                       <Globe className="w-3 h-3" />
                       <span>Platforms: {incident.platforms}</span>
@@ -381,7 +381,7 @@ export const FreedomIndex: React.FC = () => {
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className="text-slate-400 uppercase">{item.name}</span>
                     </div>
-                    <span className="text-white font-bold">{item.value}</span>
+                    <span className="text-on-surface font-bold">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -391,7 +391,7 @@ export const FreedomIndex: React.FC = () => {
             <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Detention Trend (18 Months)</h3>
+                  <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Detention Trend (18 Months)</h3>
                   <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Monthly count of political detainees</p>
                 </div>
                 <div className="flex items-center space-x-2 text-intel-red animate-pulse">
@@ -417,13 +417,13 @@ export const FreedomIndex: React.FC = () => {
 
           {/* Notable Detainees Panel */}
           <div className="space-y-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest">Notable Detainees & Status</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Notable Detainees & Status</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {prepareList(notableDetainees).map((detainee: any, i: number) => (
                 <div key={generateStableKey(detainee, i, 'detainee')} className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-4 relative overflow-hidden group hover:border-intel-cyan/50 transition-all">
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                      <div className="text-xs font-bold text-white">{detainee.name}</div>
+                      <div className="text-xs font-bold text-on-surface">{detainee.name}</div>
                       <div className="text-[10px] text-slate-500 font-mono uppercase">{detainee.role}</div>
                     </div>
                     <span className={cn(
@@ -462,7 +462,7 @@ export const FreedomIndex: React.FC = () => {
             {/* RSF Ranking Chart */}
             <div className="lg:col-span-8 intel-card p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="space-y-1">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">RSF Press Freedom Index — Tunisia Global Rank</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">RSF Press Freedom Index — Tunisia Global Rank</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Lower rank number = better freedom. Data: 2015-2026</p>
               </div>
               <div className="h-[350px] w-full">
@@ -491,7 +491,7 @@ export const FreedomIndex: React.FC = () => {
             {/* Self-Censorship Gauge */}
             <div className="lg:col-span-4 intel-card p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col items-center justify-center relative overflow-hidden">
               <div className="absolute top-6 left-6">
-                <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Self-Censorship Rate</h3>
+                <h3 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Self-Censorship Rate</h3>
               </div>
               
               <div className="relative w-48 h-48 mt-4">
@@ -531,7 +531,7 @@ export const FreedomIndex: React.FC = () => {
                 <div className="space-y-3">
                   {prepareList(group.items).map((media: any, j: number) => (
                     <div key={generateStableKey(media, j, 'media-item')} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/10">
-                      <span className="text-xs font-bold text-white">{media.name}</span>
+                      <span className="text-xs font-bold text-on-surface">{media.name}</span>
                       <span className={cn(
                         "text-[8px] font-mono px-2 py-0.5 rounded border uppercase",
                         media.status === 'STATE' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
@@ -554,7 +554,7 @@ export const FreedomIndex: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Erosion Timeline */}
             <div className="lg:col-span-7 space-y-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Institutional Erosion Timeline</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Institutional Erosion Timeline</h3>
               <div className="space-y-4 relative before:absolute before:left-[11px] before:top-0 before:bottom-0 before:w-px before:bg-intel-border">
                 {prepareList(institutionalErosion).map((event: any, i: number) => (
                   <div key={generateStableKey(event, i, 'erosion')} className="relative pl-8 group">
@@ -574,7 +574,7 @@ export const FreedomIndex: React.FC = () => {
                           {event.impact}
                         </span>
                       </div>
-                      <h4 className="text-sm font-bold text-white">{event.title}</h4>
+                      <h4 className="text-sm font-bold text-on-surface">{event.title}</h4>
                       <p className="text-xs text-slate-500 leading-relaxed">{event.desc}</p>
                     </div>
                   </div>
@@ -584,7 +584,7 @@ export const FreedomIndex: React.FC = () => {
 
             {/* Health Scorecard */}
             <div className="lg:col-span-5 space-y-6">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Institutional Health Scorecard</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Institutional Health Scorecard</h3>
               <div className="intel-card p-5 md:p-6 rounded-2xl border border-intel-border">
                 <div className="overflow-x-auto scrollbar-hide">
                   <table className="w-full text-left border-collapse min-w-[500px]">
@@ -599,7 +599,7 @@ export const FreedomIndex: React.FC = () => {
                       {prepareList(institutionalHealth).map((row: any, i: number) => (
                         <tr key={generateStableKey(row, i, 'health')} className="group hover:bg-white/5 transition-colors">
                           <td className="py-4">
-                            <div className="text-xs font-bold text-white">{row.institution}</div>
+                            <div className="text-xs font-bold text-on-surface">{row.institution}</div>
                             <div className="text-[8px] font-mono text-slate-600 uppercase">Pre-2021: {row.pre}</div>
                           </td>
                           <td className="py-4 text-xs text-slate-300">{row.current}</td>

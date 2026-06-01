@@ -679,7 +679,7 @@ export const NationalActorNetwork: React.FC = () => {
               <Filter className="w-3 h-3" /> Filter:
             </div>
             <select
-              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-on-surface"
               value={filters.type}
               onChange={e => setFilters(f => ({ ...f, type: e.target.value as EdgeType | 'all' }))}
             >
@@ -687,7 +687,7 @@ export const NationalActorNetwork: React.FC = () => {
               {EDGE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
             <select
-              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-white"
+              className="bg-[#0a0c10] border border-white/10 rounded-lg px-2 py-1 text-[9px] font-mono text-on-surface"
               value={filters.tier}
               onChange={e => setFilters(f => ({ ...f, tier: e.target.value === 'all' ? 'all' : parseInt(e.target.value) }))}
             >
@@ -733,7 +733,7 @@ export const NationalActorNetwork: React.FC = () => {
                     <>
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-base font-bold tracking-tight text-white">{selectedNode.label}</div>
+                          <div className="text-base font-bold tracking-tight text-on-surface">{selectedNode.label}</div>
                           <div className="text-slate-600 uppercase text-[8px] font-black">Tier {selectedNode.tier} · {selectedNode.powerType}</div>
                         </div>
                         <button onClick={() => setSelectedNode(null)} className="text-slate-600 hover:text-white transition-colors p-1"><X className="w-4 h-4" /></button>
@@ -741,7 +741,7 @@ export const NationalActorNetwork: React.FC = () => {
                       <div className="grid grid-cols-2 gap-3 pt-2">
                         {Object.entries(selectedNode.resources).map(([k, v]) => (
                           <div key={k} className="space-y-1">
-                            <div className="text-[7px] text-slate-600 uppercase font-black">{k}</div>
+                            <div className="text-[9px] text-slate-600 uppercase font-black">{k}</div>
                             <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                               <div className="h-full bg-intel-cyan rounded-full" style={{ width: `${v * 10}%` }} />
                             </div>
@@ -750,11 +750,11 @@ export const NationalActorNetwork: React.FC = () => {
                       </div>
                       <div className="space-y-3 pt-2 border-t border-white/5">
                         <div className="space-y-1">
-                          <div className="text-[7px] text-slate-600 uppercase font-black">Strategic Goals</div>
+                          <div className="text-[9px] text-slate-600 uppercase font-black">Strategic Goals</div>
                           {selectedNode.goals.map((g, i) => <div key={i} className="text-slate-400 flex gap-2"><span>→</span> {g}</div>)}
                         </div>
                         <div className="space-y-1">
-                          <div className="text-[7px] text-red-500/60 uppercase font-black">Constraints</div>
+                          <div className="text-[9px] text-red-500/60 uppercase font-black">Constraints</div>
                           {selectedNode.constraints.map((c, i) => <div key={i} className="text-red-400/80 flex gap-2"><span>⚠</span> {c}</div>)}
                         </div>
                       </div>
@@ -763,7 +763,7 @@ export const NationalActorNetwork: React.FC = () => {
                     <>
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-base font-bold tracking-tight text-white">{selectedEdge.source as string} → {selectedEdge.target as string}</div>
+                          <div className="text-base font-bold tracking-tight text-on-surface">{selectedEdge.source as string} → {selectedEdge.target as string}</div>
                           <div className="flex items-center gap-2 mt-1">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: EDGE_STYLE[selectedEdge.type].color }} />
                             <span className="text-slate-500 text-[8px] uppercase font-black">{selectedEdge.type} VECTOR</span>
@@ -774,16 +774,16 @@ export const NationalActorNetwork: React.FC = () => {
                       <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 text-slate-400">{selectedEdge.description}</div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <div className="text-[7px] text-slate-600 uppercase font-black">Conditionality</div>
+                          <div className="text-[9px] text-slate-600 uppercase font-black">Conditionality</div>
                           <div className="text-amber-400 font-medium">{selectedEdge.conditionality}</div>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-[7px] text-slate-600 uppercase font-black">Weight</div>
-                          <div className="text-white font-bold">{selectedEdge.weight} / 10</div>
+                          <div className="text-[9px] text-slate-600 uppercase font-black">Weight</div>
+                          <div className="text-on-surface font-bold">{selectedEdge.weight} / 10</div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                        <span className="text-slate-600 text-[7px] uppercase font-black">Trend</span>
+                        <span className="text-slate-600 text-[9px] uppercase font-black">Trend</span>
                         <span className={cn("px-2 py-0.5 rounded-full text-[8px] font-black uppercase",
                           selectedEdge.trend === 'rising' ? 'bg-red-500/20 text-red-500' :
                           selectedEdge.trend === 'declining' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-slate-500/20 text-slate-500'
@@ -801,7 +801,7 @@ export const NationalActorNetwork: React.FC = () => {
         <div className="w-full lg:w-[540px] flex flex-col gap-4 overflow-hidden pr-1">
           <div className="flex-1 glass rounded-3xl border border-purple-500/20 overflow-hidden bg-white/[0.01] flex flex-col">
             <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between bg-white/[0.03] shrink-0">
-              <div className="flex items-center gap-2.5 text-xs font-bold text-white uppercase tracking-widest font-mono">
+              <div className="flex items-center gap-2.5 text-xs font-bold text-on-surface uppercase tracking-widest font-mono">
                 <Zap className="w-4 h-4 text-purple-400" />
                 Strategic Game Engine
               </div>
@@ -814,12 +814,12 @@ export const NationalActorNetwork: React.FC = () => {
                   <button key={g.id} onClick={() => setSelectedGame(selectedGame?.id === g.id ? null : g)}
                     className={cn('text-left p-3 rounded-2xl border text-[9px] font-mono transition-all flex flex-col gap-1 relative overflow-hidden group',
                       selectedGame?.id === g.id
-                        ? 'border-purple-500/50 bg-purple-500/20 text-white shadow-lg'
+                        ? 'border-purple-500/50 bg-purple-500/20 text-on-surface shadow-lg'
                         : 'border-white/5 bg-white/[0.02] text-slate-500 hover:border-white/20 hover:bg-white/[0.04]'
                     )}>
                     <div className="font-bold text-[10px] truncate">{g.name}</div>
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-[7px] uppercase text-purple-400 font-black">{g.type.replace('_',' ')}</span>
+                      <span className="text-[9px] uppercase text-purple-400 font-black">{g.type.replace('_',' ')}</span>
                       {selectedGame?.id === g.id && <div className="w-1 h-1 rounded-full bg-purple-400 animate-pulse" />}
                     </div>
                   </button>
@@ -829,14 +829,14 @@ export const NationalActorNetwork: React.FC = () => {
               {selectedGame && (
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                   <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30">
-                    <div className="text-[7px] text-purple-400 uppercase font-black mb-1.5 tracking-[0.2em]">Projection Summary</div>
+                    <div className="text-[9px] text-purple-400 uppercase font-black mb-1.5 tracking-[0.2em]">Projection Summary</div>
                     <p className="text-[11px] text-slate-300 leading-relaxed">"{selectedGame.description}"</p>
                   </div>
 
                   <div className="overflow-x-auto rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md">
                     <table className="text-[9px] font-mono min-w-[300px] w-full border-collapse">
                       <thead>
-                        <tr className="bg-white/5 text-[7px] text-slate-500 font-black uppercase">
+                        <tr className="bg-white/5 text-[9px] text-slate-500 font-black uppercase">
                           <th className="px-2 py-2 text-center">VECTOR</th>
                           {selectedGame.labels.cols.map((c, i) => (
                             <th key={i} className="px-2 py-2 text-center border-l border-white/5">{c}</th>
@@ -846,7 +846,7 @@ export const NationalActorNetwork: React.FC = () => {
                       <tbody>
                         {selectedGame.labels.rows.map((row, ri) => (
                           <tr key={ri} className="border-t border-white/5">
-                            <td className="px-2 py-4 bg-white/[0.02] text-slate-500 text-[7px] font-black uppercase text-center">{row}</td>
+                            <td className="px-2 py-4 bg-white/[0.02] text-slate-500 text-[9px] font-black uppercase text-center">{row}</td>
                             {selectedGame.labels.cols.map((_, ci) => {
                               const idx = ri * selectedGame.labels.cols.length + ci;
                               const vals = selectedGame.matrix[idx] || [0, 0];
@@ -866,17 +866,17 @@ export const NationalActorNetwork: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                      <div className="text-[7px] text-emerald-400 uppercase font-black mb-1">Nash Equilibrium</div>
+                      <div className="text-[9px] text-emerald-400 uppercase font-black mb-1">Nash Equilibrium</div>
                       <div className="text-[10px] text-slate-300">{selectedGame.nashEquilibrium}</div>
                     </div>
                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                      <div className="text-[7px] text-amber-400 uppercase font-black mb-1">Current Outcome</div>
+                      <div className="text-[9px] text-amber-400 uppercase font-black mb-1">Current Outcome</div>
                       <div className="text-[10px] text-slate-300">{selectedGame.currentOutcome}</div>
                     </div>
                   </div>
 
                   <div className="bg-red-500/8 border border-red-500/20 rounded-xl p-3">
-                    <div className="text-[7px] text-red-400 uppercase font-black mb-1">Tunisia Impact</div>
+                    <div className="text-[9px] text-red-400 uppercase font-black mb-1">Tunisia Impact</div>
                     <div className="text-[10px] text-red-300/90">{selectedGame.tunisiaImpact}</div>
                   </div>
                 </motion.div>
@@ -895,7 +895,7 @@ export const NationalActorNetwork: React.FC = () => {
                 { label: 'Default Probability', value: 45, color: '#dc2626' },
               ].map((m, i) => (
                 <div key={i} className="space-y-1">
-                  <div className="text-[7px] font-mono text-slate-600 uppercase">{m.label}</div>
+                  <div className="text-[9px] font-mono text-slate-600 uppercase">{m.label}</div>
                   <div className="text-lg font-bold font-mono" style={{ color: m.color }}>{m.value}%</div>
                   <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${m.value}%`, background: m.color }} />

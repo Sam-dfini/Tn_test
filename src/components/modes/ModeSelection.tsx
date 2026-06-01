@@ -156,7 +156,7 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
             <div className="flex items-center gap-3">
               <div className="w-px h-8 bg-intel-cyan/40" />
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">SYSTEM ACCESS GATEWAY</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-on-surface tracking-tight">SYSTEM ACCESS GATEWAY</h1>
                 <p className="text-intel-cyan font-mono text-[10px] uppercase tracking-[0.3em]">// SELECT OPERATIONAL INTERFACE</p>
               </div>
             </div>
@@ -208,7 +208,7 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
                     <span className="text-[8px] font-mono text-slate-600 uppercase">{m.node}</span>
                   </div>
                   <span
-                    className={`text-[7px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badge.color}`}
+                    className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${badge.color}`}
                   >
                     {badge.label}
                   </span>
@@ -216,7 +216,7 @@ export const ModeSelection: React.FC<ModeSelectionProps> = React.memo(({ onSelec
 
                 <div className="relative z-10">
                   <h2
-                    className="text-sm font-bold text-white tracking-wide group-hover:opacity-90 transition-opacity"
+                    className="text-sm font-bold text-on-surface tracking-wide group-hover:opacity-90 transition-opacity"
                     style={{ textShadow: `0 0 20px ${m.accentHex}40` }}
                   >
                     {m.label}

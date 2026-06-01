@@ -9,7 +9,7 @@ export const PropagationFlowchart: React.FC<{ shock: ShockSignal; rriDelta: numb
     <div className="p-6 bg-black/40 border border-intel-border/50 rounded-xl">
       <div className="flex items-center space-x-2 mb-6">
         <Activity className="w-5 h-5 text-intel-cyan" />
-        <h3 className="text-sm font-bold text-white uppercase tracking-widest">
+        <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">
           Shock Propagation Path
         </h3>
       </div>
@@ -33,7 +33,7 @@ export const PropagationFlowchart: React.FC<{ shock: ShockSignal; rriDelta: numb
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
                 Trigger Event
               </div>
-              <div className="text-sm font-bold text-white">{shock.message}</div>
+              <div className="text-sm font-bold text-on-surface">{shock.message}</div>
               <div className="text-xs text-slate-400 mt-1">Source: {shock.source}</div>
             </div>
           </motion.div>

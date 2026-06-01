@@ -847,7 +847,7 @@ const MissionControl: React.FC<MissionControlProps> = ({ onJumpToDebugger, aiMod
           <div key={generateStableKey(m, i, 'mini-metric')} className="bg-[#0a0a0c] border border-white/5 rounded-xl p-3 hover:border-white/10 transition-all text-center sm:text-left">
             <div className="text-[8px] text-white/20 uppercase tracking-tighter mb-1">{m.label}</div>
             <div className={`text-base font-bold font-mono ${m.color}`}>{m.value}</div>
-            {m.unit && <div className="text-[7px] text-white/20">{m.unit}</div>}
+            {m.unit && <div className="text-[9px] text-white/20">{m.unit}</div>}
           </div>
         ))}
       </div>
@@ -1010,7 +1010,7 @@ const DebuggerTab: React.FC<{ jumpToStage?: string }> = ({ jumpToStage }) => {
           >
             <div className="flex-1">
               <span className="text-[9px] text-emerald-500 uppercase font-bold tracking-widest block mb-0.5">Active Trace</span>
-              <span className="text-white text-xs truncate block font-mono">{selectedItemId}</span>
+              <span className="text-on-surface text-xs truncate block font-mono">{selectedItemId}</span>
             </div>
             <div className="flex items-center gap-3">
               {['FEED', 'NEWS', 'SIGNAL', 'EVENT', 'RRI'].map((step, i, arr) => (
@@ -1637,7 +1637,7 @@ const RSSTab: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Radio className="w-4 h-4 text-intel-cyan" />
-              <span className="text-[10px] font-bold text-white uppercase tracking-widest">RSS Sources</span>
+              <span className="text-[10px] font-bold text-on-surface uppercase tracking-widest">RSS Sources</span>
               <span className="text-[10px] font-mono text-slate-500">{aggregates.total}</span>
             </div>
             <div className="flex items-center gap-3 text-[9px] font-mono">
@@ -1666,7 +1666,7 @@ const RSSTab: React.FC = () => {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <Globe className="w-4 h-4 text-intel-cyan" />
-            <span className="text-[10px] font-bold text-white uppercase tracking-widest">News API Providers</span>
+            <span className="text-[10px] font-bold text-on-surface uppercase tracking-widest">News API Providers</span>
             <span className="text-[9px] font-mono text-slate-500">Structured JSON ingestion</span>
           </div>
           <div className="flex items-center gap-2">
@@ -1695,18 +1695,18 @@ const RSSTab: React.FC = () => {
                       title={enabled ? 'Disable' : 'Enable'}>
                       <CheckCircle2 className={`w-3 h-3 ${enabled ? '' : 'opacity-30'}`} />
                     </button>
-                    <span className={`text-[9px] font-bold ${enabled ? 'text-white' : 'text-slate-600'}`}>{provider.label}</span>
+                    <span className={`text-[9px] font-bold ${enabled ? 'text-on-surface' : 'text-slate-600'}`}>{provider.label}</span>
                   </div>
-                  <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold border ${
+                  <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold border ${
                     hasKey ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-500/10 text-slate-500 border-slate-500/20'
                   }`}>{hasKey ? 'CONNECTED' : 'NO KEY'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: provider.color, boxShadow: `0 0 6px ${provider.color}40`, opacity: enabled ? 1 : 0.3 }} />
-                  <span className={`text-lg font-bold font-mono ${enabled ? 'text-white' : 'text-slate-600'}`}>{provider.count}</span>
+                  <span className={`text-lg font-bold font-mono ${enabled ? 'text-on-surface' : 'text-slate-600'}`}>{provider.count}</span>
                   <span className={`text-[8px] font-mono ${enabled ? 'text-slate-600' : 'text-slate-700'}`}>articles</span>
                 </div>
-                <div className="text-[7px] font-mono text-slate-700 mt-1.5">
+                <div className="text-[9px] font-mono text-slate-700 mt-1.5">
                   {apiMetrics.lastFetch > 0
                     ? `Last fetch: ${timeAgo(new Date(apiMetrics.lastFetch).toISOString())}`
                     : 'Not yet fetched'}
@@ -1717,14 +1717,14 @@ const RSSTab: React.FC = () => {
           {customAPIs.map(api => (
             <div key={api.id} className="bg-black/40 border border-white/5 rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-bold text-white">{api.name}</span>
+                <span className="text-[9px] font-bold text-on-surface">{api.name}</span>
                 <button onClick={() => persistCustomAPIs(customAPIs.filter(a => a.id !== api.id))}
                   className="p-1 rounded text-slate-500 hover:text-red-400 transition-all" title="Remove">
                   <Trash2 className="w-3 h-3" />
                 </button>
               </div>
               <div className="text-[8px] font-mono text-slate-500 truncate">{api.url}</div>
-              <div className="text-[7px] font-mono text-slate-700 mt-1">
+              <div className="text-[9px] font-mono text-slate-700 mt-1">
                 {api.language.toUpperCase()} · {api.key ? 'Key configured' : 'No key'}
               </div>
             </div>
@@ -1742,11 +1742,11 @@ const RSSTab: React.FC = () => {
         <div className="relative flex-1 min-w-[160px] max-w-xs">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
           <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search sources..."
-            className="w-full bg-[#0a0a0c] border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
+            className="w-full bg-[#0a0a0c] border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-on-surface font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
           {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"><X className="w-3 h-3" /></button>}
         </div>
         <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}
-          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-white focus:border-intel-cyan/30 focus:outline-none">
+          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-on-surface focus:border-intel-cyan/30 focus:outline-none">
           <option value="all">All Categories</option>
           <option value="general">General</option>
           <option value="politics">Politics</option>
@@ -1755,7 +1755,7 @@ const RSSTab: React.FC = () => {
           <option value="social">Social</option>
         </select>
         <select value={filterLang} onChange={e => setFilterLang(e.target.value)}
-          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-white focus:border-intel-cyan/30 focus:outline-none">
+          className="bg-[#0a0a0c] border border-white/5 rounded-lg px-2 py-1.5 text-[9px] font-mono text-on-surface focus:border-intel-cyan/30 focus:outline-none">
           <option value="all">All Languages</option>
           <option value="fr">Français</option>
           <option value="en">English</option>
@@ -1794,14 +1794,14 @@ const RSSTab: React.FC = () => {
                   }`} />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white tracking-wide truncate">{source.name}</span>
+                      <span className="text-xs font-bold text-on-surface tracking-wide truncate">{source.name}</span>
                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider border ${langColor}`}>{langLabel}</span>
                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider border ${
                         source.reliability === 'A' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' :
                         source.reliability === 'B' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10' :
                         'text-red-400 border-red-500/30 bg-red-500/10'
                       }`}>{source.reliability}</span>
-                      {source.builtin && <span className="text-[7px] font-mono text-slate-600 border border-white/5 px-1 py-0.5 rounded uppercase tracking-wider">BUILT-IN</span>}
+                      {source.builtin && <span className="text-[9px] font-mono text-slate-600 border border-white/5 px-1 py-0.5 rounded uppercase tracking-wider">BUILT-IN</span>}
                     </div>
                     <div className="flex items-center gap-3 mt-0.5">
                       {count >= 0 ? <span className="text-[9px] font-mono text-slate-400">{count.toLocaleString()} articles</span> : <span className="text-[9px] font-mono text-slate-700">— articles</span>}
@@ -1855,36 +1855,36 @@ const RSSTab: React.FC = () => {
 
       {/* Add API Source Modal */}
       {showAddAPIModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setShowAddAPIModal(false)} className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
           <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
             className="relative w-full max-w-md bg-[#0c0c0e] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
             <div className="p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Add Custom API Source</h3>
-                <button onClick={() => setShowAddAPIModal(false)} className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Add Custom API Source</h3>
+                <button onClick={() => setShowAddAPIModal(false)} aria-label="Close" className="text-slate-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
               </div>
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Source Name</label>
                   <input value={newAPI.name} onChange={e => setNewAPI({ ...newAPI, name: e.target.value })}
-                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="e.g. Tunisia API" />
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="e.g. Tunisia API" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">API Endpoint URL</label>
                   <input value={newAPI.url} onChange={e => setNewAPI({ ...newAPI, url: e.target.value })}
-                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="https://api.example.com/news" />
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="https://api.example.com/news" />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">API Key (optional)</label>
                   <input value={newAPI.key} onChange={e => setNewAPI({ ...newAPI, key: e.target.value })}
-                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Language</label>
                   <select value={newAPI.language} onChange={e => setNewAPI({ ...newAPI, language: e.target.value })}
-                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none">
+                    className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2.5 text-[10px] text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none">
                     <option value="fr">Français</option>
                     <option value="en">English</option>
                     <option value="ar">العربية</option>
@@ -1892,7 +1892,7 @@ const RSSTab: React.FC = () => {
                 </div>
               </div>
               <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowAddAPIModal(false)} className="flex-1 py-3 rounded-2xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
+                <button onClick={() => setShowAddAPIModal(false)} className="flex-1 py-3 rounded-2xl border border-white/10 text-on-surface text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Cancel</button>
                 <button onClick={() => {
                   if (!newAPI.name || !newAPI.url) return;
                   const id = 'custom-api-' + Date.now();
@@ -2126,7 +2126,7 @@ const RRIDataTab: React.FC = () => {
           {counts.map((vc, i) => (
             <div key={vc.variable} className="flex items-center gap-3 py-1.5 px-2 rounded hover:bg-white/[0.02] text-[10px] font-mono border-b border-white/[0.02]">
               <span className="text-slate-600 w-5 shrink-0">{i + 1}.</span>
-              <span className="font-bold text-white w-12 shrink-0">{vc.variable}</span>
+              <span className="font-bold text-on-surface w-12 shrink-0">{vc.variable}</span>
               <span className="text-slate-500 truncate text-[9px] flex-1 min-w-0">{getLabel(vc.variable)}</span>
               <span className="text-slate-400 w-12 text-right shrink-0">{vc.articles}</span>
               <span className="text-slate-500 w-12 text-right shrink-0">{vc.avgSeverity.toFixed(1)}</span>
@@ -2221,7 +2221,7 @@ const DatabaseTab: React.FC = () => {
                 <Database className="w-4.5 h-4.5 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest">Supabase</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Supabase</h3>
                 <p className="text-[9px] font-mono text-slate-500">{supabaseUrlDisplay}</p>
               </div>
             </div>
@@ -2247,7 +2247,7 @@ const DatabaseTab: React.FC = () => {
             </div>
             <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
               <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Tables tracked</div>
-              <div className="text-lg font-bold text-white font-mono tabular-nums">{DB_TABLES.length}</div>
+              <div className="text-lg font-bold text-on-surface font-mono tabular-nums">{DB_TABLES.length}</div>
             </div>
           </div>
         </div>
@@ -2278,7 +2278,7 @@ const DatabaseTab: React.FC = () => {
                 <div key={table} className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-white/[0.02] transition-colors">
                   <div className="flex items-center gap-2 min-w-0">
                     <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${count > 0 ? 'bg-emerald-500' : isLoaded ? 'bg-slate-700' : 'bg-slate-700 animate-pulse'}`} />
-                    <span className="text-[11px] font-mono text-white truncate">{table}</span>
+                    <span className="text-[11px] font-mono text-on-surface truncate">{table}</span>
                   </div>
                   <span className={`text-[10px] font-mono tabular-nums ml-3 ${count > 0 ? 'text-slate-300' : isLoaded ? 'text-slate-600' : 'text-slate-700'}`}>
                     {isLoaded ? count.toLocaleString() : '—'}
@@ -2315,7 +2315,7 @@ const DatabaseTab: React.FC = () => {
                   <div key={`${op.timestamp}-${i}`} className="flex items-center gap-2 py-1 px-2 rounded hover:bg-white/[0.02] text-[9px] font-mono">
                     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${op.op === 'SELECT' ? 'bg-cyan-500' : 'bg-amber-500'}`} />
                     <span className={`font-bold uppercase shrink-0 ${op.op === 'SELECT' ? 'text-cyan-400' : 'text-amber-400'}`}>{op.op}</span>
-                    <span className="text-white truncate min-w-0">{op.table}</span>
+                    <span className="text-on-surface truncate min-w-0">{op.table}</span>
                     <span className="text-slate-600 ml-auto shrink-0">{agoStr}</span>
                   </div>
                 );
@@ -2850,7 +2850,7 @@ const AITab: React.FC<{
             <Brain className="w-4.5 h-4.5 text-intel-cyan" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center gap-2">
               AI Infrastructure
               <Sparkles className="w-3 h-3 text-intel-cyan animate-pulse" />
             </h2>
@@ -2933,7 +2933,7 @@ const AITab: React.FC<{
                           const next = { ...roleAssign, [role.key]: e.target.value };
                           onPersistRoles(next);
                         }}
-                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[9px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                        className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1.5 text-[9px] text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                       >
                         <option value="">— NONE —</option>
                         {allModels.map(m => (
@@ -3016,19 +3016,19 @@ const AITab: React.FC<{
                                         <div className="space-y-1.5">
                                           <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Instance Name</label>
                                           <input defaultValue={model.name} onChange={e => updateModel(model.id, { name: e.target.value })}
-                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" />
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none" />
                                         </div>
                                         <div className="space-y-1.5">
                                           <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Model Engine</label>
                                           <select defaultValue={model.modelName} onChange={e => updateModel(model.id, { modelName: e.target.value })}
-                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                                           >{MODEL_CATALOG[model.provider]?.models?.map(m => <option key={m.id} value={m.id}>{m.label}</option>) || null}</select>
                                         </div>
                                         <div className="space-y-1.5">
                                           <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Secret Key</label>
                                           <div className="relative">
                                             <input defaultValue={model.apiKey} onChange={e => updateModel(model.id, { apiKey: e.target.value })} type="password"
-                                              className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
+                                              className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none" placeholder="sk-..." />
                                             <Key className="absolute right-3 top-3 w-3 h-3 text-white/20" />
                                           </div>
                                         </div>
@@ -3050,7 +3050,7 @@ const AITab: React.FC<{
                                         </div>
                                         <div className="min-w-0">
                                           <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                            <span className="text-sm font-bold text-white tracking-wide truncate">{model.name}</span>
+                                            <span className="text-sm font-bold text-on-surface tracking-wide truncate">{model.name}</span>
                                             <span className="text-[8px] font-mono text-slate-500 border border-white/10 px-1.5 py-0.5 rounded uppercase">{model.modelName}</span>
                                             <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider ${providerInfo?.bg || 'bg-slate-500/10'}`}
                                               style={{ color: providerInfo?.color || '#64748B' }}>{providerInfo?.label || model.provider}</span>
@@ -3154,7 +3154,7 @@ const AITab: React.FC<{
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-base">{cap.icon}</span>
                         <div className="min-w-0">
-                          <span className="text-xs font-bold text-white tracking-wide">{cap.name}</span>
+                          <span className="text-xs font-bold text-on-surface tracking-wide">{cap.name}</span>
                           <p className="text-[8px] font-mono text-slate-600 truncate">{cap.desc}</p>
                         </div>
                       </div>
@@ -3175,7 +3175,7 @@ const AITab: React.FC<{
                           <div className="space-y-1.5">
                             <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Primary Model</label>
                             <select value={config.primary} onChange={e => updateCap(cap.id, { primary: e.target.value })}
-                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                             >
                               <option value="">— NO MODEL —</option>
                               {allModels.map(m => <option key={m.id} value={m.id}>{m.name} ({m.modelName}){m.status === 'online' ? ' ●' : ''}</option>)}
@@ -3184,7 +3184,7 @@ const AITab: React.FC<{
                           <div className="space-y-1.5">
                             <label className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Fallback Model</label>
                             <select value={config.fallback} onChange={e => updateCap(cap.id, { fallback: e.target.value })}
-                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                              className="w-full bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-[10px] text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                             >
                               <option value="">— NO FALLBACK —</option>
                               {allModels.filter(m => m.id !== config.primary).map(m => <option key={m.id} value={m.id}>{m.name} ({m.modelName}){m.status === 'online' ? ' ●' : ''}</option>)}
@@ -3218,7 +3218,7 @@ const AITab: React.FC<{
               <div className="relative flex-1 max-w-[200px]">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-white/20" />
                 <input value={modelFilter} onChange={e => setModelFilter(e.target.value)} placeholder="Filter models..."
-                  className="w-full bg-black/40 border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-white font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
+                  className="w-full bg-black/40 border border-white/5 rounded-lg pl-7 pr-2 py-1.5 text-[10px] text-on-surface font-mono placeholder:text-white/10 focus:border-intel-cyan/30 focus:outline-none transition-all" />
                 {modelFilter && <button onClick={() => setModelFilter('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"><X className="w-3 h-3" /></button>}
               </div>
               {allModels.some(m => m.status !== 'online') && (
@@ -3242,7 +3242,7 @@ const AITab: React.FC<{
                 <tbody className="text-[10px] font-mono">
                   {(modelFilter.trim() ? Object.values(filteredModelsByProvider).flat() : allModels).map(m => (
                     <tr key={m.id} className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors">
-                      <td className="py-3 pr-4 text-white">{m.name}</td>
+                      <td className="py-3 pr-4 text-on-surface">{m.name}</td>
                       <td className="py-3 pr-4 text-slate-400">{PROVIDER_STYLE[m.provider]?.label || m.provider}</td>
                       <td className="py-3 pr-4">
                         <span className={`inline-flex items-center gap-1.5 ${
@@ -3272,7 +3272,7 @@ const AITab: React.FC<{
 
       {/* Provisioning Modal Overlay */}
       {showAdd && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -3288,10 +3288,10 @@ const AITab: React.FC<{
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest">Provision AI Intelligence Node</h3>
+                  <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Provision AI Intelligence Node</h3>
                   <p className="text-[10px] text-slate-500 font-mono uppercase">Step {provisionStep} of 3 • {provisionStep === 1 ? 'Credentialing' : provisionStep === 2 ? 'Verification' : 'Select Models'}</p>
                 </div>
-                <button onClick={() => setShowAdd(false)} className="text-slate-500 hover:text-white transition-colors">
+                <button onClick={() => setShowAdd(false)} aria-label="Close" className="text-slate-500 hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -3323,7 +3323,7 @@ const AITab: React.FC<{
                         type="password"
                         value={newProvData.apiKey}
                         onChange={e => setNewProvData({ ...newProvData, apiKey: e.target.value })}
-                        className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                        className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                         placeholder="sk-..."
                       />
                       <Key className="absolute right-4 top-3.5 w-4 h-4 text-white/20" />
@@ -3337,7 +3337,7 @@ const AITab: React.FC<{
                           type="text"
                           value={newProvData.baseUrl}
                           onChange={e => setNewProvData({ ...newProvData, baseUrl: e.target.value })}
-                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                           placeholder="https://api.yourendpoint.com/v1"
                         />
                         <Link className="absolute right-4 top-3.5 w-4 h-4 text-white/20" />
@@ -3383,7 +3383,7 @@ const AITab: React.FC<{
                         <span className={`text-[10px] font-mono ${
                           step.status === 'done' ? 'text-intel-green' :
                           step.status === 'error' ? 'text-red-400' :
-                          step.status === 'loading' ? 'text-white' :
+                          step.status === 'loading' ? 'text-on-surface' :
                           'text-slate-600'
                         }`}>
                           {step.label}
@@ -3399,7 +3399,7 @@ const AITab: React.FC<{
                   <div className="flex gap-3 justify-center">
                     <button
                       onClick={() => { setProvisionStep(1); setProvProgress(p => p.map(s => ({ ...s, status: 'pending' as const }))); }}
-                      className="px-6 py-3 rounded-xl border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                      className="px-6 py-3 rounded-xl border border-white/10 text-on-surface text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
                     >
                       Back
                     </button>
@@ -3426,7 +3426,7 @@ const AITab: React.FC<{
                           placeholder="e.g. my-custom-model-v1"
                           value={newProvData.selectedModels[0] || ''}
                           onChange={e => setNewProvData({ ...newProvData, selectedModels: e.target.value ? [e.target.value] : [] })}
-                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-intel-cyan/50 focus:outline-none"
+                          className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-3 text-xs text-on-surface font-mono focus:border-intel-cyan/50 focus:outline-none"
                         />
                       </>
                     ) : (
@@ -3465,7 +3465,7 @@ const AITab: React.FC<{
                               }`}
                             >
                               <div>
-                                <div className="text-[10px] font-bold text-white uppercase tracking-wider">{m.label}</div>
+                                <div className="text-[10px] font-bold text-on-surface uppercase tracking-wider">{m.label}</div>
                                 <div className="text-[8px] text-slate-500 font-mono mt-1">{m.desc}</div>
                               </div>
                               <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
@@ -3484,7 +3484,7 @@ const AITab: React.FC<{
                   <div className="flex gap-3">
                     <button
                       onClick={() => setProvisionStep(1)}
-                      className="flex-1 py-4 rounded-2xl border border-white/10 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                      className="flex-1 py-4 rounded-2xl border border-white/10 text-on-surface text-[11px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
                     >
                       Back
                     </button>
@@ -3605,7 +3605,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
   ];
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#060608] text-white font-mono rounded-none sm:rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-[#060608] text-on-surface font-mono rounded-none sm:rounded-2xl border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
       {/* Header */}
       <div className="shrink-0 z-10 bg-black/60 backdrop-blur-xl border-b border-white/5">
@@ -3613,7 +3613,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
         <div className="flex items-center justify-between px-4 md:px-6 py-3">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-red-500" />
-            <h1 className="text-sm font-bold tracking-widest text-white uppercase truncate">System Command Center</h1>
+            <h1 className="text-sm font-bold tracking-widest text-on-surface uppercase truncate">System Command Center</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/20 uppercase">
@@ -3652,7 +3652,7 @@ export const SystemCommandCenter: React.FC<SystemCommandCenterProps> = ({ onClos
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap border-b-2 -mb-px shrink-0 ${
                     isActive
-                      ? 'border-intel-cyan text-white bg-white/[0.03]'
+                      ? 'border-intel-cyan text-on-surface bg-white/[0.03]'
                       : 'border-transparent text-white/30 hover:text-white/60 hover:border-white/20'
                   }`}
                 >

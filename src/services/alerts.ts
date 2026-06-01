@@ -3,7 +3,7 @@
  * Detects critical risk patterns and generates actionable intelligence alerts.
  */
 
-import { Signals } from './clusters';
+import { Signals } from './signals';
 import { Clusters } from './clusters';
 
 export interface Alert {
@@ -136,7 +136,7 @@ export function generateAlerts(signals: Signals, clusters: Clusters): Alert[] {
     alerts.push(createAlert(
       "historical-match",
       "high",
-      "Current conditions strongly resemble past революция patterns",
+      "Current conditions strongly resemble past revolution patterns",
       signals.historicalAlignment,
       0.8
     ));

@@ -39,7 +39,7 @@ export const Cases: React.FC = () => {
                 </div>
                 <div>
                   <div className="text-[8px] font-mono text-slate-500 uppercase">{c.id} · {c.classification}</div>
-                  <h4 className="text-white font-bold uppercase tracking-tight group-hover:text-intel-purple transition-colors">{c.title}</h4>
+                  <h4 className="text-on-surface font-bold uppercase tracking-tight group-hover:text-intel-purple transition-colors">{c.title}</h4>
                 </div>
               </div>
               <div className={`px-2 py-1 rounded text-[8px] font-mono font-bold border ${
@@ -56,7 +56,7 @@ export const Cases: React.FC = () => {
               </div>
               <div>
                 <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Opened</div>
-                <div className="text-xs font-bold text-white font-mono">{c.opened}</div>
+                <div className="text-xs font-bold text-on-surface font-mono">{c.opened}</div>
               </div>
               <div>
                 <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">Linked Actors</div>

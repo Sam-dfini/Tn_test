@@ -83,7 +83,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
                   Confidence: {(miiProfile.phaseConfidence * 100).toFixed(0)}%
                 </span>
               </div>
-              <h3 className="text-2xl font-bold text-white tracking-tight">
+              <h3 className="text-2xl font-bold text-on-surface tracking-tight">
                 Ministerial Instability Index
               </h3>
               <p className="text-sm text-slate-400 mt-1 max-w-xl">
@@ -130,7 +130,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
         </div>
 
         <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+          <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
             <Zap size={14} className="text-intel-cyan" />
             Equation Impact
           </h4>
@@ -169,7 +169,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
       {/* Section 2: Ministry Profiles */}
       <div className="bg-slate-900/50 border border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+          <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-2">
             <Shield size={14} className="text-intel-cyan" />
             Ministry Stability Registry
           </h4>
@@ -191,7 +191,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
               {prepareList(miiProfile.ministryProfiles).map((profile: any, i: number) => (
                 <tr key={generateStableKey(profile, i, 'ministry')} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
-                    <div className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors">
+                    <div className="text-sm font-bold text-on-surface group-hover:text-intel-cyan transition-colors">
                       {profile.name}
                     </div>
                     <div className="text-[9px] font-mono text-slate-500 uppercase mt-0.5">
@@ -211,7 +211,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
                     <div className="text-xs text-slate-300">{profile.currentMinister || '—'}</div>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <div className="text-xs font-mono text-white">{profile.tenureDays}d</div>
+                    <div className="text-xs font-mono text-on-surface">{profile.tenureDays}d</div>
                     <div className="text-[9px] text-slate-500">since appointment</div>
                   </td>
                   <td className="px-6 py-4 text-center">
@@ -242,7 +242,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
       {/* Section 3: Timeline & Prediction */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6">
-          <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-6 flex items-center gap-2">
+          <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-6 flex items-center gap-2">
             <Calendar size={14} className="text-intel-cyan" />
             Recent Reshuffle Timeline
           </h4>
@@ -260,7 +260,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
                     {CHANGE_TYPE_LABELS[event.changeType]}
                   </span>
                 </div>
-                <h5 className="text-sm font-bold text-white">{event.ministry}</h5>
+                <h5 className="text-sm font-bold text-on-surface">{event.ministry}</h5>
                 {event.crisisContext && (
                   <p className="text-xs text-slate-400 mt-1 italic">
                     "{event.crisisContext}"
@@ -284,7 +284,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
 
         <div className="space-y-6">
           <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6 border-l-4 border-l-intel-cyan">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
               <Activity size={14} className="text-intel-cyan" />
               Intelligence Prediction
             </h4>
@@ -296,7 +296,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
                 <Clock className="text-intel-cyan" size={20} />
                 <div>
                   <div className="text-[10px] font-mono text-slate-500 uppercase">Critical Horizon</div>
-                  <div className="text-sm font-bold text-white">{miiProfile.timeHorizon}</div>
+                  <div className="text-sm font-bold text-on-surface">{miiProfile.timeHorizon}</div>
                 </div>
               </div>
               <ArrowUpRight className="text-intel-cyan" size={20} />
@@ -304,7 +304,7 @@ export const PoliticalStabilityIntelligence: React.FC = () => {
           </div>
 
           <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-6">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
               <AlertTriangle size={14} className="text-orange-400" />
               Watch Indicators
             </h4>

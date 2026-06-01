@@ -162,7 +162,7 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
       <div className={`p-3 rounded-xl border ${status.border} ${status.bg} flex items-center justify-between`}>
         <div className="flex items-center space-x-2">
           <Globe className={`w-4 h-4 ${status.color}`} />
-          <span className="text-[10px] font-mono font-bold text-white uppercase">{label}</span>
+          <span className="text-[10px] font-mono font-bold text-on-surface uppercase">{label}</span>
         </div>
         <div className={`text-lg font-bold font-mono ${status.color}`}>{msi}</div>
       </div>
@@ -177,7 +177,7 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
       
       <div className="flex items-center justify-between relative z-10">
         <div className="space-y-1">
-          <h4 className="text-sm font-bold text-white uppercase tracking-widest">{label}</h4>
+          <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest">{label}</h4>
           <p className="text-[10px] text-slate-500 uppercase">Composite Risk Metric</p>
         </div>
         <div className="text-right">
@@ -200,15 +200,15 @@ export const MigrationStressIndex: React.FC<{ compact?: boolean; label?: string 
       <div className="grid grid-cols-3 gap-2 relative z-10">
         <div className="text-center">
           <div className="text-[8px] font-mono text-slate-500 uppercase">Illegal</div>
-          <div className="text-xs font-bold text-white">{(illegalFactor).toFixed(1)}</div>
+          <div className="text-xs font-bold text-on-surface">{(illegalFactor).toFixed(1)}</div>
         </div>
         <div className="text-center border-x border-white/5">
           <div className="text-[8px] font-mono text-slate-500 uppercase">Drain</div>
-          <div className="text-xs font-bold text-white">{(brainDrainFactor).toFixed(1)}</div>
+          <div className="text-xs font-bold text-on-surface">{(brainDrainFactor).toFixed(1)}</div>
         </div>
         <div className="text-center">
           <div className="text-[8px] font-mono text-slate-500 uppercase">Aspiration</div>
-          <div className="text-xs font-bold text-white">{(aspirationFactor).toFixed(1)}</div>
+          <div className="text-xs font-bold text-on-surface">{(aspirationFactor).toFixed(1)}</div>
         </div>
       </div>
     </div>
@@ -342,7 +342,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           <input 
             type="text" 
             placeholder="SEARCH SOCIAL DATABASE..." 
-            className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 focus:ring-1 focus:ring-intel-cyan/20 w-full md:w-64 transition-all"
+            className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-mono text-on-surface placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 focus:ring-1 focus:ring-intel-cyan/20 w-full md:w-64 transition-all"
           />
         </div>
       </div>
@@ -361,7 +361,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
               <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
                 <Activity className="w-4 h-4 text-intel-cyan" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Public Sentiment & Social Stability</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Public Sentiment & Social Stability</h3>
               </div>
 
         {/* Key Indicators Grid */}
@@ -385,7 +385,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   </span>
                 </div>
                 <div className="space-y-1 mt-2">
-                  <div className="text-2xl font-bold text-white font-mono tracking-tighter">{ind.value}</div>
+                  <div className="text-2xl font-bold text-on-surface font-mono tracking-tighter">{ind.value}</div>
                   <div className="text-[10px] font-mono text-slate-300 uppercase tracking-tight">{ind.label}</div>
                 </div>
               </div>
@@ -417,7 +417,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Activity className="w-5 h-5 text-intel-red" />
               <div className="space-y-1">
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Street Signal S(t)</h3>
+                <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Street Signal S(t)</h3>
                 <p className="text-[10px] text-slate-500 uppercase">Protest Probability Index - Real-time</p>
               </div>
             </div>
@@ -465,7 +465,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <ShieldAlert className={`w-5 h-5 ${dossier.color}`} />
-                  <span className="text-sm font-bold text-white uppercase tracking-widest">{dossier.title}</span>
+                  <span className="text-sm font-bold text-on-surface uppercase tracking-widest">{dossier.title}</span>
                 </div>
                 <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                   dossier.risk === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
@@ -487,7 +487,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
               <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
                 <Users className="w-4 h-4 text-intel-cyan" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Family & Demographics</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Family & Demographics</h3>
               </div>
 
         {/* Demographic Statistics Section */}
@@ -495,7 +495,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Demographic Vitality Index</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Demographic Vitality Index</h4>
                 <p className="text-[10px] text-slate-500 uppercase">Birth Rate vs Death Rate (per 1,000 inhabitants)</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -535,7 +535,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Vital Statistics</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Vital Statistics</h4>
               <div className="space-y-6">
                 <div className="space-y-2">
                   <div className="flex justify-between text-[10px] font-mono uppercase">
@@ -569,7 +569,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
               <div className="flex items-center space-x-2">
                 <TrendingDown className="w-4 h-4 text-intel-red" />
-                <span className="text-[10px] font-bold text-white uppercase">Demographic Winter Risk</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase">Demographic Winter Risk</span>
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 Birth rates have reached a historical low of 15.4‰. Combined with rising death rates due to aging and health stress, the net growth is decelerating rapidly.
@@ -599,7 +599,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   </span>
                 </div>
                 <div className="space-y-1 mt-2">
-                  <div className="text-2xl font-bold text-white font-mono tracking-tighter">{ind.value}</div>
+                  <div className="text-2xl font-bold text-on-surface font-mono tracking-tighter">{ind.value}</div>
                   <div className="text-[10px] font-mono text-slate-300 uppercase tracking-tight">{ind.label}</div>
                 </div>
               </div>
@@ -629,7 +629,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight">National Divorce Trends</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">National Divorce Trends</h4>
                 <p className="text-[10px] text-slate-500 uppercase">Annual Divorce Rate vs Total Cases</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -659,7 +659,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl flex items-start space-x-3">
               <AlertTriangle className="w-4 h-4 text-intel-red mt-0.5" />
               <p className="text-[9px] text-slate-400 leading-relaxed">
-                <span className="text-white font-bold uppercase">Intelligence Alert:</span> The divorce rate has surpassed {data.social.divorce_rate}% in 2025, a 78% increase over the last decade. Economic stress and shifting social norms are primary drivers.
+                <span className="text-on-surface font-bold uppercase">Intelligence Alert:</span> The divorce rate has surpassed {data.social.divorce_rate}% in 2025, a 78% increase over the last decade. Economic stress and shifting social norms are primary drivers.
               </p>
             </div>
           </div>
@@ -667,13 +667,13 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           {/* Regional Breakdown & Family Stats */}
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Regional Breakdown</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Regional Breakdown</h4>
               <div className="space-y-4">
                 {prepareList(divorceByRegion).map((region: any, i: number) => (
                   <div key={generateStableKey(region, i, 'reg')} className="space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-mono uppercase">
                       <span className="text-slate-400">{region.region}</span>
-                      <span className="text-white font-bold">{region.rate}%</span>
+                      <span className="text-on-surface font-bold">{region.rate}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex">
                       <div className="h-full bg-intel-red" style={{ width: `${region.rate}%` }}></div>
@@ -685,7 +685,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+              <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
                 <Home className="w-4 h-4 text-intel-cyan" />
                 <span>Family Dynamics</span>
               </h4>
@@ -694,7 +694,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   <div key={generateStableKey(stat, i, 'fam')} className="p-3 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between">
                     <span className="text-[8px] font-mono text-slate-500 uppercase mb-1">{stat.category}</span>
                     <div className="flex items-end justify-between">
-                      <span className="text-sm font-bold text-white">{stat.value}%</span>
+                      <span className="text-sm font-bold text-on-surface">{stat.value}%</span>
                       <span className={`text-[8px] font-mono ${stat.trend.startsWith('+') ? 'text-intel-red' : 'text-intel-green'}`}>
                         {stat.trend}
                       </span>
@@ -707,7 +707,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-2">
               <div className="flex items-center space-x-2">
                 <Baby className="w-4 h-4 text-intel-cyan" />
-                <span className="text-[10px] font-bold text-white uppercase">Birth Rate Impact</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase">Birth Rate Impact</span>
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 Declining marriage rates and increasing divorce frequency have led to a 1.8% annual drop in birth rates.
@@ -723,7 +723,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
               <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
                 <HeartPulse className="w-4 h-4 text-intel-red" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Public Health & Risks</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Public Health & Risks</h3>
               </div>
 
         {/* Key Indicators Grid */}
@@ -747,7 +747,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   </span>
                 </div>
                 <div className="space-y-1 mt-2">
-                  <div className="text-2xl font-bold text-white font-mono tracking-tighter">{ind.value}</div>
+                  <div className="text-2xl font-bold text-on-surface font-mono tracking-tighter">{ind.value}</div>
                   <div className="text-[10px] font-mono text-slate-300 uppercase tracking-tight">{ind.label}</div>
                 </div>
               </div>
@@ -775,7 +775,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="space-y-1">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Chronic Disease Prevalence</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Chronic Disease Prevalence</h4>
               <p className="text-[10px] text-slate-500 uppercase">Distribution of non-communicable diseases (NCDs)</p>
             </div>
             <div className="h-80 w-full">
@@ -807,7 +807,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Health Risk Analysis</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Health Risk Analysis</h4>
               <div className="space-y-4">
                 {prepareList(chronicDiseaseBreakdown).map((disease: any, i: number) => (
                   <div key={generateStableKey(disease, i, 'dis')} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-intel-border">
@@ -816,7 +816,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       <span className="text-[10px] font-mono text-slate-300 uppercase">{disease.name}</span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-xs font-bold text-white">{disease.value}%</span>
+                      <span className="text-xs font-bold text-on-surface">{disease.value}%</span>
                       <span className="text-[8px] font-mono text-intel-red">{disease.trend}</span>
                     </div>
                   </div>
@@ -827,7 +827,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-orange/5 border border-intel-orange/20 rounded-xl space-y-2">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-4 h-4 text-intel-orange" />
-                <span className="text-[10px] font-bold text-white uppercase">Systemic Health Strain</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase">Systemic Health Strain</span>
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 Chronic diseases now account for 72% of all deaths. Sedentary lifestyles and poor dietary habits in urban centers are accelerating these trends.
@@ -841,7 +841,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Social Security & Healthcare Funds</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Social Security & Healthcare Funds</h4>
                 <p className="text-[10px] text-slate-500 uppercase">Subscription, Budget & Deficiency Analysis (TND)</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -875,12 +875,12 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           </div>
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
-            <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Fund Intelligence</h4>
+            <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Fund Intelligence</h4>
             <div className="space-y-4">
               {prepareList(healthcareFundsData).map((fund: any, i: number) => (
                 <div key={generateStableKey(fund, i, 'fund')} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-white uppercase">{fund.name}</span>
+                    <span className="text-xs font-bold text-on-surface uppercase">{fund.name}</span>
                     <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                       fund.risk === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
                     }`}>
@@ -890,7 +890,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <div className="text-[8px] font-mono text-slate-500 uppercase">Budget</div>
-                      <div className="text-sm font-bold text-white">{fund.budget}B TND</div>
+                      <div className="text-sm font-bold text-on-surface">{fund.budget}B TND</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-[8px] font-mono text-slate-500 uppercase">Deficiency</div>
@@ -898,7 +898,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                     </div>
                     <div className="space-y-1">
                       <div className="text-[8px] font-mono text-slate-500 uppercase">Subscribers</div>
-                      <div className="text-sm font-bold text-white">{fund.subscribers}</div>
+                      <div className="text-sm font-bold text-on-surface">{fund.subscribers}</div>
                     </div>
                     <div className="space-y-1">
                       <div className="text-[8px] font-mono text-slate-500 uppercase">RRI Impact</div>
@@ -911,7 +911,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
               <div className="flex items-center space-x-2">
                 <ShieldAlert className="w-4 h-4 text-intel-red" />
-                <span className="text-[10px] font-bold text-white uppercase">Critical Risk Warning</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase">Critical Risk Warning</span>
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 The systemic insolvency of social security funds (CNAM, CNSS, CNRPS) represents a direct threat to social stability. Disruptions in healthcare reimbursements or pension payments are high-probability catalysts for RRI escalation.
@@ -926,7 +926,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
           <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight">Addiction Prevalence & Age Demographics</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Addiction Prevalence & Age Demographics</h4>
                 <p className="text-[10px] text-slate-500 uppercase">Percentage of population by age group</p>
               </div>
               <div className="flex items-center space-x-2">
@@ -956,7 +956,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
           <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-8">
             <div className="space-y-6">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Addiction Metrics</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Addiction Metrics</h4>
               <div className="space-y-4">
                 {prepareList(addictionStats).map((stat: any, i: number) => (
                   <div key={generateStableKey(stat, i, 'addict')} className="p-4 rounded-xl bg-white/5 border border-intel-border space-y-2">
@@ -965,7 +965,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       <span className="text-[8px] font-mono text-intel-red uppercase">{stat.status}</span>
                     </div>
                     <div className="flex items-end justify-between">
-                      <span className="text-xl font-bold text-white">{stat.value}</span>
+                      <span className="text-xl font-bold text-on-surface">{stat.value}</span>
                       <span className="text-[10px] font-mono text-intel-red">{stat.trend}</span>
                     </div>
                   </div>
@@ -975,7 +975,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-2">
               <div className="flex items-center space-x-2">
                 <ShieldAlert className="w-4 h-4 text-intel-red" />
-                <span className="text-[10px] font-bold text-white uppercase">Intelligence Warning</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase">Intelligence Warning</span>
               </div>
               <p className="text-[9px] text-slate-500 leading-tight">
                 Addiction rates among the 18-25 demographic have spiked by 24% in the last 18 months. Synthetic drug accessibility is the primary catalyst.
@@ -998,7 +998,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <div className="flex items-end justify-between">
-                  <div className="text-2xl font-bold text-white font-mono">{metric.current}</div>
+                  <div className="text-2xl font-bold text-on-surface font-mono">{metric.current}</div>
                   <div className="text-[10px] text-slate-500 font-mono">Target: {metric.required}</div>
                 </div>
                 <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -1019,7 +1019,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
             <div className="flex items-center justify-between border-b border-intel-border/30 pb-4">
               <div className="flex items-center space-x-3">
                 <Globe className="w-5 h-5 text-intel-cyan" />
-                <h3 className="text-xl font-bold text-white uppercase tracking-[0.2em]">Migration & Diaspora Dynamics</h3>
+                <h3 className="text-xl font-bold text-on-surface uppercase tracking-[0.2em]">Migration & Diaspora Dynamics</h3>
               </div>
               
               <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
@@ -1061,7 +1061,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                         <BackgroundGrid />
                         <div className="relative z-10 flex flex-col items-center justify-center py-12 space-y-4">
                           <div className="text-[10px] font-mono text-intel-cyan uppercase tracking-[0.4em]">Total Tunisian Diaspora (Global)</div>
-                          <div className="text-7xl font-bold text-white font-mono tracking-tighter">
+                          <div className="text-7xl font-bold text-on-surface font-mono tracking-tighter">
                             {diasporaCount.toLocaleString()}
                           </div>
                           <div className="flex items-center space-x-4">
@@ -1080,7 +1080,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Geographic Concentration</h4>
+                          <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Geographic Concentration</h4>
                           <div className="space-y-4">
                             {prepareList([
                               { country: 'France', pct: 54, count: '756K', color: '#ef4444' },
@@ -1092,7 +1092,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                               <div key={generateStableKey(c, i, 'country')} className="space-y-1.5">
                                 <div className="flex justify-between text-[10px] font-mono uppercase">
                                   <span className="text-slate-400">{c.country}</span>
-                                  <span className="text-white font-bold">{c.count} ({c.pct}%)</span>
+                                  <span className="text-on-surface font-bold">{c.count} ({c.pct}%)</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                                   <motion.div 
@@ -1108,7 +1108,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                         </div>
 
                         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-4">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Economic Impact (Remittances)</h4>
+                          <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Economic Impact (Remittances)</h4>
                           <div className="h-48">
                             <ResponsiveContainer width="100%" height="100%">
                               <AreaChart data={[
@@ -1129,7 +1129,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                              <div className="text-2xl font-bold text-white font-mono">{data.economy.remittances_total_bnd}B</div>
+                              <div className="text-2xl font-bold text-on-surface font-mono">{data.economy.remittances_total_bnd}B</div>
                               <div className="text-[8px] font-mono text-slate-500 uppercase">TND Annual Volume</div>
                             </div>
                             <button 
@@ -1169,7 +1169,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       <div className="p-4 bg-intel-cyan/5 border border-intel-cyan/20 rounded-xl space-y-3">
                         <div className="flex items-center space-x-2">
                           <Navigation className="w-4 h-4 text-intel-cyan" />
-                          <span className="text-[10px] font-bold text-white uppercase">Cross-Link: Security</span>
+                          <span className="text-[10px] font-bold text-on-surface uppercase">Cross-Link: Security</span>
                         </div>
                         <p className="text-[9px] text-slate-500 leading-tight">
                           Diaspora networks are increasingly used for "remote" smuggling coordination.
@@ -1193,7 +1193,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Engineer Exodus</h4>
+                              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Engineer Exodus</h4>
                               <p className="text-[10px] text-slate-500 uppercase">Annual Departures (OIT Data)</p>
                             </div>
                             <GraduationCap className="w-6 h-6 text-intel-red" />
@@ -1225,7 +1225,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                           <div className="flex items-center justify-between">
                             <div className="space-y-1">
-                              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Medical Drain</h4>
+                              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Medical Drain</h4>
                               <p className="text-[10px] text-slate-500 uppercase">Doctors Leaving (Annual)</p>
                             </div>
                             <Stethoscope className="w-6 h-6 text-intel-orange" />
@@ -1256,7 +1256,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       </div>
 
                       <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest">The "PhD Paradox"</h4>
+                        <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest">The "PhD Paradox"</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-1">
                             <div className="text-[8px] font-mono text-slate-500 uppercase">PhD Emigration Intent</div>
@@ -1279,7 +1279,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
                     <div className="space-y-6">
                       <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Impact Assessment</h4>
+                        <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Impact Assessment</h4>
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <div className="flex justify-between text-[10px] font-mono uppercase">
@@ -1312,7 +1312,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       </div>
 
                       <div className="p-4 md:p-6 bg-intel-red/10 border border-intel-red/20 rounded-xl md:rounded-2xl space-y-3">
-                        <div className="text-xs font-bold text-white uppercase">Cost of Training Loss</div>
+                        <div className="text-xs font-bold text-on-surface uppercase">Cost of Training Loss</div>
                         <div className="text-3xl font-bold text-intel-red font-mono">1.2B TND</div>
                         <p className="text-[9px] text-slate-400 leading-tight">
                           Estimated annual loss in public education investment due to high-skill emigration. Tunisia is effectively subsidizing the EU/Gulf labor markets.
@@ -1329,7 +1329,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                       <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
-                            <h4 className="text-lg font-bold text-white uppercase tracking-tight">Youth Emigration Aspiration</h4>
+                            <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Youth Emigration Aspiration</h4>
                             <p className="text-[10px] text-slate-500 uppercase">Desire to leave among 18-35 demographic</p>
                           </div>
                           <div className="text-3xl font-bold text-intel-red font-mono">{data.social.youth_emigration_aspiration_pct}%</div>
@@ -1362,25 +1362,25 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Seasonal Labor Flows</h4>
+                          <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Seasonal Labor Flows</h4>
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
                               <span className="text-[10px] font-mono text-slate-400 uppercase">Agriculture (Italy)</span>
-                              <span className="text-xs font-bold text-white">12,500/yr</span>
+                              <span className="text-xs font-bold text-on-surface">12,500/yr</span>
                             </div>
                             <div className="flex justify-between items-center">
                               <span className="text-[10px] font-mono text-slate-400 uppercase">Tourism (Gulf)</span>
-                              <span className="text-xs font-bold text-white">8,200/yr</span>
+                              <span className="text-xs font-bold text-on-surface">8,200/yr</span>
                             </div>
                             <div className="flex justify-between items-center">
                               <span className="text-[10px] font-mono text-slate-400 uppercase">Construction (Libya)</span>
-                              <span className="text-xs font-bold text-white">15,000/yr</span>
+                              <span className="text-xs font-bold text-on-surface">15,000/yr</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                          <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">Return Migration</h4>
+                          <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">Return Migration</h4>
                           <div className="flex items-end justify-between">
                             <div className="text-3xl font-bold text-intel-green font-mono">{data.social.return_migration_annual}</div>
                             <div className="text-[8px] font-mono text-slate-500 uppercase">Annual Returns</div>
@@ -1394,7 +1394,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
                     <div className="space-y-6">
                       <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">The "Harraga" Factor</h4>
+                        <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">The "Harraga" Factor</h4>
                         <div className="space-y-4">
                           <div className="p-4 bg-intel-red/5 border border-intel-red/20 rounded-xl space-y-1">
                             <div className="text-[8px] font-mono text-slate-500 uppercase">Illegal Attempts (2025)</div>
@@ -1422,7 +1422,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
                       <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-intel-border space-y-6">
-                        <h4 className="text-lg font-bold text-white uppercase tracking-tight">Migration Governance Framework</h4>
+                        <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Migration Governance Framework</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-4">
                             <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2">
@@ -1449,7 +1449,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                           
                           <div className="space-y-6">
                             <div className="space-y-2">
-                              <h5 className="text-[10px] font-bold text-white uppercase tracking-widest">Key Policy Challenges</h5>
+                              <h5 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Key Policy Challenges</h5>
                               <ul className="space-y-3">
                                 {prepareList([
                                   { label: 'Visa Liberalization Stagnation' },
@@ -1465,7 +1465,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
                               </ul>
                             </div>
                             <div className="p-4 bg-intel-orange/10 border border-intel-orange/20 rounded-xl">
-                              <div className="text-[10px] font-bold text-white uppercase mb-1">Geopolitical Leverage</div>
+                              <div className="text-[10px] font-bold text-on-surface uppercase mb-1">Geopolitical Leverage</div>
                               <p className="text-[9px] text-slate-400">
                                 Migration remains Tunisia's primary leverage in negotiations with the EU, creating a "securitization of diplomacy" effect.
                               </p>
@@ -1477,7 +1477,7 @@ export const SocialPoliticalIntelligence: React.FC = () => {
 
                     <div className="space-y-6">
                       <div className="glass p-4 md:p-5 rounded-xl border border-intel-border space-y-4">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest border-b border-white/5 pb-3">RRI Model Impact</h4>
+                        <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest border-b border-white/5 pb-3">RRI Model Impact</h4>
                         <div className="space-y-4">
                           <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-1">
                             <div className="text-[8px] font-mono text-slate-500 uppercase">Equation Component</div>

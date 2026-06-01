@@ -466,7 +466,7 @@ const AlignmentGauge: React.FC<{
             <>
               <div className="flex items-center space-x-2 border-b border-white/5 pb-2">
                 <Radio className="w-3 h-3 text-slate-400" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Alignment Score</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Alignment Score</span>
                 <span className="text-[10px] ml-auto font-mono" style={{ color: alignment.color }}>{alignment.label}</span>
               </div>
               <p className="text-[9px] text-slate-300 leading-relaxed font-sans">
@@ -480,7 +480,7 @@ const AlignmentGauge: React.FC<{
             <>
               <div className="flex items-center space-x-2 border-b border-white/5 pb-2">
                 <Activity className="w-3 h-3 text-slate-400" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Phase Coupling</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase tracking-wider">Phase Coupling</span>
               </div>
               
               {alignment.alignedPairs.length > 0 && (
@@ -671,7 +671,7 @@ export const CivilizationalEngine: React.FC = () => {
           flex items-center justify-center text-[11px] font-bold text-intel-cyan font-mono">
           07
         </div>
-        <h2 className="text-lg font-bold text-white uppercase tracking-widest">
+        <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">
           Civilizational Engine
         </h2>
         <span className="text-[9px] font-mono text-slate-600 ml-auto">
@@ -832,7 +832,7 @@ export const CivilizationalEngine: React.FC = () => {
                 composite={composite}
                 rriState={rriState}
               />
-              <div className="text-[7px] text-slate-600">
+              <div className="text-[9px] text-slate-600">
                 — C(t) composite &nbsp; - - individual traces (E, F, S)
               </div>
             </div>

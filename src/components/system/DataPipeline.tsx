@@ -84,7 +84,7 @@ const AIAPITab: React.FC = () => {
               <Database className="w-6 h-6 text-intel-cyan" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white tracking-tight group-hover:text-intel-cyan transition-colors">Gemini 2.5 Flash</h3>
+              <h3 className="text-2xl font-bold text-on-surface tracking-tight group-hover:text-intel-cyan transition-colors">Gemini 2.5 Flash</h3>
               <p className="text-sm text-slate-400 mt-2 leading-relaxed">
                 Default active engine. Fast multimodal intelligence and data extraction.
               </p>
@@ -101,7 +101,7 @@ const AIAPITab: React.FC = () => {
               <Cpu className="w-6 h-6 text-intel-cyan" />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-white tracking-tight group-hover:text-intel-cyan transition-colors">GPT-4 Turbo</h3>
+              <h3 className="text-2xl font-bold text-on-surface tracking-tight group-hover:text-intel-cyan transition-colors">GPT-4 Turbo</h3>
               <p className="text-sm text-slate-400 mt-2 leading-relaxed">
                 Advanced reasoning engine. Requires separate API key configuration below.
               </p>
@@ -114,7 +114,7 @@ const AIAPITab: React.FC = () => {
       <div className="max-w-4xl w-full mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="p-8 bg-slate-900/40 border border-white/10 rounded-3xl backdrop-blur-md space-y-6">
           <div className="flex items-center justify-between">
-            <h4 className="text-white font-bold font-mono tracking-tight uppercase">API Configuration</h4>
+            <h4 className="text-on-surface font-bold font-mono tracking-tight uppercase">API Configuration</h4>
             <button 
               onClick={() => setIsPaused(!isPaused)}
               className={`px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all ${isPaused ? 'bg-intel-red/20 text-intel-red border border-intel-red/30' : 'bg-emerald-500/20 text-emerald-500 border border-emerald-500/30'}`}
@@ -129,13 +129,13 @@ const AIAPITab: React.FC = () => {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="sk-..."
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-white focus:border-intel-cyan/50 focus:outline-none"
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-on-surface focus:border-intel-cyan/50 focus:outline-none"
             />
             <div className="flex gap-2 items-center mt-2">
               <button 
                 onClick={testApiKey}
                 disabled={isTesting || !apiKey}
-                className="px-4 py-2 bg-slate-800 text-white text-xs font-mono rounded hover:bg-slate-700 disabled:opacity-50"
+                className="px-4 py-2 bg-slate-800 text-on-surface text-xs font-mono rounded hover:bg-slate-700 disabled:opacity-50"
               >
                 {isTesting ? 'Testing...' : 'Test API Key'}
               </button>
@@ -154,7 +154,7 @@ const AIAPITab: React.FC = () => {
         <div className="p-8 bg-slate-900/40 border border-white/10 rounded-3xl backdrop-blur-md flex flex-col justify-center items-center text-center space-y-4">
           <Activity className="w-12 h-12 text-intel-cyan" />
           <div>
-             <h4 className="text-white font-bold font-mono tracking-tight text-xl">Intelligence Readiness</h4>
+             <h4 className="text-on-surface font-bold font-mono tracking-tight text-xl">Intelligence Readiness</h4>
              <p className="text-sm text-slate-400 mt-2 font-mono">Select a provider and ensure keys are set to activate data ingestion engines and predictive modeling functions.</p>
           </div>
         </div>
@@ -412,12 +412,18 @@ export const DataPipeline: React.FC<{
     window.dispatchEvent(new CustomEvent('rri-recalculate'));
   };
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="fixed inset-0 z-[200] bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"
+      role="dialog" aria-modal="true" aria-label="Data Pipeline" className="fixed inset-0 z-modal bg-[#020810]/98 backdrop-blur-md overflow-hidden flex flex-col"
     >
       {/* Overlay Header */}
       <div className="h-auto md:h-16 border-b border-white/10 flex flex-col md:flex-row items-center justify-between px-4 md:px-8 py-3 md:py-0 bg-black/40 relative z-20">
@@ -428,7 +434,7 @@ export const DataPipeline: React.FC<{
                 <Database className="w-5 h-5 text-intel-cyan" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white tracking-tight">
+                <h2 className="text-lg font-bold text-on-surface tracking-tight">
                   {activeTab === 'ai-api' ? 'AI Engine' : activeTab === 'sources' ? 'Source Library' : activeTab === 'finance' ? 'Finance Law 2026' : activeTab === 'pipeline-control' ? 'Pipeline Mission Control' : 'Intelligence Pipeline'}
                 </h2>
                 <div className="flex items-center space-x-2">
@@ -533,7 +539,7 @@ export const DataPipeline: React.FC<{
                         <select 
                           value={activeDocType.id}
                           onChange={(e) => setActiveDocType(DOCUMENT_TYPES.find(d => d.id === e.target.value) || DOCUMENT_TYPES[0])}
-                          className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-white"
+                          className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-on-surface"
                         >
                           {DOCUMENT_TYPES.map(type => (
                             <option key={type.id} value={type.id}>{type.name}</option>
@@ -544,7 +550,7 @@ export const DataPipeline: React.FC<{
                             value={urlInput}
                             onChange={(e) => setUrlInput(e.target.value)}
                             placeholder="https://..."
-                            className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-white"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl py-3 px-4 text-sm font-mono text-on-surface"
                           />
                         <div className="grid grid-cols-2 gap-2">
                            <button 
@@ -558,7 +564,7 @@ export const DataPipeline: React.FC<{
                            <button 
                              onClick={handleSyncAPIs}
                              disabled={isExtracting}
-                             className="w-full py-3 bg-white/10 border border-white/10 text-white rounded-xl font-mono font-bold text-xs uppercase hover:bg-white/20 transition-all disabled:opacity-50 flex justify-center items-center space-x-2"
+                             className="w-full py-3 bg-white/10 border border-white/10 text-on-surface rounded-xl font-mono font-bold text-xs uppercase hover:bg-white/20 transition-all disabled:opacity-50 flex justify-center items-center space-x-2"
                            >
                              {isExtracting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                              <span>Sync APIs</span>
@@ -568,7 +574,7 @@ export const DataPipeline: React.FC<{
                     </div>
                      {documents.length > 0 && (
                        <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl">
-                         <h3 className="text-sm font-mono font-bold text-white uppercase mb-4">Ingestion Logs</h3>
+                         <h3 className="text-sm font-mono font-bold text-on-surface uppercase mb-4">Ingestion Logs</h3>
                          <div className="space-y-3">
                            {documents.map(doc => (
                              <div key={doc.id} className="p-3 bg-black/40 border border-white/5 rounded-lg">
@@ -598,14 +604,14 @@ export const DataPipeline: React.FC<{
                       <div className="p-12 bg-slate-900/40 border border-white/10 rounded-2xl flex flex-col items-center justify-center text-center space-y-4 h-full border-dashed">
                         <Database className="w-12 h-12 text-slate-600 mb-2" />
                         <div>
-                          <h4 className="text-white font-bold font-mono tracking-tight uppercase">Pipeline Idle</h4>
+                          <h4 className="text-on-surface font-bold font-mono tracking-tight uppercase">Pipeline Idle</h4>
                           <p className="text-sm text-slate-500 mt-2 font-mono">Ingest a document or external data source to begin extraction loop.</p>
                         </div>
                       </div>
                     )}
                     {reviewQueue.length > 0 && reviewQueue.map((field) => (
                       <div key={field.id} className="p-5 bg-slate-900/60 border border-white/10 rounded-2xl flex items-center justify-between">
-                         <div className="text-white text-sm">{FIELD_MAP[field.field as keyof typeof FIELD_MAP]?.label || field.field}</div>
+                         <div className="text-on-surface text-sm">{FIELD_MAP[field.field as keyof typeof FIELD_MAP]?.label || field.field}</div>
                          <div className="flex gap-2">
                              <button onClick={() => handleApprove(field)} className="text-emerald-500">Approve</button>
                              <button onClick={() => handleReject(field)} className="text-intel-red">Reject</button>

@@ -253,7 +253,7 @@ const PrisonerCard: React.FC<{
               : 'bg-intel-green'
           }`} />
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-white truncate group-hover:text-intel-red transition-colors">
+            <div className="text-[11px] font-bold text-on-surface truncate group-hover:text-intel-red transition-colors">
               {prisoner.name}
             </div>
             <div className="text-[9px] text-slate-600 truncate">
@@ -288,7 +288,7 @@ const PrisonerCard: React.FC<{
               {prisoner.id}
             </span>
           </div>
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="text-lg font-bold text-on-surface">
             {prisoner.name}
           </h3>
           {prisoner.nameAr && (
@@ -554,7 +554,7 @@ export const PoliticalCalendar: React.FC = () => {
           <div className="flex items-center space-x-3">
             <Calendar className="w-6 h-6 text-intel-cyan" />
             <div>
-              <h1 className="text-xl font-bold text-white uppercase tracking-widest">Political Calendar</h1>
+              <h1 className="text-xl font-bold text-on-surface uppercase tracking-widest">Political Calendar</h1>
               <p className="text-[10px] text-slate-500 mt-0.5">
                 Events · Trials · Political Prisoners · Judicial Weaponization Index
               </p>
@@ -619,7 +619,7 @@ export const PoliticalCalendar: React.FC = () => {
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <div className="text-sm font-bold text-white uppercase tracking-widest">
+              <div className="text-sm font-bold text-on-surface uppercase tracking-widest">
                 {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
               </div>
               <button
@@ -662,7 +662,7 @@ export const PoliticalCalendar: React.FC = () => {
                     }`}
                   >
                     <span className={`text-[11px] font-mono font-bold ${
-                      isSelected ? 'text-intel-cyan' : isToday ? 'text-intel-orange' : dayEvents.length > 0 ? 'text-white' : 'text-slate-600'
+                      isSelected ? 'text-intel-cyan' : isToday ? 'text-intel-orange' : dayEvents.length > 0 ? 'text-on-surface' : 'text-slate-600'
                     }`}>{day}</span>
                     <div className="flex flex-wrap gap-0.5 mt-auto">
                       {dayEvents.slice(0, 4).map((event, j) => (
@@ -680,7 +680,7 @@ export const PoliticalCalendar: React.FC = () => {
               {selectedDay ? (
                 <motion.div key={selectedDay} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-bold text-white">{new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div className="text-sm font-bold text-on-surface">{new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
                     <button onClick={() => setSelectedDay(null)} className="p-1.5 text-slate-600 hover:text-white transition-all"><X className="w-4 h-4" /></button>
                   </div>
                   {calendarEvents.filter(e => e.date === selectedDay).length === 0 ? (
@@ -693,7 +693,7 @@ export const PoliticalCalendar: React.FC = () => {
                             <div className="flex items-center space-x-2 flex-wrap gap-1">
                               <span className="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border uppercase" style={{ color: EVENT_COLORS[event.type], borderColor: `${EVENT_COLORS[event.type]}40`, backgroundColor: `${EVENT_COLORS[event.type]}15` }}>{event.type}</span>
                             </div>
-                            <div className="text-[11px] font-bold text-white">{event.title}</div>
+                            <div className="text-[11px] font-bold text-on-surface">{event.title}</div>
                           </div>
                         </div>
                         <p className="text-[10px] text-slate-400 leading-snug">{event.description}</p>
@@ -744,7 +744,7 @@ export const PoliticalCalendar: React.FC = () => {
             <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
               <Gavel className="w-5 h-5 text-intel-purple" />
               <div>
-                <div className="text-sm font-bold text-white uppercase tracking-widest">Trial Tracker</div>
+                <div className="text-sm font-bold text-on-surface uppercase tracking-widest">Trial Tracker</div>
                 <div className="text-[9px] text-slate-500">Upcoming and recent court hearings</div>
               </div>
             </div>
@@ -752,7 +752,7 @@ export const PoliticalCalendar: React.FC = () => {
               {prepareList(prisoners.filter(p => p.nextHearing || p.lastHearing)).map((prisoner) => (
                 <div key={prisoner.id} className="flex items-start justify-between p-4 rounded-xl border border-intel-border/30 bg-black/20 gap-4">
                   <div className="min-w-0 space-y-1">
-                    <div className="text-[11px] font-bold text-white truncate">{prisoner.name}</div>
+                    <div className="text-[11px] font-bold text-on-surface truncate">{prisoner.name}</div>
                     <div className="text-[10px] text-slate-500">{prisoner.trialStatus}</div>
                   </div>
                 </div>

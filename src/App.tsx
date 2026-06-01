@@ -268,7 +268,11 @@ const AppContent: React.FC = React.memo(() => {
     const handleMethodology = (e: any) => {
       handleOpenMethodology(e.detail?.equation);
     };
-    const handlePipeline = (e: any) => handleOpenPipeline(e.detail?.tab || 'pipeline');
+    const PIPELINE_VALID_TABS = new Set(['pipeline', 'sources', 'ai-api']);
+    const handlePipeline = (e: any) => {
+      const tab = e.detail?.tab;
+      handleOpenPipeline(PIPELINE_VALID_TABS.has(tab) ? tab : 'pipeline');
+    };
     
     window.addEventListener('navigate-to-methodology', handleMethodology);
     window.addEventListener('navigate-to-pipeline', handlePipeline);
@@ -290,6 +294,28 @@ const AppContent: React.FC = React.memo(() => {
     const handleSystemCommand = () => setShowDebug(prev => !prev);
     window.addEventListener('navigate-to-system-command', handleSystemCommand);
 
+    // navigate-main: fired by notification action buttons (tab = target area)
+    const handleNavigateMain = (e: any) => {
+      const tab = e.detail?.tab;
+      if (!tab) return;
+      const tabToOverlay: Record<string, () => void> = {
+        risk:       () => handleOpenPipeline('pipeline'),
+        pipeline:   () => handleOpenPipeline('pipeline'),
+        alerts:     () => handleOpenPipeline('pipeline'),
+        'ai-api':   () => handleOpenPipeline('ai-api'),
+        newsfeed:   () => handleOpenPipeline('sources'),
+        agri:       () => handleOpenPipeline('pipeline'),
+        economy:    () => handleOpenPipeline('pipeline'),
+        political:  () => handleOpenPipeline('pipeline'),
+        security:   () => handleOpenPipeline('pipeline'),
+        system:     () => setShowDebug(prev => !prev),
+        methodology:() => setShowMethodology(true),
+      };
+      const action = tabToOverlay[tab];
+      if (action) action();
+    };
+    window.addEventListener('navigate-main', handleNavigateMain);
+
     return () => {
       window.removeEventListener('navigate-to-methodology', handleMethodology);
       window.removeEventListener('navigate-to-pipeline', handlePipeline);
@@ -297,6 +323,7 @@ const AppContent: React.FC = React.memo(() => {
       window.removeEventListener('navigate-to-observability', handleObservability);
       window.removeEventListener('navigate-to-home', handleGoHome);
       window.removeEventListener('navigate-to-system-command', handleSystemCommand);
+      window.removeEventListener('navigate-main', handleNavigateMain);
     };
   }, []);
 
@@ -513,7 +540,7 @@ const AppContent: React.FC = React.memo(() => {
           onClose={() => setShowAIAnalyst(false)}
         />
         {showObservability && (
-          <div className="fixed inset-0 z-[10000]">
+          <div className="fixed inset-0 z-toast">
              <ObservabilityDashboard onBack={() => setShowObservability(false)} />
           </div>
         )}
@@ -525,7 +552,7 @@ const AppContent: React.FC = React.memo(() => {
       {/* Visual Debugger */}
       <AnimatePresence>
         {showDebug && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-overlay flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -572,7 +599,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
                 <ShieldAlert className="w-10 h-10" />
               </div>
               <div className="space-y-1">
-                <h2 className="text-3xl font-black tracking-tighter text-white uppercase">Critical Kernel Failure</h2>
+                <h2 className="text-3xl font-black tracking-tighter text-on-surface uppercase">Critical Kernel Failure</h2>
                 <div className="text-[10px] text-red-500/70 font-bold tracking-[0.3em] uppercase">// SYSTEM_HALT_RECOVERY_REQUIRED</div>
               </div>
             </div>

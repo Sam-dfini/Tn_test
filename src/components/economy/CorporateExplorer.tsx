@@ -145,7 +145,7 @@ export const CorporateExplorer: React.FC = () => {
             <Share2 className="w-4 h-4 text-intel-cyan" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest font-mono">Entity Resolution Explorer</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest font-mono">Entity Resolution Explorer</h3>
             <p className="text-[9px] text-white/30 font-mono">Live mapping of company and institutional relationships</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ export const CorporateExplorer: React.FC = () => {
               placeholder="Filter entities..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-[10px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-intel-cyan/50 transition-all w-48"
+              className="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-[10px] font-mono text-on-surface placeholder:text-white/20 focus:outline-none focus:border-intel-cyan/50 transition-all w-48"
             />
           </div>
           <button className="p-2 hover:bg-white/5 rounded-lg text-white/40 hover:text-white transition-all">
@@ -199,7 +199,7 @@ export const CorporateExplorer: React.FC = () => {
                     })}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white uppercase font-mono">{selectedEntity.label}</h4>
+                    <h4 className="text-xs font-bold text-on-surface uppercase font-mono">{selectedEntity.label}</h4>
                     <span className="text-[8px] font-mono opacity-40 uppercase tracking-widest">{selectedEntity.type}</span>
                   </div>
                 </div>
@@ -211,11 +211,11 @@ export const CorporateExplorer: React.FC = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white/5 rounded-xl p-2 border border-white/5">
-                    <div className="text-[7px] font-mono text-white/20 uppercase mb-1">Mentions</div>
+                    <div className="text-[9px] font-mono text-white/20 uppercase mb-1">Mentions</div>
                     <div className="text-sm font-bold font-mono text-intel-cyan">{selectedEntity.mentions}</div>
                   </div>
                   <div className="bg-white/5 rounded-xl p-2 border border-white/5">
-                    <div className="text-[7px] font-mono text-white/20 uppercase mb-1">Sentiment</div>
+                    <div className="text-[9px] font-mono text-white/20 uppercase mb-1">Sentiment</div>
                     <div className={cn(
                       "text-sm font-bold font-mono",
                       selectedEntity.sentiment > 0 ? "text-emerald-400" : selectedEntity.sentiment < 0 ? "text-intel-red" : "text-intel-cyan"

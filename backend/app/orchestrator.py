@@ -338,25 +338,34 @@ class MissionOrchestrator:
     async def _check_human_validations(self, signals: List[Any]):
         """
         Checks for human adjustments to signals and updates them.
+        Batch fetches all validations in a single query instead of N+1.
         """
-        for s in signals:
-            try:
-                validation = db.table("human_validations") \
-                    .select("*") \
-                    .eq("target_id", str(s.id)) \
-                    .eq("target_type", "SIGNAL") \
-                    .order("created_at", desc=True) \
-                    .limit(1) \
-                    .execute()
-                
-                if validation.data:
-                    v = validation.data[0]
-                    if v["adjusted_confidence"] is not None:
-                        s.confidence_score = v["adjusted_confidence"]
-                        s.metadata["human_validated"] = True
-                        s.metadata["analyst_id"] = v["analyst_id"]
-            except Exception:
-                pass
+        if not signals:
+            return
+        signal_ids = [str(s.id) for s in signals]
+        try:
+            result = db.table("human_validations") \
+                .select("*") \
+                .in_("target_id", signal_ids) \
+                .eq("target_type", "SIGNAL") \
+                .order("created_at", desc=True) \
+                .execute()
+            # Group by target_id, keep latest per signal
+            validations_by_id: dict = {}
+            for v in (result.data or []):
+                tid = v["target_id"]
+                if tid not in validations_by_id:
+                    validations_by_id[tid] = v
+            # Apply to signals
+            sig_map = {str(s.id): s for s in signals}
+            for tid, v in validations_by_id.items():
+                s = sig_map.get(tid)
+                if s and v.get("adjusted_confidence") is not None:
+                    s.confidence_score = v["adjusted_confidence"]
+                    s.metadata["human_validated"] = True
+                    s.metadata["analyst_id"] = v.get("analyst_id")
+        except Exception as e:
+            print(f"[orchestrator] _check_human_validations failed: {e}")
 
     def _get_latest_agro_metrics(self) -> Dict[str, Any]:
         """
@@ -411,13 +420,17 @@ class MissionOrchestrator:
             trigger_category = chain.get("trigger_category", "unknown") if chain else "unknown"
             scenario = f"Chain activated: {chain_name} — {trigger_category}"
 
-            asyncio.create_task(
+            task = asyncio.create_task(
                 deliberation_engine.run(
                     scenario=scenario,
                     trigger_type="ontology_chain",
                     trigger_source=chain_id,
                     state_version_id=snapshot.get("state_version_id"),
                 )
+            )
+            # Prevent GC before task completes; log on failure
+            task.add_done_callback(
+                lambda t: print(f"[orchestrator] deliberation task failed: {t.exception()}") if not t.cancelled() and t.exception() else None
             )
         except Exception as e:
             print(f"[orchestrator] on_chain_activated failed: {e}")

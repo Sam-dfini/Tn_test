@@ -156,9 +156,9 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
 function StatRow({ label, official, real, gap }: { label: string; official: string; real: string; gap: number }) {
   return (
     <div className="flex items-center justify-between border-b border-white/5 py-3 text-xs">
-      <div className="w-1/4 font-medium text-white">{label}</div>
+      <div className="w-1/4 font-medium text-on-surface">{label}</div>
       <div className="w-1/4 font-mono text-slate-400">{official}</div>
-      <div className="w-1/4 font-mono font-bold text-white">{real}</div>
+      <div className="w-1/4 font-mono font-bold text-on-surface">{real}</div>
       <div className="w-1/4 text-right">
         <span className={`px-2 py-1 border rounded font-mono font-bold text-[10px] ${gap > 100 ? 'bg-intel-red/20 text-intel-red border-intel-red/30' : gap > 50 ? 'bg-intel-orange/20 text-intel-orange border-intel-orange/30' : 'bg-amber-400/20 text-amber-400 border-amber-400/30'}`}>
           {typeof gap === 'number' ? `+${gap}%` : gap}
@@ -172,7 +172,7 @@ function ComponentBar({ label, value, weight }: { label: string; value: number; 
   return (
     <div className="flex items-center gap-4 text-xs group">
       <div className="w-28 text-slate-400 tracking-wide font-mono uppercase text-[10px] group-hover:text-intel-cyan transition-colors">{label}</div>
-      <div className="w-10 font-mono font-bold text-white">{value.toFixed(2)}</div>
+      <div className="w-10 font-mono font-bold text-on-surface">{value.toFixed(2)}</div>
       <div className="flex-1 h-3 bg-black/40 rounded overflow-hidden border border-white/10">
         <motion.div
           initial={{ width: 0 }}
@@ -241,7 +241,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
         <div className="glass rounded-xl p-5 border border-intel-border/50 bg-[#0f141a]/90 backdrop-blur">
           <div className="flex items-end justify-between mb-3">
             <div className="flex items-center gap-3">
-              <span className="font-mono text-4xl font-bold tracking-tight text-white">0.68</span>
+              <span className="font-mono text-4xl font-bold tracking-tight text-on-surface">0.68</span>
               <div className="flex flex-col">
                 <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">BMI Score</span>
                 <span className="flex items-center gap-1 text-[9px] font-bold text-intel-orange mt-1 px-2 py-0.5 border border-intel-orange/30 bg-intel-orange/10 rounded">
@@ -261,7 +261,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
             <TrendingUp className="w-4 h-4 text-intel-red" />
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-mono text-3xl font-bold text-white">22%</span>
+            <span className="font-mono text-3xl font-bold text-on-surface">22%</span>
             <span className="font-mono text-xs text-intel-red">GAP</span>
           </div>
           <div className="text-[10px] font-mono text-slate-400">
@@ -276,7 +276,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
             <Lock className="w-4 h-4 text-intel-orange" />
           </div>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-mono text-3xl font-bold text-white">48.5%</span>
+            <span className="font-mono text-3xl font-bold text-on-surface">48.5%</span>
           </div>
           <div className="text-[10px] font-mono text-slate-400">Informal margin over official subsidized pricing.</div>
         </div>
@@ -411,7 +411,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                   {GOVERNORATE_BMI.slice(0, 9).map((g, i) => (
                     <div key={i} className={`p-3 rounded-xl border space-y-2 ${g.bmi > 0.8 ? 'border-intel-red/30 bg-intel-red/5' : g.bmi > 0.65 ? 'border-intel-orange/20' : 'border-intel-border'}`}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-white font-mono">{g.name}</span>
+                        <span className="text-[11px] font-bold text-on-surface font-mono">{g.name}</span>
                         <span className="text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase" style={{ color: g.color, borderColor: `${g.color}40`, backgroundColor: `${g.color}10` }}>{g.cluster}</span>
                       </div>
                       <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -419,7 +419,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                       </div>
                       <div className="flex justify-between text-[9px] font-mono">
                         <span className="text-slate-600">BMI: <span style={{ color: g.color }} className="font-bold">{g.bmi}</span></span>
-                        <span className="text-slate-600">RSP: <span className="text-white">{g.rsp}</span></span>
+                        <span className="text-slate-600">RSP: <span className="text-on-surface">{g.rsp}</span></span>
                         <span className="text-slate-600">Leak: <span className="text-intel-orange">{g.leakage}%</span></span>
                       </div>
                     </div>
@@ -474,7 +474,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                     placeholder="Search commodity..."
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
-                    className="bg-white/5 border border-white/10 rounded-lg py-1.5 pl-8 pr-3 text-[10px] font-mono text-white placeholder:text-slate-700 focus:outline-none focus:border-intel-orange/40 w-48"
+                    className="bg-white/5 border border-white/10 rounded-lg py-1.5 pl-8 pr-3 text-[10px] font-mono text-on-surface placeholder:text-slate-700 focus:outline-none focus:border-intel-orange/40 w-48"
                   />
                 </div>
               </div>
@@ -495,14 +495,14 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                         const bmdi = bmdiCalc(c.official as number, c.street as number);
                         return (
                           <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                            <td className="px-4 py-3 text-[10px] font-mono font-bold text-white">{c.name}</td>
+                            <td className="px-4 py-3 text-[10px] font-mono font-bold text-on-surface">{c.name}</td>
                             <td className="px-4 py-3 text-[9px] font-mono text-slate-600">
                               {c.cat === 1 ? 'SUB' : c.cat === 2 ? 'CTR' : 'SMG'}
                             </td>
                             <td className="px-4 py-3 text-[10px] font-mono text-intel-cyan">
                               {typeof c.official === 'number' ? `${c.official.toFixed(3)} TND` : c.official}
                             </td>
-                            <td className="px-4 py-3 text-[10px] font-mono text-white font-bold">
+                            <td className="px-4 py-3 text-[10px] font-mono text-on-surface font-bold">
                               {typeof c.street === 'number' ? `${c.street.toFixed(3)} TND` : c.street}
                             </td>
                             <td className="px-4 py-3">
@@ -574,7 +574,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <Truck className={`w-4 h-4 ${r.risk === 'CRITICAL' ? 'text-intel-red' : 'text-intel-orange'}`} />
-                          <span className="text-[11px] font-bold text-white uppercase tracking-tight">{r.name}</span>
+                          <span className="text-[11px] font-bold text-on-surface uppercase tracking-tight">{r.name}</span>
                         </div>
                         <div className="text-[9px] font-mono text-slate-500">{r.commodity}</div>
                       </div>
@@ -605,7 +605,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                     <div className="grid grid-cols-3 gap-3 pt-2 border-t border-white/5 text-[9px] font-mono">
                       <div>
                         <div className="text-slate-600 uppercase text-[8px]">Volume</div>
-                        <div className="text-white font-bold">{r.volume}</div>
+                        <div className="text-on-surface font-bold">{r.volume}</div>
                       </div>
                       <div>
                         <div className="text-slate-600 uppercase text-[8px]">Seizures/30d</div>
@@ -688,7 +688,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                   {LEAKAGE_BY_PRODUCT.map((p, i) => (
                     <div key={i} className="space-y-1.5">
                       <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-white">{p.product}</span>
+                        <span className="text-on-surface">{p.product}</span>
                         <div className="flex items-center gap-3">
                           <span className="text-slate-600">Budget cost: <span className="text-intel-orange">{Math.round(p.cost_mTND * p.leakage / 100)}M TND/yr</span></span>
                           <span className={`font-bold ${p.leakage > 55 ? 'text-intel-red' : 'text-intel-orange'}`}>{p.leakage}% leaked</span>
@@ -770,7 +770,7 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-0.5">
-                          <span className="text-white font-mono text-sm">{s.term}</span>
+                          <span className="text-on-surface font-mono text-sm">{s.term}</span>
                           {s.arabic && <span className="text-slate-600 font-mono text-xs" dir="rtl">{s.arabic}</span>}
                           <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ml-auto shrink-0 ${s.heat === 'CRITICAL' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : s.heat === 'HIGH' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-amber-400 border-amber-400/30 bg-amber-400/10'}`}>{s.heat}</span>
                         </div>
@@ -828,15 +828,15 @@ export const BlackMarketIntelligencePanel: React.FC = () => {
                   ].map((p, i) => (
                     <div key={i} className="bg-black/30 border border-white/5 rounded-xl p-4 space-y-2 hover:border-white/10 transition-all">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-white">{p.platform}</span>
-                        <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${p.status === 'LIVE' ? 'text-intel-cyan border-intel-cyan/30' : 'text-slate-500 border-slate-700'}`}>{p.status}</span>
+                        <span className="text-[10px] font-mono text-on-surface">{p.platform}</span>
+                        <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${p.status === 'LIVE' ? 'text-intel-cyan border-intel-cyan/30' : 'text-slate-500 border-slate-700'}`}>{p.status}</span>
                       </div>
                       <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                         <div className="h-full bg-intel-orange/60 rounded-full" style={{ width: `${p.coverage}%` }} />
                       </div>
                       <div className="flex justify-between text-[9px] font-mono text-slate-600">
                         <span>Coverage: {p.coverage}%</span>
-                        <span className="text-white">{p.signals} signals</span>
+                        <span className="text-on-surface">{p.signals} signals</span>
                       </div>
                     </div>
                   ))}

@@ -80,7 +80,7 @@ const EquationCard: React.FC<{
             </span>
           )}
         </div>
-        <h3 className="text-white font-bold text-xs md:text-sm uppercase tracking-wider">{title}</h3>
+        <h3 className="text-on-surface font-bold text-xs md:text-sm uppercase tracking-wider">{title}</h3>
       </div>
       {currentOutput && (
         <div className="text-left sm:text-right">
@@ -194,7 +194,7 @@ export const CivilizationalAnalysis: React.FC = () => {
             border border-intel-cyan/20 flex items-center
             justify-center text-[11px] font-bold text-intel-cyan
             font-mono">01</div>
-          <h2 className="text-lg font-bold text-white uppercase
+          <h2 className="text-lg font-bold text-on-surface uppercase
             tracking-widest">The Regime Aging Curve</h2>
           <span className="text-[9px] font-mono text-slate-600
             ml-auto">After Ray Dalio — The Big Cycle (2021)</span>
@@ -301,7 +301,7 @@ export const CivilizationalAnalysis: React.FC = () => {
             border border-intel-orange/20 flex items-center
             justify-center text-[11px] font-bold text-intel-orange
             font-mono">02</div>
-          <h2 className="text-lg font-bold text-white uppercase
+          <h2 className="text-lg font-bold text-on-surface uppercase
             tracking-widest">Civilization Phase Analysis</h2>
           <span className="text-[9px] font-mono text-slate-600
             ml-auto">After Michael Haupt — Cycle of Civilization (2022)</span>
@@ -402,7 +402,7 @@ export const CivilizationalAnalysis: React.FC = () => {
             border border-intel-purple/20 flex items-center
             justify-center text-[11px] font-bold text-intel-purple
             font-mono">03</div>
-          <h2 className="text-lg font-bold text-white uppercase
+          <h2 className="text-lg font-bold text-on-surface uppercase
             tracking-widest">The Freedom Cycle</h2>
           <span className="text-[9px] font-mono text-slate-600
             ml-auto">Classical political theory — attributed to Tytler (1770s)</span>
@@ -481,7 +481,7 @@ export const CivilizationalAnalysis: React.FC = () => {
                   <div className="space-y-0.5">
                     <div className="flex items-center space-x-2">
                       <span className="text-[10px] font-bold
-                        text-white">{item.actor}</span>
+                        text-on-surface">{item.actor}</span>
                       <span className={`text-[9px] font-mono
                         font-bold ${item.color}`}>→ {item.node}</span>
                     </div>
@@ -521,7 +521,7 @@ export const CivilizationalAnalysis: React.FC = () => {
             border border-intel-red/20 flex items-center
             justify-center text-[11px] font-bold text-intel-red
             font-mono">04</div>
-          <h2 className="text-lg font-bold text-white uppercase
+          <h2 className="text-lg font-bold text-on-surface uppercase
             tracking-widest">Multi-Model Convergence</h2>
           <span className="text-[9px] font-mono text-slate-600
             ml-auto">Four independent frameworks — one conclusion</span>
@@ -612,7 +612,7 @@ export const CivilizationalAnalysis: React.FC = () => {
                 {doctrineAxes.map(axis => (
                   <div key={axis.label} className="space-y-1.5">
                     <div className="flex items-center justify-between text-[10px]">
-                      <span className="font-bold text-white">{axis.label}</span>
+                      <span className="font-bold text-on-surface">{axis.label}</span>
                       <span className="font-mono font-bold" style={{ color: axis.color }}>{axis.value}/100</span>
                     </div>
                     <div className="relative h-3 bg-slate-800 rounded-full overflow-hidden">
@@ -625,7 +625,7 @@ export const CivilizationalAnalysis: React.FC = () => {
               </div>
               <div className="pt-3 border-t border-white/5 p-3 rounded-xl bg-intel-purple/5 border border-intel-purple/20">
                 <div className="text-[8px] font-mono text-intel-purple uppercase mb-1">Doctrine Classification</div>
-                <div className="text-[11px] font-bold text-white">High Extraction + High Redistribution + Weak Productivity Base</div>
+                <div className="text-[11px] font-bold text-on-surface">High Extraction + High Redistribution + Weak Productivity Base</div>
                 <div className="text-[9px] text-slate-400 mt-1 leading-relaxed">
                   Structurally unstable. Heavy extraction from a weak formal sector with growing subsidy obligations = fiscal compression. Tunisia is in the terminal phase of this cycle.
                 </div>
@@ -658,13 +658,13 @@ export const CivilizationalAnalysis: React.FC = () => {
                 return (
                   <div key={s.name} className={`p-4 rounded-xl border space-y-2 ${s.revolt === 'HIGH' ? 'border-intel-red/25 bg-intel-red/5' : s.revolt === 'MEDIUM' ? 'border-intel-orange/20 bg-intel-orange/3' : 'border-intel-border/20 bg-black/10'}`}>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-white">{s.name}</span>
+                      <span className="text-[10px] font-bold text-on-surface">{s.name}</span>
                       <span className={`text-[8px] font-mono font-bold uppercase px-1.5 py-0.5 rounded border ${s.revolt === 'HIGH' ? 'text-intel-red border-intel-red/30' : s.revolt === 'MEDIUM' ? 'text-intel-orange border-intel-orange/30' : 'text-slate-700 border-slate-800'}`}>{s.revolt}</span>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
                       {[{ label: 'Tax burden', val: s.burden, color: '#ff453a' }, { label: 'Tax escape', val: s.escape, color: '#00f2ff' }, { label: 'Anger', val: s.angerLevel, color: ac }].map(m => (
                         <div key={m.label} className="space-y-0.5">
-                          <div className="text-[7px] font-mono text-slate-700">{m.label}</div>
+                          <div className="text-[9px] font-mono text-slate-700">{m.label}</div>
                           <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${m.val}%`, backgroundColor: m.color }} />
                           </div>
@@ -693,7 +693,7 @@ export const CivilizationalAnalysis: React.FC = () => {
         border border-intel-border/50 flex items-start space-x-4">
         <BookOpen className="w-5 h-5 text-slate-500 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <div className="text-[10px] font-bold text-white uppercase
+          <div className="text-[10px] font-bold text-on-surface uppercase
             tracking-widest">Sources</div>
           <div className="text-[10px] text-slate-500 space-y-1">
             <div>Dalio, R. (2021). <em>Principles for Dealing with the Changing World Order.</em> Simon & Schuster.</div>
@@ -745,7 +745,7 @@ const RegimeAgingCurve: React.FC<{ rriState: any }> = ({ rriState }) => {
           <div className="text-intel-cyan font-bold">{label}</div>
           {isNow && <span className="text-[8px] bg-intel-red/20 text-intel-red px-1.5 py-0.5 rounded animate-pulse">LIVE</span>}
         </div>
-        <div className="text-white mb-2">{d?.event}</div>
+        <div className="text-on-surface mb-2">{d?.event}</div>
         <div className="pt-2 border-t border-white/5 space-y-1">
           <div className="flex justify-between">
             <span className="text-slate-500">Regime Power:</span>
@@ -1152,13 +1152,13 @@ const CivilizationPhaseWheel: React.FC<{
                     {phases[hoveredPhase].short}
                   </div>
                   {phases[hoveredPhase].active && (
-                    <span className="text-[7px] bg-intel-red/20 text-intel-red px-1 py-0.5 rounded">ACTIVE</span>
+                    <span className="text-[9px] bg-intel-red/20 text-intel-red px-1 py-0.5 rounded">ACTIVE</span>
                   )}
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Phase:</span>
-                    <span className="text-white">{phases[hoveredPhase].id}/7</span>
+                    <span className="text-on-surface">{phases[hoveredPhase].id}/7</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Risk Impact:</span>
@@ -1490,7 +1490,7 @@ const FreedomCycleDiagram: React.FC<{
                     {nodes.find(n => n.id === hoveredNode)?.label}
                   </div>
                   {nodes.find(n => n.id === hoveredNode)?.active && (
-                    <span className="text-[7px] bg-intel-red/20 text-intel-red px-1 py-0.5 rounded">ACTIVE</span>
+                    <span className="text-[9px] bg-intel-red/20 text-intel-red px-1 py-0.5 rounded">ACTIVE</span>
                   )}
                 </div>
                 <div className="space-y-1">
@@ -1569,7 +1569,7 @@ const FreedomCycleDiagram: React.FC<{
                 className="p-4 rounded-xl border border-intel-border/50
                   bg-black/40 space-y-2 text-[10px]"
               >
-                <div className="font-bold text-white">{node.label}</div>
+                <div className="font-bold text-on-surface">{node.label}</div>
                 <div className="text-slate-500">{node.desc}</div>
               </motion.div>
             );

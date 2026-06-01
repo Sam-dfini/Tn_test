@@ -254,7 +254,7 @@ const StatCard: React.FC<{
     </div>
     <div className="flex items-end justify-between">
       <div>
-        <div className={cn('text-xl font-bold font-mono tracking-tighter', warn ? 'text-white' : 'text-white')}>
+        <div className={cn('text-xl font-bold font-mono tracking-tighter', warn ? 'text-on-surface' : 'text-on-surface')}>
           {value}
         </div>
         {sub && <div className="text-[8px] font-mono text-slate-500 mt-0.5">{sub}</div>}
@@ -283,7 +283,7 @@ const SectionHeader: React.FC<{
       <div className="p-2 rounded-lg bg-white/5 border border-white/5">
         <Icon className="w-4 h-4 text-intel-cyan" />
       </div>
-      <h3 className="text-xs font-bold text-white uppercase tracking-[0.2em]">{title}</h3>
+      <h3 className="text-xs font-bold text-on-surface uppercase tracking-[0.2em]">{title}</h3>
     </div>
     {badge && (
       <div className={cn('px-2 py-0.5 rounded border text-[8px] font-black tracking-widest', badgeColor)}>
@@ -303,7 +303,7 @@ const RiskBadge: React.FC<{ level: string }> = ({ level }) => {
     }
   };
   return (
-    <span className={cn('px-1.5 py-0.5 rounded border text-[7px] font-black uppercase tracking-tighter', getStyles())}>
+    <span className={cn('px-1.5 py-0.5 rounded border text-[9px] font-black uppercase tracking-tighter', getStyles())}>
       {level}
     </span>
   );
@@ -433,7 +433,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
           <input
             type="text"
             placeholder="SEARCH ENVIRONMENTAL DATABASE..."
-            className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 focus:ring-1 focus:ring-intel-cyan/20 w-full md:w-64 transition-all"
+            className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-[10px] font-mono text-on-surface placeholder:text-slate-600 focus:outline-none focus:border-intel-cyan/50 focus:ring-1 focus:ring-intel-cyan/20 w-full md:w-64 transition-all"
           />
         </div>
       </div>
@@ -575,7 +575,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
                           <span className="text-[9px] font-mono text-slate-500">{item.name}</span>
                         </div>
-                        <span className="text-[9px] font-mono text-white">{item.value}%</span>
+                        <span className="text-[9px] font-mono text-on-surface">{item.value}%</span>
                       </div>
                     ))}
                   </div>
@@ -613,7 +613,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                       <div key={generateStableKey(gov, i, 'water-stress')} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 group hover:border-intel-cyan/30 transition-all">
                         <div className="flex items-center space-x-3">
                           <RiskBadge level={gov.status} />
-                          <span className="text-[10px] font-bold text-white uppercase">{gov.name}</span>
+                          <span className="text-[10px] font-bold text-on-surface uppercase">{gov.name}</span>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden hidden md:block">
@@ -707,7 +707,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                       { region: 'Cap Bon Slopes', rate: '4.5 t/ha/yr', risk: 'CRITICAL' },
                     ].map((row, i) => (
                       <div key={`soil-erosion-stable-${i}-${row.region}`} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
-                        <span className="text-[10px] font-bold text-white uppercase">{row.region}</span>
+                        <span className="text-[10px] font-bold text-on-surface uppercase">{row.region}</span>
                         <div className="flex items-center space-x-3">
                           <span className="text-[10px] font-mono text-slate-400">{row.rate}</span>
                           <RiskBadge level={row.risk} />
@@ -817,7 +817,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                         <div className="flex items-center space-x-3">
                           <div className="p-1.5 rounded-lg bg-intel-red/10 text-intel-red group-hover:scale-110 transition-transform"><Flame className="w-4 h-4" /></div>
                           <div>
-                            <div className="text-[10px] font-bold text-white uppercase">{spot.location}</div>
+                            <div className="text-[10px] font-bold text-on-surface uppercase">{spot.location}</div>
                             <div className="text-[9px] font-mono text-slate-500 italic">{spot.status}</div>
                           </div>
                         </div>
@@ -875,7 +875,7 @@ export const EnvironmentalIntelligence: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     <ShieldAlert className="w-5 h-5 text-intel-red" />
-                    <h4 className="text-sm font-bold text-white uppercase tracking-widest">{dossier.title}</h4>
+                    <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest">{dossier.title}</h4>
                   </div>
                   <RiskBadge level={dossier.risk} />
                 </div>

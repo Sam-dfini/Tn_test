@@ -180,7 +180,7 @@ JSON structure:
                   <div className="flex items-center space-x-2">
                     <Hash className="w-3 h-3 text-intel-cyan opacity-50" />
                     <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-white font-mono truncate max-w-[80px]">{h.tag}</span>
+                      <span className="text-[10px] font-bold text-on-surface font-mono truncate max-w-[80px]">{h.tag}</span>
                       <span className="text-[8px] font-mono text-slate-500">{h.count}</span>
                     </div>
                   </div>
@@ -206,7 +206,7 @@ JSON structure:
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       {getPlatformIcon(p.platform)}
-                      <span className="text-[9px] font-bold text-white font-mono">{p.user}</span>
+                      <span className="text-[9px] font-bold text-on-surface font-mono">{p.user}</span>
                       {p.verified && <div className="w-2 h-2 bg-intel-cyan rounded-full flex items-center justify-center"><div className="w-1 h-1 bg-white rounded-full"></div></div>}
                     </div>
                     <span className="text-[8px] font-mono text-slate-500 uppercase">{p.time}</span>
@@ -217,9 +217,9 @@ JSON structure:
                   <div className="flex items-center space-x-3 pt-1">
                     <div className="flex items-center space-x-1">
                       <Activity className="w-2.5 h-2.5 text-slate-600" />
-                      <span className="text-[7px] font-mono text-slate-600 uppercase">Eng: {p.engagement}</span>
+                      <span className="text-[9px] font-mono text-slate-600 uppercase">Eng: {p.engagement}</span>
                     </div>
-                    <button className="text-[7px] font-mono text-intel-cyan hover:underline uppercase flex items-center space-x-1">
+                    <button className="text-[9px] font-mono text-intel-cyan hover:underline uppercase flex items-center space-x-1">
                       <span>Source</span>
                       <ExternalLink className="w-2 h-2" />
                     </button>
@@ -235,11 +235,11 @@ JSON structure:
       <div className="bg-black/60 p-2 border-t border-intel-border flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <AlertCircle className="w-3 h-3 text-intel-orange" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase">Sentiment: Neutral-Negative</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase">Sentiment: Neutral-Negative</span>
         </div>
         <button 
           onClick={fetchSocialData}
-          className="text-[7px] font-mono text-intel-cyan hover:underline uppercase"
+          className="text-[9px] font-mono text-intel-cyan hover:underline uppercase"
         >
           Rescan Network
         </button>

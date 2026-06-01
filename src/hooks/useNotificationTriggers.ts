@@ -57,7 +57,7 @@ export const useNotificationTriggers = () => {
     const hasSeeded = safeStorage.getItem('ti_notifications_seeded');
     if (hasSeeded) return;
 
-    setTimeout(() => {
+    const seedTimer = setTimeout(() => {
       // Current state summary
       if (rriState.rri >= 2.0 && shouldFireRule('RRI_JUMP', 'seed')) {
         addNotification({
@@ -97,12 +97,13 @@ export const useNotificationTriggers = () => {
           priority: 'HIGH',
           title: 'Historical Pattern Match Active',
           message: `HPS = ${((rriState?.pattern_similarity ?? 0) * 100).toFixed(0)}% — ${rriState?.pattern_label ?? 'Scanning...'}`,
-          action: { label: 'View Methodology', event: 'open-methodology', detail: { equation: '20' } },
+          action: { label: 'View Methodology', event: 'navigate-to-methodology', detail: { equation: '20' } },
         });
       }
 
       safeStorage.setItem('ti_notifications_seeded', 'true');
     }, 1000); // wait 1s for RRI to calculate
+    return () => clearTimeout(seedTimer);
 
   }, []); // run once on mount
 
@@ -250,7 +251,7 @@ export const useNotificationTriggers = () => {
         message: `HPS = ${((rriState?.pattern_similarity ?? 0) * 100).toFixed(0)}% — ${rriState?.pattern_label ?? 'Scanning...'}. Current variable vector matches a known pre-crisis state.`,
         action: {
           label: 'View Methodology',
-          event: 'open-methodology',
+          event: 'navigate-to-methodology',
           detail: { equation: '20' }
         },
       });

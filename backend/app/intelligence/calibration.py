@@ -193,7 +193,9 @@ class CalibrationEngine:
                     "misses": rec.get("miss_count", 0),
                     "total": rec.get("hit_count", 0) + rec.get("miss_count", 0),
                 })
-            except: pass
+            except Exception:
+
+                pass
 
         trend = []
         for week in sorted(weekly.keys()):

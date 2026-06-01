@@ -108,11 +108,11 @@ export const MacroMarkets: React.FC = () => {
               <div key={m.label} className="group">
                 <div className="flex justify-between items-center mb-0.5">
                   <div className="text-[8px] font-mono text-slate-500 uppercase">{m.label}</div>
-                  <div className="text-[7px] font-mono text-slate-600 uppercase">{m.live ? 'live' : 'BCT'}</div>
+                  <div className="text-[9px] font-mono text-slate-600 uppercase">{m.live ? 'live' : 'BCT'}</div>
                 </div>
                 <div className={cn(
                   "text-xs font-bold font-mono transition-colors",
-                  m.urgent ? "text-intel-red" : "text-white group-hover:text-intel-cyan"
+                  m.urgent ? "text-intel-red" : "text-on-surface group-hover:text-intel-cyan"
                 )}>
                   {m.value}
                 </div>
@@ -130,11 +130,11 @@ export const MacroMarkets: React.FC = () => {
                 <div className="flex justify-between items-center mb-1">
                   <div className="text-[8px] font-mono text-slate-500 uppercase">{f.label}</div>
                   {f.live && (
-                    <span className="text-[6px] bg-intel-green/20 text-intel-green px-1 rounded font-bold">LIVE</span>
+                    <span className="text-[9px] bg-intel-green/20 text-intel-green px-1 rounded font-bold">LIVE</span>
                   )}
                 </div>
                 <div className="text-sm font-bold font-mono text-intel-cyan">{f.value}</div>
-                <div className="text-[7px] font-mono text-slate-500 mt-1 uppercase">Spot Rate</div>
+                <div className="text-[9px] font-mono text-slate-500 mt-1 uppercase">Spot Rate</div>
               </div>
             ))}
           </div>
@@ -150,7 +150,7 @@ export const MacroMarkets: React.FC = () => {
             {globalIndexes.map(idx => (
               <div key={idx.label}>
                 <div className="text-[8px] font-mono text-slate-500 uppercase">{idx.label}</div>
-                <div className="text-[10px] font-bold font-mono text-white">{idx.value}</div>
+                <div className="text-[10px] font-bold font-mono text-on-surface">{idx.value}</div>
                 <div className={cn(
                   "text-[8px] font-mono flex items-center",
                   idx.trend === 'up' ? 'text-intel-green' : 'text-intel-red'
@@ -164,7 +164,7 @@ export const MacroMarkets: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-[7px] font-mono text-slate-600 uppercase tracking-widest">
+      <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-[9px] font-mono text-slate-600 uppercase tracking-widest">
         <div className="space-x-2">
           <span>Tunisia-specific: BCT/Pipeline</span>
           <span>|</span>

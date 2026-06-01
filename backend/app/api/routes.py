@@ -90,16 +90,6 @@ async def handle_extraction(payload: ExtractionRequest):
         if "AI_RATE_LIMIT_EXCEEDED" in str(e):
             raise HTTPException(status_code=429, detail="AI Service is currently rate-limited. Please try again soon.")
         raise HTTPException(status_code=500, detail=str(e))
-async def handle_daily_sync(payload: DailySyncRequest):
-    """
-    API endpoint for the daily synchronization mission.
-    """
-    try:
-        return await orchestrator.run_intelligence_loop(payload.news_items)
-    except Exception as e:
-        if "AI_RATE_LIMIT_EXCEEDED" in str(e):
-            raise HTTPException(status_code=429, detail="AI Service is currently rate-limited. Please try again soon.")
-        raise HTTPException(status_code=500, detail=str(e))
 
 class NewsItem(BaseModel):
     source_id: str
@@ -111,7 +101,7 @@ class IntelligenceRequest(BaseModel):
 
 @router.post("/intelligence")
 async def run_intelligence(request: IntelligenceRequest):
-    news_dicts = [item.dict() for item in request.news_items]
+    news_dicts = [item.model_dump() for item in request.news_items]
     state = await orchestrator.run_intelligence_loop(news_dicts)
     return {
         "mission_id": state.mission_id,
@@ -224,8 +214,20 @@ async def get_active_shocks_endpoint():
 @router.post("/state/active-shocks")
 async def post_active_shocks(req: ActiveShocksRequest):
     """Store active shocks from the frontend so write_snapshot persists them."""
-    set_active_shocks(req.shocks)
-    return {"status": "ok", "count": len(req.shocks)}
+    validated = []
+    for shock in req.shocks:
+        s = dict(shock)
+        # Clamp intensity to valid 0–1 range
+        try:
+            s["intensity"] = max(0.0, min(1.0, float(s.get("intensity", 0))))
+        except (TypeError, ValueError):
+            s["intensity"] = 0.0
+        # Ensure required fields exist
+        if not s.get("id") or not s.get("type"):
+            continue
+        validated.append(s)
+    set_active_shocks(validated)
+    return {"status": "ok", "count": len(validated)}
 
 
 @router.get("/signals/{signal_id}")
@@ -249,12 +251,11 @@ async def get_correlations(event_id: str):
         raise HTTPException(status_code=404, detail="Event not found")
     event = event_result.data[0]
     related_signal_ids = event.get("related_signal_ids", [])
-    # Get related signals
+    # Batch fetch all related signals in a single query
     signals = []
-    for sid in related_signal_ids:
-        s_result = db.table("signals").select("*").eq("id", sid).execute()
-        if s_result.data:
-            signals.append(s_result.data[0])
+    if related_signal_ids:
+        s_result = db.table("signals").select("*").in_("id", [str(sid) for sid in related_signal_ids]).execute()
+        signals = s_result.data or []
     return {"event": event, "related_signals": signals}
 
 @router.get("/anomalies")
@@ -272,7 +273,9 @@ async def start_continuous_loop(interval: int = 300):
     This loop polls sources and runs the 10-step pipeline at defined intervals.
     """
     # Trigger as background task
-    asyncio.create_task(orchestrator.start_continuous_intelligence(interval))
+    _bg_task = asyncio.create_task(orchestrator.start_continuous_intelligence(interval))
+    # Store reference to prevent premature GC
+    orchestrator._continuous_task = _bg_task
     return {"status": "Continuous intelligence loop started", "interval": interval}
 
 @router.post("/intelligence/continuous/stop")

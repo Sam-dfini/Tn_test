@@ -116,7 +116,7 @@ export const Narratives: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col items-center text-center space-y-2">
-        <h2 className="text-2xl tracking-tight font-bold text-white uppercase">Political Narratives</h2>
+        <h2 className="text-2xl tracking-tight font-bold text-on-surface uppercase">Political Narratives</h2>
         <p className="text-slate-500 text-sm max-w-2xl">Tracking momentum and salience of competing political discourses across monitored media and social channels.</p>
         <div className="pt-4">
           <div className="flex items-center space-x-2 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 px-4 py-2 rounded-lg">
@@ -138,7 +138,7 @@ export const Narratives: React.FC = () => {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="space-y-2">
-                  <h4 className="text-lg font-bold text-white tracking-tight uppercase">{nar.title}</h4>
+                  <h4 className="text-lg font-bold text-on-surface tracking-tight uppercase">{nar.title}</h4>
                   <div className="flex items-center space-x-2">
                     <span className={cn(
                       "text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase font-bold",
@@ -154,7 +154,7 @@ export const Narratives: React.FC = () => {
                 <div className="flex flex-col items-end">
                   <div className="text-[8px] font-mono text-slate-500 uppercase mb-1 tracking-widest">Momentum Trend</div>
                   <Sparkline data={nar.history} color={getSentimentColor(nar.sentiment)} />
-                  <div className="text-xl font-bold font-mono text-white mt-1">{(nar.momentum * 100).toFixed(0)}</div>
+                  <div className="text-xl font-bold font-mono text-on-surface mt-1">{(nar.momentum * 100).toFixed(0)}</div>
                 </div>
               </div>
 
@@ -178,7 +178,7 @@ export const Narratives: React.FC = () => {
 
         <div className="intel-card p-8 rounded-2xl border border-intel-border flex flex-col space-y-8">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center">
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center">
               <MessageSquare className="w-4 h-4 mr-2 text-intel-cyan" />
               Narrative Analysis (AI Synthesis)
             </h3>

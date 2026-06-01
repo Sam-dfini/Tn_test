@@ -275,7 +275,7 @@ export const PartyDossier: React.FC = () => {
             placeholder="Search parties, leaders, ideologies..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+            className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
           />
         </div>
         <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
@@ -303,7 +303,7 @@ export const PartyDossier: React.FC = () => {
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-xl font-bold text-white tracking-tight">{party.name}</h3>
+                    <h3 className="text-xl font-bold text-on-surface tracking-tight">{party.name}</h3>
                     <span className="text-xs font-mono text-slate-500">{party.arabicName}</span>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -335,7 +335,7 @@ export const PartyDossier: React.FC = () => {
                 <div className="flex justify-between text-[10px] font-mono">
                   <span className="text-slate-500 uppercase">Influence Strength</span>
                   <div className="space-x-2">
-                    <span className="text-white font-bold">{party.strength}%</span>
+                    <span className="text-on-surface font-bold">{party.strength}%</span>
                     <span className="text-slate-600">Peak: {party.peakStrength}%</span>
                   </div>
                 </div>
@@ -492,7 +492,7 @@ export const PartyDossier: React.FC = () => {
       {/* Coalition Map Visualization */}
       <div className="intel-card p-8 rounded-3xl border border-intel-border space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Coalition Landscape — Q1 2026</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Coalition Landscape — Q1 2026</h3>
           <Briefcase className="w-5 h-5 text-intel-cyan opacity-20" />
         </div>
         
@@ -504,7 +504,7 @@ export const PartyDossier: React.FC = () => {
             { name: 'Independent', color: 'border-intel-purple/30 bg-intel-purple/5', parties: ['UGTT'] },
           ].map((coalition, i) => (
             <div key={i} className={cn("p-4 rounded-2xl border space-y-3", coalition.color)}>
-              <div className="text-[10px] font-bold text-white uppercase tracking-wider">{coalition.name}</div>
+              <div className="text-[10px] font-bold text-on-surface uppercase tracking-wider">{coalition.name}</div>
               <div className="flex flex-wrap gap-1.5">
                 {coalition.parties.map(p => (
                   <span key={p} className="text-[8px] font-mono px-1.5 py-0.5 bg-black/40 text-slate-400 border border-white/5 rounded">

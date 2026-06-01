@@ -49,9 +49,9 @@ export function NewsColumn({ items, selectedId, onSelect, highlightDuplicates }:
               </div>
               <h3 className="text-gray-300 font-medium line-clamp-1 leading-tight mb-1">{hasData ? (item.data.title || item.message) : item.message}</h3>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-[7px] font-mono text-gray-500 truncate max-w-[100px]">ID: {hasData ? (item.data.id || 'N/A') : 'N/A'}</span>
+                <span className="text-[9px] font-mono text-gray-500 truncate max-w-[100px]">ID: {hasData ? (item.data.id || 'N/A') : 'N/A'}</span>
                 {hasData && item.data.severity !== undefined && (
-                  <span className={`px-1 rounded text-[7px] font-bold uppercase ${
+                  <span className={`px-1 rounded text-[9px] font-bold uppercase ${
                     item.data.severity >= 4 ? 'bg-red-500/20 text-red-400' : 
                     item.data.severity >= 3 ? 'bg-orange-500/20 text-orange-400' :
                     'bg-emerald-500/20 text-emerald-400'

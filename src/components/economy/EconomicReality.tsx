@@ -266,7 +266,7 @@ export const EconomicReality: React.FC = () => {
                   <select 
                     value={filterProduct}
                     onChange={(e) => setFilterProduct(e.target.value)}
-                    className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
+                    className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
                   >
                     <option value="ALL">ALL PRODUCTS</option>
                     {prepareList(PRODUCTS).map((p: any) => <option key={p.id} value={p.id}>{p.name.toUpperCase()}</option>)}
@@ -277,7 +277,7 @@ export const EconomicReality: React.FC = () => {
                   <select 
                     value={filterGov}
                     onChange={(e) => setFilterGov(e.target.value)}
-                    className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
+                    className="bg-intel-bg border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 appearance-none min-w-[140px]"
                   >
                     <option value="ALL">ALL GOVERNORATES</option>
                     {prepareList(GOVERNORATES).map((g: any) => <option key={g.id} value={g.value}>{String(g.value).toUpperCase()}</option>)}
@@ -320,7 +320,7 @@ export const EconomicReality: React.FC = () => {
                           </div>
                           <div>
                             <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="text-sm font-bold text-white uppercase">{product?.name || report.product}</h4>
+                              <h4 className="text-sm font-bold text-on-surface uppercase">{product?.name || report.product}</h4>
                               <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${market?.color.replace('text-', 'bg-').replace('text-', 'border-')}/20 ${market?.color} border-current/20`}>
                                 {market?.name}
                               </span>
@@ -333,7 +333,7 @@ export const EconomicReality: React.FC = () => {
                         </div>
                         
                         <div className="text-right">
-                          <div className="text-lg font-bold font-mono text-white tracking-tighter">{report.price_tnd.toFixed(3)} TND</div>
+                          <div className="text-lg font-bold font-mono text-on-surface tracking-tighter">{report.price_tnd.toFixed(3)} TND</div>
                           <div className={`text-[10px] font-mono font-bold ${deviation > 0 ? 'text-intel-red' : 'text-intel-green'}`}>
                             {deviation > 0 ? '+' : ''}{deviation.toFixed(1)}% vs Base
                           </div>
@@ -375,7 +375,7 @@ export const EconomicReality: React.FC = () => {
         {/* Right Column: Trends & Insights */}
         <div className="lg:col-span-4 space-y-6">
           <div className="glass p-6 rounded-2xl border border-intel-border">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6 flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-6 flex items-center">
               <TrendingUp className="w-4 h-4 mr-2 text-intel-cyan" />
               Price Trend Analysis
             </h3>
@@ -429,7 +429,7 @@ export const EconomicReality: React.FC = () => {
           </div>
 
           <div className="glass p-6 rounded-2xl border border-intel-border bg-gradient-to-br from-intel-card to-intel-orange/5">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
               <AlertTriangle className="w-4 h-4 mr-2 text-intel-orange" />
               Shortage Alerts
             </h3>
@@ -441,7 +441,7 @@ export const EconomicReality: React.FC = () => {
               ]).map((alert: any) => (
                 <div key={alert.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
                   <div>
-                    <div className="text-[10px] font-bold text-white uppercase">{alert.item}</div>
+                    <div className="text-[10px] font-bold text-on-surface uppercase">{alert.item}</div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase">{alert.region}</div>
                   </div>
                   <span className={`text-[8px] font-mono font-bold px-1.5 py-0.5 rounded border ${
@@ -457,7 +457,7 @@ export const EconomicReality: React.FC = () => {
           </div>
 
           <div className="glass p-6 rounded-2xl border border-intel-border">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
               <Globe className="w-4 h-4 mr-2 text-intel-cyan" />
               Regional Disparity
             </h3>
@@ -484,7 +484,7 @@ export const EconomicReality: React.FC = () => {
       {/* Add Report Modal */}
       <AnimatePresence>
         {showAddForm && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -506,7 +506,7 @@ export const EconomicReality: React.FC = () => {
                       <Plus className="text-intel-cyan w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white uppercase tracking-widest">Submit Price Report</h3>
+                      <h3 className="text-lg font-bold text-on-surface uppercase tracking-widest">Submit Price Report</h3>
                       <div className="text-[10px] font-mono text-intel-cyan uppercase tracking-[0.2em]">CITIZEN INTELLIGENCE NODE // NODE-REAL-16</div>
                     </div>
                   </div>
@@ -533,7 +533,7 @@ export const EconomicReality: React.FC = () => {
                             price_tnd: p?.basePrice || 1.0
                           }));
                         }}
-                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
                       >
                         {PRODUCTS.map((p, index) => <option key={`form-product-${p.id}-${index}`} value={p.id}>{p.name}</option>)}
                       </select>
@@ -546,7 +546,7 @@ export const EconomicReality: React.FC = () => {
                           step="0.001"
                           value={newReport.price_tnd}
                           onChange={(e) => setNewReport(prev => ({ ...prev, price_tnd: parseFloat(e.target.value) }))}
-                          className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                          className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-500 uppercase">TND</span>
                       </div>
@@ -559,7 +559,7 @@ export const EconomicReality: React.FC = () => {
                       <select 
                         value={newReport.governorate}
                         onChange={(e) => setNewReport(prev => ({ ...prev, governorate: e.target.value }))}
-                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
                       >
                         {GOVERNORATES.map((g, index) => <option key={`form-gov-${g}-${index}`} value={g}>{g}</option>)}
                       </select>
@@ -569,7 +569,7 @@ export const EconomicReality: React.FC = () => {
                       <select 
                         value={newReport.market_type}
                         onChange={(e) => setNewReport(prev => ({ ...prev, market_type: e.target.value as any }))}
-                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                        className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
                       >
                         {MARKET_TYPES.map((m, index) => <option key={`form-market-${m.id}-${index}`} value={m.id}>{m.name}</option>)}
                       </select>
@@ -582,7 +582,7 @@ export const EconomicReality: React.FC = () => {
                       value={newReport.notes}
                       onChange={(e) => setNewReport(prev => ({ ...prev, notes: e.target.value }))}
                       placeholder="e.g. Limited availability, long queues..."
-                      className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all h-24 resize-none"
+                      className="w-full bg-intel-bg border border-intel-border rounded-xl px-4 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all h-24 resize-none"
                     />
                   </div>
 

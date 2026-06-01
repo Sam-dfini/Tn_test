@@ -128,7 +128,7 @@ export const Economy: React.FC = () => {
               ].map(item => (
                 <div key={item.label}>
                   <div className="flex justify-between text-[10px] mb-1">
-                    <span className="text-white uppercase font-bold">{item.label}</span>
+                    <span className="text-on-surface uppercase font-bold">{item.label}</span>
                     <span className="text-slate-500 font-mono">{item.value}</span>
                   </div>
                   <div className="h-1.5 w-full bg-intel-border rounded-full overflow-hidden">
@@ -149,7 +149,7 @@ export const Economy: React.FC = () => {
             </p>
             <div className="p-3 bg-intel-red/10 border border-intel-red/20 rounded-lg">
               <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Risk Implication</div>
-              <div className="text-[10px] text-white italic">"High probability of bread and fuel shortages by late April."</div>
+              <div className="text-[10px] text-on-surface italic">"High probability of bread and fuel shortages by late April."</div>
             </div>
           </div>
         </div>

@@ -72,7 +72,7 @@ export const NewsTicker: React.FC = () => {
             >
               <div className="flex items-center
                 justify-between mb-1">
-                <span className={`text-[7px] font-mono px-1.5
+                <span className={`text-[9px] font-mono px-1.5
                   py-0.5 rounded border uppercase
                   ${getSeverityColor(item.severity)}`}>
                   {item.category}

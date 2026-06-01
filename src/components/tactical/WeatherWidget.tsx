@@ -115,7 +115,7 @@ export const WeatherWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-intel-cyan/20 rounded-full blur-sm" />
           </div>
           <div className="min-w-0">
-            <div className={cn("font-bold text-white font-mono leading-none", compact ? "text-xl" : "text-2xl")}>
+            <div className={cn("font-bold text-on-surface font-mono leading-none", compact ? "text-xl" : "text-2xl")}>
               {weather.temp}°C
             </div>
             <div className="text-[9px] font-mono text-intel-cyan uppercase tracking-widest mt-1 truncate">
@@ -124,38 +124,38 @@ export const WeatherWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <div className="text-[9px] font-bold text-white uppercase">{weather.location}</div>
-          <div className="text-[7px] font-mono text-slate-500 uppercase mt-0.5">36.8°N 10.2°E</div>
+          <div className="text-[9px] font-bold text-on-surface uppercase">{weather.location}</div>
+          <div className="text-[9px] font-mono text-slate-500 uppercase mt-0.5">36.8°N 10.2°E</div>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-1 py-2 border-y border-white/5">
         <div className="flex flex-col items-center">
           <Wind className="w-3 h-3 text-slate-500 mb-1" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase">Wind</span>
-          <span className="text-[9px] font-bold text-white font-mono">{weather.windSpeed} km/h</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase">Wind</span>
+          <span className="text-[9px] font-bold text-on-surface font-mono">{weather.windSpeed} km/h</span>
         </div>
         <div className="flex flex-col items-center border-x border-white/5">
           <Droplets className="w-3 h-3 text-slate-500 mb-1" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase">Humid</span>
-          <span className="text-[9px] font-bold text-white font-mono">{weather.humidity}%</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase">Humid</span>
+          <span className="text-[9px] font-bold text-on-surface font-mono">{weather.humidity}%</span>
         </div>
         <div className="flex flex-col items-center">
           <Navigation className="w-3 h-3 text-slate-500 mb-1" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase">Visib</span>
-          <span className="text-[9px] font-bold text-white font-mono">10 km</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase">Visib</span>
+          <span className="text-[9px] font-bold text-on-surface font-mono">10 km</span>
         </div>
       </div>
 
       {!compact && (
         <div className="space-y-2 min-w-0">
-          <div className="text-[7px] font-mono text-slate-600 uppercase tracking-widest">72H Tactical Forecast</div>
+          <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">72H Tactical Forecast</div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {weather.forecast.map((f, i) => (
               <div key={`forecast-${f.day}-${i}`} className="p-2 bg-white/5 rounded border border-white/5 flex flex-col items-center space-y-1 min-w-0">
-                <span className="text-[7px] font-mono text-slate-500">{f.day}</span>
+                <span className="text-[9px] font-mono text-slate-500">{f.day}</span>
                 <f.icon className="w-3 h-3 text-intel-cyan" />
-                <span className="text-[9px] font-bold text-white font-mono">{f.temp}°</span>
+                <span className="text-[9px] font-bold text-on-surface font-mono">{f.temp}°</span>
               </div>
             ))}
           </div>
@@ -165,9 +165,9 @@ export const WeatherWidget: React.FC<{ compact?: boolean }> = ({ compact }) => {
       <div className="pt-1 flex items-center justify-between opacity-50">
         <div className="flex items-center space-x-1 min-w-0">
           <Thermometer className="w-2 h-2 text-slate-500 flex-shrink-0" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase truncate">Ground: {weather.temp + 2}°C</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase truncate">Ground: {weather.temp + 2}°C</span>
         </div>
-        <span className="text-[7px] font-mono text-slate-500 uppercase flex-shrink-0">Open-Meteo</span>
+        <span className="text-[9px] font-mono text-slate-500 uppercase flex-shrink-0">Open-Meteo</span>
       </div>
     </div>
   );

@@ -58,7 +58,7 @@ export const WaterIntelligenceHub: React.FC<WaterIntelligenceHubProps> = ({ data
       <div className="px-6 py-4 border-b border-intel-border/30 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Waves className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-[10px] font-mono text-white uppercase tracking-widest font-bold">
+          <h3 className="text-[10px] font-mono text-on-surface uppercase tracking-widest font-bold">
             Water Intelligence Hub (WIH)
           </h3>
         </div>
@@ -97,7 +97,7 @@ export const WaterIntelligenceHub: React.FC<WaterIntelligenceHubProps> = ({ data
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-white font-mono">{( (1-data.national_water_stress) * 100).toFixed(1)}%</span>
+              <span className="text-2xl font-bold text-on-surface font-mono">{( (1-data.national_water_stress) * 100).toFixed(1)}%</span>
               <span className="text-[8px] text-slate-500 uppercase tracking-tighter">System Level</span>
             </div>
           </div>
@@ -215,7 +215,7 @@ const ProgressBar: React.FC<{ label: string; value: number; color: string }> = (
 const RiskCard: React.FC<{ label: string; risk: string; trend: string; score: number }> = ({ label, risk, trend, score }) => (
   <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
     <div className="space-y-1">
-      <div className="text-[10px] font-medium text-white">{label}</div>
+      <div className="text-[10px] font-medium text-on-surface">{label}</div>
       <div className="flex items-center space-x-2">
         <span className={cn(
           "text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase",

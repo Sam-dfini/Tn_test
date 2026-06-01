@@ -183,11 +183,18 @@ export const NotificationProvider: React.FC<{
   const addNotification = useCallback((
     n: Omit<Notification, 'id' | 'timestamp' | 'read'>
   ) => {
+    const raw = n as any;
     const notification: Notification = {
       ...n,
       id: generateRandomId('notif'),
       timestamp: Date.now(),
       read: false,
+      // Normalize legacy flat action fields in case callers use action_label/event/detail
+      action: n.action ?? (raw.action_label ? {
+        label: raw.action_label,
+        event: raw.action_event || '',
+        detail: raw.action_detail,
+      } : undefined),
     };
 
     setNotifications(prev => {

@@ -154,7 +154,7 @@ const ALERT_COLORS: Record<number, { bg: string; border: string; text: string; l
   2: { bg: 'bg-yellow-400/10', border: 'border-yellow-400/30', text: 'text-yellow-400', label: '● WATCH' },
   3: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', label: '● PRESSURE' },
   4: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: '● CRISIS' },
-  5: { bg: 'bg-black/80', border: 'border-white/20', text: 'text-white', label: '⬛ COLLAPSE' },
+  5: { bg: 'bg-black/80', border: 'border-white/20', text: 'text-on-surface', label: '⬛ COLLAPSE' },
 };
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ export const SocietalFractureMonitor: React.FC = () => {
                     ].map((row, i) => (
                       <div key={i} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
                         <div className="w-24 text-[10px] font-mono font-bold" style={{ color: row.color === 'text-purple-400' ? '#a855f7' : row.color === 'text-red-400' ? '#ef4444' : row.color === 'text-orange-400' ? '#f97316' : '#eab308' }}>{row.label}</div>
-                        <div className="w-16 text-[12px] font-mono font-bold text-white">{row.value}</div>
+                        <div className="w-16 text-[12px] font-mono font-bold text-on-surface">{row.value}</div>
                         <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
                           <div className="h-full rounded-full bg-purple-500/60" style={{ width: `${parseFloat(row.value) * 100}%` }} />
                         </div>
@@ -475,7 +475,7 @@ export const SocietalFractureMonitor: React.FC = () => {
                     return (
                       <div key={i} className={cn('p-3 rounded-xl border space-y-1.5', isWarn ? 'border-orange-500/20 bg-orange-500/5' : 'border-intel-border')}>
                         <div className="flex items-center justify-between text-[9px] font-mono">
-                          <span className="text-white">{ind.indicator}</span>
+                          <span className="text-on-surface">{ind.indicator}</span>
                           <div className="flex items-center gap-3">
                             <span className="text-slate-600">Threshold: {ind.threshold}{ind.unit}</span>
                             <span className={cn('font-bold', isWarn ? 'text-orange-400' : 'text-emerald-400')}>
@@ -562,7 +562,7 @@ export const SocietalFractureMonitor: React.FC = () => {
                   {viceEconomyData.map((ind, i) => (
                     <div key={i} className="p-4 rounded-xl border border-intel-border space-y-2 hover:border-white/10 transition-all">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-white">{ind.indicator}</span>
+                        <span className="text-[10px] font-mono text-on-surface">{ind.indicator}</span>
                         <div className="flex items-center gap-2">
                           <span className={cn('text-[10px] font-mono font-bold', ind.trend === '↑↑' ? 'text-red-400' : ind.trend === '↑' ? 'text-orange-400' : 'text-slate-400')}>{ind.trend}</span>
                           <span className="text-[9px] font-mono font-bold text-slate-300">{ind.proxy_idx.toFixed(2)}</span>
@@ -627,7 +627,7 @@ export const SocietalFractureMonitor: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {sbde.governorateRisk.map((g, i) => (
                         <tr key={i} className={cn('hover:bg-white/[0.02]', g.cluster === 'IGNITION' ? 'bg-red-500/5' : '')}>
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{g.gov}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{g.gov}</td>
                           <td className="py-2.5 pr-4">
                             <div className="flex items-center gap-2">
                               <div className="w-12 h-1.5 bg-white/5 rounded-full overflow-hidden">

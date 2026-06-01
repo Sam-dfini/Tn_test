@@ -61,9 +61,11 @@ async def _search_embeddings(
     Returns merged, deduplicated results sorted by (similarity * freshness).
     """
     results: List[Dict[str, Any]] = []
-    embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
+    # Sanitise embedding to avoid injection: only floats, comma-separated
+    embedding_str = f"[{','.join(str(float(v)) for v in query_embedding)}]"
 
-
+    # Whitelist of allowed table names — never interpolate arbitrary strings
+    ALLOWED_TABLES = {"article_embeddings", "telegram_embeddings"}
     tables = []
     if source in ("all", "articles"):
         tables.append(("article_embeddings", "article_id"))
@@ -71,6 +73,8 @@ async def _search_embeddings(
         tables.append(("telegram_embeddings", "message_id"))
 
     for table_name, id_field in tables:
+        if table_name not in ALLOWED_TABLES:
+            continue  # safety guard
         try:
             res = (
                 db.table(table_name)
@@ -259,7 +263,7 @@ async def synthesize(
         raw_output = await generate(
             prompt=query,
             system=system_prompt,
-            max_tokens=800,
+            max_tokens=500,
             response_format="json",
         )
     except Exception:

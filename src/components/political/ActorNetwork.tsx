@@ -494,7 +494,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               placeholder="Search actors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-intel-border rounded-lg py-2 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-intel-cyan transition-colors font-mono"
+              className="w-full bg-black/40 border border-intel-border rounded-lg py-2 pl-10 pr-4 text-xs text-on-surface focus:outline-none focus:border-intel-cyan transition-colors font-mono"
             />
           </div>
           <div className="flex items-center bg-black/40 border border-intel-border rounded-lg p-1">
@@ -505,9 +505,9 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 className={`px-3 py-1 text-[10px] font-bold font-mono rounded-md transition-all ${
                   filterAlignment === align 
                     ? align === 'GOV' ? 'bg-intel-cyan text-black' :
-                      align === 'OPP' ? 'bg-red-500 text-white' :
-                      align === 'INTL' ? 'bg-purple-500 text-white' :
-                      'bg-slate-700 text-white'
+                      align === 'OPP' ? 'bg-red-500 text-on-surface' :
+                      align === 'INTL' ? 'bg-purple-500 text-on-surface' :
+                      'bg-slate-700 text-on-surface'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
@@ -527,7 +527,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               {isScanning ? <Loader2 className="w-3 h-3 animate-spin" /> : <Radar className="w-3 h-3" />}
               <span>SCAN FOR ACTORS</span>
             </button>
-            {lastScan && <span className="text-[7px] text-slate-600 font-mono mt-1 uppercase">Last: {lastScan}</span>}
+            {lastScan && <span className="text-[9px] text-slate-600 font-mono mt-1 uppercase">Last: {lastScan}</span>}
           </div>
 
           <button
@@ -669,7 +669,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold font-mono border" style={{ backgroundColor: `${selectedActor.color}15`, borderColor: selectedActor.color, color: selectedActor.color }}>{selectedActor.initials}</div>
                     <div className="space-y-1">
-                      <h3 className="text-sm font-bold text-white uppercase tracking-wider">{selectedActor.name}</h3>
+                      <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">{selectedActor.name}</h3>
                       <p className="text-[10px] text-slate-500 font-mono leading-tight">{selectedActor.role}</p>
                       <div className="flex flex-wrap gap-2 mt-2">
                         <span className={`px-2 py-0.5 rounded text-[8px] font-bold font-mono ${selectedActor.alignment === 'GOV' ? 'bg-intel-cyan/10 text-intel-cyan' : selectedActor.alignment === 'OPP' ? 'bg-red-500/10 text-red-500' : 'bg-purple-500/10 text-purple-500'}`}>{selectedActor.alignment}</span>
@@ -680,7 +680,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-end justify-between"><span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Influence Score</span><span className="text-xl font-bold font-mono text-white">{selectedActor.influence}</span></div>
+                  <div className="flex items-end justify-between"><span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Influence Score</span><span className="text-xl font-bold font-mono text-on-surface">{selectedActor.influence}</span></div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${selectedActor.influence}%` }} className="h-full bg-intel-cyan" /></div>
                 </div>
 
@@ -690,8 +690,8 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 py-4 border-y border-intel-border">
-                  <div className="space-y-1"><span className="text-[8px] font-mono text-slate-500 uppercase">Last Active</span><div className="text-[10px] font-mono text-white">{selectedActor.last_active}</div></div>
-                  <div className="space-y-1"><span className="text-[8px] font-mono text-slate-500 uppercase">Current Status</span><div className="flex items-center space-x-1.5"><div className={`w-1.5 h-1.5 rounded-full ${selectedActor.status === 'ACTIVE' ? 'bg-intel-green' : 'bg-red-500'}`} /><span className="text-[10px] font-mono text-white">{selectedActor.status}</span></div></div>
+                  <div className="space-y-1"><span className="text-[8px] font-mono text-slate-500 uppercase">Last Active</span><div className="text-[10px] font-mono text-on-surface">{selectedActor.last_active}</div></div>
+                  <div className="space-y-1"><span className="text-[8px] font-mono text-slate-500 uppercase">Current Status</span><div className="flex items-center space-x-1.5"><div className={`w-1.5 h-1.5 rounded-full ${selectedActor.status === 'ACTIVE' ? 'bg-intel-green' : 'bg-red-500'}`} /><span className="text-[10px] font-mono text-on-surface">{selectedActor.status}</span></div></div>
                 </div>
 
                 <div className="space-y-3">
@@ -709,22 +709,22 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                     <div className="p-3 bg-white/5 rounded-xl border border-intel-cyan/20 space-y-3 animate-in fade-in slide-in-from-top-2">
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[7px] font-mono text-slate-500 uppercase">Target Actor</label>
+                          <label className="text-[9px] font-mono text-slate-500 uppercase">Target Actor</label>
                           <select 
                             value={relData.to}
                             onChange={(e) => setRelData(prev => ({ ...prev, to: e.target.value, from: selectedActor.id }))}
-                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                           >
                             <option value="">Select...</option>
                             {prepareList(actors.filter(a => a.id !== selectedActor.id)).map((a: any, i: number) => <option key={generateStableKey(a, i, 'opt')} value={a.id}>{a.name}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[7px] font-mono text-slate-500 uppercase">Type</label>
+                          <label className="text-[9px] font-mono text-slate-500 uppercase">Type</label>
                           <select 
                             value={relData.type}
                             onChange={(e) => setRelData(prev => ({ ...prev, type: e.target.value }))}
-                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                            className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                           >
                             <option value="ALLIANCE">ALLIANCE</option>
                             <option value="TENSION">TENSION</option>
@@ -733,13 +733,13 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[7px] font-mono text-slate-500 uppercase">Relationship Label</label>
+                        <label className="text-[9px] font-mono text-slate-500 uppercase">Relationship Label</label>
                         <input 
                           type="text"
                           placeholder="e.g. Strategic alliance"
                           value={relData.label}
                           onChange={(e) => setRelData(prev => ({ ...prev, label: e.target.value }))}
-                          className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          className="w-full bg-black/40 border border-intel-border rounded py-1 px-2 text-[9px] text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                         />
                       </div>
                       <div className="flex items-center justify-between gap-2">
@@ -775,7 +775,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         <div key={generateStableKey(rel, idx, 'net-rel')} className="group flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-all">
                           <div className="flex items-center space-x-2">
                             <div className="w-1 h-4 rounded-full" style={{ backgroundColor: rel.type === 'ALLIANCE' ? '#00f2ff' : rel.type === 'TENSION' ? '#f97316' : '#ef4444' }} />
-                            <span className="text-[10px] font-mono text-white">{otherActor?.name}</span>
+                            <span className="text-[10px] font-mono text-on-surface">{otherActor?.name}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center mr-2">
@@ -827,14 +827,14 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                   {suggestions.map((s) => (
                     <div key={s.id} className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
                       <div className="space-y-1">
-                        <div className="text-[10px] font-bold text-white uppercase">{s.name}</div>
+                        <div className="text-[10px] font-bold text-on-surface uppercase">{s.name}</div>
                         <div className="text-[8px] text-slate-500 font-mono">{s.role}</div>
                       </div>
                       <p className="text-[9px] text-slate-400 leading-tight italic">"{s.description}"</p>
                       <div className="flex items-center justify-between pt-2 border-t border-white/5">
                         <div className="flex space-x-2">
-                          <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[7px] font-mono">{s.alignment}</span>
-                          <span className="px-1.5 py-0.5 rounded bg-white/5 text-slate-500 text-[7px] font-mono">INF: {s.influence}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[9px] font-mono">{s.alignment}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-white/5 text-slate-500 text-[9px] font-mono">INF: {s.influence}</span>
                         </div>
                         <div className="flex space-x-1">
                           <button onClick={() => setSuggestions(prev => prev.filter(x => x.id !== s.id))} className="p-1.5 text-slate-500 hover:text-red-500 transition-colors"><XCircle className="w-3.5 h-3.5" /></button>
@@ -853,7 +853,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-modal flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -861,7 +861,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
               className="w-full max-w-2xl intel-card border border-intel-border rounded-3xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               <div className="p-6 md:p-8 border-b border-intel-border flex items-center justify-between bg-white/5">
-                <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center">
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center">
                   {editingActor ? <Edit2 className="w-4 h-4 mr-2 text-intel-cyan" /> : <Plus className="w-4 h-4 mr-2 text-intel-cyan" />}
                   {editingActor ? 'Edit Actor Profile' : 'Register New Political Actor'}
                 </h3>
@@ -878,7 +878,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         type="text" 
                         value={formData.name}
                         onChange={(e) => handleNameChange(e.target.value)}
-                        className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                        className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -888,7 +888,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         type="text" 
                         value={formData.role}
                         onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                        className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                        className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -897,7 +897,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         <select 
                           value={formData.alignment}
                           onChange={(e) => handleAlignmentChange(e.target.value)}
-                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                         >
                           <option value="GOV">GOV</option>
                           <option value="OPP">OPP</option>
@@ -912,7 +912,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                           type="text" 
                           value={formData.initials}
                           onChange={(e) => setFormData(prev => ({ ...prev, initials: e.target.value.toUpperCase() }))}
-                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                         />
                       </div>
                     </div>
@@ -938,7 +938,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         <select 
                           value={formData.threat_level}
                           onChange={(e) => setFormData(prev => ({ ...prev, threat_level: e.target.value }))}
-                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                         >
                           <option value="STATE">STATE</option>
                           <option value="HIGH">HIGH</option>
@@ -954,7 +954,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                         <select 
                           value={formData.status}
                           onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono"
+                          className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono"
                         >
                           <option value="ACTIVE">ACTIVE</option>
                           <option value="DETAINED">DETAINED</option>
@@ -983,7 +983,7 @@ export const ActorNetwork: React.FC<{ context?: any }> = ({ context }) => {
                       rows={3}
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-white focus:outline-none focus:border-intel-cyan font-mono resize-none"
+                      className="w-full bg-black/40 border border-intel-border rounded-lg py-2 px-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan font-mono resize-none"
                       placeholder="Enter 2-3 sentences summarizing the actor's strategic importance..."
                     />
                   </div>

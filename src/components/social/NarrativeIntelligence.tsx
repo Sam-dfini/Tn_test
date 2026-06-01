@@ -353,7 +353,7 @@ export const NarrativeIntelligence: React.FC = () => {
           {
             label: 'Articles Analyzed',
             value: processedArticles.filter(a => a.propaganda_score != null).length,
-            color: 'text-white',
+            color: 'text-on-surface',
           },
           {
             label: 'Avg Propaganda Score',
@@ -549,7 +549,7 @@ export const NarrativeIntelligence: React.FC = () => {
                         >
                           <div className="space-y-0.5 min-w-0">
                             <div className="text-[11px] font-bold
-                              text-white truncate group-hover:text-intel-orange
+                              text-on-surface truncate group-hover:text-intel-orange
                               transition-colors">
                               {event.title}
                             </div>
@@ -606,7 +606,7 @@ export const NarrativeIntelligence: React.FC = () => {
                         </span>
                         <div>
                           <div className="text-sm font-bold
-                            text-white">{source.name}</div>
+                            text-on-surface">{source.name}</div>
                           <div className="text-[9px] font-mono
                             text-slate-600">
                             {source.count} articles analyzed
@@ -685,7 +685,7 @@ export const NarrativeIntelligence: React.FC = () => {
                       className={`w-full text-left p-3 rounded-xl
                         border text-[10px] transition-all ${
                         selectedEvent?.id === event.id
-                          ? 'border-intel-cyan/40 bg-intel-cyan/5 text-white'
+                          ? 'border-intel-cyan/40 bg-intel-cyan/5 text-on-surface'
                           : 'border-intel-border/30 text-slate-400 hover:border-slate-700'
                       }`}
                     >
@@ -766,7 +766,7 @@ export const NarrativeIntelligence: React.FC = () => {
                               <div className="flex items-center
                                 justify-between">
                                 <span className="text-[10px] font-bold
-                                  text-white font-mono">
+                                  text-on-surface font-mono">
                                   "{gap.keyword}"
                                 </span>
                                 <span className={`text-[8px] font-mono
@@ -1024,7 +1024,7 @@ export const NarrativeIntelligence: React.FC = () => {
                         <div className="flex items-start gap-3">
                           <span className="text-[8px] font-mono text-slate-600 shrink-0 pt-0.5">{c.id}</span>
                           <div>
-                            <div className="text-[11px] font-bold text-white">{c.title}</div>
+                            <div className="text-[11px] font-bold text-on-surface">{c.title}</div>
                             <div className="text-[9px] font-mono text-slate-500 mt-0.5">Origin: {c.origin} · Confidence: {c.confidence}%</div>
                           </div>
                         </div>
@@ -1037,7 +1037,7 @@ export const NarrativeIntelligence: React.FC = () => {
                       <div className="flex items-center justify-between pt-2 border-t border-white/5 text-[9px] font-mono">
                         <div className="flex items-center gap-3">
                           <span className="text-slate-600">Reach:</span>
-                          <span className="text-white font-bold">{c.reach}</span>
+                          <span className="text-on-surface font-bold">{c.reach}</span>
                           <span className="text-slate-600">Platforms:</span>
                           {c.platforms.map((p: string) => <span key={p} className="text-intel-cyan">{p}</span>)}
                         </div>
@@ -1124,7 +1124,7 @@ export const NarrativeIntelligence: React.FC = () => {
                           { outlet: 'Al Hiwar Ettounsi', type: 'TV', owner: 'Tahar Ben Hassine', align: 'OPPOSITION', reach: '2.8M', status: 'SUSPENDED' },
                         ]).map((r: any, i: number) => (
                           <tr key={generateStableKey(r, i, 'media-reg')} className="hover:bg-white/[0.02]">
-                            <td className="py-2 text-[10px] font-mono font-bold text-white pr-4">{r.outlet}</td>
+                            <td className="py-2 text-[10px] font-mono font-bold text-on-surface pr-4">{r.outlet}</td>
                             <td className="py-2 text-[9px] font-mono text-slate-500 pr-4">{r.type}</td>
                             <td className="py-2 text-[9px] font-mono text-slate-400 pr-4">{r.owner}</td>
                             <td className="py-2 pr-4">

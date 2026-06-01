@@ -18,7 +18,7 @@ export const BackgroundGrid = () => (
 
 export const ScanlineOverlay = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.05] z-10">
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-intel-cyan/10 to-transparent h-[10%] w-full animate-scanline" />
+    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-intel-cyan/5 to-transparent h-[10%] w-full animate-scanline opacity-60" />
   </div>
 );
 
@@ -41,7 +41,7 @@ export const ModuleHeader = ({
         <div className="w-1.5 h-1.5 bg-intel-cyan rounded-full animate-pulse" />
         <span className="text-[8px] md:text-[10px] font-mono uppercase tracking-[0.3em] font-bold">Intelligence Node: {nodeId} // STATUS: {statusLabel}</span>
       </div>
-      <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight flex items-center space-x-3">
+      <h2 className="text-xl md:text-3xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
         {Icon ? <Icon className="w-6 h-6 md:w-8 md:h-8 text-intel-cyan" /> : <div className="w-6 h-6 md:w-8 md:h-8 bg-intel-cyan/20 rounded" />}
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">{title}</span>
       </h2>

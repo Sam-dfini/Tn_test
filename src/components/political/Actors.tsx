@@ -35,7 +35,7 @@ export const Actors: React.FC = () => {
                 <Users className="w-6 h-6 text-slate-500" />
               </div>
               <div>
-                <h4 className="text-white font-bold uppercase tracking-tight">{actor.name}</h4>
+                <h4 className="text-on-surface font-bold uppercase tracking-tight">{actor.name}</h4>
                 <div className="text-[10px] font-mono text-slate-500 uppercase">{actor.role}</div>
               </div>
             </div>

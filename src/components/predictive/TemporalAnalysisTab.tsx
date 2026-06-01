@@ -156,7 +156,7 @@ export const TemporalAnalysisTab: React.FC = () => {
 
           {result && (
             <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-md space-y-6">
-              <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+              <h3 className="text-sm font-mono font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4 text-intel-cyan" />
                 <span>Detected Patterns</span>
               </h3>
@@ -210,7 +210,7 @@ export const TemporalAnalysisTab: React.FC = () => {
           <div className="p-8 bg-slate-900/40 border border-white/10 rounded-3xl backdrop-blur-md min-h-[500px] flex flex-col">
             <div className="flex items-center justify-between mb-8">
               <div className="space-y-1">
-                <h3 className="text-xl font-bold text-white tracking-tight">Temporal Deviation Chart</h3>
+                <h3 className="text-xl font-bold text-on-surface tracking-tight">Temporal Deviation Chart</h3>
                 <p className="text-xs text-slate-500 font-mono uppercase tracking-widest">Actual vs. Expected Pattern</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -327,11 +327,11 @@ export const TemporalAnalysisTab: React.FC = () => {
                 className="mt-8 p-6 bg-intel-red/10 border border-intel-red/30 rounded-2xl flex items-center justify-between"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-intel-red text-white rounded-xl">
+                  <div className="p-3 bg-intel-red text-on-surface rounded-xl">
                     <AlertTriangle className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-white">Critical Anomaly Detected</h4>
+                    <h4 className="text-lg font-bold text-on-surface">Critical Anomaly Detected</h4>
                     <p className="text-intel-red/70 text-xs font-mono uppercase tracking-widest">
                       Deviation: {result.residual > 0 ? '+' : ''}{result.residual.toFixed(2)} units from expected baseline
                     </p>
@@ -339,7 +339,7 @@ export const TemporalAnalysisTab: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-[10px] font-mono text-slate-500 uppercase mb-1">Confidence</div>
-                  <div className="text-xl font-bold text-white font-mono">94.2%</div>
+                  <div className="text-xl font-bold text-on-surface font-mono">94.2%</div>
                 </div>
               </motion.div>
             )}
@@ -347,7 +347,7 @@ export const TemporalAnalysisTab: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-md">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center space-x-2">
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center space-x-2">
                 <Calendar className="w-4 h-4 text-intel-cyan" />
                 <span>Weekly Insights</span>
               </h4>
@@ -358,7 +358,7 @@ export const TemporalAnalysisTab: React.FC = () => {
               </p>
             </div>
             <div className="p-6 bg-slate-900/40 border border-white/10 rounded-2xl backdrop-blur-md">
-              <h4 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center space-x-2">
+              <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center space-x-2">
                 <Clock className="w-4 h-4 text-intel-cyan" />
                 <span>Seasonal Outlook</span>
               </h4>

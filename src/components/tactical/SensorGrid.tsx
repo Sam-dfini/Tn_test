@@ -95,10 +95,10 @@ export const SensorGrid: React.FC = () => {
           <div key={s.label} className="bg-white/5 p-2 rounded border border-intel-border/10 group cursor-pointer hover:bg-white/10 transition-colors">
             <div className="flex items-center space-x-1.5 mb-1">
               <div className={`w-1 h-1 rounded-full ${s.bg}`}></div>
-              <div className="text-[8px] font-bold text-white uppercase tracking-tight group-hover:text-intel-cyan transition-colors truncate">{s.label}</div>
+              <div className="text-[8px] font-bold text-on-surface uppercase tracking-tight group-hover:text-intel-cyan transition-colors truncate">{s.label}</div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="text-[7px] font-mono text-slate-500 uppercase truncate">{s.sub}</div>
+              <div className="text-[9px] font-mono text-slate-500 uppercase truncate">{s.sub}</div>
               <div className={`text-[9px] font-bold font-mono ${s.color}`}>{s.value}</div>
             </div>
           </div>

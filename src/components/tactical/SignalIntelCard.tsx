@@ -156,7 +156,7 @@ export const SignalIntelCard: React.FC<{
             >
               {tierCfg.label}
             </span>
-            <span className="text-[7px] font-mono text-slate-700">
+            <span className="text-[9px] font-mono text-slate-700">
               {new Date(article.published_at).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -164,7 +164,7 @@ export const SignalIntelCard: React.FC<{
             </span>
             {c.confirmsGovAction && (
               <span
-                className="text-[7px] font-mono px-1.5 py-0.5 rounded
+                className="text-[9px] font-mono px-1.5 py-0.5 rounded
                 bg-intel-purple/20 border border-intel-purple/30 text-intel-purple"
               >
                 PREDICTED → CONFIRMED
@@ -172,7 +172,7 @@ export const SignalIntelCard: React.FC<{
             )}
             {c.groupCount && c.groupCount > 1 && (
               <span
-                className="text-[7px] font-mono px-1.5 py-0.5 rounded
+                className="text-[9px] font-mono px-1.5 py-0.5 rounded
                 bg-intel-cyan/20 border border-intel-cyan/30 text-intel-cyan"
               >
                 MULTI-SOURCE CONFIRMATION ({c.groupCount})
@@ -183,7 +183,7 @@ export const SignalIntelCard: React.FC<{
           {/* Headline */}
           <p
             className={`text-[10px] font-medium leading-snug ${
-              c.tier === "SYSTEM_SHOCK" ? "text-white" : "text-slate-200"
+              c.tier === "SYSTEM_SHOCK" ? "text-on-surface" : "text-slate-200"
             }`}
           >
             {article.title}
@@ -255,7 +255,7 @@ export const SignalIntelCard: React.FC<{
           <button
             className={`text-slate-700 hover:text-slate-400 transition-colors flex items-center space-x-1`}
           >
-            <span className="text-[7px] font-mono uppercase mr-1">
+            <span className="text-[9px] font-mono uppercase mr-1">
               {getSeverityLabel(article.severity)}
             </span>
             {expanded ? (
@@ -391,7 +391,7 @@ export const SignalIntelCard: React.FC<{
                     {c.modelImpact.affectedEquations.map((eq) => (
                       <span
                         key={eq}
-                        className="text-[7px] font-mono px-1.5 py-0.5 rounded
+                        className="text-[9px] font-mono px-1.5 py-0.5 rounded
                           bg-white/5 border border-white/10 text-slate-600"
                       >
                         {eq}
@@ -425,10 +425,10 @@ export const SignalIntelCard: React.FC<{
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="text-[7px] font-mono text-slate-400 capitalize">
+                            <span className="text-[9px] font-mono text-slate-400 capitalize">
                               {p.action.replace(/_/g, " ")}
                             </span>
-                            <span className="text-[6px] font-mono text-slate-600">
+                            <span className="text-[9px] font-mono text-slate-600">
                               {new Date(p.timestamp).toLocaleTimeString()}
                             </span>
                           </div>
@@ -438,7 +438,7 @@ export const SignalIntelCard: React.FC<{
                               "AI-driven assessment modification."}
                           </p>
                           <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-[6px] font-mono px-1 bg-white/5 text-slate-500 rounded">
+                            <span className="text-[9px] font-mono px-1 bg-white/5 text-slate-500 rounded">
                               Agent: {p.agent || "CoreBrain"}
                             </span>
                           </div>

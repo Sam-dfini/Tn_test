@@ -96,13 +96,13 @@ export const Elections: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-intel-border">
               <div className="space-y-2">
-                <div className="text-[10px] text-white font-bold uppercase tracking-wider">Key Insight</div>
+                <div className="text-[10px] text-on-surface font-bold uppercase tracking-wider">Key Insight</div>
                 <p className="text-[10px] text-slate-400 leading-relaxed">
                   The precipitous drop from 64.6% in 2014 to 11.2% in 2024 indicates a systemic crisis of legitimacy and widespread political apathy or boycott.
                 </p>
               </div>
               <div className="space-y-2">
-                <div className="text-[10px] text-white font-bold uppercase tracking-wider">Demographic Shift</div>
+                <div className="text-[10px] text-on-surface font-bold uppercase tracking-wider">Demographic Shift</div>
                 <p className="text-[10px] text-slate-400 leading-relaxed">
                   Youth participation (ages 18-35) is estimated at less than 5%, marking a complete generational detachment from the current electoral framework.
                 </p>
@@ -121,7 +121,7 @@ export const Elections: React.FC = () => {
                 <div key={r.name} className="space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-lg font-bold text-white uppercase tracking-tight flex items-center">
+                      <div className="text-lg font-bold text-on-surface uppercase tracking-tight flex items-center">
                         {r.name}
                         {r.status === 'ELECTED' && <CheckCircle2 className="w-4 h-4 ml-2 text-intel-cyan" />}
                       </div>
@@ -139,7 +139,7 @@ export const Elections: React.FC = () => {
                       )}>
                         {r.status}
                       </div>
-                      <div className="text-2xl font-bold font-mono text-white">{r.percentage}%</div>
+                      <div className="text-2xl font-bold font-mono text-on-surface">{r.percentage}%</div>
                     </div>
                   </div>
                   <div className="h-2 w-full bg-intel-border rounded-full overflow-hidden">
@@ -168,7 +168,7 @@ export const Elections: React.FC = () => {
               {parties.map(party => (
                 <div key={party.name} className="p-4 rounded-xl bg-white/5 border border-intel-border hover:border-intel-purple/30 transition-colors">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="font-bold text-white">{party.name}</div>
+                    <div className="font-bold text-on-surface">{party.name}</div>
                     <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                       party.stance === 'Opposition' ? 'bg-intel-red/10 text-intel-red border-intel-red/20' : 'bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20'
                     }`}>
@@ -204,10 +204,10 @@ export const Elections: React.FC = () => {
                 <div key={item.label} className="space-y-2">
                   <div className="flex justify-between items-end">
                     <div>
-                      <div className="text-[10px] text-white uppercase font-bold">{item.label}</div>
+                      <div className="text-[10px] text-on-surface uppercase font-bold">{item.label}</div>
                       <div className="text-[8px] text-slate-500">{item.desc}</div>
                     </div>
-                    <span className="text-xs font-mono text-white">{item.value}</span>
+                    <span className="text-xs font-mono text-on-surface">{item.value}</span>
                   </div>
                   <div className="h-1.5 w-full bg-intel-border rounded-full overflow-hidden">
                     <div className={`h-full ${item.color}`} style={{ width: item.label === 'Pro-Regime' ? '54%' : item.label === 'Independent' ? '33%' : '13%' }}></div>
@@ -236,11 +236,11 @@ export const Elections: React.FC = () => {
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-2 rounded bg-white/5 border border-intel-border">
-                <span className="text-[10px] text-white">I-Watch</span>
+                <span className="text-[10px] text-on-surface">I-Watch</span>
                 <span className="text-[8px] text-intel-red font-mono">CRITICAL</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-white/5 border border-intel-border">
-                <span className="text-[10px] text-white">LTDH</span>
+                <span className="text-[10px] text-on-surface">LTDH</span>
                 <span className="text-[8px] text-intel-orange font-mono">MONITORED</span>
               </div>
             </div>

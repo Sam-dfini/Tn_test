@@ -69,7 +69,7 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
   };
   
   return (
-    <header className="h-16 border-b border-intel-border bg-[#05070a]/80 backdrop-blur-xl flex items-center justify-between px-4 sticky top-0 z-[100]">
+    <header className="h-16 border-b border-intel-border bg-[#05070a]/80 backdrop-blur-xl flex items-center justify-between px-4 sticky top-0 z-sticky">
       {/* Top accent line */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-intel-cyan/50 to-transparent" />
       
@@ -91,7 +91,7 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-sm font-bold text-white tracking-[0.2em] uppercase">Tunisia Intel</h1>
+              <h1 className="text-sm font-bold text-on-surface tracking-[0.2em] uppercase">Tunisia Intel</h1>
               <div className="relative" ref={modeSelectorRef}>
                 <button 
                   onClick={() => setShowModeSelector(!showModeSelector)}
@@ -111,7 +111,7 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
                       initial={{ opacity: 0, y: 5, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                      className="absolute top-full left-0 mt-2 w-36 bg-[#0a0c10] border border-intel-border rounded-lg shadow-2xl overflow-hidden z-[200]"
+                      className="absolute top-full left-0 mt-2 w-36 bg-[#0a0c10] border border-intel-border rounded-lg shadow-2xl overflow-hidden z-dropdown"
                     >
                       {(['PUBLIC', 'ANALYST', 'STRATEGIC'] as ViewMode[]).map((mode) => (
                         <button
@@ -314,7 +314,7 @@ export const ProfessionalHeader: React.FC<ProfessionalHeaderProps> = ({
           </div>
 
           <div className="hidden sm:flex flex-col items-end min-w-[70px] sm:min-w-[100px]">
-            <div className="text-[10px] sm:text-[10px] font-mono text-white font-bold">
+            <div className="text-[10px] sm:text-[10px] font-mono text-on-surface font-bold">
               {formatTime(currentTime)}
             </div>
             <div className="text-[8px] font-mono text-slate-500 uppercase">

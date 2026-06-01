@@ -237,7 +237,7 @@ export const LiveMediaStreams: React.FC = () => {
               </div>
               
               <div className="text-center">
-                <div className="text-xs font-bold font-mono text-white uppercase tracking-tighter">
+                <div className="text-xs font-bold font-mono text-on-surface uppercase tracking-tighter">
                   {activeStream.name}
                 </div>
                 <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">
@@ -282,15 +282,15 @@ export const LiveMediaStreams: React.FC = () => {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
-              <span className="text-[9px] font-mono text-white font-bold uppercase tracking-widest">Live</span>
+              <span className="text-[9px] font-mono text-on-surface font-bold uppercase tracking-widest">Live</span>
             </div>
             <div className="w-px h-3 bg-white/10" />
             <div>
-              <div className="text-[9px] font-bold text-white uppercase tracking-tighter">{activeStream.name}</div>
-              <div className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">{activeStream.location} · {activeStream.lang}</div>
+              <div className="text-[9px] font-bold text-on-surface uppercase tracking-tighter">{activeStream.name}</div>
+              <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{activeStream.location} · {activeStream.lang}</div>
             </div>
           </div>
-          <div className="px-1.5 py-0.5 bg-intel-cyan/10 border border-intel-cyan/20 rounded text-[7px] font-mono text-intel-cyan uppercase font-bold tracking-widest">
+          <div className="px-1.5 py-0.5 bg-intel-cyan/10 border border-intel-cyan/20 rounded text-[9px] font-mono text-intel-cyan uppercase font-bold tracking-widest">
             {activeStream.category.replace('_', ' ')}
           </div>
         </div>
@@ -352,13 +352,13 @@ export const LiveMediaStreams: React.FC = () => {
                     <div className="w-1 h-1 rounded-full bg-intel-cyan animate-pulse" />
                   )}
                 </div>
-                <div className="text-[7px] font-mono text-slate-500 uppercase tracking-widest truncate w-full">
+                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-widest truncate w-full">
                   {stream.location}
                 </div>
                 <div className="flex items-center justify-between w-full mt-1">
-                  <span className="text-[6px] font-mono text-slate-600 uppercase tracking-widest">{stream.lang}</span>
+                  <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">{stream.lang}</span>
                   {stream.type === 'RADIO' && (
-                    <span className="text-[6px] font-mono text-intel-cyan/60 uppercase">{stream.freq}</span>
+                    <span className="text-[9px] font-mono text-intel-cyan/60 uppercase">{stream.freq}</span>
                   )}
                 </div>
                 {activeStream.id === stream.id && (

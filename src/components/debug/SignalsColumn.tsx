@@ -38,17 +38,17 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
             
             <div className="grid grid-cols-2 gap-1.5">
               <SignalItem label="PRIO" value={item.data.finalScore} status="active" />
-              <SignalItem label="SEV" value={item.data.severity.toFixed(1)} status="neutral" />
-              <SignalItem label="VOL" value={item.data.volume.toFixed(1)} status="neutral" />
-              <SignalItem label="VEL" value={item.data.velocity.toFixed(1)} status={item.data.velocity > 0.5 ? 'active' : 'neutral'} />
+              <SignalItem label="SEV" value={(item.data.severity ?? 0).toFixed(1)} status="neutral" />
+              <SignalItem label="VOL" value={(item.data.volume ?? 0).toFixed(1)} status="neutral" />
+              <SignalItem label="VEL" value={(item.data.velocity ?? 0).toFixed(1)} status={(item.data.velocity ?? 0) > 0.5 ? 'active' : 'neutral'} />
             </div>
 
             <div className="mt-1.5 flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <span className="text-[7px] text-gray-600 uppercase">Decay:</span>
-                <span className="text-[7px] text-gray-400">{(item.data.decay * 100).toFixed(0)}%</span>
+                <span className="text-[9px] text-gray-600 uppercase">Decay:</span>
+                <span className="text-[9px] text-gray-400">{(((item.data.decay ?? 0) * 100).toFixed(0)}%</span>
               </div>
-              <div className={`w-1 h-1 rounded-full ${item.data.finalScore > 7 ? 'bg-red-500 animate-pulse' : 'bg-orange-500/40'}`} />
+              <div className={`w-1 h-1 rounded-full ${(item.data.finalScore ?? 0) > 7 ? 'bg-red-500 animate-pulse' : 'bg-orange-500/40'}`} />
             </div>
           </div>
         ))}
@@ -60,7 +60,7 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
 function SignalItem({ label, value, status }: { label: string, value: any, status: 'active' | 'neutral' }) {
   return (
     <div className="p-1 px-1.5 bg-black/40 rounded border border-white/5">
-      <span className="text-[7px] text-gray-500 block mb-0.5 uppercase tracking-tighter">{label}</span>
+      <span className="text-[9px] text-gray-500 block mb-0.5 uppercase tracking-tighter">{label}</span>
       <span className={`text-[10px] font-bold ${status === 'active' ? 'text-orange-400' : 'text-gray-400'}`}>{value}</span>
     </div>
   );

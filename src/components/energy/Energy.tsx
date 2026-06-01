@@ -44,7 +44,7 @@ export const Energy: React.FC = () => {
               </div>
             </div>
 
-            <h4 className="text-white font-bold uppercase tracking-tight mb-4">{f.name}</h4>
+            <h4 className="text-on-surface font-bold uppercase tracking-tight mb-4">{f.name}</h4>
 
             <div className="space-y-4">
               <div>
@@ -85,7 +85,7 @@ export const Energy: React.FC = () => {
           </p>
           <div className="p-4 bg-intel-red/10 border border-intel-red/20 rounded-xl">
             <div className="text-[8px] font-mono text-intel-red uppercase font-bold mb-1">Critical Threshold</div>
-            <div className="text-xl font-bold font-mono text-white">48h Reserve</div>
+            <div className="text-xl font-bold font-mono text-on-surface">48h Reserve</div>
           </div>
         </div>
       </div>

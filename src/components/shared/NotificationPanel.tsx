@@ -103,7 +103,7 @@ const NotificationItem: React.FC<{
         {/* Title row */}
         <div className="flex items-start justify-between gap-2">
           <span className={`text-[11px] font-bold leading-snug
-            ${!n.read ? 'text-white' : 'text-slate-400'}
+            ${!n.read ? 'text-on-surface' : 'text-slate-400'}
             group-hover:text-white transition-colors`}>
             {n.title}
           </span>
@@ -115,14 +115,14 @@ const NotificationItem: React.FC<{
 
         {/* Priority + type badges */}
         <div className="flex items-center space-x-1.5">
-          <span className={`text-[7px] font-mono font-bold px-1.5
+          <span className={`text-[9px] font-mono font-bold px-1.5
             py-0.5 rounded border uppercase ${PRIORITY_BADGE[n.priority]}`}>
             {n.priority}
           </span>
-          <span className="text-[7px] font-mono text-slate-700
+          <span className="text-[9px] font-mono text-slate-700
             uppercase">{n.type}</span>
           {n.rriVariable && (
-            <span className="text-[7px] font-mono text-slate-700">
+            <span className="text-[9px] font-mono text-slate-700">
               · {n.rriVariable}
             </span>
           )}
@@ -141,27 +141,27 @@ const NotificationItem: React.FC<{
           <div className="space-y-1 pt-1">
             {n.triggerRule && (
               <div className="flex items-center space-x-1">
-                <span className="text-[7px] font-mono text-slate-600 uppercase">Rule:</span>
-                <span className="text-[7px] font-mono text-intel-cyan">{n.triggerRule}</span>
+                <span className="text-[9px] font-mono text-slate-600 uppercase">Rule:</span>
+                <span className="text-[9px] font-mono text-intel-cyan">{n.triggerRule}</span>
               </div>
             )}
             <div className="flex flex-wrap gap-2">
               {n.threshold && (
                 <div className="flex items-center space-x-1">
-                  <span className="text-[7px] font-mono text-slate-600">Threshold:</span>
-                  <span className="text-[7px] font-mono text-amber-400">{String(n.threshold)}</span>
+                  <span className="text-[9px] font-mono text-slate-600">Threshold:</span>
+                  <span className="text-[9px] font-mono text-amber-400">{String(n.threshold)}</span>
                 </div>
               )}
               {n.observedValue && (
                 <div className="flex items-center space-x-1">
-                  <span className="text-[7px] font-mono text-slate-600">Observed:</span>
-                  <span className="text-[7px] font-mono text-intel-orange">{String(n.observedValue)}</span>
+                  <span className="text-[9px] font-mono text-slate-600">Observed:</span>
+                  <span className="text-[9px] font-mono text-intel-orange">{String(n.observedValue)}</span>
                 </div>
               )}
               {n.delta !== undefined && (
                 <div className="flex items-center space-x-1">
-                  <span className="text-[7px] font-mono text-slate-600">Δ:</span>
-                  <span className={`text-[7px] font-mono ${n.delta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <span className="text-[9px] font-mono text-slate-600">Δ:</span>
+                  <span className={`text-[9px] font-mono ${n.delta > 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {n.delta > 0 ? '+' : ''}{n.delta}
                   </span>
                 </div>
@@ -220,7 +220,7 @@ const RSSDashboard: React.FC = () => {
           <div key={i} className="glass-panel p-3 border border-intel-border/20 rounded-xl text-center">
             <s.icon className={`w-4 h-4 ${s.color} mx-auto mb-1`} />
             <div className={`text-lg font-black tabular-nums ${s.color}`}>{s.value}</div>
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+            <div className="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
@@ -255,11 +255,11 @@ const RSSDashboard: React.FC = () => {
       {/* Infra metrics */}
       <div className="grid grid-cols-2 gap-2">
         <div className="px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
-          <div className="text-[7px] text-slate-500 uppercase tracking-wider">Error Rate</div>
+          <div className="text-[9px] text-slate-500 uppercase tracking-wider">Error Rate</div>
           <div className="text-sm font-bold text-intel-red tabular-nums">{(metrics.errorRate * 100).toFixed(1)}%</div>
         </div>
         <div className="px-3 py-2 bg-black/40 rounded-xl border border-intel-border/20">
-          <div className="text-[7px] text-slate-500 uppercase tracking-wider">Latency</div>
+          <div className="text-[9px] text-slate-500 uppercase tracking-wider">Latency</div>
           <div className="text-sm font-bold text-amber-400 tabular-nums">{metrics.latencyMs}ms</div>
         </div>
       </div>
@@ -312,7 +312,7 @@ const SystemDashboard: React.FC = () => {
         {stats.map((s, i) => (
           <div key={i} className="glass-panel p-3 border border-intel-border/20 rounded-xl text-center">
             <div className={`text-lg font-black tabular-nums ${s.color}`}>{s.value}</div>
-            <div className="text-[7px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+            <div className="text-[9px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>
@@ -354,7 +354,7 @@ export const NotificationPanel: React.FC<{
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[9998] bg-black/20 backdrop-blur-[2px]"
+            className="fixed inset-0 z-notify bg-black/20 backdrop-blur-[2px]"
             onClick={onClose}
           />
 
@@ -367,7 +367,7 @@ export const NotificationPanel: React.FC<{
             className="fixed sm:absolute top-16 sm:top-full left-2 right-2 sm:left-auto sm:right-0 mt-2
               w-auto sm:w-[550px] max-h-[calc(100vh-80px)] sm:max-h-[750px] 
               bg-[#05070a] border border-intel-border rounded-2xl
-              shadow-2xl z-[9999] flex flex-col overflow-hidden"
+              shadow-2xl z-notify flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between
@@ -376,7 +376,7 @@ export const NotificationPanel: React.FC<{
               <div className="flex items-center space-x-3">
                 <Bell className="w-4 h-4 text-intel-cyan" />
                 <div>
-                  <div className="text-sm font-bold text-white
+                  <div className="text-sm font-bold text-on-surface
                     uppercase tracking-widest">
                     Notifications
                   </div>
@@ -447,7 +447,7 @@ export const NotificationPanel: React.FC<{
                 >
                   <span>{f.label}</span>
                   {f.count > 0 && (
-                    <span className={`text-[7px] px-1 py-0.5
+                    <span className={`text-[9px] px-1 py-0.5
                       rounded ${
                       activeFilter === f.id
                         ? 'bg-intel-cyan/20 text-intel-cyan'
@@ -551,7 +551,7 @@ export const NotificationBell: React.FC = () => {
             animate={{ scale: 1 }}
             className={`absolute -top-1 -right-1 min-w-[16px]
               h-4 rounded-full flex items-center justify-center
-              text-[8px] font-bold font-mono px-0.5 text-white
+              text-[8px] font-bold font-mono px-0.5 text-on-surface
               ${unreadBadgeClass}`}
           >
             {unreadCount > 9 ? '9+' : unreadCount}

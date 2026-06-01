@@ -18,11 +18,14 @@ class ConnectionManager:
 
     async def broadcast(self, message: dict):
         msg_str = json.dumps(message, default=str)
+        dead: list = []
         for connection in self.active_connections:
             try:
                 await connection.send_text(msg_str)
             except Exception:
-                pass
+                dead.append(connection)
+        for conn in dead:
+            self.disconnect(conn)
 
 manager = ConnectionManager()
 

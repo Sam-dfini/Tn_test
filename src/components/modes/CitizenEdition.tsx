@@ -177,7 +177,7 @@ const KeywordItem: React.FC<{ keyword: typeof topKeywords[0] }> = ({ keyword }) 
   <div className="flex items-center justify-between p-4 border-b border-intel-border hover:bg-white/5 transition-colors">
     <div className="flex items-center space-x-4">
       <span className="text-intel-red font-mono font-bold">#{keyword.id}</span>
-      <span className="text-sm font-bold text-white uppercase tracking-tight">{keyword.word}</span>
+      <span className="text-sm font-bold text-on-surface uppercase tracking-tight">{keyword.word}</span>
     </div>
     <div className="flex items-center space-x-4">
       <span className="text-[10px] font-mono text-slate-500 uppercase">{keyword.mentions} mentions</span>
@@ -208,7 +208,7 @@ const FeedCard: React.FC<{ item: typeof feedItems[0] }> = ({ item }) => (
     </div>
     
     <div className="space-y-2">
-      <h3 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-intel-cyan transition-colors">{item.title}</h3>
+      <h3 className="text-lg font-bold text-on-surface tracking-tight leading-tight group-hover:text-intel-cyan transition-colors">{item.title}</h3>
       <p className="text-xs text-slate-400 leading-relaxed">{item.summary}</p>
     </div>
 
@@ -235,13 +235,13 @@ const MarketRow: React.FC<{ item: any }> = ({ item }) => (
   <div className="flex items-center justify-between p-4 border-b border-intel-border hover:bg-white/5 transition-colors">
     <div className="flex items-center space-x-3">
       <div className="flex flex-col">
-        <span className="text-xs font-bold text-white uppercase tracking-widest font-mono">{item.name}</span>
+        <span className="text-xs font-bold text-on-surface uppercase tracking-widest font-mono">{item.name}</span>
         {item.unit && <span className="text-[8px] text-slate-500 font-mono uppercase">PER {item.unit}</span>}
       </div>
       {item.country && <span className="text-[8px] bg-white/10 px-1 rounded text-slate-500 uppercase font-mono">{item.country}</span>}
     </div>
     <div className="flex items-center space-x-4">
-      <span className="text-sm font-mono font-bold text-white">{item.value}</span>
+      <span className="text-sm font-mono font-bold text-on-surface">{item.value}</span>
       <div className={`flex items-center space-x-1 ${item.change > 0 ? 'text-intel-green' : item.change < 0 ? 'text-intel-red' : 'text-slate-500'}`}>
         {item.change > 0 ? <ArrowUpRight className="w-3 h-3" /> : item.change < 0 ? <ArrowDownRight className="w-3 h-3" /> : <div className="w-3 h-[2px] bg-slate-500" />}
         <span className="text-[10px] font-mono font-bold">{Math.abs(item.change)}%</span>
@@ -260,7 +260,7 @@ const PredictionCard: React.FC<{ item: typeof predictions[0] }> = ({ item }) => 
       <MoreVertical className="w-4 h-4 text-slate-600" />
     </div>
 
-    <h3 className="text-lg font-bold text-white tracking-tight leading-tight group-hover:text-intel-cyan transition-colors">{item.question}</h3>
+    <h3 className="text-lg font-bold text-on-surface tracking-tight leading-tight group-hover:text-intel-cyan transition-colors">{item.question}</h3>
 
     <div className="space-y-4">
       <div className="flex items-end justify-between">
@@ -355,7 +355,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Hash className="w-5 h-5 text-intel-red" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-widest">Top Keywords (24H)</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Top Keywords (24H)</h2>
               </div>
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
@@ -370,7 +370,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-intel-red rounded-full animate-pulse" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-widest">Live Feed</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Live Feed</h2>
               </div>
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
@@ -388,7 +388,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
               <input 
                 type="text" 
                 placeholder="Search intelligence..." 
-                className="w-full bg-intel-card border border-intel-border rounded-2xl pl-12 pr-12 py-3 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-colors"
+                className="w-full bg-intel-card border border-intel-border rounded-2xl pl-12 pr-12 py-3 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-colors"
               />
               <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 cursor-pointer hover:text-intel-cyan transition-colors" />
             </div>
@@ -438,7 +438,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-5 h-5 text-intel-red" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-widest">Markets</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Markets</h2>
               </div>
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
@@ -499,7 +499,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <DollarSign className="w-5 h-5 text-intel-cyan" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-widest">Economic Reality</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Economic Reality</h2>
               </div>
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
@@ -512,7 +512,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <BarChart3 className="w-5 h-5 text-intel-red" />
-                <h2 className="text-xl font-bold text-white uppercase tracking-widest">Top Predictions</h2>
+                <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Top Predictions</h2>
               </div>
               <X className="w-5 h-5 text-slate-500 cursor-pointer" onClick={() => setActiveTab('operator')} />
             </div>
@@ -543,7 +543,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <div className="w-2 h-2 bg-intel-cyan rounded-full animate-pulse" />
                   <span className="text-[10px] font-mono uppercase tracking-[0.3em] font-bold">Operator // Active Session</span>
                 </div>
-                <h1 className="text-3xl font-bold text-white tracking-tight">TUNISIA <span className="text-intel-cyan">INTEL</span></h1>
+                <h1 className="text-3xl font-bold text-on-surface tracking-tight">TUNISIA <span className="text-intel-cyan">INTEL</span></h1>
               </div>
               <div className="flex items-center space-x-3">
                 <button onClick={onOpenAI} className="p-3 rounded-2xl bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan glow-cyan">
@@ -564,7 +564,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <Flame className="w-4 h-4 text-intel-red" />
                   <span className="text-[8px] font-mono text-intel-red uppercase">Alert</span>
                 </div>
-                <div className="text-2xl font-bold text-white font-mono">{((pRev ?? 0) * 100).toFixed(1)}%</div>
+                <div className="text-2xl font-bold text-on-surface font-mono">{((pRev ?? 0) * 100).toFixed(1)}%</div>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Revolution Risk</div>
               </div>
               <div className="glass p-5 rounded-3xl border border-intel-border space-y-2">
@@ -572,7 +572,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <DollarSign className="w-4 h-4 text-intel-orange" />
                   <span className="text-[8px] font-mono text-intel-orange uppercase">High</span>
                 </div>
-                <div className="text-2xl font-bold text-white font-mono">84.1%</div>
+                <div className="text-2xl font-bold text-on-surface font-mono">84.1%</div>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Price Pressure</div>
               </div>
               <div className="glass p-5 rounded-3xl border border-intel-border space-y-2">
@@ -580,7 +580,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <Droplets className="w-4 h-4 text-intel-cyan" />
                   <span className="text-[8px] font-mono text-intel-cyan uppercase">Critical</span>
                 </div>
-                <div className="text-2xl font-bold text-white font-mono">68.2%</div>
+                <div className="text-2xl font-bold text-on-surface font-mono">68.2%</div>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Water Security</div>
               </div>
               <div className="glass p-5 rounded-3xl border border-intel-border space-y-2">
@@ -588,7 +588,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                   <ShieldAlert className="w-4 h-4 text-intel-green" />
                   <span className="text-[8px] font-mono text-intel-green uppercase">Stable</span>
                 </div>
-                <div className="text-2xl font-bold text-white font-mono">72.4%</div>
+                <div className="text-2xl font-bold text-on-surface font-mono">72.4%</div>
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Public Safety</div>
               </div>
             </div>
@@ -596,7 +596,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             {/* Business Intelligence Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-white uppercase tracking-widest">Business Intelligence</h3>
+                <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Business Intelligence</h3>
                 <button onClick={onOpenReport} className="text-[10px] font-bold text-intel-cyan uppercase tracking-widest">View Full Report</button>
               </div>
               {quickReport && (
@@ -620,7 +620,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             {/* Map Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-white uppercase tracking-widest">Geospatial Awareness</h3>
+                <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Geospatial Awareness</h3>
                 <div className="flex items-center space-x-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
                   <span className="text-[8px] font-mono text-slate-500 uppercase">Live Heatmap</span>
@@ -673,7 +673,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
             {/* Recent Alerts List */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-white uppercase tracking-widest">Recent Intelligence</h3>
+                <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Recent Intelligence</h3>
                 <button onClick={() => setActiveTab('feed')} className="text-[10px] font-bold text-intel-cyan uppercase tracking-widest">View Feed</button>
               </div>
               <div className="space-y-3">
@@ -682,7 +682,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
                     <div className="flex items-center space-x-4">
                       <div className={`w-1.5 h-1.5 rounded-full ${item.impact === 'CRITICAL' ? 'bg-intel-red' : 'bg-intel-orange'} animate-pulse`} />
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-white group-hover:text-intel-cyan transition-colors">{item.title}</div>
+                        <div className="text-xs font-bold text-on-surface group-hover:text-intel-cyan transition-colors">{item.title}</div>
                         <div className="text-[8px] font-mono text-slate-500 uppercase">{item.time} • {item.category}</div>
                       </div>
                     </div>
@@ -739,7 +739,7 @@ export const CitizenEdition: React.FC<CitizenEditionProps> = ({ governorates, ev
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-intel-bg/90 backdrop-blur-xl border-t border-intel-border px-4 py-3 z-[100]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-intel-bg/90 backdrop-blur-xl border-t border-intel-border px-4 py-3 z-sticky">
         <div className="max-w-md mx-auto flex items-center justify-between">
           {prepareList(navItems).map((item: any, idx: number) => {
             const isActive = activeTab === item.id;

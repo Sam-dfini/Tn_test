@@ -119,7 +119,7 @@ export default function PipelineDebugger({ onClose }: { onClose?: () => void }) 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-emerald-400" />
-            <h1 className="text-sm font-bold tracking-widest text-white uppercase">Pipeline Debugger v2.4</h1>
+            <h1 className="text-sm font-bold tracking-widest text-on-surface uppercase">Pipeline Debugger v2.4</h1>
           </div>
           <div className="h-4 w-[1px] bg-white/10" />
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-wider text-gray-500">
@@ -211,7 +211,7 @@ export default function PipelineDebugger({ onClose }: { onClose?: () => void }) 
           >
             <div className="flex-1">
               <span className="text-[10px] text-emerald-500 uppercase font-bold tracking-widest block mb-1">Active Trace</span>
-              <span className="text-white text-sm truncate block">{selectedItemId}</span>
+              <span className="text-on-surface text-sm truncate block">{selectedItemId}</span>
             </div>
             <div className="flex items-center gap-4">
                {/* Simplified logic for visualization of journey */}

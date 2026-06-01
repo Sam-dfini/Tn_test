@@ -109,9 +109,7 @@ export class IntelligenceOrchestrator {
               priority: 'CRITICAL',
               title: 'CRITICAL PATTERN DETECTED',
               message: alert.message,
-              action_label: 'View Intelligence',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'risk' }
+              action: { label: 'View Intelligence', event: 'navigate-main', detail: { tab: 'risk' } }
             }).catch(e => console.error("Notification failed:", e));
           }
         }

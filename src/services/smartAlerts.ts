@@ -115,12 +115,12 @@ export function generateSmartAlerts(
     pushAlert(createAlert("elite-fracture", "critical", "Elite defection cascade risk extreme", `Defection probability: ${(currentSignals.defectionProbability * 100).toFixed(1)}%`, currentSignals.defectionProbability, previousSignals.defectionProbability, signalDelta.eliteInstability));
   }
 
-  // 3. Elite Instability Surge
+  // 5. Elite Instability Surge
   if (currentSignals.eliteInstability > 0.7 && signalDelta.eliteInstability > 0.1) {
     pushAlert(createAlert("elite-instability", "high", "High probability of elite defection cascade", `Instability: ${currentSignals.eliteInstability.toFixed(2)}`, currentSignals.eliteInstability, previousSignals.eliteInstability, signalDelta.eliteInstability));
   }
 
-  // 4. Cascade Risk
+  // 6. Cascade Risk
   if (currentSignals.spatialRisk > 0.65 && signalDelta.spatialRisk > 0.1) {
     pushAlert(createAlert("cascade-risk", "medium", "Regional instability spread likely", `Spatial risk: ${currentSignals.spatialRisk.toFixed(2)}`, currentSignals.spatialRisk, previousSignals.spatialRisk, signalDelta.spatialRisk));
   }

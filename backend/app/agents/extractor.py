@@ -64,8 +64,8 @@ class ExtractorAgent(BaseAgent):
 
         results = await self.extract(content, schema)
         return AgentResponse(
-            content=json.dumps([r.dict() for r in results]),
-            structured_data={"extracted_fields": [r.dict() for r in results]}
+            content=json.dumps([r.model_dump() for r in results]),
+            structured_data={"extracted_fields": [r.model_dump() for r in results]}
         )
 
     async def extract(self, content: str, schema: List[Dict[str, str]]) -> List[ExtractedField]:

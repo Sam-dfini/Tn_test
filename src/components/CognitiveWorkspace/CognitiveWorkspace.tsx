@@ -427,7 +427,7 @@ export const CognitiveWorkspace: React.FC<CognitiveWorkspaceProps> = ({ noChrome
               Intelligence Node: WORKSPACE-01 // STATUS: {investigationId ? 'ACTIVE' : 'STANDBY'}
             </span>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center space-x-3">
+          <h2 className="text-xl md:text-2xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
             <Brain className="w-6 h-6 text-intel-cyan" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">INTELLIGENCE WORKSPACE</span>
           </h2>

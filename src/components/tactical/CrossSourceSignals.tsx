@@ -78,13 +78,13 @@ export const CrossSourceSignals: React.FC = () => {
           >
             <div className="flex justify-between items-start mb-2">
               <div className="space-y-1">
-                <div className="text-[10px] font-bold text-white uppercase tracking-tight">{signal.event}</div>
+                <div className="text-[10px] font-bold text-on-surface uppercase tracking-tight">{signal.event}</div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-[7px] font-mono bg-intel-cyan/10 text-intel-cyan px-1 rounded border border-intel-cyan/20 uppercase">
+                  <span className="text-[9px] font-mono bg-intel-cyan/10 text-intel-cyan px-1 rounded border border-intel-cyan/20 uppercase">
                     {signal.sourceCount} SOURCES
                   </span>
                   <span className={cn(
-                    "text-[7px] font-mono px-1 rounded border uppercase font-bold",
+                    "text-[9px] font-mono px-1 rounded border uppercase font-bold",
                     signal.consensus === 'CONFIRMED' ? "bg-intel-green/10 text-intel-green border-intel-green/20" :
                     signal.consensus === 'PARTIAL' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
                     "bg-intel-red/10 text-intel-red border-intel-red/20"
@@ -94,7 +94,7 @@ export const CrossSourceSignals: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[7px] font-mono text-slate-500 uppercase">RRI Impact</div>
+                <div className="text-[9px] font-mono text-slate-500 uppercase">RRI Impact</div>
                 <div className="text-[10px] font-bold font-mono text-intel-red">{signal.rriImpact}</div>
               </div>
             </div>
@@ -111,7 +111,7 @@ export const CrossSourceSignals: React.FC = () => {
                 </span>
               </div>
               {signal.divergence.includes('contradicts') && (
-                <div className="text-[7px] font-mono text-intel-orange uppercase font-bold flex items-center mt-1">
+                <div className="text-[9px] font-mono text-intel-orange uppercase font-bold flex items-center mt-1">
                   <AlertCircle className="w-2 h-2 mr-1" />
                   Narrative Gap Detected
                 </div>
@@ -121,7 +121,7 @@ export const CrossSourceSignals: React.FC = () => {
         ))}
       </div>
       
-      <div className="mt-4 pt-3 border-t border-white/5 text-[7px] font-mono text-slate-600 uppercase tracking-widest text-center">
+      <div className="mt-4 pt-3 border-t border-white/5 text-[9px] font-mono text-slate-600 uppercase tracking-widest text-center">
         Multi-source event triangulation
       </div>
     </div>

@@ -46,7 +46,7 @@ const MultiAgentTab: React.FC = () => {
             <ShieldAlert className="w-4 h-4 text-purple-400" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Meta-Agent Synthesis</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Meta-Agent Synthesis</h3>
             <p className="text-[8px] font-mono text-slate-500">Consensus intelligence brief · resolving 6 domain assessments</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -82,7 +82,7 @@ const MultiAgentTab: React.FC = () => {
       <div className="flex items-center justify-between px-1 shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-4 h-4 text-intel-cyan" />
-          <span className="text-[10px] font-bold text-white uppercase tracking-widest">Domain Agents</span>
+          <span className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Domain Agents</span>
           <span className="text-[10px] font-mono text-slate-500">{DOMAIN_AGENTS.length}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ const MultiAgentTab: React.FC = () => {
                   <div className="flex items-center gap-2.5">
                     <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_8px] ${isStandby ? 'bg-amber-500 shadow-amber-500/40 animate-pulse' : ''}`} />
                     <div>
-                      <span className="text-xs font-bold text-white tracking-wide">{agent.label}</span>
+                      <span className="text-xs font-bold text-on-surface tracking-wide">{agent.label}</span>
                       <span className="text-[8px] font-mono text-slate-600 ml-2 uppercase">{agent.domain}</span>
                     </div>
                   </div>

@@ -60,7 +60,7 @@ export default function TunisiaAgricultureDashboard() {
               id={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id as any)}
               className={clsx(
-                "flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all border-b-2 outline-none",
+                "flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all border-b-2 outline-none focus-visible:ring-2 focus-visible:ring-intel-cyan/50",
                 activeTab === tab.id 
                   ? "border-[#3b82f6] text-[#3b82f6] bg-[#3b82f6]/5" 
                   : "border-transparent text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5"

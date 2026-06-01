@@ -182,7 +182,7 @@ export const DeliberationPanel: React.FC = () => {
                 ? 'bg-amber-400' : 'bg-red-400'
             }`} />
             <div className="min-w-0">
-              <div className="text-sm font-semibold text-white truncate">{pos.actor_name}</div>
+              <div className="text-sm font-semibold text-on-surface truncate">{pos.actor_name}</div>
               <div className="text-xs font-mono text-slate-500">{pos.entity_id}</div>
             </div>
           </div>
@@ -255,7 +255,7 @@ export const DeliberationPanel: React.FC = () => {
                 </span>
               )}
             </div>
-            <p className="text-sm font-medium text-white truncate">{session.scenario_description}</p>
+            <p className="text-sm font-medium text-on-surface truncate">{session.scenario_description}</p>
             <div className="flex items-center gap-3 mt-1 text-[10px] font-mono text-slate-500">
               <span>{session.trigger_type?.replace(/_/g, ' ')}</span>
               {session.completed_at && <span>{new Date(session.completed_at).toLocaleString()}</span>}
@@ -271,7 +271,7 @@ export const DeliberationPanel: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
                   <div className="text-xs text-slate-500 mb-1">Primary Action</div>
-                  <div className="text-sm font-bold text-white font-mono uppercase">
+                  <div className="text-sm font-bold text-on-surface font-mono uppercase">
                     {session.decision_output.primary_action?.replace(/_/g, ' ')}
                   </div>
                   {session.decision_output.primary_confidence !== undefined && (
@@ -378,7 +378,7 @@ export const DeliberationPanel: React.FC = () => {
             value={customScenario}
             onChange={e => { setCustomScenario(e.target.value); if (e.target.value) setSelectedPreset(''); }}
             placeholder="Or type a custom scenario..."
-            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/5 text-sm text-white placeholder:text-slate-600 font-mono outline-none focus:border-intel-cyan/30 transition-colors"
+            className="flex-1 px-3 py-2 rounded-lg bg-white/[0.04] border border-white/5 text-sm text-on-surface placeholder:text-slate-600 font-mono outline-none focus:ring-1 focus:ring-intel-cyan/20 focus:border-intel-cyan/30 transition-colors"
           />
           <button
             onClick={handleRun}

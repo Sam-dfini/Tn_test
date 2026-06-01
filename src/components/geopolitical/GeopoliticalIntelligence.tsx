@@ -442,7 +442,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
         <CornerAccent position="br" />
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+            <h3 className="text-lg font-bold text-on-surface flex items-center space-x-3">
               <Shield className="w-6 h-6 text-intel-cyan" />
               <span>NATO Strategic Alignment</span>
             </h3>
@@ -491,7 +491,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <actor.icon className="w-4 h-4 transition-transform group-hover:scale-110" style={{ color: actor.color }} />
-                    <span className="text-xs font-bold text-white uppercase tracking-tight">{actor.name}</span>
+                    <span className="text-xs font-bold text-on-surface uppercase tracking-tight">{actor.name}</span>
                   </div>
                   <span className="text-xs font-mono text-intel-cyan font-bold">{natoScores[actor.id]}%</span>
                 </div>
@@ -533,7 +533,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
             <div className="space-y-1">
               <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{stat.label}</div>
               <div className="flex items-baseline space-x-2">
-                <div className="text-2xl font-bold text-white tracking-tight">{stat.value}</div>
+                <div className="text-2xl font-bold text-on-surface tracking-tight">{stat.value}</div>
                 <div className={`text-[10px] font-mono flex items-center space-x-1 ${
                   stat.trend.startsWith('+') || stat.trend === 'Rising' ? 'text-intel-red' : 'text-intel-green'
                 }`}>
@@ -555,7 +555,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
             
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 md:mb-10 gap-6">
               <div className="space-y-1">
-                <h3 className="text-lg md:text-xl font-bold text-white tracking-tight flex items-center space-x-3">
+                <h3 className="text-lg md:text-xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
                   <Target className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan" />
                   <span>Actor Alignment Matrix</span>
                 </h3>
@@ -637,7 +637,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                         <selectedActor.icon className="w-6 h-6" style={{ color: selectedActor.color }} />
                       </div>
                       <div>
-                        <div className="text-lg font-bold text-white tracking-tight">{selectedActor.name}</div>
+                        <div className="text-lg font-bold text-on-surface tracking-tight">{selectedActor.name}</div>
                         <div className="text-[10px] text-slate-500 uppercase font-mono tracking-widest">{selectedActor.region} // VOLATILITY: {selectedActor.volatility}</div>
                       </div>
                     </div>
@@ -683,7 +683,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   <div className="p-4 md:p-8 rounded-xl md:rounded-3xl bg-white/5 border border-intel-cyan/20 space-y-4">
                     <div className="flex items-center space-x-2">
                       <BarChart3 className="w-4 h-4 text-intel-cyan" />
-                      <h4 className="text-xs font-bold text-white uppercase tracking-widest">Security Alignment Metrics</h4>
+                      <h4 className="text-xs font-bold text-on-surface uppercase tracking-widest">Security Alignment Metrics</h4>
                     </div>
                     <div className="h-[120px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
@@ -721,7 +721,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                             <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
                               <div className="h-full bg-intel-cyan transition-all duration-1000 shadow-[0_0_8px_rgba(0,242,255,0.4)]" style={{ width: `${val}%` }} />
                             </div>
-                            <span className="text-[10px] font-mono text-white w-8 text-right font-bold">{val}%</span>
+                            <span className="text-[10px] font-mono text-on-surface w-8 text-right font-bold">{val}%</span>
                           </div>
                         </div>
                       );
@@ -736,7 +736,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden">
               <CornerAccent position="tl" />
-              <h4 className="text-sm font-bold text-white mb-6 flex items-center space-x-3">
+              <h4 className="text-sm font-bold text-on-surface mb-6 flex items-center space-x-3">
                 <Layers className="w-5 h-5 text-intel-cyan" />
                 <span className="uppercase tracking-widest">Dependency Vectors</span>
               </h4>
@@ -750,7 +750,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   <div key={generateStableKey(item, i, 'depend-vec')} className="space-y-2">
                     <div className="flex justify-between text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       <span>{item.label}</span>
-                      <span className="text-white font-mono">{item.value}%</span>
+                      <span className="text-on-surface font-mono">{item.value}%</span>
                     </div>
                     <div className="h-2 bg-white/5 rounded-full overflow-hidden">
                       <motion.div 
@@ -767,7 +767,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
 
             <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border relative overflow-hidden">
               <CornerAccent position="tr" />
-              <h4 className="text-sm font-bold text-white mb-6 flex items-center space-x-3">
+              <h4 className="text-sm font-bold text-on-surface mb-6 flex items-center space-x-3">
                 <TrendingUp className="w-5 h-5 text-intel-cyan" />
                 <span className="uppercase tracking-widest">Alignment Trend (30D)</span>
               </h4>
@@ -803,7 +803,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
           <div className="glass p-4 md:p-8 rounded-xl md:rounded-3xl border border-intel-border space-y-6 md:space-y-8 relative overflow-hidden">
             <CornerAccent position="tr" />
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+              <h3 className="text-lg font-bold text-on-surface flex items-center space-x-3">
                 <AlertTriangle className="w-6 h-6 text-intel-red" />
                 <span className="uppercase tracking-tight">Strategic Risks</span>
               </h3>
@@ -827,7 +827,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   <div className="flex items-start justify-between mb-3 pl-2">
                     <div className="space-y-1">
                       <div className="text-[8px] font-mono text-slate-500 font-bold tracking-widest">{risk.code}</div>
-                      <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors uppercase tracking-tight leading-tight">{risk.title}</h4>
+                      <h4 className="text-sm font-bold text-on-surface group-hover:text-intel-cyan transition-colors uppercase tracking-tight leading-tight">{risk.title}</h4>
                     </div>
                     {risk.trend === 'rising' ? <ArrowUpRight className="w-4 h-4 text-intel-red" /> : <ArrowDownRight className="w-4 h-4 text-intel-green" />}
                   </div>
@@ -847,7 +847,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="text-[8px] text-slate-600 uppercase font-bold tracking-widest">Probability</div>
-                      <div className="text-[10px] font-mono text-white font-bold">{risk.probability}</div>
+                      <div className="text-[10px] font-mono text-on-surface font-bold">{risk.probability}</div>
                     </div>
                   </div>
                 </motion.div>
@@ -889,7 +889,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   <div className="w-2 h-2 bg-intel-red rounded-full animate-ping" />
                   <span className="text-[10px] text-intel-red/60 font-mono font-bold">SOURCE: SIGINT-DELTA-9</span>
                 </div>
-                <button className="text-[10px] text-white hover:text-intel-cyan uppercase font-bold transition-colors tracking-widest">Full Briefing</button>
+                <button className="text-[10px] text-on-surface hover:text-intel-cyan uppercase font-bold transition-colors tracking-widest">Full Briefing</button>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -909,7 +909,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
         <CornerAccent position="tl" />
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+            <h3 className="text-lg font-bold text-on-surface flex items-center space-x-3">
               <Globe className="w-5 h-5 text-intel-cyan" />
               <span className="uppercase tracking-tight">Regional Power Influence Vectors</span>
             </h3>
@@ -975,7 +975,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                   <span className="text-2xl">{p.flag}</span>
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-white uppercase tracking-tight">{p.power}</span>
+                      <span className="text-sm font-bold text-on-surface uppercase tracking-tight">{p.power}</span>
                       <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${p.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : p.risk === 'MEDIUM' ? 'text-yellow-400 border-yellow-400/30' : 'text-intel-cyan border-intel-cyan/30'}`}>{p.risk}</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
@@ -1097,7 +1097,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
         <CornerAccent position="br" />
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white flex items-center space-x-3">
+            <h3 className="text-lg font-bold text-on-surface flex items-center space-x-3">
               <Handshake className="w-6 h-6 text-intel-cyan" />
               <span>Diplomatic Relations Tracker</span>
             </h3>
@@ -1116,7 +1116,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                 <Info className="w-8 h-8" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-white font-bold uppercase tracking-tight">No Diplomatic Data Synchronized</h4>
+                <h4 className="text-on-surface font-bold uppercase tracking-tight">No Diplomatic Data Synchronized</h4>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto">The diplomatic relations tracker is currently awaiting synchronization with the core intelligence engine.</p>
               </div>
               <button 
@@ -1175,7 +1175,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
                 "absolute top-0 right-0 px-3 py-1 text-[8px] font-mono font-bold uppercase tracking-widest rounded-bl-xl border-l border-b",
                 rel.regime_alignment === 'SUPPORTIVE' ? "bg-intel-green/20 border-intel-green/30 text-intel-green" :
                 rel.regime_alignment === 'CRITICAL' ? "bg-intel-red/20 border-intel-red/30 text-intel-red" :
-                rel.regime_alignment === 'HOSTILE' ? "bg-intel-red/40 border-intel-red/50 text-white" :
+                rel.regime_alignment === 'HOSTILE' ? "bg-intel-red/40 border-intel-red/50 text-on-surface" :
                 "bg-slate-500/20 border-slate-500/30 text-slate-400"
               )}>
                 {rel.regime_alignment}
@@ -1183,7 +1183,7 @@ export const GeopoliticalIntelligence: React.FC = () => {
 
               <div className="flex items-start justify-between mb-4">
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors uppercase tracking-tight">{rel.actor}</h4>
+                  <h4 className="text-sm font-bold text-on-surface group-hover:text-intel-cyan transition-colors uppercase tracking-tight">{rel.actor}</h4>
                   <div className="flex items-center space-x-2 text-[9px] font-mono text-slate-500">
                     <Calendar className="w-3 h-3" />
                     <span>LAST CONTACT: {rel.last_contact}</span>

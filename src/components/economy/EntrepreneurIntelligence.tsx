@@ -392,7 +392,7 @@ const RuleBanner: React.FC<{ rule: DecisionRule }> = ({ rule }) => {
           <div className="flex items-center gap-2">
             <span className="text-[9px] font-mono font-bold uppercase tracking-widest"
               style={{ color: bc }}>{rule.severity}</span>
-            <span className="text-[10px] font-bold text-white truncate">{rule.title}</span>
+            <span className="text-[10px] font-bold text-on-surface truncate">{rule.title}</span>
           </div>
           <p className="text-[9px] text-slate-400 mt-0.5 leading-relaxed line-clamp-1">{rule.action}</p>
         </div>
@@ -579,7 +579,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-lg font-bold text-white uppercase tracking-widest">
+          <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">
             Entrepreneur Intelligence Engine
           </h2>
           <p className="text-[10px] text-slate-500 mt-0.5">
@@ -635,7 +635,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
       {step === 'bi' ? (
         <div className="glass p-8 rounded-2xl border border-intel-border/50 text-center space-y-4">
           <BarChart2 className="w-12 h-12 text-intel-cyan mx-auto opacity-50" />
-          <h3 className="text-xl font-bold text-white">Market Intelligence Dashboard</h3>
+          <h3 className="text-xl font-bold text-on-surface">Market Intelligence Dashboard</h3>
           <p className="text-slate-400 text-sm max-w-md mx-auto">
             Aggregated market overview showing live signals, risk vectors, and structural threats.
           </p>
@@ -661,7 +661,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
               >
                 <div className="text-2xl">{p.icon}</div>
                 <div>
-                  <div className="text-[11px] font-bold text-white">{p.label}</div>
+                  <div className="text-[11px] font-bold text-on-surface">{p.label}</div>
                   <div className="text-[8px] text-slate-500 leading-snug mt-0.5">{p.description}</div>
                 </div>
                 <div className="flex gap-1 flex-wrap pt-1">
@@ -670,7 +670,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
                     { l: 'INF', v: p.inflation_sensitivity },
                     { l: 'RRI', v: p.rri_sensitivity },
                   ].map(s => (
-                    <span key={s.l} className="text-[7px] font-mono px-1 py-0.5 rounded"
+                    <span key={s.l} className="text-[9px] font-mono px-1 py-0.5 rounded"
                       style={{
                         color: s.v === 'HIGH' ? '#ff2d55' : s.v === 'MEDIUM' ? '#ff9f0a' : '#2fd158',
                         border: `1px solid ${s.v === 'HIGH' ? '#ff2d5533' : s.v === 'MEDIUM' ? '#ff9f0a33' : '#2fd15833'}`,
@@ -696,7 +696,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
             <div className="flex items-center gap-3">
               <span className="text-3xl">{profile.icon}</span>
               <div className="flex-1">
-                <div className="text-[13px] font-bold text-white">{profile.label}</div>
+                <div className="text-[13px] font-bold text-on-surface">{profile.label}</div>
                 <div className="text-[9px] text-slate-500">{profile.description}</div>
               </div>
               <div className="text-right text-[8px] font-mono">
@@ -756,7 +756,7 @@ export const EntrepreneurIntelligence: React.FC = () => {
                 onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit(); }}
                 placeholder={phaseSuggestions[phase] ?? 'Ask a specific question…'}
                 className="w-full bg-transparent text-[11px] text-slate-200 placeholder-slate-600
-                  resize-none outline-none leading-relaxed font-mono"
+                  resize-none outline-none focus:ring-1 focus:ring-intel-cyan/30 leading-relaxed font-mono"
                 rows={3}
               />
             </div>

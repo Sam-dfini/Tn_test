@@ -563,7 +563,7 @@ export const RadicalisationIntelligence: React.FC = () => {
                         </div>
                         <div className="flex-1 min-w-0 space-y-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-white">
+                            <span className="text-[10px] font-bold text-on-surface">
                               {step.stage}
                             </span>
                             <span className={`text-[10px] font-mono font-bold ${
@@ -582,7 +582,7 @@ export const RadicalisationIntelligence: React.FC = () => {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-[8px] text-slate-600">{step.desc}</span>
-                            <span className="text-[7px] font-mono text-slate-700">{step.source}</span>
+                            <span className="text-[9px] font-mono text-slate-700">{step.source}</span>
                           </div>
                         </div>
                       </div>
@@ -774,7 +774,7 @@ export const RadicalisationIntelligence: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
                 <MapPin className="w-4 h-4 text-intel-red" />
-                <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Geographic Radicalization Distribution</h3>
+                <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Geographic Radicalization Distribution</h3>
               </div>
 
               {/* RPI by region */}
@@ -796,7 +796,7 @@ export const RadicalisationIntelligence: React.FC = () => {
                     ]).map((row: any, i: number) => (
                       <div key={generateStableKey(row.gov, i, 'geo-ranking')} className="flex items-center gap-3 py-1.5 border-b border-white/5 last:border-0">
                         <div className="w-24 shrink-0">
-                          <div className="text-[10px] font-mono text-white">{row.gov}</div>
+                          <div className="text-[10px] font-mono text-on-surface">{row.gov}</div>
                         </div>
                         <div className="flex-1">
                           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -806,7 +806,7 @@ export const RadicalisationIntelligence: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className={`text-[9px] font-mono font-bold ${row.rpi > 0.7 ? 'text-intel-red' : row.rpi > 0.5 ? 'text-intel-orange' : 'text-yellow-400'}`}>{(row.rpi * 100).toFixed(0)}</span>
-                          <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${row.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : row.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{row.risk}</span>
+                          <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${row.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : row.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{row.risk}</span>
                         </div>
                       </div>
                     ))}
@@ -826,10 +826,10 @@ export const RadicalisationIntelligence: React.FC = () => {
                       ]).map((p: any, i: number) => (
                         <div key={generateStableKey(p.facility, i, 'prison-node')} className={`p-3 rounded-xl border space-y-1 ${p.severity === 'CRITICAL' ? 'border-intel-red/30 bg-intel-red/5' : p.severity === 'HIGH' ? 'border-intel-orange/30' : 'border-intel-border'}`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono font-bold text-white">{p.facility}</span>
+                            <span className="text-[10px] font-mono font-bold text-on-surface">{p.facility}</span>
                             <div className="flex items-center gap-2">
                               <span className={`text-[10px] font-mono font-bold ${p.severity === 'CRITICAL' ? 'text-intel-red' : 'text-intel-orange'}`}>{p.exposure}% <span className="text-[8px]">{p.trend}</span></span>
-                              <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${p.severity === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.severity === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{p.severity}</span>
+                              <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${p.severity === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.severity === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{p.severity}</span>
                             </div>
                           </div>
                           <div className="text-[8px] font-mono text-slate-600">{p.note}</div>
@@ -849,14 +849,14 @@ export const RadicalisationIntelligence: React.FC = () => {
                     ]).map((v: any, i: number) => (
                       <div key={generateStableKey(v.platform, i, 'online-vector')} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                         <div>
-                          <div className="text-[10px] font-mono text-white">{v.platform}</div>
+                          <div className="text-[10px] font-mono text-on-surface">{v.platform}</div>
                           <div className="text-[8px] font-mono text-slate-600">{v.channels}</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
                             <div className={`h-full rounded-full ${v.activity > 70 ? 'bg-intel-red' : 'bg-intel-orange'}`} style={{ width: `${v.activity}%` }} />
                           </div>
-                          <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${v.status === 'ACTIVE' ? 'text-intel-red border-intel-red/30' : v.status === 'MONITORED' ? 'text-intel-cyan border-intel-cyan/30' : 'text-slate-500 border-slate-700'}`}>{v.status}</span>
+                          <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${v.status === 'ACTIVE' ? 'text-intel-red border-intel-red/30' : v.status === 'MONITORED' ? 'text-intel-cyan border-intel-cyan/30' : 'text-slate-500 border-slate-700'}`}>{v.status}</span>
                         </div>
                       </div>
                     ))}

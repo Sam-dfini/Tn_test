@@ -149,7 +149,7 @@ const RAGTab: React.FC = () => {
             <Brain className="w-4 h-4 text-violet-400" />
           </div>
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Cognitive Architecture</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Cognitive Architecture</h3>
             <p className="text-[8px] font-mono text-slate-500">AnythingLLM · 7 workspaces · sovereign intelligence memory</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
@@ -175,11 +175,11 @@ const RAGTab: React.FC = () => {
           <div className="grid grid-cols-3 gap-4 mb-4">
             <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
               <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Workspaces</div>
-              <div className="text-lg font-bold text-white font-mono">{workspaces.length}/7</div>
+              <div className="text-lg font-bold text-on-surface font-mono">{workspaces.length}/7</div>
             </div>
             <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
               <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Total Documents</div>
-              <div className="text-lg font-bold text-white font-mono">{totalDocs}</div>
+              <div className="text-lg font-bold text-on-surface font-mono">{totalDocs}</div>
             </div>
             <div className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5">
               <div className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">Base URL</div>
@@ -188,7 +188,7 @@ const RAGTab: React.FC = () => {
           </div>
           <button
             onClick={loadStatus}
-            className="text-[7px] font-mono text-slate-600 hover:text-slate-400 transition-colors"
+            className="text-[9px] font-mono text-slate-600 hover:text-slate-400 transition-colors"
           >
             ↻ Refresh status
           </button>
@@ -199,7 +199,7 @@ const RAGTab: React.FC = () => {
       <div>
         <div className="flex items-center gap-2 mb-3 px-1">
           <GitBranch className="w-3.5 h-3.5 text-violet-400" />
-          <span className="text-[9px] font-bold text-white uppercase tracking-widest">Cognitive Workspaces</span>
+          <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">Cognitive Workspaces</span>
           <span className="text-[8px] font-mono text-slate-600 ml-auto">{totalDocs} total documents</span>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
@@ -227,14 +227,14 @@ const RAGTab: React.FC = () => {
                       <ws.icon className="w-3.5 h-3.5" style={{ color: ws.color }} />
                     </div>
                     <div>
-                      <div className="text-[9px] font-bold text-white">{ws.label}</div>
-                      <div className="text-[7px] font-mono text-slate-600">{ws.desc}</div>
+                      <div className="text-[9px] font-bold text-on-surface">{ws.label}</div>
+                      <div className="text-[9px] font-mono text-slate-600">{ws.desc}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[8px] font-mono" style={{ color: statusColor }}>{docCount} docs</span>
                     <span
-                      className="text-[6px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold"
+                      className="text-[9px] font-mono px-1.5 py-0.5 rounded uppercase tracking-wider font-bold"
                       style={{
                         backgroundColor: `${statusColor}15`,
                         color: statusColor,
@@ -250,19 +250,19 @@ const RAGTab: React.FC = () => {
                   <div className="px-3 pb-3 border-t border-white/5 pt-2">
                     <div className="bg-black/40 border border-white/5 rounded-lg p-2.5 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[7px] font-mono text-slate-600">Cognitive Function</span>
-                        <span className="text-[7px] font-mono text-slate-400">{ws.domain}</span>
+                        <span className="text-[9px] font-mono text-slate-600">Cognitive Function</span>
+                        <span className="text-[9px] font-mono text-slate-400">{ws.domain}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[7px] font-mono text-slate-600">Documents</span>
-                        <span className="text-[7px] font-mono text-slate-400">{docCount}</span>
+                        <span className="text-[9px] font-mono text-slate-600">Documents</span>
+                        <span className="text-[9px] font-mono text-slate-400">{docCount}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[7px] font-mono text-slate-600">Status</span>
-                        <span className="text-[7px] font-mono uppercase" style={{ color: statusColor }}>{getStatusLabel(wsStatus)}</span>
+                        <span className="text-[9px] font-mono text-slate-600">Status</span>
+                        <span className="text-[9px] font-mono uppercase" style={{ color: statusColor }}>{getStatusLabel(wsStatus)}</span>
                       </div>
                       {wsStatus === 'empty' && (
-                        <p className="text-[7px] font-mono text-slate-600 italic pt-1">No documents ingested yet</p>
+                        <p className="text-[9px] font-mono text-slate-600 italic pt-1">No documents ingested yet</p>
                       )}
                     </div>
                   </div>
@@ -277,7 +277,7 @@ const RAGTab: React.FC = () => {
       <div>
         <div className="flex items-center gap-2 mb-3 px-1">
           <Server className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[9px] font-bold text-white uppercase tracking-widest">Pipeline Stages</span>
+          <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">Pipeline Stages</span>
           <span className="text-[8px] font-mono text-slate-600 ml-auto">Cognitive processing pipeline</span>
         </div>
         <div className="grid grid-cols-5 gap-2">
@@ -286,12 +286,12 @@ const RAGTab: React.FC = () => {
               <div className="bg-[#0a0a0c] border border-white/5 rounded-lg p-3 hover:border-white/10 transition-all">
                 <div className="flex items-center justify-between mb-2">
                   <stage.icon className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="text-[7px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-white/5 uppercase tracking-wider font-bold">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-white/5 uppercase tracking-wider font-bold">
                     IDLE
                   </span>
                 </div>
-                <div className="text-[9px] font-bold text-white mb-0.5">{stage.label}</div>
-                <div className="text-[7px] font-mono text-slate-600 leading-tight">{stage.desc}</div>
+                <div className="text-[9px] font-bold text-on-surface mb-0.5">{stage.label}</div>
+                <div className="text-[9px] font-mono text-slate-600 leading-tight">{stage.desc}</div>
               </div>
               {i < PIPELINE_STAGES.length - 1 && (
                 <div className="flex items-center justify-center">
@@ -310,17 +310,17 @@ const RAGTab: React.FC = () => {
         <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
             <Layers className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-[9px] font-bold text-white uppercase tracking-widest">Memory Tiers</span>
-            <span className="text-[7px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider font-bold ml-auto">Pgvector</span>
+            <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">Memory Tiers</span>
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider font-bold ml-auto">Pgvector</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             {MEMORY_TIERS.map(tier => (
               <div key={tier.id} className="bg-black/40 border border-white/5 rounded-lg p-3 text-center">
                 <div className="w-2 h-2 rounded-full mx-auto mb-2" style={{ backgroundColor: tier.color, boxShadow: `0 0 6px ${tier.color}40` }} />
-                <div className="text-[9px] font-bold text-white">{tier.label}</div>
-                <div className="text-[7px] font-mono text-slate-600 mb-1.5">{tier.desc}</div>
+                <div className="text-[9px] font-bold text-on-surface">{tier.label}</div>
+                <div className="text-[9px] font-mono text-slate-600 mb-1.5">{tier.desc}</div>
                 <div className="text-[8px] font-mono text-slate-600">0 docs</div>
-                <div className="text-[6px] font-mono text-slate-700">{tier.storage}</div>
+                <div className="text-[9px] font-mono text-slate-700">{tier.storage}</div>
               </div>
             ))}
           </div>
@@ -330,7 +330,7 @@ const RAGTab: React.FC = () => {
         <div className="bg-[#0a0a0c] border border-white/5 rounded-xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-black/20">
             <Target className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-[9px] font-bold text-white uppercase tracking-widest">Cognitive Roadmap</span>
+            <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">Cognitive Roadmap</span>
             <span className="text-[8px] font-mono text-slate-600 ml-auto">0% complete</span>
           </div>
           <div className="divide-y divide-white/5">
@@ -342,7 +342,7 @@ const RAGTab: React.FC = () => {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-black/40 border border-white/5 text-slate-500 font-bold">P{phase.id}</span>
-                    <span className="text-[9px] font-bold text-white">{phase.label}</span>
+                    <span className="text-[9px] font-bold text-on-surface">{phase.label}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-24 h-1.5 bg-black/40 rounded-full overflow-hidden">
@@ -356,7 +356,7 @@ const RAGTab: React.FC = () => {
                   <div className="px-4 pb-3 pt-1">
                     <div className="flex flex-wrap gap-1.5">
                       {phase.items.map(item => (
-                        <span key={item} className="text-[7px] font-mono px-2 py-1 rounded bg-black/40 border border-white/5 text-slate-600">{item}</span>
+                        <span key={item} className="text-[9px] font-mono px-2 py-1 rounded bg-black/40 border border-white/5 text-slate-600">{item}</span>
                       ))}
                     </div>
                   </div>
@@ -371,14 +371,14 @@ const RAGTab: React.FC = () => {
       <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <Globe className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[9px] font-bold text-white uppercase tracking-widest">RAG Consumers</span>
+          <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">RAG Consumers</span>
           <span className="text-[8px] font-mono text-slate-600 ml-auto">All pending document ingestion</span>
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {RAG_CONSUMERS.map(consumer => (
             <div key={consumer} className="bg-black/40 border border-white/5 rounded-lg px-3 py-2.5 text-center opacity-40">
-              <div className="text-[7px] font-mono text-slate-500 uppercase tracking-wider">{consumer}</div>
-              <span className="text-[6px] font-mono px-1 py-0.5 rounded bg-slate-800 text-slate-600 uppercase tracking-wider font-bold mt-1 inline-block">PENDING</span>
+              <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">{consumer}</div>
+              <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-slate-800 text-slate-600 uppercase tracking-wider font-bold mt-1 inline-block">PENDING</span>
             </div>
           ))}
         </div>
@@ -388,11 +388,11 @@ const RAGTab: React.FC = () => {
       <div className="bg-[#0a0a0c] border border-white/5 rounded-xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <FileText className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-[9px] font-bold text-white uppercase tracking-widest">Metadata Schema</span>
-          <span className="text-[7px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase tracking-wider font-bold ml-auto">DESIGNED</span>
+          <span className="text-[9px] font-bold text-on-surface uppercase tracking-widest">Metadata Schema</span>
+          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase tracking-wider font-bold ml-auto">DESIGNED</span>
         </div>
         <div className="bg-black/40 border border-white/5 rounded-lg p-3 overflow-x-auto">
-          <pre className="text-[7px] font-mono text-slate-500 leading-relaxed">{`{
+          <pre className="text-[9px] font-mono text-slate-500 leading-relaxed">{`{
   "id":              "string",
   "type":            "article|event|brief|signal|methodology",
   "timestamp":       "ISO 8601",
@@ -410,7 +410,7 @@ const RAGTab: React.FC = () => {
   "canonical_state_id": "string"
 }`}</pre>
         </div>
-        <p className="text-[7px] font-mono text-slate-600 mt-2 italic">Metadata transforms generic RAG into intelligence retrieval</p>
+        <p className="text-[9px] font-mono text-slate-600 mt-2 italic">Metadata transforms generic RAG into intelligence retrieval</p>
       </div>
     </div>
   );

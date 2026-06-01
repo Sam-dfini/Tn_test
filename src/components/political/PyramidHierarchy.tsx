@@ -55,7 +55,7 @@ export const PyramidHierarchy: React.FC = () => {
           <div className="flex items-center gap-2">
             <span>All Navigator</span>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-white bg-[#71b1c6]/20 px-2">Opening</span>
+            <span className="text-on-surface bg-[#71b1c6]/20 px-2">Opening</span>
           </div>
         </div>
       </header>
@@ -256,7 +256,7 @@ export const PyramidHierarchy: React.FC = () => {
                 />
               ))}
             </div>
-            <div className="flex justify-between mt-1 text-[6px] opacity-30">
+            <div className="flex justify-between mt-1 text-[9px] opacity-30">
                <span>00:00</span>
                <span>08:00</span>
                <span>16:00</span>
@@ -298,7 +298,7 @@ export const PyramidHierarchy: React.FC = () => {
                       ))}
                    </g>
                 </svg>
-                <div className="absolute top-0 right-0 text-[6px] opacity-40 leading-tight">
+                <div className="absolute top-0 right-0 text-[9px] opacity-40 leading-tight">
                   ENTITY: RRR_49<br/>
                   RISK: ELEVATED<br/>
                   LOC: UNKNOWN
@@ -362,7 +362,7 @@ export const PyramidHierarchy: React.FC = () => {
 const DataRow: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div className="flex justify-between items-center text-[10px] group cursor-default">
     <span className="opacity-60 group-hover:opacity-100 transition-opacity">{label}:</span>
-    <span className={cn("font-bold tracking-wider", color || "text-white")}>{value}</span>
+    <span className={cn("font-bold tracking-wider", color || "text-on-surface")}>{value}</span>
   </div>
 );
 
@@ -431,7 +431,7 @@ const MiniCluster: React.FC<{ color: string; label: string; active?: boolean }> 
     "border p-2 flex flex-col items-center justify-center gap-1 group transition-all",
     active ? `bg-${color}/10 border-${color}` : "border-[#71b1c6]/10 bg-black/20"
   )} style={{ borderColor: active ? color : undefined }}>
-    <Zap className={cn("w-4 h-4", active ? "animate-bounce" : "opacity-30")} style={{ color: active ? color : undefined }} />
-    <span className="text-[6px] opacity-60 uppercase">{label}</span>
+    <Zap className={cn("w-4 h-4", active ? "animate-pulse" : "opacity-30")} style={{ color: active ? color : undefined }} />
+    <span className="text-[9px] opacity-60 uppercase">{label}</span>
   </div>
 );

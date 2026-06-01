@@ -69,7 +69,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       </div>
 
       <div className="space-y-1.5 max-w-sm">
-        <h3 className="text-sm font-bold text-white uppercase tracking-widest">{title}</h3>
+        <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">{title}</h3>
         {description && (
           <p className="text-xs text-slate-500 leading-relaxed font-mono">
             {description}

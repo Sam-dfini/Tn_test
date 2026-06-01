@@ -139,7 +139,7 @@ export const Media: React.FC = () => {
                   {item.type}
                 </div>
                 {item.urgent && (
-                  <div className="px-2 py-1 bg-intel-red rounded text-[8px] font-mono font-bold text-white animate-pulse">
+                  <div className="px-2 py-1 bg-intel-red rounded text-[8px] font-mono font-bold text-on-surface animate-pulse">
                     LIVE FEED
                   </div>
                 )}
@@ -167,7 +167,7 @@ export const Media: React.FC = () => {
                 </div>
               </div>
 
-              <h3 className="text-sm font-bold text-white leading-snug group-hover:text-intel-cyan transition-colors">
+              <h3 className="text-sm font-bold text-on-surface leading-snug group-hover:text-intel-cyan transition-colors">
                 {item.title}
               </h3>
 

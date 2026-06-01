@@ -229,7 +229,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
       <div className="flex flex-col space-y-6 mb-8 relative z-20">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1">
-            <h3 className="text-lg md:text-xl font-bold text-white tracking-tight flex items-center space-x-3">
+            <h3 className="text-lg md:text-xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
               <Newspaper className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan" />
               <span>Real-time News Feed</span>
             </h3>
@@ -286,7 +286,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
                 placeholder="Filter news..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-full md:w-48"
+                className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all w-full md:w-48"
               />
             </div>
 
@@ -348,7 +348,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
             <select 
               value={moduleFilter}
               onChange={(e) => setModuleFilter(e.target.value as IntelModule)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50"
+              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50"
             >
               <option value="ALL">ALL MODULES</option>
               <option value="POLITICAL">POLITICAL</option>
@@ -379,7 +379,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   {isRawView ? (
-                    <div className="text-white text-xs font-mono font-bold">
+                    <div className="text-on-surface text-xs font-mono font-bold">
                       from {article.source} : {article.title} .... {new Date(article.date).toLocaleDateString()} / Time {new Date(article.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   ) : (
@@ -405,7 +405,7 @@ export const NewsFeed: React.FC<NewsFeedProps> = ({ hideBackground }) => {
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-intel-cyan transition-colors leading-tight">
+                    <h4 className="text-sm font-bold text-on-surface group-hover:text-intel-cyan transition-colors leading-tight">
                       {article.title}
                     </h4>
                   </div>

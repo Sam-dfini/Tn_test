@@ -83,7 +83,7 @@ export const TacticalLoading: React.FC<{
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-[#040609] z-[999] flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono"
+      className="fixed inset-0 bg-[#040609] z-loading flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono"
     >
       {/* Background grid */}
       <div
@@ -91,7 +91,7 @@ export const TacticalLoading: React.FC<{
         style={{ backgroundImage: 'radial-gradient(circle, rgba(148,163,184,0.9) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
       />
       {/* Vignette */}
-      <div className="absolute inset-0 z-[4] pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, rgba(4,6,9,0.88) 100%)' }} />
+      <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, rgba(4,6,9,0.88) 100%)' }} />
       {/* Scanline */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00f2ff]/5 to-transparent h-20 w-full animate-scanline pointer-events-none" />
 
@@ -157,7 +157,7 @@ export const TacticalLoading: React.FC<{
           </motion.div>
 
           <div className="text-center space-y-1">
-            <h1 className="text-2xl md:text-4xl tracking-[0.2em] md:tracking-[0.3em] font-bold text-white uppercase">
+            <h1 className="text-2xl md:text-4xl tracking-[0.2em] md:tracking-[0.3em] font-bold text-on-surface uppercase">
               TUNISIA<span className="text-intel-cyan">INTEL</span>
             </h1>
             <div className="flex items-center justify-center gap-3">
@@ -177,7 +177,7 @@ export const TacticalLoading: React.FC<{
               key={generateStableKey(stat, i, 'stat')}
               className="glass-card p-2 md:p-3 flex flex-col items-center text-center gap-1"
             >
-              <span className="text-[6px] md:text-[8px] text-slate-500 uppercase tracking-widest">{stat.label}</span>
+              <span className="text-[9px] md:text-[8px] text-slate-500 uppercase tracking-widest">{stat.label}</span>
               <span className={`text-[9px] md:text-[11px] font-bold ${stat.color}`}>{stat.value}</span>
             </div>
           ))}
@@ -219,12 +219,12 @@ export const TacticalLoading: React.FC<{
                       <span className="text-slate-700 font-bold shrink-0">
                         [{new Date().toISOString().split('T')[1].slice(0, 8)}]
                       </span>
-                      <span className={`truncate ${i === logs.length - 1 ? 'text-white font-bold' : ''}`}>
+                      <span className={`truncate ${i === logs.length - 1 ? 'text-on-surface font-bold' : ''}`}>
                         {message}
                       </span>
                     </div>
                     {hasOk && (
-                      <span className="text-intel-cyan font-bold bg-intel-cyan/10 px-1.5 py-0.5 rounded text-[7px] shrink-0">
+                      <span className="text-intel-cyan font-bold bg-intel-cyan/10 px-1.5 py-0.5 rounded text-[9px] shrink-0">
                         OK
                       </span>
                     )}
@@ -248,10 +248,10 @@ export const TacticalLoading: React.FC<{
           <div className="flex justify-between items-end">
             <div>
               <div className="text-[9px] text-slate-500 uppercase tracking-[0.2em]">System Initialization</div>
-              <div className="text-[7px] text-intel-cyan/50 uppercase tracking-widest">Loading core modules...</div>
+              <div className="text-[9px] text-intel-cyan/50 uppercase tracking-widest">Loading core modules...</div>
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl md:text-3xl font-bold text-white tabular-nums">
+              <span className="text-2xl md:text-3xl font-bold text-on-surface tabular-nums">
                 {Math.min(100, Math.floor(progress))}
               </span>
               <span className="text-xs text-intel-cyan font-bold">%</span>
@@ -267,7 +267,7 @@ export const TacticalLoading: React.FC<{
         </div>
 
         {/* Footer */}
-        <div className="flex flex-wrap gap-x-6 gap-y-1 text-[7px] md:text-[8px] text-slate-600 uppercase tracking-[0.2em] pt-3 border-t border-intel-border/20">
+        <div className="flex flex-wrap gap-x-6 gap-y-1 text-[9px] md:text-[8px] text-slate-600 uppercase tracking-[0.2em] pt-3 border-t border-intel-border/20">
           <div className="flex items-center gap-1.5">
             <Activity className="w-2.5 h-2.5 text-intel-cyan animate-pulse" />
             <span>Kernel: v4.2.0-stable</span>

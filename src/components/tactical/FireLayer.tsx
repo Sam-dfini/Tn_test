@@ -67,7 +67,7 @@ export const FireLayer: React.FC<FireLayerProps> = ({ fires, showHeatmap = false
           }}
         >
           <Tooltip direction="top" offset={[0, -5]} opacity={1}>
-            <div className="bg-slate-900 border border-intel-cyan/30 p-2 rounded text-[10px] font-mono text-white min-w-[120px]">
+            <div className="bg-slate-900 border border-intel-cyan/30 p-2 rounded text-[10px] font-mono text-on-surface min-w-[120px]">
               <div className="flex items-center justify-between mb-1 border-b border-white/10 pb-1">
                 <span className="text-intel-orange font-bold uppercase tracking-tighter flex items-center">
                   <span className="w-1.5 h-1.5 rounded-full bg-intel-red mr-1 animate-pulse"></span>
@@ -78,15 +78,15 @@ export const FireLayer: React.FC<FireLayerProps> = ({ fires, showHeatmap = false
               <div className="space-y-1">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Intensity (K):</span>
-                  <span className="text-white">{fire.intensity.toFixed(1)}</span>
+                  <span className="text-on-surface">{fire.intensity.toFixed(1)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Date:</span>
-                  <span className="text-white">{fire.date.toLocaleDateString()}</span>
+                  <span className="text-on-surface">{fire.date.toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Decay Index:</span>
-                  <span className="text-white">{(fire.visuals.decay * 100).toFixed(0)}% Signal</span>
+                  <span className="text-on-surface">{(fire.visuals.decay * 100).toFixed(0)}% Signal</span>
                 </div>
               </div>
             </div>

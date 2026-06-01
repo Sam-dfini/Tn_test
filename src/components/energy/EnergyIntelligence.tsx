@@ -151,7 +151,7 @@ export const EnergyIntelligence: React.FC = () => {
                 <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest font-bold">{metric.label}</span>
                 <metric.icon className={`w-3 h-3 ${metric.color}`} />
               </div>
-              <div className="text-2xl font-bold text-white font-mono tracking-tighter">{metric.value}</div>
+              <div className="text-2xl font-bold text-on-surface font-mono tracking-tighter">{metric.value}</div>
               <div className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border w-fit ${
                 metric.trend === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red animate-pulse' :
                 metric.trend === 'HIGH' ? 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange' :
@@ -170,7 +170,7 @@ export const EnergyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Energy Generation vs Demand</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Energy Generation vs Demand</h3>
               <p className="text-[10px] text-slate-500">12-month rolling balance (MW)</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -218,7 +218,7 @@ export const EnergyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">STEG Financial Health</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">STEG Financial Health</h3>
               <p className="text-[10px] text-slate-500">Revenue vs Expenditure (M TND)</p>
             </div>
             <div className="flex items-center space-x-2 px-2 py-1 bg-intel-red/10 border border-intel-red/20 rounded">
@@ -241,7 +241,7 @@ export const EnergyIntelligence: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
             <div className="space-y-1">
               <span className="text-[9px] text-slate-500 uppercase font-mono">Accumulated Debt</span>
-              <div className="text-lg font-bold text-white font-mono">4.2B TND</div>
+              <div className="text-lg font-bold text-on-surface font-mono">4.2B TND</div>
             </div>
             <div className="space-y-1">
               <span className="text-[9px] text-slate-500 uppercase font-mono">Recovery Rate</span>
@@ -255,7 +255,7 @@ export const EnergyIntelligence: React.FC = () => {
       <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest flex items-center">
               <MapIcon className="w-4 h-4 mr-2 text-intel-cyan" />
               Infrastructure Vulnerability Heatmap
             </h3>
@@ -288,7 +288,7 @@ export const EnergyIntelligence: React.FC = () => {
             />
           </Suspense>
           <div className="absolute bottom-4 right-4 glass p-3 rounded-lg border border-white/10 space-y-2 z-10">
-            <h4 className="text-[10px] font-bold text-white uppercase tracking-widest border-b border-white/10 pb-1">Legend</h4>
+            <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-widest border-b border-white/10 pb-1">Legend</h4>
             <div className="space-y-1">
               <div className="flex items-center space-x-2 text-[9px] font-mono text-slate-400">
                 <div className="w-2 h-2 rounded-full bg-intel-red"></div>
@@ -320,7 +320,7 @@ export const EnergyIntelligence: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{metric.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{metric.value}</div>
             <div className={`text-[10px] font-mono ${metric.trend.startsWith('-') ? 'text-intel-red' : 'text-intel-cyan'}`}>
               {metric.trend} vs 2024
             </div>
@@ -333,7 +333,7 @@ export const EnergyIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Production Decline Trend (10Y)</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Production Decline Trend (10Y)</h3>
               <p className="text-[10px] text-slate-500">Historical decline in domestic crude and natural gas output</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -364,7 +364,7 @@ export const EnergyIntelligence: React.FC = () => {
 
         {/* Strategic Assets Table */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Strategic Assets</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Strategic Assets</h3>
           <div className="space-y-4">
             {[
               { name: 'El Borma', type: 'Oil/Gas', status: 'Mature', output: '12k bpd', risk: 'MEDIUM' },
@@ -374,7 +374,7 @@ export const EnergyIntelligence: React.FC = () => {
             ].map((asset, i) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 hover:border-white/10 transition-all">
                 <div className="space-y-1">
-                  <div className="text-[11px] font-bold text-white font-mono">{asset.name}</div>
+                  <div className="text-[11px] font-bold text-on-surface font-mono">{asset.name}</div>
                   <div className="text-[9px] text-slate-500 uppercase">{asset.type} • {asset.status}</div>
                 </div>
                 <div className="text-right space-y-1">
@@ -416,7 +416,7 @@ export const EnergyIntelligence: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{metric.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{metric.value}</div>
             <div className="text-[9px] font-mono text-slate-500 uppercase">
               {metric.target ? `Target: ${metric.target}` : `Current: ${metric.current}`}
             </div>
@@ -429,7 +429,7 @@ export const EnergyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Renewable Energy Roadmap</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Renewable Energy Roadmap</h3>
               <p className="text-[10px] text-slate-500">Installed capacity vs. Strategic Plan 2030 (MW)</p>
             </div>
             <span className="text-[10px] font-mono text-intel-orange uppercase px-2 py-0.5 bg-intel-orange/10 border border-intel-orange/20 rounded">Lagging</span>
@@ -457,7 +457,7 @@ export const EnergyIntelligence: React.FC = () => {
 
         {/* Capacity by Tech */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Capacity by Technology</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Capacity by Technology</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={renewablesCapacityData} layout="vertical">
@@ -480,7 +480,7 @@ export const EnergyIntelligence: React.FC = () => {
                   <span className="text-slate-500 uppercase">{item.tech}</span>
                 </div>
                 <div className="flex space-x-4">
-                  <span className="text-white font-bold">{item.current} MW</span>
+                  <span className="text-on-surface font-bold">{item.current} MW</span>
                   <span className="text-slate-600">Target: {item.target} MW</span>
                 </div>
               </div>
@@ -491,7 +491,7 @@ export const EnergyIntelligence: React.FC = () => {
 
       {/* Active Projects Table */}
       <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-        <h3 className="text-xs font-bold text-white uppercase tracking-widest">Active Renewable Projects</h3>
+        <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Active Renewable Projects</h3>
         <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
@@ -513,7 +513,7 @@ export const EnergyIntelligence: React.FC = () => {
                 { name: 'Tozeur II', type: 'PV', cap: '10 MW', status: 'Operational', dev: 'STEG', date: '2021' },
               ].map((proj, i) => (
                 <tr key={i} className="group hover:bg-white/5 transition-colors">
-                  <td className="py-4 text-[11px] font-bold text-white font-mono">{proj.name}</td>
+                  <td className="py-4 text-[11px] font-bold text-on-surface font-mono">{proj.name}</td>
                   <td className="py-4 text-[10px] text-slate-400 font-mono uppercase">{proj.type}</td>
                   <td className="py-4 text-[10px] text-intel-cyan font-bold font-mono">{proj.cap}</td>
                   <td className="py-4">
@@ -551,7 +551,7 @@ export const EnergyIntelligence: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{metric.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{metric.value}</div>
             <div className={`text-[10px] font-mono ${metric.trend === 'CRITICAL' ? 'text-intel-red' : 'text-intel-cyan'}`}>
               {metric.trend}
             </div>
@@ -564,7 +564,7 @@ export const EnergyIntelligence: React.FC = () => {
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Regional Grid Stress Index</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Regional Grid Stress Index</h3>
               <p className="text-[10px] text-slate-500">Load vs Capacity by Region (Peak Hours)</p>
             </div>
             <span className="text-[10px] font-mono text-intel-red uppercase">Summer Peak Risk</span>
@@ -595,7 +595,7 @@ export const EnergyIntelligence: React.FC = () => {
 
         {/* Major Infrastructure Projects */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Infrastructure Pipeline</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Infrastructure Pipeline</h3>
           <div className="space-y-4">
             {[
               { name: 'ELMED Interconnector', desc: '600MW undersea link to Italy', budget: '€840M', progress: 15, status: 'Procurement' },
@@ -606,7 +606,7 @@ export const EnergyIntelligence: React.FC = () => {
               <div key={i} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <div className="text-[11px] font-bold text-white font-mono">{proj.name}</div>
+                    <div className="text-[11px] font-bold text-on-surface font-mono">{proj.name}</div>
                     <div className="text-[9px] text-slate-500">{proj.desc}</div>
                   </div>
                   <div className="text-right">
@@ -647,7 +647,7 @@ export const EnergyIntelligence: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">{metric.label}</span>
               <metric.icon className={`w-3 h-3 ${metric.color}`} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">{metric.value}</div>
+            <div className="text-2xl font-bold text-on-surface font-mono">{metric.value}</div>
             <div className="text-[9px] font-mono text-slate-500 uppercase">{metric.trend}</div>
           </div>
         ))}
@@ -656,7 +656,7 @@ export const EnergyIntelligence: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Subsidy Breakdown */}
         <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest flex items-center">
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest flex items-center">
             <PieChartIcon className="w-4 h-4 mr-2 text-intel-cyan" />
             Subsidy Breakdown
           </h3>
@@ -687,7 +687,7 @@ export const EnergyIntelligence: React.FC = () => {
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
                   <span className="text-slate-500 uppercase">{item.name}</span>
                 </div>
-                <span className="text-white font-bold">{item.value}M TND</span>
+                <span className="text-on-surface font-bold">{item.value}M TND</span>
               </div>
             ))}
           </div>
@@ -695,7 +695,7 @@ export const EnergyIntelligence: React.FC = () => {
 
         {/* Reform Roadmap */}
         <div className="lg:col-span-2 glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
-          <h3 className="text-xs font-bold text-white uppercase tracking-widest">Reform Roadmap & Milestones</h3>
+          <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Reform Roadmap & Milestones</h3>
           <div className="relative space-y-8 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-px before:bg-white/10">
             {[
               { date: 'Q1 2025', title: 'Industrial Price Adjustment', status: 'COMPLETED', impact: 'MEDIUM' },
@@ -722,7 +722,7 @@ export const EnergyIntelligence: React.FC = () => {
                       {milestone.impact} IMPACT
                     </span>
                   </div>
-                  <div className="text-[11px] font-bold text-white font-mono group-hover:text-intel-cyan transition-colors">{milestone.title}</div>
+                  <div className="text-[11px] font-bold text-on-surface font-mono group-hover:text-intel-cyan transition-colors">{milestone.title}</div>
                   <div className="text-[9px] text-slate-500 uppercase">{milestone.status}</div>
                 </div>
               </div>
@@ -735,7 +735,7 @@ export const EnergyIntelligence: React.FC = () => {
       <div className="glass p-4 md:p-6 rounded-xl md:rounded-2xl border border-white/10 space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Protest Risk Assessment</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Protest Risk Assessment</h3>
             <p className="text-[10px] text-slate-500">Social sensitivity to price adjustments by region</p>
           </div>
           <div className="flex items-center space-x-2 px-2 py-1 bg-intel-red/10 border border-intel-red/20 rounded">

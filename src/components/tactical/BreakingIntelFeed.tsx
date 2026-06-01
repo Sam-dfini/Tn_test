@@ -50,7 +50,7 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
           </div>
           <h3 className="text-[10px] font-mono text-intel-cyan uppercase font-bold tracking-widest">Breaking Intel Feed</h3>
         </div>
-        <div className="flex items-center justify-between text-[7px] font-mono text-slate-600 uppercase">
+        <div className="flex items-center justify-between text-[9px] font-mono text-slate-600 uppercase">
           <span className="w-1 h-1 rounded-full bg-intel-red animate-pulse"></span>
           <span className="ml-1">Live Stream</span>
         </div>
@@ -67,7 +67,7 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <span className={`text-[8px] font-mono font-bold px-1 rounded ${update.urgent ? 'bg-intel-red text-white' : 'bg-intel-cyan/20 text-intel-cyan'}`}>
+                  <span className={`text-[8px] font-mono font-bold px-1 rounded ${update.urgent ? 'bg-intel-red text-on-surface' : 'bg-intel-cyan/20 text-intel-cyan'}`}>
                     {update.type || 'INFO'}
                   </span>
                   <span className="text-[9px] font-bold text-slate-400 font-mono">{update.source}</span>
@@ -82,7 +82,7 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
               {update.urgent && (
                 <div className="flex items-center space-x-1 text-intel-red">
                   <AlertCircle className="w-2 h-2" />
-                  <span className="text-[7px] font-mono uppercase font-bold">Priority Action Required</span>
+                  <span className="text-[9px] font-mono uppercase font-bold">Priority Action Required</span>
                 </div>
               )}
             </motion.div>
@@ -90,7 +90,7 @@ export const BreakingIntelFeed: React.FC<BreakingIntelFeedProps> = ({ externalAl
       </div>
 
       <div className="mt-4 pt-2 border-t border-intel-cyan/10">
-        <div className="flex items-center justify-between text-[7px] font-mono text-slate-600 uppercase">
+        <div className="flex items-center justify-between text-[9px] font-mono text-slate-600 uppercase">
           <span>Buffer Status: {(events.length / 200 * 100).toFixed(0)}%</span>
           <span>Pipeline: ACTIVE</span>
         </div>

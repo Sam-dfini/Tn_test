@@ -177,9 +177,12 @@ export interface Notification {
   priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   title: string;
   message: string;
+  // DB schema stores action as flat columns; code may pass either format
   action_label?: string;
   action_event?: string;
   action_detail?: any;
+  // Convenience object form — notificationService converts to flat before DB insert
+  action?: { label: string; event: string; detail?: any };
   read: boolean;
   created_at: string;
 }

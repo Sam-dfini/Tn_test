@@ -76,21 +76,21 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Classification:</span>
-            <span className="text-white">Top Secret // Intel-Alpha</span>
+            <span className="text-on-surface">Top Secret // Intel-Alpha</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Division:</span>
-            <span className="text-white">Political Intelligence (PID)</span>
+            <span className="text-on-surface">Political Intelligence (PID)</span>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Last Update:</span>
-            <span className="text-white">{new Date().toISOString().split('T')[0]} 06:00 Z</span>
+            <span className="text-on-surface">{new Date().toISOString().split('T')[0]} 06:00 Z</span>
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-intel-cyan font-bold">Analyst:</span>
-            <span className="text-white">AI-SIGINT-09</span>
+            <span className="text-on-surface">AI-SIGINT-09</span>
           </div>
         </div>
       </div>
@@ -177,7 +177,7 @@ export const PoliticalIntelligence: React.FC<{ context?: any }> = ({ context }) 
         <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 p-4 md:p-6 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/10">
           <ShieldAlert className="w-5 h-5 md:w-6 md:h-6 text-intel-cyan shrink-0 mt-1" />
           <div className="space-y-2">
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider">Intelligence Advisory</h4>
+            <h4 className="text-sm font-bold text-on-surface uppercase tracking-wider">Intelligence Advisory</h4>
             <p className="text-[11px] md:text-xs text-slate-400 leading-relaxed">
               This dossier is compiled from multi-source intelligence including satellite imagery of protest hotspots, 
               NLP-driven social media sentiment analysis, and field reports from civil society monitors. 

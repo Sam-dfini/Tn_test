@@ -182,7 +182,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
           <Clock className={cn("w-5 h-5 shrink-0", eidShock ? "text-red-300 animate-pulse" : "text-red-400")} />
           <div>
             <div className={cn("text-[11px] font-bold font-mono uppercase tracking-widest", 
-              eidShock ? "text-white" : "text-red-400")}>
+              eidShock ? "text-on-surface" : "text-red-400")}>
               {eidShock ? '⚠️ SHOCK ALERT TRIGGERED: ' : ''}
               Eid al-Adha 2026 — {eidDaysTo} Days · Projected Sheep Deficit: {(sheepDeficit * 100).toFixed(1)}%
             </div>
@@ -212,7 +212,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
         >
           <div className="flex items-start gap-4">
             <div className="bg-red-500 rounded p-2">
-              <Zap className="w-5 h-5 text-white" />
+              <Zap className="w-5 h-5 text-on-surface" />
             </div>
             <div className="flex-1">
               <div className="text-[12px] font-bold font-mono text-red-100 uppercase tracking-tighter mb-1">
@@ -337,7 +337,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
                       g.social_risk === 'HIGH' ? 'border-orange-500/20' : 'border-intel-border'
                     )}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold text-white">{g.gov}</span>
+                        <span className="text-[10px] font-mono font-bold text-on-surface">{g.gov}</span>
                         <div className="flex items-center gap-2">
                           <span className={cn('text-[10px] font-mono font-bold', g.deficit > 45 ? 'text-red-400' : g.deficit > 30 ? 'text-orange-400' : 'text-yellow-400')}>
                             −{g.deficit}%
@@ -380,7 +380,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
                       r.risk === 'HIGH' ? 'border-orange-500/20' : 'border-intel-border'
                     )}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold text-white">{r.stage}</span>
+                        <span className="text-[10px] font-mono font-bold text-on-surface">{r.stage}</span>
                         <RiskBadge level={r.risk} />
                       </div>
                       <p className="text-[9px] font-mono text-slate-400">{r.issue}</p>
@@ -404,7 +404,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
                     <div key={generateStableKey(s, i, 'osint')} className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0">
                       <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0', s.heat === 'CRITICAL' ? 'bg-red-500/20' : 'bg-orange-500/20')}>🥩</div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-mono text-white">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
+                        <div className="text-[10px] font-mono text-on-surface">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
                         <div className="text-[8px] font-mono text-slate-500">{s.meaning}</div>
                       </div>
                       <RiskBadge level={s.heat} />
@@ -435,7 +435,7 @@ export const LivestockMeatIntelligence: React.FC = () => {
                         const distortion = Math.round(((r.lamb_kg - r.official_lamb) / r.official_lamb) * 100);
                         return (
                           <tr key={generateStableKey(r, i, 'price')} className="hover:bg-white/[0.02]">
-                            <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{r.region}</td>
+                            <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{r.region}</td>
                             <td className={cn('py-2.5 text-[10px] font-mono pr-4 font-bold', r.lamb_kg > 40 ? 'text-red-400' : 'text-orange-400')}>{r.lamb_kg}</td>
                             <td className="py-2.5 text-[9px] font-mono text-slate-400 pr-4">{r.beef_kg}</td>
                             <td className="py-2.5 text-[9px] font-mono text-intel-cyan pr-4">{r.official_lamb}</td>

@@ -75,7 +75,7 @@ export const AgentObservability: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-mono font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+        <h3 className="text-sm font-mono font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
           <Activity className="w-4 h-4 text-intel-cyan" />
           <span>Agent Observability</span>
         </h3>
@@ -104,7 +104,7 @@ export const AgentObservability: React.FC = () => {
                   }`} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white tracking-tight">{agent.name}</h4>
+                  <h4 className="text-xs font-bold text-on-surface tracking-tight">{agent.name}</h4>
                   <p className="text-[9px] font-mono text-slate-500 uppercase">{agent.type}</p>
                 </div>
               </div>
@@ -155,11 +155,11 @@ export const AgentObservability: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="space-y-1">
             <div className="text-[9px] font-mono text-slate-500 uppercase">API Calls</div>
-            <div className="text-xl font-bold text-white font-mono">{data?.system_health.metrics.api_calls}</div>
+            <div className="text-xl font-bold text-on-surface font-mono">{data?.system_health.metrics.api_calls}</div>
           </div>
           <div className="space-y-1">
             <div className="text-[9px] font-mono text-slate-500 uppercase">Tasks Completed</div>
-            <div className="text-xl font-bold text-white font-mono">{data?.system_health.metrics.agent_tasks}</div>
+            <div className="text-xl font-bold text-on-surface font-mono">{data?.system_health.metrics.agent_tasks}</div>
           </div>
           <div className="space-y-1">
             <div className="text-[9px] font-mono text-slate-500 uppercase">Anomalies</div>

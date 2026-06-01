@@ -116,7 +116,7 @@ export const NotificationToast: React.FC = () => {
   const Icon = toast ? (ICON_MAP[toast.type] ?? AlertTriangle) : null;
 
   return (
-    <div className="fixed z-[10000] pointer-events-none
+    <div className="fixed z-toast pointer-events-none
       bottom-4 left-4 right-4 flex flex-col-reverse gap-3
       sm:top-20 sm:bottom-auto sm:right-5 sm:left-auto sm:w-[360px] sm:flex-col">
       <AnimatePresence>

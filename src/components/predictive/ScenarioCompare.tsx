@@ -188,7 +188,7 @@ Direct, analytical, specific. No hedging. Under 200 words.`;
         </div>
         <div className="sc-page-hdr-right">
           <span className="sc-page-meta">Baseline: R(t)={rriState.rri.toFixed(2)} · P_rev={Math.round(rriState.p_rev * 100)}%</span>
-          <button onClick={handleRun} className="sc-run-btn">▶ RUN</button>
+          <button onClick={handleRun} disabled={isSynthesizing} className="sc-run-btn" style={isSynthesizing ? {opacity: 0.5, cursor: "not-allowed"} : undefined}>{isSynthesizing ? "RUNNING..." : "▶ RUN"}</button>
         </div>
       </div>
 

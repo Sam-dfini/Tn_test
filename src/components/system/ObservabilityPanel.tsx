@@ -128,7 +128,7 @@ const MetricCard: React.FC<{ label: string; value: number; icon: any; color: str
         <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">{label}</span>
         <Icon className={`w-4 h-4 ${color}`} />
       </div>
-      <span className="text-2xl font-bold text-white font-mono tracking-tighter">{value.toLocaleString()}</span>
+      <span className="text-2xl font-bold text-on-surface font-mono tracking-tighter">{value.toLocaleString()}</span>
     </div>
   </div>
 );
@@ -140,7 +140,7 @@ const StatusCard: React.FC<{ label: string; value: string; subValue: string; sta
       <div className={`w-2 h-2 rounded-full ${status === 'OK' ? 'bg-emerald-500' : status === 'WARNING' ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
     </div>
     <div className="flex items-baseline gap-2">
-      <span className="text-xl font-bold text-white font-mono">{value}</span>
+      <span className="text-xl font-bold text-on-surface font-mono">{value}</span>
       <span className="text-[10px] opacity-40">{status}</span>
     </div>
     <span className="text-[9px] uppercase tracking-wider text-white/20">{subValue}</span>

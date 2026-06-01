@@ -180,7 +180,7 @@ export default function TacticalMap() {
 
       {/* Mocking a click for development since GeoJSON is empty/wrong */}
       <button 
-         className="absolute right-4 top-4 z-10 rounded bg-[#3b82f6] px-3 py-1 text-xs font-bold text-white opacity-20 hover:opacity-100"
+         className="absolute right-4 top-4 z-10 rounded bg-[#3b82f6] px-3 py-1 text-xs font-bold text-on-surface opacity-20 hover:opacity-100"
          onClick={() => setSelectedGovernorate('KAIROUAN')}
       >
         DEV: Select Kairouan

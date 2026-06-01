@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { SystemAlert, AlertCluster } from '../types/alert';
 import { PipelineContext } from './PipelineContext';
 import { useRSS } from './RSSContext';
@@ -23,6 +23,8 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const { data, rriState, sbdeResult, agroSummary } = useContext(PipelineContext);
   const { articles } = useRSS();
   const { addNotification } = useNotifications();
+
+  const processedArticleIds = useRef<Set<string>>(new Set());
 
   const [alerts, setAlerts] = useState<SystemAlert[]>(() => {
     try {
@@ -125,20 +127,24 @@ export const AlertProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // 3. TACTICAL Escalations (from RSS / Events)
   useEffect(() => {
-    // Process the 5 most recent articles
-    const recentArticles = articles.slice(0, 5);
+    const recentArticles = articles.slice(0, 10);
     recentArticles.forEach(article => {
-      // Simple keyword heuristics for tactical alerts
+      const id = (article as any).id || article.title;
+      if (processedArticleIds.current.has(id)) return;
       const lowerTitle = article.title.toLowerCase();
-      if (lowerTitle.includes('protest') || lowerTitle.includes('strike') || lowerTitle.includes('ugtt')) {
+      const lowerSummary = (article.summary || '').toLowerCase();
+      const isLabor = lowerTitle.includes('protest') || lowerTitle.includes('strike')
+        || lowerTitle.includes('ugtt') || lowerSummary.includes('protest') || lowerSummary.includes('strike');
+      if (isLabor) {
         addAlert({
-          title: `Labor/Social Event: ${article.title.substring(0, 40)}...`,
-          message: article.summary.substring(0, 100) + '...',
+          title: `Labor/Social: ${article.title.substring(0, 50)}`,
+          message: (article.summary || '').substring(0, 120),
           severity: 'TACTICAL',
           domain: 'SOCIAL',
-          source: (article as any).source || 'RSS Feed',
-          governorates: (article as any).locations || []
+          source: (article as any).source_name || (article as any).source || 'RSS Feed',
+          governorates: (article as any).locations || [],
         });
+        processedArticleIds.current.add(id);
       }
     });
   }, [articles, addAlert]);

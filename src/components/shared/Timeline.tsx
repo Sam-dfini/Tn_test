@@ -103,7 +103,7 @@ export const Timeline: React.FC = () => {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Events', value: stats.total, color: 'text-white' },
+          { label: 'Total Events', value: stats.total, color: 'text-on-surface' },
           { label: 'Last 30 Days', value: stats.last30, color: 'text-intel-cyan' },
           { label: 'High Severity', value: stats.highSeverity, color: 'text-intel-red' },
           { label: 'RRI Impacting', value: stats.rriEvents, color: 'text-intel-orange' },
@@ -124,7 +124,7 @@ export const Timeline: React.FC = () => {
         <>
           <div className="flex flex-col items-center text-center space-y-4">
             <div>
-              <h2 className="text-2xl tracking-tight text-white">Intelligence Timeline</h2>
+              <h2 className="text-2xl tracking-tight text-on-surface">Intelligence Timeline</h2>
               <p className="text-slate-500 text-sm mt-1">Chronological event database with type and severity classification</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export const Timeline: React.FC = () => {
               placeholder="Search intelligence database..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
             />
           </div>
           <button 
@@ -178,7 +178,7 @@ export const Timeline: React.FC = () => {
             <select 
               value={govFilter}
               onChange={(e) => setGovFilter(e.target.value)}
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
             >
               {governorates.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
             </select>
@@ -192,7 +192,7 @@ export const Timeline: React.FC = () => {
                 placeholder="Filter by actor (e.g. UGTT)..."
                 value={actorFilter}
                 onChange={(e) => setActorFilter(e.target.value)}
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                className="w-full bg-black/40 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
               />
             </div>
           </div>
@@ -242,7 +242,7 @@ export const Timeline: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="text-sm font-bold text-white uppercase tracking-tight mb-2 group-hover/card:text-intel-cyan transition-colors">{event.title}</div>
+                <div className="text-sm font-bold text-on-surface uppercase tracking-tight mb-2 group-hover/card:text-intel-cyan transition-colors">{event.title}</div>
                 <p className="text-xs text-slate-400 leading-relaxed mb-4">{event.summary}</p>
                 
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -257,7 +257,7 @@ export const Timeline: React.FC = () => {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1.5">
                       <MapPin className="w-3 h-3 text-slate-500" />
-                      <span className="text-[8px] font-mono text-white uppercase font-bold">{event.gov}</span>
+                      <span className="text-[8px] font-mono text-on-surface uppercase font-bold">{event.gov}</span>
                     </div>
                     <div className="flex items-center space-x-1.5">
                       <ExternalLink className="w-3 h-3 text-slate-500" />

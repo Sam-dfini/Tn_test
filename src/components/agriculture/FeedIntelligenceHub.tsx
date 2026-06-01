@@ -245,7 +245,7 @@ const ALERT_COLORS: Record<number, { bg: string; border: string; text: string; l
   2: { bg: 'bg-yellow-400/10', border: 'border-yellow-400/30', text: 'text-yellow-400', label: '● WATCH' },
   3: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400', label: '● PRESSURE' },
   4: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', label: '● CRISIS' },
-  5: { bg: 'bg-black border', border: 'border-white/20', text: 'text-white', label: '⚫ SYSTEMIC COLLAPSE' },
+  5: { bg: 'bg-black border', border: 'border-white/20', text: 'text-on-surface', label: '⚫ SYSTEMIC COLLAPSE' },
 };
 
 // ─── SUB-COMPONENTS ───────────────────────────────────────────────────────────
@@ -279,7 +279,7 @@ const SectionHeader: React.FC<{ icon: React.ElementType; title: string; badge?: 
   <div className="flex items-center justify-between border-b border-intel-border/30 pb-3">
     <div className="flex items-center space-x-2">
       <Icon className="w-4 h-4 text-amber-400" />
-      <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">{title}</h3>
+      <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">{title}</h3>
     </div>
     {badge && <span className={cn('text-[8px] font-mono px-2 py-0.5 rounded border uppercase', badgeColor)}>{badge}</span>}
   </div>
@@ -383,7 +383,7 @@ export const FeedIntelligenceHub: React.FC = () => {
         ]).map((s: any, i: number) => (
           <div key={generateStableKey(s, i, 'sector')} className="glass rounded-xl border border-intel-border p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-mono text-white">{s.sector}</span>
+              <span className="text-[10px] font-mono text-on-surface">{s.sector}</span>
               <span className="text-[8px] font-mono text-slate-600">{s.days}d lag</span>
             </div>
             <div className={cn('text-xl font-bold font-mono', s.color)}>FPI×{s.fpi.toFixed(2)}</div>
@@ -480,8 +480,8 @@ export const FeedIntelligenceHub: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {prepareList(commodityPrices).map((c: any, i: number) => (
                         <tr key={generateStableKey(c, i, 'comm')} className="hover:bg-white/[0.02]">
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{c.name}</td>
-                          <td className="py-2.5 text-[10px] font-mono text-white pr-4">{c.price} {c.unit}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{c.name}</td>
+                          <td className="py-2.5 text-[10px] font-mono text-on-surface pr-4">{c.price} {c.unit}</td>
                           <td className="py-2.5 text-[9px] font-mono text-slate-500 pr-4">{c.baseline} {c.unit}</td>
                           <td className="py-2.5 pr-4">
                             <span className={cn('text-[10px] font-bold font-mono', c.change > 25 ? 'text-red-400' : c.change > 15 ? 'text-orange-400' : 'text-yellow-400')}>
@@ -511,7 +511,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {prepareList(SEASONAL_EVENTS).map((e: any, i: number) => (
                         <tr key={generateStableKey(e, i, 'event')} className="hover:bg-white/[0.02]">
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-3">{e.name}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-3">{e.name}</td>
                           <td className="py-2.5 text-[9px] font-mono text-slate-500 pr-3">{e.start}</td>
                           {[e.poultry, e.meat, e.dairy, e.feed].map((val, j) => (
                             <td key={j} className={cn('py-2.5 text-[9px] font-mono pr-3',
@@ -563,7 +563,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                   {prepareList(stockLevelData).map((s: any, i: number) => (
                     <div key={generateStableKey(s, i, 'stock')} className="space-y-1">
                       <div className="flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-white">{s.item}</span>
+                        <span className="text-on-surface">{s.item}</span>
                         <div className="flex items-center gap-3">
                           <span className="text-slate-600">Critical: {s.critical}d</span>
                           <span className={cn('font-bold', s.days < s.critical ? 'text-red-400' : 'text-emerald-400')}>
@@ -616,14 +616,14 @@ export const FeedIntelligenceHub: React.FC = () => {
                     {prepareList(importOrigins).map((o: any, i: number) => (
                       <div key={generateStableKey(o, i, 'origin')} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                         <div>
-                          <div className="text-[10px] font-mono text-white">{o.country}</div>
+                          <div className="text-[10px] font-mono text-on-surface">{o.country}</div>
                           <div className="text-[8px] font-mono text-slate-600">{o.commodity}</div>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-20 h-1.5 bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full rounded-full bg-amber-400/60" style={{ width: `${o.share}%` }} />
                           </div>
-                          <span className="text-[9px] font-mono font-bold text-white w-8">{o.share}%</span>
+                          <span className="text-[9px] font-mono font-bold text-on-surface w-8">{o.share}%</span>
                           <RiskBadge level={o.risk} />
                         </div>
                       </div>
@@ -674,7 +674,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {prepareList(fodderByGovernorate).map((row: any, i: number) => (
                         <tr key={generateStableKey(row, i, 'gov')} className="hover:bg-white/[0.02]">
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{row.gov}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{row.gov}</td>
                           <td className="py-2.5 pr-4">
                             <div className="flex items-center gap-2">
                               <div className="w-12 h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -751,7 +751,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                       { label: 'Dairy FPI +20%', arrow: '→', outcome: 'Butter crisis (butter_stock &lt; 14d)', days: '60d', color: 'text-red-400' },
                     ]).map((step: any, i: number) => (
                       <div key={generateStableKey(step, i, 'impact')} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
-                        <span className="text-[9px] font-mono text-white w-36 shrink-0">{step.label}</span>
+                        <span className="text-[9px] font-mono text-on-surface w-36 shrink-0">{step.label}</span>
                         <ArrowRight className="w-3 h-3 text-slate-600 shrink-0 mt-0.5" />
                         <span className={cn('text-[9px] font-mono flex-1', step.color)}>{step.outcome}</span>
                         <span className="text-[8px] font-mono text-slate-600 shrink-0">{step.days}</span>
@@ -802,9 +802,9 @@ export const FeedIntelligenceHub: React.FC = () => {
                         const distortion = Math.round(((row.street - row.official) / row.official) * 100);
                         return (
                           <tr key={generateStableKey(row, i, 'bm-item')} className="hover:bg-white/[0.02]">
-                            <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-3">{row.type}</td>
+                            <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-3">{row.type}</td>
                             <td className="py-2.5 text-[10px] font-mono text-slate-400 pr-3">{row.official}</td>
-                            <td className="py-2.5 text-[10px] font-mono text-white font-bold pr-3">{row.street}</td>
+                            <td className="py-2.5 text-[10px] font-mono text-on-surface font-bold pr-3">{row.street}</td>
                             <td className="py-2.5 pr-3">
                               <span className={cn('text-[10px] font-mono font-bold', distortion > 60 ? 'text-red-400' : distortion > 40 ? 'text-orange-400' : 'text-yellow-400')}>
                                 +{distortion}%
@@ -834,7 +834,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                       )}>🔥</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3">
-                          <span className="text-white font-mono text-sm">{s.term}</span>
+                          <span className="text-on-surface font-mono text-sm">{s.term}</span>
                           <span className="text-slate-600 font-mono text-xs" dir="rtl">{s.arabic}</span>
                         </div>
                         <div className="text-[9px] font-mono text-slate-500 mt-0.5">{s.meaning}</div>
@@ -958,7 +958,7 @@ export const FeedIntelligenceHub: React.FC = () => {
                       <RiskBadge level={r.priority === 'IMMEDIATE' ? 'CRITICAL' : r.priority === 'URGENT' ? 'HIGH' : 'MEDIUM'} />
                       <span className="text-[9px] font-mono text-slate-600 uppercase">{r.priority}</span>
                     </div>
-                    <p className="text-[10px] font-mono text-white leading-relaxed">{r.action}</p>
+                    <p className="text-[10px] font-mono text-on-surface leading-relaxed">{r.action}</p>
                     <p className="text-[9px] font-mono text-emerald-400">→ Expected impact: {r.impact}</p>
                   </div>
                 ))}

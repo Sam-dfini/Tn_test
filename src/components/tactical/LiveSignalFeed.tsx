@@ -156,7 +156,7 @@ export const LiveSignalFeed: React.FC<{
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Radio className="w-4 h-4 text-intel-yellow" />
-          <span className="text-[10px] font-mono text-white uppercase tracking-widest">
+          <span className="text-[10px] font-mono text-on-surface uppercase tracking-widest">
             {title}
           </span>
           <TruthBadge truthClass="LIVE" />
@@ -173,7 +173,7 @@ export const LiveSignalFeed: React.FC<{
             {filters.map((f: any) => (
               <button key={f}
                 onClick={() => setFilter(f)}
-                className={`text-[7px] font-mono uppercase px-2 py-1 rounded
+                className={`text-[9px] font-mono uppercase px-2 py-1 rounded
                   transition-all ${
                   filter === f
                     ? 'bg-intel-yellow/10 text-intel-yellow border border-intel-yellow/20'

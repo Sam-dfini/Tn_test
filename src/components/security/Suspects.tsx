@@ -49,7 +49,7 @@ export const Suspects: React.FC = () => {
                       <UserX className="w-4 h-4 text-slate-500" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-white uppercase">{s.name}</div>
+                      <div className="text-xs font-bold text-on-surface uppercase">{s.name}</div>
                       <div className="text-[10px] font-mono text-slate-500 uppercase">{s.role}</div>
                     </div>
                   </div>
@@ -61,7 +61,7 @@ export const Suspects: React.FC = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <div className="text-xs font-bold font-mono text-white">{s.days}</div>
+                    <div className="text-xs font-bold font-mono text-on-surface">{s.days}</div>
                     <span className="text-[10px] text-slate-500 uppercase">Days</span>
                   </div>
                 </td>

@@ -61,7 +61,7 @@ export default function GovernoratePanel() {
             key={`subtab-${tab.id}`}
             onClick={() => setActiveSubTab(tab.id as any)}
             className={clsx(
-              "flex-1 rounded px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all outline-none",
+              "flex-1 rounded px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all outline-none focus-visible:ring-2 focus-visible:ring-intel-cyan/50",
               activeSubTab === tab.id 
                 ? "bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/30" 
                 : "text-[#94a3b8] hover:text-[#f1f5f9] hover:bg-white/5"
@@ -166,7 +166,7 @@ export default function GovernoratePanel() {
              <div className="space-y-2">
                <div className="flex justify-between text-xs p-2 bg-[#0a0f1a] rounded">
                  <span className="text-[#94a3b8]">Chicken Price:</span>
-                 <span className="text-white font-bold">14.20 TND <span className="text-[#ef4444] ml-1">↑</span></span>
+                 <span className="text-on-surface font-bold">14.20 TND <span className="text-[#ef4444] ml-1">↑</span></span>
                </div>
                <div className="flex justify-between text-xs p-2 bg-[#0a0f1a] rounded">
                  <span className="text-[#94a3b8]">Egg Availability:</span>

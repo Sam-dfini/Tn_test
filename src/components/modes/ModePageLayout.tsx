@@ -11,7 +11,7 @@ export const ModePageLayout: React.FC<ModePageLayoutProps> = ({ children, header
       {/* Header */}
       <header className="h-16 border-b border-slate-800 flex items-center justify-between px-4 md:px-6">
         <div className="text-lg md:text-xl font-bold tracking-widest">
-          <span className="text-white">TUNISIA</span>
+          <span className="text-on-surface">TUNISIA</span>
           <span className="text-intel-cyan"> INTEL</span>
         </div>
         <div className="flex items-center space-x-4 md:space-x-6">

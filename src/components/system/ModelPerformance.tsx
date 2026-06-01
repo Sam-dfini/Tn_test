@@ -242,7 +242,7 @@ const CorrectionForm: React.FC<{
               border border-intel-border/30">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="text-[7px] text-slate-600 mb-1">Equation</div>
+                  <div className="text-[9px] text-slate-600 mb-1">Equation</div>
                   <input
                     value={equation}
                     onChange={e => setEquation(e.target.value)}
@@ -252,7 +252,7 @@ const CorrectionForm: React.FC<{
                   />
                 </div>
                 <div>
-                  <div className="text-[7px] text-slate-600 mb-1">Parameter</div>
+                  <div className="text-[9px] text-slate-600 mb-1">Parameter</div>
                   <input
                     value={parameter}
                     onChange={e => setParameter(e.target.value)}
@@ -264,7 +264,7 @@ const CorrectionForm: React.FC<{
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="text-[7px] text-slate-600 mb-1">Direction</div>
+                  <div className="text-[9px] text-slate-600 mb-1">Direction</div>
                   <select
                     value={direction}
                     onChange={e => setDirection(e.target.value as any)}
@@ -276,7 +276,7 @@ const CorrectionForm: React.FC<{
                   </select>
                 </div>
                 <div>
-                  <div className="text-[7px] text-slate-600 mb-1">Magnitude</div>
+                  <div className="text-[9px] text-slate-600 mb-1">Magnitude</div>
                   <select
                     value={magnitude}
                     onChange={e => setMagnitude(e.target.value as any)}
@@ -290,7 +290,7 @@ const CorrectionForm: React.FC<{
                 </div>
               </div>
               <div>
-                <div className="text-[7px] text-slate-600 mb-1">Reasoning</div>
+                <div className="text-[9px] text-slate-600 mb-1">Reasoning</div>
                 <textarea
                   value={reasoning}
                   onChange={e => setReasoning(e.target.value)}
@@ -605,7 +605,7 @@ export const ModelPerformance: React.FC = () => {
             label: 'Total Predictions',
             value: performance.totalPredictions.toString(),
             sub: `${performance.evaluated} evaluated · ${performance.pending} pending`,
-            color: 'text-white',
+            color: 'text-on-surface',
           },
           {
             label: 'False Positive Rate',
@@ -634,7 +634,7 @@ export const ModelPerformance: React.FC = () => {
             <div className={`text-xl font-bold font-mono ${kpi.color}`}>
               {kpi.value}
             </div>
-            <div className="text-[7px] text-slate-700 leading-snug">{kpi.sub}</div>
+            <div className="text-[9px] text-slate-700 leading-snug">{kpi.sub}</div>
           </div>
         ))}
       </div>
@@ -843,7 +843,7 @@ export const ModelPerformance: React.FC = () => {
                     <div key={s.variable}
                       className="glass p-4 rounded-xl border border-intel-border/30 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-white">
+                        <span className="text-[10px] font-bold text-on-surface">
                           {VAR_LABELS[s.variable] ?? s.variable}
                         </span>
                         <div className="flex items-center space-x-3">
@@ -864,7 +864,7 @@ export const ModelPerformance: React.FC = () => {
                           const hd = s.byHorizon[h];
                           return (
                             <div key={h} className="text-center">
-                              <div className="text-[7px] font-mono text-slate-700">
+                              <div className="text-[9px] font-mono text-slate-700">
                                 {HORIZON_LABELS[h]}
                               </div>
                               <div className={`text-[9px] font-mono font-bold ${
@@ -874,7 +874,7 @@ export const ModelPerformance: React.FC = () => {
                               }`}>
                                 {hd.total === 0 ? '—' : `${Math.round(hd.hitRate * 100)}%`}
                               </div>
-                              <div className="text-[6px] text-slate-800">
+                              <div className="text-[9px] text-slate-800">
                                 {hd.total > 0 ? `n=${hd.total}` : ''}
                               </div>
                             </div>
@@ -1002,7 +1002,7 @@ export const ModelPerformance: React.FC = () => {
                           <span className="text-[8px] font-mono text-slate-600">
                             {rec.magnitude}
                           </span>
-                          <span className="text-[7px] font-mono px-1.5 py-0.5 rounded
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded
                             bg-intel-purple/20 border border-intel-purple/30 text-intel-purple">
                             {rec.evidenceCount} corrections
                           </span>
@@ -1146,7 +1146,7 @@ export const ModelPerformance: React.FC = () => {
               <div className="glass p-6 rounded-2xl border border-intel-purple/20 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">
                       Automated Backtesting
                     </h3>
                     <p className="text-[10px] text-slate-500 font-mono uppercase">

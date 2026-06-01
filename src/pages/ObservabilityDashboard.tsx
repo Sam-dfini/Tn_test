@@ -89,7 +89,7 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
   return (
     <div className="h-screen overflow-hidden bg-[#050505] text-white/90 selection:bg-intel-cyan selection:text-black flex flex-col">
       {/* Header */}
-      <div className="h-16 border-b border-white/5 bg-black/60 backdrop-blur-xl flex items-center justify-between px-8 shrink-0 z-[100]">
+      <div className="h-16 border-b border-white/5 bg-black/60 backdrop-blur-xl flex items-center justify-between px-8 shrink-0 z-sticky">
         <div className="flex items-center gap-6">
           <button onClick={onBack} className="p-2 hover:bg-white/5 rounded-full transition-colors">
             <ArrowLeft className="w-5 h-5 text-white/40 hover:text-white" />
@@ -113,7 +113,7 @@ export const ObservabilityDashboard: React.FC<{ onBack: () => void }> = ({ onBac
              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-[10px] transition-all uppercase ${
                isPaused 
                  ? 'bg-amber-500 text-black animate-pulse' 
-                 : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+                 : 'bg-white/10 text-on-surface hover:bg-white/20 border border-white/10'
              }`}
            >
              {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}

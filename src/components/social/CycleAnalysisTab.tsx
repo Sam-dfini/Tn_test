@@ -76,7 +76,7 @@ const EquationCard: React.FC<{
             </span>
           )}
         </div>
-        <h3 className="text-white font-bold text-xs md:text-sm uppercase tracking-wider">{title}</h3>
+        <h3 className="text-on-surface font-bold text-xs md:text-sm uppercase tracking-wider">{title}</h3>
       </div>
       {currentOutput && (
         <div className="text-left sm:text-right">
@@ -272,7 +272,7 @@ export const CycleAnalysisTab: React.FC = () => {
       <div className="space-y-3 pb-4 border-b border-white/5">
         <div className="flex items-center space-x-3">
           <RotateCcw className="w-6 h-6 text-intel-cyan" />
-          <h2 className="text-xl font-bold text-white uppercase tracking-widest">Temporal Cycle Analysis</h2>
+          <h2 className="text-xl font-bold text-on-surface uppercase tracking-widest">Temporal Cycle Analysis</h2>
         </div>
         <p className="text-slate-400 text-xs leading-relaxed max-w-4xl">
           The RRI model utilizes a multi-temporal approach to risk assessment. History does not repeat, but it rhymes through predictable institutional and social cycles. By mapping 1-year seasonal stress, 30-year leadership dynamics, 120-year regime patterns, and 500-year civilizational shifts, we identify points of maximum structural convergence.
@@ -323,7 +323,7 @@ export const CycleAnalysisTab: React.FC = () => {
             onClick={() => setActiveSubTab(tab.id as any)}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-[10px] font-bold font-mono transition-all whitespace-nowrap ${
               activeSubTab === tab.id 
-                ? 'bg-white/10 text-white shadow-lg' 
+                ? 'bg-white/10 text-on-surface shadow-lg' 
                 : 'text-slate-500 hover:text-white hover:bg-white/5'
             }`}
           >
@@ -778,7 +778,7 @@ const AccelTab = ({ accel, data }: any) => {
           </div>
           <div className="text-[10px] text-slate-400 leading-relaxed mb-2">{accel.interpretation}</div>
           <div className="text-[9px] font-mono text-slate-500">
-            Feedback: A(t+1) = {accel.At.toFixed(3)} × (1+{accel.feedback.toFixed(3)}) = <span className="font-bold text-white">{accel.At_next.toFixed(3)}</span>
+            Feedback: A(t+1) = {accel.At.toFixed(3)} × (1+{accel.feedback.toFixed(3)}) = <span className="font-bold text-on-surface">{accel.At_next.toFixed(3)}</span>
           </div>
         </div>
       </div>

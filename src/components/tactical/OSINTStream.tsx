@@ -145,7 +145,7 @@ JSON structure:
               </div>
               <div className="flex space-x-1">
                 {prepareList(n.tags).map((t: any, j) => (
-                  <span key={assertKey(getRenderKey(t, j, 'tag'))} className="text-[7px] font-mono font-bold px-1 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded uppercase">
+                  <span key={assertKey(getRenderKey(t, j, 'tag'))} className="text-[9px] font-mono font-bold px-1 bg-intel-cyan/10 text-intel-cyan border border-intel-cyan/20 rounded uppercase">
                     {typeof t === 'string' ? t : t.value}
                   </span>
                 ))}
@@ -159,10 +159,10 @@ JSON structure:
       </div>
 
       <div className="mt-4 pt-2 border-t border-intel-border flex justify-between items-center">
-        <div className="text-[7px] font-mono text-slate-600 uppercase">Region: North Africa // Sector: Tunisia</div>
+        <div className="text-[9px] font-mono text-slate-600 uppercase">Region: North Africa // Sector: Tunisia</div>
         <button 
           onClick={fetchOsintData}
-          className="text-[7px] font-mono text-intel-cyan hover:underline uppercase"
+          className="text-[9px] font-mono text-intel-cyan hover:underline uppercase"
         >
           Force Refresh
         </button>

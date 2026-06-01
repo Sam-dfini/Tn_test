@@ -264,7 +264,7 @@ const RestrictedOverlay: React.FC<{ tier: string }> = ({ tier }) => (
         <Lock className="w-10 h-10 text-intel-purple" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold text-white uppercase tracking-tighter">Upgrade Required</h2>
+        <h2 className="text-2xl font-bold text-on-surface uppercase tracking-tighter">Upgrade Required</h2>
         <p className="text-sm text-slate-400 font-mono uppercase tracking-widest">
           {tier} Access Required for this module
         </p>
@@ -274,7 +274,7 @@ const RestrictedOverlay: React.FC<{ tier: string }> = ({ tier }) => (
         available only to {tier === 'STRATEGIC' ? 'Executive Command' : 'Senior Analyst'} personnel. 
         Contact System Administrator to request clearance elevation.
       </p>
-      <button className="px-8 py-3 bg-intel-purple text-white text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-intel-purple-bright transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)]">
+      <button className="px-8 py-3 bg-intel-purple text-on-surface text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-intel-purple-bright transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)]">
         Request Clearance Elevation
       </button>
     </div>
@@ -497,7 +497,7 @@ const ForecastPanel: React.FC = () => {
       <div className="px-5 py-4 border-b border-intel-border/30 bg-white/5 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Clock className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-[10px] font-mono text-white uppercase tracking-widest">
+          <h3 className="text-[10px] font-mono text-on-surface uppercase tracking-widest">
             Predictive 14-Day Cascade Forecast
           </h3>
         </div>
@@ -1159,14 +1159,14 @@ Return only the 3-sentence briefing.`;
       {/* Global Overlay Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-[60] backdrop-blur-md"
+          className="fixed inset-0 bg-black/60 z-drawer backdrop-blur-md"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
       <div
-        className={`fixed z-[70] top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-3xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
+        className={`fixed z-drawer top-0 bottom-0 left-0 h-full bg-black/40 backdrop-blur-3xl border-r border-white/10 flex flex-col shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${
           sidebarOpen
             ? "w-64 translate-x-0"
             : "w-0 -translate-x-full border-r-0"
@@ -1499,7 +1499,7 @@ Return only the 3-sentence briefing.`;
               <TRGMDashboard />
             </Suspense>
           ) : activeTab === "overview" ? (
-            <div className="space-y-4 pb-6 w-full max-w-7xl mx-auto text-white">
+            <div className="space-y-4 pb-6 w-full max-w-7xl mx-auto text-on-surface">
               <ModuleHeader 
                 title="Core Intelligence Overview"
                 subtitle="Strategic synchronization of all intelligence dimensions and real-time revolutionary risk assessment"
@@ -1620,7 +1620,7 @@ Return only the 3-sentence briefing.`;
                         <div className="text-[8px] lg:text-[9px] font-mono text-slate-500 uppercase mt-1 text-center">
                           {g.label}
                         </div>
-                        <div className="text-[7px] lg:text-[8px] font-mono text-slate-600 truncate text-center">
+                        <div className="text-[9px] lg:text-[8px] font-mono text-slate-600 truncate text-center">
                           {g.sub}
                         </div>
                       </div>
@@ -1685,7 +1685,7 @@ Return only the 3-sentence briefing.`;
                           >
                             {t.val}
                           </span>
-                          <span className="text-[7px] lg:text-[8px] font-mono text-slate-600 leading-none truncate w-[40px] lg:w-[60px] text-right">
+                          <span className="text-[9px] lg:text-[8px] font-mono text-slate-600 leading-none truncate w-[40px] lg:w-[60px] text-right">
                             {t.sub}
                           </span>
                         </div>
@@ -1705,13 +1705,13 @@ Return only the 3-sentence briefing.`;
                     <div className="flex items-center space-x-3 text-[9px] font-mono text-slate-500">
                       <span className="flex flex-col text-right">
                         <span>AI R(T)</span>
-                        <span className="text-white font-bold text-[10px]">
+                        <span className="text-on-surface font-bold text-[10px]">
                           {(aiAnalysis?.rt ?? 2.8).toFixed(3)}
                         </span>
                       </span>
                       <span className="flex flex-col text-right">
                         <span>AI P_REV</span>
-                        <span className="text-white font-bold text-[10px]">
+                        <span className="text-on-surface font-bold text-[10px]">
                           {((aiAnalysis?.pRev ?? 0.909) * 100).toFixed(1)}%
                         </span>
                       </span>
@@ -1742,7 +1742,7 @@ Return only the 3-sentence briefing.`;
                   {/* Spotlight Carousel */}
                   <div className="glass rounded-xl border border-intel-border/50 relative overflow-hidden flex-1 flex flex-col min-h-[300px]">
                     <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5">
-                      <div className="flex items-center space-x-2 uppercase text-[9px] font-mono tracking-widest text-white">
+                      <div className="flex items-center space-x-2 uppercase text-[9px] font-mono tracking-widest text-on-surface">
                         <Zap className="w-3 h-3 text-intel-orange" />
                         <span>Intelligence Spotlight</span>
                       </div>
@@ -1761,7 +1761,7 @@ Return only the 3-sentence briefing.`;
                       {spotlightIndex % 4 === 0 && (
                         <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                           <div className="flex items-baseline space-x-3">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wider">
+                            <h3 className="text-xl font-bold text-on-surface uppercase tracking-wider">
                               UGTT Strike Risk
                             </h3>
                             <span className="text-3xl font-bold font-mono text-intel-orange">
@@ -1805,7 +1805,7 @@ Return only the 3-sentence briefing.`;
                       {spotlightIndex % 4 === 1 && (
                         <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                           <div className="flex items-baseline space-x-3">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wider">
+                            <h3 className="text-xl font-bold text-on-surface uppercase tracking-wider">
                               FX Reserve Runway
                             </h3>
                             <span
@@ -1857,7 +1857,7 @@ Return only the 3-sentence briefing.`;
                       {spotlightIndex % 4 === 2 && (
                         <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                           <div className="flex items-baseline space-x-3">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wider">
+                            <h3 className="text-xl font-bold text-on-surface uppercase tracking-wider">
                               Cascade Risk
                             </h3>
                             <span className="text-3xl font-bold font-mono text-intel-orange">
@@ -1900,7 +1900,7 @@ Return only the 3-sentence briefing.`;
                       {spotlightIndex % 4 === 3 && (
                         <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                           <div className="flex items-baseline space-x-3">
-                            <h3 className="text-xl font-bold text-white uppercase tracking-wider">
+                            <h3 className="text-xl font-bold text-on-surface uppercase tracking-wider">
                               Pattern Match HPS
                             </h3>
                             <span className="text-3xl font-bold font-mono text-intel-cyan">
@@ -1959,7 +1959,7 @@ Return only the 3-sentence briefing.`;
                       </span>
                     </div>
                     <div className="flex-1 flex flex-col min-w-0 pr-2">
-                      <h4 className="text-[11px] font-sans font-bold text-white leading-snug truncate w-full">
+                      <h4 className="text-[11px] font-sans font-bold text-on-surface leading-snug truncate w-full">
                         {leadStory?.title ??
                           "(🔊) Localized disruptions escalate in critical state-owned sector"}
                       </h4>
@@ -1995,7 +1995,7 @@ Return only the 3-sentence briefing.`;
                     </div>
                     <div className="flex items-center space-x-1 border border-intel-cyan/30 bg-intel-cyan/10 px-1 py-0.5 rounded">
                       <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan animate-pulse" />
-                      <span className="text-[7px] font-mono text-intel-cyan uppercase">
+                      <span className="text-[9px] font-mono text-intel-cyan uppercase">
                         Live Sync
                       </span>
                     </div>
@@ -2028,7 +2028,7 @@ Return only the 3-sentence briefing.`;
               <div className="glass rounded-xl border border-intel-border/50 overflow-hidden space-y-4 p-4">
                 <div className="flex items-center space-x-2 border-b border-white/10 pb-2 mb-2">
                   <TrendingUp className="w-4 h-4 text-intel-cyan" />
-                  <span className="text-[10px] font-mono text-white uppercase tracking-widest font-bold">
+                  <span className="text-[10px] font-mono text-on-surface uppercase tracking-widest font-bold">
                     3A: Forecast & Calibration
                   </span>
                 </div>
@@ -2038,7 +2038,7 @@ Return only the 3-sentence briefing.`;
                   <div className="flex flex-col space-y-2 h-full">
                     <div className="flex justify-between items-center text-[8px] font-mono text-slate-500 uppercase px-1">
                       <span>RRI Trend Analysis</span>
-                      <button className="flex items-center space-x-1 bg-white/10 px-1.5 py-0.5 rounded text-white hover:bg-white/20">
+                      <button className="flex items-center space-x-1 bg-white/10 px-1.5 py-0.5 rounded text-on-surface hover:bg-white/20">
                         <RotateCcw className="w-2.5 h-2.5" />
                         <span>RUN 2011 BACKTEST</span>
                       </button>
@@ -2228,14 +2228,14 @@ Return only the 3-sentence briefing.`;
                     <div className="hidden lg:flex items-center space-x-3 text-[8px] font-mono text-slate-400">
                       <span>MII=57%</span>
                       <span>19:42:08</span>
-                      <span className="text-white border-l border-white/10 pl-2">
+                      <span className="text-on-surface border-l border-white/10 pl-2">
                         R(t)=0.44
                       </span>
-                      <span className="text-white">P_rev=12%</span>
-                      <span className="text-white">V=STABLE</span>
+                      <span className="text-on-surface">P_rev=12%</span>
+                      <span className="text-on-surface">V=STABLE</span>
                       <span className="text-intel-cyan">MII=57% FREEZE</span>
-                      <span className="text-white">RPI=28%</span>
-                      <span className="text-white">SEI=42% Ph2</span>
+                      <span className="text-on-surface">RPI=28%</span>
+                      <span className="text-on-surface">SEI=42% Ph2</span>
                     </div>
                   </div>
                   <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 font-sans">
@@ -2316,7 +2316,7 @@ Return only the 3-sentence briefing.`;
                       </div>
                       <div className="text-[10px] font-sans text-slate-300">
                         Threat perception:{" "}
-                        <span className="font-bold text-white">DEFENSIVE</span>.
+                        <span className="font-bold text-on-surface">DEFENSIVE</span>.
                         Expected action:{" "}
                         <span className="text-intel-cyan">
                           Targeted Suppression (75%)
@@ -2343,8 +2343,8 @@ Return only the 3-sentence briefing.`;
                 <div className="glass rounded-xl border border-intel-border/50 p-4 relative overflow-hidden bg-gradient-to-r from-transparent to-[#0a0e17]">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-intel-cyan/40" />
                   <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-3 ml-2">
-                    <Activity className="w-3.5 h-3.5 text-white" />
-                    <span className="text-white font-bold">
+                    <Activity className="w-3.5 h-3.5 text-on-surface" />
+                    <span className="text-on-surface font-bold">
                       Strategic Outlook
                     </span>
                   </div>
@@ -2374,7 +2374,7 @@ Return only the 3-sentence briefing.`;
                           <div className="flex items-center space-x-2 text-[8px] font-mono">
                             <span className="text-slate-500">
                               CONFIDENCE:{" "}
-                              <span className="text-white">
+                              <span className="text-on-surface">
                                 {kiq.confidence}
                               </span>
                             </span>
@@ -2404,7 +2404,7 @@ Return only the 3-sentence briefing.`;
                         className={`glass rounded-lg border p-3 flex flex-col gap-2 ${h.risk === "CRITICAL" ? "border-[#ef4444]/40 bg-[#ef4444]/5" : "border-white/10"}`}
                       >
                         <div className="flex justify-between items-center">
-                          <span className="text-[12px] font-bold font-mono text-white">
+                          <span className="text-[12px] font-bold font-mono text-on-surface">
                             {h.region}
                           </span>
                           <span
@@ -2479,7 +2479,7 @@ Return only the 3-sentence briefing.`;
                           key={`actor-${idx}`}
                           className="grid grid-cols-4 p-2 border-b border-white/5 text-slate-300 items-center"
                         >
-                          <div className="font-bold text-white max-w-[80px] truncate">
+                          <div className="font-bold text-on-surface max-w-[80px] truncate">
                             {actor.name}
                           </div>
                           <div>

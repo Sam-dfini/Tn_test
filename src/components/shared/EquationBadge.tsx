@@ -38,7 +38,7 @@ export const EquationBadge: React.FC<{ eqId: string; className?: string }> = ({ 
             exit={{ opacity: 0, y: 5 }}
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-[#020810]/95 backdrop-blur-md border border-intel-border rounded-xl shadow-2xl z-50 pointer-events-none"
           >
-            <div className="text-xs font-bold text-white mb-1">{details.name}</div>
+            <div className="text-xs font-bold text-on-surface mb-1">{details.name}</div>
             <div className="text-[10px] text-intel-cyan font-mono bg-black/50 p-2 rounded border border-intel-cyan/20">
               {details.formula}
             </div>

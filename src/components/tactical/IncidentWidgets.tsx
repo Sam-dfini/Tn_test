@@ -19,7 +19,7 @@ export const FireIncidentsWidget: React.FC = () => {
     <div className="bg-black/40 border border-intel-border/30 rounded-xl p-3 space-y-3">
       <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
         <Flame className="w-4 h-4 text-intel-red" />
-        <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Fire Incidents</h3>
+        <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest">Fire Incidents</h3>
       </div>
       <div className="space-y-2">
         {prepareList(fires).map((fire: any, idx) => (
@@ -57,7 +57,7 @@ export const WaterCutsWidget: React.FC = () => {
     <div className="bg-black/40 border border-intel-border/30 rounded-xl p-3 space-y-3">
       <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
         <Droplets className="w-4 h-4 text-intel-cyan" />
-        <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Water Cuts</h3>
+        <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest">Water Cuts</h3>
       </div>
       <div className="space-y-2">
         {prepareList(cuts).map((cut: any, idx) => (
@@ -91,7 +91,7 @@ export const RoadAccidentsWidget: React.FC = () => {
     <div className="bg-black/40 border border-intel-border/30 rounded-xl p-3 space-y-3">
       <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
         <Car className="w-4 h-4 text-intel-orange" />
-        <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Road Accidents</h3>
+        <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest">Road Accidents</h3>
       </div>
       <div className="space-y-2">
         {prepareList(accidents).map((acc: any, idx) => (
@@ -126,7 +126,7 @@ export const SuicidesWidget: React.FC = () => {
     <div className="bg-black/40 border border-intel-border/30 rounded-xl p-3 space-y-3">
       <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
         <UserX className="w-4 h-4 text-slate-400" />
-        <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Suicide Intel</h3>
+        <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest">Suicide Intel</h3>
       </div>
       <div className="space-y-2">
         {prepareList(suicides).map((item: any, idx) => (
@@ -139,7 +139,7 @@ export const SuicidesWidget: React.FC = () => {
               )}>
                 {item.trend}
               </span>
-              <span className="text-[10px] font-mono font-bold text-white">
+              <span className="text-[10px] font-mono font-bold text-on-surface">
                 {item.count}
               </span>
             </div>
@@ -161,7 +161,7 @@ export const ViolenceWidget: React.FC = () => {
     <div className="bg-black/40 border border-intel-border/30 rounded-xl p-3 space-y-3">
       <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
         <ShieldAlert className="w-4 h-4 text-intel-red" />
-        <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest">Violence / Crime</h3>
+        <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest">Violence / Crime</h3>
       </div>
       <div className="space-y-2">
         {prepareList(violence).map((item: any, idx) => (
@@ -170,7 +170,7 @@ export const ViolenceWidget: React.FC = () => {
               <span className="text-[10px] font-mono text-slate-300">{item.type}</span>
               <span className={cn(
                 "text-[8px] font-mono px-1.5 py-0.5 rounded",
-                item.level === 'CRITICAL' ? 'bg-intel-red text-white' :
+                item.level === 'CRITICAL' ? 'bg-intel-red text-on-surface' :
                 item.level === 'HIGH' ? 'bg-intel-red/20 text-intel-red' :
                 'bg-intel-orange/20 text-intel-orange'
               )}>

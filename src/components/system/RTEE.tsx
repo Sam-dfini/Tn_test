@@ -39,7 +39,7 @@ export const RTEE: React.FC = () => {
 
         <div className="flex flex-col md:flex-row justify-between gap-6 pb-6 border-b border-white/5 relative z-20">
           <div className="space-y-2">
-            <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center space-x-3">
+            <h3 className="text-xl md:text-2xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
               <Cpu className="w-6 h-6 text-intel-cyan" />
               <span>Real Time Event Engine</span>
               <span className="text-[10px] uppercase font-mono font-bold text-intel-cyan bg-intel-cyan/10 px-2 py-0.5 rounded border border-intel-cyan/20 ml-2">v2.0 ACTIVE</span>
@@ -62,7 +62,7 @@ export const RTEE: React.FC = () => {
               <span className="text-slate-500 uppercase tracking-widest">Ingest Rate</span>
               <div className="flex items-center space-x-2">
                 <Zap className="w-3.5 h-3.5 text-intel-cyan" />
-                <span className="text-white font-bold">{Math.floor(Math.random() * 140) + 200} mb/s</span>
+                <span className="text-on-surface font-bold">{Math.floor(Math.random() * 140) + 200} mb/s</span>
               </div>
             </div>
           </div>
@@ -162,7 +162,7 @@ export const RTEE: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-center pb-1">
                   <span className="text-slate-400">Stream Buffer</span>
-                  <span className="text-white">45%</span>
+                  <span className="text-on-surface">45%</span>
                 </div>
                 <div className="w-full bg-black rounded-full h-1 mt-1 overflow-hidden">
                   <div className="bg-intel-cyan h-full w-[45%] rounded-full shadow-[0_0_10px_rgba(0,242,255,0.5)]"></div>

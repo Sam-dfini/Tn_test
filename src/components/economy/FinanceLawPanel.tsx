@@ -296,7 +296,7 @@ const ImpactBadge: React.FC<{ impact: FinanceLawField['rriImpact'] }> = ({ impac
 
 const ConfBadge: React.FC<{ conf: FinanceLawField['confidence'] }> = ({ conf }) => {
   const c = conf === 'HIGH' ? '#2fd158' : conf === 'MEDIUM' ? '#ff9f0a' : '#888';
-  return <span className="text-[7px] font-mono px-1 py-0.5 rounded"
+  return <span className="text-[9px] font-mono px-1 py-0.5 rounded"
     style={{ color: c, border: `1px solid ${c}44`, background: `${c}10` }}>
     {conf}
   </span>;
@@ -379,7 +379,7 @@ export const FinanceLawPanel: React.FC = () => {
               <div className="text-[10px] font-mono text-intel-orange uppercase tracking-widest">
                 Official Document Ingestion
               </div>
-              <div className="text-sm font-bold text-white">
+              <div className="text-sm font-bold text-on-surface">
                 قانون المالية لسنة 2026 — Finance Law No. 17/2025
               </div>
               <div className="text-[10px] text-slate-500">
@@ -522,7 +522,7 @@ export const FinanceLawPanel: React.FC = () => {
                             {/* Label + badges */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] font-bold text-white truncate">{field.label}</span>
+                                <span className="text-[10px] font-bold text-on-surface truncate">{field.label}</span>
                                 <span className="text-[8px] font-mono text-slate-500">{field.article}</span>
                                 <ConfBadge conf={field.confidence} />
                                 <ImpactBadge impact={field.rriImpact} />
@@ -535,13 +535,13 @@ export const FinanceLawPanel: React.FC = () => {
                             {/* Values */}
                             <div className="flex items-center gap-4 shrink-0">
                               <div className="text-right">
-                                <div className="text-[7px] text-slate-600 font-mono">CURRENT</div>
+                                <div className="text-[9px] text-slate-600 font-mono">CURRENT</div>
                                 <div className="text-[10px] font-mono text-slate-400">
                                   {current !== undefined ? formatValue(current, field.unit) : '—'}
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-[7px] text-slate-600 font-mono">EXTRACTED</div>
+                                <div className="text-[9px] text-slate-600 font-mono">EXTRACTED</div>
                                 <div className="text-[11px] font-bold font-mono"
                                   style={{ color: field.rriImpact === 'RISK_UP' ? '#ff9f0a' : field.rriImpact === 'RISK_DOWN' ? '#2fd158' : '#00d4ff' }}>
                                   {formatValue(field.value, field.unit)}
@@ -587,7 +587,7 @@ export const FinanceLawPanel: React.FC = () => {
                                 className="mt-3 space-y-2 overflow-hidden">
                                 <div className="p-3 rounded-xl border border-white/5 bg-black/30 space-y-2">
                                   <div>
-                                    <div className="text-[7px] font-mono text-slate-500 uppercase mb-1">
+                                    <div className="text-[9px] font-mono text-slate-500 uppercase mb-1">
                                       Arabic source (Official Gazette No. 148)
                                     </div>
                                     <div className="text-[10px] text-slate-300 leading-relaxed font-mono"
@@ -596,7 +596,7 @@ export const FinanceLawPanel: React.FC = () => {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="text-[7px] font-mono text-slate-500 uppercase mb-1">
+                                    <div className="text-[9px] font-mono text-slate-500 uppercase mb-1">
                                       English translation
                                     </div>
                                     <div className="text-[10px] text-slate-400 leading-relaxed">
@@ -606,7 +606,7 @@ export const FinanceLawPanel: React.FC = () => {
                                   <div className="flex items-start gap-2 pt-2 border-t border-white/5">
                                     <AlertTriangle className="w-3 h-3 text-intel-orange shrink-0 mt-0.5" />
                                     <div>
-                                      <div className="text-[7px] font-mono text-intel-orange uppercase mb-0.5">
+                                      <div className="text-[9px] font-mono text-intel-orange uppercase mb-0.5">
                                         RRI Model Impact
                                       </div>
                                       <div className="text-[9px] text-slate-400">{field.rriNote}</div>

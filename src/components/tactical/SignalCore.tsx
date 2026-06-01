@@ -76,7 +76,7 @@ export const SignalCore: React.FC = () => {
                 {m.label}
               </span>
               <div className="flex items-center space-x-1">
-                <span className="text-[10px] font-mono font-bold text-white">{m.value}</span>
+                <span className="text-[10px] font-mono font-bold text-on-surface">{m.value}</span>
                 <span className="text-[8px] font-mono text-slate-600 uppercase">{m.unit}</span>
               </div>
             </div>
@@ -90,7 +90,7 @@ export const SignalCore: React.FC = () => {
         ))}
       </div>
       
-      <div className="mt-4 pt-3 border-t border-white/5 text-[7px] font-mono text-slate-600 uppercase tracking-widest text-center">
+      <div className="mt-4 pt-3 border-t border-white/5 text-[9px] font-mono text-slate-600 uppercase tracking-widest text-center">
         Real-time sensor fusion active
       </div>
     </div>

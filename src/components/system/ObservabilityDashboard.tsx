@@ -49,7 +49,7 @@ export const ObservabilityDashboard: React.FC = () => {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <Layers className="w-6 h-6 text-emerald-500" />
-            <h1 className="text-xl font-bold tracking-tighter uppercase text-white">Pipeline Mission Control / <span className="text-white/40">Intel Pipeline</span></h1>
+            <h1 className="text-xl font-bold tracking-tighter uppercase text-on-surface">Pipeline Mission Control / <span className="text-white/40">Intel Pipeline</span></h1>
           </div>
           
           <div className="h-8 w-px bg-white/10" />
@@ -83,19 +83,19 @@ export const ObservabilityDashboard: React.FC = () => {
           </button>
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'overview' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
+            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'overview' ? 'bg-white/10 text-on-surface' : 'text-white/30 hover:text-white'}`}
           >
             Overview
           </button>
           <button 
             onClick={() => setActiveTab('traces')}
-            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'traces' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
+            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'traces' ? 'bg-white/10 text-on-surface' : 'text-white/30 hover:text-white'}`}
           >
             Trace Inspector
           </button>
           <button 
             onClick={() => setActiveTab('logs')}
-            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'logs' ? 'bg-white/10 text-white' : 'text-white/30 hover:text-white'}`}
+            className={`px-3 py-1.5 rounded text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === 'logs' ? 'bg-white/10 text-on-surface' : 'text-white/30 hover:text-white'}`}
           >
             Terminal Logs
           </button>

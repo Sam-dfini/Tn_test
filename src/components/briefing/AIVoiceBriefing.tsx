@@ -214,7 +214,7 @@ export const AIVoiceBriefing: React.FC<{
               <div className="w-1.5 h-1.5 bg-intel-cyan rounded-full animate-pulse" />
               Neural Intelligence Synthesis
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Daily Strategic Narrative</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-on-surface tracking-tight">Daily Strategic Narrative</h2>
             <p className="text-slate-400 text-sm max-w-md mx-auto">
               Strategic briefing for {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })}.
             </p>
@@ -326,7 +326,7 @@ export const AIVoiceBriefing: React.FC<{
               <div className="p-2 bg-intel-cyan/10 rounded-xl">
                 <Mic2 className="w-4 h-4 text-intel-cyan" />
               </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-widest">Voice Engine</h3>
+              <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Voice Engine</h3>
             </div>
           </div>
 
@@ -346,7 +346,7 @@ export const AIVoiceBriefing: React.FC<{
                     <Sparkles className="w-3 h-3 text-intel-cyan" />
                   </div>
                 )}
-                <div className="text-[10px] font-bold text-white">{v.name}</div>
+                <div className="text-[10px] font-bold text-on-surface">{v.name}</div>
                 <div className="text-[8px] text-slate-500 uppercase tracking-tighter">{v.lang}</div>
                 <div className="text-[8px] font-mono text-intel-cyan opacity-60">{v.dialect}</div>
               </button>
@@ -356,7 +356,7 @@ export const AIVoiceBriefing: React.FC<{
 
         <div className="glass p-6 rounded-3xl border border-white/5 flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-widest">Actions</h3>
+            <h3 className="text-xs font-bold text-on-surface uppercase tracking-widest">Actions</h3>
             <div className="space-y-2">
               <button
                 onClick={handleReset}
@@ -397,7 +397,7 @@ export const AIVoiceBriefing: React.FC<{
             </div>
             <div className="space-y-0.5">
               <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">{s.label}</div>
-              <div className="text-[10px] font-bold text-white font-mono">{s.value}</div>
+              <div className="text-[10px] font-bold text-on-surface font-mono">{s.value}</div>
             </div>
           </div>
         ))}

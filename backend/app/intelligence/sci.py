@@ -122,7 +122,9 @@ class SCIEngine:
                         entry_time = datetime.fromisoformat(entry_time_str)
                         if now - entry_time < recent_window:
                             recent_matches += 1
-                    except: pass
+                    except Exception:
+
+                        pass
         # If many sources cover it fast → higher credibility (unless 0 corroboration)
         if corrob_count > 0:
             prop_score = min(0.15, recent_matches * 0.02)
@@ -135,7 +137,7 @@ class SCIEngine:
             try:
                 age = (now - datetime.fromisoformat(timestamp)).total_seconds()
                 freshness = max(0, 1 - age / 86400)  # decays over 24h
-            except:
+            except Exception:
                 freshness = 0.5
         else:
             freshness = 0.5

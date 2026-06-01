@@ -58,7 +58,7 @@ export const AgroCrisisModel: React.FC<AgroCrisisModelProps> = ({ data }) => {
       <div className="px-6 py-4 border-b border-intel-border/30 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Wheat className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-[10px] font-mono text-white uppercase tracking-widest font-bold">
+          <h3 className="text-[10px] font-mono text-on-surface uppercase tracking-widest font-bold">
             Bread Crisis Early Warning Model (BCEWM)
           </h3>
         </div>
@@ -77,7 +77,7 @@ export const AgroCrisisModel: React.FC<AgroCrisisModelProps> = ({ data }) => {
         <div className="space-y-6">
           <div className="flex items-end space-x-4">
             <div>
-              <div className="text-4xl font-bold text-white font-mono tracking-tighter">
+              <div className="text-4xl font-bold text-on-surface font-mono tracking-tighter">
                 {(data.BCI * 100).toFixed(1)}%
               </div>
               <div className="text-[10px] text-slate-500 uppercase tracking-widest">

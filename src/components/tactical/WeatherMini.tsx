@@ -35,7 +35,7 @@ export const WeatherMini: React.FC = () => {
   return (
     <div className="flex items-center space-x-2 bg-white/5 border border-intel-border/30 px-2 py-1 rounded-lg">
       {getIcon(code)}
-      <span className="text-[10px] font-mono font-bold text-white">{temp}°C</span>
+      <span className="text-[10px] font-mono font-bold text-on-surface">{temp}°C</span>
     </div>
   );
 };

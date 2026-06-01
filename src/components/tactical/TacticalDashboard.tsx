@@ -161,7 +161,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 
                 {/* Tooltip for collapsed state */}
                 {leftCollapsed && (
-                  <div className="absolute left-14 px-2 py-1 bg-black border border-intel-border rounded text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                  <div className="absolute left-14 px-2 py-1 bg-black border border-intel-border rounded text-[10px] font-mono text-on-surface opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                     {tab.label}
                   </div>
                 )}
@@ -179,7 +179,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
               ]).map((item: any) => (
                 <div key={item.id} className="flex flex-col items-center space-y-1 group relative">
                   <div className={`w-2 h-2 rounded-full ${item.color} shadow-[0_0_8px_currentColor]`} />
-                  <div className="absolute left-8 px-2 py-1 bg-black border border-intel-border rounded text-[8px] font-mono text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                  <div className="absolute left-8 px-2 py-1 bg-black border border-intel-border rounded text-[8px] font-mono text-on-surface opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                     {item.label} STATUS
                   </div>
                 </div>
@@ -191,7 +191,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
           {!leftCollapsed && (
             <div className="flex-1 flex flex-col overflow-hidden bg-surface-container-low">
               <div className="h-12 border-b border-outline-variant flex items-center px-4 justify-between shrink-0">
-                <span className="text-[10px] font-mono font-bold text-white uppercase tracking-[0.2em]">
+                <span className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-[0.2em]">
                   {leftTabs.find(t => t.id === leftTab)?.label}
                 </span>
                 <div className="flex items-center space-x-1">
@@ -274,7 +274,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any, idx: number) => (
                   <div key={assertKey(getRenderKey(article, idx, 'tac-t1-article'))} className="flex items-center space-x-3">
                       <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
+                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-on-surface'}`}>
                       {article.source_name}
                     </span>
                     <span className="text-[9px] font-mono text-slate-400 truncate max-w-xs">
@@ -287,7 +287,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 {prepareList(rssArticles.slice(0, 10).filter(a => typeof a?.id === "string" && a.id.trim() !== "")).map((article: any, idx: number) => (
                     <div key={assertKey(getRenderKey(article, idx, 'tac-t2-article'))} className="flex items-center space-x-3">
                       <span className="text-[9px] font-mono text-slate-500">{new Date(article.published_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-white'}`}>
+                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wide ${article.severity >= 4 ? 'text-intel-red' : 'text-on-surface'}`}>
                       {article.source_name}
                     </span>
                     <span className="text-[9px] font-mono text-slate-400 truncate max-w-xs">
@@ -317,7 +317,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
             rightCollapsed ? 'w-0 opacity-0 min-w-0 p-0 overflow-hidden' : ''
           )}>
             <div className="h-12 border-b border-outline-variant flex items-center px-4 justify-between shrink-0">
-              <span className="text-[10px] font-mono font-bold text-white uppercase tracking-[0.2em]">
+              <span className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-[0.2em]">
                 {rightTabs.find(t => t.id === rightTab)?.label}
               </span>
               <div className="flex items-center space-x-1">
@@ -376,7 +376,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                   />
                 )}
                 {rightCollapsed && (
-                  <div className="absolute left-14 px-2 py-1 bg-black border border-intel-border rounded text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                  <div className="absolute left-14 px-2 py-1 bg-black border border-intel-border rounded text-[10px] font-mono text-on-surface opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                     {tab.label}
                   </div>
                 )}
@@ -396,7 +396,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
           <div className="flex items-center justify-between mb-4 border-b border-intel-border/30 pb-2">
             <div className="flex items-center space-x-2">
               <Activity className="w-4 h-4 text-intel-cyan" />
-              <h4 className="text-xs font-mono font-bold text-white uppercase tracking-widest">Tactical Analysis & Breaches</h4>
+              <h4 className="text-xs font-mono font-bold text-on-surface uppercase tracking-widest">Tactical Analysis & Breaches</h4>
             </div>
             <button 
               onClick={() => setShowAnalysis(false)}
@@ -415,7 +415,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                 {prepareList(rriState.threshold_breaches || []).map((breach: any) => (
                   <div key={breach.id} className="bg-intel-red/5 border border-intel-red/20 p-2 rounded flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] font-bold text-white">{breach.label || breach.variable}</div>
+                      <div className="text-[10px] font-bold text-on-surface">{breach.label || breach.variable}</div>
                       <div className="text-[8px] font-mono text-slate-500 uppercase">Value: {breach.value} (Limit: {breach.threshold})</div>
                     </div>
                     <div className="text-[10px] font-mono text-intel-red font-bold">+{breach.impact?.toFixed(3)} RRI</div>
@@ -433,7 +433,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
               <div className="space-y-3">
                 {aiAnalysis?.summary && (
                   <div className="bg-intel-cyan/10 border border-intel-cyan/30 p-3 rounded-lg mb-4">
-                    <p className="text-[10px] text-white leading-relaxed italic">"{aiAnalysis.summary}"</p>
+                    <p className="text-[10px] text-on-surface leading-relaxed italic">"{aiAnalysis.summary}"</p>
                   </div>
                 )}
                 
@@ -449,7 +449,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
                   ))}
                   {prepareList(aiAnalysis?.recommendations?.slice(0, 2) || []).map((rec: any) => (
                     <div key={rec.id} className="bg-white/5 border border-white/10 p-2 rounded">
-                      <div className="text-[10px] font-bold text-white mb-1 flex items-center">
+                      <div className="text-[10px] font-bold text-on-surface mb-1 flex items-center">
                         <Zap className="w-3 h-3 mr-1 text-intel-orange" />
                         Recommendation
                       </div>
@@ -472,19 +472,19 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
       {/* Footer ticker — fixed at bottom */}
       <div className="h-[4vh] min-h-[28px] max-h-[40px]
         bg-black/80 backdrop-blur-md border-t
-        border-intel-cyan/30 z-[60] flex items-center
+        border-intel-cyan/30 z-20 flex items-center
         overflow-hidden shrink-0">
         <div className="bg-intel-red px-3 h-full flex
           items-center shrink-0">
           <span className="text-[10px] font-mono font-bold
-            text-white uppercase tracking-tighter animate-pulse">
+            text-on-surface uppercase tracking-tighter animate-pulse">
             RRI: {rriState.rri.toFixed(2)}
           </span>
         </div>
         <div className="bg-intel-orange px-3 h-full flex
           items-center shrink-0 border-l border-white/10">
           <span className="text-[10px] font-mono font-bold
-            text-white uppercase tracking-tighter">
+            text-on-surface uppercase tracking-tighter">
             P_rev: {(rriState.p_rev * 100).toFixed(1)}%
           </span>
         </div>
@@ -504,7 +504,7 @@ export const TacticalDashboard: React.FC<TacticalDashboardProps> = ({
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-intel-red rounded-full animate-ping" />
             )}
           </div>
-          <span className="text-[10px] font-mono font-bold text-white uppercase tracking-tighter">
+          <span className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-tighter">
             {rriState.threshold_breaches?.length || 0} BREACHES
           </span>
           <ChevronRight className={`w-3 h-3 ml-2 transition-transform duration-300 ${showAnalysis ? '-rotate-90' : 'rotate-0'}`} />

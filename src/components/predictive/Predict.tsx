@@ -59,7 +59,7 @@ export const Predict: React.FC = () => {
             </div>
             
             <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">{f.timeframe} Forecast</div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">{f.label}</h4>
+            <h4 className="text-sm font-bold text-on-surface uppercase tracking-wider mb-4">{f.label}</h4>
             
             <div className="flex items-baseline space-x-2 mb-4">
               <span className={`text-3xl font-bold font-mono ${f.prob > 0.7 ? 'text-intel-red' : f.prob > 0.4 ? 'text-intel-orange' : 'text-intel-green'}`}>

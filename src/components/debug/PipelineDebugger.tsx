@@ -46,7 +46,7 @@ export const PipelineDebugger: React.FC = () => {
   if (!DEBUG_EVENTS) return null;
 
   return (
-    <div className="fixed bottom-12 right-8 z-[100] font-mono">
+    <div className="fixed bottom-12 right-8 z-modal font-mono">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -58,7 +58,7 @@ export const PipelineDebugger: React.FC = () => {
             <div className="flex items-center justify-between mb-4 pb-2 border-b border-intel-cyan/20">
               <div className="flex items-center space-x-2">
                 <Bug className="w-4 h-4 text-intel-cyan" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-widest">Pipeline Debug</span>
+                <span className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Pipeline Debug</span>
               </div>
               <span className="text-[8px] bg-intel-cyan/20 text-intel-cyan px-1 rounded animate-pulse">ACTIVE</span>
             </div>
@@ -69,7 +69,7 @@ export const PipelineDebugger: React.FC = () => {
                   <Database className="w-3 h-3" />
                   <span className="text-[9px]">TOTAL EVENTS</span>
                 </div>
-                <span className="text-[10px] text-white font-bold">{stats.total}</span>
+                <span className="text-[10px] text-on-surface font-bold">{stats.total}</span>
               </div>
 
               <div className="flex items-center justify-between">

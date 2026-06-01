@@ -553,7 +553,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                       <div class="absolute w-4 h-4 border ${isAccident ? 'border-intel-red/80' : 'border-intel-cyan/60'} rounded-full"></div>
                       <div class="w-1.5 h-1.5 rounded-full ${isAccident ? 'bg-intel-red shadow-[0_0_12px_#ff3b3b]' : event.urgent ? 'bg-intel-red shadow-[0_0_8px_#ff3b3b]' : 'bg-intel-cyan shadow-[0_0_8px_#00f2ff]'}"></div>
                       ${breachedEvents.has(event.id) ? `<div class="absolute -inset-2 border-2 ${recentBreaches.has(event.id) ? 'border-white scale-125 shadow-[0_0_15px_#fff]' : 'border-intel-red'} rounded-full animate-pulse transition-all duration-500"></div>` : ''}
-                      <div class="absolute -top-4 left-4 whitespace-nowrap text-[6px] font-mono ${isAccident ? 'text-intel-red bg-black/80' : recentBreaches.has(event.id) ? 'text-white bg-intel-red' : 'text-intel-cyan bg-black/60'} px-1 border ${isAccident ? 'border-intel-red/20' : 'border-intel-cyan/20'}">
+                      <div class="absolute -top-4 left-4 whitespace-nowrap text-[9px] font-mono ${isAccident ? 'text-intel-red bg-black/80' : recentBreaches.has(event.id) ? 'text-on-surface bg-intel-red' : 'text-intel-cyan bg-black/60'} px-1 border ${isAccident ? 'border-intel-red/20' : 'border-intel-cyan/20'}">
                         ${event.type} // ${event.id.slice(0, 4)} ${breachedEvents.has(event.id) ? '// BREACH' : ''}
                       </div>
                     </div>
@@ -574,14 +574,14 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                       </span>
                       <span className="text-[8px] font-mono text-slate-500">{event.date}</span>
                     </div>
-                    <h4 className="text-xs font-bold text-white uppercase mb-1 tracking-wide">{event.title}</h4>
+                    <h4 className="text-xs font-bold text-on-surface uppercase mb-1 tracking-wide">{event.title}</h4>
                     <p className="text-[9px] leading-tight text-slate-400 font-mono">{event.summary}</p>
                     <div className="mt-2 pt-2 flex items-center justify-between">
                       <div className="flex items-center space-x-1">
                         <div className={`w-1 h-1 rounded-full ${event.urgent ? 'bg-intel-red' : 'bg-intel-cyan'}`}></div>
-                        <span className="text-[7px] font-mono text-slate-500 uppercase">Priority: {event.urgent ? 'Critical' : 'Standard'}</span>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase">Priority: {event.urgent ? 'Critical' : 'Standard'}</span>
                       </div>
-                      <button className="text-[7px] font-mono text-intel-cyan uppercase font-bold hover:bg-intel-cyan/10 px-1 border border-intel-cyan/30 transition-colors">Analyze</button>
+                      <button className="text-[9px] font-mono text-intel-cyan uppercase font-bold hover:bg-intel-cyan/10 px-1 border border-intel-cyan/30 transition-colors">Analyze</button>
                     </div>
                   </div>
                 </Popup>
@@ -645,7 +645,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <button 
               onClick={() => onRegionChange?.('North')}
               className={cn(
-                "absolute top-1 left-1/2 -translate-x-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[7px] font-mono uppercase transition-all",
+                "absolute top-1 left-1/2 -translate-x-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[9px] font-mono uppercase transition-all",
                 activeRegion === 'North' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan" : "bg-black/60 text-slate-500 border border-intel-border hover:text-slate-300"
               )}
             >
@@ -656,7 +656,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <button 
               onClick={() => onRegionChange?.('South')}
               className={cn(
-                "absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[7px] font-mono uppercase transition-all",
+                "absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[9px] font-mono uppercase transition-all",
                 activeRegion === 'South' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan" : "bg-black/60 text-slate-500 border border-intel-border hover:text-slate-300"
               )}
             >
@@ -667,7 +667,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <button 
               onClick={() => onRegionChange?.('Sahel')}
               className={cn(
-                "absolute top-1/2 right-1 -translate-y-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[7px] font-mono uppercase transition-all",
+                "absolute top-1/2 right-1 -translate-y-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[9px] font-mono uppercase transition-all",
                 activeRegion === 'Sahel' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan" : "bg-black/60 text-slate-500 border border-intel-border hover:text-slate-300"
               )}
             >
@@ -678,7 +678,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <button 
               onClick={() => onRegionChange?.('Central')}
               className={cn(
-                "absolute top-1/2 left-1 -translate-y-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[7px] font-mono uppercase transition-all",
+                "absolute top-1/2 left-1 -translate-y-1/2 w-8 h-5 rounded-full flex items-center justify-center text-[9px] font-mono uppercase transition-all",
                 activeRegion === 'Central' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan" : "bg-black/60 text-slate-500 border border-intel-border hover:text-slate-300"
               )}
             >
@@ -689,7 +689,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
             <button 
               onClick={() => onRegionChange?.('Borders')}
               className={cn(
-                "absolute bottom-3 left-3 w-8 h-5 rounded-full flex items-center justify-center text-[7px] font-mono uppercase transition-all -rotate-45",
+                "absolute bottom-3 left-3 w-8 h-5 rounded-full flex items-center justify-center text-[9px] font-mono uppercase transition-all -rotate-45",
                 activeRegion === 'Borders' ? "bg-intel-cyan/20 text-intel-cyan border border-intel-cyan" : "bg-black/60 text-slate-500 border border-intel-border hover:text-slate-300"
               )}
             >
@@ -710,7 +710,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           <div className="flex items-center justify-between mb-1 border-b border-intel-cyan/20 pb-0.5">
             <div className="flex items-center space-x-1">
               <Layers className="w-2.5 h-2.5 text-intel-cyan" />
-              <span className="text-[7px] font-mono text-intel-cyan uppercase font-bold tracking-tighter">Layers</span>
+              <span className="text-[9px] font-mono text-intel-cyan uppercase font-bold tracking-tighter">Layers</span>
             </div>
           </div>
           
@@ -737,7 +737,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 >
                   <div className="flex items-center space-x-1">
                     <Icon className={`w-2 h-2 ${isActive ? 'text-intel-cyan' : 'text-slate-500'}`} />
-                    <span className={`text-[7px] font-mono uppercase tracking-tight ${isActive ? 'text-white font-bold' : 'text-slate-500'}`}>
+                    <span className={`text-[9px] font-mono uppercase tracking-tight ${isActive ? 'text-on-surface font-bold' : 'text-slate-500'}`}>
                       {layer.label}
                     </span>
                   </div>
@@ -754,7 +754,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
           <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-40 bg-black/70 backdrop-blur-md border border-intel-orange/25 p-1.5 rounded-lg shadow-xl pointer-events-auto w-[150px] h-[85px] flex flex-col justify-between">
             <div className="flex items-center space-x-1.5 border-b border-intel-orange/20 pb-1 mb-0.5">
               <FireIcon className="w-2.5 h-2.5 text-intel-orange" />
-              <span className="text-[7px] font-mono text-intel-orange uppercase font-bold tracking-widest">
+              <span className="text-[9px] font-mono text-intel-orange uppercase font-bold tracking-widest">
                 Thermal Horizon
               </span>
             </div>
@@ -769,9 +769,9 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                   key={generateStableKey(range, idx, 'fire-rg')}
                   onClick={() => setFireRange(range.id as any)}
                   className={cn(
-                    "flex-1 px-1 py-0.5 text-[6px] font-mono font-bold border transition-all",
+                    "flex-1 px-1 py-0.5 text-[9px] font-mono font-bold border transition-all",
                     fireRange === range.id
-                      ? "bg-intel-orange/20 border-intel-orange text-white"
+                      ? "bg-intel-orange/20 border-intel-orange text-on-surface"
                       : "bg-transparent border-intel-orange/10 text-slate-500 hover:text-slate-300"
                   )}
                 >
@@ -780,7 +780,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
               ))}
             </div>
             
-            <div className="flex items-center justify-between text-[6px] font-mono">
+            <div className="flex items-center justify-between text-[9px] font-mono">
               <span className="text-slate-500">Active:</span>
               <span className="text-intel-orange font-bold font-mono">{filteredFires.length}</span>
             </div>
@@ -860,13 +860,13 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
 
       {/* Legend Overlay - Hidden on mobile */}
       <div className="hidden sm:block absolute bottom-4 left-4 z-40 bg-black/60 backdrop-blur-sm border border-intel-cyan/20 p-2 space-y-2 pointer-events-auto">
-        <div className="text-[7px] font-mono text-intel-cyan uppercase border-b border-intel-cyan/20 pb-1 mb-1">
+        <div className="text-[9px] font-mono text-intel-cyan uppercase border-b border-intel-cyan/20 pb-1 mb-1">
           {LAYER_LEGENDS[activeLayer].title}
         </div>
         {prepareList(LAYER_LEGENDS[activeLayer].items).map((item: any, idx: number) => (
           <div key={generateStableKey(item, idx, 'leg-it-2')} className="flex items-center space-x-2">
             <div className={`w-1.5 h-1.5 rounded-full ${item.color}`}></div>
-            <span className="text-[7px] font-mono text-slate-400 uppercase">{item.label}</span>
+            <span className="text-[9px] font-mono text-slate-400 uppercase">{item.label}</span>
           </div>
         ))}
       </div>
@@ -887,7 +887,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">
                   GOVERNORATE DOSSIER // {selectedGov.id.toUpperCase()}
                 </div>
-                <div className="text-lg font-bold text-white uppercase">
+                <div className="text-lg font-bold text-on-surface uppercase">
                   {selectedGov.name.en}
                 </div>
                 <div className="text-sm text-slate-500 font-mono">
@@ -920,13 +920,13 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 {prepareList([
                   { icon: Users, label: 'Population',
                     value: (selectedGov.pop/1000000).toFixed(2)+'M',
-                    color: 'text-white' },
+                    color: 'text-on-surface' },
                   { icon: TrendingUp, label: 'Unemployment',
                     value: selectedGov.unemp+'%',
                     color: selectedGov.unemp > 30 ? 'text-intel-red' : 'text-intel-orange' },
                   { icon: DollarSign, label: 'GDP/capita',
                     value: selectedGov.gdp_pc_tnd.toLocaleString()+' TND',
-                    color: 'text-white' },
+                    color: 'text-on-surface' },
                   { icon: AlertTriangle, label: 'Poverty',
                     value: selectedGov.poverty_pct+'%',
                     color: selectedGov.poverty_pct > 25 ? 'text-intel-red' : 'text-intel-orange' },
@@ -948,7 +948,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Droplets className={cn("w-3.5 h-3.5", selectedGov.water_cut_hours > 12 ? 'text-intel-red' : 'text-intel-orange')} />
-                    <span className="text-[10px] font-bold text-white uppercase">Water Supply</span>
+                    <span className="text-[10px] font-bold text-on-surface uppercase">Water Supply</span>
                   </div>
                   <span className={cn("text-xs font-bold font-mono", selectedGov.water_cut_hours > 12 ? 'text-intel-red' : 'text-intel-orange')}>
                     {24 - selectedGov.water_cut_hours}h/day
@@ -990,7 +990,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
                     <div key={generateStableKey(item, idx, 'soc-ind')} className="space-y-0.5">
                       <div className="flex justify-between text-[9px] font-mono">
                         <span className="text-slate-500">{item.label}</span>
-                        <span className="text-white">{item.value}{item.unit}</span>
+                        <span className="text-on-surface">{item.value}{item.unit}</span>
                       </div>
                       <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
                         <div className={cn("h-full rounded-full", color)} style={{ width: `${(item.value/item.max)*100}%` }} />

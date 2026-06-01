@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -43,7 +44,7 @@ async def lifespan(app: FastAPI):
     task.cancel()
     try:
         await task
-    except asyncio.CancelledError:
+    except (asyncio.CancelledError, Exception):
         pass
 
 # Initialize FastAPI application
@@ -69,11 +70,21 @@ app.include_router(interventions_router, prefix="/api")
 app.include_router(ws_router)
 
 # Configure CORS
+# Allow localhost dev origins + production APP_URL if set
+_allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+]
+if os.environ.get("APP_URL"):
+    _allowed_origins.append(os.environ["APP_URL"].rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Restrict to frontend URL in production
+    allow_origins=_allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 

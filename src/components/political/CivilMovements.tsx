@@ -177,7 +177,7 @@ export const CivilMovements: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between glass p-4 rounded-2xl border border-intel-border">
             <div className="flex items-center space-x-4 flex-1">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest shrink-0">Movement Dossiers</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest shrink-0">Movement Dossiers</h3>
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500" />
                 <input 
@@ -185,7 +185,7 @@ export const CivilMovements: React.FC = () => {
                   placeholder="Search movements, hotspots, demands..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-lg py-1.5 pl-8 pr-4 text-[10px] font-mono text-white focus:outline-none focus:border-intel-cyan/50 transition-all"
+                  className="w-full bg-black/40 border border-white/10 rounded-lg py-1.5 pl-8 pr-4 text-[10px] font-mono text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all"
                 />
               </div>
               <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide">
@@ -221,7 +221,7 @@ export const CivilMovements: React.FC = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2">
-                      <h4 className="text-lg font-bold text-white tracking-tight uppercase">{movement.name}</h4>
+                      <h4 className="text-lg font-bold text-on-surface tracking-tight uppercase">{movement.name}</h4>
                       <span className={cn(
                         "text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase font-bold",
                         movement.riskLevel === 'CRITICAL' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
@@ -347,7 +347,7 @@ export const CivilMovements: React.FC = () => {
         <div className="space-y-8">
           <div className="intel-card p-6 rounded-2xl border border-intel-border space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white uppercase tracking-widest">Geographic Risk Heatmap</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest">Geographic Risk Heatmap</h3>
               <Globe className="w-4 h-4 text-intel-cyan opacity-20" />
             </div>
             <div className="space-y-4">
@@ -355,11 +355,11 @@ export const CivilMovements: React.FC = () => {
                 <div key={gov.name} className="space-y-2">
                   <div className="flex justify-between items-end">
                     <div className="space-y-0.5">
-                      <div className="text-xs font-bold text-white">{gov.name}</div>
+                      <div className="text-xs font-bold text-on-surface">{gov.name}</div>
                       <div className="text-[8px] font-mono text-slate-500 uppercase">{gov.primaryDriver} Driver</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-mono font-bold text-white">{gov.risk}%</div>
+                      <div className="text-xs font-mono font-bold text-on-surface">{gov.risk}%</div>
                       <div className={cn(
                         "text-[8px] font-mono",
                         gov.trend === 'up' ? "text-intel-red" : "text-intel-green"

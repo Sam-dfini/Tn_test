@@ -36,12 +36,12 @@ export function FeedColumn({ items, selectedId, onSelect }: ColProps) {
             </div>
             <h3 className="text-gray-300 font-medium line-clamp-1 leading-tight mb-0.5">{item.data.title}</h3>
             {item.data.pubDate && (
-              <div className="flex items-center gap-1 text-gray-600 text-[7px]">
+              <div className="flex items-center gap-1 text-gray-600 text-[9px]">
                 <Clock className="w-2 h-2" />
                 <span>{item.data.pubDate}</span>
               </div>
             )}
-            <div className="mt-1 p-1 bg-black/60 rounded text-[7px] font-mono text-gray-500 break-all border border-white/5 opacity-50 line-clamp-1">
+            <div className="mt-1 p-1 bg-black/60 rounded text-[9px] font-mono text-gray-500 break-all border border-white/5 opacity-50 line-clamp-1">
               {item.data.xmlSnippet || 'No XML'}
             </div>
           </div>

@@ -75,7 +75,7 @@ export const StrategicEnergyIntelligencePanel: React.FC = () => {
                    <Activity className="w-4 h-4 mr-2" />
                    National Energy Security Index (NESI)
                  </h2>
-                 <p className="text-3xl font-bold text-white font-mono tracking-tight">{data.nesi.toFixed(3)}</p>
+                 <p className="text-3xl font-bold text-on-surface font-mono tracking-tight">{data.nesi.toFixed(3)}</p>
               </div>
               <div className={`px-4 py-2 border rounded font-bold font-mono tracking-wider ${getStatusBg(data.riskLevel)} ${getStatusColor(data.riskLevel)}`}>
                 {data.riskLevel}
@@ -97,13 +97,13 @@ export const StrategicEnergyIntelligencePanel: React.FC = () => {
               </div>
               <div className="p-3 bg-black/30 border border-white/5 rounded-lg">
                  <div className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mb-1">Butane BSI</div>
-                 <div className="text-lg font-bold font-mono text-white">
+                 <div className="text-lg font-bold font-mono text-on-surface">
                    {mockButaneData.BSI.toFixed(3)}
                  </div>
               </div>
               <div className="p-3 bg-black/30 border border-white/5 rounded-lg">
                  <div className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mb-1">Generator GSI</div>
-                 <div className="text-lg font-bold font-mono text-white">
+                 <div className="text-lg font-bold font-mono text-on-surface">
                    {mockGeneratorData.GSI.toFixed(3)}
                  </div>
               </div>

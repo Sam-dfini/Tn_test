@@ -217,7 +217,7 @@ export const CognitiveSecurityIntelligence: React.FC = () => {
             <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">
               Active Narratives
             </div>
-            <div className="text-4xl font-bold font-mono text-white">
+            <div className="text-4xl font-bold font-mono text-on-surface">
               {narratives.filter(n => n.phase !== 'DORMANT').length}
             </div>
             <div className="text-[9px] text-slate-600">
@@ -311,7 +311,7 @@ export const CognitiveSecurityIntelligence: React.FC = () => {
                             narrative.phase === 'SEED' ? 'bg-yellow-500' :
                             'bg-slate-600'
                           }`} />
-                          <span className="text-[11px] font-bold text-white">
+                          <span className="text-[11px] font-bold text-on-surface">
                             {narrative.label}
                           </span>
                           <PhaseTag phase={narrative.phase} />
@@ -338,7 +338,7 @@ export const CognitiveSecurityIntelligence: React.FC = () => {
                           const val = narrative.elements[e.key as keyof ETMElements];
                           return (
                             <div key={e.key} className="space-y-1">
-                              <div className="text-[7px] font-mono text-slate-600 truncate">
+                              <div className="text-[9px] font-mono text-slate-600 truncate">
                                 {e.label}
                               </div>
                               <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
@@ -351,7 +351,7 @@ export const CognitiveSecurityIntelligence: React.FC = () => {
                                   style={{ width: `${val}%` }}
                                 />
                               </div>
-                              <div className="text-[7px] font-mono text-slate-600">{val}</div>
+                              <div className="text-[9px] font-mono text-slate-600">{val}</div>
                             </div>
                           );
                         })}

@@ -557,7 +557,7 @@ RULES:
 - Output valid JSON only"""
 
         try:
-            response_text = await generate(prompt=query, system=system_prompt, response_format="json", max_tokens=1500)
+            response_text = await generate(prompt=query, system=system_prompt, response_format="json", max_tokens=500)
             synthesis = json.loads(response_text)
         except Exception:
             synthesis = {

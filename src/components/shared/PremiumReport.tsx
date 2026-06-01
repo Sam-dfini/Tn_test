@@ -82,7 +82,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
           <div className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">
             TUNISIAINTEL v3.0 • Analyst: {analyst} • NOT FOR PUBLIC DISTRIBUTION
           </div>
-          <div className="text-[7px] font-mono text-slate-600 uppercase tracking-tighter">
+          <div className="text-[9px] font-mono text-slate-600 uppercase tracking-tighter">
             Based on open-source intelligence only • Confidential Intelligence Product
           </div>
         </div>
@@ -127,8 +127,8 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center overflow-y-auto py-12">
-      <div className="fixed top-6 right-6 flex items-center space-x-4 z-[110]">
+    <div className="fixed inset-0 z-modal bg-black/90 backdrop-blur-md flex flex-col items-center overflow-y-auto py-12">
+      <div className="fixed top-6 right-6 flex items-center space-x-4 z-popup">
         <button 
           onClick={handleExport}
           disabled={exporting}
@@ -139,7 +139,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
         </button>
         <button 
           onClick={onClose}
-          className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all"
+          className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-on-surface transition-all"
         >
           <X className="w-6 h-6" />
         </button>
@@ -156,7 +156,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               <Logo />
             </div>
             
-            <h1 className="text-7xl font-bold text-white tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+            <h1 className="text-7xl font-bold text-on-surface tracking-tighter mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
               TUNISIA <span className="text-[#00F5FF]">INTEL</span>
             </h1>
             
@@ -202,9 +202,9 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               
               <div className="space-y-4">
                 {[
-                  { label: 'P(REVOLUTION)', value: (rriState.p_rev * 100).toFixed(1) + '%', color: 'text-white' },
+                  { label: 'P(REVOLUTION)', value: (rriState.p_rev * 100).toFixed(1) + '%', color: 'text-on-surface' },
                   { label: 'VELOCITY', value: (rriState.velocity > 0 ? '+' : '') + rriState.velocity.toFixed(3), color: rriState.velocity > 0 ? 'text-intel-red' : 'text-emerald-400' },
-                  { label: 'PATTERN MATCH', value: Math.round(rriState.pattern_similarity * 100) + '%', color: 'text-white' },
+                  { label: 'PATTERN MATCH', value: Math.round(rriState.pattern_similarity * 100) + '%', color: 'text-on-surface' },
                   { label: 'VOLATILITY', value: rriState.volatility > 0.1 ? 'HIGH' : 'LOW', color: 'text-slate-400' }
                 ].map((m) => (
                   <div key={m.label} className="flex justify-between items-center border-b border-white/5 pb-2">
@@ -254,7 +254,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               <div key={e.label} className="flex justify-between items-center border-b border-white/5 pb-2">
                 <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{e.label}</span>
                 <div className="flex items-center space-x-3">
-                  <span className="text-xs font-bold text-white">{e.value}</span>
+                  <span className="text-xs font-bold text-on-surface">{e.value}</span>
                   <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                     e.status === 'CRITICAL' ? 'border-red-500/30 text-red-500 bg-red-500/5' :
                     e.status === 'WARNING' ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' :
@@ -282,7 +282,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
                   <div key={s.label} className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{s.label}</span>
                     <div className="flex items-center space-x-3">
-                      <span className="text-xs font-bold text-white">{s.value}</span>
+                      <span className="text-xs font-bold text-on-surface">{s.value}</span>
                       <span className="text-[8px] font-mono text-slate-500">{s.status}</span>
                     </div>
                   </div>
@@ -317,7 +317,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               <tbody className="divide-y divide-white/5">
                 {(data.prisoners && data.prisoners.length > 0 ? data.prisoners : prisoners).map((p: any) => (
                   <tr key={p[0]} className="hover:bg-white/5 transition-colors">
-                    <td className="px-4 py-3 text-[10px] font-bold text-white">{p[0]}</td>
+                    <td className="px-4 py-3 text-[10px] font-bold text-on-surface">{p[0]}</td>
                     <td className="px-4 py-3 text-[10px] text-slate-400">{p[1]}</td>
                     <td className="px-4 py-3 text-[10px] text-slate-500">{p[2]}</td>
                     <td className="px-4 py-3 text-[10px] font-bold text-red-500 text-right">{p[3]}</td>
@@ -366,7 +366,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
                       g.status === 'LOW' || g.status === 'WARNING' ? 'border-amber-500/30 text-amber-500 bg-amber-500/5' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/5'
                     }`}>{g.status}</span>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-2">{g.value}</div>
+                  <div className="text-2xl font-bold text-on-surface mb-2">{g.value}</div>
                   <div className="text-[10px] text-slate-400 font-light">{g.desc}</div>
                 </div>
               ))}
@@ -393,7 +393,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
             
             <div className="space-y-8 max-w-2xl">
               <div className="space-y-3">
-                <div className="text-[11px] font-mono text-white uppercase tracking-widest flex items-center space-x-2">
+                <div className="text-[11px] font-mono text-on-surface uppercase tracking-widest flex items-center space-x-2">
                   <Zap className="w-3 h-3 text-[#FFB300]" />
                   <span>Intelligence Methodology</span>
                 </div>
@@ -407,7 +407,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               </div>
 
               <div className="space-y-3">
-                <div className="text-[11px] font-mono text-white uppercase tracking-widest flex items-center space-x-2">
+                <div className="text-[11px] font-mono text-on-surface uppercase tracking-widest flex items-center space-x-2">
                   <Lock className="w-3 h-3 text-[#00F5FF]" />
                   <span>Confidentiality Notice</span>
                 </div>
@@ -421,7 +421,7 @@ const PremiumReport: React.FC<PremiumReportProps> = ({
               </div>
 
               <div className="space-y-3">
-                <div className="text-[11px] font-mono text-white uppercase tracking-widest flex items-center space-x-2">
+                <div className="text-[11px] font-mono text-on-surface uppercase tracking-widest flex items-center space-x-2">
                   <AlertTriangle className="w-3 h-3 text-red-500" />
                   <span>Risk Warning</span>
                 </div>

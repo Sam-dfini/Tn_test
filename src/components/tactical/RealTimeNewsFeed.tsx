@@ -124,7 +124,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 <span className="text-[8px] font-mono font-bold text-red-500 uppercase tracking-[0.2em]">Live Stream Active</span>
               </div>
-              <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight flex items-center space-x-3">
+              <h3 className="text-xl md:text-2xl font-bold text-on-surface tracking-tight flex items-center space-x-3">
                 <Newspaper className="w-6 h-6 text-intel-cyan" />
                 <span>{viewMode === 'raw' ? 'External RSS Intercept' : 'Processed Intelligence Terminal'}</span>
                 <TruthBadge truthClass="LIVE" />
@@ -219,7 +219,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                   placeholder="Query intelligence..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-black/50 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-intel-cyan/50 transition-all w-full md:w-64"
+                  className="bg-black/50 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-on-surface focus:outline-none focus:border-intel-cyan/50 transition-all w-full md:w-64"
                 />
               </div>
               <div className={`flex items-center space-x-1.5 bg-black/50 rounded-xl border border-white/10 p-1 w-fit transition-opacity ${viewMode === 'raw' ? 'opacity-40 pointer-events-none' : ''}`}>
@@ -229,7 +229,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                     onClick={() => setSeverityFilter(sev)}
                     className={`px-3 py-1.5 rounded-lg text-[9px] font-mono font-bold transition-all ${
                       severityFilter === sev 
-                        ? 'bg-white/10 text-white shadow-sm' 
+                        ? 'bg-white/10 text-on-surface shadow-sm' 
                         : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
                     }`}
                   >
@@ -255,7 +255,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                   <h4 className="text-[10px] font-mono text-intel-red uppercase font-bold tracking-widest">
                     Synchronization Diagnostic Log
                   </h4>
-                  <button onClick={() => setShowSyncLog(false)} className="text-slate-600 hover:text-white">
+                  <button onClick={() => setShowSyncLog(false)} aria-label="Close sync log" className="text-slate-600 hover:text-white">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -342,7 +342,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                         {new Date(article.published_at).toLocaleString('en-GB')}
                       </span>
                       {viewMode === 'raw' && article.url && (
-                        <span className="text-[7px] font-mono text-slate-600 truncate max-w-[150px]">
+                        <span className="text-[9px] font-mono text-slate-600 truncate max-w-[150px]">
                           {article.url}
                         </span>
                       )}
@@ -353,7 +353,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                         </span>
                       )}
                     </div>
-                    <h4 className={`text-[15px] font-bold leading-tight ${viewMode === 'raw' ? 'text-slate-200' : 'text-white'}`}>
+                    <h4 className={`text-[15px] font-bold leading-tight ${viewMode === 'raw' ? 'text-slate-200' : 'text-on-surface'}`}>
                       {article.title}
                     </h4>
                   </div>
@@ -432,7 +432,7 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                               {viewMode === 'raw' && (
                                 <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-4">
                                   <div className="space-y-1">
-                                     <span className="text-[7px] font-mono text-slate-600 block uppercase">Original Keywords</span>
+                                     <span className="text-[9px] font-mono text-slate-600 block uppercase">Original Keywords</span>
                                       <div className="flex flex-wrap gap-1">
                                         {prepareList(article.keywords || []).map((k: any) => (
                                           <span key={k.id} className="text-[8px] font-mono bg-white/5 px-1 rounded text-slate-500">{k.value}</span>
@@ -440,8 +440,8 @@ export const RealTimeNewsFeed: React.FC<RealTimeNewsFeedProps> = ({ hideBackgrou
                                       </div>
                                   </div>
                                   <div className="space-y-1">
-                                     <span className="text-[7px] font-mono text-slate-600 block uppercase">Category</span>
-                                     <span className="text-[9px] font-mono text-white italic">{article.category}</span>
+                                     <span className="text-[9px] font-mono text-slate-600 block uppercase">Category</span>
+                                     <span className="text-[9px] font-mono text-on-surface italic">{article.category}</span>
                                   </div>
                                 </div>
                               )}

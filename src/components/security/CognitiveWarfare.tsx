@@ -145,7 +145,7 @@ const RRIImpactPanel: React.FC<{ analysis: CogWarfareAnalysis }> = ({ analysis }
         <div key={r.label} className="flex items-center gap-3 py-1 border-b border-white/5">
           <div className="flex-1 min-w-0">
             <div className="text-[9px] font-bold text-slate-300">{r.label}</div>
-            <div className="text-[7px] text-slate-600">{r.desc}</div>
+            <div className="text-[9px] text-slate-600">{r.desc}</div>
           </div>
           <span className="text-[8px] font-mono px-1.5 py-0.5 rounded shrink-0"
             style={{ background: '#00d4ff10', color: '#00d4ff88', border: '1px solid #00d4ff22' }}>
@@ -524,7 +524,7 @@ export const CognitiveWarfare: React.FC = () => {
                   { l: 'Amp. Delta',    v: `+${quickResult.rri_amplification_delta.toFixed(4)}` },
                 ].map(m => (
                   <div key={m.l}>
-                    <div className="text-[7px] font-mono text-slate-500 uppercase">{m.l}</div>
+                    <div className="text-[9px] font-mono text-slate-500 uppercase">{m.l}</div>
                     <div className="text-[11px] font-bold font-mono text-intel-cyan">{m.v}</div>
                   </div>
                 ))}
@@ -582,7 +582,7 @@ export const CognitiveWarfare: React.FC = () => {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <ClassBadge cls={c.peak_class} />
-                      <span className="text-[10px] font-bold text-white">{c.id}</span>
+                      <span className="text-[10px] font-bold text-on-surface">{c.id}</span>
                     </div>
                     <div className="text-[8px] font-mono text-slate-500">
                       {c.detections} detections · First: {new Date(c.first_seen).toLocaleTimeString()} · Last: {new Date(c.last_seen).toLocaleTimeString()}
@@ -601,7 +601,7 @@ export const CognitiveWarfare: React.FC = () => {
                 <div className="grid grid-cols-4 gap-2">
                   {latest && Object.entries(latest.shock_vector).map(([k, v]) => (
                     <div key={k} className="text-center">
-                      <div className="text-[7px] text-slate-600 uppercase">{k.split('_')[0]}</div>
+                      <div className="text-[9px] text-slate-600 uppercase">{k.split('_')[0]}</div>
                       <div className="text-[11px] font-bold font-mono"
                         style={{ color: scoreColor(v as number) }}>
                         {Math.round((v as number) * 100)}%

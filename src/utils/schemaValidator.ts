@@ -106,8 +106,7 @@ export const SCHEMA_MAP: Record<string, TableSchema> = {
     priority: 'text',
     title: 'text',
     message: 'text',
-    action_label: 'text',
-    action_event: 'text',
+    action: { label: 'text', event: 'text' },
     action_detail: 'jsonb',
     read: 'boolean',
     created_at: 'timestamp'

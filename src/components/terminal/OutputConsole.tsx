@@ -18,7 +18,7 @@ export const OutputConsole: React.FC<OutputConsoleProps> = ({ history }) => {
 
   const getColorClass = (type: TerminalLine['type']) => {
     switch (type) {
-      case 'command': return 'text-white font-bold';
+      case 'command': return 'text-on-surface font-bold';
       case 'error': return 'text-intel-red';
       case 'system': return 'text-intel-cyan font-bold';
       case 'success': return 'text-intel-green';
@@ -70,10 +70,10 @@ export const OutputConsole: React.FC<OutputConsoleProps> = ({ history }) => {
                     <div className="mt-4 flex items-center space-x-2">
                        <span className="text-[9px] text-slate-500 uppercase tracking-widest">Risk Level:</span>
                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                         line.structured.riskLevel === 'CRITICAL' ? 'bg-intel-red text-white' :
-                         line.structured.riskLevel === 'HIGH' ? 'bg-orange-500 text-white' :
+                         line.structured.riskLevel === 'CRITICAL' ? 'bg-intel-red text-on-surface' :
+                         line.structured.riskLevel === 'HIGH' ? 'bg-orange-500 text-on-surface' :
                          line.structured.riskLevel === 'MEDIUM' ? 'bg-yellow-500 text-black' :
-                          'bg-slate-500 text-white'
+                          'bg-slate-500 text-on-surface'
                        }`}>
                          {line.structured.riskLevel}
                        </span>
@@ -96,7 +96,7 @@ export const OutputConsole: React.FC<OutputConsoleProps> = ({ history }) => {
                       <div className="text-[9px] text-slate-500 uppercase tracking-widest mb-2">Model Connectivity</div>
                       <div className="flex items-center justify-around">
                         <div className="text-center">
-                          <div className="text-[16px] font-bold text-white flex items-center space-x-1">
+                          <div className="text-[16px] font-bold text-on-surface flex items-center space-x-1">
                             <span>R(t): {line.structured.rriImpact.r > 0 ? '+' : ''}{line.structured.rriImpact.r.toFixed(3)}</span>
                             {line.structured.rriImpact.direction === 'up' && <span className="text-intel-red">↑</span>}
                             {line.structured.rriImpact.direction === 'down' && <span className="text-intel-green">↓</span>}
@@ -105,7 +105,7 @@ export const OutputConsole: React.FC<OutputConsoleProps> = ({ history }) => {
                         </div>
                         <div className="h-8 w-px bg-white/10" />
                         <div className="text-center">
-                          <div className="text-[16px] font-bold text-white">
+                          <div className="text-[16px] font-bold text-on-surface">
                             S(t): {line.structured.rriImpact.s > 0 ? '+' : ''}{line.structured.rriImpact.s.toFixed(3)}
                           </div>
                           <div className="text-[8px] text-slate-500">Social Salience</div>

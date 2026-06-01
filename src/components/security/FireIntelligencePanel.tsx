@@ -32,7 +32,7 @@ const FireCard: React.FC<{ s: FireSignal }> = ({ s }) => {
           <span className={`text-[9px] font-mono font-bold uppercase ${cfg.color}`}>{cfg.label}</span>
         </div>
         <div className="text-right">
-          <div className="text-[7px] font-mono text-slate-600">Protest prob</div>
+          <div className="text-[9px] font-mono text-slate-600">Protest prob</div>
           <div className={`text-xl font-bold font-mono ${cfg.color}`}>{pct}%</div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export const FireIntelligencePanel: React.FC<FireIntelligencePanelProps> = ({ go
         <div className="flex items-center space-x-3">
           <Flame className="w-5 h-5 text-intel-red shrink-0" />
           <div>
-            <h2 className="text-sm font-bold text-white uppercase tracking-[0.15em] leading-tight">Fire Intelligence</h2>
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-[0.15em] leading-tight">Fire Intelligence</h2>
             <p className="text-[10px] font-mono text-slate-500 uppercase">
               NASA FIRMS VIIRS · {simMode ? 'DEMO' : 'SNPP 24h'}
             </p>
@@ -109,13 +109,13 @@ export const FireIntelligencePanel: React.FC<FireIntelligencePanelProps> = ({ go
         <div className={`rounded-2xl border p-4 sm:p-5 space-y-3 ${state.cascadeRisk ? 'border-intel-red/40 bg-intel-red/8' : state.activeProtestSignals.length > 0 ? 'border-intel-orange/30 bg-intel-orange/5' : 'border-intel-border/40 bg-black/10'}`}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Total hotspots', val: state.hotspots.length, color: 'text-white' },
+              { label: 'Total hotspots', val: state.hotspots.length, color: 'text-on-surface' },
               { label: 'Protest signals', val: state.activeProtestSignals.length, color: state.activeProtestSignals.length > 0 ? 'text-intel-red' : 'text-slate-500' },
               { label: 'Govs affected', val: state.governoratesAffected.length, color: state.cascadeRisk ? 'text-intel-red' : 'text-slate-400' },
               { label: 'Σ ε(t)', val: `+${state.totalEpsilon.toFixed(3)}`, color: state.totalEpsilon > 0.05 ? 'text-intel-red' : 'text-slate-500' },
             ].map(m => (
               <div key={m.label} className="text-center sm:text-left">
-                <div className="text-[7px] font-mono text-slate-600 uppercase tracking-tighter sm:tracking-normal">{m.label}</div>
+                <div className="text-[9px] font-mono text-slate-600 uppercase tracking-tighter sm:tracking-normal">{m.label}</div>
                 <div className={`text-2xl sm:text-3xl font-bold font-mono ${m.color}`}>{m.val}</div>
               </div>
             ))}
@@ -142,7 +142,7 @@ export const FireIntelligencePanel: React.FC<FireIntelligencePanelProps> = ({ go
         {/* Header Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center space-x-6">
-            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center">
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center">
               <Globe className="w-4 h-4 mr-2 text-intel-orange" />
               Spatial Thermal Intelligence 
             </h3>

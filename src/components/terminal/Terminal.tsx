@@ -62,7 +62,7 @@ export const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose }) => {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className={`fixed z-[100] flex flex-col font-mono shadow-2xl transition-all duration-300 ${
+        className={`fixed z-modal flex flex-col font-mono shadow-2xl transition-all duration-300 ${
           isMaximized 
             ? 'inset-0 m-0 rounded-none' 
             : 'bottom-0 md:bottom-8 right-0 md:right-8 w-full md:max-w-2xl h-[85vh] md:h-[500px] rounded-t-xl md:rounded-xl border border-intel-border'
@@ -73,7 +73,7 @@ export const Terminal: React.FC<TerminalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
               <TerminalSquare className="w-4 h-4 text-intel-cyan" />
-              <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">INTEL-ANALYST TERMINAL</span>
+              <span className="text-[10px] font-bold text-on-surface uppercase tracking-[0.2em]">INTEL-ANALYST TERMINAL</span>
             </div>
             <div className={`h-1.5 w-1.5 rounded-full bg-intel-cyan animate-pulse`} />
             <span className="text-[9px] text-intel-cyan/60 font-medium">CORE_ANALYST@ACTIVE</span>

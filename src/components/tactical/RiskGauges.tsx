@@ -69,7 +69,7 @@ export const RiskGauges: React.FC = () => {
     { 
       label: 'TND/USD', 
       value: (data?.economy?.tnd_usd ?? 3.118).toFixed(3),
-      color: 'text-white',
+      color: 'text-on-surface',
       level: 'bg-slate-700'
     },
     { 

@@ -31,7 +31,7 @@ export function EventsColumn({ items, selectedId, onSelect }: ColProps) {
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
-              <span className={`px-1 rounded text-[7px] font-bold uppercase ${
+              <span className={`px-1 rounded text-[9px] font-bold uppercase ${
                 item.data.status === 'escalating' ? 'bg-red-500/20 text-red-400' : 
                 item.data.status === 'emerging' ? 'bg-blue-500/20 text-blue-400' :
                 'bg-emerald-500/20 text-emerald-400'
@@ -49,11 +49,11 @@ export function EventsColumn({ items, selectedId, onSelect }: ColProps) {
             
             <div className="flex items-center justify-between pt-1 border-t border-white/5">
               <div className="flex flex-col">
-                <span className="text-[6px] text-gray-600 uppercase">PRIO</span>
+                <span className="text-[9px] text-gray-600 uppercase">PRIO</span>
                 <span className="text-purple-400 font-bold text-[9px]">{item.data.priority_score}</span>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-[6px] text-gray-600 uppercase">TREND</span>
+                <span className="text-[9px] text-gray-600 uppercase">TREND</span>
                 <span className={`text-[8px] font-bold uppercase ${
                   item.data.trend === 'up' ? 'text-red-400 text-[9px]' : 
                   item.data.trend === 'down' ? 'text-blue-400 text-[9px]' : 

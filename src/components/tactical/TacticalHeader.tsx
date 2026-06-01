@@ -48,7 +48,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
   };
   
   return (
-    <header className="h-[8vh] min-h-[50px] max-h-[80px] border-b border-intel-border bg-[#05070a]/80 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-[100] shrink-0">
+    <header className="h-[8vh] min-h-[50px] max-h-[80px] border-b border-intel-border bg-[#05070a]/80 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-sticky shrink-0">
       {/* Top accent line - Professional Theme */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-intel-cyan/50 to-transparent" />
 
@@ -73,7 +73,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-sm lg:text-base font-bold text-white tracking-[0.2em] uppercase">Tactical OSINT</h1>
+              <h1 className="text-sm lg:text-base font-bold text-on-surface tracking-[0.2em] uppercase">Tactical OSINT</h1>
               <span className="text-[8px] lg:text-[10px] px-1.5 py-0.5 rounded bg-intel-red/10 border border-intel-red/20 text-intel-red font-mono font-bold">WARTIME RISK</span>
             </div>
             <div className="flex items-center space-x-2">
@@ -90,7 +90,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
             type="text" 
             placeholder="SEARCH INTELLIGENCE..." 
             aria-label="Global intelligence search"
-            className="bg-white/5 border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-white w-64 focus:outline-none focus:border-intel-cyan/40 transition-all"
+            className="bg-white/5 border border-intel-border rounded-lg pl-9 pr-4 py-1.5 text-[10px] font-mono text-on-surface w-64 focus:outline-none focus:border-intel-cyan/40 transition-all"
           />
         </div>
       </div>
@@ -112,7 +112,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[8px] lg:text-[10px] font-mono text-slate-500 uppercase tracking-widest">V(t)</span>
-            <span className={`text-sm lg:text-xl font-bold font-mono ${(rriState?.velocity ?? 0) > 0.15 ? 'text-intel-red' : (rriState?.velocity ?? 0) < -0.15 ? 'text-intel-cyan' : 'text-white'}`}>
+            <span className={`text-sm lg:text-xl font-bold font-mono ${(rriState?.velocity ?? 0) > 0.15 ? 'text-intel-red' : (rriState?.velocity ?? 0) < -0.15 ? 'text-intel-cyan' : 'text-on-surface'}`}>
               {((rriState?.velocity ?? 0) > 0 ? '+' : '') + (rriState?.velocity ?? 0).toFixed(3)}
             </span>
           </div>
@@ -170,7 +170,7 @@ export const TacticalHeader: React.FC<TacticalHeaderProps> = ({
           <WeatherMini />
 
           <div className="flex flex-col items-end min-w-[100px]">
-            <div className="text-[10px] font-mono text-white font-bold">
+            <div className="text-[10px] font-mono text-on-surface font-bold">
               {formatTime(currentTime)}
             </div>
             <div className="text-[8px] font-mono text-slate-500 uppercase">

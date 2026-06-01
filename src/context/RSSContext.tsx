@@ -207,9 +207,7 @@ export const RSSProvider: React.FC<{
             priority: 'CRITICAL',
             title: 'SYSTEM SHOCK DETECTED',
             message: shocks[0].title,
-            action_label: 'Analyze Shock',
-            action_event: 'navigate-main',
-            action_detail: { tab: 'newsfeed' },
+            action: { label: 'Analyze Shock', event: 'navigate-main', detail: { tab: 'newsfeed' } },
           });
         } else {
           const highSeverity = recent.filter(a => a.severity >= 4);
@@ -219,9 +217,7 @@ export const RSSProvider: React.FC<{
               priority: 'HIGH',
               title: `${combinedNew} New Articles — ${highSeverity.length} High Priority`,
               message: highSeverity[0]?.title || 'New intelligence available',
-              action_label: 'View Feed',
-              action_event: 'navigate-main',
-              action_detail: { tab: 'newsfeed' },
+              action: { label: 'View Feed', event: 'navigate-main', detail: { tab: 'newsfeed' } },
             });
           } else if (combinedNew > 0) {
             // MEDIUM priority — shows as yellow toast with auto-dismiss
@@ -245,29 +241,14 @@ export const RSSProvider: React.FC<{
     }
   }, [isPaused, updateMetrics, trackTrace, loadNotifications]);
 
-  // Watch RRI state for threshold breaches
+  // Track previous RRI for edge-detection in fetch loop
   useEffect(() => {
-    if (!rriState) return;
-
-    const checkRRI = async () => {
-      // R(t) crossed threshold
-      if (rriState.rri >= 2.625 && prevRRIRef.current < 2.625) {
-        await addNotification({
-          type: 'RRI',
-          priority: 'CRITICAL',
-          title: '⚠ Revolution Threshold Breached',
-          message: `R(t) = ${rriState.rri.toFixed(4)} — P_rev = ${(rriState.p_rev*100).toFixed(1)}%`,
-          action_label: 'View Risk Model',
-          action_event: 'navigate-main',
-          action_detail: { tab: 'risk' },
-        });
-        await loadNotifications();
-      }
+    if (rriState?.rri !== undefined) {
       prevRRIRef.current = rriState.rri;
-    };
-
-    checkRRI();
-  }, [rriState?.rri, rriState?.velocity]);
+    }
+  }, [rriState?.rri]);
+  // NOTE: RRI threshold breach notification is handled by useNotificationTriggers
+  //       (with proper cooldown). Do not duplicate it here.
 
   // CORE LOOP CONTROL
   const hasInit = useRef(false);

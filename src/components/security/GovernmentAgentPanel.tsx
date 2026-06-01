@@ -231,7 +231,7 @@ export const GovernmentAgentPanel: React.FC = () => {
               <span>{s.label}</span>
               {isUrgent && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full
-                  bg-intel-red text-[6px] font-bold text-white flex items-center
+                  bg-intel-red text-[9px] font-bold text-on-surface flex items-center
                   justify-center">{assessment.urgentActions.length}</div>
               )}
             </button>
@@ -357,7 +357,7 @@ export const GovernmentAgentPanel: React.FC = () => {
                         }`}>{action.horizon}</span>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-[7px] font-mono text-slate-700">Probability</div>
+                        <div className="text-[9px] font-mono text-slate-700">Probability</div>
                         <div className={`text-2xl font-bold font-mono ${
                           prob >= 55 ? 'text-intel-red' :
                           prob >= 40 ? 'text-intel-orange' : 'text-slate-400'
@@ -447,11 +447,11 @@ export const GovernmentAgentPanel: React.FC = () => {
                         : 'border-intel-orange/20 bg-intel-orange/3'
                     }`}>
                       <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-white">
+                        <span className="text-[11px] font-bold text-on-surface">
                           {div.topic}
                         </span>
                         <div className="text-right shrink-0">
-                          <div className="text-[7px] font-mono text-slate-600">Divergence</div>
+                          <div className="text-[9px] font-mono text-slate-600">Divergence</div>
                           <div className={`text-xl font-bold font-mono ${
                             divPct >= 70 ? 'text-intel-red' : 'text-intel-orange'
                           }`}>{divPct}%</div>

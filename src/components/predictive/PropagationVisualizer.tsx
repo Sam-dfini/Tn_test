@@ -253,10 +253,10 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
 
   const getStatusColor = (status: PropagationNode['status']) => {
     switch (status) {
-      case 'origin': return 'bg-red-600 text-white border-red-800';
-      case 'high': return 'bg-orange-500 text-white border-orange-700';
+      case 'origin': return 'bg-red-600 text-on-surface border-red-800';
+      case 'high': return 'bg-orange-500 text-on-surface border-orange-700';
       case 'medium': return 'bg-yellow-500 text-black border-yellow-600';
-      case 'low': return 'bg-blue-500 text-white border-blue-700';
+      case 'low': return 'bg-blue-500 text-on-surface border-blue-700';
       default: return 'bg-gray-200 text-gray-500 border-gray-300';
     }
   };
@@ -276,7 +276,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
   if (!simulation) return null;
 
   return (
-    <div className="flex flex-col min-h-[1200px] bg-[#0a0a0a] text-white border border-white/10 rounded-xl">
+    <div className="flex flex-col min-h-[1200px] bg-[#0a0a0a] text-on-surface border border-white/10 rounded-xl">
       {/* Header */}
       <div className="p-6 border-b border-white/10 bg-gradient-to-r from-red-950/20 to-transparent">
         <div className="flex justify-between items-start mb-4">
@@ -344,7 +344,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
           </div>
           <div className="bg-white/5 p-3 rounded-lg border border-white/10">
             <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Reachable Govs</div>
-            <div className="text-xl font-mono text-white">{stats?.totalReachable} / 24</div>
+            <div className="text-xl font-mono text-on-surface">{stats?.totalReachable} / 24</div>
           </div>
           <div className="bg-white/5 p-3 rounded-lg border border-white/10">
             <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">High Risk Epicenters</div>
@@ -618,7 +618,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                         <div className="w-1.5 h-1.5 rounded-full bg-white" />
                       </motion.div>
                       <div className="mb-4">
-                        <h3 className="text-xl font-mono text-white">Day {dayGroup.day}</h3>
+                        <h3 className="text-xl font-mono text-on-surface">Day {dayGroup.day}</h3>
                         <p className="text-xs text-gray-500 uppercase tracking-widest">Potential Activation Window</p>
                       </div>
                       <div className="flex flex-wrap gap-3">
@@ -652,7 +652,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 className="h-full p-8 flex flex-col"
               >
                 <div className="mb-6">
-                  <h3 className="text-xl font-light text-white mb-2">SIR Protest Spread Dynamics (EQ.4)</h3>
+                  <h3 className="text-xl font-light text-on-surface mb-2">SIR Protest Spread Dynamics (EQ.4)</h3>
                   <p className="text-sm text-gray-400">
                     Epidemic-style model tracking the transition of the population between Susceptible (S), 
                     Infected/Protesting (I), and Recovered/Repressed (R) states over the simulation window.
@@ -777,7 +777,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 <div>
                   <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Peak Mobilization</div>
                   <div className="flex items-baseline gap-2">
-                    <div className="text-xl font-mono text-white">
+                    <div className="text-xl font-mono text-on-surface">
                       Day {simulation.sirData.reduce((prev, curr) => prev.I > curr.I ? prev : curr).day}
                     </div>
                     <div className="text-xs text-red-400">
@@ -862,7 +862,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
           <div className="mt-8 pt-8 border-t border-white/10">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-mono uppercase tracking-widest text-gray-400">Simulation Window</h3>
-              <span className="text-xs font-mono text-white">{maxDays} Days</span>
+              <span className="text-xs font-mono text-on-surface">{maxDays} Days</span>
             </div>
             <input 
               type="range" 
@@ -884,7 +884,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
                 setPlaying(true);
               }}
               disabled={playing}
-              className="mt-4 w-full px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold transition-all flex items-center justify-center gap-2"
+              className="mt-4 w-full px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-on-surface text-xs font-semibold transition-all flex items-center justify-center gap-2"
             >
               {playing ? (
                 <>
@@ -947,7 +947,7 @@ export const PropagationVisualizer: React.FC<PropagationVisualizerProps> = ({
           >
             Close Analysis
           </button>
-          <button className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-all flex items-center gap-2">
+          <button className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-on-surface text-xs font-medium transition-all flex items-center gap-2">
             <TrendingUp className="w-3.5 h-3.5" />
             Export Forecast
           </button>

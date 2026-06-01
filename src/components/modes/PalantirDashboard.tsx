@@ -338,7 +338,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
             <Network className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-widest uppercase">Palantir <span className="text-indigo-400">Mode</span></h1>
+            <h1 className="text-xl font-bold text-on-surface tracking-widest uppercase">Palantir <span className="text-indigo-400">Mode</span></h1>
             <div className="text-[10px] font-mono text-indigo-400/70 uppercase">Link Analysis & Entity Resolution</div>
           </div>
         </div>
@@ -371,7 +371,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
         {/* Left Column - Entities */}
         <div className="space-y-6">
           <div className="bg-[#1e293b] border border-indigo-500/20 rounded-xl p-6">
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center justify-between">
               <span className="flex items-center">
                 <Search className="w-4 h-4 mr-2 text-indigo-400" />
                 Causal Path Analysis
@@ -389,7 +389,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                 <select 
                   value={sourceNodeId || ''} 
                   onChange={(e) => setSourceNodeId(e.target.value)}
-                  className="w-full bg-[#0f172a] border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-white focus:outline-none"
+                  className="w-full bg-[#0f172a] border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-on-surface focus:outline-none"
                 >
                   <option value="">Select source entity...</option>
                   {nodes.map(n => <option key={n.id} value={n.id}>{n.label}</option>)}
@@ -401,7 +401,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                 <select 
                   value={targetNodeId || ''} 
                   onChange={(e) => setTargetNodeId(e.target.value)}
-                  className="w-full bg-[#0f172a] border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-white focus:outline-none"
+                  className="w-full bg-[#0f172a] border border-indigo-500/30 rounded-lg px-3 py-2 text-xs text-on-surface focus:outline-none"
                 >
                   <option value="">Select target outcome...</option>
                   {nodes.map(n => <option key={n.id} value={n.id}>{n.label}</option>)}
@@ -411,7 +411,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
               <button 
                 onClick={findPath}
                 disabled={!sourceNodeId || !targetNodeId || isLoading || isComputing}
-                className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-widest transition-all rounded-lg flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-indigo-500/20"
+                className="w-full h-10 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-on-surface text-xs font-bold uppercase tracking-widest transition-all rounded-lg flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-indigo-500/20"
               >
                 {isComputing ? (
                   <>
@@ -447,7 +447,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
           </div>
 
           <div className="bg-[#1e293b] border border-indigo-500/20 rounded-xl p-6">
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
               <Shield className="w-4 h-4 mr-2 text-indigo-400" />
               High-Risk Entities
             </h2>
@@ -461,10 +461,10 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-sm font-bold text-white">{entity.label}</div>
+                        <div className="text-sm font-bold text-on-surface">{entity.label}</div>
                         <div className="text-[10px] text-slate-400 uppercase">{entity.type} {entity.category ? `· ${entity.category}` : ''}</div>
                       </div>
-                      <div className={`text-[10px] font-bold px-2 py-0.5 rounded ${entity.risk === 'CRITICAL' ? 'bg-red-600 text-white' : 'bg-red-500/20 text-red-400'}`}>
+                      <div className={`text-[10px] font-bold px-2 py-0.5 rounded ${entity.risk === 'CRITICAL' ? 'bg-red-600 text-on-surface' : 'bg-red-500/20 text-red-400'}`}>
                         {entity.risk}
                       </div>
                     </div>
@@ -482,7 +482,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
         {/* Middle Column - Graph Visualization */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-[#1e293b] border border-indigo-500/20 rounded-xl p-6 h-[500px] flex flex-col relative">
-            <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+            <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
               <Network className="w-4 h-4 mr-2 text-indigo-400" />
               Intelligence Network Graph
             </h2>
@@ -514,7 +514,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                         <Activity className="w-3 h-3" />
                       </button>
                     </div>
-                    <div className="text-lg font-bold text-white mb-1">{selectedEntity.label}</div>
+                    <div className="text-lg font-bold text-on-surface mb-1">{selectedEntity.label}</div>
                     <div className="text-[10px] text-indigo-300 font-mono uppercase mb-4">{selectedEntity.type} · {selectedEntity.category || 'GENERAL'}</div>
                     
                     <div className="space-y-3">
@@ -530,7 +530,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                       </div>
                     </div>
 
-                    <button className="w-full mt-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-widest transition-colors rounded">
+                    <button className="w-full mt-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-on-surface text-[10px] font-bold uppercase tracking-widest transition-colors rounded">
                       Open Dossier
                     </button>
                   </motion.div>
@@ -541,7 +541,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
 
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-[#1e293b] border border-indigo-500/20 rounded-xl p-6">
-              <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+              <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
                 <Activity className="w-4 h-4 mr-2 text-indigo-400" />
                 Recent Activity
               </h2>
@@ -549,7 +549,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 rounded-full bg-indigo-400 mt-1.5"></div>
                   <div>
-                    <div className="text-xs font-bold text-white">New Connection Detected</div>
+                    <div className="text-xs font-bold text-on-surface">New Connection Detected</div>
                     <div className="text-[10px] text-slate-400">UGTT Leadership ↔ Opposition Figures</div>
                     <div className="text-[9px] text-indigo-400/70 mt-1">2 hours ago</div>
                   </div>
@@ -557,7 +557,7 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 rounded-full bg-red-400 mt-1.5"></div>
                   <div>
-                    <div className="text-xs font-bold text-white">Risk Level Escalation</div>
+                    <div className="text-xs font-bold text-on-surface">Risk Level Escalation</div>
                     <div className="text-[10px] text-slate-400">Gafsa Region Protests</div>
                     <div className="text-[9px] text-indigo-400/70 mt-1">5 hours ago</div>
                   </div>
@@ -566,13 +566,13 @@ export const PalantirDashboard: React.FC<PalantirDashboardProps> = ({
             </div>
 
             <div className="bg-[#1e293b] border border-indigo-500/20 rounded-xl p-6">
-              <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center">
+              <h2 className="text-sm font-bold text-on-surface uppercase tracking-widest mb-4 flex items-center">
                 <Eye className="w-4 h-4 mr-2 text-indigo-400" />
                 Watchlist Alerts
               </h2>
               <div className="space-y-4">
                 <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-                  <div className="text-xs font-bold text-white mb-1">Financial Anomaly</div>
+                  <div className="text-xs font-bold text-on-surface mb-1">Financial Anomaly</div>
                   <div className="text-[10px] text-slate-400">Unusual capital outflow detected in monitored sector.</div>
                 </div>
               </div>

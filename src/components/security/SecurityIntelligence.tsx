@@ -297,7 +297,7 @@ export const SecurityIntelligence: React.FC = () => {
               <Lock className="w-6 h-6 text-intel-cyan" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Decree 54 Tracker</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Decree 54 Tracker</h3>
               <p className="text-[10px] text-slate-500 font-mono">Monitor institutional erosion & press freedom</p>
             </div>
           </div>
@@ -311,7 +311,7 @@ export const SecurityIntelligence: React.FC = () => {
               <Users className="w-6 h-6 text-intel-orange" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Civil Movements</h3>
+              <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">Civil Movements</h3>
               <p className="text-[10px] text-slate-500 font-mono">Real-time protest frequency & social actors</p>
             </div>
           </div>
@@ -354,7 +354,7 @@ export const SecurityIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
           <Shield className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Strategic Readiness & National Defense</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Strategic Readiness & National Defense</h3>
         </div>
         
         {/* Key Metrics Grid */}
@@ -385,7 +385,7 @@ export const SecurityIntelligence: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <div className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{metric.label}</div>
-                <div className="text-2xl font-bold text-white tracking-tight">{metric.value}</div>
+                <div className="text-2xl font-bold text-on-surface tracking-tight">{metric.value}</div>
               </div>
             </div>
           ))}
@@ -396,7 +396,7 @@ export const SecurityIntelligence: React.FC = () => {
           <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Readiness Matrix</h3>
+                <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Readiness Matrix</h3>
                 <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Current Capability Assessment</p>
               </div>
               <Target className="w-5 h-5 text-intel-cyan" />
@@ -424,7 +424,7 @@ export const SecurityIntelligence: React.FC = () => {
           <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Incident Dynamics</h3>
+                <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Incident Dynamics</h3>
                 <p className="text-xs text-slate-500 mt-1 uppercase font-mono">6-Month Threat Vector Analysis</p>
               </div>
               <div className="flex items-center space-x-4">
@@ -500,7 +500,7 @@ export const SecurityIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
           <Navigation className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Border Integrity & Migration Control</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Border Integrity & Migration Control</h3>
         </div>
 
         {/* Illegal Immigration & Maritime Security Section */}
@@ -510,7 +510,7 @@ export const SecurityIntelligence: React.FC = () => {
             <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h4 className="text-lg font-bold text-white uppercase tracking-tight">Migration Interception Dynamics</h4>
+                  <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Migration Interception Dynamics</h4>
                   <p className="text-[10px] text-slate-500 uppercase">Interceptions vs. Estimated Successful Crossings</p>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -541,7 +541,7 @@ export const SecurityIntelligence: React.FC = () => {
             {/* Maritime Metrics */}
             <div className="glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-8">
               <div className="space-y-6">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Maritime Readiness</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Maritime Readiness</h4>
                 <div className="space-y-4">
                   {prepareList(maritimeSecurityMetrics).map((metric: any, i: number) => (
                     <div key={metric.id} className="p-4 rounded-xl bg-white/5 border border-intel-border flex flex-col justify-between group hover:border-intel-cyan/30 transition-all">
@@ -556,7 +556,7 @@ export const SecurityIntelligence: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-end justify-between">
-                        <div className="text-2xl font-bold text-white font-mono">{metric.value}</div>
+                        <div className="text-2xl font-bold text-on-surface font-mono">{metric.value}</div>
                         <div className={`text-[10px] font-mono font-bold ${metric.trend.startsWith('+') ? 'text-intel-red' : 'text-intel-green'}`}>
                           {metric.trend}
                         </div>
@@ -567,7 +567,7 @@ export const SecurityIntelligence: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+                <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
                   <MapPin className="w-4 h-4 text-intel-red" />
                   <span>Migration Hotspots</span>
                 </h4>
@@ -575,7 +575,7 @@ export const SecurityIntelligence: React.FC = () => {
                   {prepareList(migrationHotspots).map((hotspot: any, i: number) => (
                     <div key={hotspot.id} className="p-3 rounded-xl bg-white/5 border border-intel-border">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-[10px] font-bold text-white uppercase">{hotspot.name}</span>
+                        <span className="text-[10px] font-bold text-on-surface uppercase">{hotspot.name}</span>
                         <span className={`text-[8px] font-mono font-bold ${hotspot.risk === 'CRITICAL' ? 'text-intel-red' : hotspot.risk === 'HIGH' ? 'text-intel-orange' : 'text-intel-cyan'}`}>{hotspot.risk}</span>
                       </div>
                       <div className="flex justify-between text-[9px] text-slate-500">
@@ -597,7 +597,7 @@ export const SecurityIntelligence: React.FC = () => {
             <div className="space-y-6 relative z-20">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
           <FlaskConical className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Narcotics & Organized Crime</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Narcotics & Organized Crime</h3>
         </div>
         
         {/* Drug & Narcotic Intelligence */}
@@ -606,7 +606,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Narcotic Enforcement</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Narcotic Enforcement</h3>
               <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Monthly Arrests & Trend</p>
             </div>
             <div className="p-2 rounded-xl bg-intel-cyan/10 border border-intel-cyan/20 text-intel-cyan">
@@ -636,7 +636,7 @@ export const SecurityIntelligence: React.FC = () => {
           <div className="mt-6 p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
             <div>
               <div className="text-[10px] font-mono text-slate-500 uppercase">Current Month</div>
-              <div className="text-xl font-bold text-white">620</div>
+              <div className="text-xl font-bold text-on-surface">620</div>
             </div>
             <div className="text-right">
               <div className="flex items-center text-intel-red space-x-1">
@@ -652,7 +652,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-3 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h4 className="text-lg font-bold text-white uppercase tracking-tight">Law Enforcement Activity</h4>
+              <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Law Enforcement Activity</h4>
               <p className="text-[10px] text-slate-500 uppercase">Monthly Drug-Related Arrests (Users vs Dealers)</p>
             </div>
             <div className="flex items-center space-x-4">
@@ -684,7 +684,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Strategic Seizures</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Strategic Seizures</h3>
               <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Top Substances & Market Impact</p>
             </div>
             <FlaskConical className="w-5 h-5 text-intel-cyan" />
@@ -697,7 +697,7 @@ export const SecurityIntelligence: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: item.color }}></div>
                     <div>
-                      <div className="text-xs font-bold text-white uppercase">{item.substance}</div>
+                      <div className="text-xs font-bold text-on-surface uppercase">{item.substance}</div>
                       <div className="text-[10px] font-mono text-slate-500">{item.quantity}</div>
                     </div>
                   </div>
@@ -731,7 +731,7 @@ export const SecurityIntelligence: React.FC = () => {
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <div className="text-[10px] font-mono text-slate-500 uppercase">Total Value</div>
-                <div className="text-lg font-bold text-white">9.2M</div>
+                <div className="text-lg font-bold text-on-surface">9.2M</div>
                 <div className="text-[8px] font-mono text-slate-600 uppercase">TND</div>
               </div>
             </div>
@@ -742,7 +742,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Consumption Profile</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Consumption Profile</h3>
               <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Market Prevalence</p>
             </div>
             <Pill className="w-5 h-5 text-intel-cyan" />
@@ -752,7 +752,7 @@ export const SecurityIntelligence: React.FC = () => {
               <div key={drug.id} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-mono text-slate-400 uppercase">{drug.name}</span>
-                  <span className="text-xs font-bold text-white">{drug.value}%</span>
+                  <span className="text-xs font-bold text-on-surface">{drug.value}%</span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                   <motion.div 
@@ -774,7 +774,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Trafficking Vector Analysis</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Trafficking Vector Analysis</h3>
               <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Active Narcotics Routes & Border Dynamics</p>
             </div>
             <Navigation className="w-5 h-5 text-intel-cyan" />
@@ -787,7 +787,7 @@ export const SecurityIntelligence: React.FC = () => {
                   <Navigation className="w-full h-full" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-mono font-bold text-white uppercase">{route.name}</div>
+                  <div className="text-[10px] font-mono font-bold text-on-surface uppercase">{route.name}</div>
                   <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border ${
                     route.risk === 'CRITICAL' ? 'bg-intel-red/10 border-intel-red/30 text-intel-red' : 'bg-intel-orange/10 border-intel-orange/30 text-intel-orange'
                   }`}>
@@ -807,7 +807,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="lg:col-span-1 glass p-5 md:p-6 rounded-2xl border border-intel-border flex flex-col justify-between">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Social Impact</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Social Impact</h3>
               <Users className="w-5 h-5 text-intel-cyan" />
             </div>
             
@@ -815,7 +815,7 @@ export const SecurityIntelligence: React.FC = () => {
               <div className="p-4 rounded-2xl bg-intel-cyan/5 border border-intel-cyan/20">
                 <div className="text-[10px] font-mono text-slate-500 uppercase mb-1">Youth Addiction Rate</div>
                 <div className="flex items-end space-x-2">
-                  <div className="text-3xl font-bold text-white">14.2%</div>
+                  <div className="text-3xl font-bold text-on-surface">14.2%</div>
                   <div className="text-xs font-bold text-intel-red mb-1">CRITICAL</div>
                 </div>
                 <div className="w-full h-1.5 bg-white/10 rounded-full mt-3 overflow-hidden">
@@ -829,7 +829,7 @@ export const SecurityIntelligence: React.FC = () => {
             </div>
           </div>
 
-          <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-white/10 transition-all group flex items-center justify-center space-x-2 mt-6">
+          <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-on-surface text-[10px] font-mono font-bold uppercase tracking-widest hover:bg-white/10 transition-all group flex items-center justify-center space-x-2 mt-6">
             <Activity className="w-3 h-3 text-intel-cyan" />
             <span>View Social Intelligence Data</span>
           </button>
@@ -843,7 +843,7 @@ export const SecurityIntelligence: React.FC = () => {
     <div className="space-y-6 relative z-20">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
           <Siren className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Public Safety & Infrastructure</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Public Safety & Infrastructure</h3>
         </div>
 
         {/* Road Accidents Section */}
@@ -851,7 +851,7 @@ export const SecurityIntelligence: React.FC = () => {
           <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
             <Car className="w-6 h-6 text-intel-orange" />
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tight">Road Safety & Infrastructure Intelligence</h3>
+              <h3 className="text-2xl font-bold text-on-surface uppercase tracking-tight">Road Safety & Infrastructure Intelligence</h3>
               <p className="text-[10px] text-slate-500 uppercase">Accident dynamics, mortality rates, and infrastructure risk factors</p>
             </div>
           </div>
@@ -861,7 +861,7 @@ export const SecurityIntelligence: React.FC = () => {
             <div className="lg:col-span-2 glass p-5 md:p-6 rounded-2xl border border-intel-border space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h4 className="text-lg font-bold text-white uppercase tracking-tight">Monthly Accident Dynamics</h4>
+                  <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight">Monthly Accident Dynamics</h4>
                   <p className="text-[10px] text-slate-500 uppercase">Accidents vs. Fatalities vs. Injuries</p>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -893,13 +893,13 @@ export const SecurityIntelligence: React.FC = () => {
             {/* Causes & Hotspots */}
             <div className="glass p-8 rounded-3xl border border-intel-border space-y-8">
               <div className="space-y-6">
-                <h4 className="text-lg font-bold text-white uppercase tracking-tight border-b border-intel-border pb-4">Primary Causes</h4>
+                <h4 className="text-lg font-bold text-on-surface uppercase tracking-tight border-b border-intel-border pb-4">Primary Causes</h4>
                 <div className="space-y-4">
                   {prepareList(accidentCauses).map((cause: any, i: number) => (
                     <div key={assertKey(getRenderKey(cause, i, 'seccau'))} className="space-y-2">
                       <div className="flex justify-between items-center text-[10px] font-mono uppercase">
                         <span className="text-slate-400">{cause.name}</span>
-                        <span className="text-white font-bold">{cause.value}%</span>
+                        <span className="text-on-surface font-bold">{cause.value}%</span>
                       </div>
                       <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                         <motion.div 
@@ -916,7 +916,7 @@ export const SecurityIntelligence: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+                <h4 className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
                   <AlertCircle className="w-4 h-4 text-intel-red" />
                   <span>High-Risk Corridors</span>
                 </h4>
@@ -928,7 +928,7 @@ export const SecurityIntelligence: React.FC = () => {
                   ]).map((route: any, i: number) => (
                     <div key={assertKey(getRenderKey(route, i, 'seccor'))} className="p-3 rounded-xl bg-white/5 border border-intel-border">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-[10px] font-bold text-white uppercase">{route.route}</span>
+                        <span className="text-[10px] font-bold text-on-surface uppercase">{route.route}</span>
                         <span className="text-[8px] font-mono text-intel-red font-bold">{route.risk}</span>
                       </div>
                       <p className="text-[9px] text-slate-500 italic">{route.trend}</p>
@@ -949,7 +949,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="space-y-6 relative z-20">
           <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
             <Wifi className="w-4 h-4 text-intel-cyan" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Cyber Warfare & Digital Threats</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Cyber Warfare & Digital Threats</h3>
             <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-red border-intel-red/30 bg-intel-red/5 ml-auto uppercase">Level 2 Alert Active</span>
           </div>
 
@@ -995,7 +995,7 @@ export const SecurityIntelligence: React.FC = () => {
                 {cyberTargets.map((t, i) => (
                   <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
                     <div>
-                      <div className="text-[10px] font-mono text-white">{t.target}</div>
+                      <div className="text-[10px] font-mono text-on-surface">{t.target}</div>
                       <div className="text-[8px] font-mono text-slate-600">{t.vector} · {t.lastAttempt}</div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1015,8 +1015,8 @@ export const SecurityIntelligence: React.FC = () => {
               {cyberThreatActors.map((a, i) => (
                 <div key={i} className={`p-4 rounded-xl border space-y-2 ${a.activity === 'ELEVATED' ? 'border-intel-orange/30 bg-intel-orange/5' : 'border-intel-border bg-white/[0.02]'}`}>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-white">{a.name}</span>
-                    <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${a.activity === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30' : 'text-slate-500 border-slate-700'}`}>{a.activity}</span>
+                    <span className="text-[10px] font-bold text-on-surface">{a.name}</span>
+                    <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${a.activity === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30' : 'text-slate-500 border-slate-700'}`}>{a.activity}</span>
                   </div>
                   <div className="space-y-1 text-[9px] font-mono">
                     <div><span className="text-slate-600">Origin: </span><span className="text-slate-400">{a.origin}</span></div>
@@ -1035,7 +1035,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="space-y-6 relative z-20">
           <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
             <Lock className="w-4 h-4 text-intel-red" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Prison System Intelligence</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Prison System Intelligence</h3>
             <span className="text-[8px] font-mono px-2 py-0.5 rounded border text-intel-red border-intel-red/30 bg-intel-red/5 ml-auto uppercase">Overcrowding: Critical</span>
           </div>
 
@@ -1063,10 +1063,10 @@ export const SecurityIntelligence: React.FC = () => {
                 {prisonData.map((p, i) => (
                   <div key={i} className="space-y-1.5 py-2 border-b border-white/5 last:border-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono text-white">{p.facility}</span>
+                      <span className="text-[10px] font-mono text-on-surface">{p.facility}</span>
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] font-bold font-mono ${p.risk === 'CRITICAL' ? 'text-intel-red' : p.risk === 'HIGH' ? 'text-intel-orange' : 'text-yellow-400'}`}>{p.occupancy}%</span>
-                        <span className={`text-[7px] font-mono px-1 py-0.5 rounded border uppercase ${p.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{p.risk}</span>
+                        <span className={`text-[9px] font-mono px-1 py-0.5 rounded border uppercase ${p.risk === 'CRITICAL' ? 'text-intel-red border-intel-red/30' : p.risk === 'HIGH' ? 'text-intel-orange border-intel-orange/30' : 'text-yellow-400 border-yellow-400/30'}`}>{p.risk}</span>
                       </div>
                     </div>
                     <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
@@ -1129,7 +1129,7 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="space-y-6 relative z-20">
           <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
             <ShieldAlert className="w-4 h-4 text-intel-cyan" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Police Operations & Force Posture</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Police Operations & Force Posture</h3>
           </div>
 
           {/* KPI strip */}
@@ -1173,7 +1173,7 @@ export const SecurityIntelligence: React.FC = () => {
                 {policeDeploymentData.map((r, i) => (
                   <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                     <div>
-                      <div className="text-[10px] font-mono text-white">{r.region}</div>
+                      <div className="text-[10px] font-mono text-on-surface">{r.region}</div>
                       <div className="text-[8px] font-mono text-slate-600">{r.units} units · {r.incidents_30d} incidents/30d</div>
                     </div>
                     <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase ${r.status === 'REINFORCED' ? 'text-intel-red border-intel-red/30 bg-intel-red/10' : r.status === 'ELEVATED' ? 'text-intel-orange border-intel-orange/30 bg-intel-orange/10' : 'text-slate-500 border-slate-700'}`}>{r.status}</span>
@@ -1201,7 +1201,7 @@ export const SecurityIntelligence: React.FC = () => {
                 <tbody className="divide-y divide-white/5">
                   {policeUseOfForce.map((f, i) => (
                     <tr key={i} className="hover:bg-white/[0.02]">
-                      <td className="py-2 text-[10px] font-mono text-white pr-4">{f.type}</td>
+                      <td className="py-2 text-[10px] font-mono text-on-surface pr-4">{f.type}</td>
                       <td className="py-2 text-[11px] font-bold font-mono text-intel-cyan pr-4">{f.incidents}</td>
                       <td className="py-2 text-[10px] font-mono text-intel-orange pr-4">{f.trend}</td>
                       <td className="py-2">
@@ -1225,14 +1225,14 @@ export const SecurityIntelligence: React.FC = () => {
         <div className="space-y-6 relative z-20">
           <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-2">
             <Crosshair className="w-4 h-4 text-intel-cyan" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Hotspots & Tactical Briefing</h3>
+            <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Hotspots & Tactical Briefing</h3>
           </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 glass p-8 rounded-3xl border border-intel-border">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Security Hotspots</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Security Hotspots</h3>
               <p className="text-xs text-slate-500 mt-1 uppercase font-mono">Priority Monitoring Zones</p>
             </div>
             <MapPin className="w-5 h-5 text-intel-red" />
@@ -1244,7 +1244,7 @@ export const SecurityIntelligence: React.FC = () => {
                 <div className="flex items-center space-x-4">
                   <div className={`w-2 h-2 rounded-full ${spot.threat === 'CRITICAL' ? 'bg-intel-red shadow-[0_0_10px_rgba(255,78,0,0.5)]' : spot.threat === 'HIGH' ? 'bg-intel-orange' : 'bg-intel-cyan'}`}></div>
                   <div>
-                    <div className="text-sm font-bold text-white uppercase tracking-tight">{spot.location}</div>
+                    <div className="text-sm font-bold text-on-surface uppercase tracking-tight">{spot.location}</div>
                     <div className="text-[10px] font-mono text-slate-500 uppercase">{spot.type}</div>
                   </div>
                 </div>
@@ -1265,7 +1265,7 @@ export const SecurityIntelligence: React.FC = () => {
           </div>
           
           <div className="relative z-10">
-            <h3 className="text-lg font-bold text-white uppercase tracking-tight mb-6">Tactical Briefing</h3>
+            <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight mb-6">Tactical Briefing</h3>
             <div className="space-y-6">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-intel-cyan">

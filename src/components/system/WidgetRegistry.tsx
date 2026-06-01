@@ -19,7 +19,7 @@ const PlaceholderWidget: React.FC<{ title: string; icon: any; color: string }> =
       <div className={`p-1.5 rounded bg-${color}/10 border border-${color}/20`}>
         <Icon className={`w-4 h-4 text-${color}`} />
       </div>
-      <h4 className="text-[10px] font-bold text-white uppercase tracking-widest">{title}</h4>
+      <h4 className="text-[10px] font-bold text-on-surface uppercase tracking-widest">{title}</h4>
     </div>
     <div className="flex-1 flex items-center justify-center">
       <div className="text-center">

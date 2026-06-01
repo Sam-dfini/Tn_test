@@ -197,7 +197,7 @@ export const StubPage: React.FC<StubPageProps> = (
                 <span className="text-xs font-mono text-slate-400 uppercase">
                   {key.replace(/_/g, " ")}
                 </span>
-                <span className="text-lg font-bold text-white">
+                <span className="text-lg font-bold text-on-surface">
                   {value.toFixed(1)}
                 </span>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, Download, FileText, Table2, Code,
@@ -214,7 +214,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
             exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/70 backdrop-blur-sm
-              z-[300]"
+              z-modal"
           />
 
           {/* Modal */}
@@ -227,7 +227,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
               md:inset-x-auto md:left-1/2 md:-translate-x-1/2
               md:w-[640px] md:top-[8%] md:bottom-[8%]
               bg-[#05070a] border border-intel-border rounded-2xl
-              z-[400] flex flex-col overflow-hidden shadow-2xl"
+              z-popup flex flex-col overflow-hidden shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between
@@ -235,7 +235,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
               <div className="flex items-center space-x-3">
                 <Download className="w-4 h-4 text-intel-cyan" />
                 <div>
-                  <div className="text-sm font-bold text-white
+                  <div className="text-sm font-bold text-on-surface
                     uppercase tracking-widest">
                     Generate Report
                   </div>
@@ -247,7 +247,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => setShowPremium(true)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-3 py-1.5 rounded-lg text-[9px] font-mono uppercase tracking-widest transition-all shadow-lg shadow-orange-500/20 mr-2"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-on-surface px-3 py-1.5 rounded-lg text-[9px] font-mono uppercase tracking-widest transition-all shadow-lg shadow-orange-500/20 mr-2"
                 >
                   <Sparkles className="w-3 h-3" />
                   <span>Premium</span>
@@ -294,7 +294,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
                           )}
                         </div>
                         <div className={`text-[10px] font-bold ${
-                          format === f.id ? 'text-white' : 'text-slate-400'
+                          format === f.id ? 'text-on-surface' : 'text-slate-400'
                         }`}>{f.label}</div>
                         <div className="text-[8px] text-slate-600
                           leading-snug">{f.desc}</div>
@@ -324,7 +324,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
                             rounded-lg text-[8px] font-mono uppercase
                             transition-all ${
                             classification === c.id
-                              ? 'bg-white/10 text-white'
+                              ? 'bg-white/10 text-on-surface'
                               : 'text-slate-600 hover:text-slate-400'
                           }`}
                         >
@@ -466,7 +466,14 @@ export const IntelligenceDossierExporterModal: React.FC<{
                   {SECTION_OPTIONS.map(section => {
                     const selected =
                       selectedSections.includes(section.id);
-                    return (
+                    useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
+  return (
                       <button
                         key={section.id}
                         onClick={() => toggleSection(section.id)}
@@ -494,11 +501,11 @@ export const IntelligenceDossierExporterModal: React.FC<{
                           <div className="flex items-center
                             space-x-2">
                             <span className={`text-[10px] font-bold
-                              ${selected ? 'text-white' : 'text-slate-400'}`}>
+                              ${selected ? 'text-on-surface' : 'text-slate-400'}`}>
                               {section.label}
                             </span>
                             {section.recommended && (
-                              <span className="text-[7px] font-mono
+                              <span className="text-[9px] font-mono
                                 text-intel-cyan/60 uppercase">
                                 recommended
                               </span>
@@ -522,7 +529,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
                   uppercase tracking-widest">Report Preview</div>
                 <div className="text-[10px] font-mono text-slate-400
                   space-y-1">
-                  <div>Format: <span className="text-white">
+                  <div>Format: <span className="text-on-surface">
                     {format.toUpperCase()}
                   </span></div>
                   <div>Classification: <span className={
@@ -532,7 +539,7 @@ export const IntelligenceDossierExporterModal: React.FC<{
                       ? 'text-intel-cyan'
                       : 'text-intel-green'
                   }>{classification}</span></div>
-                  <div>Sections: <span className="text-white">
+                  <div>Sections: <span className="text-on-surface">
                     {selectedSections.length}
                   </span></div>
                   <div>Current R(t): <span className="text-intel-orange">

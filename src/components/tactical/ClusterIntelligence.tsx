@@ -231,7 +231,7 @@ export const ClusterIntelligence: React.FC = () => {
                     <ClusterIcon className="w-4 h-4" style={{ color: cluster.color }} />
                   </div>
                   <div>
-                    <div className="text-[11px] font-bold text-white uppercase tracking-wider">{cluster.label}</div>
+                    <div className="text-[11px] font-bold text-on-surface uppercase tracking-wider">{cluster.label}</div>
                     <div className="text-[9px] text-slate-500 line-clamp-1">{cluster.description}</div>
                   </div>
                 </div>
@@ -266,7 +266,7 @@ export const ClusterIntelligence: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <h4 className="text-[11px] font-bold text-white uppercase border-b border-intel-border pb-2">Primary Risk Driver</h4>
+              <h4 className="text-[11px] font-bold text-on-surface uppercase border-b border-intel-border pb-2">Primary Risk Driver</h4>
               <div className="p-3 rounded-xl bg-black/40 border border-intel-border">
                 {(() => {
                   const maxCluster = [...clusterDetails].sort((a, b) => b.value - a.value)[0];
@@ -275,10 +275,10 @@ export const ClusterIntelligence: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <MaxClusterIcon className="w-3.5 h-3.5" style={{ color: maxCluster.color }} />
-                        <span className="text-[10px] font-bold text-white uppercase">{maxCluster.label}</span>
+                        <span className="text-[10px] font-bold text-on-surface uppercase">{maxCluster.label}</span>
                       </div>
                       <p className="text-[10px] text-slate-400 leading-relaxed">
-                        The current system state is primarily driven by <span className="text-white font-bold">{maxCluster.label}</span>, 
+                        The current system state is primarily driven by <span className="text-on-surface font-bold">{maxCluster.label}</span>, 
                         indicating that {maxCluster.description.toLowerCase()} is the dominant factor in the RRI calculation.
                       </p>
                     </div>
@@ -288,17 +288,17 @@ export const ClusterIntelligence: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-[11px] font-bold text-white uppercase border-b border-intel-border pb-2">System Stability Assessment</h4>
+              <h4 className="text-[11px] font-bold text-on-surface uppercase border-b border-intel-border pb-2">System Stability Assessment</h4>
               <div className="p-3 rounded-xl bg-black/40 border border-intel-border">
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <AlertTriangle className={`w-3.5 h-3.5 ${clusters.volatility > 0.2 ? 'text-intel-red' : 'text-intel-cyan'}`} />
-                    <span className="text-[10px] font-bold text-white uppercase">
+                    <span className="text-[10px] font-bold text-on-surface uppercase">
                       {clusters.volatility > 0.2 ? 'High Volatility' : 'Stable Imbalance'}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-400 leading-relaxed">
-                    Volatility is at <span className="text-white font-bold">{(clusters.volatility * 100).toFixed(1)}%</span>. 
+                    Volatility is at <span className="text-on-surface font-bold">{(clusters.volatility * 100).toFixed(1)}%</span>. 
                     {clusters.volatility > 0.2 
                       ? " Significant variance across clusters suggests a highly unstable and unpredictable system trajectory."
                       : " Low variance indicates a synchronized deterioration across all intelligence dimensions."}
@@ -336,12 +336,12 @@ export const ClusterIntelligence: React.FC = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-bold font-mono text-white">{(clusters.intelligenceScore * 100).toFixed(0)}</span>
+              <span className="text-2xl font-bold font-mono text-on-surface">{(clusters.intelligenceScore * 100).toFixed(0)}</span>
               <span className="text-[8px] font-mono text-slate-500 uppercase">RRI Score</span>
             </div>
           </div>
           <div className="space-y-1">
-            <div className="text-[10px] font-bold text-white uppercase">Intelligence Confidence</div>
+            <div className="text-[10px] font-bold text-on-surface uppercase">Intelligence Confidence</div>
             <div className="text-[9px] font-mono text-slate-500">Based on 10 normalized signals</div>
           </div>
         </div>
@@ -354,7 +354,7 @@ export const ClusterIntelligence: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
           <MapPin className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Geographic Cluster Distribution</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Geographic Cluster Distribution</h3>
         </div>
 
         {/* Cluster group legend */}
@@ -413,7 +413,7 @@ export const ClusterIntelligence: React.FC = () => {
               <tbody className="divide-y divide-white/5">
                 {prepareList(governorateClusterData.slice(0, 6)).map((row: any, i: number) => (
                   <tr key={generateStableKey(row, i, 'gov-row')} className="hover:bg-white/[0.02]">
-                    <td className="py-2 text-[10px] font-mono text-white pr-4">{row.gov}</td>
+                    <td className="py-2 text-[10px] font-mono text-on-surface pr-4">{row.gov}</td>
                     {prepareList(['systemPressure', 'mobilization', 'regimeFragility', 'spread', 'composite'] as const).map((key: any, j: number) => (
                       <td key={generateStableKey(key, j, 'gov-val')} className="py-2 pr-4">
                         <div className="flex items-center gap-2">
@@ -440,7 +440,7 @@ export const ClusterIntelligence: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center space-x-2 border-b border-intel-border/30 pb-3">
           <Clock className="w-4 h-4 text-intel-cyan" />
-          <h3 className="text-sm font-bold text-white uppercase tracking-[0.2em]">Temporal Wave Analysis — Cluster Evolution</h3>
+          <h3 className="text-sm font-bold text-on-surface uppercase tracking-[0.2em]">Temporal Wave Analysis — Cluster Evolution</h3>
         </div>
 
         {/* All 5 dimensions over time */}

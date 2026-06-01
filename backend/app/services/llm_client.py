@@ -129,7 +129,7 @@ def _get_openrouter() -> Optional[AsyncOpenAI]:
 async def generate(
     prompt: str,
     system: str = "",
-    max_tokens: int = 1000,
+    max_tokens: int = 600,
     response_format: str = "text",
 ) -> str:
     """Generate text via Groq (primary) or OpenRouter (fallback).
@@ -166,23 +166,30 @@ async def generate(
         try:
             resp = await groq.chat.completions.create(**kwargs)
             return resp.choices[0].message.content or ""
-        except Exception:
+        except Exception as e:
+            err = str(e)
+            if "402" in err or "credits" in err.lower() or "payment" in err.lower():
+                _healthy.discard("groq")
             pass
 
-    # Fallback: OpenRouter
+    # Fallback: OpenRouter (cap tokens lower to stay within free-tier limits)
     or_client = _get_openrouter()
     if or_client:
         fallback_kwargs = dict(
             model=OPENROUTER_CHAT_MODEL,
             messages=messages,
-            max_tokens=max_tokens,
+            max_tokens=min(max_tokens, 500),
         )
         if response_format == "json":
             fallback_kwargs["response_format"] = {"type": "json_object"}
         try:
             resp = await or_client.chat.completions.create(**fallback_kwargs)
             return resp.choices[0].message.content or ""
-        except Exception:
+        except Exception as e:
+            err = str(e)
+            if "402" in err or "credits" in err.lower() or "payment" in err.lower():
+                _healthy.discard("openrouter")
+                print(f"[llm_client] OpenRouter marked unhealthy (402 / insufficient credits)")
             pass
 
     return ""

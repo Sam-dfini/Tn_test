@@ -250,7 +250,7 @@ const AddSourceModal: React.FC<{
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[400] bg-black/80 backdrop-blur-sm
+      className="fixed inset-0 z-popup bg-black/80 backdrop-blur-sm
         flex items-center justify-center p-4"
       onClick={onClose}
     >
@@ -267,10 +267,10 @@ const AddSourceModal: React.FC<{
           border-b border-intel-border">
           <div className="flex items-center space-x-3">
             <Plus className="w-4 h-4 text-intel-cyan" />
-            <span className="text-sm font-bold text-white uppercase
+            <span className="text-sm font-bold text-on-surface uppercase
               tracking-widest">Add New Source</span>
           </div>
-          <button onClick={onClose}
+          <button onClick={onClose} aria-label="Close"
             className="p-1.5 text-slate-500 hover:text-white
               hover:bg-white/5 rounded-lg transition-all">
             <X className="w-4 h-4" />
@@ -574,14 +574,14 @@ const SourceCard: React.FC<{
           </div>
           <div className="min-w-0 space-y-1">
             <div className="flex items-center space-x-2 flex-wrap gap-1">
-              <span className="text-[11px] font-bold text-white truncate">
+              <span className="text-[11px] font-bold text-on-surface truncate">
                 {source.name}
               </span>
-              <span className={`text-[7px] font-mono px-1.5 py-0.5
+              <span className={`text-[9px] font-mono px-1.5 py-0.5
                 rounded border uppercase ${RELIABILITY_COLORS[source.reliability]}`}>
                 {source.reliability}
               </span>
-              <span className="text-[7px] font-mono text-slate-600 uppercase">
+              <span className="text-[9px] font-mono text-slate-600 uppercase">
                 {source.language}
               </span>
             </div>
@@ -618,7 +618,7 @@ const SourceCard: React.FC<{
               <div className="flex flex-wrap gap-1 pt-0.5">
                 {prepareList(source.keywords || source.monitorKeywords || [])
                   .slice(0, 4).map((kwItem: any, idx) => (
-                  <span key={assertKey(getRenderKey(kwItem, idx, 'source-kw'))} className="text-[7px] font-mono px-1.5 py-0.5
+                  <span key={assertKey(getRenderKey(kwItem, idx, 'source-kw'))} className="text-[9px] font-mono px-1.5 py-0.5
                     bg-white/5 text-slate-600 border border-white/5 rounded">
                     {typeof kwItem === 'string' ? kwItem : kwItem.value}
                   </span>
@@ -724,6 +724,12 @@ export const SourceLibrary: React.FC<{
     const interval = setInterval(fetchStatus, 30000);
     return () => clearInterval(interval);
   }, []);
+  useEffect(() => {
+    if (isEmbedded) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isEmbedded, onClose]);
 
   const [sources, setSources] = useState<Source[]>(() => {
     try {
@@ -840,7 +846,7 @@ export const SourceLibrary: React.FC<{
           <div className="flex items-center space-x-4">
             <Globe className="w-5 h-5 text-intel-cyan" />
             <div>
-              <div className="text-sm font-bold text-white uppercase
+              <div className="text-sm font-bold text-on-surface uppercase
                 tracking-widest">Source Library</div>
               <div className="text-[9px] font-mono text-slate-500">
                 {stats.total} sources ·
@@ -1091,7 +1097,7 @@ export const SourceLibrary: React.FC<{
         {/* Recent Intelligence Sidebar */}
         <div className="w-80 bg-black/20 overflow-y-auto p-6 hidden xl:block no-scrollbar">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[10px] font-mono font-bold text-white uppercase tracking-widest flex items-center space-x-2">
+            <h3 className="text-[10px] font-mono font-bold text-on-surface uppercase tracking-widest flex items-center space-x-2">
               <Activity className="w-3.5 h-3.5 text-intel-cyan" />
               <span>Recent Intelligence</span>
             </h3>
@@ -1121,7 +1127,7 @@ export const SourceLibrary: React.FC<{
                 </h4>
                 {article.category && (
                   <div className="mt-2 flex items-center space-x-2">
-                    <span className={`text-[7px] font-mono px-1.5 py-0.5 rounded uppercase ${
+                    <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded uppercase ${
                       article.category === 'POLITICAL' ? 'bg-intel-red/10 text-intel-red' :
                       article.category === 'ECONOMIC' ? 'bg-intel-cyan/10 text-intel-cyan' :
                       article.category === 'SECURITY' ? 'bg-intel-orange/10 text-intel-orange' :
@@ -1164,7 +1170,7 @@ export const SourceLibrary: React.FC<{
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] bg-[#020810]/98
+      className="fixed inset-0 z-modal bg-[#020810]/98
         backdrop-blur-md overflow-hidden flex flex-col"
     >
       {content}

@@ -92,7 +92,7 @@ export const SentimentAnalysis: React.FC = () => {
   ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white p-4 md:p-8 font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-black text-on-surface p-4 md:p-8 font-sans overflow-hidden">
       <BackgroundGrid />
       
       <div className="relative z-10 max-w-7xl mx-auto space-y-8">

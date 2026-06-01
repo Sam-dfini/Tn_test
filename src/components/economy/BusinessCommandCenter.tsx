@@ -208,7 +208,7 @@ const PersonaSelector: React.FC<{
             onClick={() => onSelect(p.id, p.defaultTab)}
             className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-mono font-bold uppercase tracking-widest transition-all ${
               isActive
-                ? 'border-opacity-60 text-white'
+                ? 'border-opacity-60 text-on-surface'
                 : 'bg-white/[0.03] border-white/5 text-white/30 hover:text-white/60 hover:border-white/10'
             }`}
             style={isActive ? {
@@ -309,7 +309,7 @@ export const BusinessCommandCenter: React.FC<BusinessCommandCenterProps> = ({
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-on-surface tracking-tight flex items-center gap-3">
               <Target className="w-6 h-6 text-intel-cyan" />
               Business & Investment Command Center
             </h1>

@@ -187,7 +187,7 @@ export const MilkDairyIntelligence: React.FC = () => {
     2: 'border-yellow-400/30 bg-yellow-400/10 text-yellow-400',
     3: 'border-orange-400/30 bg-orange-400/10 text-orange-400',
     4: 'border-red-500/30 bg-red-500/10 text-red-400',
-    5: 'border-white/20 bg-black text-white',
+    5: 'border-white/20 bg-black text-on-surface',
   };
 
   return (
@@ -287,9 +287,9 @@ export const MilkDairyIntelligence: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {dairyPriceTracker.map((p, i) => (
                         <tr key={i} className="hover:bg-white/[0.02]">
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{p.product}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{p.product}</td>
                           <td className="py-2.5 text-[9px] font-mono text-intel-cyan pr-4">{p.official}</td>
-                          <td className="py-2.5 text-[10px] font-mono font-bold text-white pr-4">{p.market}</td>
+                          <td className="py-2.5 text-[10px] font-mono font-bold text-on-surface pr-4">{p.market}</td>
                           <td className="py-2.5 text-[9px] font-mono text-slate-500 pr-4">{p.unit}</td>
                           <td className="py-2.5 pr-4">
                             <span className={cn('text-[10px] font-mono font-bold', p.distortion > 70 ? 'text-red-400' : p.distortion > 50 ? 'text-orange-400' : 'text-yellow-400')}>
@@ -340,7 +340,7 @@ export const MilkDairyIntelligence: React.FC = () => {
                     <div key={i} className="flex items-center gap-3 py-3 hover:bg-white/[0.02]">
                       <div className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0', s.heat === 'CRITICAL' ? 'bg-red-500/20' : 'bg-orange-500/20')}>🧈</div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-[10px] font-mono text-white">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
+                        <div className="text-[10px] font-mono text-on-surface">{s.term} <span className="text-slate-600 text-[9px]" dir="rtl">{s.ar}</span></div>
                         <div className="text-[8px] font-mono text-slate-500">{s.meaning}</div>
                       </div>
                       <RiskBadge level={s.heat} />
@@ -433,7 +433,7 @@ export const MilkDairyIntelligence: React.FC = () => {
                     <tbody className="divide-y divide-white/5">
                       {govDairyData.map((row, i) => (
                         <tr key={i} className="hover:bg-white/[0.02]">
-                          <td className="py-2 text-[10px] font-mono font-bold text-white pr-4">{row.gov}</td>
+                          <td className="py-2 text-[10px] font-mono font-bold text-on-surface pr-4">{row.gov}</td>
                           <td className="py-2 text-[9px] font-mono text-emerald-400 pr-4">{row.production_ML}</td>
                           <td className="py-2 text-[9px] font-mono text-slate-400 pr-4">{row.demand_ML}</td>
                           <td className="py-2 pr-4">
@@ -471,7 +471,7 @@ export const MilkDairyIntelligence: React.FC = () => {
                     return (
                       <div key={i} className={cn('p-3 rounded-xl border space-y-2', isCrisis ? 'border-red-500/30 bg-red-500/5' : isWarning ? 'border-orange-500/20' : 'border-intel-border')}>
                         <div className="flex items-center justify-between text-[9px] font-mono">
-                          <span className="text-white">{ind.indicator}</span>
+                          <span className="text-on-surface">{ind.indicator}</span>
                           <div className="flex items-center gap-2">
                             <span className="text-slate-600">Warn: {ind.warning}{ind.unit}</span>
                             <span className="text-slate-600">Crisis: {ind.crisis}{ind.unit}</span>
@@ -509,8 +509,8 @@ export const MilkDairyIntelligence: React.FC = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
-                            <span className={cn('text-[9px] font-mono font-bold', isCurrent ? 'text-orange-400' : isPast ? 'text-slate-600' : 'text-white')}>{step.signal}</span>
-                            {isCurrent && <span className="text-[7px] font-mono text-orange-400 border border-orange-400/30 px-1 rounded animate-pulse">NOW</span>}
+                            <span className={cn('text-[9px] font-mono font-bold', isCurrent ? 'text-orange-400' : isPast ? 'text-slate-600' : 'text-on-surface')}>{step.signal}</span>
+                            {isCurrent && <span className="text-[9px] font-mono text-orange-400 border border-orange-400/30 px-1 rounded animate-pulse">NOW</span>}
                           </div>
                           <div className="flex items-center gap-2">
                             <RiskBadge level={step.visibility} />

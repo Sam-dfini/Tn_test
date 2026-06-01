@@ -58,6 +58,7 @@ import { cn } from "../utils/cn";
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { RRIDomainRadar } from './shared/RRIDomainRadar';
 
 const normalizeName = (name: string) => {
   if (!name) return '';
@@ -142,7 +143,7 @@ const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
   
   return (
     <div className="flex items-center gap-1 px-2 py-2 shrink-0 border-r border-white/5">
-      <span className="text-[7px] font-mono text-slate-500 uppercase tracking-tight">V(t)</span>
+      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-tight">V(t)</span>
       <span className="text-[9px] font-mono font-bold" style={{ color }}>
         {isPositive ? '+' : ''}{value.toFixed(2)}
       </span>
@@ -150,7 +151,7 @@ const VelocityIndex: React.FC<{ value: number }> = ({ value }) => {
         className={cn("w-2 h-2 transition-transform duration-500", !isPositive && "rotate-180")} 
         style={{ color }} 
       />
-      <span className="text-[7px] font-mono font-bold uppercase hidden sm:inline" style={{ color }}>{label}</span>
+      <span className="text-[9px] font-mono font-bold uppercase hidden sm:inline" style={{ color }}>{label}</span>
     </div>
   );
 };
@@ -382,40 +383,76 @@ const DomainPolygon: React.FC<{ data: any; trend: any }> = ({ data, trend }) => 
       <div className="flex gap-4 pb-2">
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">Current</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Current</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-intel-red border border-dashed border-white/50" />
-          <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">24h Trend</span>
+          <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">24h Trend</span>
         </div>
       </div>
     </div>
   );
 };
 
-// ─── INSTABILITY TIMELINE ──────────────────────────────────────────────────
+// ─── INSTABILITY TIMELINE (streaming with pause) ───────────────────────────
+const MAX_STREAM_POINTS = 60;
+
 const InstabilityTimeline: React.FC<{ data: any[] }> = ({ data }) => {
+  const [paused, setPaused] = useState(false);
+  const [stream, setStream] = useState<{ time: string; value: number }[]>(() => data.slice(-MAX_STREAM_POINTS));
+  const pausedRef = React.useRef(paused);
+  pausedRef.current = paused;
+
+  // Sync from props when not paused
+  React.useEffect(() => {
+    if (!pausedRef.current) {
+      setStream(data.slice(-MAX_STREAM_POINTS));
+    }
+  }, [data]);
+
+  const latest = stream[stream.length - 1]?.value ?? 0;
+  const zone = latest > 6 ? { label: 'CRITICAL', color: '#ef4444' } : latest > 3 ? { label: 'ELEVATED', color: '#f97316' } : { label: 'STABLE', color: '#32d74b' };
+
   return (
     <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden mt-4">
       <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-        <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
-          Instability Timeline (24h) // Phase-Transition Monitoring
+        <div className="flex items-center gap-2">
+          <div className="text-[9px] font-mono text-slate-600 uppercase tracking-widest">
+            RRI Stream (24h)
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: zone.color }} />
+            <span className="text-[9px] font-mono font-bold" style={{ color: zone.color }}>{zone.label}</span>
+          </div>
         </div>
+        <button
+          onClick={() => setPaused(v => !v)}
+          aria-label={paused ? 'Resume live RRI stream' : 'Pause live RRI stream'}
+          className={'text-[9px] font-mono px-2 py-0.5 rounded border transition-all ' + (paused ? 'border-intel-orange/40 text-intel-orange bg-intel-orange/10' : 'border-white/10 text-slate-500 hover:border-intel-cyan/30 hover:text-intel-cyan')}
+        >
+          {paused ? '▶ RESUME' : '⏸ PAUSE'}
+        </button>
       </div>
-      <div className="h-48 w-full p-4">
+      <div className="h-48 w-full p-4 relative">
+        {paused && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-[9px] font-mono text-intel-orange/70 uppercase tracking-widest pointer-events-none">
+            ⏸ STREAM PAUSED
+          </div>
+        )}
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart data={stream}>
             <defs>
               <linearGradient id="instabilityGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                <stop offset="5%" stopColor={zone.color} stopOpacity={0.25} />
+                <stop offset="95%" stopColor={zone.color} stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis 
               dataKey="time" 
               axisLine={false} 
               tickLine={false} 
-              tick={{ fill: '#4a5568', fontSize: 8, fontFamily: 'monospace' }} 
+              tick={{ fill: '#4a5568', fontSize: 8, fontFamily: 'monospace' }}
+              interval="preserveStartEnd"
             />
             <YAxis 
               domain={[0, 10]} 
@@ -425,30 +462,31 @@ const InstabilityTimeline: React.FC<{ data: any[] }> = ({ data }) => {
             />
             <Tooltip
               contentStyle={{ backgroundColor: '#0a0c14', border: '1px solid #1a2332', borderRadius: '8px' }}
-              itemStyle={{ color: '#00d4ff', fontSize: '10px', fontFamily: 'monospace', fontWeight: 'bold' }}
+              itemStyle={{ color: zone.color, fontSize: '10px', fontFamily: 'monospace', fontWeight: 'bold' }}
               labelStyle={{ color: '#8a9bb0', fontSize: '8px', fontFamily: 'monospace', marginBottom: '4px' }}
             />
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#00d4ff"
+              stroke={zone.color}
               fill="url(#instabilityGradient)"
-              strokeWidth={2}
+              strokeWidth={1.5}
+              isAnimationActive={false}
             />
           </AreaChart>
         </ResponsiveContainer>
       </div>
       <div className="grid grid-cols-3 divide-x divide-white/5 border-t border-white/5">
         <div className="py-2 text-center">
-          <span className="text-[7px] font-mono text-slate-600 uppercase block">Stable Zone</span>
+          <span className="text-[9px] font-mono text-slate-600 uppercase block">Stable Zone</span>
           <span className="text-[9px] font-mono font-bold text-emerald-400">0.0 - 3.0</span>
         </div>
         <div className="py-2 text-center">
-          <span className="text-[7px] font-mono text-slate-600 uppercase block">Elevated Zone</span>
+          <span className="text-[9px] font-mono text-slate-600 uppercase block">Elevated Zone</span>
           <span className="text-[9px] font-mono font-bold text-amber-400">3.1 - 6.0</span>
         </div>
         <div className="py-2 text-center">
-          <span className="text-[7px] font-mono text-slate-600 uppercase block">Critical Zone</span>
+          <span className="text-[9px] font-mono text-slate-600 uppercase block">Critical Zone</span>
           <span className="text-[9px] font-mono font-bold text-red-400">6.1 - 10.0</span>
         </div>
       </div>
@@ -480,7 +518,7 @@ const NarrativeWarfareMonitor: React.FC<{ metrics: any }> = ({ metrics }) => {
           return (
             <div key={`narrative-bar-${i}`} className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <span className="text-[7px] font-mono text-slate-500 uppercase tracking-widest">{item.name}</span>
+                <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{item.name}</span>
                 <span className="text-[9px] font-mono font-bold" style={{ color }}>{item.value.toFixed(1)}</span>
               </div>
               <div className="h-1.5 w-full bg-[#1a2332] rounded-full overflow-hidden">
@@ -515,19 +553,19 @@ const SignalLog: React.FC<{ signals: any[] }> = ({ signals }) => {
       <div className="max-h-[300px] overflow-y-auto no-scrollbar">
         {signals.map((sig, i) => (
           <div key={`signal-log-item-${i}`} className="flex items-center gap-3 px-4 py-2.5 border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
-            <span className="text-[7px] font-mono text-slate-600 shrink-0">{sig.time}</span>
+            <span className="text-[9px] font-mono text-slate-600 shrink-0">{sig.time}</span>
             <div 
               className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse" 
               style={{ backgroundColor: sig.severity === 'critical' ? '#ff3b5c' : sig.severity === 'high' ? '#ff9f43' : sig.severity === 'medium' ? '#00d4ff' : '#00e676' }} 
             />
             <span className="text-[8px] font-mono text-slate-300 flex-1 truncate">{sig.description}</span>
             <span 
-              className="text-[7px] font-mono font-bold uppercase shrink-0" 
+              className="text-[9px] font-mono font-bold uppercase shrink-0" 
               style={{ color: sig.severity === 'critical' ? '#ff3b5c' : sig.severity === 'high' ? '#ff9f43' : '#8a9bb0' }}
             >
               {sig.severity}
             </span>
-            <span className="text-[6px] font-mono text-slate-600 uppercase whitespace-nowrap hidden sm:inline">{sig.agent}</span>
+            <span className="text-[9px] font-mono text-slate-600 uppercase whitespace-nowrap hidden sm:inline">{sig.agent}</span>
           </div>
         ))}
       </div>
@@ -829,7 +867,7 @@ const PressureRow: React.FC<{
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[11px] font-mono font-bold text-white">
+          <span className="text-[11px] font-mono font-bold text-on-surface">
             {label}
           </span>
           <span className="text-[9px] font-mono text-slate-600">({desc})</span>
@@ -1433,7 +1471,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
           ))}
           <div className="flex items-center gap-1.5 px-2 py-2 ml-auto shrink-0">
             <div className="w-1.5 h-1.5 rounded-full bg-intel-red animate-pulse" />
-            <span className="text-[7px] font-mono text-slate-600 hidden sm:inline">
+            <span className="text-[9px] font-mono text-slate-600 hidden sm:inline">
               2 NEW
             </span>
           </div>
@@ -1450,7 +1488,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       </div>
 
       {/* ── SECTION 2: NATIONAL STATUS GAUGE + POLYGON ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-white/5">
             <div className="flex items-center gap-2 text-[9px] font-mono text-slate-600 uppercase tracking-widest">
@@ -1503,7 +1541,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                 className={cn(
                   'px-2.5 py-1 text-[10px] font-mono font-bold rounded-lg transition-all shrink-0',
                   activeIndex === tab.id
-                    ? 'bg-white/10 text-white shadow-sm border border-white/20'
+                    ? 'bg-white/10 text-on-surface shadow-sm border border-white/20'
                     : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
                 )}
                 style={activeIndex === tab.id ? { borderColor: `${tab.color}40`, color: tab.color } : {}}
@@ -1571,13 +1609,13 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                     <AlertTriangle className="w-3 h-3 text-red-400 animate-pulse" />
                   )}
                 </div>
-                <p className="text-[10px] font-mono text-white leading-tight">
+                <p className="text-[10px] font-mono text-on-surface leading-tight">
                   {t.title}
                 </p>
                 <div className="space-y-1 text-[9px] font-mono text-slate-600">
                   <div className="flex justify-between">
                     <span>Confidence</span>
-                    <span className="text-white font-bold">
+                    <span className="text-on-surface font-bold">
                       {t.confidence}%
                     </span>
                   </div>
@@ -1651,20 +1689,20 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                 {/* Enhancement 7: Strategic Response Scores */}
                 <div className="flex items-center gap-3 text-right">
                   <div className="flex flex-col">
-                    <span className="text-[6px] font-mono text-slate-500 uppercase">Confidence</span>
+                    <span className="text-[9px] font-mono text-slate-500 uppercase">Confidence</span>
                     <span className="text-[9px] font-mono font-bold text-emerald-400">78%</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[6px] font-mono text-slate-500 uppercase">Impact</span>
+                    <span className="text-[9px] font-mono text-slate-500 uppercase">Impact</span>
                     <span className="text-[9px] font-mono font-bold text-red-400">HIGH</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[6px] font-mono text-intel-cyan uppercase">MC</span>
+                    <span className="text-[9px] font-mono text-intel-cyan uppercase">MC</span>
                     <div className="w-1.5 h-1.5 rounded-full bg-intel-cyan mt-0.5 mx-auto animate-pulse" />
                   </div>
                 </div>
               </div>
-              <p className="text-[11px] font-mono text-white leading-tight">
+              <p className="text-[11px] font-mono text-on-surface leading-tight">
                 {r.action}
               </p>
               <div className="text-[8px] font-mono text-slate-600 pt-1 border-t border-white/5 flex justify-between">
@@ -1677,7 +1715,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       </div>
 
       {/* ── SECTION 5: NATIONAL PRESSURE INDEX + MAP ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {/* Pressure rows */}
         <div className="glass rounded-2xl border border-intel-border/50 overflow-hidden">
           <div className="px-4 py-3 border-b border-white/5 text-[9px] font-mono text-slate-600 uppercase tracking-widest">
@@ -1780,7 +1818,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
       </div>
 
       {/* Enhancement 3 & 4 & 5 Stack */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
         <InstabilityTimeline data={(() => {
           const h = rriState?.rri_history ?? [];
           if (h.length === 0) return [{ time: '00:00', value: 0 }];
@@ -1797,6 +1835,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
           revVocabEmergence: 5.1,
           emotionalPolarization: 8.9
         }} />
+        <RRIDomainRadar />
       </div>
 
       <SignalLog signals={[
@@ -1846,7 +1885,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
           className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors"
         >
           <div className="text-left">
-            <div className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <div className="text-sm font-bold text-on-surface uppercase tracking-widest flex items-center gap-2">
               <Target className="w-4 h-4 text-intel-cyan" />
               Analyst Mode
             </div>
@@ -1919,7 +1958,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                     >
                       <Icon className="w-4 h-4 text-intel-cyan shrink-0 mt-0.5 group-hover:text-white transition-colors" />
                       <div>
-                        <div className="text-[10px] font-mono font-bold text-white">
+                        <div className="text-[10px] font-mono font-bold text-on-surface">
                           {item.label}
                         </div>
                         <div className="text-[8px] font-mono text-slate-600 mt-0.5">
@@ -1951,7 +1990,7 @@ export const NationalCommandCenter: React.FC<NationalCommandCenterProps> = ({
                       <Zap className="w-3.5 h-3.5 text-intel-cyan group-hover:animate-pulse" />
                       <div className="flex-1">
                         <div className="text-[9px] font-mono font-bold text-slate-300 uppercase tracking-tighter">{scen}</div>
-                        <div className="text-[6px] font-mono text-intel-cyan font-black">MC VALIDATED</div>
+                        <div className="text-[9px] font-mono text-intel-cyan font-black">MC VALIDATED</div>
                       </div>
                     </button>
                   ))}

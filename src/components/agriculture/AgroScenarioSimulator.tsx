@@ -108,7 +108,7 @@ export const AgroScenarioSimulator: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Zap className="w-5 h-5 text-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]" />
           <div className="flex flex-col">
-            <h3 className="text-xs font-mono text-white uppercase tracking-widest font-bold">
+            <h3 className="text-xs font-mono text-on-surface uppercase tracking-widest font-bold">
               Agro-Shock Simulator v1.0
             </h3>
             <span className="text-[8px] text-slate-500 font-mono uppercase">Strategic Scenario Modeler</span>
@@ -252,7 +252,7 @@ export const AgroScenarioSimulator: React.FC = () => {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-bold text-white uppercase tracking-tight">Intelligence Recommendation</span>
+                <span className="text-xs font-bold text-on-surface uppercase tracking-tight">Intelligence Recommendation</span>
                 <span className="text-[10px] text-slate-400">Model suggests proactive wheat procurement or subsidy hedging if BCI sustains &gt; 0.65.</span>
               </div>
             </div>

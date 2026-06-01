@@ -61,26 +61,17 @@ export const mapSystemAlertToNotification = (
   
   const message = `${alert.message} ${sourceInfo}${equationsInfo}`.trim();
 
-  // Build action if domain suggests navigation
+  // Build action — all use navigate-to-pipeline (opens DataPipeline overlay)
+  // or navigate-main for system/methodology views
   let action = undefined;
   if (alert.domain === 'POLITICAL' || alert.domain === 'SOCIAL') {
-    action = {
-      label: 'View Details',
-      event: 'navigate-to-pipeline',
-      detail: { tab: 'social' }
-    };
+    action = { label: 'View Details', event: 'navigate-to-pipeline', detail: { tab: 'pipeline' } };
   } else if (alert.domain === 'AGRICULTURE') {
-    action = {
-      label: 'View Agro',
-      event: 'navigate-to-pipeline',
-      detail: { tab: 'agro' }
-    };
-  } else if (alert.domain === 'SYSTEM') {
-    action = {
-      label: 'View System',
-      event: 'navigate-main',
-      detail: { tab: 'system' }
-    };
+    action = { label: 'View Agro', event: 'navigate-main', detail: { tab: 'agri' } };
+  } else if (alert.domain === 'SYSTEM' || alert.domain === 'SECURITY') {
+    action = { label: 'View Pipeline', event: 'navigate-to-pipeline', detail: { tab: 'pipeline' } };
+  } else if (alert.domain === 'RRI') {
+    action = { label: 'View Risk Model', event: 'navigate-to-methodology' };
   }
 
   return {

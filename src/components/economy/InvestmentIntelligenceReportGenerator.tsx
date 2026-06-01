@@ -108,7 +108,7 @@ const QueryForm: React.FC<{
       <div className="space-y-1">
         <div className="flex items-center space-x-2">
           <Target className="w-4 h-4 text-intel-orange" />
-          <span className="text-[10px] font-mono text-white uppercase tracking-widest">
+          <span className="text-[10px] font-mono text-on-surface uppercase tracking-widest">
             Generate Investment Intelligence Report
           </span>
         </div>
@@ -437,7 +437,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                     <div key={`${t.condition}-${i}`}
                       className="p-4 rounded-xl border border-intel-border/30 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-medium text-white">
+                        <span className="text-[10px] font-medium text-on-surface">
                           {t.condition}
                         </span>
                         <span className={`text-[9px] font-mono font-bold ${
@@ -499,7 +499,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                             ? 'text-yellow-500 border-yellow-500/30'
                             : 'text-intel-red border-intel-red/30'
                         }`}>{g.recommendation}</div>
-                        <span className="text-[13px] font-bold text-white">{g.name}</span>
+                        <span className="text-[13px] font-bold text-on-surface">{g.name}</span>
                         <span className="text-[8px] font-mono text-slate-600">#{i+1}</span>
                       </div>
                       <div className={`text-3xl font-bold font-mono ${
@@ -519,7 +519,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                         { label: 'Economy', val: g.economy },
                       ].map(m => (
                         <div key={m.label} className="space-y-0.5">
-                          <div className="flex justify-between text-[7px] font-mono">
+                          <div className="flex justify-between text-[9px] font-mono">
                             <span className="text-slate-700">{m.label}</span>
                             <span className={m.val >= 70 ? 'text-slate-400' :
                               m.val >= 50 ? 'text-slate-600' : 'text-intel-red/60'}>
@@ -588,7 +588,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                         </span>
                       </div>
                       <div className="text-right">
-                        <div className="text-[7px] font-mono text-slate-600">Probability</div>
+                        <div className="text-[9px] font-mono text-slate-600">Probability</div>
                         <div className={`text-2xl font-bold font-mono ${sc.color}`}>
                           {Math.round(s.probability * 100)}%
                         </div>
@@ -644,7 +644,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                           {c.title}
                         </span>
                       </div>
-                      <span className={`text-[7px] font-mono uppercase px-1.5 py-0.5
+                      <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5
                         rounded border ${scfg.color} border-current`}>
                         {c.severity}
                       </span>
@@ -691,7 +691,7 @@ const ReportDisplay: React.FC<{ report: InvestmentIntelReport }> = ({ report: r 
                   <div className="text-[8px] font-mono text-slate-600 uppercase mb-2">
                     ROI Horizon
                   </div>
-                  <div className="text-[13px] font-bold text-white">
+                  <div className="text-[13px] font-bold text-on-surface">
                     {r.sectorAnalysis.estimatedROIHorizon}
                   </div>
                 </div>
@@ -819,7 +819,7 @@ export const InvestmentIntelligenceReportGenerator: React.FC = () => {
       <div className="space-y-1">
         <div className="flex items-center space-x-3">
           <FileText className="w-5 h-5 text-intel-orange" />
-          <h2 className="text-sm font-bold text-white uppercase tracking-[0.15em]">
+          <h2 className="text-sm font-bold text-on-surface uppercase tracking-[0.15em]">
             Investment Intelligence Reports
           </h2>
         </div>

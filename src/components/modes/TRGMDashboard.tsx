@@ -1193,7 +1193,7 @@ export const TRGMDashboard: React.FC = () => {
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-on-surface tracking-tight flex items-center gap-3">
               <Triangle className="w-6 h-6" style={{ color: stateColor }} />
               Triarchical Governance Matrix
             </h1>
@@ -1345,7 +1345,7 @@ export const TRGMDashboard: React.FC = () => {
                       style={{ borderColor: `${ng.color}20` }}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-white">
+                        <span className="text-[10px] font-mono text-on-surface">
                           {node.label}
                         </span>
                         <span
@@ -1393,7 +1393,7 @@ export const TRGMDashboard: React.FC = () => {
                       style={{ borderColor: `${ng.color}20` }}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-white">
+                        <span className="text-[10px] font-mono text-on-surface">
                           {node.label}
                         </span>
                         <span
@@ -1428,7 +1428,7 @@ export const TRGMDashboard: React.FC = () => {
         <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-bold text-white uppercase tracking-widest">
+            <span className="text-sm font-bold text-on-surface uppercase tracking-widest">
               Cascade Simulation Engine
             </span>
           </div>
@@ -1451,7 +1451,7 @@ export const TRGMDashboard: React.FC = () => {
                 className={cn(
                   "text-left p-3 rounded-xl border text-[10px] font-mono transition-all space-y-1",
                   selectedScenario?.type === s.type
-                    ? "border-purple-500/50 bg-purple-500/10 text-white"
+                    ? "border-purple-500/50 bg-purple-500/10 text-on-surface"
                     : "border-intel-border text-slate-500 hover:border-white/20 hover:text-white",
                 )}
               >
@@ -1634,7 +1634,7 @@ export const TRGMDashboard: React.FC = () => {
           onClick={() => setShowEquations(!showEquations)}
           className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors"
         >
-          <div className="flex items-center gap-2 text-sm font-bold text-white">
+          <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
             <Info className="w-4 h-4 text-intel-cyan" />
             Mathematical Core — TRGM Equations
           </div>
@@ -1710,7 +1710,7 @@ export const TRGMDashboard: React.FC = () => {
           onClick={() => setShowNodes(!showNodes)}
           className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors"
         >
-          <div className="flex items-center gap-2 text-sm font-bold text-white">
+          <div className="flex items-center gap-2 text-sm font-bold text-on-surface">
             <Triangle className="w-4 h-4 text-intel-cyan" />
             Tunisia Node Taxonomy — Layer 0 Full Table
           </div>
@@ -1768,7 +1768,7 @@ export const TRGMDashboard: React.FC = () => {
                           >
                             {node.pole}
                           </td>
-                          <td className="py-2 pr-3 text-white">{node.label}</td>
+                          <td className="py-2 pr-3 text-on-surface">{node.label}</td>
                           <td className="py-2 pr-3 text-red-400">{node.F}</td>
                           <td className="py-2 pr-3 text-yellow-400">
                             {node.N}

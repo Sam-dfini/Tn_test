@@ -604,10 +604,10 @@ export const StrategicModeling: React.FC = () => {
         overflow-x-auto scrollbar-hide">
         <span className="text-slate-500 shrink-0">Live baseline:</span>
         <span className="shrink-0">
-          R(t) = <strong className="text-white">{rriState.rri.toFixed(4)}</strong>
+          R(t) = <strong className="text-on-surface">{rriState.rri.toFixed(4)}</strong>
         </span>
         <span className="shrink-0">
-          P_rev = <strong className="text-white">{(rriState.p_rev*100).toFixed(1)}%</strong>
+          P_rev = <strong className="text-on-surface">{(rriState.p_rev*100).toFixed(1)}%</strong>
         </span>
         <span className="shrink-0">
           V(t) = <strong className={rriState.velocity > 0 ? 'text-intel-red' : 'text-intel-cyan'}>
@@ -697,7 +697,7 @@ export const StrategicModeling: React.FC = () => {
             <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
               <Layers className="w-5 h-5 text-intel-purple" />
               <div className="space-y-1">
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">
+                <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">
                   Multi-Framework Intelligence
                 </h3>
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest">
@@ -773,7 +773,7 @@ export const StrategicModeling: React.FC = () => {
                     </span>
                     {f.badge !== null && (
                       <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full
-                        bg-intel-red text-white text-[7px] font-bold flex items-center
+                        bg-intel-red text-on-surface text-[9px] font-bold flex items-center
                         justify-center">
                         {f.badge}
                       </div>
@@ -867,7 +867,7 @@ export const StrategicModeling: React.FC = () => {
                               <span className={`text-[10px] font-bold ${
                                 c.severity === 'HIGH' ? 'text-intel-red' : 'text-intel-orange'
                               }`}>{c.title}</span>
-                              <span className={`text-[7px] font-mono uppercase px-1.5
+                              <span className={`text-[9px] font-mono uppercase px-1.5
                                 py-0.5 rounded border ${
                                 c.severity === 'HIGH'
                                   ? 'border-intel-red/30 text-intel-red'
@@ -1094,7 +1094,7 @@ export const StrategicModeling: React.FC = () => {
                                 }`}>
                                   {s.active ? '●' : s.passed ? '✓' : '○'}
                                 </div>
-                                <div className={`text-[7px] font-mono uppercase mt-2
+                                <div className={`text-[9px] font-mono uppercase mt-2
                                   leading-tight ${s.active ? color : 'text-slate-700'}`}>
                                   {s.label}
                                   {s.active && ' ← NOW'}
@@ -1275,7 +1275,7 @@ export const StrategicModeling: React.FC = () => {
                                 }`} style={{ width: `${g.risk}%` }} />
                               </div>
                               {g.dayToActivation && (
-                                <div className="text-[7px] font-mono text-slate-700">
+                                <div className="text-[9px] font-mono text-slate-700">
                                   ~{g.dayToActivation}d to activation
                                 </div>
                               )}
@@ -1377,21 +1377,21 @@ export const StrategicModeling: React.FC = () => {
                             }`}>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-[10px] font-bold text-white truncate">
+                                  <span className="text-[10px] font-bold text-on-surface truncate">
                                     {a.name}
                                   </span>
-                                  <span className="text-[7px] font-mono text-slate-600 uppercase">
+                                  <span className="text-[9px] font-mono text-slate-600 uppercase">
                                     {a.influence}
                                   </span>
                                 </div>
                               </div>
                               <div className="flex items-center space-x-3 shrink-0">
                                 <div className="text-right">
-                                  <div className="text-[7px] font-mono text-slate-700">Loyalty</div>
+                                  <div className="text-[9px] font-mono text-slate-700">Loyalty</div>
                                   <div className="text-[9px] font-mono text-slate-400">{a.loyalty}%</div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-[7px] font-mono text-slate-700">Defect risk</div>
+                                  <div className="text-[9px] font-mono text-slate-700">Defect risk</div>
                                   <div className={`text-[9px] font-mono ${
                                     a.defectionRisk >= 60 ? 'text-intel-red font-bold' :
                                     a.defectionRisk >= 40 ? 'text-intel-orange' : 'text-slate-400'
@@ -1429,7 +1429,7 @@ export const StrategicModeling: React.FC = () => {
         <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
           <Zap className="w-5 h-5 text-intel-cyan" />
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Crisis Simulator</h3>
+            <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Crisis Simulator</h3>
             <p className="text-[10px] text-slate-500 uppercase">Toggle events to model combined effect on RRI score</p>
           </div>
         </div>
@@ -1446,7 +1446,7 @@ export const StrategicModeling: React.FC = () => {
               {/* Baseline */}
               <div className="text-[9px] font-mono text-slate-500
                 uppercase tracking-widest mb-1">Baseline P_rev</div>
-              <div className="text-3xl font-bold font-mono text-white mb-1">
+              <div className="text-3xl font-bold font-mono text-on-surface mb-1">
                 {(rriState.p_rev * 100).toFixed(1)}%
               </div>
               <div className="text-[9px] font-mono text-slate-600 mb-4">
@@ -1582,7 +1582,7 @@ export const StrategicModeling: React.FC = () => {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className={`text-xs font-bold uppercase tracking-tight ${activeEvents.includes(event.id) ? 'text-intel-red' : 'text-white'}`}>
+                      <span className={`text-xs font-bold uppercase tracking-tight ${activeEvents.includes(event.id) ? 'text-intel-red' : 'text-on-surface'}`}>
                         {event.label}
                       </span>
                       <span className="text-[10px] font-mono text-intel-red">+{event.impact} RRI</span>
@@ -1638,7 +1638,7 @@ export const StrategicModeling: React.FC = () => {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className={`text-xs font-bold uppercase tracking-tight ${activeEvents.includes(event.id) ? 'text-intel-green' : 'text-white'}`}>
+                      <span className={`text-xs font-bold uppercase tracking-tight ${activeEvents.includes(event.id) ? 'text-intel-green' : 'text-on-surface'}`}>
                         {event.label}
                       </span>
                       <span className="text-[10px] font-mono text-intel-green">{event.impact} RRI</span>
@@ -1661,7 +1661,7 @@ export const StrategicModeling: React.FC = () => {
           border-intel-border pb-4">
           <Users className="w-5 h-5 text-intel-cyan" />
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white uppercase
+            <h3 className="text-lg font-bold text-on-surface uppercase
               tracking-tight">Coalition Stability Monitor</h3>
             <p className="text-[10px] text-slate-500 uppercase">
               Selectorate theory — who is in the winning coalition
@@ -1719,7 +1719,7 @@ export const StrategicModeling: React.FC = () => {
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
                     <span className="text-base">{group.icon}</span>
-                    <span className="text-xs font-bold text-white uppercase">
+                    <span className="text-xs font-bold text-on-surface uppercase">
                       {group.group}
                     </span>
                   </div>
@@ -1750,7 +1750,7 @@ export const StrategicModeling: React.FC = () => {
               <div className="space-y-1">
                 <div className="flex justify-between text-[8px] font-mono">
                   <span className="text-slate-600">Loyalty</span>
-                  <span className="text-white">{group.loyalty}%</span>
+                  <span className="text-on-surface">{group.loyalty}%</span>
                 </div>
                 <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
                   <div
@@ -1890,7 +1890,7 @@ export const StrategicModeling: React.FC = () => {
             <div className="flex items-center space-x-3">
               <TrendingUp className="w-5 h-5 text-intel-cyan" />
               <div className="space-y-1">
-                <h3 className="text-lg font-bold text-white uppercase tracking-tight">Predictive Engine</h3>
+                <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Predictive Engine</h3>
                 <p className="text-[10px] text-slate-500 uppercase">RRI 6-Month Forecast — Scenario Comparison</p>
               </div>
             </div>
@@ -1929,7 +1929,7 @@ export const StrategicModeling: React.FC = () => {
               <div key={i} className={`p-4 rounded-xl bg-white/5 border ${scenario.color}`}>
                 <div className="text-[8px] font-mono text-slate-500 uppercase mb-1">{scenario.label}</div>
                 <div className="flex items-end justify-between">
-                  <div className="text-xl font-bold text-white">{scenario.prob}</div>
+                  <div className="text-xl font-bold text-on-surface">{scenario.prob}</div>
                   <div className="text-[10px] font-mono text-slate-400">RRI: {scenario.rri}</div>
                 </div>
               </div>
@@ -1942,7 +1942,7 @@ export const StrategicModeling: React.FC = () => {
           <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
             <Target className="w-5 h-5 text-intel-orange" />
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-white uppercase tracking-tight">Probability Matrix</h3>
+              <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Probability Matrix</h3>
               <p className="text-[10px] text-slate-500 uppercase">Key Event Likelihood & Triggers</p>
             </div>
           </div>
@@ -1952,10 +1952,10 @@ export const StrategicModeling: React.FC = () => {
               <div key={i} className="space-y-2">
                 <div className="flex justify-between items-end">
                   <div className="space-y-0.5">
-                    <div className="text-[10px] font-bold text-white uppercase tracking-tight">{item.event}</div>
+                    <div className="text-[10px] font-bold text-on-surface uppercase tracking-tight">{item.event}</div>
                     <div className="text-[8px] font-mono text-slate-500 uppercase">Trigger: {item.trigger}</div>
                   </div>
-                  <div className="text-sm font-bold font-mono text-white">{item.prob}%</div>
+                  <div className="text-sm font-bold font-mono text-on-surface">{item.prob}%</div>
                 </div>
                 <div className="h-1 w-full bg-intel-border rounded-full overflow-hidden">
                   <motion.div 
@@ -1979,7 +1979,7 @@ export const StrategicModeling: React.FC = () => {
         <div className="flex items-center space-x-3 border-b border-intel-border pb-4">
           <Brain className="w-5 h-5 text-intel-purple" />
           <div className="space-y-1">
-            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Game Theory Analysis</h3>
+            <h3 className="text-lg font-bold text-on-surface uppercase tracking-tight">Game Theory Analysis</h3>
             <p className="text-[10px] text-slate-500 uppercase">Strategic interaction modelling of key political-economic conflicts</p>
           </div>
         </div>
@@ -1990,7 +1990,7 @@ export const StrategicModeling: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <div className="text-[10px] font-mono text-intel-purple uppercase">Chicken Game</div>
-                <h4 className="text-xl font-bold text-white tracking-tight">Subsidy Reform Game</h4>
+                <h4 className="text-xl font-bold text-on-surface tracking-tight">Subsidy Reform Game</h4>
                 <p className="text-xs text-slate-500">Players: Saied Government vs. UGTT / Citizens</p>
               </div>
               <div className="w-2 h-2 rounded-full bg-intel-red animate-pulse"></div>
@@ -2037,7 +2037,7 @@ export const StrategicModeling: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <div className="text-[10px] font-mono text-intel-purple uppercase">Coordination Failure</div>
-                <h4 className="text-xl font-bold text-white tracking-tight">Regime Survival vs. Opposition</h4>
+                <h4 className="text-xl font-bold text-on-surface tracking-tight">Regime Survival vs. Opposition</h4>
                 <p className="text-xs text-slate-500">Players: Saied Regime vs. Fragmented Opposition</p>
               </div>
               <div className="w-2 h-2 rounded-full bg-intel-purple animate-pulse"></div>
@@ -2086,7 +2086,7 @@ export const StrategicModeling: React.FC = () => {
                 <div className="text-[10px] font-mono text-intel-purple uppercase">
                   Three-Player Coordination Game
                 </div>
-                <h4 className="text-xl font-bold text-white tracking-tight">
+                <h4 className="text-xl font-bold text-on-surface tracking-tight">
                   Regime × UGTT × Military
                 </h4>
                 <p className="text-xs text-slate-500">
@@ -2152,7 +2152,7 @@ export const StrategicModeling: React.FC = () => {
                     },
                   ].map((row, rowI) => (
                     <tr key={rowI}>
-                      <td className="p-3 font-bold text-white border border-intel-border/30 bg-black/10 uppercase text-[9px]">
+                      <td className="p-3 font-bold text-on-surface border border-intel-border/30 bg-black/10 uppercase text-[9px]">
                         {row.label}
                       </td>
                       {row.cells.map((cell, cellI) => (
@@ -2160,7 +2160,7 @@ export const StrategicModeling: React.FC = () => {
                           <div className={`text-[8px] font-mono ${cell.color} leading-relaxed whitespace-pre-line`}>
                             {cell.content}
                           </div>
-                          <div className={`mt-2 text-[7px] font-bold uppercase px-1.5 py-0.5 rounded border inline-block ${
+                          <div className={`mt-2 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border inline-block ${
                             cell.outcome === 'STATUS QUO ★'
                               ? 'text-slate-400 border-slate-700 bg-slate-900'
                               : cell.outcome.includes('REVOLUTION') || cell.outcome === 'COLLAPSE'
@@ -2241,7 +2241,7 @@ export const StrategicModeling: React.FC = () => {
       <div className="p-6 bg-intel-card/30 border border-intel-border rounded-2xl flex items-start space-x-4">
         <Info className="w-5 h-5 text-slate-500 mt-0.5" />
         <div className="space-y-1">
-          <div className="text-[10px] font-bold text-white uppercase tracking-widest">Methodology Note</div>
+          <div className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Methodology Note</div>
           <p className="text-[10px] text-slate-500 leading-relaxed">
             All predictions are probabilistic estimates derived from historical precedent, current indicator analysis, and scenario modelling. They do not constitute intelligence assessments and should not be used as sole basis for decisions. The primary purpose is to structure thinking about risk, not predict specific events.
           </p>

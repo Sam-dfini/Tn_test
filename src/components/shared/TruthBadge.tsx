@@ -13,7 +13,7 @@ export const TruthBadge: React.FC<TruthBadgeProps> = ({ truthClass, size = 'sm' 
   return (
     <span
       className={`inline-flex items-center gap-1 font-mono uppercase tracking-wider rounded ${
-        size === 'sm' ? 'text-[7px] px-1.5 py-0.5' : 'text-[9px] px-2 py-1'
+        size === 'sm' ? 'text-[9px] px-1.5 py-0.5' : 'text-[9px] px-2 py-1'
       }`}
       style={{
         color,

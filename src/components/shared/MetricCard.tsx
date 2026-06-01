@@ -9,7 +9,7 @@ const colorMap: Record<MetricColor, { text: string; glow: string; ring: string }
   red:    { text: 'text-intel-red',    glow: 'shadow-[0_0_16px_rgba(255,69,58,0.3)]',    ring: 'ring-intel-red/40' },
   orange: { text: 'text-intel-orange', glow: 'shadow-[0_0_16px_rgba(255,159,10,0.3)]',   ring: 'ring-intel-orange/40' },
   green:  { text: 'text-intel-green',  glow: 'shadow-[0_0_16px_rgba(50,215,75,0.3)]',    ring: 'ring-intel-green/40' },
-  white:  { text: 'text-white',        glow: 'shadow-[0_0_16px_rgba(255,255,255,0.1)]',  ring: 'ring-white/20' },
+  white:  { text: 'text-on-surface',        glow: 'shadow-[0_0_16px_rgba(255,255,255,0.1)]',  ring: 'ring-white/20' },
   purple: { text: 'text-intel-purple', glow: 'shadow-[0_0_16px_rgba(167,139,250,0.3)]',  ring: 'ring-intel-purple/40' },
 };
 

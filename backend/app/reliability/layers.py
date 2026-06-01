@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict, Any, Optional
 import numpy as np
 from datetime import datetime, timedelta
@@ -113,27 +114,19 @@ class FeedbackSystem:
         Updates agent performance metrics and adjusts internal weights.
         """
         # 1. Update agent performance in DB
-        try:
-            # Fetch current performance
+        def _db_update():
             perf = db.table("agent_performance").select("*").eq("agent_id", agent_id).single().execute()
-            
             if perf.data:
                 total_tasks = perf.data["total_tasks"] + 1
-                # Moving average for accuracy
                 avg_accuracy = (perf.data["avg_accuracy"] * (total_tasks - 1) + accuracy_score) / total_tasks
-                
-                # 2. Reward mechanism: Recalibrate weight based on accuracy
-                # If accuracy > 0.8, increase weight. If < 0.5, decrease weight.
                 current_weight = perf.data["current_weight"]
                 if accuracy_score > 0.8:
                     current_weight = min(1.5, current_weight * 1.05)
                 elif accuracy_score < 0.5:
                     current_weight = max(0.5, current_weight * 0.95)
-                
                 status = "ACTIVE"
                 if avg_accuracy < 0.4 and total_tasks > 10:
                     status = "FLAGGED"
-
                 db.table("agent_performance").update({
                     "total_tasks": total_tasks,
                     "avg_accuracy": round(avg_accuracy, 4),
@@ -142,7 +135,6 @@ class FeedbackSystem:
                     "last_recalibrated_at": datetime.now().isoformat()
                 }).eq("agent_id", agent_id).execute()
             else:
-                # Initialize performance
                 db.table("agent_performance").insert({
                     "agent_id": agent_id,
                     "total_tasks": 1,
@@ -150,6 +142,9 @@ class FeedbackSystem:
                     "current_weight": 1.0,
                     "status": "ACTIVE"
                 }).execute()
+        try:
+            # Run sync DB ops in thread to avoid blocking the event loop
+            await asyncio.to_thread(_db_update)
         except Exception as e:
             print(f"Failed to process feedback for {agent_id}: {e}")
 

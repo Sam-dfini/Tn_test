@@ -376,7 +376,7 @@ const RRICard: React.FC<{ metric: RRIMetric }> = ({ metric }) => {
         {metric.label}
       </div>
       <div
-        className="text-3xl font-black font-mono text-white leading-none mb-3"
+        className="text-3xl font-black font-mono text-on-surface leading-none mb-3"
       >
         {metric.value}
       </div>
@@ -420,7 +420,7 @@ const SectionCard: React.FC<{ section: BriefingSection }> = ({ section }) => {
         >
           {section.icon}
           <span
-            className="text-xs font-bold tracking-wider text-white font-sans uppercase"
+            className="text-xs font-bold tracking-wider text-on-surface font-sans uppercase"
           >
             {section.name}
           </span>
@@ -494,7 +494,7 @@ const GovernorateAlertsPanel: React.FC<{ alerts: GovernorateAlert[] }> = ({ aler
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-intel-cyan" />
           <span
-            className="text-[10px] md:text-xs font-bold tracking-[0.1em] uppercase text-white font-mono"
+            className="text-[10px] md:text-xs font-bold tracking-[0.1em] uppercase text-on-surface font-mono"
           >
             Governorate Alert Matrix
           </span>
@@ -542,7 +542,7 @@ const GovernorateRow: React.FC<{
       <div className="flex items-center gap-2">
         <span className="text-sm">🇹🇳</span>
         <span
-          className="text-sm font-bold text-white font-sans"
+          className="text-sm font-bold text-on-surface font-sans"
         >
           {gov.name}
         </span>
@@ -606,7 +606,7 @@ const PhasePreviewCard: React.FC<{ preview: PhasePreview }> = ({ preview }) => {
       </div>
 
       <div
-        className="text-sm font-bold text-white font-sans mb-2"
+        className="text-sm font-bold text-on-surface font-sans mb-2"
       >
         {preview.title}
       </div>
@@ -846,7 +846,7 @@ export const DailyBriefing: React.FC = () => {
                 <Radio className="w-3 h-3" />
                 <span>Sector: Tunisia National</span>
               </div>
-              <h1 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase">
+              <h1 className="text-2xl md:text-4xl font-black text-on-surface tracking-tighter uppercase">
                 Executive Report
               </h1>
             </div>
@@ -951,7 +951,7 @@ export const DailyBriefing: React.FC = () => {
             <div className="flex items-center gap-3">
               <Zap className="w-4 h-4 text-intel-cyan" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-white font-mono uppercase tracking-widest">TunisiaIntel v2.0 // RRI ENGINE</span>
+                <span className="text-[10px] font-bold text-on-surface font-mono uppercase tracking-widest">TunisiaIntel v2.0 // RRI ENGINE</span>
                 <span className="text-[9px] text-slate-600 font-mono">System Integrity Verified · {today} · Hyper-Sync v4.1</span>
               </div>
             </div>

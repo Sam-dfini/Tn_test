@@ -86,14 +86,14 @@ export const LeverageableIdeas: React.FC = () => {
             <div key={idea.id} className="p-4 rounded-xl border border-white/5 bg-black/20 space-y-3 group hover:border-white/10 transition-all">
               <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-2">
-                  <span className="text-[7px] font-mono font-bold px-1 bg-white/5 text-slate-500 border border-white/10 rounded uppercase">
+                  <span className="text-[9px] font-mono font-bold px-1 bg-white/5 text-slate-500 border border-white/10 rounded uppercase">
                     {idea.id}
                   </span>
-                  <span className={cn("text-[7px] font-mono font-bold px-1 border rounded uppercase", idea.bgColor, idea.color, idea.borderColor)}>
+                  <span className={cn("text-[9px] font-mono font-bold px-1 border rounded uppercase", idea.bgColor, idea.color, idea.borderColor)}>
                     {idea.type}
                   </span>
                   <span className={cn(
-                    "text-[7px] font-mono font-bold px-1 border rounded uppercase",
+                    "text-[9px] font-mono font-bold px-1 border rounded uppercase",
                     idea.urgency === 'CRITICAL' ? "bg-intel-red/10 text-intel-red border-intel-red/20" :
                     idea.urgency === 'HIGH' ? "bg-intel-orange/10 text-intel-orange border-intel-orange/20" :
                     "bg-intel-cyan/10 text-intel-cyan border-intel-cyan/20"
@@ -105,7 +105,7 @@ export const LeverageableIdeas: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <div className="text-[11px] font-bold text-white uppercase tracking-tight group-hover:text-intel-cyan transition-colors">
+                <div className="text-[11px] font-bold text-on-surface uppercase tracking-tight group-hover:text-intel-cyan transition-colors">
                   {idea.title}
                 </div>
                 <p className="text-[10px] text-slate-400 leading-relaxed uppercase">
@@ -131,7 +131,7 @@ export const LeverageableIdeas: React.FC = () => {
         )}
       </div>
       
-      <div className="mt-4 pt-3 border-t border-white/5 text-[7px] font-mono text-slate-600 uppercase tracking-widest text-center">
+      <div className="mt-4 pt-3 border-t border-white/5 text-[9px] font-mono text-slate-600 uppercase tracking-widest text-center">
         Strategic intelligence derived from RRI state
       </div>
     </div>

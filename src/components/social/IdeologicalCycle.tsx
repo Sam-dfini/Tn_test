@@ -648,7 +648,7 @@ export const IdeologicalCycle: React.FC = () => {
           flex items-center justify-center text-[11px] font-bold text-intel-purple font-mono">
           06
         </div>
-        <h2 className="text-lg font-bold text-white uppercase tracking-widest">
+        <h2 className="text-lg font-bold text-on-surface uppercase tracking-widest">
           Ideological Cycle Index
         </h2>
         <span className="text-[9px] font-mono text-slate-600 ml-auto">
@@ -743,7 +743,7 @@ export const IdeologicalCycle: React.FC = () => {
                   >
                     {(selectedPhase || iciState.currentPhase).number}
                   </div>
-                  <span className="font-bold text-white text-[12px]">
+                  <span className="font-bold text-on-surface text-[12px]">
                     {(selectedPhase || iciState.currentPhase).label}
                   </span>
                 </div>
@@ -758,7 +758,7 @@ export const IdeologicalCycle: React.FC = () => {
                 {/* Transition Probability Bar (only for current phase) */}
                 {!selectedPhase && (
                   <div className="pt-2 space-y-1.5">
-                    <div className="flex justify-between text-[7px] font-mono uppercase">
+                    <div className="flex justify-between text-[9px] font-mono uppercase">
                       <span style={{ color: `${iciState.currentPhase.color}88` }}>Transition Probability</span>
                       <span style={{ color: iciState.currentPhase.color }}>{(iciState.transitionProbability * 100).toFixed(0)}%</span>
                     </div>
@@ -781,11 +781,11 @@ export const IdeologicalCycle: React.FC = () => {
                     className="pt-2 space-y-3 border-t border-white/5 mt-2"
                   >
                     <div className="space-y-1">
-                      <div className="text-[7px] font-mono text-slate-500 uppercase">Mechanism</div>
+                      <div className="text-[9px] font-mono text-slate-500 uppercase">Mechanism</div>
                       <div className="text-[9px] text-slate-400">{selectedPhase.mechanism}</div>
                     </div>
                     <div className="space-y-1">
-                      <div className="text-[7px] font-mono text-slate-500 uppercase">Tunisia Evidence</div>
+                      <div className="text-[9px] font-mono text-slate-500 uppercase">Tunisia Evidence</div>
                       <div className="text-[9px] text-slate-400">{selectedPhase.tunesiaEvidence}</div>
                     </div>
                   </motion.div>
@@ -881,7 +881,7 @@ export const IdeologicalCycle: React.FC = () => {
                       {phase.label}
                     </span>
                     {isCurrent && (
-                      <span className="text-[7px] font-mono px-1.5 py-0.5 rounded"
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded"
                         style={{
                           background: `${phase.color}22`,
                           color: phase.color,
@@ -898,7 +898,7 @@ export const IdeologicalCycle: React.FC = () => {
 
                   {/* Transition Probability Indicator */}
                   <div className="mt-1.5 space-y-1 max-w-[120px]">
-                    <div className="flex justify-between text-[6px] font-mono uppercase tracking-tighter">
+                    <div className="flex justify-between text-[9px] font-mono uppercase tracking-tighter">
                       <span style={{ color: `${phase.color}66` }}>Next Phase Pressure</span>
                       <span style={{ color: phase.color }}>
                         {((isCurrent ? iciState.transitionProbability : iciState.transitionProbability * (phase.riskMultiplier / iciState.currentPhase.riskMultiplier)) * 100).toFixed(0)}%
@@ -943,7 +943,7 @@ export const IdeologicalCycle: React.FC = () => {
                     <div className="px-4 py-4 space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[9px]">
                         <div className="space-y-2">
-                          <div className="font-mono text-slate-500 uppercase text-[7px]">
+                          <div className="font-mono text-slate-500 uppercase text-[9px]">
                             System Mechanism
                           </div>
                           <p className="text-slate-400 leading-relaxed">
@@ -951,7 +951,7 @@ export const IdeologicalCycle: React.FC = () => {
                           </p>
                         </div>
                         <div className="space-y-2">
-                          <div className="font-mono text-slate-500 uppercase text-[7px]">
+                          <div className="font-mono text-slate-500 uppercase text-[9px]">
                             Tunisia Evidence
                           </div>
                           <p className="text-slate-400 leading-relaxed">
@@ -961,7 +961,7 @@ export const IdeologicalCycle: React.FC = () => {
                       </div>
                       <div className="border-t pt-3 space-y-1"
                         style={{ borderColor: `${phase.color}15` }}>
-                        <div className="font-mono text-slate-500 uppercase text-[7px]">
+                        <div className="font-mono text-slate-500 uppercase text-[9px]">
                           Next Phase Signals
                         </div>
                         <p className="text-[9px] text-slate-500 leading-relaxed italic">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, X, Zap, Map, ShieldAlert, BarChart3, Users } from 'lucide-react';
 import { generateStableKey } from '../../lib/keyUtils';
@@ -60,8 +60,14 @@ export const Onboarding: React.FC<{ onComplete: () => void }> = ({ onComplete })
     }
   };
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-intel-bg/90 backdrop-blur-xl p-4">
+    <div className="fixed inset-0 z-modal flex items-center justify-center bg-intel-bg/90 backdrop-blur-xl p-4">
       <motion.div 
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -87,7 +93,7 @@ export const Onboarding: React.FC<{ onComplete: () => void }> = ({ onComplete })
                 {steps[currentStep].icon}
               </div>
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-white uppercase tracking-widest">
+                <h2 className="text-2xl font-bold text-on-surface uppercase tracking-widest">
                   {steps[currentStep].title}
                 </h2>
                 <p className="text-slate-400 leading-relaxed">

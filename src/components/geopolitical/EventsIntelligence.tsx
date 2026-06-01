@@ -276,7 +276,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
         <div className="space-y-1">
           <div className="flex items-center space-x-3">
             <Radio className="w-5 h-5 text-intel-cyan" />
-            <h2 className="text-sm font-bold text-white uppercase
+            <h2 className="text-sm font-bold text-on-surface uppercase
               tracking-[0.15em]">
               Event Engine // Narrative Intelligence
             </h2>
@@ -360,7 +360,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
           {
             label: 'Avg Priority',
             value: events.length > 0 ? (events.reduce((s, e) => s + (e.priority_score || 0), 0) / events.length).toFixed(1) : '0.0',
-            color: 'text-white',
+            color: 'text-on-surface',
           },
         ].map(stat => (
           <div key={stat.label}
@@ -462,7 +462,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                     {/* Title */}
                     <button 
                       onClick={() => setSelectedEvent(event)}
-                      className="text-[11px] font-bold text-white leading-snug line-clamp-2 text-left hover:text-intel-cyan transition-colors w-full"
+                      className="text-[11px] font-bold text-on-surface leading-snug line-clamp-2 text-left hover:text-intel-cyan transition-colors w-full"
                     >
                       {event.title}
                     </button>
@@ -643,7 +643,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                                 {article.source_name} · {new Date(article.published_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
-                            <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded text-[7px] font-mono border ${
+                            <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded text-[9px] font-mono border ${
                               article.bias_alignment === 'CRITICAL' ? 'text-intel-red border-intel-red/20 bg-intel-red/5' :
                               article.bias_alignment === 'PRO_GOV' ? 'text-intel-green border-intel-green/20 bg-intel-green/5' :
                               'text-slate-500 border-white/10 bg-white/5'
@@ -764,7 +764,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                             <span className={item.textColor}>
                               {item.label}
                             </span>
-                            <span className="text-white font-bold">
+                            <span className="text-on-surface font-bold">
                               {item.count}
                             </span>
                           </div>
@@ -815,7 +815,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                             <span className={item.textColor}>
                               {item.label}
                             </span>
-                            <span className="text-white font-bold">
+                            <span className="text-on-surface font-bold">
                               {item.count}
                             </span>
                           </div>
@@ -1060,7 +1060,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
                     <div className="flex items-start space-x-2 text-[9px]
                       font-mono">
                       <span className="text-slate-600">First signal:</span>
-                      <span className="text-white">
+                      <span className="text-on-surface">
                         {new Date(eventArticles[eventArticles.length - 1]
                           ?.published_at)
                           .toLocaleString('en-GB')}
@@ -1081,7 +1081,7 @@ Keep assessment direct, analyst-style, no hedging. Focus on what divergence betw
               <div className="space-y-6">
                 <div className="flex items-center space-x-3 mb-2 px-2">
                   <Globe className="w-5 h-5 text-intel-cyan animate-pulse" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest font-mono">
+                  <h3 className="text-sm font-bold text-on-surface uppercase tracking-widest font-mono">
                     Global Intelligence Stream
                   </h3>
                 </div>
