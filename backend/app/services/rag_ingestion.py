@@ -1,3 +1,4 @@
+import logging
 """
 RAG Ingestion — Chunk, embed, and upsert articles and Telegram messages.
 
@@ -15,6 +16,7 @@ import tiktoken
 
 from ..core.database import db
 from .llm_client import embed
+logger = logging.getLogger(__name__)
 
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 50
@@ -98,8 +100,8 @@ async def embed_article(article_id: str) -> int:
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }).execute()
             created += 1
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/rag_ingestion.py: %s", e)
 
     return created
 
@@ -136,7 +138,8 @@ async def embed_telegram_message(message_id: str) -> bool:
             "created_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
         return True
-    except Exception:
+    except Exception as e:
+        logger.warning("Caught exception in services/rag_ingestion.py: %s", e)
         return False
 
 
@@ -184,7 +187,8 @@ async def backfill_all_articles() -> Dict[str, int]:
                     processed += 1
                 else:
                     skipped += 1
-            except Exception:
+            except Exception as e:
+                logger.warning("Caught exception in services/rag_ingestion.py: %s", e)
                 failed += 1
 
         offset += batch_size
@@ -232,7 +236,8 @@ async def backfill_all_telegram() -> Dict[str, int]:
                     processed += 1
                 else:
                     skipped += 1
-            except Exception:
+            except Exception as e:
+                logger.warning("Caught exception in services/rag_ingestion.py: %s", e)
                 failed += 1
 
         offset += batch_size

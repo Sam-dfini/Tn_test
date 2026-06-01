@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import httpx
 import xml.etree.ElementTree as ET
@@ -17,6 +18,7 @@ from .intelligence_stream import intelligence_stream
 # However, ws.py is quite isolated.
 from ..api.ws import manager
 from .variable_pipeline import variable_pipeline
+logger = logging.getLogger(__name__)
 
 RSS_SOURCES = [
     # ── English ──────────────────────────────────────────────────
@@ -103,8 +105,8 @@ def _score_geo_relevance(title: str, content: str, source_url: str, geo_weight: 
         hostname = urlparse(source_url).hostname or ""
         if any(d in hostname for d in _TRUSTED_DOMAINS):
             return {"is_relevant": True, "score": 100, "matched_entities": ["trusted-domain"]}
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/rss_service.py: %s", e)
 
     text = f"{title} {content}".lower()
     matched = []
@@ -142,6 +144,9 @@ class RSSService:
         )
         self.last_sync_time = None
         self.sync_lock = asyncio.Lock()
+
+    async def close(self) -> None:
+        await self.client.aclose()
 
     def generate_id(self, title: str, source: str, link: str = "", guid: str = "", pub_date: str = "") -> str:
         """
@@ -239,11 +244,12 @@ class RSSService:
                 if pub_date:
                     try:
                         iso_date = email.utils.parsedate_to_datetime(pub_date).isoformat()
-                    except Exception:
+                    except Exception as e:
+                        logger.warning("Caught exception in services/rss_service.py: %s", e)
                         try:
                             iso_date = datetime.fromisoformat(pub_date.replace('Z', '+00:00')).isoformat()
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.warning("Suppressed exception in services/rss_service.py: %s", e)
                 
                 # ── GEO-RELEVANCE FILTER ──────────────────────────────
                 geo = _score_geo_relevance(

@@ -32,7 +32,7 @@ class SynthesizeRequest(BaseModel):
 # ── Search ──────────────────────────────────────────────────────────
 
 
-@router.get("/search")
+@router.get("/search", response_model=Dict[str, Any])
 async def search(
     q: str = Query(..., description="Query text"),
     limit: int = Query(10, ge=1, le=50),
@@ -71,7 +71,7 @@ async def search(
 # ── Synthesis ───────────────────────────────────────────────────────
 
 
-@router.get("/brief")
+@router.get("/brief", response_model=Dict[str, Any])
 async def get_brief():
     """Generate a full RAG-grounded intelligence brief from the current snapshot.
 
@@ -95,7 +95,7 @@ async def get_brief():
     return await generate_brief(snapshot)
 
 
-@router.post("/synthesize")
+@router.post("/synthesize", response_model=Dict[str, Any])
 async def synthesize_endpoint(req: SynthesizeRequest):
     """Full RAG pipeline: retrieve → format → generate → cite → log.
 
@@ -123,7 +123,7 @@ class IngestTelegramRequest(BaseModel):
     message_id: str
 
 
-@router.post("/ingest/article")
+@router.post("/ingest/article", response_model=Dict[str, Any])
 async def ingest_article(req: IngestArticleRequest):
     """Embed a single article (chunk + embed + upsert)."""
     try:
@@ -135,7 +135,7 @@ async def ingest_article(req: IngestArticleRequest):
         raise HTTPException(status_code=500, detail=f"Embedding failed: {e}")
 
 
-@router.post("/ingest/telegram")
+@router.post("/ingest/telegram", response_model=Dict[str, Any])
 async def ingest_telegram(req: IngestTelegramRequest):
     """Embed a single Telegram message."""
     try:
@@ -147,7 +147,7 @@ async def ingest_telegram(req: IngestTelegramRequest):
         raise HTTPException(status_code=500, detail=f"Embedding failed: {e}")
 
 
-@router.post("/ingest/backfill")
+@router.post("/ingest/backfill", response_model=Dict[str, Any])
 async def ingest_backfill():
     """Batch embed all existing articles and Telegram messages without embeddings."""
     article_result = await backfill_all_articles()

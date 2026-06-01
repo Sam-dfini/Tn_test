@@ -139,37 +139,35 @@ const AppContent: React.FC = React.memo(() => {
 
   const dataLoadedRef = useRef(false);
 
-  const getModeMessages = (m: string | null) => {
+  const getModeSteps = (m: string | null): string[] => {
     const map: Record<string, string[]> = {
       professional: [
-        'VERIFYING_ANALYST_CLEARANCE... [OK]',
-        'LOADING_RRI_ENGINE_v4.2... [OK]',
-        'ESTABLISHING_SECURE_UPLINK... [OK]',
-        'DECRYPTING_INTELLIGENCE_LEDGER... [OK]',
-        'SYNCING_PREDICTIVE_MODEL_STATE... [OK]',
-        'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]',
+        'CONFIGURING_ANALYST_INTERFACE... [OK]',
+        'BINDING_RRI_THRESHOLD_MONITORS... [OK]',
+        'MOUNTING_PREDICTIVE_MODULES... [OK]',
       ],
       brain: [
-        'INIT_COGNITIVE_INTERFACE... [OK]',
-        'LOADING_NEURAL_TOPOLOGY_ENGINE... [OK]',
-        'SYNCING_STATE_MACHINE_PHASES... [OK]',
-        'CALIBRATING_PROPAGATION_GRAPH... [OK]',
+        'CONFIGURING_COGNITIVE_INTERFACE... [OK]',
+        'MOUNTING_PROPAGATION_GRAPH_ENGINE... [OK]',
+        'BINDING_STATE_MACHINE_PHASES... [OK]',
       ],
       advanced: [
-        'INIT_OSINT_RECONNAISSANCE_MODE... [OK]',
-        'CONNECTING_RSS_INTEL_STREAMS... [OK]',
-        'SCANNING_SOCIAL_SIGNAL_CLUSTERS... [OK]',
+        'CONFIGURING_TACTICAL_INTERFACE... [OK]',
+        'MOUNTING_GEOSPATIAL_RENDERER... [OK]',
+        'ACTIVATING_OSINT_STREAM_HANDLERS... [OK]',
+      ],
+      bloomberg: [
+        'CONFIGURING_ECONOMIC_TERMINAL... [OK]',
+        'BINDING_MACRO_DATA_FEEDS... [OK]',
       ],
       agriculture: [
-        'INIT_AGRI_CLIMATE_SYSTEM... [OK]',
-        'CONNECTING_SATELLITE_NDVI_FEEDS... [OK]',
-        'LOADING_CROP_STRESS_INDICES... [OK]',
+        'CONFIGURING_AGRI_CLIMATE_INTERFACE... [OK]',
+        'MOUNTING_NDVI_SATELLITE_LAYER... [OK]',
       ],
     };
     return map[m || ''] || [
-      'ESTABLISHING_SECURE_UPLINK... [OK]',
-      'LOADING_INTELLIGENCE_CORE... [OK]',
-      'CALIBRATING_SENSOR_GRID... [OK]',
+      'CONFIGURING_INTERFACE_MODULES... [OK]',
+      'BINDING_DATA_LAYER... [OK]',
     ];
   };
 
@@ -178,31 +176,44 @@ const AppContent: React.FC = React.memo(() => {
     dataLoadedRef.current = true;
     const pipelineStart = Date.now();
 
-    const messages = getModeMessages(pendingMode);
-    const loadingDoneRef = { current: false };
-    messages.forEach((msg, i) => {
-      setTimeout(() => {
-        if (loadingDoneRef.current) return;
-        setLoadingLogs(prev => [...prev, msg]);
-        setLoadingProgress(Math.round(((i + 1) / messages.length) * 90));
-      }, i * 300);
-    });
+    const addLog = (msg: string) => setLoadingLogs(prev => [...prev, msg]);
 
-    logBootEvent('PIPELINE', 'Pipeline Load Started', pipelineStart);
+    // Step 1: Load cached platform state (synchronous localStorage read)
+    addLog('LOADING_PLATFORM_STATE_CACHE...');
+    setLoadingProgress(5);
+    loadPipelineData();
+    addLog('PLATFORM_STATE_CACHE_LOADED... [OK]');
+    setLoadingProgress(15);
+    logBootEvent('PIPELINE', 'Platform State Loaded', pipelineStart);
+
+    // Step 2: Mode-specific interface configuration
+    const modeSteps = getModeSteps(pendingMode);
+    for (let i = 0; i < modeSteps.length; i++) {
+      await new Promise(r => setTimeout(r, 80));
+      addLog(modeSteps[i]);
+      setLoadingProgress(15 + Math.round(((i + 1) / modeSteps.length) * 45));
+    }
+
+    // Step 3: Fetch RRI variable registry from backend (real network call, may retry)
+    setLoadingProgress(65);
+    logBootEvent('PIPELINE', 'Variables Init Started', pipelineStart);
+
+    // Keep progress bar moving slowly during backend retries so it never looks frozen
+    const progressTick = setInterval(() => {
+      setLoadingProgress(prev => (prev < 95 ? prev + 0.4 : prev));
+    }, 200);
 
     try {
-      await loadPipelineData();
-      logBootEvent('PIPELINE', 'Pipeline Data Loaded', pipelineStart, { success: true });
-
-      const initStart = Date.now();
-      logBootEvent('PIPELINE', 'Initializing Variables', initStart);
-      await initializeVariables();
-      logBootEvent('PIPELINE', 'Variables Initialized', initStart);
+      await initializeVariables(8, 3000, addLog);
+      logBootEvent('PIPELINE', 'Variables Initialized', pipelineStart);
     } catch (e) {
-      console.error('Pipeline data loading failed:', e);
-      logBootEvent('PIPELINE', 'Pipeline Load Failed', pipelineStart, { error: String(e) });
+      addLog('RRI_VARIABLES_FALLBACK_MODE... [WARN]');
+      logBootEvent('PIPELINE', 'Variables Init Failed', pipelineStart, { error: String(e) });
+    } finally {
+      clearInterval(progressTick);
     }
-    loadingDoneRef.current = true;
+
+    addLog('INTELLIGENCE_CORE_READY. [OK]');
     setLoadingProgress(100);
     BootMarkers.BOOT_COMPLETE();
     printBootSummary();
@@ -483,14 +494,7 @@ const AppContent: React.FC = React.memo(() => {
   return (
     <div className="min-h-screen bg-intel-bg text-slate-300 selection:bg-intel-cyan/30 selection:text-white">
       <AnimatePresence mode="wait">
-        <Suspense fallback={
-          <div className="min-h-screen bg-[#05070a] flex items-center justify-center font-mono">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 border-2 border-intel-cyan/20 border-t-intel-cyan rounded-full animate-spin" />
-              <div className="text-[10px] text-intel-cyan/50 tracking-[0.4em] animate-pulse uppercase">Syncing Intel Core...</div>
-            </div>
-          </div>
-        }>
+        <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#040609' }} />}>
           {renderMode()}
           {/* Notification triggers only active once a real mode is running */}
           {isAuthenticated && mode !== 'selection' && <ActiveModeServices />}
@@ -500,12 +504,11 @@ const AppContent: React.FC = React.memo(() => {
       {/* Global Overlays */}
       <AnimatePresence>
         {isLoading && (
-          <TacticalLoading 
+          <TacticalLoading
             key="tactical-loading"
-            onComplete={handleLoadingComplete} 
-            mode={pendingMode || mode as any} 
-            progress={loadingProgress} 
-            logs={loadingLogs} 
+            onComplete={handleLoadingComplete}
+            progress={loadingProgress}
+            logs={loadingLogs}
           />
         )}
         {showMethodology && (

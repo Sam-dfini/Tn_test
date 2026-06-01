@@ -1,6 +1,8 @@
+import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import json
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -22,7 +24,8 @@ class ConnectionManager:
         for connection in self.active_connections:
             try:
                 await connection.send_text(msg_str)
-            except Exception:
+            except Exception as e:
+                logger.warning("Caught exception in api/ws.py: %s", e)
                 dead.append(connection)
         for conn in dead:
             self.disconnect(conn)

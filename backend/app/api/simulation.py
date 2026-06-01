@@ -23,7 +23,7 @@ from ..services.simulation_engine import (
 router = APIRouter(prefix="/simulation", tags=["simulation"])
 
 
-@router.post("/run")
+@router.post("/run", response_model=Dict[str, Any])
 async def run_simulation(
     scenario_id: Optional[str] = None,
     custom_scenario: Optional[Dict[str, Any]] = None,
@@ -48,14 +48,14 @@ async def run_simulation(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/runs")
+@router.get("/runs", response_model=Dict[str, Any])
 async def list_runs(limit: int = 10, skip: int = 0):
     all_runs = list(_runs_store.values())
     sorted_runs = sorted(all_runs, key=lambda r: r.get("started_at", ""), reverse=True)
     return sorted_runs[skip : skip + limit]
 
 
-@router.get("/runs/{run_id}")
+@router.get("/runs/{run_id}", response_model=Dict[str, Any])
 async def get_run(run_id: str):
     run = _runs_store.get(run_id)
     if not run:
@@ -63,7 +63,7 @@ async def get_run(run_id: str):
     return run
 
 
-@router.get("/scenarios")
+@router.get("/scenarios", response_model=Dict[str, Any])
 async def list_scenarios(type_filter: Optional[str] = Query(None, alias="type")):
     scenarios = list(SCENARIO_LIBRARY)
     for s in _library_store:
@@ -74,7 +74,7 @@ async def list_scenarios(type_filter: Optional[str] = Query(None, alias="type"))
     return scenarios
 
 
-@router.get("/scenarios/{scenario_id}")
+@router.get("/scenarios/{scenario_id}", response_model=Dict[str, Any])
 async def get_scenario(scenario_id: str):
     for s in SCENARIO_LIBRARY:
         if s["scenario_id"] == scenario_id:
@@ -85,7 +85,7 @@ async def get_scenario(scenario_id: str):
     raise HTTPException(status_code=404, detail="Scenario not found")
 
 
-@router.post("/scenarios")
+@router.post("/scenarios", response_model=Dict[str, Any])
 async def save_scenario(scenario: Dict[str, Any]):
     if not scenario.get("scenario_id"):
         raise HTTPException(status_code=400, detail="scenario_id is required")
@@ -97,7 +97,7 @@ async def save_scenario(scenario: Dict[str, Any]):
     return scenario
 
 
-@router.get("/compare")
+@router.get("/compare", response_model=Dict[str, Any])
 async def compare_runs(run_a: str, run_b: str):
     a = _runs_store.get(run_a)
     b = _runs_store.get(run_b)

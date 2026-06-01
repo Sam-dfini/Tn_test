@@ -22,7 +22,7 @@ class RunDeliberationRequest(BaseModel):
     is_simulation: bool = False
 
 
-@router.post("/run")
+@router.post("/run", response_model=Dict[str, Any])
 async def run_deliberation(req: RunDeliberationRequest):
     """Run a full deliberation session and return the record."""
     session = await deliberation_engine.run(
@@ -36,14 +36,14 @@ async def run_deliberation(req: RunDeliberationRequest):
     return session
 
 
-@router.get("/sessions")
+@router.get("/sessions", response_model=Dict[str, Any])
 async def list_sessions(limit: int = 10):
     """List recent deliberation sessions (from in-memory store)."""
     sessions = get_sessions()
     return sorted(sessions, key=lambda s: s.get("completed_at", ""), reverse=True)[:limit]
 
 
-@router.get("/sessions/latest")
+@router.get("/sessions/latest", response_model=Dict[str, Any])
 async def latest_session():
     """Return the most recent deliberation session."""
     sessions = get_sessions()
@@ -52,7 +52,7 @@ async def latest_session():
     return max(sessions, key=lambda s: s.get("completed_at", ""))
 
 
-@router.get("/sessions/{session_id}")
+@router.get("/sessions/{session_id}", response_model=Dict[str, Any])
 async def get_session(session_id: str):
     """Return a specific session by session_id."""
     sessions = get_sessions()

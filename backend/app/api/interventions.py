@@ -45,7 +45,7 @@ class TestRequest(BaseModel):
 # Endpoints
 # ---------------------------------------------------------------------------
 
-@router.post("/run")
+@router.post("/run", response_model=Dict[str, Any])
 async def run_intervention_analysis(req: RunRequest) -> Dict[str, Any]:
     """
     Run full intervention efficiency analysis for a target outcome.
@@ -72,13 +72,13 @@ async def run_intervention_analysis(req: RunRequest) -> Dict[str, Any]:
     return result
 
 
-@router.get("/library")
+@router.get("/library", response_model=Dict[str, Any])
 def get_library() -> List[Dict[str, Any]]:
     """Return full intervention library."""
     return intervention_engine.get_library()
 
 
-@router.get("/library/{intervention_id}")
+@router.get("/library/{intervention_id}", response_model=Dict[str, Any])
 def get_intervention(intervention_id: str) -> Dict[str, Any]:
     """Return a single intervention from the library."""
     intv = intervention_engine.get_intervention(intervention_id)
@@ -87,7 +87,7 @@ def get_intervention(intervention_id: str) -> Dict[str, Any]:
     return intv
 
 
-@router.post("/test")
+@router.post("/test", response_model=Dict[str, Any])
 async def test_single_intervention(req: TestRequest) -> Dict[str, Any]:
     """
     Test a single intervention in isolation.
@@ -113,7 +113,7 @@ async def test_single_intervention(req: TestRequest) -> Dict[str, Any]:
     }
 
 
-@router.get("/runs/latest")
+@router.get("/runs/latest", response_model=Dict[str, Any])
 def get_latest_run() -> Dict[str, Any]:
     """Return the most recent intervention run."""
     run = intervention_engine.get_latest_run()
@@ -122,7 +122,7 @@ def get_latest_run() -> Dict[str, Any]:
     return run
 
 
-@router.get("/runs/{run_id}")
+@router.get("/runs/{run_id}", response_model=Dict[str, Any])
 def get_run(run_id: str) -> Dict[str, Any]:
     """Return a specific intervention run by ID."""
     run = intervention_engine.get_run(run_id)

@@ -1,3 +1,4 @@
+import logging
 """
 State Snapshot Service — Single-authority writer for national_state_snapshots.
 
@@ -15,6 +16,7 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+logger = logging.getLogger(__name__)
 
 # ── In-memory active shock store ───────────────────────────────────
 # Frontend POSTs its active signals here so write_snapshot can persist
@@ -155,8 +157,8 @@ def write_snapshot(
                     "weight": var.get("weight"),
                     "threshold_breach": var_code in breached_codes,
                 }).execute()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
 
         # WebSocket broadcast
         _broadcast_snapshot(created[0] if created else snapshot)
@@ -180,8 +182,8 @@ def write_snapshot(
             _broadcast_ontology_activation(
                 ontology_check_activation(snapshot)
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
         return snapshot
 
 
@@ -220,8 +222,8 @@ def _run_actor_postures(snapshot: Dict[str, Any]) -> None:
         try:
             postures = await actor_get_all_postures(snapshot)
             _broadcast_actor_postures(postures)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
 
     try:
         loop = asyncio.get_event_loop()
@@ -279,8 +281,8 @@ def _broadcast_ontology_activation(
                     loop.create_task(
                         orchestrator.on_chain_activated(chain["chain_id"], snapshot_for_delib)
                     )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
 
 
 def _broadcast_actor_postures(postures: List[Dict[str, Any]]) -> None:
@@ -324,8 +326,8 @@ def get_latest_snapshot() -> Optional[Dict[str, Any]]:
         )
         if res.data:
             return _deserialize(res.data[0])
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
     return None
 
 
@@ -341,8 +343,8 @@ def get_snapshot_by_version(version_id: str) -> Optional[Dict[str, Any]]:
         )
         if res.data:
             return _deserialize(res.data[0])
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/state_snapshot.py: %s", e)
     return None
 
 

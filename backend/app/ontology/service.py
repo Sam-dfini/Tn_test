@@ -1,3 +1,4 @@
+import logging
 """
 Ontology Service — Causal Intelligence Layer.
 
@@ -14,6 +15,7 @@ from typing import Any, Dict, List, Optional
 
 from ..core.database import db
 from .seed_chains import CHAINS, TRIGGER_THRESHOLDS
+logger = logging.getLogger(__name__)
 
 
 def _build_threshold_map() -> Dict[str, List[Dict[str, Any]]]:
@@ -228,8 +230,8 @@ def validate_chain(
             "confidence": chain.get("confidence", 0.0),
             "status": "active",
         }).execute()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in ontology/service.py: %s", e)
 
     # Also update in-memory
     chain["status"] = "active"

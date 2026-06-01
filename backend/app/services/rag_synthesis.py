@@ -1,3 +1,4 @@
+import logging
 """
 RAG Synthesis — Retrieve → Format → Generate → Cite → Log.
 
@@ -20,6 +21,7 @@ from uuid import uuid4
 from ..core.database import db
 from .doctrine_client import search_doctrine, workspace_suggest
 from .llm_client import generate, embed
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT_TEMPLATE = """\
 You are a structured intelligence analyst for Tunisia.
@@ -83,7 +85,8 @@ async def _search_embeddings(
                 .limit(limit * 2)
                 .execute()
             )
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/rag_synthesis.py: %s", e)
             try:
                 # Execute raw SQL using raw_query method
                 res = (
@@ -93,7 +96,8 @@ async def _search_embeddings(
                     )
                     .execute()
                 )
-            except Exception:
+            except Exception as e:
+                logger.warning("Caught exception in services/rag_synthesis.py: %s", e)
                 continue
 
         rows = res.data or []
@@ -266,7 +270,8 @@ async def synthesize(
             max_tokens=500,
             response_format="json",
         )
-    except Exception:
+    except Exception as e:
+        logger.warning("Caught exception in services/rag_synthesis.py: %s", e)
         raw_output = '{"prose": "Synthesis failed due to LLM error.", "confidence": 0.1, "insufficient_evidence": true}'
 
     # 4. Parse JSON response
@@ -319,8 +324,8 @@ async def synthesize(
             "latency_ms": elapsed,
             "created_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/rag_synthesis.py: %s", e)
 
     return {
         "prose": prose,

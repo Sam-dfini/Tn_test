@@ -46,7 +46,7 @@ export function SignalsColumn({ items, selectedId, onSelect }: ColProps) {
             <div className="mt-1.5 flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <span className="text-[9px] text-gray-600 uppercase">Decay:</span>
-                <span className="text-[9px] text-gray-400">{(((item.data.decay ?? 0) * 100).toFixed(0)}%</span>
+                <span className="text-[9px] text-gray-400">{((item.data.decay ?? 0) * 100).toFixed(0)}%</span>
               </div>
               <div className={`w-1 h-1 rounded-full ${(item.data.finalScore ?? 0) > 7 ? 'bg-red-500 animate-pulse' : 'bg-orange-500/40'}`} />
             </div>

@@ -1,3 +1,4 @@
+import logging
 """
 LLM Client — Abstract generation + embedding layer.
 
@@ -17,6 +18,7 @@ from groq import AsyncGroq
 from openai import AsyncOpenAI
 
 from ..core.config import settings
+logger = logging.getLogger(__name__)
 
 # ── Boot-time health state ──────────────────────────────────────────
 
@@ -54,7 +56,8 @@ async def check_providers() -> dict[str, bool]:
                 max_tokens=4,
             )
             return bool(resp.choices[0].message.content)
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/llm_client.py: %s", e)
             return False
 
     async def _test_openrouter() -> bool:
@@ -72,7 +75,8 @@ async def check_providers() -> dict[str, bool]:
                 max_tokens=4,
             )
             return bool(resp.choices[0].message.content)
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/llm_client.py: %s", e)
             return False
 
     groq_ok, or_ok = await asyncio.gather(_test_groq(), _test_openrouter())
@@ -220,5 +224,6 @@ async def embed(text: str) -> list[float]:
             dimensions=EMBED_DIMENSIONS,
         )
         return resp.data[0].embedding
-    except Exception:
+    except Exception as e:
+        logger.warning("Caught exception in services/llm_client.py: %s", e)
         return []

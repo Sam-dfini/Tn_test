@@ -1,3 +1,4 @@
+import logging
 """
 RRI Engine — Full Python port of src/math/rri/engine.ts (1239 lines)
 
@@ -16,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+logger = logging.getLogger(__name__)
 
 DATA_PATH = Path(__file__).parent.parent / "data" / "rri_variables.json"
 
@@ -25,7 +27,8 @@ def _load_variables() -> List[Dict[str, Any]]:
         with open(DATA_PATH) as f:
             data = json.load(f)
         return data.get("variables", [])
-    except Exception:
+    except Exception as e:
+        logger.warning("Caught exception in services/rri_engine.py: %s", e)
         return []
 
 
@@ -772,7 +775,8 @@ def calculate_model_confidence(vars: List[Dict[str, Any]]) -> float:
             days_since = (now - last_updated).total_seconds() / (86400 * 30)
             score = math.exp(-days_since / 30)
             freshness_sum += score
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/rri_engine.py: %s", e)
             freshness_sum += 0
 
     freshness = freshness_sum / len(vars)

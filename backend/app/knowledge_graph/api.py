@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from typing import Optional
+from typing import Optional, Dict, Any
 from ..core.database import db
 from .models import Entity, Relation, GraphQuery
 from .graph_db import GraphDatabase
@@ -8,13 +8,13 @@ router = APIRouter(prefix="/graph", tags=["knowledge_graph"])
 graph_db = GraphDatabase(db)
 
 
-@router.get("/entities")
+@router.get("/entities", response_model=Dict[str, Any])
 async def list_entities(type: Optional[str] = None):
     """List all entities, optionally filtered by type."""
     return await graph_db.get_entities(type)
 
 
-@router.get("/entities/{entity_id}")
+@router.get("/entities/{entity_id}", response_model=Dict[str, Any])
 async def get_entity(entity_id: str):
     """Get a single entity by ID."""
     entity = await graph_db.get_entity(entity_id)
@@ -23,19 +23,19 @@ async def get_entity(entity_id: str):
     return entity
 
 
-@router.get("/relations")
+@router.get("/relations", response_model=Dict[str, Any])
 async def list_relations(type: Optional[str] = None):
     """List all relations, optionally filtered by type."""
     return await graph_db.get_relations(type)
 
 
-@router.get("/relations/{entity_id}")
+@router.get("/relations/{entity_id}", response_model=Dict[str, Any])
 async def get_relations_for_entity(entity_id: str):
     """Get all relations involving an entity."""
     return await graph_db.get_relations_for_entity(entity_id)
 
 
-@router.post("/query")
+@router.post("/query", response_model=Dict[str, Any])
 async def query_graph(query: GraphQuery):
     """Traverse the graph: BFS from source_id with depth limit."""
     if not query.source_id and not query.action == "neighbors":
@@ -47,7 +47,7 @@ async def query_graph(query: GraphQuery):
     raise HTTPException(status_code=400, detail=f"Unknown action: {query.action}")
 
 
-@router.post("/seed")
+@router.post("/seed", response_model=Dict[str, Any])
 async def seed_graph():
     """Seed the graph from predefined entity and relation data."""
     try:

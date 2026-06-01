@@ -1,3 +1,4 @@
+import logging
 """
 Cognitive Workspace Orchestrator — Phase 9.
 
@@ -24,6 +25,7 @@ from ..core.database import db
 from ..api.ws import manager
 from .llm_client import generate
 from .state_snapshot import get_latest_snapshot
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # In-memory stores
@@ -201,8 +203,8 @@ class WorkspaceOrchestrator:
                 "message_count": 0,
             }
             await db.table("investigations").insert(data).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/workspace_orchestrator.py: %s", e)
         return record
 
     async def get_investigation(self, investigation_id: str) -> Optional[dict]:
@@ -214,8 +216,8 @@ class WorkspaceOrchestrator:
                 record = dict(resp.data[0])
                 _investigations_store[investigation_id] = record
                 return record
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/workspace_orchestrator.py: %s", e)
         return None
 
     async def list_investigations(self, user_id: str = None) -> list:
@@ -232,8 +234,8 @@ class WorkspaceOrchestrator:
                 for r in resp.data:
                     if r["investigation_id"] not in seen:
                         store_list.append(dict(r))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/workspace_orchestrator.py: %s", e)
         return sorted(store_list, key=lambda x: x.get("created_at", ""), reverse=True)
 
     async def store_message(self, investigation_id: str, message: dict) -> dict:
@@ -258,8 +260,8 @@ class WorkspaceOrchestrator:
                 "state_version_id": message.get("state_version_id"),
             }
             await db.table("investigation_messages").insert(db_msg).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/workspace_orchestrator.py: %s", e)
         return message
 
     async def get_messages(self, investigation_id: str) -> list:
@@ -281,8 +283,8 @@ class WorkspaceOrchestrator:
             if db_updates:
                 db_updates["updated_at"] = datetime.now(timezone.utc).isoformat()
                 await db.table("investigations").update(db_updates).eq("investigation_id", investigation_id).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/workspace_orchestrator.py: %s", e)
 
     async def process_query(self, query: str, investigation_id: str, user_id: str = None) -> dict:
         start_time = time.time()
@@ -559,7 +561,8 @@ RULES:
         try:
             response_text = await generate(prompt=query, system=system_prompt, response_format="json", max_tokens=500)
             synthesis = json.loads(response_text)
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/workspace_orchestrator.py: %s", e)
             synthesis = {
                 "narrative": f"Analysis of {intent} query regarding current Tunisia situation.",
                 "key_finding": "RRI at elevated levels with multiple active stress vectors.",

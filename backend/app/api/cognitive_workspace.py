@@ -33,21 +33,21 @@ class QuickRequest(BaseModel):
     macro: str
 
 
-@router.post("/investigations")
+@router.post("/investigations", response_model=Dict[str, Any])
 async def create_investigation(req: CreateInvestigationRequest):
     """Create a new investigation dossier."""
     inv = await workspace.create_investigation(title=req.title, user_id=req.user_id)
     return inv
 
 
-@router.get("/investigations")
+@router.get("/investigations", response_model=Dict[str, Any])
 async def list_investigations(user_id: str = None):
     """List all investigations for a user."""
     investigations = await workspace.list_investigations(user_id=user_id)
     return investigations
 
 
-@router.get("/investigations/{investigation_id}")
+@router.get("/investigations/{investigation_id}", response_model=Dict[str, Any])
 async def get_investigation(investigation_id: str):
     """Get an investigation with all messages."""
     inv = await workspace.get_investigation(investigation_id)
@@ -57,7 +57,7 @@ async def get_investigation(investigation_id: str):
     return {**inv, "messages": messages}
 
 
-@router.post("/investigations/{investigation_id}/query")
+@router.post("/investigations/{investigation_id}/query", response_model=Dict[str, Any])
 async def query_investigation(investigation_id: str, req: QueryRequest):
     """Submit a query to the investigation. Returns structured response envelope."""
     inv = await workspace.get_investigation(investigation_id)
@@ -73,7 +73,7 @@ async def query_investigation(investigation_id: str, req: QueryRequest):
     return envelope
 
 
-@router.post("/investigations/{investigation_id}/query/stream")
+@router.post("/investigations/{investigation_id}/query/stream", response_model=Dict[str, Any])
 async def query_investigation_stream(investigation_id: str, req: QueryRequest):
     """Submit a query, stream narrative tokens via SSE, then complete with full envelope."""
     inv = await workspace.get_investigation(investigation_id)
@@ -104,14 +104,14 @@ async def query_investigation_stream(investigation_id: str, req: QueryRequest):
     )
 
 
-@router.get("/investigations/{investigation_id}/messages")
+@router.get("/investigations/{investigation_id}/messages", response_model=Dict[str, Any])
 async def get_messages(investigation_id: str):
     """Get message history for an investigation."""
     messages = await workspace.get_messages(investigation_id)
     return messages
 
 
-@router.post("/investigations/{investigation_id}/watchlist")
+@router.post("/investigations/{investigation_id}/watchlist", response_model=Dict[str, Any])
 async def add_watchlist(investigation_id: str, req: WatchlistRequest):
     """Add an item to the investigation watchlist."""
     inv = await workspace.get_investigation(investigation_id)
@@ -123,7 +123,7 @@ async def add_watchlist(investigation_id: str, req: WatchlistRequest):
     return {"status": "ok", "watchlist": watchlist}
 
 
-@router.post("/investigations/{investigation_id}/export")
+@router.post("/investigations/{investigation_id}/export", response_model=Dict[str, Any])
 async def export_investigation(investigation_id: str):
     """Export investigation as a structured brief."""
     inv = await workspace.get_investigation(investigation_id)
@@ -143,14 +143,14 @@ async def export_investigation(investigation_id: str):
     return export
 
 
-@router.get("/blocks")
+@router.get("/blocks", response_model=Dict[str, Any])
 async def list_blocks():
     """Return the block registry."""
     blocks = workspace.__class__.BLOCK_REGISTRY_SEED
     return blocks
 
 
-@router.post("/quick")
+@router.post("/quick", response_model=Dict[str, Any])
 async def run_quick_macro(req: QuickRequest):
     """Run a predefined macro query and create a new investigation."""
     from ..services.workspace_orchestrator import MACRO_QUERIES

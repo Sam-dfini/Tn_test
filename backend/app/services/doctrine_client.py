@@ -1,3 +1,4 @@
+import logging
 """
 Doctrine Client — AnythingLLM API wrapper.
 
@@ -16,6 +17,7 @@ from typing import Any, Dict, List, Optional
 import httpx
 
 from ..core.config import settings
+logger = logging.getLogger(__name__)
 
 ANYTHINGLLM_BASE = settings.ANYTHINGLLM_BASE_URL
 ANYTHINGLLM_KEY = settings.ANYTHINGLLM_API_KEY
@@ -88,7 +90,8 @@ async def search_doctrine(
 
             except (httpx.ConnectError, httpx.TimeoutException):
                 continue
-            except Exception:
+            except Exception as e:
+                logger.warning("Caught exception in services/doctrine_client.py: %s", e)
                 continue
 
     # Sort by rerank_score descending
@@ -209,7 +212,8 @@ def _status_from_db() -> List[Dict[str, Any]]:
                 "source": "db_log",
             })
         return statuses
-    except Exception:
+    except Exception as e:
+        logger.warning("Caught exception in services/doctrine_client.py: %s", e)
         return [
             {"workspace": ws, "document_count": 0, "status": "unknown", "source": "db_log"}
             for ws in WORKSPACES

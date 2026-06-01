@@ -1,0 +1,36 @@
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["backend"]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+]
+ignore = [
+  "E501",  # line too long (handled by formatter)
+  "B008",  # do not perform function calls in argument defaults (FastAPI pattern)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/scripts/*" = ["E402", "F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true

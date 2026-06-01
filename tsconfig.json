@@ -22,6 +22,20 @@
       ]
     },
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+
+    // Strict mode — enabled incrementally
+    // noImplicitAny is enforced via ESLint (@typescript-eslint/no-explicit-any: warn)
+    // rather than tsc to avoid blocking the build while the 162 existing `any` usages
+    // are cleaned up file-by-file.
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "useUnknownInCatchVariables": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitReturns": false
   }
 }

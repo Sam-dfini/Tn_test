@@ -69,9 +69,18 @@ export const DOCUMENT_TYPES = [
 /**
  * Initializes variables from the backend database.
  */
-export const initializeVariables = async (retries = 8, delay = 3000) => {
+export const initializeVariables = async (
+  retries = 8,
+  delay = 3000,
+  onLog?: (msg: string) => void,
+) => {
   for (let i = 0; i < retries; i++) {
     try {
+      if (i === 0) {
+        onLog?.('CONNECTING_INTELLIGENCE_BACKEND...');
+      } else {
+        onLog?.(`BACKEND_TIMEOUT... RETRY ${i}/${retries} [WAIT]`);
+      }
       const response = await fetch('/api/variables');
       if (response.ok) {
         const variables = await response.json();
@@ -91,25 +100,27 @@ export const initializeVariables = async (retries = 8, delay = 3000) => {
           id: v.id || `${v.code}${v.number}`,
         }));
 
+        onLog?.(`RRI_VARIABLE_REGISTRY_LOADED... [OK]`);
         return true;
       }
-      
-      // If we got a 502/503/504, it might mean the backend is still starting
+
       if (response.status >= 502) {
+        onLog?.(`BACKEND_STARTING_UP... HTTP_${response.status} [WAIT]`);
         console.warn(`Backend starting up (Attempt ${i + 1}/${retries})...`);
       } else {
         throw new Error(`Variables fetch failed with status: ${response.status}`);
       }
     } catch (error) {
+      onLog?.(`BACKEND_UNREACHABLE... RETRY ${i + 1}/${retries} [WAIT]`);
       console.warn(`Attempt ${i + 1}/${retries} to initialize variables failed:`, error);
     }
-    
-    // Wait before next retry
+
     if (i < retries - 1) {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-  
+
+  onLog?.('BACKEND_OFFLINE... RUNNING_DEGRADED_MODE [WARN]');
   console.error('Failed to initialize variables from backend after maximum retries.');
   return false;
 };

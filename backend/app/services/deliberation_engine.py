@@ -1,3 +1,4 @@
+import logging
 """
 Deliberation Engine — High Table MVP.
 
@@ -27,6 +28,7 @@ from .actor_engine import (
     ACTOR_DOCTRINE_WORKSPACES,
 )
 from .doctrine_client import search_doctrine
+logger = logging.getLogger(__name__)
 from .llm_client import generate as llm_generate, embed
 from .rag_synthesis import _search_embeddings
 from .state_snapshot import get_latest_snapshot, get_snapshot_by_version
@@ -124,8 +126,8 @@ class DeliberationEngine:
             res = db.table("actor_profiles").select("*").eq("entity_id", entity_id).execute()
             if res.data:
                 return res.data[0]
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/deliberation_engine.py: %s", e)
         return next((p for p in PROFILES if p["entity_id"] == entity_id), None)
 
     async def _load_all_profiles(self) -> List[Dict[str, Any]]:
@@ -204,8 +206,8 @@ class DeliberationEngine:
             live_chunks = await _search_embeddings(
                 query_embedding, source="all", limit=3
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/deliberation_engine.py: %s", e)
 
         doctrine_chunks = []
         try:
@@ -216,8 +218,8 @@ class DeliberationEngine:
                     workspace=workspaces[0],
                     limit=2,
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/deliberation_engine.py: %s", e)
 
         reasoning = await self._generate_reasoning(
             actor, scenario, snapshot,
@@ -313,7 +315,8 @@ RULES:
                 "doctrine_framework_applied": parsed.get("doctrine_framework_applied", ""),
                 "confidence_rationale": parsed.get("confidence_rationale", ""),
             }
-        except Exception:
+        except Exception as e:
+            logger.warning("Caught exception in services/deliberation_engine.py: %s", e)
             return {
                 "prose": f"{actor.get('actor_name', '')} recommends {recommendation} at {confidence:.0%} confidence based on current state assessment.",
                 "supporting_actions": [],
@@ -390,8 +393,8 @@ RULES:
                     (prof for prof in PROFILES if prof["entity_id"] == p["entity_id"]),
                     None,
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Suppressed exception in services/deliberation_engine.py: %s", e)
 
             if not profile:
                 continue

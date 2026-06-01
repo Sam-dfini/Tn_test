@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -24,13 +24,13 @@ class ValidateRequest(BaseModel):
     analyst_notes: Optional[str] = None
 
 
-@router.get("/chains")
+@router.get("/chains", response_model=Dict[str, Any])
 async def list_chains():
     """List all 12 causal chains with metadata."""
     return get_all_chains()
 
 
-@router.get("/chains/{chain_id}")
+@router.get("/chains/{chain_id}", response_model=Dict[str, Any])
 async def get_chain_endpoint(chain_id: str):
     """Get a single causal chain by ID."""
     chain = get_chain(chain_id)
@@ -39,7 +39,7 @@ async def get_chain_endpoint(chain_id: str):
     return chain
 
 
-@router.get("/active")
+@router.get("/active", response_model=Dict[str, Any])
 async def get_active_chains(
     state_version_id: Optional[str] = None,
 ):
@@ -67,7 +67,7 @@ async def get_active_chains(
     return check_activation(snapshot)
 
 
-@router.get("/trace/{variable_code}")
+@router.get("/trace/{variable_code}", response_model=Dict[str, Any])
 async def trace_variable_endpoint(variable_code: str):
     """Trace a variable through all chains that reference it.
 
@@ -76,7 +76,7 @@ async def trace_variable_endpoint(variable_code: str):
     return trace_variable(variable_code)
 
 
-@router.post("/validate")
+@router.post("/validate", response_model=Dict[str, Any])
 async def validate_chain_endpoint(req: ValidateRequest):
     """Mark a draft chain as validated (status -> active).
 

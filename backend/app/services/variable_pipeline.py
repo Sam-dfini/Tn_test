@@ -1,9 +1,11 @@
+import logging
 import json
 import math
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from ..core.database import db
+logger = logging.getLogger(__name__)
 
 ARTICLES_PROCESSED = 0
 VARIABLES_NUDGED = 0
@@ -16,8 +18,8 @@ def _load_variables_from_db() -> List[Dict[str, Any]]:
         result = db.table("variables").select("*").execute()
         if result.data:
             return result.data
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/variable_pipeline.py: %s", e)
     data_path = Path(__file__).parent.parent / "data" / "rri_variables.json"
     if data_path.exists():
         with open(data_path) as f:
@@ -140,8 +142,8 @@ def process_articles_batch(articles: List[Dict[str, Any]]) -> Dict[str, Any]:
 def get_pipeline_stats() -> Dict[str, Any]:
     try:
         _ensure_variable_cache()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/variable_pipeline.py: %s", e)
     return {
         "articles_processed": ARTICLES_PROCESSED,
         "variables_nudged": VARIABLES_NUDGED,

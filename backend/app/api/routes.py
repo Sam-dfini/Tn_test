@@ -1,3 +1,4 @@
+import logging
 import asyncio
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
@@ -21,12 +22,14 @@ from ..services.state_snapshot import (
     get_active_shocks,
 )
 
+logger = logging.getLogger(__name__)
+
 # from ..services.rss_service import rss_service
 
 
 router = APIRouter()
 
-@router.post("/rss/sync")
+@router.post("/rss/sync", response_model=Dict[str, Any])
 async def sync_rss_feeds(force: bool = False):
     # RSS service disabled
     return {"status": "disabled"}
@@ -42,7 +45,7 @@ async def sync_rss_feeds(force: bool = False):
     # except Exception as e:
     #     raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/articles")
+@router.get("/articles", response_model=Dict[str, Any])
 async def get_articles(limit: int = 50, category: Optional[str] = None):
     query = db.table("articles").select("*").order("published_at", desc=True).limit(limit)
     if category:
@@ -50,12 +53,12 @@ async def get_articles(limit: int = 50, category: Optional[str] = None):
     res = query.execute()
     return res.data
 
-@router.get("/events")
+@router.get("/events", response_model=Dict[str, Any])
 async def get_events(limit: int = 50):
     res = db.table("events").select("*").order("last_updated", desc=True).limit(limit).execute()
     return res.data
 
-@router.get("/rss")
+@router.get("/rss", response_model=Dict[str, Any])
 async def proxy_rss(url: str):
     """
     Proxies RSS feeds to bypass CORS and handle SSL issues.
@@ -76,7 +79,7 @@ class ExtractionRequest(BaseModel):
 class DailySyncRequest(BaseModel):
     news_items: List[Dict[str, Any]]
 
-@router.post("/extract")
+@router.post("/extract", response_model=Dict[str, Any])
 async def handle_extraction(payload: ExtractionRequest):
     """
     API endpoint for data extraction.
@@ -99,7 +102,7 @@ class NewsItem(BaseModel):
 class IntelligenceRequest(BaseModel):
     news_items: List[NewsItem]
 
-@router.post("/intelligence")
+@router.post("/intelligence", response_model=Dict[str, Any])
 async def run_intelligence(request: IntelligenceRequest):
     news_dicts = [item.model_dump() for item in request.news_items]
     state = await orchestrator.run_intelligence_loop(news_dicts)
@@ -112,7 +115,7 @@ async def run_intelligence(request: IntelligenceRequest):
         "errors": state.errors,
     }
 
-@router.get("/rri")
+@router.get("/rri", response_model=Dict[str, Any])
 async def get_current_rri():
     """
     API endpoint for retrieving the current RRI.
@@ -138,7 +141,7 @@ async def get_current_rri():
     }
 
 
-@router.post("/rri/compute")
+@router.post("/rri/compute", response_model=Dict[str, Any])
 async def compute_rri_full(overrides: Optional[Dict[str, float]] = None):
     """
     Compute RRI full state on demand. Optionally accepts pipeline field overrides.
@@ -158,7 +161,7 @@ async def compute_rri_full(overrides: Optional[Dict[str, float]] = None):
     }
 
 
-@router.get("/rri/full")
+@router.get("/rri/full", response_model=Dict[str, Any])
 async def get_full_rri_state():
     """
     Returns the complete RRI state (all 24 equations, all fields).
@@ -171,7 +174,7 @@ async def get_full_rri_state():
     return result
 
 
-@router.post("/rri/monte-carlo")
+@router.post("/rri/monte-carlo", response_model=Dict[str, Any])
 async def run_mc_simulation(overrides: Optional[Dict[str, float]] = None):
     """Run Monte Carlo simulation and return histogram + confidence intervals."""
     result = run_full_monte_carlo(overrides=overrides)
@@ -180,7 +183,7 @@ async def run_mc_simulation(overrides: Optional[Dict[str, float]] = None):
 
 # ── State Snapshots ─────────────────────────────────────────────
 
-@router.get("/state/latest")
+@router.get("/state/latest", response_model=Dict[str, Any])
 async def state_latest():
     """Return the most recent non-simulation national state snapshot."""
     snapshot = get_latest_snapshot()
@@ -189,7 +192,7 @@ async def state_latest():
     return snapshot
 
 
-@router.get("/state/{version_id}")
+@router.get("/state/{version_id}", response_model=Dict[str, Any])
 async def state_by_version(version_id: str):
     """Return a specific snapshot by state_version_id."""
     snapshot = get_snapshot_by_version(version_id)
@@ -205,13 +208,13 @@ class ActiveShocksRequest(BaseModel):
     shocks: List[Dict[str, Any]]
 
 
-@router.get("/state/active-shocks")
+@router.get("/state/active-shocks", response_model=Dict[str, Any])
 async def get_active_shocks_endpoint():
     """Return active shocks stored on the backend."""
     return {"active_shocks": get_active_shocks()}
 
 
-@router.post("/state/active-shocks")
+@router.post("/state/active-shocks", response_model=Dict[str, Any])
 async def post_active_shocks(req: ActiveShocksRequest):
     """Store active shocks from the frontend so write_snapshot persists them."""
     validated = []
@@ -230,7 +233,7 @@ async def post_active_shocks(req: ActiveShocksRequest):
     return {"status": "ok", "count": len(validated)}
 
 
-@router.get("/signals/{signal_id}")
+@router.get("/signals/{signal_id}", response_model=Dict[str, Any])
 async def get_signal(signal_id: str):
     """
     API endpoint for retrieving specific signal details.
@@ -240,7 +243,7 @@ async def get_signal(signal_id: str):
         raise HTTPException(status_code=404, detail="Signal not found")
     return result.data[0]
 
-@router.get("/correlations/{event_id}")
+@router.get("/correlations/{event_id}", response_model=Dict[str, Any])
 async def get_correlations(event_id: str):
     """
     API endpoint for retrieving event correlations.
@@ -258,7 +261,7 @@ async def get_correlations(event_id: str):
         signals = s_result.data or []
     return {"event": event, "related_signals": signals}
 
-@router.get("/anomalies")
+@router.get("/anomalies", response_model=Dict[str, Any])
 async def get_anomalies():
     """
     API endpoint for retrieving anomaly reports.
@@ -266,7 +269,7 @@ async def get_anomalies():
     result = db.table("anomalies").select("*").execute()
     return result.data
 
-@router.post("/intelligence/continuous/start")
+@router.post("/intelligence/continuous/start", response_model=Dict[str, Any])
 async def start_continuous_loop(interval: int = 300):
     """
     Manually starts the background continuous intelligence loop.
@@ -278,7 +281,7 @@ async def start_continuous_loop(interval: int = 300):
     orchestrator._continuous_task = _bg_task
     return {"status": "Continuous intelligence loop started", "interval": interval}
 
-@router.post("/intelligence/continuous/stop")
+@router.post("/intelligence/continuous/stop", response_model=Dict[str, Any])
 async def stop_continuous_loop():
     """
     Stops the background continuous intelligence loop.
@@ -286,7 +289,7 @@ async def stop_continuous_loop():
     orchestrator.stop_continuous_intelligence()
     return {"status": "Continuous intelligence loop stopped"}
 
-@router.get("/missions/{mission_id}")
+@router.get("/missions/{mission_id}", response_model=Dict[str, Any])
 async def get_mission_state(mission_id: str):
     """
     API endpoint for retrieving the state of a specific mission.
@@ -295,14 +298,14 @@ async def get_mission_state(mission_id: str):
         raise HTTPException(status_code=404, detail="Mission not found")
     return orchestrator.missions[mission_id]
 
-@router.get("/observability/status")
+@router.get("/observability/status", response_model=Dict[str, Any])
 async def get_observability_status():
     """
     API endpoint for retrieving system health and metrics.
     """
     return orchestrator.observability.get_health_status()
 
-@router.get("/agri/summary")
+@router.get("/agri/summary", response_model=Dict[str, Any])
 async def get_agri_summary():
     """
     API endpoint for retrieving the latest consolidated agricultural intelligence summary.
@@ -339,7 +342,7 @@ async def get_agri_summary():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/variables")
+@router.get("/variables", response_model=Dict[str, Any])
 async def get_variables():
     """
     API endpoint for retrieving all intelligence variables.
@@ -350,8 +353,8 @@ async def get_variables():
         result = db.table("variables").select("*").execute()
         if result.data:
             return result.data
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in api/routes.py: %s", e)
     
     # Fallback to local JSON
     import json
@@ -367,7 +370,7 @@ async def get_variables():
 class PipelineProcessRequest(BaseModel):
     articles: List[Dict[str, Any]] = []
 
-@router.get("/variables/pipeline/status")
+@router.get("/variables/pipeline/status", response_model=Dict[str, Any])
 async def get_variable_pipeline_status():
     """Returns stats from the variable pipeline."""
     try:
@@ -379,7 +382,7 @@ async def get_variable_pipeline_status():
         sys.stderr.flush()
         raise HTTPException(status_code=500, detail=f"Pipeline status error: {str(e)}")
 
-@router.get("/variables/pipeline/diag")
+@router.get("/variables/pipeline/diag", response_model=Dict[str, Any])
 async def variable_pipeline_diag():
     """Diagnostic endpoint — no DB calls, verifies router is mounted."""
     import sys
@@ -392,7 +395,7 @@ async def variable_pipeline_diag():
         "timestamp": datetime.now().isoformat(),
     }
 
-@router.post("/variables/pipeline/process")
+@router.post("/variables/pipeline/process", response_model=Dict[str, Any])
 async def run_variable_pipeline(payload: PipelineProcessRequest):
     """Manually process articles through the variable pipeline."""
     if not payload.articles:
@@ -400,13 +403,13 @@ async def run_variable_pipeline(payload: PipelineProcessRequest):
     result = variable_pipeline.process_articles_batch(payload.articles)
     return {"status": "ok", **result}
 
-@router.post("/variables/pipeline/reset")
+@router.post("/variables/pipeline/reset", response_model=Dict[str, Any])
 async def reset_variable_pipeline():
     """Reset pipeline stats."""
     variable_pipeline.reset_stats()
     return {"status": "ok"}
 
-@router.get("/observability/agents")
+@router.get("/observability/agents", response_model=Dict[str, Any])
 async def get_agent_observability():
     """
     API endpoint for retrieving AI agent status and performance.
@@ -455,36 +458,36 @@ class StateInput(BaseModel):
     sir_infected: float = 0.0
     compound_stress: float = 0.3
 
-@router.post("/state/classify")
+@router.post("/state/classify", response_model=Dict[str, Any])
 async def classify_state(inputs: StateInput):
     sm = get_state_machine()
     result = sm.classify(**inputs.model_dump())
     return result
 
-@router.get("/state/current")
+@router.get("/state/current", response_model=Dict[str, Any])
 async def current_state():
     sm = get_state_machine()
     if not sm.history:
         return {"phase": "unknown", "phase_label": "Unknown"}
     return sm.history[-1]
 
-@router.get("/state/history")
+@router.get("/state/history", response_model=Dict[str, Any])
 async def state_history(limit: int = 100):
     sm = get_state_machine()
     return sm.get_history(limit)
 
-@router.get("/state/transitions")
+@router.get("/state/transitions", response_model=Dict[str, Any])
 async def state_transitions(limit: int = 50):
     sm = get_state_machine()
     return sm.get_transition_log(limit)
 
-@router.get("/state/viterbi")
+@router.get("/state/viterbi", response_model=Dict[str, Any])
 async def state_viterbi():
     """Run Viterbi decoding on full history for smoothed state path."""
     sm = get_state_machine()
     return sm.decode_history_path()
 
-@router.get("/state/emission-table")
+@router.get("/state/emission-table", response_model=Dict[str, Any])
 async def state_emission_table():
     """Return current learned emission parameters (means & stds)."""
     sm = get_state_machine()
@@ -493,14 +496,14 @@ async def state_emission_table():
 
 # ── Telegram Collection ─────────────────────────────────────────
 
-@router.post("/telegram/collect")
+@router.post("/telegram/collect", response_model=Dict[str, Any])
 async def telegram_collect():
     """Trigger a one-time collection cycle."""
     collector = get_telegram_collector()
     result = await collector.collect()
     return result
 
-@router.post("/telegram/start")
+@router.post("/telegram/start", response_model=Dict[str, Any])
 async def telegram_start():
     """Start background collection loop (5 min interval)."""
     collector = get_telegram_collector()
@@ -509,18 +512,18 @@ async def telegram_start():
     asyncio.ensure_future(collector.run_loop(300))
     return {"status": "started"}
 
-@router.post("/telegram/stop")
+@router.post("/telegram/stop", response_model=Dict[str, Any])
 async def telegram_stop():
     collector = get_telegram_collector()
     collector.stop()
     return {"status": "stopped"}
 
-@router.get("/telegram/status")
+@router.get("/telegram/status", response_model=Dict[str, Any])
 async def telegram_status():
     collector = get_telegram_collector()
     return collector.get_status()
 
-@router.get("/telegram/messages")
+@router.get("/telegram/messages", response_model=Dict[str, Any])
 async def telegram_messages(limit: int = 50, category: Optional[str] = None, alert_only: bool = False):
     query = db.table("telegram_messages").select("*").order("date", desc=True).limit(limit)
     if category:
@@ -536,23 +539,23 @@ async def telegram_messages(limit: int = 50, category: Optional[str] = None, ale
 class NarrativeAnalyzeRequest(BaseModel):
     hours: int = 720  # 30 days default to capture historical articles
 
-@router.post("/narrative/analyze")
+@router.post("/narrative/analyze", response_model=Dict[str, Any])
 async def narrative_analyze(req: NarrativeAnalyzeRequest):
     engine = get_narrative_engine()
     result = await engine.get_or_analyze(req.hours)
     return result
 
-@router.get("/narrative/current")
+@router.get("/narrative/current", response_model=Dict[str, Any])
 async def narrative_current():
     engine = get_narrative_engine()
     return engine.get_current_state()
 
-@router.get("/narrative/history")
+@router.get("/narrative/history", response_model=Dict[str, Any])
 async def narrative_history(limit: int = 50):
     engine = get_narrative_engine()
     return engine.get_history(limit)
 
-@router.get("/narrative/frames")
+@router.get("/narrative/frames", response_model=Dict[str, Any])
 async def narrative_frames():
     """Return all frame definitions with metadata."""
     return [
@@ -560,7 +563,7 @@ async def narrative_frames():
         for fid, fdata in FRAMES.items()
     ]
 
-@router.get("/narrative/trend/{frame_id}")
+@router.get("/narrative/trend/{frame_id}", response_model=Dict[str, Any])
 async def narrative_trend(frame_id: str, window: int = 20):
     engine = get_narrative_engine()
     return {"frame_id": frame_id, "trend": engine.get_frame_trend(frame_id, window)}
@@ -568,7 +571,7 @@ async def narrative_trend(frame_id: str, window: int = 20):
 
 # ── Signal Credibility Index ──────────────────────────────────
 
-@router.post("/sci/score")
+@router.post("/sci/score", response_model=Dict[str, Any])
 async def sci_score_text(text: str = "", source_id: str = "unknown", source_category: str = ""):
     engine = get_sci_engine()
     return engine.score_text(text, source_id, source_category)
@@ -576,19 +579,19 @@ async def sci_score_text(text: str = "", source_id: str = "unknown", source_cate
 class SCIBatchRequest(BaseModel):
     hours: int = 24
 
-@router.post("/sci/score-all")
+@router.post("/sci/score-all", response_model=Dict[str, Any])
 async def sci_score_all(req: SCIBatchRequest):
     engine = get_sci_engine()
     engine.score_recent_signals(req.hours)
     all_results = engine.get_all_scores()
     return {"total": len(all_results), "results": all_results[:200], "stats": engine.get_stats()}
 
-@router.get("/sci/status")
+@router.get("/sci/status", response_model=Dict[str, Any])
 async def sci_status():
     engine = get_sci_engine()
     return engine.get_stats()
 
-@router.get("/sci/sources")
+@router.get("/sci/sources", response_model=Dict[str, Any])
 async def sci_sources():
     engine = get_sci_engine()
     return engine.get_source_table()
@@ -599,7 +602,7 @@ async def sci_sources():
 class HeatmapRequest(BaseModel):
     hours: int = 720
 
-@router.get("/heatmap/current")
+@router.get("/heatmap/current", response_model=Dict[str, Any])
 async def heatmap_current():
     engine = get_heatmap_engine()
     cached = engine.get_cached()
@@ -608,7 +611,7 @@ async def heatmap_current():
     result = await engine.fetch_and_compute(720)
     return result
 
-@router.post("/heatmap/refresh")
+@router.post("/heatmap/refresh", response_model=Dict[str, Any])
 async def heatmap_refresh(req: HeatmapRequest):
     engine = get_heatmap_engine()
     result = await engine.fetch_and_compute(req.hours)
@@ -617,7 +620,7 @@ async def heatmap_refresh(req: HeatmapRequest):
 
 # ── Calibration Dashboard ────────────────────────────────────
 
-@router.get("/calibration/summary")
+@router.get("/calibration/summary", response_model=Dict[str, Any])
 async def calibration_summary():
     engine = get_calibration_engine()
     cached = engine.get_cached()
@@ -626,7 +629,7 @@ async def calibration_summary():
     result = await engine.compute()
     return result
 
-@router.post("/calibration/refresh")
+@router.post("/calibration/refresh", response_model=Dict[str, Any])
 async def calibration_refresh():
     engine = get_calibration_engine()
     result = await engine.compute()

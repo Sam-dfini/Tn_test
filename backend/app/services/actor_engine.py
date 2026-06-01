@@ -1,3 +1,4 @@
+import logging
 """
 Actor Engine — Compute posture and adjusted action probabilities
 for each actor profile from a state snapshot.
@@ -13,6 +14,7 @@ from typing import Any, Dict, List, Optional
 
 from ..core.database import db
 from ..actors.seed_profiles import PROFILES
+logger = logging.getLogger(__name__)
 
 # ── Doctrine Workspace Bindings ─────────────────────────────────────
 # Each actor maps to one or more doctrine library workspaces.
@@ -204,8 +206,8 @@ async def get_actor_posture(
         res = db.table("actor_profiles").select("*").eq("entity_id", entity_id).execute()
         if res.data:
             profile = res.data[0]
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Suppressed exception in services/actor_engine.py: %s", e)
 
     if not profile:
         profile = next((p for p in PROFILES if p["entity_id"] == entity_id), None)
@@ -304,8 +306,8 @@ async def seed_profiles_to_db() -> Dict[str, Any]:
             else:
                 db.table("actor_profiles").insert(profile).execute()
                 inserted += 1
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Suppressed exception in services/actor_engine.py: %s", e)
     return {"inserted": inserted, "updated": updated, "total": len(PROFILES)}
 
 

@@ -1,63 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Terminal, Activity, Globe, Zap } from 'lucide-react';
 import { generateStableKey } from '../../lib/keyUtils';
 
-const MODE_MESSAGES: Record<string, string[]> = {
-  professional: [
-    'VERIFYING_ANALYST_CLEARANCE...',
-    'LOADING_RRI_ENGINE_v4.2... [OK]',
-    'ESTABLISHING_SECURE_UPLINK... [OK]',
-    'DECRYPTING_INTELLIGENCE_LEDGER... [OK]',
-    'SYNCING_PREDICTIVE_MODEL_STATE... [OK]',
-    'CALIBRATING_RRI_THRESHOLD_MONITORS... [OK]',
-    'ACTIVATING_RBAC_ACCESS_CONTROLS... [OK]',
-    'PROFESSIONAL_CLEARANCE_GRANTED.',
-  ],
-  advanced: [
-    'INIT_OSINT_RECONNAISSANCE_MODE...',
-    'CONNECTING_RSS_INTEL_STREAMS... [OK]',
-    'MAPPING_GOVERNORATE_GRID_ARRAY... [OK]',
-    'SCANNING_SOCIAL_SIGNAL_CLUSTERS... [OK]',
-    'INDEXING_EVENT_TIMELINE_ENGINE... [OK]',
-    'TACTICAL_ENVIRONMENT_READY.',
-  ],
-  bloomberg: [
-    'INIT_ECONOMIC_INTELLIGENCE_TERMINAL...',
-    'FETCHING_MACRO_DATA_FEEDS... [OK]',
-    'LOADING_MARKET_ANALYSIS_ENGINE... [OK]',
-    'CALIBRATING_FX_RESERVE_MONITORS... [OK]',
-    'BLOOMBERG_MODE_ACTIVE.',
-  ],
-  agriculture: [
-    'INIT_AGRI_CLIMATE_SYSTEM...',
-    'CONNECTING_SATELLITE_NDVI_FEEDS... [OK]',
-    'LOADING_CROP_STRESS_INDICES... [OK]',
-    'CALIBRATING_RAINFALL_ANOMALY_SENSORS... [OK]',
-    'ASIL_SYSTEM_READY.',
-  ],
-  default: [
-    'INIT_KERNEL_BOOT_SEQUENCE...',
-    'ESTABLISHING_SECURE_UPLINK... [OK]',
-    'DECRYPTING_RRI_MODEL_V2.4... [OK]',
-    'FETCHING_RSS_INTEL_STREAMS... [OK]',
-    'SYNC_GEOSPATIAL_LAYERS_TUNISIA... [OK]',
-    'CALIBRATING_SENSOR_GRID_ARRAY... [OK]',
-    'ESTABLISHING_REALTIME_DATA_STREAM... [OK]',
-    'FINALIZING_OPERATIONAL_ENVIRONMENT... [OK]',
-    'SYSTEM_READY_FOR_OPERATOR_INPUT.',
-  ],
-};
+let _css = false;
+function injectFont() {
+  if (_css) return; _css = true;
+  const s = document.createElement('style');
+  s.textContent = `
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+@keyframes ti-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.15; } }
+`;
+  document.head.appendChild(s);
+}
 
 export const TacticalLoading: React.FC<{
   onComplete: () => void;
-  mode?: 'simplified' | 'advanced' | 'professional' | null;
   progress: number;
   logs: string[];
-}> = ({ onComplete, mode, progress, logs }) => {
+}> = ({ onComplete, progress, logs }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+
+  useEffect(() => { injectFont(); }, []);
 
   useEffect(() => {
     if (progress >= 100) {
@@ -83,7 +49,8 @@ export const TacticalLoading: React.FC<{
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-[#040609] z-loading flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden font-mono"
+      className="fixed inset-0 bg-[#040609] z-loading flex flex-col items-center justify-center p-4 md:p-8 overflow-hidden"
+      style={{ fontFamily: "'IBM Plex Mono', monospace" }}
     >
       {/* Background grid */}
       <div
@@ -92,9 +59,6 @@ export const TacticalLoading: React.FC<{
       />
       {/* Vignette */}
       <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, rgba(4,6,9,0.88) 100%)' }} />
-      {/* Scanline */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00f2ff]/5 to-transparent h-20 w-full animate-scanline pointer-events-none" />
-
       {/* Top bar */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 44, zIndex: 30,
@@ -110,7 +74,12 @@ export const TacticalLoading: React.FC<{
           {new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div className="w-[5px] h-[5px] rounded-full bg-[rgba(0,200,200,0.85)] shadow-[0_0_5px_rgba(0,200,200,0.6)] animate-pulse" />
+          <div style={{
+            width: 5, height: 5, borderRadius: '50%',
+            background: 'rgba(0,200,200,0.85)',
+            boxShadow: '0 0 5px rgba(0,200,200,0.6)',
+            animation: 'ti-blink 2.2s ease-in-out infinite',
+          }} />
           <span style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(0,200,200,0.5)' }}>
             SECURE UPLINK
           </span>
@@ -205,8 +174,12 @@ export const TacticalLoading: React.FC<{
           >
             <AnimatePresence>
               {logs.map((log, i) => {
-                const hasOk = log.endsWith('[OK]');
-                const message = hasOk ? log.replace(' [OK]', '') : log;
+                const badge =
+                  log.endsWith('[OK]')   ? { label: 'OK',   cls: 'text-intel-cyan bg-intel-cyan/10' } :
+                  log.endsWith('[WAIT]') ? { label: 'WAIT', cls: 'text-amber-400 bg-amber-400/10'   } :
+                  log.endsWith('[WARN]') ? { label: 'WARN', cls: 'text-amber-500 bg-amber-500/10'   } :
+                  null;
+                const message = badge ? log.replace(` [${badge.label}]`, '') : log;
                 return (
                   <motion.div
                     key={generateStableKey(null, i, 'log')}
@@ -223,9 +196,9 @@ export const TacticalLoading: React.FC<{
                         {message}
                       </span>
                     </div>
-                    {hasOk && (
-                      <span className="text-intel-cyan font-bold bg-intel-cyan/10 px-1.5 py-0.5 rounded text-[9px] shrink-0">
-                        OK
+                    {badge && (
+                      <span className={`font-bold px-1.5 py-0.5 rounded text-[9px] shrink-0 ${badge.cls}`}>
+                        {badge.label}
                       </span>
                     )}
                   </motion.div>

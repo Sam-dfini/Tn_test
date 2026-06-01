@@ -21,13 +21,13 @@ from .historical_events import HISTORICAL_EVENTS, EVENT_CHAIN_MAP
 router = APIRouter(prefix="/api/doctrine", tags=["doctrine"])
 
 
-@router.get("/status")
+@router.get("/status", response_model=Dict[str, Any])
 async def doctrine_status() -> List[Dict[str, Any]]:
     """Return document count and status per workspace."""
     return await get_workspace_status()
 
 
-@router.get("/search")
+@router.get("/search", response_model=Dict[str, Any])
 async def doctrine_search(
     query: str = Query(..., min_length=1),
     workspace: Optional[str] = Query(None),
@@ -46,7 +46,7 @@ async def doctrine_search(
     }
 
 
-@router.post("/ingest")
+@router.post("/ingest", response_model=Dict[str, Any])
 async def doctrine_ingest(
     file_path: str = Query(..., description="Absolute path to the file"),
     workspace: str = Query(..., description="Target workspace"),
@@ -65,7 +65,7 @@ async def doctrine_ingest(
     return {"status": "ingested", "file_path": file_path, "workspace": workspace}
 
 
-@router.get("/events")
+@router.get("/events", response_model=Dict[str, Any])
 async def list_events(
     chain_id: Optional[str] = Query(None),
     limit: int = Query(10, ge=1, le=50),
@@ -97,7 +97,7 @@ async def list_events(
     ]
 
 
-@router.get("/events/{event_id}")
+@router.get("/events/{event_id}", response_model=Dict[str, Any])
 async def get_event(event_id: str) -> Dict[str, Any]:
     """Return full detail for a single historical event."""
     for event in HISTORICAL_EVENTS:
